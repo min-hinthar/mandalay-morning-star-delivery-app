@@ -292,8 +292,8 @@ export default function TestDeliveryPage() {
               stop.status !== "delivered" &&
               stop.status !== "skipped" &&
               stop.stopIndex ===
-                (stops.find((s) => s.status !== "delivered" && s.status !== "skipped")
-                  ?.stopIndex ?? 0)
+                (stops.find((s) => s.status !== "delivered" && s.status !== "skipped")?.stopIndex ??
+                  0)
             }
             onClick={() => handleStopClick(stop.id)}
           />

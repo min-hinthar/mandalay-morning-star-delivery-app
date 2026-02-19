@@ -258,9 +258,7 @@ export function OnboardingWalkthroughCard({
                   <span
                     className={cn(
                       "text-sm",
-                      isComplete
-                        ? "text-text-muted line-through"
-                        : "text-text-primary font-medium"
+                      isComplete ? "text-text-muted line-through" : "text-text-primary font-medium"
                     )}
                   >
                     {milestone.label}
