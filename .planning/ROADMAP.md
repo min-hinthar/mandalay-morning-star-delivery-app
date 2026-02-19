@@ -139,13 +139,13 @@ Plans:
 3. Earnings history chart (Recharts bar/line) shows weekly and monthly trends
 4. Bottom nav includes Earnings and Schedule tabs alongside existing tabs
 5. Streak badges and performance milestones (100 deliveries, 5-star streak) display when earned
-   **Plans**: TBD
+   **Plans**: 3 plans (Wave 1: 01, Wave 2: 02 + 03 parallel)
 
 Plans:
 
-- [ ] 72-01: TBD
-- [ ] 72-02: TBD
-- [ ] 72-03: TBD
+- [ ] 72-01-PLAN.md — DB migration (pay rate), earnings API, DriverNav 5-tab expansion, route placeholders
+- [ ] 72-02-PLAN.md — Dashboard earnings card wiring, badge award logic on route completion
+- [ ] 72-03-PLAN.md — Full earnings page with chart, period toggle, per-route breakdown, badges display
 
 #### Phase 73: Driver Availability & Route Visibility
 
