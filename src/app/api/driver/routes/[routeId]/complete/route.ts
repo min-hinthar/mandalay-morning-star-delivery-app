@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { createServiceClient } from "@/lib/supabase/server";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import { completeRouteSchema } from "@/lib/validations/driver-api";
+import { checkAndAwardBadges } from "@/lib/badges";
 import type { RouteStats } from "@/types/driver";
 
 interface RouteParams {
@@ -115,10 +117,54 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       });
     }
 
+    // Award badges based on updated stats (non-blocking)
+    let newBadges: string[] = [];
+    try {
+      // Get updated driver stats for badge check
+      const { data: driverRecord } = await supabase
+        .from("drivers")
+        .select("deliveries_count, rating_avg")
+        .eq("id", driverId)
+        .returns<{ deliveries_count: number; rating_avg: number }[]>()
+        .single();
+
+      const totalDeliveries = (driverRecord?.deliveries_count ?? 0) + stats.delivered_stops;
+      const ratingAvg: number = driverRecord?.rating_avg ?? 0;
+
+      // Get current streak
+      const { data: streakData } = await supabase.rpc("calculate_driver_streak", {
+        p_driver_id: driverId,
+      });
+      const streakDays = (streakData as number) ?? 0;
+
+      // Check and award badges using service client (admin-only INSERT)
+      const serviceClient = createServiceClient();
+      newBadges = await checkAndAwardBadges(serviceClient, driverId, {
+        totalDeliveries,
+        streakDays,
+        ratingAvg,
+      });
+
+      if (newBadges.length > 0) {
+        logger.info(`Badges awarded: ${newBadges.join(", ")}`, {
+          api: "driver/routes/[routeId]/complete",
+          driverId,
+          badges: newBadges,
+        });
+      }
+    } catch (badgeError) {
+      // Badge failure should NOT block route completion
+      logger.exception(badgeError, {
+        api: "driver/routes/[routeId]/complete",
+        context: "badge_award",
+      });
+    }
+
     return NextResponse.json({
       success: true,
       completedAt,
       stats,
+      newBadges,
     });
   } catch (error) {
     logger.exception(error, { api: "driver/routes/[routeId]/complete" });
