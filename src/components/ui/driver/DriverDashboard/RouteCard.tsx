@@ -23,7 +23,7 @@ export function RouteCard({
   onStartRoute,
   onContinueRoute,
 }: RouteCardProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreference();
+  const { shouldAnimate, getSpring, isFullMotion } = useAnimationPreference();
 
   if (!route) {
     return (
@@ -32,8 +32,8 @@ export function RouteCard({
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
         transition={getSpring(spring.default)}
         className={cn(
-          "rounded-2xl bg-surface-primary p-6",
-          "shadow-card border border-border",
+          "rounded-2xl bg-surface-primary/80 sm:backdrop-blur-sm p-6",
+          "shadow-card border-2 border-border",
           "text-center"
         )}
       >
@@ -57,11 +57,11 @@ export function RouteCard({
       initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={getSpring(spring.default)}
-      whileHover={shouldAnimate ? { scale: 1.01 } : undefined}
+      whileHover={shouldAnimate ? { y: -4, scale: 1.03 } : undefined}
       whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
       className={cn(
-        "rounded-2xl bg-surface-primary overflow-hidden",
-        "shadow-card border border-border"
+        "rounded-2xl bg-surface-primary/80 sm:backdrop-blur-sm overflow-hidden",
+        "shadow-card border-2 border-border"
       )}
     >
       {/* Header */}
@@ -131,7 +131,12 @@ export function RouteCard({
       {/* Action button */}
       <div className="p-4 pt-0">
         {route.status === "planned" && (
-          <Button variant="primary" size="lg" className="w-full gap-2" onClick={onStartRoute}>
+          <Button
+            variant="primary"
+            size="lg"
+            className={cn("w-full gap-2", isFullMotion && "animate-shine-sweep")}
+            onClick={onStartRoute}
+          >
             <Zap className="w-5 h-5" />
             Start Route
           </Button>

@@ -28,6 +28,8 @@ export function NextRouteChip({ nextRouteDate }: NextRouteChipProps) {
       initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={getSpring(spring.default)}
+      whileHover={shouldAnimate ? { y: -4, scale: 1.03 } : undefined}
+      whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
     >
       <Link
         href="/driver/schedule"

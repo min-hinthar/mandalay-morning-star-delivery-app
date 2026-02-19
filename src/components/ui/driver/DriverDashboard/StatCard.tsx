@@ -35,11 +35,13 @@ export function StatCard({
       initial={shouldAnimate ? { opacity: 0, y: 20, scale: 0.9 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0, scale: 1 } : undefined}
       transition={{ ...getSpring(spring.rubbery), delay: index * 0.1 }}
-      whileHover={shouldAnimate ? { scale: 1.03, y: -4 } : undefined}
+      whileHover={shouldAnimate ? { y: -4, scale: 1.03 } : undefined}
+      whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
       className={cn(
         "relative overflow-hidden rounded-2xl",
         "bg-gradient-to-br from-accent-teal/5 to-accent-teal/10",
-        "p-4 shadow-card border border-border"
+        "sm:backdrop-blur-sm",
+        "p-4 shadow-card border-2 border-border"
       )}
     >
       {/* Background decoration */}
