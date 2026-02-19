@@ -263,10 +263,7 @@ export function CreateRouteModal({ open, onOpenChange, onSubmit }: CreateRouteMo
                     <span className="text-xs font-medium">Unassigned</span>
                   </button>
                   {drivers.map((driver) => {
-                    const available = isDriverAvailable(
-                      driver.availability ?? null,
-                      deliveryDate
-                    );
+                    const available = isDriverAvailable(driver.availability ?? null, deliveryDate);
                     return (
                       <button
                         key={driver.id}
@@ -294,9 +291,7 @@ export function CreateRouteModal({ open, onOpenChange, onSubmit }: CreateRouteMo
                         <span
                           className={cn(
                             "text-2xs px-1.5 py-0.5 rounded-full",
-                            available
-                              ? "bg-green/10 text-green"
-                              : "bg-amber-500/10 text-amber-600"
+                            available ? "bg-green/10 text-green" : "bg-amber-500/10 text-amber-600"
                           )}
                         >
                           {available ? "Available" : "Unavailable"}

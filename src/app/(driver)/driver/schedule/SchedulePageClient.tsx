@@ -25,9 +25,7 @@ export function SchedulePageClient({ routes, availability }: SchedulePageClientP
   const { shouldAnimate } = useAnimationPreference();
 
   // Availability state (interactive -- driver can change days here)
-  const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>(
-    availability?.available_days ?? []
-  );
+  const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>(availability?.available_days ?? []);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleDaysChange = useCallback(
@@ -85,9 +83,7 @@ export function SchedulePageClient({ routes, availability }: SchedulePageClientP
       <div className="space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium text-text-secondary">Your Available Days</p>
-          {isSaving && (
-            <span className="text-xs text-text-muted animate-pulse">Saving...</span>
-          )}
+          {isSaving && <span className="text-xs text-text-muted animate-pulse">Saving...</span>}
         </div>
         <DayOfWeekPills selected={selectedDays} onChange={handleDaysChange} />
       </div>

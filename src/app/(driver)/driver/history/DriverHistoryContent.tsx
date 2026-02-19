@@ -177,7 +177,11 @@ function MonthGroup({
 // MAIN COMPONENT
 // ============================================
 
-export function DriverHistoryContent({ driver, routes: initialRoutes, totalRoutes }: DriverHistoryContentProps) {
+export function DriverHistoryContent({
+  driver,
+  routes: initialRoutes,
+  totalRoutes,
+}: DriverHistoryContentProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   // State
@@ -224,9 +228,7 @@ export function DriverHistoryContent({ driver, routes: initialRoutes, totalRoute
   const handleLoadMore = useCallback(async () => {
     setIsLoadingMore(true);
     try {
-      const res = await fetch(
-        `/api/driver/routes/history?limit=${PAGE_SIZE}&offset=${offset}`
-      );
+      const res = await fetch(`/api/driver/routes/history?limit=${PAGE_SIZE}&offset=${offset}`);
       if (res.ok) {
         const data = await res.json();
         const newRoutes: HistoryRouteData[] = (data.routes ?? []).map(
