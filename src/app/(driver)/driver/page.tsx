@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { DriverDashboard } from "@/components/ui/driver/DriverDashboard";
 import { Skeleton } from "@/components/ui/skeleton/base";
 import type { RoutesRow, RouteStats, VehicleType, DriverBadgesRow } from "@/types/driver";
@@ -94,7 +94,7 @@ async function getDriverData() {
     .single();
 
   if (driverError || !driver) {
-    redirect("/?error=not_driver");
+    notFound();
   }
 
   // Get profile for full name
