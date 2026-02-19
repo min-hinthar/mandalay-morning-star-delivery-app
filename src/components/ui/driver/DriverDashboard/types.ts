@@ -35,6 +35,8 @@ export interface DriverDashboardProps {
     icon: string;
     earnedAt: string;
   }>;
+  /** Next upcoming route date (YYYY-MM-DD) */
+  nextRouteDate?: string | null;
   /** Day of week display */
   dayOfWeek: string;
   /** Date display string */

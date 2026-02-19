@@ -14,6 +14,7 @@ import { RouteCard } from "./RouteCard";
 import { BadgesDisplay } from "./BadgesDisplay";
 import { ProfileCompletenessCard } from "./ProfileCompletenessCard";
 import { EarningsSummaryCard } from "./EarningsSummaryCard";
+import { NextRouteChip } from "./NextRouteChip";
 
 export function DriverDashboard({
   driver,
@@ -22,6 +23,7 @@ export function DriverDashboard({
   todayEarningsCents = 0,
   weeklyEarningsCents = 0,
   badges = [],
+  nextRouteDate,
   dayOfWeek,
   dateDisplay,
   onStartRoute,
@@ -118,6 +120,9 @@ export function DriverDashboard({
           onStartRoute={onStartRoute ?? handleStartRoute}
           onContinueRoute={onContinueRoute ?? handleContinueRoute}
         />
+
+        {/* Next Route Chip */}
+        {nextRouteDate && <NextRouteChip nextRouteDate={nextRouteDate} />}
 
         {/* Badges */}
         {badges.length > 0 && <BadgesDisplay badges={badges} />}
