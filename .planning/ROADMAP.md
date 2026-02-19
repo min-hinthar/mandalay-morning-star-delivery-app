@@ -143,9 +143,9 @@ Plans:
 
 Plans:
 
-- [ ] 72-01-PLAN.md — DB migration (pay rate), earnings API, DriverNav 5-tab expansion, route placeholders
-- [ ] 72-02-PLAN.md — Dashboard earnings card wiring, badge award logic on route completion
-- [ ] 72-03-PLAN.md — Full earnings page with chart, period toggle, per-route breakdown, badges display
+- [x] 72-01-PLAN.md — DB migration (pay rate), earnings API, DriverNav 5-tab expansion, route placeholders — completed 2026-02-19
+- [x] 72-02-PLAN.md — Dashboard earnings card wiring, badge award logic on route completion — completed 2026-02-19
+- [x] 72-03-PLAN.md — Full earnings page with chart, period toggle, per-route breakdown, badges display — completed 2026-02-19
 
 #### Phase 73: Driver Availability & Route Visibility
 
@@ -198,9 +198,9 @@ Note: Phases 68 and 69 are parallelizable (both are infra with no UI overlap).
 | 67. CSP & Security Headers                 | v1.8      | 3/3            | ✓ Complete  | 2026-02-17 |
 | 68. RLS Audit & Hardening                  | v1.8      | 3/3            | ✓ Complete  | 2026-02-17 |
 | 69. Distributed Rate Limiting              | v1.8      | 3/3            | ✓ Complete  | 2026-02-18 |
-| 70. Role-Based Auth Redirects              | v1.8      | Complete    | 2026-02-19 | 2026-02-19 |
-| 71. Driver Profile Setup                   | v1.8      | 0/TBD          | Not started | -         |
-| 72. Driver Earnings Dashboard              | 3/3 | Complete   | 2026-02-19 | -         |
+| 70. Role-Based Auth Redirects              | v1.8      | 3/3            | ✓ Complete  | 2026-02-19 |
+| 71. Driver Profile Setup                   | v1.8      | 2/2            | ✓ Complete  | 2026-02-19 |
+| 72. Driver Earnings Dashboard              | v1.8      | 3/3            | ✓ Complete  | 2026-02-19 |
 | 73. Driver Availability & Route Visibility | v1.8      | 0/TBD          | Not started | -         |
 | 74. Guided Walkthrough & Driver UI Polish  | v1.8      | 0/TBD          | Not started | -         |
 
