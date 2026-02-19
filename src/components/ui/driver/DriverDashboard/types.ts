@@ -7,6 +7,7 @@ export interface DriverDashboardProps {
     fullName: string | null;
     phone: string | null;
     vehicleType: VehicleType | null;
+    licensePlate: string | null;
     profileImageUrl: string | null;
     deliveriesCount: number;
     ratingAvg: number;
