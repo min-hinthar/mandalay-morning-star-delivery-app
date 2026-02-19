@@ -5,16 +5,16 @@
 See: .planning/PROJECT.md (updated 2026-02-16)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 71 complete (driver profile setup). Ready for Phase 72 planning.
+**Current focus:** Phase 72 in progress (driver earnings dashboard).
 
 ## Current Position
 
-Phase: 71 of 74 (Driver Profile Setup) — COMPLETE
-Plan: 2 of 2 in current phase
-Status: Phase complete, all plans executed
-Last activity: 2026-02-19 — Phase 71 executed (2 plans, 4 tasks)
+Phase: 72 of 74 (Driver Earnings Dashboard) — IN PROGRESS
+Plan: 1 of 3 in current phase
+Status: Plan 01 complete, executing Wave 2
+Last activity: 2026-02-19 — Phase 72 Plan 01 executed (2 tasks, 8 files)
 
-Progress: [██████░░░░] ~63% (Phase 71: 2/2 plans complete)
+Progress: [██████░░░░] ~65% (Phase 72: 1/3 plans complete)
 
 ## Performance Metrics
 
@@ -84,11 +84,11 @@ None.
 - Human verification needed: OAuth sign-in, email delivery, Stripe webhook, Search Console (8 items from v1.7)
 - Upstash Redis provisioning needed via Vercel Marketplace before rate limiting is active in production
 - Sentry alert rule "Rate Limit Spike" needs manual creation in Sentry Dashboard
-- Earnings computation join path needs verification (route_stops -> orders.total_cents)
+- Earnings computation implemented (route_stops * driver_pay_per_stop_cents from app_settings)
 - Availability business rules: confirm day-of-week pattern vs Saturday-only
 
 ## Session Continuity
 
 Last session: 2026-02-19
-Stopped at: Phase 72 context gathered
-Resume file: .planning/phases/72-driver-earnings-dashboard/72-CONTEXT.md
+Stopped at: Phase 72 Plan 01 complete, executing Wave 2
+Resume file: .planning/phases/72-driver-earnings-dashboard/72-01-SUMMARY.md
