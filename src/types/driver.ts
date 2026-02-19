@@ -24,6 +24,24 @@ export type DeliveryExceptionType =
   | "other";
 
 // ===========================================
+// DRIVER AVAILABILITY
+// ===========================================
+
+export type DayOfWeek =
+  | "monday"
+  | "tuesday"
+  | "wednesday"
+  | "thursday"
+  | "friday"
+  | "saturday"
+  | "sunday";
+
+export interface DriverAvailability {
+  available_days: DayOfWeek[];
+  blocked_dates: string[]; // ISO date strings "YYYY-MM-DD"
+}
+
+// ===========================================
 // DRIVERS
 // ===========================================
 
@@ -38,6 +56,7 @@ export interface DriversRow {
   onboarding_completed_at: string | null;
   rating_avg: number;
   deliveries_count: number;
+  availability_json: DriverAvailability | null;
   created_at: string;
   updated_at: string;
 }
@@ -53,6 +72,7 @@ export interface DriversInsert {
   onboarding_completed_at?: string | null;
   rating_avg?: number;
   deliveries_count?: number;
+  availability_json?: DriverAvailability | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -68,6 +88,7 @@ export interface DriversUpdate {
   onboarding_completed_at?: string | null;
   rating_avg?: number;
   deliveries_count?: number;
+  availability_json?: DriverAvailability | null;
   created_at?: string;
   updated_at?: string;
 }
