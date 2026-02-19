@@ -91,3 +91,46 @@ const { data, error } = await supabase.auth.verifyOtp({
 **Apply when:** ANY use of `admin.generateLink()` where you need server-side session establishment or query param preservation.
 
 **Related issues:** supabase/auth-js#767, supabase/auth#1738, supabase/supabase#1915
+
+---
+
+## Idempotent RLS Migrations — DROP Must Match CREATE Name
+
+**Context:** Migration 022 used `DROP POLICY IF EXISTS "old_name"` then `CREATE POLICY "new_name"`. First run succeeded. Re-run via SQL Editor hit `42710 duplicate_object` because the DROP targeted the old name (already gone) while the new name already existed.
+
+**Learning:** Every `CREATE POLICY` must be preceded by `DROP POLICY IF EXISTS` for the **same name** being created, not just the old name being replaced.
+
+```sql
+-- BROKEN on re-run: drops old name, new name already exists
+DROP POLICY IF EXISTS "Admins can view all audit logs" ON order_audit_log;
+CREATE POLICY "order_audit_log_select" ON order_audit_log ...;
+
+-- IDEMPOTENT: drop both old and new names
+DROP POLICY IF EXISTS "Admins can view all audit logs" ON order_audit_log;
+DROP POLICY IF EXISTS "order_audit_log_select" ON order_audit_log;
+CREATE POLICY "order_audit_log_select" ON order_audit_log ...;
+```
+
+**Apply when:** Writing any migration that renames RLS policies. Always guard with both old and new names.
+
+---
+
+## RLS Initplan Wrapper Pattern — `(select func())` for Performance
+
+**Context:** Bare function calls like `is_admin()` in RLS policies are re-evaluated per row. Wrapping with `(select ...)` triggers PostgreSQL's initplan optimization — function evaluates once per query.
+
+**Learning:**
+```sql
+-- SLOW: is_admin() called per-row
+USING (is_admin())
+
+-- FAST: evaluated once via initplan
+USING ((select public.is_admin()))
+
+-- Same for auth.uid()
+USING (user_id = (select auth.uid()))
+```
+
+All RLS policies in this project use initplan wrappers. Applies to: `is_admin()`, `auth.uid()`, `get_my_driver_id()`.
+
+**Apply when:** Writing or reviewing any RLS policy that calls a function.
