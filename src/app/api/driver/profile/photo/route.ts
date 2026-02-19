@@ -72,12 +72,10 @@ export async function POST(request: NextRequest) {
     const filename = `${Date.now()}.jpg`;
     const storagePath = `${driverId}/${filename}`;
 
-    const { error: uploadError } = await supabase.storage
-      .from(BUCKET)
-      .upload(storagePath, photo, {
-        contentType: photo.type,
-        upsert: false,
-      });
+    const { error: uploadError } = await supabase.storage.from(BUCKET).upload(storagePath, photo, {
+      contentType: photo.type,
+      upsert: false,
+    });
 
     if (uploadError) {
       logger.exception(uploadError, { api: "driver/profile/photo", flowId: "upload" });
@@ -107,9 +105,7 @@ export async function POST(request: NextRequest) {
       const oldPath = extractPhotoPath(currentDriver.profile_image_url);
       if (oldPath) {
         const serviceSupabase = createServiceClient();
-        const { error: deleteError } = await serviceSupabase.storage
-          .from(BUCKET)
-          .remove([oldPath]);
+        const { error: deleteError } = await serviceSupabase.storage.from(BUCKET).remove([oldPath]);
         if (deleteError) {
           logger.warn("Failed to delete old driver photo", { oldPath, error: deleteError });
         }

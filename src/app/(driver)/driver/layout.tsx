@@ -37,7 +37,13 @@ export default async function DriverLayout({ children }: { children: React.React
     .returns<
       Pick<
         DriversRow,
-        "id" | "user_id" | "is_active" | "vehicle_type" | "rating_avg" | "deliveries_count" | "profile_image_url"
+        | "id"
+        | "user_id"
+        | "is_active"
+        | "vehicle_type"
+        | "rating_avg"
+        | "deliveries_count"
+        | "profile_image_url"
       >[]
     >()
     .single();

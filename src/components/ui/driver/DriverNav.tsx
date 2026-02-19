@@ -103,7 +103,11 @@ export function DriverNav({ badges, avatarUrl, driverName }: DriverNavProps) {
                       unoptimized
                     />
                   ) : (
-                    <InitialsAvatar name={driverName ?? null} size="sm" className="h-6 w-6 text-2xs" />
+                    <InitialsAvatar
+                      name={driverName ?? null}
+                      size="sm"
+                      className="h-6 w-6 text-2xs"
+                    />
                   )
                 ) : (
                   <Icon
