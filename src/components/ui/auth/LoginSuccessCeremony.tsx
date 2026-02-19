@@ -11,6 +11,8 @@ import { spring } from "@/lib/motion-tokens";
 interface LoginSuccessCeremonyProps {
   userName?: string | null;
   avatarUrl?: string | null;
+  redirectTo?: string;       // Role-based redirect target (default "/menu")
+  roleMessage?: string;      // "Loading your driver dashboard..."
 }
 
 /* Sparkle ring positions — 6 sparkles evenly around the logo */
@@ -24,18 +26,18 @@ const SPARKLE_RING = Array.from({ length: 6 }, (_, i) => {
   };
 });
 
-export function LoginSuccessCeremony({ userName, avatarUrl }: LoginSuccessCeremonyProps) {
+export function LoginSuccessCeremony({ userName, avatarUrl, redirectTo, roleMessage }: LoginSuccessCeremonyProps) {
   const router = useRouter();
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   useEffect(() => {
     const duration = shouldAnimate ? 2800 : 1000;
     const timeout = setTimeout(() => {
-      router.replace("/");
+      router.replace(redirectTo ?? "/menu");
     }, duration);
 
     return () => clearTimeout(timeout);
-  }, [router, shouldAnimate]);
+  }, [router, shouldAnimate, redirectTo]);
 
   const welcomeMessage = userName ? `Welcome, ${userName}!` : "Welcome!";
 
@@ -146,7 +148,7 @@ export function LoginSuccessCeremony({ userName, avatarUrl }: LoginSuccessCeremo
         transition={{ delay: 0.8, duration: 0.5 }}
         className="text-sm text-muted-foreground"
       >
-        Taking you home&hellip;
+        {roleMessage ?? "Taking you to your dashboard\u2026"}
       </m.p>
     </div>
   );
