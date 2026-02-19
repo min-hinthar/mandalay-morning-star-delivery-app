@@ -110,7 +110,7 @@ export function StopCard({
       whileTap={isFullMotion ? { scale: 0.98 } : undefined}
       onClick={onClick}
       className={cn(
-        "w-full rounded-xl bg-surface-primary p-4 text-left shadow-sm",
+        "w-full min-h-[72px] rounded-xl bg-surface-primary p-4 text-left shadow-sm",
         "border border-border border-l-4",
         config.borderClass,
         "transition-shadow duration-fast",
@@ -123,10 +123,10 @@ export function StopCard({
         <div className="flex-1 min-w-0">
           {/* Stop number and name */}
           <div className="flex items-center gap-2 mb-1">
-            <span className="flex h-6 w-6 items-center justify-center rounded-full bg-text-primary font-body text-xs font-bold text-text-inverse">
+            <span className="flex h-8 w-8 items-center justify-center rounded-full bg-text-primary font-body text-xs font-bold text-text-inverse">
               {stopIndex}
             </span>
-            <span className="font-body font-medium text-text-primary truncate">
+            <span className="font-body font-medium text-base text-text-primary truncate">
               {customerName || "Customer"}
             </span>
           </div>
