@@ -2,78 +2,48 @@
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-16)
+See: .planning/PROJECT.md (updated 2026-02-23)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** Phase 72 complete (driver earnings dashboard). Next: Phase 73 (driver availability & route visibility).
+**Current focus:** All milestones complete (v1.0-v1.8). Ready for next milestone planning.
 
 ## Current Position
 
-Phase: 72 of 74 (Driver Earnings Dashboard) — COMPLETE
-Plan: 3 of 3 in current phase
-Status: Verified and complete
-Last activity: 2026-02-19 — Phase 72 verified (6/6 requirements, 11 commits)
+Phase: 74 of 74 (Guided Walkthrough & Driver UI Polish) — COMPLETE
+Milestone: v1.8 Post-Launch Hardening & Driver Experience — SHIPPED 2026-02-19
+Status: Archived
+Last activity: 2026-02-23 — v1.8 milestone archived
 
-Progress: [███████░░░] ~75% (Phase 72 complete, Phase 73 next)
+Progress: [████████████████████] 100% (310/310 plans)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 303 (across v1.0-v1.8)
+- Total plans completed: 310 (across v1.0-v1.8)
 - Average duration: ~15 min
-- Total execution time: ~71 hours
+- Total execution time: ~77 hours
 
 **By Milestone:**
 
-| Milestone | Phases | Plans | Duration |
-| --------- | ------ | ----- | -------- |
-| v1.0      | 8      | 32    | 2 days   |
-| v1.1      | 6      | 21    | 1 day    |
-| v1.2      | 9      | 29    | 4 days   |
-| v1.3      | 10     | 53    | 2 days   |
-| v1.4      | 8      | 39    | 6 days   |
-| v1.5      | 8      | 34    | 3 days   |
-| v1.6      | 10     | 47    | 6 days   |
-| v1.7      | 9      | 32    | 3 days   |
+| Milestone      | Phases | Plans | Duration |
+| -------------- | ------ | ----- | -------- |
+| v1.0           | 8      | 32    | 2 days   |
+| v1.1           | 6      | 21    | 1 day    |
+| v1.2           | 9      | 29    | 4 days   |
+| v1.3           | 10     | 53    | 2 days   |
+| v1.4           | 8      | 39    | 6 days   |
+| v1.5           | 8      | 34    | 3 days   |
+| v1.6           | 10     | 47    | 6 days   |
+| v1.7           | 9      | 32    | 3 days   |
+| v1.8           | 8      | 23    | 3 days   |
+| **Total**      | **74** | **310** | **30 days** |
 
 ## Accumulated Context
 
 ### Decisions
 
 Decisions logged in PROJECT.md Key Decisions table.
-
-Recent for v1.8:
-
-- CSP uses 'unsafe-inline' for style-src (GSAP has no nonce support, 700+ inline styles)
-- Rate limiting moves to Upstash Redis (in-memory Map is non-functional on Vercel)
-- Role redirects go in auth callback, NOT proxy.ts (callback has session context)
-- Driver availability uses JSONB column on drivers table (not separate table)
-- Individual style.property assignments preferred over cssText for CSP compatibility
-- String() used for numeric zIndex DOM style values
-- app_settings SELECT uses USING(true) for universal read including anon
-- order_audit_log restricted to admin-only SELECT/INSERT; service-role bypasses RLS
-- All RLS function calls must use (select ...) initplan wrapper
-- pgTAP not installed on production; use direct pg_policy/pg_proc queries for RLS verification
-- 62-assertion regression test in supabase/tests/00_rls_policies.test.sql for future CI
-- RLS isolation test requires DRIVER_A/B and ADMIN env vars for 4-role coverage
-- All rate limiters typed as Ratelimit | null; callers must handle null (fail-open pattern)
-- Sliding window algorithm for all limiters (prevents boundary-burst exploit)
-- analytics: false on all limiters (avoids waitUntil/@vercel/functions dependency)
-- .env.example now tracked in git (added !.env.example negation to .gitignore)
-- Client-side 429 handler uses context-aware toast (checkout-specific reassuring message)
-- Sentry alert rule for rate limit spikes requires manual dashboard setup
-- getRedisClient() getter pattern for health check access to Redis singleton
-- Removed narrow return type annotations from driver routes for NextResponse<unknown> compatibility
-- Passwordless driver onboarding (no password in form or API, magic link auth only)
-- OnboardWrapper client component for server/client hybrid upgrade confirmation flow
-- proxy.ts (Next.js 16 convention) for session refresh; no DB queries in middleware
-- getRoleDashboard() centralized in role-redirect.ts — single source of truth for role-to-dashboard
-- Authorization-checked ?next= deep linking in auth callback
-- Silent wrong-role redirects (no /?error= params) in admin/driver layout guards
-- Client-side role resolution from user_metadata for login ceremony redirect hint
-- Default customer redirect is /menu (not /)
-- isSafeRedirect duplicated in LoginPageClient (client component can't import from Route Handler)
 
 ### Pending Todos
 
@@ -84,10 +54,9 @@ None.
 - Human verification needed: OAuth sign-in, email delivery, Stripe webhook, Search Console (8 items from v1.7)
 - Upstash Redis provisioning needed via Vercel Marketplace before rate limiting is active in production
 - Sentry alert rule "Rate Limit Spike" needs manual creation in Sentry Dashboard
-- Availability business rules: confirm day-of-week pattern vs Saturday-only
 
 ## Session Continuity
 
-Last session: 2026-02-19
-Stopped at: Phase 74 context gathered
-Resume file: .planning/phases/74-guided-walkthrough-driver-ui-polish/74-CONTEXT.md
+Last session: 2026-02-23
+Stopped at: v1.8 milestone archived
+Next action: `/gsd:new-milestone` to start v1.9+ planning

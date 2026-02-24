@@ -1,5 +1,50 @@
 # Project Milestones: Morning Star V8 UI Rewrite
 
+## v1.8 Post-Launch Hardening & Driver Experience (Shipped: 2026-02-19)
+
+**Delivered:** Production security hardening (CSP, RLS, rate limiting), complete driver experience overhaul (profile, earnings, availability, onboarding), and role-based auth redirects.
+
+**Phases completed:** 67-74 (23 plans total)
+
+**Key accomplishments:**
+
+- Enforcing CSP + 5 security headers on all responses with Sentry violation reporting, ESLint cssText prevention rule
+- Comprehensive RLS audit — all 24 Supabase tables verified, 62-assertion regression test, initplan optimization on all policy function calls
+- Distributed rate limiting via Upstash Redis — sliding window algorithm, fail-open pattern, context-aware 429 toasts, health check endpoint
+- Role-based auth redirects — admin→/admin, driver→/driver, customer→/menu, proxy-level protection, passwordless driver onboarding, deep linking
+- Full driver experience — profile setup with photo upload, earnings dashboard with Recharts charts and streak badges, availability scheduling with JSONB, weekly schedule and route visibility, history page with pagination and monthly grouping
+- Guided onboarding — walkthrough checklist with milestone celebration, test delivery page with mock data, glassmorphism polish and stagger animations matching customer-side quality
+
+**Stats:**
+
+- 8 phases, 23 plans
+- 37/37 requirements satisfied (100%)
+- ~100 commits, 711 source files modified
+- +18,335 / -13,026 lines (net +5,309)
+- ~123,633 lines TypeScript total
+- 3 days (2026-02-17 → 2026-02-19)
+
+**Git range:** `feat(67-01): add enforcing CSP header` → `feat(74-03): add glass shell, hover lift, shine-sweep, and glow polish`
+
+**Tech debt resolved from v1.7:**
+
+- ✓ Content Security Policy headers configured and enforcing
+- ✓ Supabase RLS audit complete for all tables
+- ✓ Rate limiting upgraded from in-memory Map to Upstash Redis
+- ✓ Dead code exports removed (~10 unused exports + useABTest + barrel file)
+
+**Tech debt remaining:**
+
+- Lighthouse CI gates at score 60 (target 70)
+- Upstash Redis provisioning needed on Vercel Marketplace for production rate limiting
+- Sentry alert rule "Rate Limit Spike" needs manual dashboard creation
+- Apple Sign-in deferred (no Apple Developer account)
+- Chromatic visual regression baselines deferred
+
+**What's next:** v1.9+ milestone planning (notifications, advanced driver features, quality improvements)
+
+---
+
 ## v1.7 Production Deployment & Readiness (Shipped: 2026-02-16)
 
 **Delivered:** Production deployment pipeline with full observability, LCP optimization, admin dashboard, service worker hardening, CI/CD quality gates, and backlog cleanup.
@@ -328,3 +373,4 @@
 - 11 visual regression snapshots need human baseline generation
 
 **What's next:** v1.1 Admin Flow Rewrite or v1.1 Driver Flow Rewrite
+
