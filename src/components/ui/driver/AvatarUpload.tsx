@@ -100,7 +100,7 @@ export function AvatarUpload({
     // Validate
     const validation = validateDriverPhoto(file);
     if (!validation.valid) {
-      toast({ message: validation.error, type: "error" });
+      toast({ message: validation.error ?? "Invalid file", type: "error" });
       return;
     }
 
