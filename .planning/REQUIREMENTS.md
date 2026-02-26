@@ -42,7 +42,7 @@
 - [x] **DDASH-04**: Upcoming assigned routes visible on driver home (not just today's route)
 - [x] **DDASH-05**: Weekly schedule view showing all planned routes for the coming week
 - [x] **DDASH-06**: Availability scheduling — driver can mark available days of the week (recurring)
-- [ ] **DDASH-07**: One-off unavailability — driver can block specific dates (vacation, sick)
+- [x] **DDASH-07**: One-off unavailability — driver can block specific dates (vacation, sick)
 - [x] **DDASH-08**: History page date-range filtering
 - [x] **DDASH-09**: History page pagination for large result sets
 - [x] **DDASH-10**: Monthly summary view in history with aggregate stats
@@ -90,7 +90,7 @@
 | DDASH-04    | Phase 73 | Complete |
 | DDASH-05    | Phase 73 | Complete |
 | DDASH-06    | Phase 73 | Complete |
-| DDASH-07    | Phase 76 | Pending  |
+| DDASH-07    | Phase 76 | Complete |
 | DDASH-08    | Phase 73 | Complete |
 | DDASH-09    | Phase 73 | Complete |
 | DDASH-10    | Phase 73 | Complete |
