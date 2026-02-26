@@ -17,6 +17,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { logger } from "@/lib/utils/logger";
 import { spring, staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { Button } from "@/components/ui/button";
@@ -81,7 +82,7 @@ export function PaymentSuccess({
       if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
       copyTimeoutRef.current = setTimeout(() => setCopied(false), 2000);
     } catch {
-      console.error("Failed to copy");
+      logger.error("Failed to copy order ID to clipboard", { api: "payment-success" });
     }
   }, [orderId]);
 

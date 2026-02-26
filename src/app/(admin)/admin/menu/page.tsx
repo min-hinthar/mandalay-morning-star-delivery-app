@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
 import { Plus, RefreshCw, UtensilsCrossed, CheckCircle, Package } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { Button } from "@/components/ui/button";
 import { MenuFilterBar } from "./MenuFilterBar";
 import { MenuItemsTable, type MenuTableItem } from "./MenuItemsTable";
@@ -40,9 +40,8 @@ export default function AdminMenuPage() {
       setCategories(uniqueCategories);
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to fetch menu items",
-        variant: "destructive",
+        message: "Failed to fetch menu items",
+        type: "error",
       });
     } finally {
       setLoading(false);
@@ -75,9 +74,8 @@ export default function AdminMenuPage() {
       );
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to update item",
-        variant: "destructive",
+        message: "Failed to update item",
+        type: "error",
       });
     } finally {
       setUpdatingId(null);
@@ -100,9 +98,8 @@ export default function AdminMenuPage() {
       );
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to update item",
-        variant: "destructive",
+        message: "Failed to update item",
+        type: "error",
       });
     } finally {
       setUpdatingId(null);
@@ -128,9 +125,8 @@ export default function AdminMenuPage() {
       setItems((prev) => prev.filter((i) => i.id !== item.id));
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to delete item",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to delete item",
+        type: "error",
       });
     } finally {
       setUpdatingId(null);

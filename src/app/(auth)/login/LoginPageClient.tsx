@@ -13,7 +13,7 @@ import {
   SocialLoginButtons,
   useAuthCard,
 } from "@/components/ui/auth";
-import { useToast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { Button } from "@/components/ui/button";
 import { m } from "framer-motion";
 import { spring } from "@/lib/motion-tokens";
@@ -181,7 +181,6 @@ function AuthSessionListener({
 }
 
 export function LoginPageClient() {
-  const { toast } = useToast();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("next") ?? undefined;
   const [oauthProvider, setOauthProvider] = useState<"google" | null>(null);
@@ -197,11 +196,10 @@ export function LoginPageClient() {
     if (!error) return;
 
     toast({
-      title: "Google sign-in didn't work",
-      description: "Please try again or use the email link below.",
-      variant: "destructive",
+      message: "Please try again or use the email link below.",
+      type: "error",
     });
-  }, [searchParams, toast]);
+  }, [searchParams]);
 
   return (
     <>

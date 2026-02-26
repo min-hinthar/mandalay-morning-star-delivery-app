@@ -3,6 +3,7 @@
 // IndexedDB Offline Store - Retry & Expiry Utilities
 // Exponential backoff, idempotent retries, and expired entry purge
 
+import { logger } from "@/lib/utils/logger";
 import { pendingStatus, pendingPhotos, pendingLocations } from "./stores";
 
 export function getBackoffDelay(attempt: number, baseMs = 2000, maxMs = 32000): number {
@@ -48,11 +49,15 @@ export async function retryWithBackoff(
       }
 
       if (response.status >= 500) {
-        console.warn(`Retry attempt ${attempt + 1}/${maxAttempts} for ${url}: ${response.status}`);
+        logger.warn(`Retry attempt ${attempt + 1}/${maxAttempts} for ${url}: ${response.status}`, {
+          api: "offline-retry",
+        });
       }
-    } catch (error) {
+    } catch {
       // Network errors (TypeError from fetch)
-      console.warn(`Retry attempt ${attempt + 1}/${maxAttempts} for ${url}: network error`, error);
+      logger.warn(`Retry attempt ${attempt + 1}/${maxAttempts} for ${url}: network error`, {
+        api: "offline-retry",
+      });
     }
 
     // Backoff between attempts (skip after last attempt)

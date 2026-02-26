@@ -12,7 +12,7 @@ export default async function AccountPage() {
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
-    redirect("/login?redirect=/account");
+    redirect("/login?next=/account");
   }
 
   return <AccountClient />;

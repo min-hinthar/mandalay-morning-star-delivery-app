@@ -4,7 +4,8 @@ import { useState, useEffect, useCallback } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { RefreshCw, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { toast } from "@/lib/hooks/useToast";
+import { logger } from "@/lib/utils/logger";
+import { toast } from "@/lib/hooks/useToastV8";
 import { Button } from "@/components/ui/button";
 import { PhotoUploadZone } from "@/components/ui/admin/photos/PhotoUploadZone";
 import { PhotoGrid, type PhotoItem } from "@/components/ui/admin/photos/PhotoGrid";
@@ -53,9 +54,8 @@ export default function AdminPhotosPage() {
       setStats(data.stats || { total: 0, assigned: 0, unassigned: 0 });
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to fetch photos",
-        variant: "destructive",
+        message: "Failed to fetch photos",
+        type: "error",
       });
     }
   }, [searchQuery, filter]);
@@ -84,7 +84,7 @@ export default function AdminPhotosPage() {
         )
       );
     } catch {
-      console.error("Failed to fetch menu items");
+      logger.error("Failed to fetch menu items", { api: "admin/photos" });
     }
   }, []);
 
@@ -107,8 +107,8 @@ export default function AdminPhotosPage() {
     fetchPhotos();
     fetchMenuItems();
     toast({
-      title: "Upload complete",
-      description: "Photos uploaded successfully",
+      message: "Photos uploaded successfully",
+      type: "success",
     });
   };
 
@@ -144,15 +144,14 @@ export default function AdminPhotosPage() {
         throw new Error(error.error || "Failed to assign photo");
       }
 
-      toast({ title: "Photo assigned", description: "Photo assigned to menu item" });
+      toast({ message: "Photo assigned to menu item", type: "success" });
       fetchPhotos();
       fetchMenuItems();
       setSelectedPhoto(null);
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to assign photo",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to assign photo",
+        type: "error",
       });
     }
   };
@@ -168,15 +167,14 @@ export default function AdminPhotosPage() {
         throw new Error(error.error || "Failed to delete photo");
       }
 
-      toast({ title: "Photo removed", description: "Photo removed from menu item" });
+      toast({ message: "Photo removed from menu item", type: "success" });
       fetchPhotos();
       fetchMenuItems();
       setSelectedPhoto(null);
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to delete photo",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to delete photo",
+        type: "error",
       });
     }
   };
@@ -205,14 +203,13 @@ export default function AdminPhotosPage() {
         throw new Error(error.error || "Failed to save Drive URL");
       }
 
-      toast({ title: "Drive URL saved", description: "Photo URL updated" });
+      toast({ message: "Photo URL updated", type: "success" });
       fetchPhotos();
       fetchMenuItems();
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to save Drive URL",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to save Drive URL",
+        type: "error",
       });
     }
   };
@@ -234,8 +231,8 @@ export default function AdminPhotosPage() {
     }
 
     toast({
-      title: "Bulk delete complete",
-      description: `${successCount} of ${selectedIds.size} photos removed`,
+      message: `${successCount} of ${selectedIds.size} photos removed`,
+      type: "success",
     });
     setSelectedIds(new Set());
     fetchPhotos();

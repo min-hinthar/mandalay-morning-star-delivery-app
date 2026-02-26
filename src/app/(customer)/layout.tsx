@@ -1,14 +1,19 @@
-"use client";
-
+import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
-import { CartOverlays } from "@/components/ui/cart/CartOverlays";
-import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
+import { createClient } from "@/lib/supabase/server";
+import { CustomerShell } from "./CustomerShell";
 
-export default function CustomerLayout({ children }: { children: ReactNode }) {
-  return (
-    <DomMaxProvider>
-      {children}
-      <CartOverlays />
-    </DomMaxProvider>
-  );
+export default async function CustomerLayout({ children }: { children: ReactNode }) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser();
+
+  if (authError || !user) {
+    redirect("/login");
+  }
+
+  return <CustomerShell>{children}</CustomerShell>;
 }

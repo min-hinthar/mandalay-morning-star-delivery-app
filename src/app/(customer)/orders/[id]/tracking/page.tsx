@@ -7,6 +7,7 @@
 
 import { redirect, notFound } from "next/navigation";
 import { Metadata } from "next";
+import { logger } from "@/lib/utils/logger";
 import { createClient } from "@/lib/supabase/server";
 import { TrackingPageClient } from "@/components/ui/orders/tracking/TrackingPageClient";
 import type { TrackingData } from "@/types/tracking";
@@ -95,7 +96,11 @@ export default async function TrackingPage({ params }: TrackingPageProps) {
       redirect("/orders");
     }
     // For other errors, try to render with basic data
-    console.error("Failed to fetch tracking data:", response.status);
+    logger.error("Failed to fetch tracking data", {
+      api: "tracking",
+      orderId,
+      status: response.status,
+    });
   }
 
   const { data, error } = await response.json();

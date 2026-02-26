@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { driverSelfUpdateSchema } from "@/lib/validations/driver";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -175,7 +175,7 @@ export function ProfilePageClient({
         payload.licensePlate = formData.licensePlate || null;
 
       if (Object.keys(payload).length === 0) {
-        toast({ title: "No changes", description: "No fields have been modified." });
+        toast({ message: "No fields have been modified.", type: "info" });
         return;
       }
 
@@ -205,20 +205,18 @@ export function ProfilePageClient({
 
         if (!response.ok) {
           toast({
-            title: "Update failed",
-            description: data.error || "Could not update profile. Try again.",
-            variant: "destructive",
+            message: data.error || "Could not update profile. Try again.",
+            type: "error",
           });
           return;
         }
 
-        toast({ title: "Profile updated", description: "Your changes have been saved." });
+        toast({ message: "Your changes have been saved.", type: "success" });
         router.refresh();
       } catch {
         toast({
-          title: "Error",
-          description: "An unexpected error occurred. Try again.",
-          variant: "destructive",
+          message: "An unexpected error occurred. Try again.",
+          type: "error",
         });
       } finally {
         setIsSubmitting(false);

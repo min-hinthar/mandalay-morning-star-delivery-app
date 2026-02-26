@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { logger } from "@/lib/utils/logger";
 
 interface ProfileRow {
   role: string;
@@ -72,8 +73,8 @@ export async function getRoleDashboard(
 
     // Default: customer or any other role
     return { path: "/menu", role: "customer" };
-  } catch (error) {
-    console.error("[getRoleDashboard] DB error, falling back to /:", error);
+  } catch {
+    logger.error("DB error in getRoleDashboard, falling back to /", { api: "role-redirect" });
     return { path: "/", role: "unknown" };
   }
 }

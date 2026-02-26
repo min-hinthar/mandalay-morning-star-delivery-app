@@ -13,7 +13,7 @@ import { SaveButton } from "../SaveButton";
 import { FloatingUnsavedBar } from "../FloatingUnsavedBar";
 import { ConfirmDialog } from "../ConfirmDialog";
 import { RestoreDefaultsDialog } from "../RestoreDefaultsDialog";
-import { useToast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { spring, variants } from "@/lib/motion-tokens";
 import { SettingsSkeleton } from "./SettingsSkeleton";
 import { DEFAULT_SETTINGS, mapApiResponse } from "./settings-defaults";
@@ -40,7 +40,6 @@ const SETTINGS_TABS = [
 ];
 
 export function SettingsClient() {
-  const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("delivery");
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -81,13 +80,13 @@ export function SettingsClient() {
         setEmailSendingEnabled(emailEnabled);
         setOriginalEmailEnabled(emailEnabled);
       } catch {
-        toast({ variant: "destructive", description: "Failed to load settings" });
+        toast({ message: "Failed to load settings", type: "error" });
       } finally {
         setLoading(false);
       }
     }
     fetchSettings();
-  }, [toast]);
+  }, []);
 
   // Warn on page unload
   useEffect(() => {
@@ -138,17 +137,17 @@ export function SettingsClient() {
         setOriginalEmailEnabled(emailSendingEnabled);
       }
       setOriginalSettings(settings);
-      toast({ variant: "success", description: "Settings saved successfully" });
+      toast({ message: "Settings saved successfully", type: "success" });
       return true;
     } catch (error) {
       const message = error instanceof Error ? error.message : "Failed to save settings";
       setSaveError(message);
-      toast({ variant: "destructive", description: message });
+      toast({ message, type: "error" });
       return false;
     } finally {
       setSaving(false);
     }
-  }, [hasChanges, settings, originalSettings, emailSendingEnabled, originalEmailEnabled, toast]);
+  }, [hasChanges, settings, originalSettings, emailSendingEnabled, originalEmailEnabled]);
 
   // Tab switch with unsaved changes warning
   const handleTabChange = useCallback(
@@ -197,17 +196,17 @@ export function SettingsClient() {
       setEmailSendingEnabled(true);
       setOriginalEmailEnabled(true);
       setSaveError(null);
-      toast({ variant: "success", description: "Settings restored to defaults" });
+      toast({ message: "Settings restored to defaults", type: "success" });
     } catch (error) {
       toast({
-        variant: "destructive",
-        description: error instanceof Error ? error.message : "Failed to restore defaults",
+        message: error instanceof Error ? error.message : "Failed to restore defaults",
+        type: "error",
       });
     } finally {
       setRestoring(false);
       setShowRestoreDialog(false);
     }
-  }, [toast]);
+  }, []);
 
   // Form change handlers
   const handleDeliveryChange = useCallback((delivery: DeliverySettings) => {

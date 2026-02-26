@@ -84,10 +84,9 @@ export function useOfflineSync(options?: UseOfflineSyncOptions): UseOfflineSyncR
       setPendingCounts({ ...counts, total });
       return total;
     } catch {
-      // IndexedDB might not be available
-      return pendingCounts.total;
+      // IndexedDB might not be available — use ref for current value
+      return prevTotalRef.current;
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Sync pending items with state machine
@@ -173,11 +172,7 @@ export function useOfflineSync(options?: UseOfflineSyncOptions): UseOfflineSyncR
     window.addEventListener("offline", handleOffline);
 
     // Purge expired entries on mount
-    purgeExpiredEntries().then((purged) => {
-      if (purged > 0) {
-        console.info(`[useOfflineSync] Purged ${purged} expired entries`);
-      }
-    });
+    void purgeExpiredEntries();
 
     // Initial pending counts
     updatePendingCounts().then((total) => {

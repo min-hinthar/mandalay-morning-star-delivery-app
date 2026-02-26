@@ -5,7 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Mail, ChevronDown, ChevronUp, RefreshCw, Send, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { cn } from "@/lib/utils/cn";
 
 // ===========================================
@@ -93,8 +93,8 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
       setEmails(result.data || []);
     } catch {
       toast({
-        variant: "destructive",
-        description: "Failed to load email history",
+        message: "Failed to load email history",
+        type: "error",
       });
     } finally {
       setLoading(false);
@@ -116,11 +116,11 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
           const data = await response.json().catch(() => ({}));
           throw new Error(data.error || "Failed to resend email");
         }
-        toast({ variant: "success", description: "Email resent" });
+        toast({ message: "Email resent", type: "success" });
         fetchEmails();
       } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to resend";
-        toast({ variant: "destructive", description: message });
+        toast({ message, type: "error" });
       } finally {
         setResendingId(null);
       }
@@ -142,11 +142,11 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
           const data = await response.json().catch(() => ({}));
           throw new Error(data.error || "Failed to send email");
         }
-        toast({ variant: "success", description: "Email sent" });
+        toast({ message: "Email sent", type: "success" });
         fetchEmails();
       } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to send";
-        toast({ variant: "destructive", description: message });
+        toast({ message, type: "error" });
       } finally {
         setSendingType(null);
       }
