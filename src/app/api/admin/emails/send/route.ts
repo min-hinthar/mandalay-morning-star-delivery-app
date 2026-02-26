@@ -66,7 +66,7 @@ export async function POST(request: Request) {
     const sendEmailSchema = z.object({
       orderId: z.string().uuid("orderId must be a valid UUID"),
       emailType: z.enum(["order_confirmation", "cancellation", "refund", "delivery_reminder"], {
-        errorMap: () => ({ message: `Invalid emailType. Valid: ${VALID_EMAIL_TYPES.join(", ")}` }),
+        error: `Invalid emailType. Valid: ${VALID_EMAIL_TYPES.join(", ")}`,
       }),
     });
 
