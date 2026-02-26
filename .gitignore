@@ -60,6 +60,7 @@ next-env.d.ts
 
 # Windows
 Thumbs.db
+nul
 
 # claude local settings
 .claude/settings.local.json
