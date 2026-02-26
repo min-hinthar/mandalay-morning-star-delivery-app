@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useToast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import Link from "next/link";
 
 interface UserMenuProps {
@@ -21,23 +21,17 @@ interface UserMenuProps {
 }
 
 export function UserMenu({ user }: UserMenuProps): ReactElement {
-  const { toast } = useToast();
-
   const handleSignOut = useCallback(async () => {
     await signOut();
     // signOut redirects on success, so we only need to handle errors
   }, []);
 
-  const handleSignOutError = useCallback(
-    (error: Error) => {
-      toast({
-        title: "Sign out failed",
-        description: error.message || "Please try again",
-        variant: "destructive",
-      });
-    },
-    [toast]
-  );
+  const handleSignOutError = useCallback((error: Error) => {
+    toast({
+      message: error.message || "Please try again",
+      type: "error",
+    });
+  }, []);
 
   if (!user) {
     return (

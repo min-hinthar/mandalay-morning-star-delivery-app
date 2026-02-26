@@ -2,7 +2,7 @@
 
 import { m } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
-import { useToast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
 
@@ -13,7 +13,6 @@ interface SocialLoginButtonsProps {
 }
 
 export function SocialLoginButtons({ onOAuthStart, redirectTo }: SocialLoginButtonsProps) {
-  const { toast } = useToast();
   const { shouldAnimate } = useAnimationPreference();
 
   const handleOAuth = async () => {
@@ -32,18 +31,16 @@ export function SocialLoginButtons({ onOAuthStart, redirectTo }: SocialLoginButt
       if (error) {
         onOAuthStart?.(null);
         toast({
-          title: "OAuth sign-in failed",
-          description: error.message,
-          variant: "destructive",
+          message: error.message,
+          type: "error",
         });
       }
     } catch (err) {
       const message = err instanceof Error ? err.message : "Please try again";
       onOAuthStart?.(null);
       toast({
-        title: "OAuth sign-in failed",
-        description: message,
-        variant: "destructive",
+        message,
+        type: "error",
       });
     }
   };

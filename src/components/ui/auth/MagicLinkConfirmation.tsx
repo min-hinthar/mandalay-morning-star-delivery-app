@@ -5,7 +5,7 @@ import { useAnimate, m } from "framer-motion";
 import { Mail, Sparkles } from "lucide-react";
 import { signInWithMagicLink } from "@/lib/supabase/actions";
 import { Button } from "@/components/ui/button";
-import { useToast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 interface MagicLinkConfirmationProps {
@@ -32,7 +32,6 @@ const SPARKLE_POSITIONS: SparklePos[] = [
 ];
 
 export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkConfirmationProps) {
-  const { toast } = useToast();
   const { shouldAnimate } = useAnimationPreference();
   const [scope, animate] = useAnimate();
   const [countdown, setCountdown] = useState(0);
@@ -102,16 +101,15 @@ export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkCo
 
         if (result?.error) {
           toast({
-            title: "Could not resend",
-            description: result.error,
-            variant: "destructive",
+            message: result.error,
+            type: "error",
           });
           return;
         }
 
         toast({
-          title: "Magic link resent",
-          description: "Check your inbox for the new link.",
+          message: "Check your inbox for the new link.",
+          type: "success",
         });
         setCountdown(60);
       })();

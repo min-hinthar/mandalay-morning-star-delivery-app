@@ -5,7 +5,7 @@ import { Loader2, Mail } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/Modal";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { STATUS_LABELS } from "@/components/ui/admin/orders/OrderDetailExpanded/config";
 import type { OrderStatus } from "@/types/database";
 
@@ -77,17 +77,16 @@ export function StatusChangeDialog({
       }
 
       toast({
-        title: "Status updated",
-        description: `Order is now ${STATUS_LABELS[newStatus]}`,
+        message: `Order is now ${STATUS_LABELS[newStatus]}`,
+        type: "success",
       });
       onClose();
     } catch (err) {
       // Revert optimistic update
       onStatusFailed(currentStatus);
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to update status",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to update status",
+        type: "error",
       });
     } finally {
       setSubmitting(false);

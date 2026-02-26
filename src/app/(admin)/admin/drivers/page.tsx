@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
 import { InlineErrorCard } from "@/components/ui/admin/InlineErrorCard";
@@ -54,7 +54,7 @@ export default function AdminDriversPage() {
       setDrivers(data);
     } catch {
       setError("Failed to load drivers. Please try again.");
-      toast({ title: "Error", description: "Failed to fetch drivers", variant: "destructive" });
+      toast({ message: "Failed to fetch drivers", type: "error" });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -105,9 +105,8 @@ export default function AdminDriversPage() {
       router.refresh();
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to update driver",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to update driver",
+        type: "error",
       });
     }
   };

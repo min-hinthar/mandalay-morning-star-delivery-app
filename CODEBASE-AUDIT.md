@@ -31,11 +31,13 @@
 The Supabase session refresh function is defined at `src/lib/supabase/middleware.ts` but **never invoked**. No root-level `middleware.ts` exists to call `updateSession()`.
 
 **Impact:**
+
 - Auth tokens may expire mid-session without refresh
 - No cross-cutting session management
 - Middleware-level route gating defined but not wired
 
 **Fix:** Create `src/middleware.ts`:
+
 ```typescript
 import { updateSession } from "@/lib/supabase/middleware";
 import type { NextRequest } from "next/server";
@@ -64,6 +66,7 @@ No authentication check. Anyone can trigger Sentry error reports, potentially sp
 **File:** `src/app/api/cron/delivery-reminders/route.ts`
 
 If `CRON_SECRET` env var is not configured, the endpoint accepts **any** request:
+
 ```typescript
 function isAuthorized(request: Request): boolean {
   if (!CRON_SECRET) return true; // ← DANGEROUS
@@ -109,6 +112,7 @@ The `htmlBody` comes from TipTap editor (admin-only). Risk is low since only adm
 **File:** `src/app/api/admin/emails/send/route.ts`
 
 Uses loose object destructuring instead of Zod validation:
+
 ```typescript
 const { orderId, emailType } = body as { orderId?: string; emailType?: string };
 ```
@@ -123,14 +127,14 @@ const { orderId, emailType } = body as { orderId?: string; emailType?: string };
 
 **Path:** `src/components/ui/navigation/` (6 files)
 
-| File | Lines | Status |
-|------|-------|--------|
-| `Header.tsx` | ~200 | Never imported |
-| `BottomNav.tsx` | ~100 | Never imported |
-| `AppShell.tsx` | ~100 | Never imported |
-| `PageContainer.tsx` | ~50 | Never imported |
-| `MobileMenu.tsx` | ~100 | Never imported |
-| `index.ts` | ~10 | Never imported |
+| File                | Lines | Status         |
+| ------------------- | ----- | -------------- |
+| `Header.tsx`        | ~200  | Never imported |
+| `BottomNav.tsx`     | ~100  | Never imported |
+| `AppShell.tsx`      | ~100  | Never imported |
+| `PageContainer.tsx` | ~50   | Never imported |
+| `MobileMenu.tsx`    | ~100  | Never imported |
+| `index.ts`          | ~10   | Never imported |
 
 **Action:** Delete entire directory. These were replaced by `AppHeader`, `MobileDrawer`, and layout components.
 
@@ -145,6 +149,7 @@ Only used by the dead `navigation/Header.tsx` and `menu/MenuHeader.tsx`. The cod
 ### 3.3 Duplicate Toast Systems
 
 **Files:**
+
 - `src/lib/hooks/useToast.ts` — Legacy V5/V6 API (35 importers)
 - `src/lib/hooks/useToastV8.ts` — Current V8 API with sound support (11 importers)
 
@@ -155,6 +160,7 @@ Two nearly identical implementations coexist. `useToast` has 3x more importers b
 ### 3.4 Duplicate Stagger Animation Libraries
 
 **Files:**
+
 - `src/lib/micro-interactions/stagger.ts`
 - `src/lib/motion-tokens/stagger.ts`
 
@@ -165,6 +171,7 @@ Both export container stagger functions with different APIs but identical purpos
 ### 3.5 Duplicate StarRating Components
 
 **Files:**
+
 - `src/components/ui/orders/tracking/StarRating.tsx` (85 lines, simple)
 - `src/components/ui/admin/analytics/StarRating.tsx` (226 lines, animated)
 
@@ -174,17 +181,17 @@ Different interfaces, different feature sets. Should be one shared component.
 
 9 hooks are implemented and actively used but **missing from `src/lib/hooks/index.ts`**:
 
-| Hook | Consumers |
-|------|-----------|
-| `useCartValidation` | 6 |
-| `useFavorites` | 14 |
-| `useSoundEffect` | 8 |
-| `useDriverRating` | 4 |
-| `useSoundPreference` | 4 |
-| `useFontSize` | 5 |
-| `useRateLimitToast` | 2 |
-| `useThemeTransition` | 3 |
-| `useDynamicImportWithRetry` | 1 |
+| Hook                        | Consumers |
+| --------------------------- | --------- |
+| `useCartValidation`         | 6         |
+| `useFavorites`              | 14        |
+| `useSoundEffect`            | 8         |
+| `useDriverRating`           | 4         |
+| `useSoundPreference`        | 4         |
+| `useFontSize`               | 5         |
+| `useRateLimitToast`         | 2         |
+| `useThemeTransition`        | 3         |
+| `useDynamicImportWithRetry` | 1         |
 
 **Action:** Add all 9 to the barrel export for consistency.
 
@@ -197,6 +204,7 @@ Different interfaces, different feature sets. Should be one shared component.
 **File:** `src/app/(customer)/layout.tsx`
 
 Unlike `(admin)` and `(driver)` layouts which have server-side auth gates, the `(customer)` layout is a plain client component with no auth check. Each page handles auth individually, creating:
+
 - Inconsistent protection patterns
 - Late auth checks (after hydration for client pages like `/checkout`)
 - `/cart` page has **zero** auth protection
@@ -207,10 +215,10 @@ Unlike `(admin)` and `(driver)` layouts which have server-side auth gates, the `
 
 Some pages redirect to `/login?next=/path`, others to `/login?redirect=/path`. The login page must handle both or one silently fails.
 
-| Pattern | Used By |
-|---------|---------|
-| `?next=` | Admin layout, driver layout, middleware |
-| `?redirect=` | Checkout page, account page |
+| Pattern      | Used By                                 |
+| ------------ | --------------------------------------- |
+| `?next=`     | Admin layout, driver layout, middleware |
+| `?redirect=` | Checkout page, account page             |
 
 **Fix:** Standardize on one parameter name.
 
@@ -249,17 +257,20 @@ Missing for: `(customer)` group, `(public)` group, most dynamic `[id]` routes.
 ### 5.1 Race Conditions
 
 **`useOfflineSync.ts`** — Lines 79-91:
+
 - `pendingCounts` not in dependency array of `updatePendingCounts`
 - State set after potential unmount (no mounted ref check)
 - Catch block uses stale closure value
 - `eslint-disable react-hooks/exhaustive-deps` suppresses the warning
 
 **`useLocationTracking.ts`** — Lines 80-131:
+
 - `sendLocationUpdate` doesn't check if tracking was stopped
 - `updateTimeoutRef.current` can fire after `stopTracking()` returns
 - Stale timeout sends location updates for no active route
 
 **`useTrackingSubscription.ts`** — Lines 176-231:
+
 - `setupSubscriptions` called recursively on reconnect
 - If reconnect happens before old channel cleanup completes, multiple channels accumulate
 
@@ -281,25 +292,25 @@ Missing for: `(customer)` group, `(public)` group, most dynamic `[id]` routes.
 
 ### 6.1 Coverage Summary
 
-| Category | Count | Tested | Gap |
-|----------|-------|--------|-----|
-| API Routes | 92 | 3 (3.3%) | 89 untested |
-| React Hooks | 40+ | 1 (2.5%) | 39+ untested |
-| Zustand Stores | 4 | 2 (50%) | 2 untested |
-| Utility Functions | 20+ | 8 (40%) | 12+ untested |
-| E2E Specs | N/A | 18 suites | Good coverage |
+| Category          | Count | Tested    | Gap           |
+| ----------------- | ----- | --------- | ------------- |
+| API Routes        | 92    | 3 (3.3%)  | 89 untested   |
+| React Hooks       | 40+   | 1 (2.5%)  | 39+ untested  |
+| Zustand Stores    | 4     | 2 (50%)   | 2 untested    |
+| Utility Functions | 20+   | 8 (40%)   | 12+ untested  |
+| E2E Specs         | N/A   | 18 suites | Good coverage |
 
 ### 6.2 Critical Untested Business Logic
 
-| Feature | Risk | Files |
-|---------|------|-------|
-| Order cancellation | HIGH | `api/orders/[id]/cancel` |
-| Payment retry | HIGH | `api/orders/[id]/retry-payment` |
-| Refund processing | HIGH | `api/admin/orders/[id]/refund` |
-| Driver management | HIGH | All 8+ `api/admin/drivers/*` routes |
-| Rate limiting | MEDIUM | `src/lib/rate-limit/` |
-| Offline sync (driver) | MEDIUM | `src/lib/services/offline-store/` |
-| Auth/session handling | MEDIUM | No unit tests for auth flows |
+| Feature               | Risk   | Files                               |
+| --------------------- | ------ | ----------------------------------- |
+| Order cancellation    | HIGH   | `api/orders/[id]/cancel`            |
+| Payment retry         | HIGH   | `api/orders/[id]/retry-payment`     |
+| Refund processing     | HIGH   | `api/admin/orders/[id]/refund`      |
+| Driver management     | HIGH   | All 8+ `api/admin/drivers/*` routes |
+| Rate limiting         | MEDIUM | `src/lib/rate-limit/`               |
+| Offline sync (driver) | MEDIUM | `src/lib/services/offline-store/`   |
+| Auth/session handling | MEDIUM | No unit tests for auth flows        |
 
 ### 6.3 Positive Notes
 
@@ -315,15 +326,15 @@ Missing for: `(customer)` group, `(public)` group, most dynamic `[id]` routes.
 
 ### 7.1 Components Over 400-Line Limit
 
-| File | Lines | Action |
-|------|-------|--------|
-| `homepage/SettingsNudgeBanner.tsx` | 452 | Split into subfolder |
-| `menu/ItemDetailSheet.tsx` | 451 | Split into subfolder |
-| `orders/tracking/ETACountdown.tsx` | 449 | Split into subfolder |
-| `orders/tracking/DeliveryMap/DeliveryMap.tsx` | 422 | Already in subfolder, needs internal split |
-| `admin/drivers/DriverDetailClient.tsx` | 413 | Split helpers |
-| `admin/settings/DeliverySettingsForm.tsx` | 407 | Split sections |
-| `admin/sections/ItemSelector.tsx` | 402 | Extract subcomponents |
+| File                                          | Lines | Action                                     |
+| --------------------------------------------- | ----- | ------------------------------------------ |
+| `homepage/SettingsNudgeBanner.tsx`            | 452   | Split into subfolder                       |
+| `menu/ItemDetailSheet.tsx`                    | 451   | Split into subfolder                       |
+| `orders/tracking/ETACountdown.tsx`            | 449   | Split into subfolder                       |
+| `orders/tracking/DeliveryMap/DeliveryMap.tsx` | 422   | Already in subfolder, needs internal split |
+| `admin/drivers/DriverDetailClient.tsx`        | 413   | Split helpers                              |
+| `admin/settings/DeliverySettingsForm.tsx`     | 407   | Split sections                             |
+| `admin/sections/ItemSelector.tsx`             | 402   | Extract subcomponents                      |
 
 ### 7.2 Console Statements in Production Code
 
@@ -341,12 +352,12 @@ Missing for: `(customer)` group, `(public)` group, most dynamic `[id]` routes.
 
 ### 8.1 Missing CI Jobs
 
-| Job | Status | Impact |
-|-----|--------|--------|
-| E2E Tests (Playwright) | NOT IN CI | Config exists, not run |
-| Dead Code Detection (Knip) | NOT IN CI | `knip.json` exists, not run |
-| Security Audit | NOT IN CI | No `npm audit` or Snyk |
-| Bundle Size Check | NOT IN CI | `@next/bundle-analyzer` exists |
+| Job                        | Status    | Impact                         |
+| -------------------------- | --------- | ------------------------------ |
+| E2E Tests (Playwright)     | NOT IN CI | Config exists, not run         |
+| Dead Code Detection (Knip) | NOT IN CI | `knip.json` exists, not run    |
+| Security Audit             | NOT IN CI | No `npm audit` or Snyk         |
+| Bundle Size Check          | NOT IN CI | `@next/bundle-analyzer` exists |
 
 ### 8.2 Knip Config Has Narrow Entry Points
 
@@ -357,6 +368,7 @@ Missing for: `(customer)` group, `(public)` group, most dynamic `[id]` routes.
 ```
 
 Misses:
+
 - API routes under `src/app/api/**`
 - Files imported directly (not through barrel exports)
 - Script files in `scripts/`
@@ -400,6 +412,7 @@ Excellent — zero suppression comments. All type issues are resolved properly.
 ### 9.3 Only 1 TODO Comment
 
 **File:** `src/components/ui/homepage/SiteFooter.tsx:56`
+
 ```typescript
 // TODO: Replace with verified Yelp business page URL once confirmed
 ```
@@ -409,6 +422,7 @@ Minimal tech debt markers.
 ### 9.4 eslint-disable Usage (46 instances)
 
 Most are justified:
+
 - `@next/next/no-img-element` — Dynamic external URLs (Google avatar, Supabase storage)
 - `no-restricted-syntax` — Framer Motion requires numeric boxShadow/z-index for interpolation
 - `react-hooks/exhaustive-deps` — 4 instances, some hiding real bugs (see Section 5.1)
@@ -418,6 +432,7 @@ Most are justified:
 **File:** `src/lib/health/env.ts`
 
 Missing validation for env vars used in code:
+
 - `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`
 - `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN`
 - `RESEND_WEBHOOK_SECRET`
@@ -428,55 +443,56 @@ Missing validation for env vars used in code:
 
 ### P0 — Fix Immediately (Security/Correctness)
 
-| # | Issue | Effort | Section |
-|---|-------|--------|---------|
-| 1 | Create root `src/middleware.ts` to wire session refresh | 15 min | 1.1 |
-| 2 | Protect `/api/debug/sentry` endpoint | 5 min | 1.2 |
-| 3 | Fix cron endpoint fail-open behavior | 5 min | 1.3 |
-| 4 | Add Zod validation to `/api/admin/emails/send` | 15 min | 2.4 |
+| #   | Issue                                                   | Effort | Section |
+| --- | ------------------------------------------------------- | ------ | ------- |
+| 1   | Create root `src/middleware.ts` to wire session refresh | 15 min | 1.1     |
+| 2   | Protect `/api/debug/sentry` endpoint                    | 5 min  | 1.2     |
+| 3   | Fix cron endpoint fail-open behavior                    | 5 min  | 1.3     |
+| 4   | Add Zod validation to `/api/admin/emails/send`          | 15 min | 2.4     |
 
 ### P1 — Fix Soon (Architecture/Reliability)
 
-| # | Issue | Effort | Section |
-|---|-------|--------|---------|
-| 5 | Add auth guard to `(customer)` layout | 30 min | 4.1 |
-| 6 | Standardize auth redirect params (`next` vs `redirect`) | 20 min | 4.2 |
-| 7 | Fix `useOfflineSync` race condition | 15 min | 5.1 |
-| 8 | Fix `useLocationTracking` stale timeout | 10 min | 5.1 |
-| 9 | Fix `useTrackingSubscription` channel accumulation | 15 min | 5.1 |
-| 10 | Add error boundaries to 16 routes | 1 hr | 4.3 |
-| 11 | Add loading states to 6 routes | 45 min | 4.4 |
-| 12 | Add missing hooks to barrel export | 10 min | 3.6 |
+| #   | Issue                                                   | Effort | Section |
+| --- | ------------------------------------------------------- | ------ | ------- |
+| 5   | Add auth guard to `(customer)` layout                   | 30 min | 4.1     |
+| 6   | Standardize auth redirect params (`next` vs `redirect`) | 20 min | 4.2     |
+| 7   | Fix `useOfflineSync` race condition                     | 15 min | 5.1     |
+| 8   | Fix `useLocationTracking` stale timeout                 | 10 min | 5.1     |
+| 9   | Fix `useTrackingSubscription` channel accumulation      | 15 min | 5.1     |
+| 10  | Add error boundaries to 16 routes                       | 1 hr   | 4.3     |
+| 11  | Add loading states to 6 routes                          | 45 min | 4.4     |
+| 12  | Add missing hooks to barrel export                      | 10 min | 3.6     |
 
 ### P2 — Fix When Possible (Code Health)
 
-| # | Issue | Effort | Section |
-|---|-------|--------|---------|
-| 13 | Delete dead `navigation/` directory (6 files) | 5 min | 3.1 |
-| 14 | Consolidate dual toast systems | 2 hrs | 3.3 |
-| 15 | Consolidate duplicate StarRating components | 1 hr | 3.5 |
-| 16 | Consolidate duplicate stagger animation libs | 30 min | 3.4 |
-| 17 | Split 7 oversized components (>400 lines) | 2 hrs | 7.1 |
-| 18 | Replace console.* calls with logger utility | 1 hr | 7.2 |
-| 19 | Remove stale ESLint consolidation guards | 30 min | 8.4 |
-| 20 | Add E2E tests to CI pipeline | 1 hr | 8.1 |
-| 21 | Add Knip dead code detection to CI | 30 min | 8.1 |
+| #   | Issue                                         | Effort | Section |
+| --- | --------------------------------------------- | ------ | ------- |
+| 13  | Delete dead `navigation/` directory (6 files) | 5 min  | 3.1     |
+| 14  | Consolidate dual toast systems                | 2 hrs  | 3.3     |
+| 15  | Consolidate duplicate StarRating components   | 1 hr   | 3.5     |
+| 16  | Consolidate duplicate stagger animation libs  | 30 min | 3.4     |
+| 17  | Split 7 oversized components (>400 lines)     | 2 hrs  | 7.1     |
+| 18  | Replace console.\* calls with logger utility  | 1 hr   | 7.2     |
+| 19  | Remove stale ESLint consolidation guards      | 30 min | 8.4     |
+| 20  | Add E2E tests to CI pipeline                  | 1 hr   | 8.1     |
+| 21  | Add Knip dead code detection to CI            | 30 min | 8.1     |
 
 ### P3 — Roadmap Items
 
-| # | Issue | Effort | Section |
-|---|-------|--------|---------|
-| 22 | Write tests for 89 untested API routes | Days | 6.2 |
-| 23 | Sanitize HTML in email preview (DOMPurify) | 30 min | 2.2 |
-| 24 | Add signed tokens for shared tracking links | 2 hrs | 2.3 |
-| 25 | Investigate CSP nonce strategy | 4 hrs | 2.1 |
-| 26 | Sync env validation with actual usage | 30 min | 9.5 |
+| #   | Issue                                       | Effort | Section |
+| --- | ------------------------------------------- | ------ | ------- |
+| 22  | Write tests for 89 untested API routes      | Days   | 6.2     |
+| 23  | Sanitize HTML in email preview (DOMPurify)  | 30 min | 2.2     |
+| 24  | Add signed tokens for shared tracking links | 2 hrs  | 2.3     |
+| 25  | Investigate CSP nonce strategy              | 4 hrs  | 2.1     |
+| 26  | Sync env validation with actual usage       | 30 min | 9.5     |
 
 ---
 
 ## Overall Assessment
 
 **Strengths:**
+
 - Excellent TypeScript discipline (zero `any`, zero `ts-ignore`)
 - Strong server-side price calculation (never trusts client)
 - Comprehensive Zod validation on critical routes
@@ -488,6 +504,7 @@ Missing validation for env vars used in code:
 - Strong E2E test coverage (18 Playwright specs)
 
 **Weaknesses:**
+
 - Missing root middleware (session refresh not wired)
 - Customer routes lack consistent auth protection
 - Only 3 of 92 API routes have unit tests

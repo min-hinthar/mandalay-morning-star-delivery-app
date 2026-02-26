@@ -1,4 +1,5 @@
 import { geocodeAddress } from "@/lib/services/geocoding";
+import { logger } from "@/lib/utils/logger";
 import {
   COVERAGE_LIMITS,
   CoverageCheckResult,
@@ -80,7 +81,7 @@ export async function checkCoverage(
     const data: GoogleRoutesResponse = await response.json();
 
     if (!response.ok || data.error || !data.routes || data.routes.length === 0) {
-      console.error("Routes API error:", data.error);
+      logger.error("Routes API error", { api: "coverage" });
       return {
         isValid: false,
         distanceMiles: 0,
@@ -117,8 +118,8 @@ export async function checkCoverage(
       lng: destLng,
       encodedPolyline: route.polyline?.encodedPolyline,
     };
-  } catch (error) {
-    console.error("Coverage check error:", error);
+  } catch {
+    logger.error("Coverage check error", { api: "coverage" });
     return {
       isValid: false,
       distanceMiles: 0,

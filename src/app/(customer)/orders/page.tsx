@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/utils/logger";
 import { Button } from "@/components/ui/button";
 import { OrdersHeader } from "@/components/ui/orders/OrdersHeader";
 import { OrderListAnimated } from "@/components/ui/orders/OrderListAnimated";
@@ -47,7 +48,7 @@ export default async function OrdersPage() {
     .returns<OrderRow[]>();
 
   if (ordersError) {
-    console.error("Failed to fetch orders:", ordersError);
+    logger.error("Failed to fetch orders", { api: "orders/page" });
   }
 
   const orders = (ordersData ?? []).map((order) => ({

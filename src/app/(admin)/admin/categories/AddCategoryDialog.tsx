@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus, Loader2, FolderTree } from "lucide-react";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -37,9 +37,8 @@ export function AddCategoryDialog({ onCategoryCreated }: AddCategoryDialogProps)
   const handleCreate = async () => {
     if (!newCategory.name.trim() || !newCategory.slug.trim()) {
       toast({
-        title: "Validation error",
-        description: "Name and slug are required",
-        variant: "destructive",
+        message: "Name and slug are required",
+        type: "error",
       });
       return;
     }
@@ -61,17 +60,16 @@ export function AddCategoryDialog({ onCategoryCreated }: AddCategoryDialogProps)
       }
 
       toast({
-        title: "Created",
-        description: `Category "${newCategory.name}" created successfully`,
+        message: `Category "${newCategory.name}" created successfully`,
+        type: "success",
       });
       setNewCategory({ name: "", slug: "" });
       setOpen(false);
       onCategoryCreated();
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to create category",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to create category",
+        type: "error",
       });
     } finally {
       setCreating(false);

@@ -14,6 +14,7 @@ import Link from "next/link";
 import { X, Check, Loader2 } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
+import { logger } from "@/lib/utils/logger";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import type { Json } from "@/types/database";
@@ -82,7 +83,7 @@ async function upsertCustomerSettings(
     .upsert(payload as { user_id: string; [key: string]: unknown }, { onConflict: "user_id" });
 
   if (error) {
-    console.error("Failed to save customer settings:", error);
+    logger.error("Failed to save customer settings", { api: "customer-settings" });
     throw error;
   }
 }

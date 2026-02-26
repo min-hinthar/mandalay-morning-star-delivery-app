@@ -5,7 +5,7 @@ import { m, AnimatePresence } from "framer-motion";
 import { Mail, MailPlus, RefreshCw, Trash2, Clock } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils/cn";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import type { PendingInvite } from "./types";
@@ -32,9 +32,8 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
       onInviteCountChange?.(data.length);
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to fetch pending invites",
-        variant: "destructive",
+        message: "Failed to fetch pending invites",
+        type: "error",
       });
     } finally {
       setLoading(false);
@@ -56,15 +55,14 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
         throw new Error(error.error || "Failed to resend invite");
       }
       toast({
-        title: "Invite Resent",
-        description: `Email sent to ${invite.email}`,
+        message: `Email sent to ${invite.email}`,
+        type: "success",
       });
       await fetchInvites();
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to resend invite",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to resend invite",
+        type: "error",
       });
     } finally {
       setActionLoading(null);
@@ -89,8 +87,8 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
         throw new Error(error.error || "Failed to revoke invite");
       }
       toast({
-        title: "Invite Revoked",
-        description: `Invite to ${selectedInvite.email} has been revoked`,
+        message: `Invite to ${selectedInvite.email} has been revoked`,
+        type: "success",
       });
       setInvites((prev) => {
         const updated = prev.filter((i) => i.id !== selectedInvite.id);
@@ -99,9 +97,8 @@ export function PendingInvitesTab({ onInviteCountChange }: PendingInvitesTabProp
       });
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to revoke invite",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to revoke invite",
+        type: "error",
       });
     } finally {
       setActionLoading(null);

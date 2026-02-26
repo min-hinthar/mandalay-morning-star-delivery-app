@@ -4,7 +4,7 @@ import { useState, useCallback } from "react";
 import { Loader2, ArrowLeft, Send, Eye } from "lucide-react";
 import { Modal, ModalHeader, ModalFooter } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { TiptapEditor } from "./TiptapEditor";
 
 // ===========================================
@@ -57,11 +57,11 @@ export function ManualEmailDialog({
 
   const handlePreview = useCallback(() => {
     if (!subject.trim()) {
-      toast({ variant: "destructive", description: "Subject is required" });
+      toast({ message: "Subject is required", type: "error" });
       return;
     }
     if (!htmlBody.trim() || htmlBody === "<p></p>") {
-      toast({ variant: "destructive", description: "Email body is required" });
+      toast({ message: "Email body is required", type: "error" });
       return;
     }
     setStep("preview");
@@ -86,12 +86,12 @@ export function ManualEmailDialog({
         throw new Error(data.error || "Failed to send email");
       }
 
-      toast({ variant: "success", description: "Email sent successfully" });
+      toast({ message: "Email sent successfully", type: "success" });
       handleClose();
       onSent?.();
     } catch (err) {
       const message = err instanceof Error ? err.message : "Failed to send";
-      toast({ variant: "destructive", description: message });
+      toast({ message, type: "error" });
       setSending(false);
     }
   }, [orderId, subject, htmlBody, customerEmail, handleClose, onSent]);

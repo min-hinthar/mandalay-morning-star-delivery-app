@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { checkRateLimit, publicReadLimiter, getClientIp } from "@/lib/rate-limit";
+import { logger } from "@/lib/utils/logger";
 
 /**
  * Web Vitals Analytics Endpoint
@@ -46,7 +47,12 @@ export async function POST(request: Request) {
 
     // Log in development for debugging
     if (process.env.NODE_ENV === "development") {
-      console.log("[Vitals API]", payload.name, payload.value, payload.rating);
+      logger.info("Web vital received", {
+        api: "analytics/vitals",
+        metric: payload.name,
+        value: payload.value,
+        rating: payload.rating,
+      });
     }
 
     return NextResponse.json({ success: true }, { status: 200 });

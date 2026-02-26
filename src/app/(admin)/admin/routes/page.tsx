@@ -8,7 +8,7 @@ import { RefreshCw, Plus, Filter, MapPin, Calendar, ChevronLeft, ChevronRight } 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { RouteListTable, type AdminRoute } from "@/components/ui/admin/routes/RouteListTable";
 import {
   CreateRouteModal,
@@ -55,7 +55,7 @@ export default function AdminRoutesPage() {
       setRoutes(data);
     } catch {
       setError("Failed to load routes. Please try again.");
-      toast({ title: "Error", description: "Failed to fetch routes", variant: "destructive" });
+      toast({ message: "Failed to fetch routes", type: "error" });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -92,9 +92,8 @@ export default function AdminRoutesPage() {
       router.refresh();
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to update route",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to update route",
+        type: "error",
       });
     }
   };
@@ -114,9 +113,8 @@ export default function AdminRoutesPage() {
       router.refresh();
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to delete route",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to delete route",
+        type: "error",
       });
     }
   };

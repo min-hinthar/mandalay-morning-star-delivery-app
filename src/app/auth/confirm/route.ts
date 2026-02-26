@@ -3,6 +3,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { getRoleDashboard } from "@/lib/auth/role-redirect";
+import { logger } from "@/lib/utils/logger";
 
 interface DriverInviteRow {
   id: string;
@@ -50,7 +51,7 @@ export async function GET(request: Request): Promise<NextResponse> {
   });
 
   if (error || !data.session) {
-    console.error("[Auth Confirm] verifyOtp error:", error?.message);
+    logger.error("verifyOtp error", { api: "auth/confirm", flowId: "auth" });
 
     // Token expired or invalid — route to expired page with invite context
     if (inviteId) {
@@ -76,10 +77,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     const userEmail = data.session.user.email;
     const userId = data.session.user.id;
 
-    console.log("[Auth Confirm] Processing driver invite:", {
-      inviteId,
-      userEmail,
-    });
+    logger.info("Processing driver invite", { api: "auth/confirm", flowId: "auth" });
 
     const { data: invite, error: inviteError } = await serviceSupabase
       .from("driver_invites")
@@ -99,13 +97,10 @@ export async function GET(request: Request): Promise<NextResponse> {
         });
 
         if (updateError) {
-          console.error("[Auth Confirm] Failed to update user metadata:", updateError.message);
+          logger.error("Failed to update user metadata", { api: "auth/confirm", flowId: "auth" });
         }
       } else {
-        console.warn("[Auth Confirm] Email mismatch:", {
-          inviteEmail: invite.email,
-          userEmail,
-        });
+        logger.warn("Email mismatch on driver invite", { api: "auth/confirm", flowId: "auth" });
       }
     }
   }

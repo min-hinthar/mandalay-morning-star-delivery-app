@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { m } from "framer-motion";
 import { Route, Calendar, Clock, ChevronRight, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { spring } from "@/lib/motion-tokens";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -68,9 +68,8 @@ export function RecentRoutesSection({ driverId }: RecentRoutesSectionProps) {
         setRoutes(data.routes || []);
       } catch {
         toast({
-          title: "Error",
-          description: "Failed to fetch route history",
-          variant: "destructive",
+          message: "Failed to fetch route history",
+          type: "error",
         });
       } finally {
         setLoading(false);

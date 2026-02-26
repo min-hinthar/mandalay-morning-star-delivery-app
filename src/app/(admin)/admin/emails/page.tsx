@@ -6,7 +6,7 @@ import { Mail, Search, ChevronLeft, ChevronRight, RefreshCw, Loader2 } from "luc
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import {
   type EmailLogEntry,
   type PaginationMeta,
@@ -69,7 +69,7 @@ export default function AdminEmailLogPage() {
           data.filter((e: EmailLogEntry) => e.status === "failed" || e.status === "bounced").length
         );
       } catch {
-        toast({ variant: "destructive", description: "Failed to load email log" });
+        toast({ message: "Failed to load email log", type: "error" });
       } finally {
         setLoading(false);
       }
@@ -90,11 +90,11 @@ export default function AdminEmailLogPage() {
           const data = await response.json().catch(() => ({}));
           throw new Error(data.error || "Failed to resend email");
         }
-        toast({ variant: "success", description: "Email resent successfully" });
+        toast({ message: "Email resent successfully", type: "success" });
         fetchEmails(pagination.page);
       } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to resend email";
-        toast({ variant: "destructive", description: message });
+        toast({ message, type: "error" });
       } finally {
         setResendingId(null);
       }
