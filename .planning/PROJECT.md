@@ -2,15 +2,15 @@
 
 ## What This Is
 
-A full frontend rewrite of the Morning Star Weekly Delivery meal subscription app. Fresh V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. Nine milestones shipped (v1.0-v1.8): customer flows, tech debt cleanup, playful UI overhaul, codebase consolidation, mobile excellence, performance infrastructure, production polish, production deployment, and post-launch hardening with driver experience. V1.8 completed security hardening (enforcing CSP + security headers, comprehensive RLS audit of all 24 tables, distributed rate limiting via Upstash Redis), full driver experience overhaul (profile setup with photo upload, earnings dashboard with charts and badges, availability scheduling, weekly route visibility, history with pagination), role-based auth redirects (admin/driver/customer), passwordless driver onboarding, guided walkthrough with test delivery page, and glassmorphism UI polish matching customer-side quality.
+A full frontend rewrite of the Morning Star Weekly Delivery meal subscription app. Fresh V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. Nine milestones shipped (v1.0-v1.8) across 76 phases and 312 plans: customer flows, tech debt cleanup, playful UI overhaul, codebase consolidation, mobile excellence, performance infrastructure, production polish, production deployment, and post-launch hardening with driver experience. V1.8 completed security hardening (enforcing CSP + security headers, comprehensive RLS audit of all 24 tables, distributed rate limiting via Upstash Redis), full driver experience overhaul (profile setup with photo upload, earnings dashboard with charts and badges, availability scheduling, weekly route visibility, history with pagination), role-based auth redirects (admin/driver/customer), passwordless driver onboarding, guided walkthrough with test delivery page, glassmorphism UI polish, and gap closure (3 wiring fixes identified by milestone audit).
 
 ## Core Value
 
 **Every UI element is reliably clickable and the app feels delightfully alive with motion.** If overlays block clicks or animations feel janky, we've failed.
 
-## Current State (v1.8 shipped)
+## Current State (v1.8 + gap closure shipped)
 
-- 9 milestones complete: v1.0-v1.8 (74 phases, 310 plans, 370+ requirements)
+- 9 milestones complete: v1.0-v1.8 (76 phases, 312 plans, 37/37 v1.8 requirements at 100%)
 - Deployed to production at delivery.mandalaymorningstar.com
 - Health endpoint validates 5 services (Supabase, Stripe, Google OAuth, Search Console, Resend)
 - Full observability: Sentry client/server/edge with source maps, Speed Insights, web vitals
@@ -20,6 +20,7 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - Distributed rate limiting via Upstash Redis on all API endpoints
 - Role-based auth redirects: admin→/admin, driver→/driver, customer→/menu
 - Full driver experience: profile, earnings, availability, schedule, history, onboarding walkthrough
+- Gap closure complete: walkthrough href wired, BlockedDateChips surfaced, stale closure fixed
 - 335 unit tests passing across 16 test files
 - ~123,633 lines TypeScript total
 
@@ -179,7 +180,9 @@ _(No active milestone — ready for v1.9+ planning)_
 | JSONB for driver availability | Flexible schema for recurring + blocked dates | ✓ Good — avoids join tables |
 | Recharts for earnings charts | Already in bundle; lighter than Victory/Nivo | ✓ Good — zero new deps |
 | testMode prop pattern | Components skip API calls when testMode=true | ✓ Good — mock data isolation |
+| Gap closure via milestone audit | Audit caught 3 wiring gaps that verification missed | ✓ Essential — pre-built components need integration testing |
+| Wiring fixes over rebuilds | SEC-02, DPROF-05, DDASH-07 were all existing components needing connection | ✓ Good — minimal code, maximum impact |
 
 ---
 
-_Last updated: 2026-02-23 after v1.8 milestone archived_
+_Last updated: 2026-02-26 after v1.8 gap closure_
