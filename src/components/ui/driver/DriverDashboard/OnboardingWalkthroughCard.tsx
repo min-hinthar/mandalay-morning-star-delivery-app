@@ -39,7 +39,7 @@ interface Milestone {
 const milestones: Milestone[] = [
   { key: "profile", label: "Complete your profile", href: "/driver/profile" },
   { key: "route", label: "View today's route", href: "/driver/route" },
-  { key: "delivery", label: "Complete your first delivery", href: null },
+  { key: "delivery", label: "Complete your first delivery", href: "/driver/test-delivery" },
 ];
 
 function getProfileComplete(driver: OnboardingWalkthroughCardProps["driver"]): boolean {
