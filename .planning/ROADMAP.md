@@ -11,6 +11,7 @@
 - ✅ **v1.6 Production Polish** — Phases 48-57 (shipped 2026-02-13)
 - ✅ **v1.7 Production Deployment & Readiness** — Phases 58-66 (shipped 2026-02-16)
 - ✅ **v1.8 Post-Launch Hardening & Driver Experience** — Phases 67-74 (shipped 2026-02-19)
+- 🔧 **v1.8 Gap Closure** — Phases 75-76
 
 ## Phases
 
@@ -43,6 +44,13 @@
 
 </details>
 
+### v1.8 Gap Closure (Phases 75-76)
+
+**Gap Closure:** Closes gaps from v1.8 milestone audit
+
+- [ ] Phase 75: Fix Security & Navigation Wiring (SEC-02, DPROF-05)
+- [ ] Phase 76: Surface Hidden Components & Dead Code Cleanup (DDASH-07)
+
 ## Progress
 
 **Historical:**
@@ -58,7 +66,8 @@
 | v1.6 Polish        | 48-57  | 47      | 2026-02-13 |
 | v1.7 Deployment    | 58-66  | 32      | 2026-02-16 |
 | v1.8 Hardening     | 67-74  | 23      | 2026-02-19 |
-| **Total**          | **74** | **310** |            |
+| v1.8 Gap Closure   | 75-76  | —       | —          |
+| **Total**          | **76** | **310+**|            |
 
 ---
 
