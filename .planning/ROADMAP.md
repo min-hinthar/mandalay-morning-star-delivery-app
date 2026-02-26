@@ -11,7 +11,7 @@
 - ✅ **v1.6 Production Polish** — Phases 48-57 (shipped 2026-02-13)
 - ✅ **v1.7 Production Deployment & Readiness** — Phases 58-66 (shipped 2026-02-16)
 - ✅ **v1.8 Post-Launch Hardening & Driver Experience** — Phases 67-74 (shipped 2026-02-19)
-- 🔧 **v1.8 Gap Closure** — Phases 75-76
+- ✅ **v1.8 Gap Closure** — Phases 75-76 (shipped 2026-02-26)
 
 ## Phases
 
@@ -44,32 +44,29 @@
 
 </details>
 
-### v1.8 Gap Closure (Phases 75-76)
-
-**Gap Closure:** Closes gaps from v1.8 milestone audit
+<details>
+<summary>✅ v1.8 Gap Closure (Phases 75-76) — SHIPPED 2026-02-26</summary>
 
 - [x] Phase 75: Fix Security & Navigation Wiring (SEC-02, DPROF-05) — 1/1 plans — completed 2026-02-26
-  - [x] 75-01-PLAN.md — Wire test-delivery href + update requirement tracking
-- [x] Phase 76: Surface Hidden Components & Dead Code Cleanup (DDASH-07) — 1/1 plans (completed 2026-02-26)
-  - [ ] 76-01-PLAN.md — Wire BlockedDateChips into schedule page + fix stale closure
+- [x] Phase 76: Surface Hidden Components & Dead Code Cleanup (DDASH-07) — 1/1 plans — completed 2026-02-26
+
+</details>
 
 ## Progress
 
-**Historical:**
-
-| Milestone          | Phases | Plans   | Shipped    |
-| ------------------ | ------ | ------- | ---------- |
-| v1.0 MVP           | 1-8    | 32      | 2026-01-23 |
-| v1.1 Tech Debt     | 9-14   | 21      | 2026-01-23 |
-| v1.2 Playful UI    | 15-24  | 29      | 2026-01-27 |
-| v1.3 Consolidation | 25-34  | 53      | 2026-01-28 |
-| v1.4 Mobile        | 35-39  | 39      | 2026-02-05 |
-| v1.5 Performance   | 40-47  | 34      | 2026-02-07 |
-| v1.6 Polish        | 48-57  | 47      | 2026-02-13 |
-| v1.7 Deployment    | 58-66  | 32      | 2026-02-16 |
-| v1.8 Hardening     | 67-74  | 23      | 2026-02-19 |
-| v1.8 Gap Closure   | 75-76  | —       | —          |
-| **Total**          | **76** | **310+**|            |
+| Milestone          | Phases | Plans | Shipped    |
+| ------------------ | ------ | ----- | ---------- |
+| v1.0 MVP           | 1-8    | 32    | 2026-01-23 |
+| v1.1 Tech Debt     | 9-14   | 21    | 2026-01-23 |
+| v1.2 Playful UI    | 15-24  | 29    | 2026-01-27 |
+| v1.3 Consolidation | 25-34  | 53    | 2026-01-28 |
+| v1.4 Mobile        | 35-39  | 39    | 2026-02-05 |
+| v1.5 Performance   | 40-47  | 34    | 2026-02-07 |
+| v1.6 Polish        | 48-57  | 47    | 2026-02-13 |
+| v1.7 Deployment    | 58-66  | 32    | 2026-02-16 |
+| v1.8 Hardening     | 67-74  | 23    | 2026-02-19 |
+| v1.8 Gap Closure   | 75-76  | 2     | 2026-02-26 |
+| **Total**          | **76** | **312** |          |
 
 ---
 

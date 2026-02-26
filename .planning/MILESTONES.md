@@ -1,10 +1,10 @@
 # Project Milestones: Morning Star V8 UI Rewrite
 
-## v1.8 Post-Launch Hardening & Driver Experience (Shipped: 2026-02-19)
+## v1.8 Post-Launch Hardening & Driver Experience (Shipped: 2026-02-19, Gap Closure: 2026-02-26)
 
-**Delivered:** Production security hardening (CSP, RLS, rate limiting), complete driver experience overhaul (profile, earnings, availability, onboarding), and role-based auth redirects.
+**Delivered:** Production security hardening (CSP, RLS, rate limiting), complete driver experience overhaul (profile, earnings, availability, onboarding), role-based auth redirects, and gap closure wiring fixes.
 
-**Phases completed:** 67-74 (23 plans total)
+**Phases completed:** 67-76 (25 plans total — 23 core + 2 gap closure)
 
 **Key accomplishments:**
 
@@ -14,15 +14,16 @@
 - Role-based auth redirects — admin→/admin, driver→/driver, customer→/menu, proxy-level protection, passwordless driver onboarding, deep linking
 - Full driver experience — profile setup with photo upload, earnings dashboard with Recharts charts and streak badges, availability scheduling with JSONB, weekly schedule and route visibility, history page with pagination and monthly grouping
 - Guided onboarding — walkthrough checklist with milestone celebration, test delivery page with mock data, glassmorphism polish and stagger animations matching customer-side quality
+- Gap closure (Phases 75-76) — wired test-delivery href in walkthrough, BlockedDateChips into schedule page, fixed stale closure; 3 audit gaps closed
 
 **Stats:**
 
-- 8 phases, 23 plans
+- 10 phases, 25 plans (8 core + 2 gap closure)
 - 37/37 requirements satisfied (100%)
 - ~100 commits, 711 source files modified
 - +18,335 / -13,026 lines (net +5,309)
 - ~123,633 lines TypeScript total
-- 3 days (2026-02-17 → 2026-02-19)
+- Core: 3 days (2026-02-17 → 2026-02-19), Gap closure: 2026-02-26
 
 **Git range:** `feat(67-01): add enforcing CSP header` → `feat(74-03): add glass shell, hover lift, shine-sweep, and glow polish`
 
