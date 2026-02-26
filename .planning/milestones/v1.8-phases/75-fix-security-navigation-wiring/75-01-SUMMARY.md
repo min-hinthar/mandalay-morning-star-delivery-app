@@ -62,7 +62,7 @@ Each task was committed atomically:
 
 1. **Task 1: Wire test-delivery href and update requirement tracking** - `45659ab8` (feat)
 
-**Plan metadata:** [pending] (docs: complete plan)
+**Plan metadata:** `d1620078` (docs: complete plan)
 
 ## Files Created/Modified
 - `src/components/ui/driver/DriverDashboard/OnboardingWalkthroughCard.tsx` - Changed milestone 3 href from null to "/driver/test-delivery"
