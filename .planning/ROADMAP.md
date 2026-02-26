@@ -48,7 +48,8 @@
 
 **Gap Closure:** Closes gaps from v1.8 milestone audit
 
-- [ ] Phase 75: Fix Security & Navigation Wiring (SEC-02, DPROF-05)
+- [ ] Phase 75: Fix Security & Navigation Wiring (SEC-02, DPROF-05) — **Plans:** 1
+  - [ ] 75-01-PLAN.md — Wire test-delivery href + update requirement tracking
 - [ ] Phase 76: Surface Hidden Components & Dead Code Cleanup (DDASH-07)
 
 ## Progress
