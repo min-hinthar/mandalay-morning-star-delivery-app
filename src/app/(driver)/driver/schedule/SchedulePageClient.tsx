@@ -5,7 +5,7 @@ import { m } from "framer-motion";
 import { CalendarDays } from "lucide-react";
 import { staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks";
-import { DayOfWeekPills } from "@/components/ui/driver/AvailabilityPicker";
+import { DayOfWeekPills, BlockedDateChips } from "@/components/ui/driver/AvailabilityPicker";
 import { HistorySummaryCard } from "@/components/ui/driver/DriverDashboard/HistorySummaryCard";
 import type { HistoryRouteData } from "@/components/ui/driver/DriverDashboard/HistorySummaryCard";
 import type { DayOfWeek, DriverAvailability } from "@/types/driver";
@@ -26,6 +26,7 @@ export function SchedulePageClient({ routes, availability }: SchedulePageClientP
 
   // Availability state (interactive -- driver can change days here)
   const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>(availability?.available_days ?? []);
+  const [blockedDates, setBlockedDates] = useState<string[]>(availability?.blocked_dates ?? []);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleDaysChange = useCallback(
@@ -38,14 +39,34 @@ export function SchedulePageClient({ routes, availability }: SchedulePageClientP
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             available_days: days,
-            blocked_dates: availability?.blocked_dates ?? [],
+            blocked_dates: blockedDates,
           }),
         });
       } finally {
         setIsSaving(false);
       }
     },
-    [availability?.blocked_dates]
+    [blockedDates]
+  );
+
+  const handleBlockedDatesChange = useCallback(
+    async (dates: string[]) => {
+      setBlockedDates(dates);
+      setIsSaving(true);
+      try {
+        await fetch("/api/driver/availability", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            available_days: selectedDays,
+            blocked_dates: dates,
+          }),
+        });
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [selectedDays]
   );
 
   // Group routes by date
@@ -86,6 +107,15 @@ export function SchedulePageClient({ routes, availability }: SchedulePageClientP
           {isSaving && <span className="text-xs text-text-muted animate-pulse">Saving...</span>}
         </div>
         <DayOfWeekPills selected={selectedDays} onChange={handleDaysChange} />
+      </div>
+
+      {/* Blocked Dates */}
+      <div className="space-y-2">
+        <p className="text-sm font-medium text-text-secondary">Blocked Dates</p>
+        <p className="text-xs text-text-muted">
+          Block specific dates when you&apos;re unavailable (vacation, sick, etc.)
+        </p>
+        <BlockedDateChips dates={blockedDates} onChange={handleBlockedDatesChange} />
       </div>
 
       {/* Route List */}
