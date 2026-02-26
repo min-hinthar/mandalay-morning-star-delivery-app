@@ -1,7 +1,7 @@
 # Requirements: v1.8 Post-Launch Hardening & Driver Experience
 
 **Status:** Gap Closure in Progress
-**Coverage:** 34/37 complete (92%) — 3 requirements reset for gap closure
+**Coverage:** 36/37 complete (97%) — 1 requirement remaining for Phase 76
 
 ---
 
@@ -10,7 +10,7 @@
 ### Security
 
 - [x] **SEC-01**: CSP headers configured in report-only mode with all external domains whitelisted (Stripe, Google Maps, Supabase, Sentry, Google Fonts, Vercel Analytics)
-- [ ] **SEC-02**: CSP enforced after report-only validation (upgrade Content-Security-Policy-Report-Only to Content-Security-Policy)
+- [x] **SEC-02**: CSP enforced after report-only validation (upgrade Content-Security-Policy-Report-Only to Content-Security-Policy)
 - [x] **SEC-03**: All Supabase tables audited for RLS policies (featured_sections, customer_settings, driver_invites, webhook_events, order_audit_log, app_settings, email_logs)
 - [x] **SEC-04**: Missing RLS policies added with proper role-based access (driver own-read, admin bypass, service-role for system tables)
 - [x] **SEC-05**: RLS policy indexes added on user_id, driver_id, route_id columns for performance
@@ -32,7 +32,7 @@
 - [x] **DPROF-02**: Driver can upload profile photo via Supabase Storage (driver-photos bucket)
 - [x] **DPROF-03**: Profile completeness indicator on dashboard showing missing fields
 - [x] **DPROF-04**: Onboarding checklist on dashboard for new drivers (profile complete, first route viewed, first delivery done)
-- [ ] **DPROF-05**: Test delivery page (/driver/test-delivery) with mock route data for practicing delivery flow
+- [x] **DPROF-05**: Test delivery page (/driver/test-delivery) with mock route data for practicing delivery flow
 
 ### Driver Dashboard
 
@@ -67,7 +67,7 @@
 | Requirement | Phase    | Status   |
 | ----------- | -------- | -------- |
 | SEC-01      | Phase 67 | Complete |
-| SEC-02      | Phase 75 | Pending  |
+| SEC-02      | Phase 75 | Complete |
 | SEC-03      | Phase 68 | Complete |
 | SEC-04      | Phase 68 | Complete |
 | SEC-05      | Phase 68 | Complete |
@@ -83,7 +83,7 @@
 | DPROF-02    | Phase 71 | Complete |
 | DPROF-03    | Phase 71 | Complete |
 | DPROF-04    | Phase 74 | Complete |
-| DPROF-05    | Phase 75 | Pending  |
+| DPROF-05    | Phase 75 | Complete |
 | DDASH-01    | Phase 72 | Complete |
 | DDASH-02    | Phase 72 | Complete |
 | DDASH-03    | Phase 72 | Complete |
@@ -104,7 +104,7 @@
 | CLN-02      | Phase 67 | Complete |
 | CLN-03      | Phase 67 | Complete |
 
-**Coverage:** 34/37 complete (92%)
+**Coverage:** 36/37 complete (97%)
 
 ---
 
