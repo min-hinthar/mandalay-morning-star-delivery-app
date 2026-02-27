@@ -92,7 +92,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     // If no rows updated, status changed between our read and write (race condition)
     if (!updatedRows || updatedRows.length === 0) {
       return NextResponse.json(
-        { error: `Order status changed to '${previousStatus}' — cannot cancel. Refresh and try again.` },
+        {
+          error: `Order status changed to '${previousStatus}' — cannot cancel. Refresh and try again.`,
+        },
         { status: 409 }
       );
     }
