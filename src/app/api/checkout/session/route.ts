@@ -219,7 +219,10 @@ export async function POST(request: Request) {
       .in("id", menuItemIds);
 
     if (freshMenuError) {
-      await supabase.from("order_item_modifiers").delete().eq("order_item_id", orderItems.map((oi) => oi.id)[0] ? "" : "");
+      await supabase
+        .from("order_item_modifiers")
+        .delete()
+        .eq("order_item_id", orderItems.map((oi) => oi.id)[0] ? "" : "");
       await supabase.from("order_items").delete().eq("order_id", order.id);
       await supabase.from("orders").delete().eq("id", order.id);
       return errorResponse("INTERNAL_ERROR", "Failed to re-validate menu items", 500);
@@ -228,10 +231,13 @@ export async function POST(request: Request) {
     const unavailableItems = (freshMenuItems ?? []).filter((item) => !item.is_active);
     if (unavailableItems.length > 0) {
       // Clean up the order we already created — items are no longer available
-      await supabase.from("order_item_modifiers").delete().in(
-        "order_item_id",
-        orderItems.map((oi) => oi.id)
-      );
+      await supabase
+        .from("order_item_modifiers")
+        .delete()
+        .in(
+          "order_item_id",
+          orderItems.map((oi) => oi.id)
+        );
       await supabase.from("order_items").delete().eq("order_id", order.id);
       await supabase.from("orders").delete().eq("id", order.id);
 
