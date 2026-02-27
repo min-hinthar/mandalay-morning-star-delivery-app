@@ -67,4 +67,5 @@ nul
 
 # claude local settings
 .claude/settings.local.json
+.claude/session-logs/
 storybook-static
