@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { type SectionCardSection } from "@/components/ui/admin/sections/SectionCard";
 import {
   SectionEditor,
@@ -31,7 +31,7 @@ export default function AdminSectionsPage() {
       const data = await response.json();
       setSections(data);
     } catch {
-      toast({ title: "Error", description: "Failed to fetch sections", variant: "destructive" });
+      toast({ message: "Failed to fetch sections", type: "error" });
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -87,8 +87,8 @@ export default function AdminSectionsPage() {
       }
 
       toast({
-        title: "Success",
-        description: isEditing ? "Section updated" : "Section created",
+        message: isEditing ? "Section updated" : "Section created",
+        type: "success",
       });
 
       setIsCreating(false);
@@ -96,9 +96,8 @@ export default function AdminSectionsPage() {
       fetchSections();
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to save section",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to save section",
+        type: "error",
       });
     } finally {
       setIsSaving(false);
@@ -122,7 +121,7 @@ export default function AdminSectionsPage() {
       setSections((prev) =>
         prev.map((s) => (s.id === section.id ? { ...s, isVisible: section.isVisible } : s))
       );
-      toast({ title: "Error", description: "Failed to update visibility", variant: "destructive" });
+      toast({ message: "Failed to update visibility", type: "error" });
     }
   };
 
@@ -137,10 +136,10 @@ export default function AdminSectionsPage() {
 
       if (!response.ok) throw new Error(`Failed to ${action} section`);
 
-      toast({ title: "Success", description: `Section ${action}d` });
+      toast({ message: `Section ${action}d`, type: "success" });
       fetchSections();
     } catch {
-      toast({ title: "Error", description: `Failed to ${action} section`, variant: "destructive" });
+      toast({ message: `Failed to ${action} section`, type: "error" });
     }
   };
 
@@ -154,10 +153,10 @@ export default function AdminSectionsPage() {
 
       if (!response.ok) throw new Error("Failed to duplicate section");
 
-      toast({ title: "Success", description: "Section duplicated" });
+      toast({ message: "Section duplicated", type: "success" });
       fetchSections();
     } catch {
-      toast({ title: "Error", description: "Failed to duplicate section", variant: "destructive" });
+      toast({ message: "Failed to duplicate section", type: "error" });
     }
   };
 
@@ -171,10 +170,10 @@ export default function AdminSectionsPage() {
 
       if (!response.ok) throw new Error("Failed to restore section");
 
-      toast({ title: "Success", description: "Section restored" });
+      toast({ message: "Section restored", type: "success" });
       fetchSections();
     } catch {
-      toast({ title: "Error", description: "Failed to restore section", variant: "destructive" });
+      toast({ message: "Failed to restore section", type: "error" });
     }
   };
 
@@ -198,7 +197,7 @@ export default function AdminSectionsPage() {
       if (!response.ok) throw new Error("Failed to reorder sections");
     } catch {
       fetchSections();
-      toast({ title: "Error", description: "Failed to reorder sections", variant: "destructive" });
+      toast({ message: "Failed to reorder sections", type: "error" });
     }
   };
 

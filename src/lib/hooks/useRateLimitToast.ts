@@ -8,7 +8,7 @@
  * const response = await fetch("/api/endpoint");
  * if (handleRateLimitResponse(response)) return; // shows toast, stops processing
  */
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 
 interface RateLimitContext {
   /** Show reassuring "order is being processed" message instead of generic 429 */
@@ -25,15 +25,13 @@ export function handleRateLimitResponse(response: Response, context?: RateLimitC
 
   if (context?.isOrderPlacement) {
     toast({
-      variant: "warning",
-      title: "Please wait",
-      description: "Your order is being processed. Please don't submit again.",
+      message: "Your order is being processed. Please don't submit again.",
+      type: "warning",
     });
   } else {
     toast({
-      variant: "destructive",
-      title: "Too many requests",
-      description: "Please wait a moment and try again.",
+      message: "Please wait a moment and try again.",
+      type: "error",
     });
   }
 

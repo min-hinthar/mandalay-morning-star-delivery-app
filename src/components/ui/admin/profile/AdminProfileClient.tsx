@@ -8,7 +8,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { LogOut } from "lucide-react";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { signOut } from "@/lib/supabase/actions";
 import { Button } from "@/components/ui/button";
 import { SaveButton } from "@/components/ui/admin/settings/SaveButton";
@@ -84,15 +84,14 @@ export function AdminProfileClient() {
       setPhone(data.phone ?? "");
 
       toast({
-        title: "Profile Updated",
-        description: "Your profile has been saved successfully.",
+        message: "Your profile has been saved successfully.",
+        type: "success",
       });
       return true;
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to update profile",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to update profile",
+        type: "error",
       });
       return false;
     }

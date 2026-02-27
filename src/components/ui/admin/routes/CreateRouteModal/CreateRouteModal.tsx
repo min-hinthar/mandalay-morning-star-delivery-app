@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils/cn";
+import { logger } from "@/lib/utils/logger";
 import { isDriverAvailable } from "@/lib/availability";
 import { OrderSelectionList } from "./OrderSelectionList";
 import type { CreateRouteData, Driver, Order, FormErrors } from "./types";
@@ -64,8 +65,8 @@ export function CreateRouteModal({ open, onOpenChange, onSubmit }: CreateRouteMo
             }))
         );
       }
-    } catch (error) {
-      console.error("Failed to fetch drivers:", error);
+    } catch {
+      logger.error("Failed to fetch drivers", { api: "admin/drivers" });
     } finally {
       setLoadingDrivers(false);
     }
@@ -103,8 +104,8 @@ export function CreateRouteModal({ open, onOpenChange, onSubmit }: CreateRouteMo
             )
         );
       }
-    } catch (error) {
-      console.error("Failed to fetch orders:", error);
+    } catch {
+      logger.error("Failed to fetch orders", { api: "admin/orders" });
     } finally {
       setLoadingOrders(false);
     }

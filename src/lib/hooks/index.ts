@@ -28,6 +28,9 @@ export type { Breakpoint } from "./useResponsive";
 export { useMediaQuery } from "./useMediaQuery";
 export { useAnimationPreference } from "./useAnimationPreference";
 export { useReducedMotion, useSystemReducedMotion } from "./useReducedMotion";
+export { useFontSize, FONT_SIZES } from "./useFontSize";
+export { useSoundPreference } from "./useSoundPreference";
+export { useThemeTransition } from "./useThemeTransition";
 
 // ============================================
 // UI HOOKS
@@ -58,6 +61,7 @@ export { useDebounce } from "./useDebounce";
 
 export { useCart } from "./useCart";
 export { useCartDrawer } from "./useCartDrawer";
+export { useCartValidation, useCartHydrated } from "./useCartValidation";
 export { useNavigationGuard } from "./useNavigationGuard";
 export type { UseNavigationGuardOptions, UseNavigationGuardReturn } from "./useNavigationGuard";
 
@@ -68,6 +72,7 @@ export type { UseNavigationGuardOptions, UseNavigationGuardReturn } from "./useN
 export { useMenu } from "./useMenu";
 export { useOrderHistorySearch, type OrderHistoryItem } from "./useOrderHistorySearch";
 export { useAddresses } from "./useAddresses";
+export { useFavorites, useFavoritesStore } from "./useFavorites";
 export { useTimeSlot } from "./useTimeSlot";
 export { useCoverageCheck } from "./useCoverageCheck";
 export {
@@ -75,6 +80,7 @@ export {
   type PlacePrediction,
   type PlaceDetails,
 } from "./usePlacesAutocomplete";
+export { useDriverRating } from "./useDriverRating";
 
 // ============================================
 // AUTH
@@ -106,6 +112,13 @@ export type { UseUpdateBannerReturn } from "./useUpdateBanner";
 export { useToast, toast } from "./useToast";
 export { useToast as useToastV8, toast as toastV8 } from "./useToastV8";
 export type { Toast as ToastV8, ToastType as ToastTypeV8 } from "./useToastV8";
+
+// ============================================
+// SOUND
+// ============================================
+
+export { useSoundEffect, usePlaySound } from "./useSoundEffect";
+export { handleRateLimitResponse } from "./useRateLimitToast";
 
 // ============================================
 // OVERLAY HOOKS

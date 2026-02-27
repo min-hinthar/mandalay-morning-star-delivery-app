@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { sendEmail, buildEmailElement } from "@/lib/email";
 import type { EmailType } from "@/lib/email";
@@ -61,23 +62,23 @@ export async function POST(request: Request) {
     const { supabase } = auth;
 
     const body = await request.json();
-    const { orderId, emailType } = body as {
-      orderId?: string;
-      emailType?: string;
-    };
 
-    // Validate input
-    if (!orderId || typeof orderId !== "string") {
-      return NextResponse.json({ error: "orderId is required" }, { status: 400 });
-    }
+    const sendEmailSchema = z.object({
+      orderId: z.string().uuid("orderId must be a valid UUID"),
+      emailType: z.enum(["order_confirmation", "cancellation", "refund", "delivery_reminder"], {
+        error: `Invalid emailType. Valid: ${VALID_EMAIL_TYPES.join(", ")}`,
+      }),
+    });
 
-    if (!emailType || !VALID_EMAIL_TYPES.includes(emailType as EmailType)) {
+    const parsed = sendEmailSchema.safeParse(body);
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: `Invalid emailType. Valid: ${VALID_EMAIL_TYPES.join(", ")}` },
+        { error: parsed.error.issues[0]?.message ?? "Invalid request data" },
         { status: 400 }
       );
     }
 
+    const { orderId, emailType } = parsed.data;
     const type = emailType as EmailType;
 
     // Fetch order

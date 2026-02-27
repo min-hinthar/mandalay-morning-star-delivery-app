@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { m } from "framer-motion";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { Button } from "@/components/ui/button";
 import { MenuItemFormFields, type MenuItemFormData } from "./MenuItemFormFields";
 import { MenuItemPhotoSection } from "./MenuItemPhotoSection";
@@ -64,7 +64,7 @@ export default function AdminMenuItemEditPage() {
       const response = await fetch(`/api/admin/menu/${itemId}`);
       if (!response.ok) {
         if (response.status === 404) {
-          toast({ title: "Error", description: "Menu item not found", variant: "destructive" });
+          toast({ message: "Menu item not found", type: "error" });
           router.push("/admin/menu");
           return;
         }
@@ -86,7 +86,7 @@ export default function AdminMenuItemEditPage() {
         image_url: data.image_url,
       });
     } catch {
-      toast({ title: "Error", description: "Failed to fetch menu item", variant: "destructive" });
+      toast({ message: "Failed to fetch menu item", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -140,13 +140,12 @@ export default function AdminMenuItemEditPage() {
         throw new Error(error.error || "Failed to save");
       }
 
-      toast({ title: "Success", description: "Menu item updated" });
+      toast({ message: "Menu item updated", type: "success" });
       fetchItem(); // Refresh to get updated_at
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to save",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to save",
+        type: "error",
       });
     } finally {
       setSaving(false);

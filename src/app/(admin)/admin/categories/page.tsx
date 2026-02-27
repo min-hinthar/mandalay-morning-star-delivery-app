@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
 import { RefreshCw, FolderTree, CheckCircle, UtensilsCrossed } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { Button } from "@/components/ui/button";
 import { AddCategoryDialog } from "./AddCategoryDialog";
 import { CategoriesTable, type CategoryRow } from "./CategoriesTable";
@@ -23,9 +23,8 @@ export default function AdminCategoriesPage() {
       setCategories(data);
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to fetch categories",
-        variant: "destructive",
+        message: "Failed to fetch categories",
+        type: "error",
       });
     } finally {
       setLoading(false);
@@ -58,9 +57,8 @@ export default function AdminCategoriesPage() {
       );
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to update category",
-        variant: "destructive",
+        message: "Failed to update category",
+        type: "error",
       });
     } finally {
       setUpdatingId(null);
@@ -103,9 +101,8 @@ export default function AdminCategoriesPage() {
       });
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to reorder categories",
-        variant: "destructive",
+        message: "Failed to reorder categories",
+        type: "error",
       });
     } finally {
       setUpdatingId(null);
@@ -115,9 +112,8 @@ export default function AdminCategoriesPage() {
   const handleDelete = async (category: CategoryRow) => {
     if (category.item_count > 0) {
       toast({
-        title: "Cannot delete",
-        description: `"${category.name}" has ${category.item_count} menu item(s). Remove or reassign items first.`,
-        variant: "destructive",
+        message: `"${category.name}" has ${category.item_count} menu item(s). Remove or reassign items first.`,
+        type: "error",
       });
       return;
     }
@@ -139,14 +135,13 @@ export default function AdminCategoriesPage() {
 
       setCategories((prev) => prev.filter((c) => c.id !== category.id));
       toast({
-        title: "Deleted",
-        description: `"${category.name}" has been deleted`,
+        message: `"${category.name}" has been deleted`,
+        type: "success",
       });
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to delete category",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to delete category",
+        type: "error",
       });
     } finally {
       setUpdatingId(null);

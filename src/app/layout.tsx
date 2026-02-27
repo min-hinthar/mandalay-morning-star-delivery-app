@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactElement, ReactNode } from "react";
-import { Inter, Playfair_Display } from "next/font/google";
+import localFont from "next/font/local";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
@@ -12,23 +12,24 @@ import { OfflineIndicator, ServiceWorkerRegistration, UpdatePrompt } from "@/com
 
 /**
  * Font Optimization:
+ * - Local fonts via @fontsource-variable (no build-time network dependency)
  * - Use 'swap' display for fast text rendering
- * - Preload critical font weights only
- * - Subset to latin for smaller payload
+ * - Latin subset only for smaller payload
  */
-const inter = Inter({
+const inter = localFont({
+  src: "../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2",
   variable: "--font-inter",
-  subsets: ["latin"],
   display: "swap",
   preload: true,
+  weight: "100 900",
 });
 
-const playfair = Playfair_Display({
+const playfair = localFont({
+  src: "../../node_modules/@fontsource-variable/playfair-display/files/playfair-display-latin-wght-normal.woff2",
   variable: "--font-playfair",
-  subsets: ["latin"],
   display: "swap",
   preload: true,
-  weight: ["400", "600", "700"], // Only critical weights
+  weight: "400 700",
 });
 
 export const metadata: Metadata = {
@@ -70,8 +71,6 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Preconnect to critical third-party origins for LCP optimization */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* Preconnect to Supabase for faster API calls */}
         <link rel="preconnect" href={process.env.NEXT_PUBLIC_SUPABASE_URL} />
         {/* DNS prefetch for analytics */}

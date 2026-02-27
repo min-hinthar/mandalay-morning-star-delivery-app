@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils/cn";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { ToggleSwitch } from "./ToggleSwitch";
 import type { EmailType } from "@/lib/email/types";
 
@@ -54,7 +54,7 @@ export function EmailSettingsForm({ emailEnabled, onToggle }: EmailSettingsFormP
   const handleSendTest = useCallback(
     async (emailType: EmailType) => {
       if (!recipientEmail.trim()) {
-        toast({ variant: "warning", description: "Enter a recipient email address" });
+        toast({ message: "Enter a recipient email address", type: "warning" });
         return;
       }
 
@@ -72,12 +72,12 @@ export function EmailSettingsForm({ emailEnabled, onToggle }: EmailSettingsFormP
         }
 
         toast({
-          variant: "success",
-          description: `Test ${emailType.replace(/_/g, " ")} email sent`,
+          message: `Test ${emailType.replace(/_/g, " ")} email sent`,
+          type: "success",
         });
       } catch (error) {
         const message = error instanceof Error ? error.message : "Failed to send test email";
-        toast({ variant: "destructive", description: message });
+        toast({ message, type: "error" });
       } finally {
         setSendingType(null);
       }

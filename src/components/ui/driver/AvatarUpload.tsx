@@ -14,7 +14,7 @@ import type { Area, Point } from "react-easy-crop";
 import { Camera, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { validateDriverPhoto, compressDriverPhoto } from "@/lib/supabase/driver-storage";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { InitialsAvatar } from "./InitialsAvatar";
 
 interface AvatarUploadProps {
@@ -100,7 +100,7 @@ export function AvatarUpload({
     // Validate
     const validation = validateDriverPhoto(file);
     if (!validation.valid) {
-      toast({ title: "Invalid file", description: validation.error, variant: "destructive" });
+      toast({ message: validation.error ?? "Invalid file", type: "error" });
       return;
     }
 
@@ -118,9 +118,8 @@ export function AvatarUpload({
       setShowCropModal(true);
     } catch {
       toast({
-        title: "Compression failed",
-        description: "Could not process the image. Try a different photo.",
-        variant: "destructive",
+        message: "Could not process the image. Try a different photo.",
+        type: "error",
       });
     } finally {
       setIsCompressing(false);
@@ -153,12 +152,11 @@ export function AvatarUpload({
       const data = await response.json();
       onPhotoUpdated(data.profileImageUrl);
 
-      toast({ title: "Photo updated", description: "Your profile photo has been saved." });
+      toast({ message: "Your profile photo has been saved.", type: "success" });
     } catch (err) {
       toast({
-        title: "Upload failed",
-        description: err instanceof Error ? err.message : "Could not upload photo. Try again.",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Could not upload photo. Try again.",
+        type: "error",
       });
     } finally {
       setIsUploading(false);
@@ -184,12 +182,11 @@ export function AvatarUpload({
       }
 
       onPhotoUpdated(null);
-      toast({ title: "Photo removed", description: "Your profile photo has been removed." });
+      toast({ message: "Your profile photo has been removed.", type: "success" });
     } catch {
       toast({
-        title: "Remove failed",
-        description: "Could not remove photo. Try again.",
-        variant: "destructive",
+        message: "Could not remove photo. Try again.",
+        type: "error",
       });
     } finally {
       setIsUploading(false);

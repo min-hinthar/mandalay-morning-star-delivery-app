@@ -3,6 +3,7 @@
  * Google Routes API integration and nearest-neighbor fallback
  */
 
+import { logger } from "@/lib/utils/logger";
 import type { RoutableStop, OptimizedRoute, OptimizeRouteStopsInput } from "./types";
 import { KITCHEN_ORIGIN, validateStopsForOptimization } from "./types";
 
@@ -47,8 +48,10 @@ export async function optimizeRoute(
   if (googleApiKey) {
     try {
       return await optimizeWithGoogleRoutes(stops, options);
-    } catch (error) {
-      console.warn("Google Routes API failed, falling back to nearest-neighbor:", error);
+    } catch {
+      logger.warn("Google Routes API failed, falling back to nearest-neighbor", {
+        api: "route-optimization",
+      });
     }
   }
 

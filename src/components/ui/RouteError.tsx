@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import * as Sentry from "@sentry/nextjs";
+import { logger } from "@/lib/utils/logger";
 import { RefreshCw, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ErrorMascot } from "@/components/ui/error-pages";
@@ -19,7 +20,9 @@ export function RouteError({ error, reset, context }: RouteErrorProps) {
   const [showHomeEmphasis, setShowHomeEmphasis] = useState(false);
 
   useEffect(() => {
-    console.error(error);
+    logger.error("Route error boundary caught error", {
+      api: `route-error-${context ?? "unknown"}`,
+    });
     Sentry.captureException(error, {
       tags: { location: `route-error-${context ?? "unknown"}` },
       extra: { digest: error.digest },

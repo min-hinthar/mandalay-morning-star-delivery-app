@@ -288,9 +288,6 @@ export * from "./layout";
 // Menu components
 export * from "./menu";
 
-// Navigation components
-export * from "./navigation";
-
 // Orders (tracking, delivery)
 export * from "./orders";
 

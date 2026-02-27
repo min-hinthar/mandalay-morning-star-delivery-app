@@ -11,7 +11,7 @@ import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
 import { InlineErrorCard } from "@/components/ui/admin/InlineErrorCard";
 import { OrdersPageSkeleton } from "@/components/ui/admin/orders/OrdersPageSkeleton";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import type { OrderStatus } from "@/types/database";
 
 // ============================================
@@ -81,9 +81,8 @@ export default function AdminOrdersPage() {
     } catch {
       setError("Failed to load orders. Please try again.");
       toast({
-        title: "Error",
-        description: "Failed to fetch orders",
-        variant: "destructive",
+        message: "Failed to fetch orders",
+        type: "error",
       });
     } finally {
       setLoading(false);
@@ -120,9 +119,8 @@ export default function AdminOrdersPage() {
       router.refresh();
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to update status",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to update status",
+        type: "error",
       });
     }
   };

@@ -12,7 +12,7 @@ import { useParams, useRouter } from "next/navigation";
 import { m } from "framer-motion";
 import { Edit2, UserX, UserCheck, Archive, Loader2, Route, Phone, Mail } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -55,7 +55,7 @@ export function DriverDetailClient() {
       const response = await fetch(`/api/admin/drivers/${driverId}`);
       if (!response.ok) {
         if (response.status === 404) {
-          toast({ title: "Error", description: "Driver not found", variant: "destructive" });
+          toast({ message: "Driver not found", type: "error" });
           router.push("/admin/drivers");
           return;
         }
@@ -72,9 +72,8 @@ export function DriverDetailClient() {
       });
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to fetch driver details",
-        variant: "destructive",
+        message: "Failed to fetch driver details",
+        type: "error",
       });
     } finally {
       setLoading(false);
@@ -100,14 +99,13 @@ export function DriverDetailClient() {
 
       setDriver((prev) => (prev ? { ...prev, isActive: !prev.isActive } : prev));
       toast({
-        title: "Success",
-        description: driver.isActive ? "Driver deactivated" : "Driver activated",
+        message: driver.isActive ? "Driver deactivated" : "Driver activated",
+        type: "success",
       });
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to update driver status",
-        variant: "destructive",
+        message: "Failed to update driver status",
+        type: "error",
       });
     } finally {
       setToggling(false);
@@ -131,14 +129,13 @@ export function DriverDetailClient() {
 
       if (!response.ok) throw new Error("Failed to update profile");
 
-      toast({ title: "Success", description: "Driver profile updated" });
+      toast({ message: "Driver profile updated", type: "success" });
       setShowEditModal(false);
       fetchDriver();
     } catch {
       toast({
-        title: "Error",
-        description: "Failed to update driver profile",
-        variant: "destructive",
+        message: "Failed to update driver profile",
+        type: "error",
       });
     } finally {
       setSaving(false);
@@ -148,9 +145,8 @@ export function DriverDetailClient() {
   const handleArchive = async () => {
     if (!archiveReason.trim()) {
       toast({
-        title: "Error",
-        description: "Please provide a reason for archiving",
-        variant: "destructive",
+        message: "Please provide a reason for archiving",
+        type: "error",
       });
       return;
     }
@@ -169,13 +165,12 @@ export function DriverDetailClient() {
         throw new Error(error.error || "Failed to archive driver");
       }
 
-      toast({ title: "Success", description: "Driver archived successfully" });
+      toast({ message: "Driver archived successfully", type: "success" });
       router.push("/admin/drivers");
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to archive driver",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to archive driver",
+        type: "error",
       });
     } finally {
       setArchiving(false);

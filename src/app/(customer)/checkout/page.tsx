@@ -7,7 +7,7 @@ import { m, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useCart } from "@/lib/hooks/useCart";
 import { useNavigationGuard } from "@/lib/hooks/useNavigationGuard";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { CartNavigationGuard } from "@/components/ui/cart/CartNavigationGuard";
@@ -106,14 +106,14 @@ export default function CheckoutPage() {
   // Redirect if not authenticated
   useEffect(() => {
     if (!authLoading && !user) {
-      router.push("/login?redirect=/checkout");
+      router.push("/login?next=/checkout");
     }
   }, [user, authLoading, router]);
 
   // Redirect if cart is empty (deep link to /checkout with no items)
   useEffect(() => {
     if (!authLoading && user && isEmpty) {
-      toast({ title: "Your cart is empty", description: "Browse our menu to get started!" });
+      toast({ message: "Browse our menu to get started!", type: "info" });
       router.replace("/menu");
     }
   }, [isEmpty, authLoading, user, router]);

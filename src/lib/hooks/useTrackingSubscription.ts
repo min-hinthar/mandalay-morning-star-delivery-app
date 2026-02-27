@@ -90,8 +90,8 @@ export function useTrackingSubscription({
           lastUpdate: new Date(),
         }));
       }
-    } catch (error) {
-      console.error("Error fetching tracking data:", error);
+    } catch {
+      // Network error — will retry on next poll or realtime reconnect
     }
   }, [orderId]);
 
@@ -174,9 +174,16 @@ export function useTrackingSubscription({
    * Setup Realtime subscriptions
    */
   const setupSubscriptions = useCallback(() => {
+    // Clear any pending reconnect to prevent channel accumulation
+    if (reconnectTimeoutRef.current) {
+      clearTimeout(reconnectTimeoutRef.current);
+      reconnectTimeoutRef.current = null;
+    }
+
     // Clean up existing channels
     if (channelRef.current) {
       supabase.removeChannel(channelRef.current);
+      channelRef.current = null;
     }
 
     // Create main channel for order and route_stop updates
@@ -220,7 +227,10 @@ export function useTrackingSubscription({
             connectionError: "Connection lost. Retrying...",
           }));
           startPolling();
-          // Schedule reconnection attempt
+          // Schedule reconnection attempt (clear first to prevent duplicates)
+          if (reconnectTimeoutRef.current) {
+            clearTimeout(reconnectTimeoutRef.current);
+          }
           reconnectTimeoutRef.current = setTimeout(() => {
             setupSubscriptions();
           }, RECONNECT_DELAY);
