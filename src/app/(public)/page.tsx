@@ -93,7 +93,13 @@ function MenuSection({ featuredSections }: { featuredSections: FeaturedSectionWi
 
 export default async function HomePage(): Promise<ReactElement> {
   // Fetch featured sections at page level (server-side data fetching)
-  const featuredSections = await getFeaturedSections();
+  // Gracefully degrade to empty sections if Supabase is unavailable (e.g., CI)
+  let featuredSections: FeaturedSectionWithItems[] = [];
+  try {
+    featuredSections = await getFeaturedSections();
+  } catch {
+    // Supabase unavailable — render with empty featured sections
+  }
 
   return (
     <div className="min-h-screen bg-background">
