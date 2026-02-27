@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { m } from "framer-motion";
 import { X, Image as ImageIcon, Link as LinkIcon, Clock, Loader2 } from "lucide-react";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { PhotoUploadZone } from "@/components/ui/admin/photos/PhotoUploadZone";
@@ -35,7 +35,7 @@ export function MenuItemPhotoSection({
   const handlePhotoUploadComplete = (results: UploadResult[]) => {
     if (results.length > 0) {
       onImageChange(results[0].publicUrl);
-      toast({ title: "Photo uploaded", description: "Save to apply changes" });
+      toast({ message: "Save to apply changes", type: "success" });
     }
   };
 
@@ -85,12 +85,11 @@ export function MenuItemPhotoSection({
       const verifiedImageUrl = verifyData.previewUrl;
       setDrivePreview(verifiedImageUrl);
       onImageChange(verifiedImageUrl);
-      toast({ title: "URL verified", description: "Image is accessible. Save to apply." });
+      toast({ message: "Image is accessible. Save to apply.", type: "success" });
     } catch (err) {
       toast({
-        title: "Verification failed",
-        description: err instanceof Error ? err.message : "Could not verify URL",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Could not verify URL",
+        type: "error",
       });
     } finally {
       setVerifyingDrive(false);

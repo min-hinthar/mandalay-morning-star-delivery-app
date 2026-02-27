@@ -1,4 +1,5 @@
 import { type GeocodingResult } from "@/types/address";
+import { logger } from "@/lib/utils/logger";
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
@@ -32,7 +33,11 @@ export async function geocodeAddress(address: string): Promise<GeocodingResult> 
     const data: GoogleGeocodingResponse = await response.json();
 
     if (data.status !== "OK" || data.results.length === 0) {
-      console.error("Geocoding failed:", data.status, data.error_message);
+      logger.error("Geocoding failed", {
+        api: "geocoding",
+        status: data.status,
+        errorMessage: data.error_message,
+      });
       return {
         formattedAddress: "",
         lat: 0,
@@ -51,7 +56,10 @@ export async function geocodeAddress(address: string): Promise<GeocodingResult> 
     if (!isStreetLevel) {
       const hasStreetNumber = /^\d+/.test(result.formatted_address);
       if (!hasStreetNumber) {
-        console.warn("Address not specific enough:", result.formatted_address);
+        logger.warn("Address not specific enough", {
+          api: "geocoding",
+          formattedAddress: result.formatted_address,
+        });
         return {
           formattedAddress: "",
           lat: 0,
@@ -68,8 +76,8 @@ export async function geocodeAddress(address: string): Promise<GeocodingResult> 
       lng: result.geometry.location.lng,
       isValid: true,
     };
-  } catch (error) {
-    console.error("Geocoding error:", error);
+  } catch {
+    logger.error("Geocoding error", { api: "geocoding" });
     return {
       formattedAddress: "",
       lat: 0,

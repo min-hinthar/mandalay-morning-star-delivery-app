@@ -3,6 +3,7 @@
 // IndexedDB Offline Store - Sync Logic
 // Sync pending items when online with exponential backoff and idempotency
 
+import { logger } from "@/lib/utils/logger";
 import { pendingStatus, pendingPhotos, pendingLocations } from "./stores";
 import { retryWithBackoff } from "./retry";
 
@@ -48,7 +49,11 @@ export async function syncPendingItems(): Promise<{
       permanentFailures++;
       const msg = `[PERMANENT] Status update for stop ${update.stopId} failed: ${result.status}`;
       errors.push(msg);
-      console.error(msg);
+      logger.error("Permanent failure syncing status update", {
+        api: "offline-sync",
+        stopId: update.stopId,
+        status: result.status,
+      });
     } else {
       errors.push(`Status update for stop ${update.stopId} failed after retries`);
     }
@@ -81,7 +86,11 @@ export async function syncPendingItems(): Promise<{
       permanentFailures++;
       const msg = `[PERMANENT] Photo upload for stop ${photo.stopId} failed: ${result.status}`;
       errors.push(msg);
-      console.error(msg);
+      logger.error("Permanent failure syncing photo upload", {
+        api: "offline-sync",
+        stopId: photo.stopId,
+        status: result.status,
+      });
     } else {
       errors.push(`Photo upload for stop ${photo.stopId} failed after retries`);
     }

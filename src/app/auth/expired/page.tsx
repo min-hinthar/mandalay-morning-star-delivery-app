@@ -7,13 +7,12 @@ import Link from "next/link";
 import { signInWithMagicLink, resendDriverInvite } from "@/lib/supabase/actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useToast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { AuthBackground } from "@/components/ui/auth";
 
 function ExpiredContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { toast } = useToast();
   const [isPending, startTransition] = useTransition();
 
   const initialEmail = useMemo(() => searchParams.get("email") ?? "", [searchParams]);
@@ -38,8 +37,8 @@ function ExpiredContent() {
           }
 
           toast({
-            title: "Invite link sent",
-            description: "Check your inbox for the new driver invite link.",
+            message: "Check your inbox for the new driver invite link.",
+            type: "success",
           });
           router.push("/login");
         })();
@@ -65,8 +64,8 @@ function ExpiredContent() {
         }
 
         toast({
-          title: "Magic link sent",
-          description: "Check your inbox for the new link.",
+          message: "Check your inbox for the new link.",
+          type: "success",
         });
         router.push("/login");
       })();

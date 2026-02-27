@@ -14,6 +14,7 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { logger } from "@/lib/utils/logger";
 import { formatPrice } from "@/lib/utils/currency";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -97,8 +98,8 @@ export function ItemSelector({
           );
           setSearchResults(items);
         }
-      } catch (error) {
-        console.error("Search failed:", error);
+      } catch {
+        logger.error("Menu item search failed", { api: "menu/search" });
       } finally {
         setIsSearching(false);
       }
@@ -117,8 +118,8 @@ export function ItemSelector({
         setSuggestions(data.items || []);
         setShowSuggestions(true);
       }
-    } catch (error) {
-      console.error("Failed to load suggestions:", error);
+    } catch {
+      logger.error("Failed to load suggestions", { api: "admin/sections/most-popular/suggest" });
     } finally {
       setIsLoadingSuggestions(false);
     }

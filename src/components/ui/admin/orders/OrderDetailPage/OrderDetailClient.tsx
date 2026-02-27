@@ -7,7 +7,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import type { OrderStatus } from "@/types/database";
 import type { OrderDetail } from "./types";
 import { OrderHeaderCard } from "./OrderHeaderCard";
@@ -82,9 +82,8 @@ export function OrderDetailClient() {
     if (!order) return;
     setOrder({ ...order, status: previousStatus });
     toast({
-      title: "Status update failed",
-      description: "Reverted to previous status",
-      variant: "destructive",
+      message: "Reverted to previous status",
+      type: "error",
     });
   };
 

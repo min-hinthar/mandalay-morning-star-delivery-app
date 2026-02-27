@@ -6,7 +6,7 @@ import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/admin/StatusBadge";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import {
   STATUS_LABELS,
   NEXT_STATUSES,
@@ -43,13 +43,13 @@ export function OrderHeaderCard({
       }
       onPriorityChanged(newPriority);
       toast({
-        title: newPriority ? "Marked as priority" : "Priority removed",
+        message: newPriority ? "Marked as priority" : "Priority removed",
+        type: "info",
       });
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to toggle priority",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to toggle priority",
+        type: "error",
       });
     } finally {
       setTogglingPriority(false);

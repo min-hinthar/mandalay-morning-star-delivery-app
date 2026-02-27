@@ -76,10 +76,14 @@ export function useLocationTracking({
   const watchIdRef = useRef<number | null>(null);
   const lastUpdateTimeRef = useRef<number>(0);
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isTrackingRef = useRef(false);
 
   // Send location to server
   const sendLocationUpdate = useCallback(
     async (loc: LocationState) => {
+      // Don't send if tracking was stopped
+      if (!isTrackingRef.current) return;
+
       // Check rate limit
       const now = Date.now();
       const timeSinceLastUpdate = now - lastUpdateTimeRef.current;
@@ -190,6 +194,7 @@ export function useLocationTracking({
       navigator.geolocation.clearWatch(watchIdRef.current);
     }
 
+    isTrackingRef.current = true;
     setIsTracking(true);
     setError(null);
 
@@ -210,6 +215,8 @@ export function useLocationTracking({
 
   // Stop tracking
   const stopTracking = useCallback(() => {
+    isTrackingRef.current = false;
+
     if (watchIdRef.current !== null) {
       navigator.geolocation.clearWatch(watchIdRef.current);
       watchIdRef.current = null;

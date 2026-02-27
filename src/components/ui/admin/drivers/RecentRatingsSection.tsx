@@ -11,7 +11,7 @@ import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
 import { Star, MessageCircle, RefreshCw, User } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { spring } from "@/lib/motion-tokens";
 import { Button } from "@/components/ui/button";
 
@@ -64,7 +64,7 @@ export function RecentRatingsSection({ driverId }: RecentRatingsSectionProps) {
         setAverageRating(data.averageRating);
         setTotalRatings(data.totalRatings || 0);
       } catch {
-        toast({ title: "Error", description: "Failed to fetch ratings", variant: "destructive" });
+        toast({ message: "Failed to fetch ratings", type: "error" });
       } finally {
         setLoading(false);
         setRefreshing(false);

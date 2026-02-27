@@ -22,7 +22,11 @@ const FLOW_ID = "delivery-reminders";
 // ===========================================
 
 function isAuthorized(request: Request): boolean {
-  if (!CRON_SECRET) return true; // No secret configured = no auth required
+  // Reject if CRON_SECRET not configured in production
+  if (!CRON_SECRET) {
+    if (process.env.NODE_ENV === "production") return false;
+    return true; // Allow in development without secret
+  }
 
   const authHeader = request.headers.get("authorization");
   return authHeader === `Bearer ${CRON_SECRET}`;

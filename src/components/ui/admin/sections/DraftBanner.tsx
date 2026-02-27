@@ -4,7 +4,7 @@ import { useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { AlertCircle, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 
 interface DraftBannerProps {
   hasUnpublishedChanges: boolean;
@@ -27,16 +27,15 @@ export function DraftBanner({ hasUnpublishedChanges, onPublishComplete }: DraftB
       }
 
       toast({
-        title: "Published",
-        description: "Your changes are now live on the homepage",
+        message: "Your changes are now live on the homepage",
+        type: "success",
       });
 
       onPublishComplete?.();
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to publish",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to publish",
+        type: "error",
       });
     } finally {
       setIsPublishing(false);

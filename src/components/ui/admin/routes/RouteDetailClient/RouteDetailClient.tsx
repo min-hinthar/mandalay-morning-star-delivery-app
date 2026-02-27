@@ -14,7 +14,7 @@ import { LazyRouteMap } from "@/components/ui/maps/LazyMaps";
 import { useViewportTrigger } from "@/lib/hooks/useViewportTrigger";
 import { MapSkeleton } from "@/components/ui/maps/MapSkeleton";
 import { OptimizationModal, type StopSummary } from "../OptimizationModal";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { RouteHeader } from "./RouteHeader";
 import { DriverInfoCard } from "./DriverInfoCard";
 import { RouteTimeline } from "./RouteTimeline";
@@ -178,9 +178,8 @@ export function RouteDetailClient() {
     const minutes = Math.round(savings.durationSeconds / 60);
     const miles = (savings.distanceMeters / 1609.34).toFixed(1);
     toast({
-      title: "Route optimized",
-      description: `Saved ${minutes} min / ${miles} mi`,
-      variant: "success",
+      message: `Saved ${minutes} min / ${miles} mi`,
+      type: "success",
     });
   };
 

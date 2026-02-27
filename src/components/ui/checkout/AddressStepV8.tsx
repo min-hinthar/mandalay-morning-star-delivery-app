@@ -15,6 +15,7 @@
 import { useState } from "react";
 import { m } from "framer-motion";
 import { MapPin, Plus } from "lucide-react";
+import { logger } from "@/lib/utils/logger";
 import {
   useAddresses,
   useCreateAddress,
@@ -122,9 +123,8 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
       await deleteAddress.mutateAsync(id);
       // Note: If deleted address was selected, user must select another
       // The address list will refresh via query invalidation
-    } catch (error: unknown) {
-      const err = error as { error?: { message?: string } };
-      console.error("Failed to delete address:", err?.error?.message);
+    } catch {
+      logger.error("Failed to delete address", { api: "addresses" });
     }
   };
 

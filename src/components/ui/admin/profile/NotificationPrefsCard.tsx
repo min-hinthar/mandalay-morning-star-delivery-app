@@ -8,7 +8,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { Bell, RefreshCw } from "lucide-react";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { ToggleSwitch } from "@/components/ui/admin/settings/ToggleSwitch";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton/base";
@@ -102,14 +102,13 @@ export function NotificationPrefsCard() {
       setOriginalPrefs(data);
       setHasChanges(false);
       toast({
-        title: "Preferences Saved",
-        description: "Notification preferences updated.",
+        message: "Notification preferences updated.",
+        type: "success",
       });
     } catch (err) {
       toast({
-        title: "Error",
-        description: err instanceof Error ? err.message : "Failed to save preferences",
-        variant: "destructive",
+        message: err instanceof Error ? err.message : "Failed to save preferences",
+        type: "error",
       });
     } finally {
       setSaving(false);

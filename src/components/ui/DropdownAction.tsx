@@ -3,6 +3,7 @@
 import { useState, useCallback, type ReactNode } from "react";
 import { Loader2, type LucideIcon } from "lucide-react";
 import { DropdownMenuItem } from "@/components/ui/dropdown-menu";
+import { logger } from "@/lib/utils/logger";
 import { cn } from "@/lib/utils/cn";
 
 type DropdownActionVariant = "default" | "destructive";
@@ -86,7 +87,7 @@ export function DropdownAction({
       }
     } catch (syncError) {
       // Handle synchronous errors (rare for actions)
-      console.error("[DropdownAction] Sync error:", syncError);
+      logger.error("DropdownAction sync error", { api: "dropdown-action" });
       if (onError) {
         onError(syncError instanceof Error ? syncError : new Error(String(syncError)));
       }

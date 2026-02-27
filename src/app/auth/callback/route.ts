@@ -1,6 +1,7 @@
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { getRoleDashboard } from "@/lib/auth/role-redirect";
+import { logger } from "@/lib/utils/logger";
 
 interface DriverInviteRow {
   id: string;
@@ -35,7 +36,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
   // Handle OAuth errors from Supabase
   if (errorParam) {
-    console.error("[Auth Callback] OAuth error:", errorParam, errorDescription);
+    logger.error("OAuth error in callback", { api: "auth/callback", flowId: "auth" });
 
     // Preserve driver invite context through error redirect
     if (inviteId) {
@@ -61,7 +62,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code);
 
     if (error) {
-      console.error("[Auth Callback] Code exchange error:", error.message);
+      logger.error("Code exchange error", { api: "auth/callback", flowId: "auth" });
       const normalizedError = error.message.toLowerCase();
       if (normalizedError.includes("expired") || normalizedError.includes("invalid")) {
         // Look up email from invite record (email is never in callback URL)
@@ -89,7 +90,7 @@ export async function GET(request: Request): Promise<NextResponse> {
       const userEmail = sessionData.session.user.email;
       const userId = sessionData.session.user.id;
 
-      console.log("[Auth Callback] Processing driver invite:", { inviteId, userEmail });
+      logger.info("Processing driver invite", { api: "auth/callback", flowId: "auth" });
 
       // Verify invite exists and matches user email
       const { data: invite, error: inviteError } = await serviceSupabase
@@ -112,21 +113,23 @@ export async function GET(request: Request): Promise<NextResponse> {
           });
 
           if (updateError) {
-            console.error("[Auth Callback] Failed to update user metadata:", updateError.message);
+            logger.error("Failed to update user metadata", {
+              api: "auth/callback",
+              flowId: "auth",
+              userId,
+            });
           } else {
-            console.log("[Auth Callback] Set driver metadata for user:", userId);
+            logger.info("Set driver metadata for user", {
+              api: "auth/callback",
+              flowId: "auth",
+              userId,
+            });
           }
         } else {
-          console.warn("[Auth Callback] Email mismatch:", {
-            inviteEmail: invite.email,
-            userEmail,
-          });
+          logger.warn("Email mismatch on driver invite", { api: "auth/callback", flowId: "auth" });
         }
       } else {
-        console.warn("[Auth Callback] Invite not found or error:", {
-          inviteId,
-          error: inviteError?.message,
-        });
+        logger.warn("Invite not found or error", { api: "auth/callback", flowId: "auth" });
       }
     }
 
