@@ -43,24 +43,23 @@ export async function POST(request: Request) {
   // Use service role client to bypass RLS (webhook has no user context)
   const supabase = createServiceClient();
 
-  // Check idempotency — has this event already been processed?
-  const { data: existing } = await supabase
+  // Atomically claim the event via UNIQUE constraint (no TOCTOU race).
+  // INSERT ON CONFLICT DO NOTHING returns 0 rows if duplicate → skip processing.
+  const { data: claimed, error: claimError } = await supabase
     .from("webhook_events")
-    .select("id")
-    .eq("event_id", event.id)
-    .single();
+    .upsert(
+      { event_id: event.id, event_type: event.type },
+      { onConflict: "event_id", ignoreDuplicates: true }
+    )
+    .select("id");
 
-  if (existing) {
+  if (claimError) {
+    logger.exception(claimError, { api: "stripe-webhook", flowId: "idempotency" });
     return NextResponse.json({ received: true, duplicate: true });
   }
 
-  // Claim the event (UNIQUE constraint is the atomic guard)
-  const { error: claimError } = await supabase
-    .from("webhook_events")
-    .insert({ event_id: event.id, event_type: event.type });
-
-  if (claimError) {
-    // Unique constraint violation = another instance processing
+  // If upsert returned no rows, another instance already claimed this event
+  if (!claimed || claimed.length === 0) {
     return NextResponse.json({ received: true, duplicate: true });
   }
 
@@ -127,12 +126,30 @@ async function handleCheckoutSessionCompleted(
     return;
   }
 
+  // H-01 FIX: Safely extract payment_intent — can be null, string, or PaymentIntent object
+  const rawPaymentIntent = session.payment_intent;
+  const paymentIntentId =
+    typeof rawPaymentIntent === "string"
+      ? rawPaymentIntent
+      : typeof rawPaymentIntent === "object" && rawPaymentIntent !== null
+        ? rawPaymentIntent.id
+        : null;
+
+  if (!paymentIntentId) {
+    logger.warn("payment_intent is null on checkout.session.completed — storing session ID as fallback", {
+      sessionId: session.id,
+      orderId,
+      api: "stripe-webhook",
+      flowId: "checkout",
+    });
+  }
+
   // Update order status to confirmed
   const { error } = await supabase
     .from("orders")
     .update({
       status: "confirmed",
-      stripe_payment_intent_id: session.payment_intent as string,
+      stripe_payment_intent_id: paymentIntentId ?? `session_${session.id}`,
       confirmed_at: new Date().toISOString(),
     })
     .eq("id", orderId)
@@ -295,18 +312,18 @@ async function handleCheckoutSessionExpired(
 }
 
 /**
- * Handle failed payment attempt
+ * Handle failed payment attempt.
+ * H-09 FIX: For terminal failures, cancel the pending order so it doesn't sit
+ * in "pending" indefinitely. For retryable failures, log but leave pending
+ * (the checkout session expiry will clean up eventually).
  */
 async function handlePaymentFailed(
-  _supabase: ReturnType<typeof createServiceClient>,
+  supabase: ReturnType<typeof createServiceClient>,
   paymentIntent: Stripe.PaymentIntent
 ) {
-  // Payment intents may not have our order_id directly
-  // We stored the session ID in the order, so we need to find the order differently
   const orderId = paymentIntent.metadata?.order_id;
 
   if (!orderId) {
-    // This might be a retry or payment intent not associated with our checkout
     logger.info("No order_id in payment_intent metadata, skipping", {
       api: "stripe-webhook",
       flowId: "payment",
@@ -314,14 +331,46 @@ async function handlePaymentFailed(
     return;
   }
 
-  // Log the failure but don't cancel the order yet
-  // The customer may retry or the checkout session may expire
+  const errorCode = paymentIntent.last_payment_error?.code;
+  const errorMessage = paymentIntent.last_payment_error?.message;
+
   logger.warn(`Payment failed for order ${orderId}`, {
     orderId,
-    errorMessage: paymentIntent.last_payment_error?.message,
+    errorCode,
+    errorMessage,
     api: "stripe-webhook",
     flowId: "payment",
   });
+
+  // Terminal failure codes where retry won't help
+  const terminalFailures = [
+    "card_declined",
+    "expired_card",
+    "incorrect_cvc",
+    "processing_error",
+    "insufficient_funds",
+    "lost_card",
+    "stolen_card",
+  ];
+
+  if (errorCode && terminalFailures.includes(errorCode)) {
+    const { error } = await supabase
+      .from("orders")
+      .update({ status: "cancelled", updated_at: new Date().toISOString() })
+      .eq("id", orderId)
+      .eq("status", "pending");
+
+    if (error) {
+      logger.exception(error, { orderId, api: "stripe-webhook", flowId: "payment" });
+    } else {
+      logger.info(`Order ${orderId} cancelled due to terminal payment failure: ${errorCode}`, {
+        orderId,
+        api: "stripe-webhook",
+        flowId: "payment",
+      });
+    }
+  }
+  // Non-terminal failures: leave as pending — session expiry handler will clean up
 }
 
 /**
@@ -358,29 +407,41 @@ async function handleChargeRefunded(
     return;
   }
 
-  // Check if it's a full refund
+  // H-08 FIX: Respect order state machine.
+  // Only transition to 'cancelled' for pre-delivery states.
+  // Delivered orders should NOT change status on refund (preserves delivery record).
   const isFullRefund = charge.amount_refunded === charge.amount;
+  const preDeliveryStatuses = ["pending", "confirmed", "preparing", "ready"];
+  const isPreDelivery = preDeliveryStatuses.includes(order.status);
 
-  if (isFullRefund) {
+  if (isFullRefund && isPreDelivery) {
     const { error: updateError } = await supabase
       .from("orders")
-      .update({
-        status: "cancelled",
-      })
-      .eq("id", order.id);
+      .update({ status: "cancelled" })
+      .eq("id", order.id)
+      .in("status", preDeliveryStatuses); // Guard: only cancel pre-delivery orders
 
     if (updateError) {
       logger.exception(updateError, { orderId: order.id, api: "stripe-webhook", flowId: "refund" });
       throw updateError;
     }
 
-    logger.info(`Order ${order.id} cancelled due to full refund`, {
+    logger.info(`Order ${order.id} cancelled due to full refund (was ${order.status})`, {
       orderId: order.id,
       api: "stripe-webhook",
       flowId: "refund",
     });
+  } else if (isFullRefund && !isPreDelivery) {
+    // Delivered/out_for_delivery order refunded (dispute, customer service).
+    // DON'T change status — just log the financial event.
+    logger.info(`Full refund on ${order.status} order ${order.id} — status preserved`, {
+      orderId: order.id,
+      orderStatus: order.status,
+      amountRefunded: charge.amount_refunded,
+      api: "stripe-webhook",
+      flowId: "refund",
+    });
   } else {
-    // Partial refund - log but don't change status
     logger.info(`Partial refund processed for order ${order.id}`, {
       orderId: order.id,
       amountRefunded: charge.amount_refunded,

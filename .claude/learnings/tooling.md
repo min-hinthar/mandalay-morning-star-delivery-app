@@ -109,4 +109,28 @@ CI runs `pnpm format:check` (Prettier). Local `pnpm lint` does NOT catch formatt
 
 ---
 
+## Claude Code Freezes — OneDrive + Multiple Terminals
+
+**Symptom:** Terminal freezes mid-exploration, hangs for 10-30s+ or indefinitely. Happens when running multiple Claude Code sessions on the same repo.
+
+**Root cause:** Resource contention from concurrent processes all hitting the same repo through OneDrive's sync driver.
+
+| Factor | Impact |
+|--------|--------|
+| Multiple `claude.exe` instances (8+) | Each spawns subagent `node.exe` workers |
+| OneDrive file-locking layer | Every file read/write goes through sync driver |
+| Git `.git/index` serialization | Concurrent git ops queue behind each other |
+| `node.exe` accumulation (9+) | ~1.4 GB memory from dev server + Claude workers |
+
+**Fixes (by effectiveness):**
+
+1. **Move repo out of OneDrive** to `C:\Dev\` — eliminates sync driver overhead entirely
+2. **One Claude Code session per repo** — use `/clear` between tasks instead of new terminals
+3. **Worktrees for parallel sessions** — `git worktree add` gives each session its own `.git/index`
+4. **If staying on OneDrive:** pin `.git/` and `node_modules/` to "Always keep on this device" to prevent dehydration mid-operation
+
+**Apply when:** Terminal hangs/freezes, especially during Explore agents, git operations, or file-heavy searches. Check `tasklist | grep -iE "node|claude|git"` for process count.
+
+---
+
 > **GSD Patch Persistence & Agent Teams:** Moved to global learnings at `~/.claude/learnings/gsd-workflow.md` (cross-project patterns).

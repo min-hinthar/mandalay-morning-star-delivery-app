@@ -142,12 +142,30 @@ export async function POST(request: NextRequest) {
 
     // Update user metadata if they exist (so callback can detect driver invite)
     if (existingUser) {
-      await supabase.auth.admin.updateUserById(existingUser.id, {
+      const { error: metadataError } = await supabase.auth.admin.updateUserById(existingUser.id, {
         user_metadata: {
           ...existingUser.user_metadata,
           pending_driver_invite: invite.id,
         },
       });
+
+      if (metadataError) {
+        // H-04 FIX: Don't silently swallow — this failure means the driver
+        // will get customer role instead of driver role on login.
+        logger.error("Failed to set pending_driver_invite metadata on existing user", {
+          api: "admin/drivers/invite",
+          flowId: "metadata",
+          userId: existingUser.id,
+          inviteId: invite.id,
+          error: metadataError.message,
+        });
+        // Clean up the invite since it won't work without metadata
+        await supabase.from("driver_invites").delete().eq("id", invite.id);
+        return NextResponse.json(
+          { error: "Failed to prepare user account for driver invite. Please try again." },
+          { status: 500 }
+        );
+      }
     }
 
     // Generate magic link token — we use hashed_token + our own /auth/confirm

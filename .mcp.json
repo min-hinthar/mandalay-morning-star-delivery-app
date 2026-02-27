@@ -4,7 +4,7 @@
       "command": "npx.cmd",
       "args": [
         "-y",
-        "@sentry/mcp-server@latest",
+        "@sentry/mcp-server@0.29.0",
         "--access-token",
         "${SENTRY_AUTH_TOKEN}",
         "--organization-slug",
@@ -15,14 +15,14 @@
     },
     "supabase": {
       "command": "npx.cmd",
-      "args": ["-y", "@supabase/mcp-server-supabase@latest"],
+      "args": ["-y", "@supabase/mcp-server-supabase@0.6.3"],
       "env": {
         "SUPABASE_ACCESS_TOKEN": "${SUPABASE_ACCESS_TOKEN}"
       }
     },
     "github": {
       "command": "npx.cmd",
-      "args": ["-y", "@modelcontextprotocol/server-github@latest"],
+      "args": ["-y", "@modelcontextprotocol/server-github@2025.4.8"],
       "env": {
         "GITHUB_PERSONAL_ACCESS_TOKEN": "${GH_TOKEN}"
       }
