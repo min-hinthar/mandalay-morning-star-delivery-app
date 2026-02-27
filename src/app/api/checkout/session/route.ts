@@ -139,37 +139,9 @@ export async function POST(request: Request) {
     // Calculate order totals (SERVER-SIDE - never trust client)
     const totals = calculateOrderTotals(validation.items);
 
-    // Create order in database (status: pending)
-    const { data: order, error: orderError } = await supabase
-      .from("orders")
-      .insert({
-        user_id: user.id,
-        address_id: input.addressId,
-        status: "pending",
-        subtotal_cents: totals.subtotalCents,
-        delivery_fee_cents: totals.deliveryFeeCents,
-        tax_cents: totals.taxCents,
-        total_cents: totals.totalCents,
-        delivery_window_start: `${input.scheduledDate}T${input.timeWindowStart}:00`,
-        delivery_window_end: `${input.scheduledDate}T${input.timeWindowEnd}:00`,
-        special_instructions: input.customerNotes ?? null,
-      })
-      .select()
-      .returns<OrdersRow[]>()
-      .single();
-
-    if (orderError || !order) {
-      logger.exception(orderError, {
-        userId: user.id,
-        api: "checkout-session",
-        flowId: "checkout",
-      });
-      return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
-    }
-
-    // Create order items
-    const orderItemsToInsert = validation.items.map((item) => ({
-      order_id: order.id,
+    // H-10 FIX: Create order, items, and modifiers atomically via RPC.
+    // If any insert fails, the entire transaction rolls back — no orphaned records.
+    const rpcItems = validation.items.map((item) => ({
       menu_item_id: item.menuItem.id,
       name_snapshot: item.menuItem.name_en,
       base_price_snapshot: item.menuItem.base_price_cents,
@@ -178,39 +150,17 @@ export async function POST(request: Request) {
       special_instructions: item.notes || null,
     }));
 
-    const { data: orderItems, error: orderItemsError } = await supabase
-      .from("order_items")
-      .insert(orderItemsToInsert)
-      .select()
-      .returns<OrderItemsRow[]>();
-
-    if (orderItemsError || !orderItems) {
-      logger.exception(orderItemsError, {
-        orderId: order.id,
-        userId: user.id,
-        api: "checkout-session",
-        flowId: "checkout",
-      });
-      // Clean up the order
-      await supabase.from("orders").delete().eq("id", order.id);
-      return errorResponse("INTERNAL_ERROR", "Failed to create order items", 500);
-    }
-
-    // Create order item modifiers
-    const orderItemModifiersToInsert: Array<{
-      order_item_id: string;
+    const rpcModifiers: Array<{
+      item_index: number;
       modifier_option_id: string;
       name_snapshot: string;
       price_delta_snapshot: number;
     }> = [];
 
     for (let i = 0; i < validation.items.length; i++) {
-      const validatedItem = validation.items[i];
-      const orderItem = orderItems[i];
-
-      for (const modifier of validatedItem.modifiers) {
-        orderItemModifiersToInsert.push({
-          order_item_id: orderItem.id,
+      for (const modifier of validation.items[i].modifiers) {
+        rpcModifiers.push({
+          item_index: i,
           modifier_option_id: modifier.id,
           name_snapshot: modifier.name,
           price_delta_snapshot: modifier.price_delta_cents,
@@ -218,24 +168,34 @@ export async function POST(request: Request) {
       }
     }
 
-    if (orderItemModifiersToInsert.length > 0) {
-      const { error: modifiersInsertError } = await supabase
-        .from("order_item_modifiers")
-        .insert(orderItemModifiersToInsert);
+    const { data: rpcResult, error: rpcError } = await supabase.rpc("create_order_with_items", {
+      p_order: {
+        user_id: user.id,
+        address_id: input.addressId,
+        subtotal_cents: totals.subtotalCents,
+        delivery_fee_cents: totals.deliveryFeeCents,
+        tax_cents: totals.taxCents,
+        total_cents: totals.totalCents,
+        delivery_window_start: `${input.scheduledDate}T${input.timeWindowStart}:00`,
+        delivery_window_end: `${input.scheduledDate}T${input.timeWindowEnd}:00`,
+        special_instructions: input.customerNotes ?? null,
+      },
+      p_items: rpcItems,
+      p_modifiers: rpcModifiers.length > 0 ? rpcModifiers : [],
+    });
 
-      if (modifiersInsertError) {
-        logger.exception(modifiersInsertError, {
-          orderId: order.id,
-          userId: user.id,
-          api: "checkout-session",
-          flowId: "checkout",
-        });
-        // Clean up
-        await supabase.from("order_items").delete().eq("order_id", order.id);
-        await supabase.from("orders").delete().eq("id", order.id);
-        return errorResponse("INTERNAL_ERROR", "Failed to create order modifiers", 500);
-      }
+    if (rpcError || !rpcResult) {
+      logger.exception(rpcError, {
+        userId: user.id,
+        api: "checkout-session",
+        flowId: "checkout",
+      });
+      return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
     }
+
+    const order = { id: (rpcResult as { order_id: string }).order_id } as OrdersRow;
+    const orderItemIds = (rpcResult as { order_item_ids: string[] }).order_item_ids;
+    const orderItems = orderItemIds.map((id) => ({ id })) as OrderItemsRow[];
 
     // Get or create Stripe customer
     const { data: profile } = await supabase
@@ -250,6 +210,43 @@ export async function POST(request: Request) {
       user.email!,
       profile?.full_name
     );
+
+    // C-04 FIX: Re-validate item availability RIGHT BEFORE Stripe session creation.
+    // Between initial validation and here, items could be deactivated or sold out.
+    const { data: freshMenuItems, error: freshMenuError } = await supabase
+      .from("menu_items")
+      .select("id, is_active")
+      .in("id", menuItemIds);
+
+    if (freshMenuError) {
+      await supabase.from("order_item_modifiers").delete().eq("order_item_id", orderItems.map((oi) => oi.id)[0] ? "" : "");
+      await supabase.from("order_items").delete().eq("order_id", order.id);
+      await supabase.from("orders").delete().eq("id", order.id);
+      return errorResponse("INTERNAL_ERROR", "Failed to re-validate menu items", 500);
+    }
+
+    const unavailableItems = (freshMenuItems ?? []).filter((item) => !item.is_active);
+    if (unavailableItems.length > 0) {
+      // Clean up the order we already created — items are no longer available
+      await supabase.from("order_item_modifiers").delete().in(
+        "order_item_id",
+        orderItems.map((oi) => oi.id)
+      );
+      await supabase.from("order_items").delete().eq("order_id", order.id);
+      await supabase.from("orders").delete().eq("id", order.id);
+
+      const unavailableIds = unavailableItems.map((i) => i.id);
+      const unavailableNames = validation.items
+        .filter((vi) => unavailableIds.includes(vi.menuItem.id))
+        .map((vi) => vi.menuItem.name_en);
+
+      return errorResponse(
+        "ITEM_UNAVAILABLE",
+        `Some items are no longer available: ${unavailableNames.join(", ")}. Please update your cart.`,
+        400,
+        { unavailableItems: unavailableIds }
+      );
+    }
 
     // Create Stripe Checkout Session
     const lineItems = createStripeLineItems(validation.items, totals.deliveryFeeCents);

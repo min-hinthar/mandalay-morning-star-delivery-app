@@ -22,10 +22,14 @@ const FLOW_ID = "delivery-reminders";
 // ===========================================
 
 function isAuthorized(request: Request): boolean {
-  // Reject if CRON_SECRET not configured in production
+  // SECURITY: Fail CLOSED when secret is not configured.
+  // Without a secret, no one should be able to trigger mass email sends.
   if (!CRON_SECRET) {
-    if (process.env.NODE_ENV === "production") return false;
-    return true; // Allow in development without secret
+    logger.error("CRON_SECRET is not configured — rejecting cron request", {
+      flowId: FLOW_ID,
+      api: "cron",
+    });
+    return false;
   }
 
   const authHeader = request.headers.get("authorization");

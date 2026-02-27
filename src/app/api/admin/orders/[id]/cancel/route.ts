@@ -74,15 +74,27 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     const previousStatus = order.status;
 
-    // Update order status to cancelled
-    const { error: updateError } = await supabase
+    // Update order status to cancelled — guard against concurrent state changes.
+    // Only cancel if order is still in a cancellable state (not already delivered/cancelled).
+    const { data: updatedRows, error: updateError } = await supabase
       .from("orders")
       .update({ status: "cancelled", updated_at: new Date().toISOString() })
-      .eq("id", orderId);
+      .eq("id", orderId)
+      .neq("status", "delivered")
+      .neq("status", "cancelled")
+      .select("id");
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/orders/[id]/cancel" });
       return NextResponse.json({ error: "Failed to cancel order" }, { status: 500 });
+    }
+
+    // If no rows updated, status changed between our read and write (race condition)
+    if (!updatedRows || updatedRows.length === 0) {
+      return NextResponse.json(
+        { error: `Order status changed to '${previousStatus}' — cannot cancel. Refresh and try again.` },
+        { status: 409 }
+      );
     }
 
     // Create audit log entry
