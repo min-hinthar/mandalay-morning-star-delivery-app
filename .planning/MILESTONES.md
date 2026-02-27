@@ -1,5 +1,31 @@
 # Project Milestones: Morning Star V8 UI Rewrite
 
+## v1.9 Quality, Accessibility & UX Excellence (Planning: 2026-02-27)
+
+**Goal:** Ship a production-grade app that is accessible (WCAG 2.1 AA), internationalized (Myanmar/English), well-tested, and delightful to use.
+
+**Phases planned:** 77-89 (33 plans, 30 requirements)
+
+**Key deliverables:**
+
+- Repo hygiene — dead file cleanup, 35 stale branches pruned, build artifacts removed from git
+- 5 medium-priority bug fixes from pre-launch audit (email idempotency, DST cron, partial refund UI)
+- All non-exempt files under 400-line ESLint limit (10 files to split)
+- WCAG 2.1 AA accessibility — ARIA labels, focus management, live regions, keyboard navigation, image alt text
+- Form validation UX — inline field-level validation, error recovery suggestions
+- Image optimization — next/image migration, responsive srcset, placeholder blur
+- High-contrast mode + full prefers-reduced-motion compliance
+- Storybook stories for 8+ core components + Chromatic visual regression baselines
+- next-intl i18n foundation with Myanmar/English bilingual customer pages
+- Component unit tests (checkout, cart, orders, admin) + webhook/checkout integration tests
+- Toast system improvements + Web Push notification foundation
+
+**Priority breakdown:** 2 P0 phases, 4 P1 phases, 6 P2 phases, 1 P3 phase
+
+**Context:** `.planning/milestones/v1.9-CONTEXT.md`
+
+---
+
 ## v1.8 Post-Launch Hardening & Driver Experience (Shipped: 2026-02-19, Gap Closure: 2026-02-26)
 
 **Delivered:** Production security hardening (CSP, RLS, rate limiting), complete driver experience overhaul (profile, earnings, availability, onboarding), role-based auth redirects, and gap closure wiring fixes.

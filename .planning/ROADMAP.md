@@ -12,6 +12,7 @@
 - ✅ **v1.7 Production Deployment & Readiness** — Phases 58-66 (shipped 2026-02-16)
 - ✅ **v1.8 Post-Launch Hardening & Driver Experience** — Phases 67-74 (shipped 2026-02-19)
 - ✅ **v1.8 Gap Closure** — Phases 75-76 (shipped 2026-02-26)
+- **v1.9 Quality, Accessibility & UX Excellence** — Phases 77-89 (planning)
 
 ## Phases
 
@@ -66,7 +67,26 @@
 | v1.7 Deployment    | 58-66  | 32    | 2026-02-16 |
 | v1.8 Hardening     | 67-74  | 23    | 2026-02-19 |
 | v1.8 Gap Closure   | 75-76  | 2     | 2026-02-26 |
-| **Total**          | **76** | **312** |          |
+| v1.9 Quality & A11y| 77-89  | 33    | planning   |
+| **Total**          | **89** | **345** |          |
+
+### v1.9 Quality, Accessibility & UX Excellence (Phases 77-89) — PLANNING
+
+**Focus:** Accessibility compliance, UI/UX polish, code quality, testing depth, i18n foundation
+
+- [ ] Phase 77: Repo Hygiene & Dead Code Cleanup (2 plans) — P0
+- [ ] Phase 78: Medium-Priority Bug Fixes from Audit (3 plans) — P0
+- [ ] Phase 79: Oversized Component Splitting (4 plans) — P1
+- [ ] Phase 80: Accessibility Foundations (4 plans) — P1
+- [ ] Phase 81: Real-Time & Driver Accessibility (2 plans) — P1
+- [ ] Phase 82: Form Validation UX Improvements (2 plans) — P1
+- [ ] Phase 83: Image Optimization & Performance (2 plans) — P2
+- [ ] Phase 84: High-Contrast Mode & Reduced Motion (1 plan) — P2
+- [ ] Phase 85: Storybook & Visual Regression (3 plans) — P2
+- [ ] Phase 86: Internationalization Foundation (3 plans) — P2
+- [ ] Phase 87: Component Unit Testing (3 plans) — P2
+- [ ] Phase 88: Webhook & Integration Testing (2 plans) — P2
+- [ ] Phase 89: Notifications & Real-Time Polish (2 plans) — P3
 
 ---
 
