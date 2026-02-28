@@ -565,6 +565,52 @@ Comprehensive audit for memory leaks and crash patterns found 0 critical issues.
 
 ---
 
+## 2026-02-28: Google-Hosted Images Not Rendering (Referrer Policy)
+
+**Date:** 2026-02-28 | **Type:** Runtime/Config | **Severity:** High
+**Files:** `next.config.ts`, 16 component files with external `<img>` tags
+
+**Error:** Product images (Google Drive thumbnails) and Google OAuth avatars not rendering in cart drawer, header, mobile drawer, and admin tables.
+
+**Root Cause:** Two issues:
+1. **Referrer policy blocks Google images.** App sets `Referrer-Policy: strict-origin-when-cross-origin` security header. Browser sends app origin as referrer when loading from `drive.google.com` / `lh3.googleusercontent.com`. Google blocks requests from unknown referrers. `next/image` components worked because they fetch server-side (no referrer sent).
+2. **Narrow `remotePatterns` hostname.** Only `lh3.googleusercontent.com` configured, but Google uses `lh4`, `lh5`, `lh6`, etc.
+
+**Fix:**
+- Added `referrerPolicy="no-referrer"` to all external `<img>` tags (16 files)
+- Changed `hostname: "lh3.googleusercontent.com"` → `hostname: "**.googleusercontent.com"` in `next.config.ts`
+
+**Prevention:**
+1. All external `<img>` tags loading from Google domains need `referrerPolicy="no-referrer"`
+2. Use wildcard subdomain patterns (`**.domain.com`) in `remotePatterns` for CDNs with multiple subdomains
+3. `next/image` doesn't have this issue (server-side fetch) — plain `<img>` does
+
+---
+
+## 2026-02-28: CI Detect Changes Job Fails — Checkout 404 (Permissions Allowlist)
+
+**Date:** 2026-02-28 | **Type:** CI/CD | **Severity:** Medium
+**Files:** `.github/workflows/ci.yml`
+
+**Error:** `The process '/usr/bin/git' failed with exit code 128` — `repository not found`
+
+**Root Cause:** Job-level `permissions` in GitHub Actions is an **allowlist**. The `changes` job only had `pull-requests: read`, which drops ALL other default permissions — including `contents: read` needed for `actions/checkout@v4` to clone the repo.
+
+**Fix:** Added `contents: read` alongside `pull-requests: read`:
+```yaml
+permissions:
+  contents: read
+  pull-requests: read
+```
+
+Also added `fetch-depth: 2` for `dorny/paths-filter@v3` compatibility on push events.
+
+**Prevention:**
+1. When setting job-level `permissions`, always include `contents: read` if the job uses `actions/checkout`
+2. Job-level permissions are allowlists — unlisted permissions are denied, not inherited
+
+---
+
 ## 2026-01-26: Double-Add Cart Items (Button + Callback Both Mutate)
 
 **Type:** Logic | **Severity:** High

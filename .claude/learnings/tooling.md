@@ -133,4 +133,25 @@ CI runs `pnpm format:check` (Prettier). Local `pnpm lint` does NOT catch formatt
 
 ---
 
+## GitHub Actions Job-Level Permissions Are Allowlists
+
+Setting `permissions:` on a job replaces ALL defaults — unlisted permissions are **denied**, not inherited. If a job uses `actions/checkout`, it MUST include `contents: read`.
+
+```yaml
+# BROKEN — contents:read dropped, checkout fails with "repo not found"
+permissions:
+  pull-requests: read
+
+# WORKING — explicitly include both
+permissions:
+  contents: read
+  pull-requests: read
+```
+
+Also: `dorny/paths-filter@v3` on push events needs `fetch-depth: 2` (default shallow clone = depth 1, can't diff).
+
+**Apply when:** Adding job-level permissions to any GitHub Actions workflow.
+
+---
+
 > **GSD Patch Persistence & Agent Teams:** Moved to global learnings at `~/.claude/learnings/gsd-workflow.md` (cross-project patterns).
