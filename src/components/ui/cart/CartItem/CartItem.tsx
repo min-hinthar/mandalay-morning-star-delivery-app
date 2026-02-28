@@ -145,7 +145,12 @@ export const CartItem = memo(function CartItem({
           >
             {item.imageUrl ? (
               /* eslint-disable-next-line @next/next/no-img-element -- Dynamic external URL in animation */
-              <img src={item.imageUrl} alt={item.nameEn} className="w-full h-full object-cover" />
+              <img
+                src={item.imageUrl}
+                alt={item.nameEn}
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-3xl">
                 <span role="img" aria-label="Food">

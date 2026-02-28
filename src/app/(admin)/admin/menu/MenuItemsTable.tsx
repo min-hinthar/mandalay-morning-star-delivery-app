@@ -125,6 +125,7 @@ export function MenuItemsTable({
                             src={item.image_url}
                             alt={item.name_en}
                             className="h-10 w-10 rounded-input object-cover"
+                            referrerPolicy="no-referrer"
                           />
                         ) : (
                           <div className="h-10 w-10 rounded-input bg-surface-tertiary flex items-center justify-center text-text-muted text-xs font-body">

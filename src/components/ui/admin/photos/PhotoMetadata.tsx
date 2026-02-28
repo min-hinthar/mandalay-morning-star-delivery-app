@@ -151,7 +151,12 @@ export function PhotoMetadata({
       {/* Photo Preview */}
       <div className="aspect-square w-full overflow-hidden rounded-card-sm bg-surface-tertiary">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={photo.imageUrl} alt={photo.name} className="h-full w-full object-cover" />
+        <img
+          src={photo.imageUrl}
+          alt={photo.name}
+          className="h-full w-full object-cover"
+          referrerPolicy="no-referrer"
+        />
       </div>
 
       {/* Photo Info */}

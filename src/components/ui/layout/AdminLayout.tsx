@@ -154,6 +154,7 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
                     src={user.avatar}
                     alt={user.name}
                     className="h-full w-full rounded-full object-cover"
+                    referrerPolicy="no-referrer"
                   />
                 ) : (
                   user?.name?.charAt(0).toUpperCase() || "A"

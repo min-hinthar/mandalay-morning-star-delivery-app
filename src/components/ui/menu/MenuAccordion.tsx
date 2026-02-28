@@ -257,6 +257,7 @@ function DefaultItemCard({ item }: { item: MenuItem }) {
           src={item.imageUrl}
           alt={item.nameEn}
           className="w-16 h-16 rounded-lg object-cover bg-[var(--color-surface-tertiary)]"
+          referrerPolicy="no-referrer"
         />
       ) : (
         <div className="w-16 h-16 rounded-lg bg-[var(--color-surface-tertiary)] flex items-center justify-center">

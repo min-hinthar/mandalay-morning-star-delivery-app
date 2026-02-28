@@ -43,7 +43,12 @@ const SuggestionCard = memo(function SuggestionCard({ item, onSelect }: Suggesti
       <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-surface-secondary/50">
         {item.imageUrl ? (
           /* eslint-disable-next-line @next/next/no-img-element -- Dynamic external URL */
-          <img src={item.imageUrl} alt={item.nameEn} className="w-full h-full object-cover" />
+          <img
+            src={item.imageUrl}
+            alt={item.nameEn}
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-xl">
             <span role="img" aria-label="Food">
