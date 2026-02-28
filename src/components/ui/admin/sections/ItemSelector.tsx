@@ -280,6 +280,7 @@ export function ItemSelector({
                         src={item.imageUrl}
                         alt={item.nameEn}
                         className="w-10 h-10 rounded object-cover shrink-0"
+                        referrerPolicy="no-referrer"
                       />
                     ) : (
                       <div className="w-10 h-10 rounded bg-surface-tertiary flex items-center justify-center shrink-0">
@@ -360,6 +361,7 @@ export function ItemSelector({
                     src={item.imageUrl}
                     alt={item.nameEn}
                     className="w-8 h-8 rounded object-cover shrink-0"
+                    referrerPolicy="no-referrer"
                   />
                 ) : (
                   <div className="w-8 h-8 rounded bg-surface-tertiary flex items-center justify-center shrink-0">

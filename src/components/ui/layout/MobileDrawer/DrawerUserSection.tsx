@@ -49,6 +49,7 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
                   src={user.avatar}
                   alt={user.name || "User"}
                   className="w-full h-full object-cover"
+                  referrerPolicy="no-referrer"
                   onError={(e) => {
                     e.currentTarget.style.display = "none";
                     const sibling = e.currentTarget.nextElementSibling;

@@ -116,7 +116,12 @@ function SearchResultItem({ item, index, onSelect, query, shouldAnimate }: Searc
       <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-surface-secondary">
         {item.imageUrl ? (
           /* eslint-disable-next-line @next/next/no-img-element -- Dynamic external URL */
-          <img src={item.imageUrl} alt={item.nameEn} className="w-full h-full object-cover" />
+          <img
+            src={item.imageUrl}
+            alt={item.nameEn}
+            className="w-full h-full object-cover"
+            referrerPolicy="no-referrer"
+          />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-xl text-text-muted">
             <span role="img" aria-hidden="true">

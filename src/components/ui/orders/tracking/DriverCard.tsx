@@ -82,6 +82,7 @@ export function DriverCard({ driver, stopProgress, onContactDriver, className }:
               src={driver.profileImageUrl}
               alt={displayName}
               className="h-14 w-14 rounded-full object-cover ring-2 ring-jade-100"
+              referrerPolicy="no-referrer"
               onError={(e) => {
                 e.currentTarget.style.display = "none";
                 e.currentTarget.nextElementSibling?.classList.remove("hidden");

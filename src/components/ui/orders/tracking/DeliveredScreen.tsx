@@ -205,6 +205,7 @@ export function DeliveredScreen({
               alt="Delivery confirmation"
               className="w-full rounded-lg object-cover"
               style={{ maxHeight: 200 }}
+              referrerPolicy="no-referrer"
             />
           </div>
         )}

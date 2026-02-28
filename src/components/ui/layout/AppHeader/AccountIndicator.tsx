@@ -221,7 +221,12 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
         {/* Avatar image or initials fallback - use full size to respect className override */}
         {avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={avatarUrl} alt="" className="w-full h-full rounded-full object-cover" />
+          <img
+            src={avatarUrl}
+            alt=""
+            className="w-full h-full rounded-full object-cover"
+            referrerPolicy="no-referrer"
+          />
         ) : (
           <span
             className="flex w-full h-full items-center justify-center rounded-full text-sm font-bold text-text-inverse"

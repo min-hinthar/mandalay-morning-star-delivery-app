@@ -125,7 +125,12 @@ export function MenuItemPhotoSection({
           <div className="relative">
             <div className="relative w-full aspect-square max-w-xs mx-auto rounded-card-sm overflow-hidden border border-border">
               {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={imageUrl} alt={nameEn} className="w-full h-full object-cover" />
+              <img
+                src={imageUrl}
+                alt={nameEn}
+                className="w-full h-full object-cover"
+                referrerPolicy="no-referrer"
+              />
               <button
                 onClick={handleRemovePhoto}
                 className="absolute top-2 right-2 p-1.5 bg-surface-inverse/60 hover:bg-surface-inverse/80 rounded-full transition-colors"
@@ -181,6 +186,7 @@ export function MenuItemPhotoSection({
                 src={drivePreview}
                 alt="Preview"
                 className="w-20 h-20 rounded-input object-cover border border-green"
+                referrerPolicy="no-referrer"
               />
               <p className="text-xs text-green mt-1">
                 {imageUrl === drivePreview ? "Current saved URL" : "URL verified - Save to apply"}

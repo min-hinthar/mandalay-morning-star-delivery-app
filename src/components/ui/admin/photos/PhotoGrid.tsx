@@ -92,6 +92,7 @@ export function PhotoGrid({
                   alt={photo.name}
                   className="h-full w-full object-cover"
                   loading="lazy"
+                  referrerPolicy="no-referrer"
                 />
 
                 {/* Hover Overlay */}

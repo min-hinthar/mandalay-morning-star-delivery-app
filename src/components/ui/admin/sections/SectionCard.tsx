@@ -286,6 +286,7 @@ export function SectionCard({
                         src={item.imageUrl}
                         alt={item.nameEn}
                         className="w-6 h-6 rounded object-cover"
+                        referrerPolicy="no-referrer"
                       />
                     ) : (
                       <div className="w-6 h-6 rounded bg-surface-tertiary flex items-center justify-center">

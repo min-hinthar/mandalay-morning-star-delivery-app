@@ -30,6 +30,7 @@ const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImageProps>(
         src={src}
         alt={alt || "Avatar"}
         className={cn("aspect-square h-full w-full object-cover", className)}
+        referrerPolicy="no-referrer"
         {...props}
       />
     );
