@@ -89,6 +89,29 @@ When layouts provide data to child components (via context providers or props), 
 
 ---
 
+## External `<img>` Tags Need `referrerPolicy="no-referrer"` for Google Images
+
+Plain `<img>` tags loading from Google domains (`drive.google.com`, `*.googleusercontent.com`) fail silently when the app sets `Referrer-Policy: strict-origin-when-cross-origin`. Google blocks image requests from unknown referrers.
+
+```tsx
+// BROKEN — Google sees referrer, blocks image
+<img src={googleDriveUrl} alt="product" />
+
+// WORKING — no referrer sent, Google serves image
+<img src={googleDriveUrl} alt="product" referrerPolicy="no-referrer" />
+```
+
+`next/image` is NOT affected (fetches server-side, no browser referrer). Only plain `<img>` tags.
+
+For `remotePatterns` in `next.config.ts`, use wildcard subdomains — Google CDN uses `lh3`, `lh4`, `lh5`, etc.:
+```ts
+{ protocol: "https", hostname: "**.googleusercontent.com" }
+```
+
+**Apply when:** Loading images from Google Drive, Google OAuth avatars, or any `*.googleusercontent.com` URL via plain `<img>` tags.
+
+---
+
 ## beforeunload Handler Must Check Ref
 
 `beforeunload` fires when `window.location.href` is set to external URL. Effect cleanup runs too late.
