@@ -1,8 +1,10 @@
 import type { OrderStatus } from "@/types/order";
+import type { RefundStatus } from "@/types/database";
 
 export interface Order {
   id: string;
   status: OrderStatus;
+  refundStatus: RefundStatus;
   totalCents: number;
   deliveryWindowStart: string | null;
   placedAt: string;
@@ -52,6 +54,7 @@ export const CANCELLABLE_STATUSES: OrderStatus[] = ["pending", "confirmed"];
 export interface OrderRow {
   id: string;
   status: OrderStatus;
+  refund_status: RefundStatus;
   total_cents: number;
   delivery_window_start: string | null;
   placed_at: string;

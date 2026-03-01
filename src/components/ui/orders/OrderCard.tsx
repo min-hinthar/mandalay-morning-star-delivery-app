@@ -11,12 +11,14 @@ import { format, parseISO } from "date-fns";
 import { spring, staggerDelay } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import type { OrderStatus } from "@/types/order";
+import type { RefundStatus } from "@/types/database";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/types/order";
 
 interface OrderCardProps {
   order: {
     id: string;
     status: OrderStatus;
+    refundStatus: RefundStatus;
     totalCents: number;
     deliveryWindowStart: string | null;
     placedAt: string;
@@ -80,6 +82,11 @@ export function OrderCard({ order, index = 0 }: OrderCardProps) {
                   <Badge className={ORDER_STATUS_COLORS[order.status]}>
                     {ORDER_STATUS_LABELS[order.status]}
                   </Badge>
+                  {order.refundStatus !== "none" && (
+                    <Badge className="bg-red-50 text-red-700 border-red-200 text-xs mt-1">
+                      {order.refundStatus === "partial" ? "Partial Refund" : "Refunded"}
+                    </Badge>
+                  )}
                   {order.status === "pending" && (
                     <p className="text-xs text-amber-600 flex items-center justify-end gap-1 mt-1">
                       <AlertCircle className="h-3 w-3" />

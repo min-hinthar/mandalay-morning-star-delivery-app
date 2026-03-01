@@ -80,6 +80,7 @@ export function createMockOrder(overrides?: Partial<OrdersRow>): OrdersRow {
     address_id: "address-uuid",
     assigned_driver_id: null,
     status: "pending",
+    refund_status: "none",
     subtotal_cents: 3000,
     delivery_fee_cents: 1500,
     tax_cents: 0,
@@ -127,11 +128,13 @@ export function createValidatedCartItem(
 export function createCheckoutItemInput(
   menuItemId: string,
   quantity = 1,
-  modifiers: Array<{ optionId: string }> = []
+  modifiers: Array<{ optionId: string; priceDeltaCents: number }> = [],
+  basePriceCents = 1500
 ) {
   return {
     menuItemId,
     quantity,
+    basePriceCents,
     modifiers,
     notes: "",
   };

@@ -8,6 +8,7 @@ import { overlay } from "@/lib/motion-tokens/variants";
 import { transition } from "@/lib/motion-tokens/core";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/admin/StatusBadge";
+import { Badge } from "@/components/ui/badge";
 import { formatPrice } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
 import type { AdminOrder } from "@/components/ui/admin/OrdersTable";
@@ -123,7 +124,21 @@ export function OrderDetailDrawer({
                   <span className="font-mono text-sm text-text-muted">
                     #{order.id.slice(0, 8).toUpperCase()}
                   </span>
-                  <StatusBadge status={order.status} size="md" />
+                  <div className="flex items-center gap-2">
+                    <StatusBadge status={order.status} size="md" />
+                    {order.refundStatus !== "none" && (
+                      <Badge
+                        className={cn(
+                          "text-xs",
+                          order.refundStatus === "partial"
+                            ? "bg-amber-100 text-amber-800 border-amber-200"
+                            : "bg-red-100 text-red-800 border-red-200"
+                        )}
+                      >
+                        {order.refundStatus === "partial" ? "Partial Refund" : "Full Refund"}
+                      </Badge>
+                    )}
+                  </div>
                 </div>
                 <p className="text-xs text-text-muted">
                   Placed {format(parseISO(order.placedAt), "EEEE, MMM d, yyyy 'at' h:mm a")}

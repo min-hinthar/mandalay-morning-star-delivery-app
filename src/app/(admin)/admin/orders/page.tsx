@@ -12,7 +12,7 @@ import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
 import { InlineErrorCard } from "@/components/ui/admin/InlineErrorCard";
 import { OrdersPageSkeleton } from "@/components/ui/admin/orders/OrdersPageSkeleton";
 import { toast } from "@/lib/hooks/useToastV8";
-import type { OrderStatus } from "@/types/database";
+import type { OrderStatus, RefundStatus } from "@/types/database";
 
 // ============================================
 // CONSTANTS
@@ -35,6 +35,7 @@ const STATUS_FILTERS: { value: OrderStatus | "all"; label: string }[] = [
 interface OrderRow {
   id: string;
   status: OrderStatus;
+  refund_status: RefundStatus;
   total_cents: number;
   delivery_window_start: string | null;
   placed_at: string;
@@ -55,6 +56,7 @@ export default function AdminOrdersPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
+  const [refundFilter, setRefundFilter] = useState<"all" | "partial" | "full">("all");
   const [refreshing, setRefreshing] = useState(false);
 
   const fetchOrders = useCallback(async () => {
@@ -69,6 +71,7 @@ export default function AdminOrdersPage() {
       const transformedOrders: AdminOrder[] = data.map((order) => ({
         id: order.id,
         status: order.status,
+        refundStatus: order.refund_status,
         totalCents: order.total_cents,
         deliveryWindowStart: order.delivery_window_start,
         placedAt: order.placed_at,
@@ -125,8 +128,11 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const filteredOrders =
-    statusFilter === "all" ? orders : orders.filter((order) => order.status === statusFilter);
+  const filteredOrders = orders.filter((order) => {
+    if (statusFilter !== "all" && order.status !== statusFilter) return false;
+    if (refundFilter !== "all" && order.refundStatus !== refundFilter) return false;
+    return true;
+  });
 
   const statusCounts = orders.reduce(
     (acc, order) => {
@@ -136,7 +142,16 @@ export default function AdminOrdersPage() {
     {} as Record<OrderStatus, number>
   );
 
-  const isFiltered = statusFilter !== "all";
+  const refundCounts = orders.reduce(
+    (acc, order) => {
+      if (order.refundStatus === "partial") acc.partial++;
+      if (order.refundStatus === "full") acc.full++;
+      return acc;
+    },
+    { partial: 0, full: 0 }
+  );
+
+  const isFiltered = statusFilter !== "all" || refundFilter !== "all";
 
   return (
     <div className="p-8">
@@ -181,6 +196,41 @@ export default function AdminOrdersPage() {
           })}
         </div>
 
+        {/* Refund Status Filters */}
+        {(refundCounts.partial > 0 || refundCounts.full > 0) && (
+          <div className="flex flex-wrap gap-2 mb-6">
+            <div className="flex items-center gap-2 text-text-muted mr-2">
+              <span className="text-sm">Refund:</span>
+            </div>
+            {([
+              { value: "all" as const, label: "All" },
+              { value: "partial" as const, label: "Partial Refund", count: refundCounts.partial },
+              { value: "full" as const, label: "Full Refund", count: refundCounts.full },
+            ] as const).map((filter) => (
+              <Badge
+                key={filter.value}
+                variant={refundFilter === filter.value ? "default" : "outline"}
+                className={cn(
+                  "cursor-pointer transition-colors",
+                  refundFilter === filter.value
+                    ? filter.value === "partial"
+                      ? "bg-amber-500 hover:bg-amber-500/90 text-text-inverse"
+                      : filter.value === "full"
+                        ? "bg-red-500 hover:bg-red-500/90 text-text-inverse"
+                        : "bg-accent-teal hover:bg-accent-teal/90"
+                    : "hover:bg-muted"
+                )}
+                onClick={() => setRefundFilter(filter.value)}
+              >
+                {filter.label}
+                {"count" in filter && filter.count > 0 && (
+                  <span className="ml-1 text-xs opacity-70">({filter.count})</span>
+                )}
+              </Badge>
+            ))}
+          </div>
+        )}
+
         {/* Error state */}
         {error ? (
           <InlineErrorCard message={error} onRetry={handleRefresh} />
@@ -191,7 +241,7 @@ export default function AdminOrdersPage() {
             onStatusChange={handleStatusChange}
             onRefresh={handleRefresh}
             isFiltered={isFiltered}
-            onClearFilters={() => setStatusFilter("all")}
+            onClearFilters={() => { setStatusFilter("all"); setRefundFilter("all"); }}
           />
         )}
       </SkeletonCrossfade>

@@ -23,6 +23,7 @@ describe("Checkout Session Validation", () => {
         {
           menuItemId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
           quantity: 2,
+          basePriceCents: 1500,
           modifiers: [],
           notes: "",
         },
@@ -126,7 +127,7 @@ describe("Checkout Session Validation", () => {
         items: [
           {
             ...validBody.items[0],
-            modifiers: [{ optionId: "not-a-uuid" }],
+            modifiers: [{ optionId: "not-a-uuid", priceDeltaCents: 0 }],
           },
         ],
       };
@@ -143,7 +144,7 @@ describe("Checkout Session Validation", () => {
       const modifierOptions = new Map<string, ModifierOptionsRow>();
 
       const result = await validateCartItems(
-        [{ menuItemId: "item-1", quantity: 2, modifiers: [], notes: "" }],
+        [{ menuItemId: "item-1", quantity: 2, basePriceCents: 1500, modifiers: [], notes: "" }],
         menuItems,
         modifierOptions
       );
@@ -158,7 +159,7 @@ describe("Checkout Session Validation", () => {
       const modifierOptions = new Map<string, ModifierOptionsRow>();
 
       const result = await validateCartItems(
-        [{ menuItemId: "nonexistent", quantity: 1, modifiers: [], notes: "" }],
+        [{ menuItemId: "nonexistent", quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" }],
         menuItems,
         modifierOptions
       );
@@ -174,7 +175,7 @@ describe("Checkout Session Validation", () => {
       const modifierOptions = new Map<string, ModifierOptionsRow>();
 
       const result = await validateCartItems(
-        [{ menuItemId: "item-1", quantity: 1, modifiers: [], notes: "" }],
+        [{ menuItemId: "item-1", quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" }],
         menuItems,
         modifierOptions
       );
@@ -190,7 +191,7 @@ describe("Checkout Session Validation", () => {
       const modifierOptions = new Map<string, ModifierOptionsRow>();
 
       const result = await validateCartItems(
-        [{ menuItemId: "item-1", quantity: 1, modifiers: [], notes: "" }],
+        [{ menuItemId: "item-1", quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" }],
         menuItems,
         modifierOptions
       );
@@ -214,7 +215,8 @@ describe("Checkout Session Validation", () => {
           {
             menuItemId: "item-1",
             quantity: 1,
-            modifiers: [{ optionId: "mod-1" }],
+            basePriceCents: 1500,
+            modifiers: [{ optionId: "mod-1", priceDeltaCents: 100 }],
             notes: "",
           },
         ],
@@ -229,7 +231,8 @@ describe("Checkout Session Validation", () => {
           {
             menuItemId: "item-1",
             quantity: 1,
-            modifiers: [{ optionId: "mod-2" }],
+            basePriceCents: 1500,
+            modifiers: [{ optionId: "mod-2", priceDeltaCents: 100 }],
             notes: "",
           },
         ],
@@ -344,7 +347,8 @@ describe("Checkout Session Business Rules", () => {
           {
             menuItemId: "item-1",
             quantity: 3,
-            modifiers: [{ optionId: "mod-1" }],
+            basePriceCents: 1500,
+            modifiers: [{ optionId: "mod-1", priceDeltaCents: 200 }],
             notes: "",
           },
         ],

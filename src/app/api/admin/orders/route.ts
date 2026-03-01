@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
-import type { OrderStatus } from "@/types/database";
+import type { OrderStatus, RefundStatus } from "@/types/database";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface OrderRow {
   id: string;
   status: OrderStatus;
+  refund_status: RefundStatus;
   total_cents: number;
   delivery_window_start: string | null;
   placed_at: string;
@@ -40,6 +41,7 @@ export async function GET() {
         `
         id,
         status,
+        refund_status,
         total_cents,
         delivery_window_start,
         placed_at,

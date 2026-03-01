@@ -67,7 +67,7 @@ export function OrdersTab() {
 
       const { data: ordersData, error } = await supabase
         .from("orders")
-        .select(`id, status, total_cents, delivery_window_start, placed_at, order_items (quantity)`)
+        .select(`id, status, refund_status, total_cents, delivery_window_start, placed_at, order_items (quantity)`)
         .eq("user_id", user.id)
         .order("placed_at", { ascending: false })
         .returns<OrderRow[]>();
@@ -77,6 +77,7 @@ export function OrdersTab() {
       const transformedOrders = (ordersData || []).map((order) => ({
         id: order.id,
         status: order.status,
+        refundStatus: order.refund_status,
         totalCents: order.total_cents,
         deliveryWindowStart: order.delivery_window_start,
         placedAt: order.placed_at,
@@ -290,6 +291,11 @@ export function OrdersTab() {
                     <Badge className={STATUS_COLORS[order.status]}>
                       {STATUS_LABELS[order.status]}
                     </Badge>
+                    {order.refundStatus !== "none" && (
+                      <Badge className="bg-red-50 text-red-700 border-red-200 text-xs mt-1">
+                        {order.refundStatus === "partial" ? "Partial Refund" : "Refunded"}
+                      </Badge>
+                    )}
                     {order.status === "pending" && (
                       <p className="text-xs text-amber-600 flex items-center justify-end gap-1 mt-1">
                         <AlertCircle className="h-3 w-3" />

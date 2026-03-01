@@ -3,7 +3,9 @@
 import { format, parseISO, isToday, isYesterday } from "date-fns";
 import { Eye } from "lucide-react";
 import { formatPrice } from "@/lib/utils/currency";
+import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { CardRow } from "@/components/ui/admin/CardRow";
 import { StatusBadge } from "@/components/ui/admin/StatusBadge";
 import type { AdminOrder } from "@/components/ui/admin/OrdersTable";
@@ -76,9 +78,21 @@ export function OrderCardRow({ order, selected = false, onClick }: OrderCardRowP
           {formatPrice(order.totalCents)}
         </span>
 
-        {/* Status badge */}
-        <div className="w-[130px] flex-shrink-0">
+        {/* Status badge + refund badge */}
+        <div className="w-[130px] flex-shrink-0 flex flex-col gap-1">
           <StatusBadge status={order.status} />
+          {order.refundStatus !== "none" && (
+            <Badge
+              className={cn(
+                "text-xs w-fit",
+                order.refundStatus === "partial"
+                  ? "bg-amber-100 text-amber-800 border-amber-200"
+                  : "bg-red-100 text-red-800 border-red-200"
+              )}
+            >
+              {order.refundStatus === "partial" ? "Partial Refund" : "Full Refund"}
+            </Badge>
+          )}
         </div>
 
         {/* Date */}
@@ -104,7 +118,21 @@ export function OrderCardRow({ order, selected = false, onClick }: OrderCardRowP
       {/* Mobile layout */}
       <div className="flex sm:hidden flex-col gap-2 w-full">
         <div className="flex items-center justify-between">
-          <StatusBadge status={order.status} />
+          <div className="flex items-center gap-2">
+            <StatusBadge status={order.status} />
+            {order.refundStatus !== "none" && (
+              <Badge
+                className={cn(
+                  "text-xs",
+                  order.refundStatus === "partial"
+                    ? "bg-amber-100 text-amber-800 border-amber-200"
+                    : "bg-red-100 text-red-800 border-red-200"
+                )}
+              >
+                {order.refundStatus === "partial" ? "Partial" : "Full"} Refund
+              </Badge>
+            )}
+          </div>
           <span className="text-xs text-text-muted">{formatRelativeDate(order.placedAt)}</span>
         </div>
         <div className="flex items-center justify-between">

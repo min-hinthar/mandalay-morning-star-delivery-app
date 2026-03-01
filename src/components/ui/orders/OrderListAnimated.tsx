@@ -10,10 +10,12 @@ import { m } from "framer-motion";
 import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
 import { OrderCard } from "./OrderCard";
 import type { OrderStatus } from "@/types/order";
+import type { RefundStatus } from "@/types/database";
 
 interface Order {
   id: string;
   status: OrderStatus;
+  refundStatus: RefundStatus;
   totalCents: number;
   deliveryWindowStart: string | null;
   placedAt: string;
