@@ -1,8 +1,9 @@
 import type { CheckoutItemInput } from "@/lib/validations/checkout";
 import type { MenuItemsRow, ModifierOptionsRow } from "@/types/database";
 
-export const DELIVERY_FEE_CENTS = 1500;
-export const FREE_DELIVERY_THRESHOLD_CENTS = 10000;
+/** Default fee values — match DB seeds and BUSINESS_RULES_DEFAULTS */
+const DEFAULT_DELIVERY_FEE_CENTS = 1500;
+const DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS = 10000;
 
 export interface ValidatedCartItem {
   menuItem: MenuItemsRow;
@@ -34,9 +35,16 @@ export function calculateLineTotal(
 
 /**
  * Calculate delivery fee based on subtotal
+ * @param subtotalCents - Order subtotal in cents
+ * @param deliveryFeeCents - Delivery fee amount in cents
+ * @param freeDeliveryThresholdCents - Subtotal threshold for free delivery
  */
-export function calculateDeliveryFee(subtotalCents: number): number {
-  return subtotalCents >= FREE_DELIVERY_THRESHOLD_CENTS ? 0 : DELIVERY_FEE_CENTS;
+export function calculateDeliveryFee(
+  subtotalCents: number,
+  deliveryFeeCents: number = DEFAULT_DELIVERY_FEE_CENTS,
+  freeDeliveryThresholdCents: number = DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS
+): number {
+  return subtotalCents >= freeDeliveryThresholdCents ? 0 : deliveryFeeCents;
 }
 
 /**
@@ -53,11 +61,17 @@ export function calculateTax(_subtotalCents: number): number {
  * Calculate full order totals
  */
 export function calculateOrderTotals(
-  validatedItems: ValidatedCartItem[]
+  validatedItems: ValidatedCartItem[],
+  deliveryFeeCentsParam: number = DEFAULT_DELIVERY_FEE_CENTS,
+  freeDeliveryThresholdCents: number = DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS
 ): Pick<OrderCalculation, "subtotalCents" | "deliveryFeeCents" | "taxCents" | "totalCents"> {
   const subtotalCents = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
 
-  const deliveryFeeCents = calculateDeliveryFee(subtotalCents);
+  const deliveryFeeCents = calculateDeliveryFee(
+    subtotalCents,
+    deliveryFeeCentsParam,
+    freeDeliveryThresholdCents
+  );
   const taxCents = calculateTax(subtotalCents);
   const totalCents = subtotalCents + deliveryFeeCents + taxCents;
 
