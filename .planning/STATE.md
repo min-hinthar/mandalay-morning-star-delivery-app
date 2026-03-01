@@ -3,6 +3,19 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
 status: unknown
+last_updated: "2026-03-01T22:22:21.841Z"
+progress:
+  total_phases: 3
+  completed_phases: 2
+  total_plans: 12
+  completed_plans: 10
+---
+
+---
+gsd_state_version: 1.0
+milestone: v1.9
+milestone_name: Launch-Ready MVP
+status: unknown
 last_updated: "2026-03-01T12:06:50.365Z"
 progress:
   total_phases: 2
@@ -35,11 +48,11 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 
 ## Current Position
 
-Phase: 78 of 84 (Configurable Business Rules) -- COMPLETE
-Plan: 4 of 4 in Phase 78 (all complete)
+Phase: 79 of 84 (Saturday Ops Dashboard) -- IN PROGRESS
+Plan: 1 of 3 in Phase 79 (Plan 01 complete)
 Milestone: v1.9 Launch-Ready MVP (8 phases, 49 requirements)
-Status: Phase 78 complete, ready for Phase 79
-Last activity: 2026-03-01 -- Phase 78 Plan 04 executed (customer-facing dynamic business rules)
+Status: Phase 79 Plan 01 complete, ready for Plan 02
+Last activity: 2026-03-01 -- Phase 79 Plan 01 executed (ops foundation: helpers, hooks, API, tests)
 
 Progress: [==========================........] 78/84 phases
 
@@ -67,6 +80,7 @@ Progress: [==========================........] 78/84 phases
 | v1.8 Gap Close | 2      | 2     | <1 day   |
 | v1.9 (partial) | 3      | 12    | <1 day   |
 | **Total**      | **78** | **321** | **30 days** |
+| Phase 79 P01 | 5min | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -90,6 +104,9 @@ Progress: [==========================........] 78/84 phases
 - v1.9 P78: Zustand store fields with setDeliverySettings for client-side fee injection (not prop-threading)
 - v1.9 P78: DeliverySettingsSync at layout level for consistent store hydration across route groups
 - v1.9 P78: Server wrapper pattern for checkout (page.tsx server -> CheckoutClient.tsx client) for timeWindows
+- v1.9 P79: Pure computeCountdown function exported separately from useCountdown hook for testability
+- v1.9 P79: useRef for isBulkOperating in polling hook to prevent stale closure in setInterval
+- v1.9 P79: Driver readiness checks ordered: inactive -> no availability -> day mismatch -> blocked date
 
 ### Pending Todos
 
@@ -109,5 +126,5 @@ Progress: [==========================........] 78/84 phases
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Phase 78 complete -- all 4 plans executed (settings schema, server consumers, admin UI, customer-facing)
-Next action: `/gsd:execute-phase 79` -- begin Phase 79
+Stopped at: Phase 79 Plan 01 complete -- ops foundation (helpers, hooks, API, 26 tests)
+Next action: `/gsd:execute-phase 79` -- continue with Plan 02 (dashboard UI components)
