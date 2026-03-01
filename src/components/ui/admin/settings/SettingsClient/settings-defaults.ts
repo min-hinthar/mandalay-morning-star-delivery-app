@@ -9,10 +9,13 @@ export const DEFAULT_SETTINGS: AllSettings = {
   delivery: {
     deliveryRadiusMiles: 40,
     minimumOrderCents: 2500,
-    freeDeliveryThresholdCents: 5000,
-    baseDeliveryFeeCents: 599,
-    deliveryCutoffTime: "18:00",
-    deliveryTimeWindows: [],
+    freeDeliveryThresholdCents: 10000,
+    baseDeliveryFeeCents: 1500,
+    cutoffDay: 5,
+    cutoffHour: 15,
+    deliveryStartHour: 11,
+    deliveryEndHour: 19,
+    maxDeliveryDurationMinutes: 60,
     deliveryZones: [],
   },
   operations: {
@@ -59,10 +62,14 @@ export function mapApiResponse(data: any): AllSettings {
         DEFAULT_SETTINGS.delivery.freeDeliveryThresholdCents,
       baseDeliveryFeeCents:
         data.delivery?.baseDeliveryFeeCents ?? DEFAULT_SETTINGS.delivery.baseDeliveryFeeCents,
-      deliveryCutoffTime:
-        data.delivery?.deliveryCutoffTime ?? DEFAULT_SETTINGS.delivery.deliveryCutoffTime,
-      deliveryTimeWindows:
-        data.delivery?.deliveryTimeWindows ?? DEFAULT_SETTINGS.delivery.deliveryTimeWindows,
+      cutoffDay: data.delivery?.cutoffDay ?? DEFAULT_SETTINGS.delivery.cutoffDay,
+      cutoffHour: data.delivery?.cutoffHour ?? DEFAULT_SETTINGS.delivery.cutoffHour,
+      deliveryStartHour:
+        data.delivery?.deliveryStartHour ?? DEFAULT_SETTINGS.delivery.deliveryStartHour,
+      deliveryEndHour: data.delivery?.deliveryEndHour ?? DEFAULT_SETTINGS.delivery.deliveryEndHour,
+      maxDeliveryDurationMinutes:
+        data.delivery?.maxDeliveryDurationMinutes ??
+        DEFAULT_SETTINGS.delivery.maxDeliveryDurationMinutes,
       deliveryZones: data.delivery?.deliveryZones ?? DEFAULT_SETTINGS.delivery.deliveryZones,
     },
     operations: {

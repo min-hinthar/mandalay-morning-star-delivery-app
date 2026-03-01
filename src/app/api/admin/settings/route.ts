@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import {
   updateSettingsSchema,
@@ -177,6 +178,11 @@ export async function PATCH(request: NextRequest) {
           { status: 500 }
         );
       }
+    }
+
+    // Bust server-side cache for delivery business rules
+    if (category === "delivery") {
+      revalidateTag("business-rules", { expire: 0 });
     }
 
     return NextResponse.json({

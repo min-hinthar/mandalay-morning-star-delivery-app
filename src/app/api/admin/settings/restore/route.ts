@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { revalidateTag } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import type { ProfileRole } from "@/types/database";
@@ -13,10 +14,13 @@ const DEFAULT_SETTINGS = [
   // Delivery settings
   { key: "delivery_radius_miles", value: 40, category: "delivery" },
   { key: "minimum_order_cents", value: 2500, category: "delivery" },
-  { key: "free_delivery_threshold_cents", value: 5000, category: "delivery" },
-  { key: "base_delivery_fee_cents", value: 599, category: "delivery" },
-  { key: "delivery_cutoff_time", value: "18:00", category: "delivery" },
-  { key: "delivery_time_windows", value: [], category: "delivery" },
+  { key: "free_delivery_threshold_cents", value: 10000, category: "delivery" },
+  { key: "base_delivery_fee_cents", value: 1500, category: "delivery" },
+  { key: "cutoff_day", value: 5, category: "delivery" },
+  { key: "cutoff_hour", value: 15, category: "delivery" },
+  { key: "delivery_start_hour", value: 11, category: "delivery" },
+  { key: "delivery_end_hour", value: 19, category: "delivery" },
+  { key: "max_delivery_duration_minutes", value: 60, category: "delivery" },
   { key: "delivery_zones", value: [], category: "delivery" },
   // Operations settings
   { key: "max_stops_per_route", value: 15, category: "operations" },
@@ -112,6 +116,9 @@ export async function POST() {
         );
       }
     }
+
+    // Bust server-side cache for delivery business rules
+    revalidateTag("business-rules", { expire: 0 });
 
     return NextResponse.json({
       message: "Settings restored to defaults",
