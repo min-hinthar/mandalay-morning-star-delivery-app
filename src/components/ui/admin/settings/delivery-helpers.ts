@@ -105,6 +105,34 @@ export function formatHourDisplay(hour: number): string {
   return `${hour - 12}:00 PM`;
 }
 
+/** Formats "Last changed by {name} {relative time}" attribution label */
+export function formatAttributionLabel(
+  updatedAt: string | null,
+  updatedBy: string | null
+): string | undefined {
+  if (!updatedAt) return undefined;
+  const date = new Date(updatedAt);
+  const diffMs = Date.now() - date.getTime();
+  const diffMin = Math.floor(diffMs / 60000);
+  const diffHr = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  const by = updatedBy || "Unknown";
+  let timeStr: string;
+  if (diffMin < 1) timeStr = "just now";
+  else if (diffMin < 60) timeStr = `${diffMin} minute${diffMin === 1 ? "" : "s"} ago`;
+  else if (diffHr < 24) timeStr = `${diffHr} hour${diffHr === 1 ? "" : "s"} ago`;
+  else if (diffDays < 7) timeStr = `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
+  else
+    timeStr = date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  return `Last changed by ${by} ${timeStr}`;
+}
+
 // ===========================================
 // CHANGE DETECTION & DIFF
 // ===========================================

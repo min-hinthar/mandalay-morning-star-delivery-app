@@ -70,6 +70,10 @@ export async function GET() {
       notifications: {},
     };
 
+    // Track latest delivery update for attribution
+    let latestDeliveryUpdate: string | null = null;
+    let latestDeliveryUpdatedBy: string | null = null;
+
     for (const setting of settings || []) {
       const category = setting.category as keyof SettingsResponse;
       if (category in response) {
@@ -80,10 +84,37 @@ export async function GET() {
         // Type assertion needed: setting.value is unknown from JSONB, but matches category schemas
         const categorySettings = response[category];
         categorySettings[camelKey] = setting.value;
+
+        // Track most recent delivery update
+        if (
+          category === "delivery" &&
+          setting.updated_at &&
+          (!latestDeliveryUpdate || setting.updated_at > latestDeliveryUpdate)
+        ) {
+          latestDeliveryUpdate = setting.updated_at;
+          latestDeliveryUpdatedBy = setting.updated_by;
+        }
       }
     }
 
-    return NextResponse.json(response);
+    // Resolve updated_by user name for attribution
+    let deliveryUpdatedByName: string | null = null;
+    if (latestDeliveryUpdatedBy) {
+      const { data: updater } = await supabase
+        .from("profiles")
+        .select("full_name")
+        .eq("id", latestDeliveryUpdatedBy)
+        .single();
+      deliveryUpdatedByName = updater?.full_name || "Unknown admin";
+    }
+
+    return NextResponse.json({
+      ...response,
+      _meta: {
+        deliveryUpdatedAt: latestDeliveryUpdate,
+        deliveryUpdatedBy: deliveryUpdatedByName,
+      },
+    });
   } catch (error) {
     logger.exception(error, { api: "admin/settings" });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -185,10 +216,19 @@ export async function PATCH(request: NextRequest) {
       revalidateTag("business-rules", { expire: 0 });
     }
 
+    // Resolve updater name for attribution
+    const { data: updaterProfile } = await supabase
+      .from("profiles")
+      .select("full_name")
+      .eq("id", user.id)
+      .single();
+
     return NextResponse.json({
       message: "Settings updated successfully",
       category,
       updatedKeys: updates.map((u) => u.key),
+      updatedAt: new Date().toISOString(),
+      updatedBy: updaterProfile?.full_name || "Unknown admin",
     });
   } catch (error) {
     logger.exception(error, { api: "admin/settings" });

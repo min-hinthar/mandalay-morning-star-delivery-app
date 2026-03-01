@@ -12,7 +12,13 @@ import { EmailSettingsForm } from "../EmailSettingsForm";
 import { SaveButton } from "../SaveButton";
 import { FloatingUnsavedBar } from "../FloatingUnsavedBar";
 import { ConfirmDialog } from "../ConfirmDialog";
+import { SaveConfirmDialog } from "../SaveConfirmDialog";
 import { RestoreDefaultsDialog } from "../RestoreDefaultsDialog";
+import {
+  computeDeliveryChanges,
+  formatAttributionLabel,
+  type SettingsChange,
+} from "../delivery-helpers";
 import { toast } from "@/lib/hooks/useToastV8";
 import { spring, variants } from "@/lib/motion-tokens";
 import { SettingsSkeleton } from "./SettingsSkeleton";
@@ -49,7 +55,13 @@ export function SettingsClient() {
   // Dialog states
   const [showRestoreDialog, setShowRestoreDialog] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+  const [showSaveConfirm, setShowSaveConfirm] = useState(false);
+  const [pendingSaveChanges, setPendingSaveChanges] = useState<SettingsChange[]>([]);
   const [pendingTabId, setPendingTabId] = useState<string | null>(null);
+
+  // Attribution state
+  const [deliveryUpdatedAt, setDeliveryUpdatedAt] = useState<string | null>(null);
+  const [deliveryUpdatedBy, setDeliveryUpdatedBy] = useState<string | null>(null);
 
   const [originalSettings, setOriginalSettings] = useState<AllSettings>(DEFAULT_SETTINGS);
   const [settings, setSettings] = useState<AllSettings>(DEFAULT_SETTINGS);
@@ -79,6 +91,11 @@ export function SettingsClient() {
         const emailEnabled = data.notifications?.emailSendingEnabled ?? true;
         setEmailSendingEnabled(emailEnabled);
         setOriginalEmailEnabled(emailEnabled);
+        // Attribution metadata
+        if (data._meta?.deliveryUpdatedAt) {
+          setDeliveryUpdatedAt(data._meta.deliveryUpdatedAt);
+          setDeliveryUpdatedBy(data._meta.deliveryUpdatedBy ?? null);
+        }
       } catch {
         toast({ message: "Failed to load settings", type: "error" });
       } finally {
@@ -100,11 +117,11 @@ export function SettingsClient() {
     return () => window.removeEventListener("beforeunload", handleBeforeUnload);
   }, [hasChanges]);
 
-  // Save handler
-  const handleSave = useCallback(async () => {
-    if (!hasChanges) return;
+  // Execute the actual save (called directly or from SaveConfirmDialog)
+  const executeSave = useCallback(async () => {
     setSaving(true);
     setSaveError(null);
+    setShowSaveConfirm(false);
     try {
       const categories: (keyof AllSettings)[] = ["delivery", "operations", "notifications"];
       for (const category of categories) {
@@ -114,9 +131,14 @@ export function SettingsClient() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ category, settings: settings[category] }),
           });
+          const data = await response.json();
           if (!response.ok) {
-            const error = await response.json();
-            throw new Error(error.error || `Failed to save ${category} settings`);
+            throw new Error(data.error || `Failed to save ${category} settings`);
+          }
+          // Update attribution from delivery PATCH response
+          if (category === "delivery") {
+            if (data.updatedAt) setDeliveryUpdatedAt(data.updatedAt);
+            if (data.updatedBy) setDeliveryUpdatedBy(data.updatedBy);
           }
         }
       }
@@ -130,9 +152,9 @@ export function SettingsClient() {
             settings: { emailSendingEnabled },
           }),
         });
+        const emailData = await response.json();
         if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || "Failed to save email settings");
+          throw new Error(emailData.error || "Failed to save email settings");
         }
         setOriginalEmailEnabled(emailSendingEnabled);
       }
@@ -147,7 +169,30 @@ export function SettingsClient() {
     } finally {
       setSaving(false);
     }
-  }, [hasChanges, settings, originalSettings, emailSendingEnabled, originalEmailEnabled]);
+  }, [settings, originalSettings, emailSendingEnabled, originalEmailEnabled]);
+
+  // Save handler - triggers confirmation for delivery tab, direct save for others
+  const handleSaveRequest = useCallback(async () => {
+    if (!hasChanges) {
+      toast({ message: "No changes to save", type: "info" });
+      return;
+    }
+    // If delivery settings changed and we're on delivery tab, show confirmation
+    const deliveryChanged =
+      JSON.stringify(settings.delivery) !== JSON.stringify(originalSettings.delivery);
+    if (activeTab === "delivery" && deliveryChanged) {
+      const changes = computeDeliveryChanges(settings.delivery, originalSettings.delivery);
+      if (changes.length === 0) {
+        toast({ message: "No changes to save", type: "info" });
+        return;
+      }
+      setPendingSaveChanges(changes);
+      setShowSaveConfirm(true);
+      return;
+    }
+    // Non-delivery tabs or no delivery changes: save directly
+    return executeSave();
+  }, [hasChanges, settings, originalSettings, activeTab, executeSave]);
 
   // Tab switch with unsaved changes warning
   const handleTabChange = useCallback(
@@ -221,6 +266,11 @@ export function SettingsClient() {
     setSettings((s) => ({ ...s, notifications }));
   }, []);
 
+  const lastChangedLabel = useMemo(
+    () => formatAttributionLabel(deliveryUpdatedAt, deliveryUpdatedBy),
+    [deliveryUpdatedAt, deliveryUpdatedBy]
+  );
+
   if (loading) return <SettingsSkeleton />;
 
   return (
@@ -229,7 +279,7 @@ export function SettingsClient() {
       {saveError && (
         <div className="bg-red-50 border border-red-200 rounded-card-sm p-3 mb-4 flex items-center justify-between">
           <p className="text-sm text-red-700">{saveError}</p>
-          <Button variant="outline" size="sm" onClick={handleSave}>
+          <Button variant="outline" size="sm" onClick={executeSave}>
             Retry
           </Button>
         </div>
@@ -257,7 +307,7 @@ export function SettingsClient() {
             )}
             <span className="ml-2">Restore Defaults</span>
           </Button>
-          <SaveButton onClick={handleSave} hasChanges={hasChanges} disabled={restoring} />
+          <SaveButton onClick={handleSaveRequest} hasChanges={hasChanges} disabled={restoring} />
         </div>
       </m.div>
 
@@ -290,6 +340,7 @@ export function SettingsClient() {
                 settings={settings.delivery}
                 originalSettings={originalSettings.delivery}
                 onChange={handleDeliveryChange}
+                lastChangedLabel={lastChangedLabel}
               />
             </m.div>
           )}
@@ -343,9 +394,18 @@ export function SettingsClient() {
       {/* Floating unsaved changes bar */}
       <FloatingUnsavedBar
         show={hasChanges}
-        onSave={handleSave}
+        onSave={handleSaveRequest}
         onDiscard={() => setShowDiscardDialog(true)}
         isSaving={saving}
+      />
+
+      {/* Save confirmation dialog (delivery tab) */}
+      <SaveConfirmDialog
+        open={showSaveConfirm}
+        changes={pendingSaveChanges}
+        onConfirm={executeSave}
+        onCancel={() => setShowSaveConfirm(false)}
+        isLoading={saving}
       />
 
       {/* Tab switch warning dialog */}
