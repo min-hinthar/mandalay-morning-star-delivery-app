@@ -14,3 +14,5 @@ export {
 export { useOpsPolling, type OpsPollingState } from "./useOpsPolling";
 
 export { useCountdown, computeCountdown, type CountdownState } from "./useCountdown";
+
+export { OpsDriverPanel } from "./OpsDriverPanel";

@@ -10,6 +10,7 @@ import { OpsCountdownBar } from "@/components/ui/admin/ops/OpsCountdownBar";
 import { OpsKPIGrid } from "@/components/ui/admin/ops/OpsKPIGrid";
 import { OpsOrderList } from "@/components/ui/admin/ops/OpsOrderList";
 import { OpsBulkToolbar } from "@/components/ui/admin/ops/OpsBulkToolbar";
+import { OpsDriverPanel } from "@/components/ui/admin/ops/OpsDriverPanel";
 import {
   useOpsPolling,
   useCountdown,
@@ -141,6 +142,9 @@ export function OpsCenter({ rules }: OpsCenterProps) {
         onClearFilter={handleClearFilter}
       />
 
+      {/* Driver readiness panel */}
+      <OpsDriverPanel />
+
       {/* Bulk toolbar (floating at bottom) */}
       <OpsBulkToolbar
         selectedIds={selectedIds}
@@ -150,9 +154,6 @@ export function OpsCenter({ rules }: OpsCenterProps) {
         onBulkEnd={handleBulkEnd}
         onClearSelection={handleClearSelection}
       />
-
-      {/* Driver panel area -- wired in Plan 03 */}
-      <div id="ops-driver-panel" />
     </div>
   );
 }
