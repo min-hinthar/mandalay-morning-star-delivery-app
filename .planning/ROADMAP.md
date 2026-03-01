@@ -57,7 +57,7 @@
 
 **Milestone Goal:** Production-ready for real Saturday operations -- solo operator triaging 20-50 orders with family/friend drivers.
 
-- [ ] **Phase 77: Critical Bug Fixes** - Fix checkout TOCTOU, cutoff logic, cart race condition, and data integrity issues
+- [x] **Phase 77: Critical Bug Fixes** - Fix checkout TOCTOU, cutoff logic, cart race condition, and data integrity issues (5/5 plans) -- completed 2026-03-01
 - [ ] **Phase 78: Configurable Business Rules** - Admin-editable settings replace all hardcoded constants (no deploy needed)
 - [ ] **Phase 79: Saturday Ops Dashboard** - Single-screen command center for Saturday order triage with bulk operations
 - [ ] **Phase 80: Route & Driver Assignment** - Visual dashboard for creating routes and assigning drivers to orders
@@ -78,7 +78,7 @@
   3. Rapid add-to-cart clicks produce the correct final quantity (no duplicates, no lost updates)
   4. Stale modifier prices in the cart are detected and surfaced to the user before payment
   5. Refund status is tracked as a distinct order state visible in admin
-**Plans**: TBD
+**Plans**: 5 (complete)
 
 ### Phase 78: Configurable Business Rules
 **Goal**: Operator changes delivery fee, cutoff time, and delivery hours from admin settings without a code deploy
@@ -172,7 +172,7 @@ Phases 82 and 83 are independent of each other and can execute after Phase 80 in
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 77. Critical Bug Fixes | v1.9 | 0/TBD | Not started | - |
+| 77. Critical Bug Fixes | v1.9 | 5/5 | Complete | 2026-03-01 |
 | 78. Configurable Business Rules | v1.9 | 0/TBD | Not started | - |
 | 79. Saturday Ops Dashboard | v1.9 | 0/TBD | Not started | - |
 | 80. Route & Driver Assignment | v1.9 | 0/TBD | Not started | - |
