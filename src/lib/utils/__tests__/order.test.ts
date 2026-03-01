@@ -264,7 +264,7 @@ describe("validateCartItems", () => {
     const modifierOptions = new Map<string, ModifierOptionsRow>();
 
     const result = await validateCartItems(
-      [{ menuItemId: "item-1", quantity: 2, modifiers: [], notes: "" }],
+      [{ menuItemId: "item-1", quantity: 2, basePriceCents: 1500, modifiers: [], notes: "" }],
       menuItems,
       modifierOptions
     );
@@ -280,7 +280,7 @@ describe("validateCartItems", () => {
     const modifierOptions = new Map<string, ModifierOptionsRow>();
 
     const result = await validateCartItems(
-      [{ menuItemId: "nonexistent", quantity: 1, modifiers: [], notes: "" }],
+      [{ menuItemId: "nonexistent", quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" }],
       menuItems,
       modifierOptions
     );
@@ -298,7 +298,7 @@ describe("validateCartItems", () => {
     const modifierOptions = new Map<string, ModifierOptionsRow>();
 
     const result = await validateCartItems(
-      [{ menuItemId: "item-1", quantity: 1, modifiers: [], notes: "" }],
+      [{ menuItemId: "item-1", quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" }],
       menuItems,
       modifierOptions
     );
@@ -315,7 +315,7 @@ describe("validateCartItems", () => {
     const modifierOptions = new Map<string, ModifierOptionsRow>();
 
     const result = await validateCartItems(
-      [{ menuItemId: "item-1", quantity: 1, modifiers: [], notes: "" }],
+      [{ menuItemId: "item-1", quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" }],
       menuItems,
       modifierOptions
     );
@@ -334,7 +334,8 @@ describe("validateCartItems", () => {
         {
           menuItemId: "item-1",
           quantity: 1,
-          modifiers: [{ optionId: "nonexistent" }],
+          basePriceCents: 1500,
+          modifiers: [{ optionId: "nonexistent", priceDeltaCents: 0 }],
           notes: "",
         },
       ],
@@ -357,7 +358,8 @@ describe("validateCartItems", () => {
         {
           menuItemId: "item-1",
           quantity: 1,
-          modifiers: [{ optionId: "mod-1" }],
+          basePriceCents: 1500,
+          modifiers: [{ optionId: "mod-1", priceDeltaCents: 100 }],
           notes: "",
         },
       ],
@@ -384,7 +386,8 @@ describe("validateCartItems", () => {
         {
           menuItemId: "item-1",
           quantity: 2,
-          modifiers: [{ optionId: "mod-1" }, { optionId: "mod-2" }],
+          basePriceCents: 1500,
+          modifiers: [{ optionId: "mod-1", priceDeltaCents: 200 }, { optionId: "mod-2", priceDeltaCents: 100 }],
           notes: "extra sauce",
         },
       ],
@@ -404,7 +407,7 @@ describe("validateCartItems", () => {
     const modifierOptions = new Map<string, ModifierOptionsRow>();
 
     const result = await validateCartItems(
-      [{ menuItemId: "item-1", quantity: 1, modifiers: [], notes: "" }],
+      [{ menuItemId: "item-1", quantity: 1, basePriceCents: 2000, modifiers: [], notes: "" }],
       menuItems,
       modifierOptions
     );
@@ -424,9 +427,9 @@ describe("validateCartItems", () => {
 
     const result = await validateCartItems(
       [
-        { menuItemId: "item-1", quantity: 1, modifiers: [], notes: "" },
-        { menuItemId: "item-2", quantity: 1, modifiers: [], notes: "" },
-        { menuItemId: "item-3", quantity: 2, modifiers: [], notes: "" },
+        { menuItemId: "item-1", quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" },
+        { menuItemId: "item-2", quantity: 1, basePriceCents: 2000, modifiers: [], notes: "" },
+        { menuItemId: "item-3", quantity: 2, basePriceCents: 1000, modifiers: [], notes: "" },
       ],
       menuItems,
       modifierOptions

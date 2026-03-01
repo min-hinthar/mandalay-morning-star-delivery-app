@@ -7,10 +7,12 @@ import { Button } from "@/components/ui/button";
 import { OrdersHeader } from "@/components/ui/orders/OrdersHeader";
 import { OrderListAnimated } from "@/components/ui/orders/OrderListAnimated";
 import type { OrderStatus } from "@/types/order";
+import type { RefundStatus } from "@/types/database";
 
 interface OrderRow {
   id: string;
   status: OrderStatus;
+  refund_status: RefundStatus;
   total_cents: number;
   delivery_window_start: string | null;
   placed_at: string;
@@ -37,6 +39,7 @@ export default async function OrdersPage() {
       `
       id,
       status,
+      refund_status,
       total_cents,
       delivery_window_start,
       placed_at,
@@ -54,6 +57,7 @@ export default async function OrdersPage() {
   const orders = (ordersData ?? []).map((order) => ({
     id: order.id,
     status: order.status,
+    refundStatus: order.refund_status,
     totalCents: order.total_cents,
     deliveryWindowStart: order.delivery_window_start,
     placedAt: order.placed_at,

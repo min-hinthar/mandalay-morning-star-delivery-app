@@ -11,7 +11,7 @@ import { EmptyState } from "@/components/ui/EmptyState";
 import { cardContainer, cardItem } from "@/components/ui/admin/CardRow";
 import { OrderCardRow } from "@/components/ui/admin/orders/OrderCardRow";
 import { OrderDetailDrawer } from "@/components/ui/admin/orders/OrderDetailDrawer";
-import type { OrderStatus } from "@/types/database";
+import type { OrderStatus, RefundStatus } from "@/types/database";
 
 // ============================================
 // TYPES
@@ -20,6 +20,7 @@ import type { OrderStatus } from "@/types/database";
 export interface AdminOrder {
   id: string;
   status: OrderStatus;
+  refundStatus: RefundStatus;
   totalCents: number;
   deliveryWindowStart: string | null;
   placedAt: string;
