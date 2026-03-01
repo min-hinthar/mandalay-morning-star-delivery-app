@@ -1,28 +1,33 @@
 # Project Milestones: Morning Star V8 UI Rewrite
 
-## v1.9 Quality, Accessibility & UX Excellence (Planning: 2026-02-27)
+## v1.9 Launch-Ready MVP (Planning: 2026-03-01)
 
-**Goal:** Ship a production-grade app that is accessible (WCAG 2.1 AA), internationalized (Myanmar/English), well-tested, and delightful to use.
+**Goal:** Production-ready for real Saturday operations -- solo operator triaging 20-50 orders with family/friend drivers.
 
-**Phases planned:** 77-89 (33 plans, 30 requirements)
+**Phases planned:** 77-84 (8 phases, 49 requirements)
 
 **Key deliverables:**
 
-- Repo hygiene — dead file cleanup, 35 stale branches pruned, build artifacts removed from git
-- 5 medium-priority bug fixes from pre-launch audit (email idempotency, DST cron, partial refund UI)
-- All non-exempt files under 400-line ESLint limit (10 files to split)
-- WCAG 2.1 AA accessibility — ARIA labels, focus management, live regions, keyboard navigation, image alt text
-- Form validation UX — inline field-level validation, error recovery suggestions
-- Image optimization — next/image migration, responsive srcset, placeholder blur
-- High-contrast mode + full prefers-reduced-motion compliance
-- Storybook stories for 8+ core components + Chromatic visual regression baselines
-- next-intl i18n foundation with Myanmar/English bilingual customer pages
-- Component unit tests (checkout, cart, orders, admin) + webhook/checkout integration tests
-- Toast system improvements + Web Push notification foundation
+- Critical bug fixes -- checkout TOCTOU cleanup, cutoff datetime logic, cart debounce race, stale modifier detection, refund status tracking
+- Configurable business rules -- admin-editable cutoff time, delivery fee, delivery hours, radius (no deploy needed)
+- Saturday Ops Dashboard -- status counts, bulk operations, countdown timers, unassigned badge, driver availability
+- Route & driver assignment -- unassigned orders panel, one-click route creation, map preview, reassignment
+- Customer pre-checkout gate -- dynamic hero CTA, menu banner, cart countdown, cutoff modal, order tracking polling
+- Email reliability -- failure tracking, one-click retry, webhook signature verification, manual contact flagging
+- Driver simplification -- simple mode toggle, confirmation dialogs, one-tap contact, offline instructions
+- Production hardening -- rate limit tuning, N+1 fixes, DB indexes, pagination, Sentry review
 
-**Priority breakdown:** 2 P0 phases, 4 P1 phases, 6 P2 phases, 1 P3 phase
+**Phase ordering (dependency-driven):**
+1. Bug fixes first (unblock everything)
+2. Business rules before ops dashboard (timers consume settings)
+3. Ops dashboard before route assignment (shared data layer)
+4. Customer gate after business rules (cutoff modal needs dynamic settings)
+5. Email reliability and driver simplification independent (any order after bugs)
+6. Production hardening last (indexes benefit from final query patterns)
 
-**Context:** `.planning/milestones/v1.9-CONTEXT.md`
+**Research confirmed:** Zero new npm packages. Bulk ops via server-side RPC. Click-to-assign (no drag-and-drop). 5s polling (no Realtime). Server-side simple_mode column.
+
+**Context:** `.planning/research/SUMMARY.md`
 
 ---
 
@@ -30,17 +35,17 @@
 
 **Delivered:** Production security hardening (CSP, RLS, rate limiting), complete driver experience overhaul (profile, earnings, availability, onboarding), role-based auth redirects, and gap closure wiring fixes.
 
-**Phases completed:** 67-76 (25 plans total — 23 core + 2 gap closure)
+**Phases completed:** 67-76 (25 plans total -- 23 core + 2 gap closure)
 
 **Key accomplishments:**
 
 - Enforcing CSP + 5 security headers on all responses with Sentry violation reporting, ESLint cssText prevention rule
-- Comprehensive RLS audit — all 24 Supabase tables verified, 62-assertion regression test, initplan optimization on all policy function calls
-- Distributed rate limiting via Upstash Redis — sliding window algorithm, fail-open pattern, context-aware 429 toasts, health check endpoint
-- Role-based auth redirects — admin→/admin, driver→/driver, customer→/menu, proxy-level protection, passwordless driver onboarding, deep linking
-- Full driver experience — profile setup with photo upload, earnings dashboard with Recharts charts and streak badges, availability scheduling with JSONB, weekly schedule and route visibility, history page with pagination and monthly grouping
-- Guided onboarding — walkthrough checklist with milestone celebration, test delivery page with mock data, glassmorphism polish and stagger animations matching customer-side quality
-- Gap closure (Phases 75-76) — wired test-delivery href in walkthrough, BlockedDateChips into schedule page, fixed stale closure; 3 audit gaps closed
+- Comprehensive RLS audit -- all 24 Supabase tables verified, 62-assertion regression test, initplan optimization on all policy function calls
+- Distributed rate limiting via Upstash Redis -- sliding window algorithm, fail-open pattern, context-aware 429 toasts, health check endpoint
+- Role-based auth redirects -- admin/admin, driver/driver, customer/menu, proxy-level protection, passwordless driver onboarding, deep linking
+- Full driver experience -- profile setup with photo upload, earnings dashboard with Recharts charts and streak badges, availability scheduling with JSONB, weekly schedule and route visibility, history page with pagination and monthly grouping
+- Guided onboarding -- walkthrough checklist with milestone celebration, test delivery page with mock data, glassmorphism polish and stagger animations matching customer-side quality
+- Gap closure (Phases 75-76) -- wired test-delivery href in walkthrough, BlockedDateChips into schedule page, fixed stale closure; 3 audit gaps closed
 
 **Stats:**
 
@@ -49,16 +54,16 @@
 - ~100 commits, 711 source files modified
 - +18,335 / -13,026 lines (net +5,309)
 - ~123,633 lines TypeScript total
-- Core: 3 days (2026-02-17 → 2026-02-19), Gap closure: 2026-02-26
+- Core: 3 days (2026-02-17 to 2026-02-19), Gap closure: 2026-02-26
 
-**Git range:** `feat(67-01): add enforcing CSP header` → `feat(74-03): add glass shell, hover lift, shine-sweep, and glow polish`
+**Git range:** `feat(67-01): add enforcing CSP header` to `feat(74-03): add glass shell, hover lift, shine-sweep, and glow polish`
 
 **Tech debt resolved from v1.7:**
 
-- ✓ Content Security Policy headers configured and enforcing
-- ✓ Supabase RLS audit complete for all tables
-- ✓ Rate limiting upgraded from in-memory Map to Upstash Redis
-- ✓ Dead code exports removed (~10 unused exports + useABTest + barrel file)
+- Content Security Policy headers configured and enforcing
+- Supabase RLS audit complete for all tables
+- Rate limiting upgraded from in-memory Map to Upstash Redis
+- Dead code exports removed (~10 unused exports + useABTest + barrel file)
 
 **Tech debt remaining:**
 
@@ -68,7 +73,7 @@
 - Apple Sign-in deferred (no Apple Developer account)
 - Chromatic visual regression baselines deferred
 
-**What's next:** v1.9+ milestone planning (notifications, advanced driver features, quality improvements)
+**What's next:** v1.9 Launch-Ready MVP
 
 ---
 
@@ -97,9 +102,9 @@
 - 46 feature commits, 238 files modified
 - +26,965 / -5,969 lines
 - ~60,174 lines TypeScript total
-- 3 days (2026-02-13 → 2026-02-16)
+- 3 days (2026-02-13 to 2026-02-16)
 
-**Git range:** `feat(58-01): create health types and env validation` → `feat(66-05): ShareButton, NearbyBanner, status effects`
+**Git range:** `feat(58-01): create health types and env validation` to `feat(66-05): ShareButton, NearbyBanner, status effects`
 
 **Tech debt resolved from v1.6:**
 
@@ -111,7 +116,7 @@
 **Tech debt remaining:**
 
 - Lighthouse CI gates at score 60 (target 70, conservative CI threshold)
-- \_hasHydrated flag unused in UI (potential empty-cart flash)
+- _hasHydrated flag unused in UI (potential empty-cart flash)
 - offline-state-change event dispatched but not consumed by update banner
 - Rate limiting upgrade from in-memory Map to Redis/Vercel KV (HARD-01)
 - Content Security Policy headers (HARD-02)
@@ -123,7 +128,7 @@
 
 ## v1.6 Production Polish (Shipped: 2026-02-13)
 
-**Delivered:** Final production-readiness pass — error safety nets, branded error/404 pages, customer/admin settings, cart validation, premium passwordless auth, transactional email system, fuzzy search, driver offline sync, and admin/driver visual polish.
+**Delivered:** Final production-readiness pass -- error safety nets, branded error/404 pages, customer/admin settings, cart validation, premium passwordless auth, transactional email system, fuzzy search, driver offline sync, and admin/driver visual polish.
 
 **Phases completed:** 48-57 (47 plans total)
 
@@ -145,15 +150,15 @@
 - 182 commits, 405 files modified
 - +45,059 / -5,679 lines
 - ~53,394 lines TypeScript total
-- 6 days (2026-02-07 → 2026-02-13)
+- 6 days (2026-02-07 to 2026-02-13)
 
-**Git range:** `docs(48): capture phase context` → `fix(57): resolve hydration mismatch + logo aspect ratio warnings`
+**Git range:** `docs(48): capture phase context` to `fix(57): resolve hydration mismatch + logo aspect ratio warnings`
 
 **Tech debt resolved from v1.5:**
 
-- ✓ Error boundaries on all routes (was missing on 6 routes)
-- ✓ Loading states on all admin pages (was missing on 19 routes)
-- ✓ Cart page fully implemented (was a stub)
+- Error boundaries on all routes (was missing on 6 routes)
+- Loading states on all admin pages (was missing on 19 routes)
+- Cart page fully implemented (was a stub)
 
 **Tech debt remaining:**
 
@@ -176,10 +181,10 @@
 
 **Key accomplishments:**
 
-- LCP 45% improvement: 19.9s → 10.9s via CardImage optimization, Server Components, dynamic imports, cart scoping, React Compiler, LazyMotion
+- LCP 45% improvement: 19.9s to 10.9s via CardImage optimization, Server Components, dynamic imports, cart scoping, React Compiler, LazyMotion
 - Code-splitting infrastructure: Recharts, Google Maps, cart components all lazy-loaded with viewport triggering
 - React Compiler enabled globally: 282 client components auto-memoized, zero opt-outs
-- LazyMotion with domMax: 174 files migrated from motion._ to m._ (~34KB → ~4.6KB per component)
+- LazyMotion with domMax: 174 files migrated from motion._ to m._ (~34KB to ~4.6KB per component)
 - Repository cleanup: 94 legacy docs deleted, 89 build artifacts untracked, planning files archived
 - File refactoring: 47 files >400 lines split into 129+ sub-files with ESLint max-lines enforcement
 - E2E cart tests: 19 tests integrated in CI pipeline, 18-19/19 passing reliably
@@ -192,21 +197,21 @@
 - 142 commits, 1,102 files modified
 - +155,700 / -156,085 lines (net refactoring)
 - ~40,010 lines TypeScript total
-- 3 days (2026-02-05 → 2026-02-07)
+- 3 days (2026-02-05 to 2026-02-07)
 
-**Git range:** `docs(40): research LCP element quick wins` → `feat(gsd): add per-workflow agent teams configuration`
+**Git range:** `docs(40): research LCP element quick wins` to `feat(gsd): add per-workflow agent teams configuration`
 
 **Tech debt resolved from v1.4:**
 
-- ✓ 29 files >400 lines refactored (47 found, all split)
-- ✓ Legacy docs V0-V7 archived (94 files deleted)
-- ✓ storybook-static untracked from git
+- 29 files >400 lines refactored (47 found, all split)
+- Legacy docs V0-V7 archived (94 files deleted)
+- storybook-static untracked from git
 
 **Tech debt remaining:**
 
-- LCP 8-11s vs <2.5s target (JS execution bottleneck — deferred to v1.6)
+- LCP 8-11s vs <2.5s target (JS execution bottleneck -- deferred to v1.6)
 - Lighthouse performance score 30-45 vs 90+ target
-- UnifiedMenuItemCard 540 lines (documented exception — tightly coupled state)
+- UnifiedMenuItemCard 540 lines (documented exception -- tightly coupled state)
 - Lighthouse CI warn-only (PRs not blocked on regression)
 
 **What's next:** v1.6 LCP optimization targeting JS execution, network latency, DOM size reduction
@@ -235,16 +240,16 @@
 - 49/49 requirements satisfied (100%)
 - 343 files modified, +40,957 net lines
 - 97,436 lines TypeScript total
-- 6 days from v1.3 to v1.4 (2026-01-30 → 2026-02-05)
+- 6 days from v1.3 to v1.4 (2026-01-30 to 2026-02-05)
 
-**Git range:** `feat(35-01)` → `docs(v1.4): complete milestone audit report`
+**Git range:** `feat(35-01)` to `docs(v1.4): complete milestone audit report`
 
 **Tech debt resolved from v1.3:**
 
-- ✓ Mobile crash prevention complete (0 critical issues)
-- ✓ Image optimization complete (CLS: 0)
-- ✓ Circular dependencies eliminated (9 cycles fixed)
-- ✓ Dead code removed (12 files deleted)
+- Mobile crash prevention complete (0 critical issues)
+- Image optimization complete (CLS: 0)
+- Circular dependencies eliminated (9 cycles fixed)
+- Dead code removed (12 files deleted)
 
 **Tech debt remaining:**
 
@@ -263,7 +268,7 @@
 
 **Key accomplishments:**
 
-- Token enforcement complete: 221 hardcoded colors → 62+ semantic tokens with ESLint enforcement
+- Token enforcement complete: 221 hardcoded colors to 62+ semantic tokens with ESLint enforcement
 - Component consolidation: ui-v8/ merged into ui/, 6 duplicate components eliminated, ESLint guards prevent recreation
 - Hero redesign: 13 floating food emojis, 4-layer parallax, theme-aware gradients, scroll indicators
 - Mobile stability: Touch-only devices use fallback animations, Safari compositing fixes applied
@@ -276,16 +281,16 @@
 - 37/37 requirements satisfied (100%)
 - 284 commits in milestone
 - 34,917 lines TypeScript total
-- 2 days from v1.2 to v1.3 (2026-01-27 → 2026-01-28)
+- 2 days from v1.2 to v1.3 (2026-01-27 to 2026-01-28)
 
-**Git range:** `docs(25): capture phase context` → `docs(32): mark Phase 32 complete in roadmap`
+**Git range:** `docs(25): capture phase context` to `docs(32): mark Phase 32 complete in roadmap`
 
 **Tech debt resolved from v1.2:**
 
-- ✓ 221 hardcoded color violations (now 0)
-- ✓ 6 duplicate components eliminated
-- ✓ Mobile 3D tilt fixed (touch devices use fallback)
-- ✓ Hero section redesigned (mascot replaced with emojis)
+- 221 hardcoded color violations (now 0)
+- 6 duplicate components eliminated
+- Mobile 3D tilt fixed (touch devices use fallback)
+- Hero section redesigned (mascot replaced with emojis)
 
 **Tech debt remaining:**
 
@@ -316,17 +321,17 @@
 - 33+ files created, 33 deleted (cleanup)
 - 92,952 lines TypeScript total
 - 9 phases, 29 plans (Phase 17 cancelled)
-- 4 days from v1.1 to v1.2 (2026-01-23 → 2026-01-27)
+- 4 days from v1.1 to v1.2 (2026-01-23 to 2026-01-27)
 
-**Git range:** `docs(15-02)` → `docs(24)`
+**Git range:** `docs(15-02)` to `docs(24)`
 
 **Requirements:** 44/48 satisfied (4 cancelled with Phase 17 - 3D hero removed)
 
 **Tech debt resolved:**
 
-- ✓ 3D code removed (Phase 24 cleanup)
-- ✓ Animation tokens consolidated to single source
-- ✓ Legacy header/nav files removed
+- 3D code removed (Phase 24 cleanup)
+- Animation tokens consolidated to single source
+- Legacy header/nav files removed
 
 **What's next:** v1.3 milestone planning
 
@@ -340,7 +345,7 @@
 
 **Key accomplishments:**
 
-- Z-index token migration across 36 files (64 violations → 0) with ESLint rule upgraded to error severity
+- Z-index token migration across 36 files (64 violations to 0) with ESLint rule upgraded to error severity
 - TimeStepV8 component created with V8 animation patterns (motion tokens, useAnimationPreference)
 - Dead code analysis and cleanup: 44 files deleted, 480 exports analyzed via knip
 - Legacy v7-index.ts barrel files removed (10 files, 366 lines deleted)
@@ -355,12 +360,12 @@
 - 101,118 total TypeScript LOC
 - 1 day from planning to completion (2026-01-23)
 
-**Git range:** `docs(09): research phase domain` → `audit(v1.1): complete milestone audit with integration verification`
+**Git range:** `docs(09): research phase domain` to `audit(v1.1): complete milestone audit with integration verification`
 
 **Tech debt resolved from v1:**
 
-- ✓ 64 legacy z-index violations (now 0)
-- ✓ TimeStepV8 created (checkout now uses V8 component)
+- 64 legacy z-index violations (now 0)
+- TimeStepV8 created (checkout now uses V8 component)
 - ~ Visual regression baselines deferred (78 tests ready, baselines need network-enabled environment)
 
 **What's next:** v1.2 with reduced motion detection, dark mode refinement, performance budgets
@@ -389,9 +394,9 @@
 - 55 requirements satisfied (100%)
 - ~8,000 lines of V8 component code
 - 104,025 total TypeScript LOC
-- 2 days from planning to completion (2026-01-22 → 2026-01-23)
+- 2 days from planning to completion (2026-01-22 to 2026-01-23)
 
-**Git range:** `docs(phase-1): research foundation and token system` → `docs: update v1 milestone audit after Phase 8 gap closure`
+**Git range:** `docs(phase-1): research foundation and token system` to `docs: update v1 milestone audit after Phase 8 gap closure`
 
 **Tech debt accepted:**
 
@@ -400,4 +405,3 @@
 - 11 visual regression snapshots need human baseline generation
 
 **What's next:** v1.1 Admin Flow Rewrite or v1.1 Driver Flow Rewrite
-
