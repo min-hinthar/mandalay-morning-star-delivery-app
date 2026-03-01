@@ -1,4 +1,8 @@
-import { CUTOFF_DAY, CUTOFF_HOUR, TIMEZONE, type DeliveryDate } from "@/types/delivery";
+import { TIMEZONE, type DeliveryDate } from "@/types/delivery";
+
+/** Default cutoff values — match DB seeds and BUSINESS_RULES_DEFAULTS */
+const DEFAULT_CUTOFF_DAY = 5; // Friday
+const DEFAULT_CUTOFF_HOUR = 15; // 3 PM
 
 interface ZonedParts {
   year: number;
@@ -125,22 +129,27 @@ export function getNextSaturday(from: Date = new Date()): Date {
 }
 
 /**
- * Get the cutoff time (Friday 15:00 PT) for a given Saturday.
+ * Get the cutoff time for a given Saturday.
+ * @param cutoffDay day-of-week (0=Sun, 5=Fri, 6=Sat) — defaults to Friday
+ * @param cutoffHour hour in TIMEZONE (0-23) — defaults to 15 (3 PM)
  */
-export function getCutoffForSaturday(saturday: Date): Date {
+export function getCutoffForSaturday(
+  saturday: Date,
+  cutoffDay: number = DEFAULT_CUTOFF_DAY,
+  cutoffHour: number = DEFAULT_CUTOFF_HOUR
+): Date {
   const { year, month, day } = getZonedParts(saturday);
   const utcDate = new Date(Date.UTC(year, month - 1, day));
 
-  // BUG-02: Use CUTOFF_DAY constant instead of hardcoded -1
-  // CUTOFF_DAY is day-of-week (5 = Friday). Saturday is 6.
-  const daysBeforeSaturday = 6 - CUTOFF_DAY;
+  // cutoffDay is day-of-week (5 = Friday). Saturday is 6.
+  const daysBeforeSaturday = 6 - cutoffDay;
   utcDate.setUTCDate(utcDate.getUTCDate() - daysBeforeSaturday);
 
   return zonedTimeToUtc({
     year: utcDate.getUTCFullYear(),
     month: utcDate.getUTCMonth() + 1,
     day: utcDate.getUTCDate(),
-    hour: CUTOFF_HOUR,
+    hour: cutoffHour,
     minute: 0,
     second: 0,
   });
@@ -149,17 +158,26 @@ export function getCutoffForSaturday(saturday: Date): Date {
 /**
  * Check if we're past the cutoff for this Saturday.
  */
-export function isPastCutoff(saturday: Date, now: Date = new Date()): boolean {
-  const cutoff = getCutoffForSaturday(saturday);
+export function isPastCutoff(
+  saturday: Date,
+  now: Date = new Date(),
+  cutoffDay: number = DEFAULT_CUTOFF_DAY,
+  cutoffHour: number = DEFAULT_CUTOFF_HOUR
+): boolean {
+  const cutoff = getCutoffForSaturday(saturday, cutoffDay, cutoffHour);
   return now.getTime() > cutoff.getTime();
 }
 
 /**
  * Get the delivery date info.
  */
-export function getDeliveryDate(now: Date = new Date()): DeliveryDate {
+export function getDeliveryDate(
+  now: Date = new Date(),
+  cutoffDay: number = DEFAULT_CUTOFF_DAY,
+  cutoffHour: number = DEFAULT_CUTOFF_HOUR
+): DeliveryDate {
   const thisSaturday = getNextSaturday(now);
-  const pastCutoff = isPastCutoff(thisSaturday, now);
+  const pastCutoff = isPastCutoff(thisSaturday, now, cutoffDay, cutoffHour);
   const deliveryDate = pastCutoff ? addZonedDays(thisSaturday, 7) : thisSaturday;
 
   return {
@@ -174,13 +192,17 @@ export function getDeliveryDate(now: Date = new Date()): DeliveryDate {
 /**
  * Get time remaining until cutoff.
  */
-export function getTimeUntilCutoff(now: Date = new Date()): {
+export function getTimeUntilCutoff(
+  now: Date = new Date(),
+  cutoffDay: number = DEFAULT_CUTOFF_DAY,
+  cutoffHour: number = DEFAULT_CUTOFF_HOUR
+): {
   hours: number;
   minutes: number;
   isPastCutoff: boolean;
 } {
   const thisSaturday = getNextSaturday(now);
-  const cutoff = getCutoffForSaturday(thisSaturday);
+  const cutoff = getCutoffForSaturday(thisSaturday, cutoffDay, cutoffHour);
   const diffMs = cutoff.getTime() - now.getTime();
 
   if (diffMs <= 0) {
@@ -194,18 +216,20 @@ export function getTimeUntilCutoff(now: Date = new Date()): {
 }
 
 /**
- * Get array of available delivery dates (next 3 Saturdays).
+ * Get array of available delivery dates (next N Saturdays).
  * Used by TimeStepV8 component for date selection.
  */
 export function getAvailableDeliveryDates(
   now: Date = new Date(),
+  cutoffDay: number = DEFAULT_CUTOFF_DAY,
+  cutoffHour: number = DEFAULT_CUTOFF_HOUR,
   count: number = 3
 ): DeliveryDate[] {
   const dates: DeliveryDate[] = [];
   let saturday = getNextSaturday(now);
 
   for (let i = 0; i < count; i++) {
-    const pastCutoff = isPastCutoff(saturday, now);
+    const pastCutoff = isPastCutoff(saturday, now, cutoffDay, cutoffHour);
     const isNextWeek = i > 0 || pastCutoff;
 
     dates.push({

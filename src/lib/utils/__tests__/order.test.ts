@@ -6,8 +6,6 @@ import {
   calculateOrderTotals,
   createStripeLineItems,
   validateCartItems,
-  DELIVERY_FEE_CENTS,
-  FREE_DELIVERY_THRESHOLD_CENTS,
 } from "../order";
 import {
   createMockMenuItem,
@@ -15,6 +13,10 @@ import {
   createValidatedCartItem,
 } from "@/test/factories";
 import type { ModifierOptionsRow } from "@/types/database";
+
+// Default fee values matching old constants
+const DELIVERY_FEE = 1500;
+const FREE_THRESHOLD = 10000;
 
 describe("calculateLineTotal", () => {
   it("calculates base price with no modifiers", () => {
@@ -57,34 +59,39 @@ describe("calculateLineTotal", () => {
 });
 
 describe("calculateDeliveryFee", () => {
-  it("returns $15 (1500 cents) when subtotal is below threshold", () => {
-    const result = calculateDeliveryFee(9999); // $99.99
-    expect(result).toBe(DELIVERY_FEE_CENTS);
+  it("returns fee when subtotal is below threshold", () => {
+    const result = calculateDeliveryFee(9999, DELIVERY_FEE, FREE_THRESHOLD);
+    expect(result).toBe(DELIVERY_FEE);
   });
 
   it("returns $0 when subtotal equals threshold exactly", () => {
-    const result = calculateDeliveryFee(FREE_DELIVERY_THRESHOLD_CENTS); // $100.00
+    const result = calculateDeliveryFee(FREE_THRESHOLD, DELIVERY_FEE, FREE_THRESHOLD);
     expect(result).toBe(0);
   });
 
   it("returns $0 when subtotal exceeds threshold", () => {
-    const result = calculateDeliveryFee(15000); // $150.00
+    const result = calculateDeliveryFee(15000, DELIVERY_FEE, FREE_THRESHOLD);
     expect(result).toBe(0);
   });
 
-  it("returns $15 for zero subtotal", () => {
-    const result = calculateDeliveryFee(0);
-    expect(result).toBe(DELIVERY_FEE_CENTS);
+  it("returns fee for zero subtotal", () => {
+    const result = calculateDeliveryFee(0, DELIVERY_FEE, FREE_THRESHOLD);
+    expect(result).toBe(DELIVERY_FEE);
   });
 
-  it("returns $15 for $1 below threshold", () => {
-    const result = calculateDeliveryFee(FREE_DELIVERY_THRESHOLD_CENTS - 1);
-    expect(result).toBe(DELIVERY_FEE_CENTS);
+  it("returns fee for $1 below threshold", () => {
+    const result = calculateDeliveryFee(FREE_THRESHOLD - 1, DELIVERY_FEE, FREE_THRESHOLD);
+    expect(result).toBe(DELIVERY_FEE);
   });
 
   it("returns $0 for $1 above threshold", () => {
-    const result = calculateDeliveryFee(FREE_DELIVERY_THRESHOLD_CENTS + 1);
+    const result = calculateDeliveryFee(FREE_THRESHOLD + 1, DELIVERY_FEE, FREE_THRESHOLD);
     expect(result).toBe(0);
+  });
+
+  it("works with custom fee and threshold", () => {
+    expect(calculateDeliveryFee(5000, 2000, 8000)).toBe(2000);
+    expect(calculateDeliveryFee(9000, 2000, 8000)).toBe(0);
   });
 });
 
@@ -104,7 +111,7 @@ describe("calculateTax", () => {
 describe("calculateOrderTotals", () => {
   it("calculates subtotal from single item", () => {
     const items = [createValidatedCartItem({ base_price_cents: 1500 })];
-    const result = calculateOrderTotals(items);
+    const result = calculateOrderTotals(items, DELIVERY_FEE, FREE_THRESHOLD);
     expect(result.subtotalCents).toBe(1500);
   });
 
@@ -114,41 +121,41 @@ describe("calculateOrderTotals", () => {
       createValidatedCartItem({ base_price_cents: 2000 }),
       createValidatedCartItem({ base_price_cents: 1000 }),
     ];
-    const result = calculateOrderTotals(items);
+    const result = calculateOrderTotals(items, DELIVERY_FEE, FREE_THRESHOLD);
     expect(result.subtotalCents).toBe(4500);
   });
 
   it("applies delivery fee when below threshold", () => {
     const items = [createValidatedCartItem({ base_price_cents: 5000 })]; // $50
-    const result = calculateOrderTotals(items);
-    expect(result.deliveryFeeCents).toBe(DELIVERY_FEE_CENTS);
-    expect(result.totalCents).toBe(5000 + DELIVERY_FEE_CENTS);
+    const result = calculateOrderTotals(items, DELIVERY_FEE, FREE_THRESHOLD);
+    expect(result.deliveryFeeCents).toBe(DELIVERY_FEE);
+    expect(result.totalCents).toBe(5000 + DELIVERY_FEE);
   });
 
   it("waives delivery fee when at or above threshold", () => {
     const items = [createValidatedCartItem({ base_price_cents: 10000 })]; // $100
-    const result = calculateOrderTotals(items);
+    const result = calculateOrderTotals(items, DELIVERY_FEE, FREE_THRESHOLD);
     expect(result.deliveryFeeCents).toBe(0);
     expect(result.totalCents).toBe(10000);
   });
 
   it("returns correct totals object", () => {
     const items = [createValidatedCartItem({ base_price_cents: 3000 })];
-    const result = calculateOrderTotals(items);
+    const result = calculateOrderTotals(items, DELIVERY_FEE, FREE_THRESHOLD);
 
     expect(result).toEqual({
       subtotalCents: 3000,
-      deliveryFeeCents: DELIVERY_FEE_CENTS,
+      deliveryFeeCents: DELIVERY_FEE,
       taxCents: 0,
-      totalCents: 3000 + DELIVERY_FEE_CENTS,
+      totalCents: 3000 + DELIVERY_FEE,
     });
   });
 
   it("handles empty items array", () => {
-    const result = calculateOrderTotals([]);
+    const result = calculateOrderTotals([], DELIVERY_FEE, FREE_THRESHOLD);
     expect(result.subtotalCents).toBe(0);
-    expect(result.deliveryFeeCents).toBe(DELIVERY_FEE_CENTS);
-    expect(result.totalCents).toBe(DELIVERY_FEE_CENTS);
+    expect(result.deliveryFeeCents).toBe(DELIVERY_FEE);
+    expect(result.totalCents).toBe(DELIVERY_FEE);
   });
 
   it("handles items with modifiers", () => {
@@ -156,7 +163,7 @@ describe("calculateOrderTotals", () => {
       createValidatedCartItem({ base_price_cents: 1500 }, [{ price_delta_cents: 200 }], 2),
     ];
     // lineTotalCents = (1500 + 200) * 2 = 3400
-    const result = calculateOrderTotals(items);
+    const result = calculateOrderTotals(items, DELIVERY_FEE, FREE_THRESHOLD);
     expect(result.subtotalCents).toBe(3400);
   });
 });
@@ -212,10 +219,10 @@ describe("createStripeLineItems", () => {
       },
     ];
 
-    const result = createStripeLineItems(items, DELIVERY_FEE_CENTS);
+    const result = createStripeLineItems(items, DELIVERY_FEE);
 
     expect(result).toHaveLength(2);
-    expect(result[1].price_data.unit_amount).toBe(DELIVERY_FEE_CENTS);
+    expect(result[1].price_data.unit_amount).toBe(DELIVERY_FEE);
     expect(result[1].price_data.product_data.name).toBe("Delivery Fee");
     expect(result[1].quantity).toBe(1);
   });
