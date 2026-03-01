@@ -20,12 +20,12 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 
 ### Ops Dashboard
 
-- [ ] **OPS-01**: Ops center widget with order status counts and quick-action buttons
+- [x] **OPS-01**: Ops center widget with order status counts and quick-action buttons
 - [ ] **OPS-02**: Bulk operations — checkbox select + bulk status change
-- [ ] **OPS-03**: Countdown timers — cutoff warning and delivery start time
-- [ ] **OPS-04**: Unassigned orders badge — red indicator for orders not on a route
-- [ ] **OPS-05**: Driver availability widget — who's ready, who hasn't arrived
-- [ ] **OPS-06**: Time window grouping — orders by delivery slot
+- [x] **OPS-03**: Countdown timers — cutoff warning and delivery start time
+- [x] **OPS-04**: Unassigned orders badge — red indicator for orders not on a route
+- [x] **OPS-05**: Driver availability widget — who's ready, who hasn't arrived
+- [x] **OPS-06**: Time window grouping — orders by delivery slot
 - [ ] **OPS-07**: Toast confirmation + optimistic UI on status changes
 
 ### Route Assignment
@@ -57,7 +57,7 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 - [x] **RULES-06**: Admin Settings form to edit all values
 - [x] **RULES-07**: Server reads from `app_settings` instead of constants with 5min cache
 - [x] **RULES-08**: Customer pages display configured delivery fee, cutoff time, and delivery hours dynamically (menu banner, cart, checkout, homepage hero)
-- [ ] **RULES-09**: Admin ops dashboard uses configured cutoff/delivery times for countdown timers
+- [x] **RULES-09**: Admin ops dashboard uses configured cutoff/delivery times for countdown timers
 - [x] **RULES-10**: Changes take effect immediately on next page load (cache bust via `revalidateTag`)
 
 ### Email Reliability
@@ -141,12 +141,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BUG-06 | Phase 77 | Pending |
 | BUG-07 | Phase 77 | Pending |
 | BUG-08 | Phase 77 | Pending |
-| OPS-01 | Phase 79 | Pending |
+| OPS-01 | Phase 79 | Complete |
 | OPS-02 | Phase 79 | Pending |
-| OPS-03 | Phase 79 | Pending |
-| OPS-04 | Phase 79 | Pending |
-| OPS-05 | Phase 79 | Pending |
-| OPS-06 | Phase 79 | Pending |
+| OPS-03 | Phase 79 | Complete |
+| OPS-04 | Phase 79 | Complete |
+| OPS-05 | Phase 79 | Complete |
+| OPS-06 | Phase 79 | Complete |
 | OPS-07 | Phase 79 | Pending |
 | ROUTE-01 | Phase 80 | Pending |
 | ROUTE-02 | Phase 80 | Pending |
@@ -169,7 +169,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RULES-06 | Phase 78 | Complete |
 | RULES-07 | Phase 78 | Complete |
 | RULES-08 | Phase 78 | Complete |
-| RULES-09 | Phase 79 | Pending |
+| RULES-09 | Phase 79 | Complete |
 | RULES-10 | Phase 78 | Complete |
 | EMAIL-01 | Phase 82 | Pending |
 | EMAIL-02 | Phase 82 | Pending |
