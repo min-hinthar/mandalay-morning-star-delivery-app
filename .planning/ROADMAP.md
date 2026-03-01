@@ -58,7 +58,7 @@
 **Milestone Goal:** Production-ready for real Saturday operations -- solo operator triaging 20-50 orders with family/friend drivers.
 
 - [x] **Phase 77: Critical Bug Fixes** - Fix checkout TOCTOU, cutoff logic, cart race condition, and data integrity issues (5/5 plans) -- completed 2026-03-01
-- [x] **Phase 78: Configurable Business Rules** - Admin-editable settings replace all hardcoded constants (no deploy needed) (completed 2026-03-01)
+- [x] **Phase 78: Configurable Business Rules** - Admin-editable settings replace all hardcoded constants (no deploy needed) (completed 2026-03-01)
 - [ ] **Phase 79: Saturday Ops Dashboard** - Single-screen command center for Saturday order triage with bulk operations
 - [ ] **Phase 80: Route & Driver Assignment** - Visual dashboard for creating routes and assigning drivers to orders
 - [ ] **Phase 81: Customer Pre-Checkout Gate** - Saturday-only messaging and cutoff enforcement across customer pages
@@ -107,7 +107,11 @@ Plans:
   3. Countdown timers show time remaining until cutoff and delivery start, sourced from configured settings
   4. A red badge shows the count of unassigned orders (confirmed but not on any route)
   5. Driver availability widget shows which drivers are ready and who hasn't checked in
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 79-01-PLAN.md -- Foundation: types, helpers, hooks, API endpoint, unit tests, admin nav link
+- [ ] 79-02-PLAN.md -- Core UI: page shell, countdown bar, KPI grid, order list, bulk toolbar
+- [ ] 79-03-PLAN.md -- Driver panel, OpsCenter wiring, end-to-end verification
 
 ### Phase 80: Route & Driver Assignment
 **Goal**: Operator creates delivery routes and assigns drivers without texting or spreadsheets
@@ -179,7 +183,7 @@ Phases 82 and 83 are independent of each other and can execute after Phase 80 in
 |-------|-----------|----------------|--------|-----------|
 | 77. Critical Bug Fixes | v1.9 | 5/5 | Complete | 2026-03-01 |
 | 78. Configurable Business Rules | 4/4 | Complete    | 2026-03-01 | - |
-| 79. Saturday Ops Dashboard | v1.9 | 0/TBD | Not started | - |
+| 79. Saturday Ops Dashboard | v1.9 | 0/3 | Planning complete | - |
 | 80. Route & Driver Assignment | v1.9 | 0/TBD | Not started | - |
 | 81. Customer Pre-Checkout Gate | v1.9 | 0/TBD | Not started | - |
 | 82. Email Reliability | v1.9 | 0/TBD | Not started | - |
