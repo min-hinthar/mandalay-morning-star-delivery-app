@@ -55,8 +55,6 @@ export interface CartStore {
 }
 
 export const MINIMUM_ORDER_CENTS = 2500;
-export const DELIVERY_FEE_CENTS = 1500;
-export const FREE_DELIVERY_THRESHOLD_CENTS = 10000;
 export const MAX_ITEM_QUANTITY = 50;
 export const MAX_CART_ITEMS = 50;
 

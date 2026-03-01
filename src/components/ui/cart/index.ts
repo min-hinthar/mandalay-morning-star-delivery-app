@@ -26,6 +26,7 @@ export { FlyToCart, useFlyToCart } from "./FlyToCart";
 export { AddToCartButton } from "./AddToCartButton";
 export { ClearCartConfirmation, useClearCartConfirmation } from "./ClearCartConfirmation";
 export { CartOverlays } from "./CartOverlays";
+export { DeliverySettingsSync } from "./DeliverySettingsSync";
 export { CartNavigationGuard } from "./CartNavigationGuard";
 export type { CartNavigationGuardProps } from "./CartNavigationGuard";
 

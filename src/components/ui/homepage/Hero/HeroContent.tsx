@@ -8,7 +8,7 @@
 
 import Link from "next/link";
 import { m } from "framer-motion";
-import { ArrowRight, ChefHat, Clock, MapPin, ChevronDown } from "lucide-react";
+import { ArrowRight, ChefHat, Clock, MapPin, Truck, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -16,12 +16,26 @@ import { useDynamicTheme } from "@/components/ui/theme";
 import { Button } from "@/components/ui/button";
 import { AnimatedHeadline, StatItem } from "./HeroSubComponents";
 
+/** Day names for cutoff display */
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+/** Format hour as 12-hour time (e.g., "3 PM") */
+function formatCutoffHour(hour: number): string {
+  const period = hour >= 12 ? "PM" : "AM";
+  const h12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+  return `${h12}:00 ${period}`;
+}
+
 interface HeroContentProps {
   headline: string;
   tagline: string;
   subheadline: string;
   ctaText: string;
   ctaHref: string;
+  deliveryFeeCents?: number;
+  freeDeliveryThresholdCents?: number;
+  cutoffDay?: number;
+  cutoffHour?: number;
 }
 
 export function HeroContent({
@@ -30,9 +44,25 @@ export function HeroContent({
   subheadline,
   ctaText,
   ctaHref,
+  deliveryFeeCents,
+  freeDeliveryThresholdCents,
+  cutoffDay,
+  cutoffHour,
 }: HeroContentProps) {
   const { shouldAnimate } = useAnimationPreference();
   const { timeOfDay } = useDynamicTheme();
+
+  // Compute dynamic delivery schedule text from business rules
+  // cutoffDay is the cutoff day (e.g., 5=Friday), delivery day is next day (e.g., 6=Saturday)
+  const deliveryDayName = cutoffDay !== undefined ? DAY_NAMES[(cutoffDay + 1) % 7] : "Saturday";
+  const deliveryScheduleText =
+    cutoffDay !== undefined && cutoffHour !== undefined
+      ? `Order by ${DAY_NAMES[cutoffDay]} ${formatCutoffHour(cutoffHour)}`
+      : `Every ${deliveryDayName}`;
+  const deliveryFeeText =
+    deliveryFeeCents !== undefined && freeDeliveryThresholdCents !== undefined
+      ? `$${(deliveryFeeCents / 100).toFixed(0)} delivery, free over $${(freeDeliveryThresholdCents / 100).toFixed(0)}`
+      : undefined;
 
   return (
     <div className="relative flex flex-col items-center justify-start min-h-[100svh] min-h-[100dvh] px-4 pt-24 pb-20 pb-safe md:pt-28 md:pb-24">
@@ -104,7 +134,7 @@ export function HeroContent({
           <StatItem
             icon={<Clock className="w-4 h-4 text-secondary" />}
             label="Delivery"
-            value="Every Saturday"
+            value={deliveryScheduleText}
           />
           <div className="hidden md:block w-px h-10 bg-hero-text/20" />
           <StatItem
@@ -112,6 +142,16 @@ export function HeroContent({
             label="Coverage"
             value="50 Mile Radius"
           />
+          {deliveryFeeText && (
+            <>
+              <div className="hidden md:block w-px h-10 bg-hero-text/20" />
+              <StatItem
+                icon={<Truck className="w-4 h-4 text-secondary" />}
+                label="Fee"
+                value={deliveryFeeText}
+              />
+            </>
+          )}
         </div>
       </div>
 

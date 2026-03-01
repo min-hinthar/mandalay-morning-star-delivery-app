@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
 import { createClient } from "@/lib/supabase/server";
+import { getBusinessRules } from "@/lib/settings";
 import { CustomerShell } from "./CustomerShell";
 
 export default async function CustomerLayout({ children }: { children: ReactNode }) {
@@ -15,5 +16,14 @@ export default async function CustomerLayout({ children }: { children: ReactNode
     redirect("/login");
   }
 
-  return <CustomerShell>{children}</CustomerShell>;
+  const rules = await getBusinessRules();
+
+  return (
+    <CustomerShell
+      deliveryFeeCents={rules.deliveryFeeCents}
+      freeDeliveryThresholdCents={rules.freeDeliveryThresholdCents}
+    >
+      {children}
+    </CustomerShell>
+  );
 }

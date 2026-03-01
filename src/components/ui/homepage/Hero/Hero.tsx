@@ -26,6 +26,10 @@ export function Hero({
   ctaText = "Order Now",
   ctaHref = "/menu",
   className,
+  deliveryFeeCents,
+  freeDeliveryThresholdCents,
+  cutoffDay,
+  cutoffHour,
 }: HeroProps) {
   const { shouldAnimate } = useAnimationPreference();
   const { isParallaxEnabled } = useAnimationContextSafe();
@@ -87,6 +91,10 @@ export function Hero({
       subheadline={subheadline}
       ctaText={ctaText}
       ctaHref={ctaHref}
+      deliveryFeeCents={deliveryFeeCents}
+      freeDeliveryThresholdCents={freeDeliveryThresholdCents}
+      cutoffDay={cutoffDay}
+      cutoffHour={cutoffHour}
     />
   );
 
