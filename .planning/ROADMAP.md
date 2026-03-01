@@ -90,7 +90,12 @@
   3. Ops dashboard countdown timers use the configured cutoff and delivery start times
   4. Changes take effect on the next page load without a deploy (verified by changing a value and refreshing)
   5. Invalid settings are rejected with clear validation errors (e.g., cutoff_hour outside 0-23)
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 78-01-PLAN.md -- Foundation: settings library, migration, schema extension, cache invalidation
+- [ ] 78-02-PLAN.md -- Server consumer migration: delivery-dates, order, checkout route
+- [ ] 78-03-PLAN.md -- Admin form enhancement: subsections, cutoff inputs, confirmation diff dialog
+- [ ] 78-04-PLAN.md -- Client consumer migration: replace constant imports with props, remove dead constants
 
 ### Phase 79: Saturday Ops Dashboard
 **Goal**: Operator answers "what needs attention right now?" from a single screen in under 3 seconds
@@ -173,7 +178,7 @@ Phases 82 and 83 are independent of each other and can execute after Phase 80 in
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 77. Critical Bug Fixes | v1.9 | 5/5 | Complete | 2026-03-01 |
-| 78. Configurable Business Rules | v1.9 | 0/TBD | Not started | - |
+| 78. Configurable Business Rules | v1.9 | 0/4 | Not started | - |
 | 79. Saturday Ops Dashboard | v1.9 | 0/TBD | Not started | - |
 | 80. Route & Driver Assignment | v1.9 | 0/TBD | Not started | - |
 | 81. Customer Pre-Checkout Gate | v1.9 | 0/TBD | Not started | - |
