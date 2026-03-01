@@ -54,7 +54,7 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 - [x] **RULES-03**: `free_delivery_threshold_cents` configurable via admin settings
 - [x] **RULES-04**: `delivery_start_hour` / `delivery_end_hour` configurable
 - [x] **RULES-05**: `max_delivery_radius_miles` / `max_delivery_duration_minutes` configurable
-- [ ] **RULES-06**: Admin Settings form to edit all values
+- [x] **RULES-06**: Admin Settings form to edit all values
 - [x] **RULES-07**: Server reads from `app_settings` instead of constants with 5min cache
 - [ ] **RULES-08**: Customer pages display configured delivery fee, cutoff time, and delivery hours dynamically (menu banner, cart, checkout, homepage hero)
 - [ ] **RULES-09**: Admin ops dashboard uses configured cutoff/delivery times for countdown timers
@@ -166,7 +166,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RULES-03 | Phase 78 | Complete |
 | RULES-04 | Phase 78 | Complete |
 | RULES-05 | Phase 78 | Complete |
-| RULES-06 | Phase 78 | Pending |
+| RULES-06 | Phase 78 | Complete |
 | RULES-07 | Phase 78 | Complete |
 | RULES-08 | Phase 78 | Pending |
 | RULES-09 | Phase 79 | Pending |
