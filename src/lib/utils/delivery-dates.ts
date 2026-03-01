@@ -1,4 +1,4 @@
-import { CUTOFF_HOUR, TIMEZONE, type DeliveryDate } from "@/types/delivery";
+import { CUTOFF_DAY, CUTOFF_HOUR, TIMEZONE, type DeliveryDate } from "@/types/delivery";
 
 interface ZonedParts {
   year: number;
@@ -131,7 +131,10 @@ export function getCutoffForSaturday(saturday: Date): Date {
   const { year, month, day } = getZonedParts(saturday);
   const utcDate = new Date(Date.UTC(year, month - 1, day));
 
-  utcDate.setUTCDate(utcDate.getUTCDate() - 1);
+  // BUG-02: Use CUTOFF_DAY constant instead of hardcoded -1
+  // CUTOFF_DAY is day-of-week (5 = Friday). Saturday is 6.
+  const daysBeforeSaturday = 6 - CUTOFF_DAY;
+  utcDate.setUTCDate(utcDate.getUTCDate() - daysBeforeSaturday);
 
   return zonedTimeToUtc({
     year: utcDate.getUTCFullYear(),
