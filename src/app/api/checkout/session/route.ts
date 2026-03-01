@@ -4,6 +4,7 @@ import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
 import { validateCartItems, calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
 import { isPastCutoff, getDeliveryDate } from "@/lib/utils/delivery-dates";
+import { getBusinessRules, generateTimeWindows } from "@/lib/settings";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
 import type { CheckoutError, CheckoutErrorCode } from "@/types/checkout";
@@ -28,7 +29,7 @@ function errorResponse(
 
 export async function POST(request: Request) {
   try {
-    // Parse and validate request body
+    // Parse and validate request body (structural validation only)
     const body = await request.json();
     const parsed = createCheckoutSessionSchema.safeParse(body);
 
@@ -38,13 +39,26 @@ export async function POST(request: Request) {
 
     const input = parsed.data;
 
+    // Load business rules from DB (cached)
+    const rules = await getBusinessRules();
+
+    // Validate time window against dynamically generated windows
+    const validWindows = generateTimeWindows(rules.deliveryStartHour, rules.deliveryEndHour);
+    const isValidWindow = validWindows.some(
+      (tw) => tw.start === input.timeWindowStart && tw.end === input.timeWindowEnd
+    );
+    if (!isValidWindow) {
+      return errorResponse("VALIDATION_ERROR", "Invalid delivery time window", 400);
+    }
+
     // BUG-05: Re-validate cutoff timing at submission
     const scheduledSaturday = new Date(input.scheduledDate + "T12:00:00");
-    if (isPastCutoff(scheduledSaturday)) {
-      const nextDelivery = getDeliveryDate();
+    const now = new Date();
+    if (isPastCutoff(scheduledSaturday, now, rules.cutoffDay, rules.cutoffHour)) {
+      const nextDelivery = getDeliveryDate(now, rules.cutoffDay, rules.cutoffHour);
       return errorResponse(
         "CUTOFF_PASSED",
-        `Orders for ${input.scheduledDate} closed at 3:00 PM Friday. Next delivery: ${nextDelivery.displayDate}.`,
+        `Orders for ${input.scheduledDate} are closed. Next delivery: ${nextDelivery.displayDate}.`,
         400,
         { nextDeliveryDate: nextDelivery.dateString }
       );
@@ -204,7 +218,11 @@ export async function POST(request: Request) {
     }
 
     // Calculate order totals (SERVER-SIDE - never trust client)
-    const totals = calculateOrderTotals(validation.items);
+    const totals = calculateOrderTotals(
+      validation.items,
+      rules.deliveryFeeCents,
+      rules.freeDeliveryThresholdCents
+    );
 
     // H-10 FIX: Create order, items, and modifiers atomically via RPC.
     // If any insert fails, the entire transaction rolls back — no orphaned records.
