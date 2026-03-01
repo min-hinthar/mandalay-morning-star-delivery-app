@@ -133,14 +133,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | Phase 77 | Pending |
-| BUG-02 | Phase 77 | Pending |
-| BUG-03 | Phase 77 | Pending |
-| BUG-04 | Phase 77 | Pending |
-| BUG-05 | Phase 77 | Pending |
-| BUG-06 | Phase 77 | Pending |
-| BUG-07 | Phase 77 | Pending |
-| BUG-08 | Phase 77 | Pending |
+| BUG-01 | Phase 85 (gap closure) | Pending |
+| BUG-02 | Phase 85 (gap closure) | Pending |
+| BUG-03 | Phase 85 (gap closure) | Pending |
+| BUG-04 | Phase 85 (gap closure) | Pending |
+| BUG-05 | Phase 85 (gap closure) | Pending |
+| BUG-06 | Phase 85 (gap closure) | Pending |
+| BUG-07 | Phase 85 (gap closure) | Pending |
+| BUG-08 | Phase 85 (gap closure) | Pending |
 | OPS-01 | Phase 79 | Complete |
 | OPS-02 | Phase 79 | Complete |
 | OPS-03 | Phase 79 | Complete |
@@ -197,4 +197,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-01*
-*Last updated: 2026-03-01 after roadmap creation (all 49 requirements mapped to Phases 77-84)*
+*Last updated: 2026-03-01 after gap closure planning (BUG-01–08 reassigned to Phase 85; 49 requirements mapped to Phases 78-86)*

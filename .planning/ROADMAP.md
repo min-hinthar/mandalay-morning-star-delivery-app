@@ -12,7 +12,7 @@
 - ✅ **v1.7 Production Deployment & Readiness** — Phases 58-66 (shipped 2026-02-16)
 - ✅ **v1.8 Post-Launch Hardening & Driver Experience** — Phases 67-74 (shipped 2026-02-19)
 - ✅ **v1.8 Gap Closure** — Phases 75-76 (shipped 2026-02-26)
-- **v1.9 Launch-Ready MVP** — Phases 77-84 (in progress)
+- **v1.9 Launch-Ready MVP** — Phases 77-86 (in progress)
 
 ## Phases
 
@@ -65,6 +65,8 @@
 - [ ] **Phase 82: Email Reliability** - Failure tracking, retry, webhook verification, and self-service recovery
 - [ ] **Phase 83: Driver Simplification** - Simple mode for non-technical family drivers (name, address, phone, deliver)
 - [ ] **Phase 84: Production Hardening** - Indexes, N+1 fixes, rate limit tuning, and pre-launch checklist
+- [ ] **Phase 85: Phase 77 Verification & Bug Traceability** - Verify bug fixes, create VERIFICATION.md, update traceability (gap closure)
+- [ ] **Phase 86: Deferred Integration & Tech Debt Cleanup** - Wire remaining cutoff callsites to DB, fix SUMMARY frontmatter (gap closure)
 
 ## Phase Details
 
@@ -173,11 +175,37 @@ Plans:
   5. All critical API paths have specific error handling with correct HTTP status codes and Sentry context
 **Plans**: TBD
 
+### Phase 85: Phase 77 Verification & Bug Traceability
+**Goal**: All 8 BUG requirements are formally verified with evidence, traceability table reflects completion, and Phase 77 documentation gaps are closed
+**Depends on**: Phase 77 (verifying its completed work)
+**Requirements**: BUG-01, BUG-02, BUG-03, BUG-04, BUG-05, BUG-06, BUG-07, BUG-08
+**Gap Closure:** Closes verification gaps from v1.9 audit
+**Success Criteria** (what must be TRUE):
+  1. VERIFICATION.md exists for Phase 77 with pass/fail for each of the 8 BUG requirements
+  2. Each BUG fix has code-level evidence (file, line, behavior) documented in verification
+  3. REQUIREMENTS.md traceability shows BUG-01 through BUG-08 as Complete
+  4. SUMMARY frontmatter `requirements-completed` populated for plans 77-01 and 77-02
+**Plans**: TBD
+
+### Phase 86: Deferred Integration & Tech Debt Cleanup
+**Goal**: All known deferred integration gaps and documentation tech debt from phases 77-79 are resolved
+**Depends on**: Phase 78 (extends its business rules wiring to remaining callsites)
+**Requirements**: None (integration/tech debt closure — no new requirements)
+**Gap Closure:** Closes integration gaps and tech debt from v1.9 audit
+**Success Criteria** (what must be TRUE):
+  1. retry-payment route uses `getBusinessRules()` for cutoff params (not hardcoded defaults)
+  2. customer orders/[id] page uses `getBusinessRules()` for cutoff params (not hardcoded defaults)
+  3. SUMMARY frontmatter `requirements-completed` populated for phases 78 and 79
+  4. deliveryRadiusMiles/maxDeliveryDurationMinutes enforcement documented as intentionally deferred or implemented
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 77 -> 78 -> 79 -> 80 -> 81 -> 82 -> 83 -> 84
+Phases execute in numeric order: 77 -> 78 -> 79 -> 80 -> 81 -> 82 -> 83 -> 84 -> 85 -> 86
 Phases 82 and 83 are independent of each other and can execute after Phase 80 in any order.
+Phase 85 can execute immediately (only depends on completed Phase 77).
+Phase 86 can execute immediately (only depends on completed Phase 78).
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -189,6 +217,8 @@ Phases 82 and 83 are independent of each other and can execute after Phase 80 in
 | 82. Email Reliability | v1.9 | 0/TBD | Not started | - |
 | 83. Driver Simplification | v1.9 | 0/TBD | Not started | - |
 | 84. Production Hardening | v1.9 | 0/TBD | Not started | - |
+| 85. Phase 77 Verification & Bug Traceability | v1.9 | 0/TBD | Not started | - |
+| 86. Deferred Integration & Tech Debt Cleanup | v1.9 | 0/TBD | Not started | - |
 
 ### Historical Progress
 
