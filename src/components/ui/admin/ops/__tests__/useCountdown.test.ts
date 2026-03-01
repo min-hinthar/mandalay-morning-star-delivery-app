@@ -51,8 +51,9 @@ describe("computeCountdown", () => {
   });
 
   it("handles large time differences", () => {
-    const now = new Date(2026, 2, 7, 10, 0, 0);
-    const target = new Date(2026, 2, 8, 10, 0, 0); // 24 hours away
+    // Use dates that don't cross DST boundary (Jan dates are safe)
+    const now = new Date(2026, 0, 10, 10, 0, 0);
+    const target = new Date(2026, 0, 11, 10, 0, 0); // 24 hours away
     const result = computeCountdown(target, "Tomorrow", now);
     expect(result.hours).toBe(24);
     expect(result.minutes).toBe(0);

@@ -286,6 +286,9 @@ function mockDriver(overrides: MockDriverInput = {}) {
     vehicleType: "car" as const,
     ratingAvg: 4.5,
     isActive: overrides.isActive ?? true,
-    availability: overrides.availability ?? { available_days: ["saturday"], blocked_dates: [] },
+    availability:
+      "availability" in overrides
+        ? overrides.availability!
+        : { available_days: ["saturday"], blocked_dates: [] },
   };
 }
