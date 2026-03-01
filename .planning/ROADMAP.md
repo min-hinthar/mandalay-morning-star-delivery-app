@@ -12,48 +12,176 @@
 - ✅ **v1.7 Production Deployment & Readiness** — Phases 58-66 (shipped 2026-02-16)
 - ✅ **v1.8 Post-Launch Hardening & Driver Experience** — Phases 67-74 (shipped 2026-02-19)
 - ✅ **v1.8 Gap Closure** — Phases 75-76 (shipped 2026-02-26)
-- **v1.9 Quality, Accessibility & UX Excellence** — Phases 77-89 (planning)
+- **v1.9 Launch-Ready MVP** — Phases 77-84 (in progress)
 
 ## Phases
 
 <details>
-<summary>✅ v1.7 Production Deployment & Readiness (Phases 58-66) — SHIPPED 2026-02-16</summary>
+<summary>v1.7 Production Deployment & Readiness (Phases 58-66) -- SHIPPED 2026-02-16</summary>
 
-- [x] Phase 58: Deployment Verification (2/2 plans) — completed 2026-02-14
-- [x] Phase 59: Monitoring & Error Tracking (2/2 plans) — completed 2026-02-14
-- [x] Phase 60: LCP Optimization (3/3 plans) — completed 2026-02-14
-- [x] Phase 61: Admin Pages (5/5 plans) — completed 2026-02-14
-- [x] Phase 62: Production Operations (4/4 plans) — completed 2026-02-14
-- [x] Phase 63: Branding & Compliance (3/3 plans) — completed 2026-02-15
-- [x] Phase 64: Service Worker Hardening (5/5 plans) — completed 2026-02-15
-- [x] Phase 65: CI/CD Hardening (1/1 plan) — completed 2026-02-15
-- [x] Phase 66: Backlog Cleanup (7/7 plans) — completed 2026-02-15
-
-</details>
-
-<details>
-<summary>✅ v1.8 Post-Launch Hardening & Driver Experience (Phases 67-74) — SHIPPED 2026-02-19</summary>
-
-- [x] Phase 67: CSP & Security Headers (3/3 plans) — completed 2026-02-17
-- [x] Phase 68: RLS Audit & Hardening (3/3 plans) — completed 2026-02-17
-- [x] Phase 69: Distributed Rate Limiting (3/3 plans) — completed 2026-02-18
-- [x] Phase 70: Role-Based Auth Redirects (3/3 plans) — completed 2026-02-19
-- [x] Phase 71: Driver Profile Setup (2/2 plans) — completed 2026-02-19
-- [x] Phase 72: Driver Earnings Dashboard (3/3 plans) — completed 2026-02-19
-- [x] Phase 73: Driver Availability & Route Visibility (3/3 plans) — completed 2026-02-19
-- [x] Phase 74: Guided Walkthrough & Driver UI Polish (3/3 plans) — completed 2026-02-19
+- [x] Phase 58: Deployment Verification (2/2 plans) -- completed 2026-02-14
+- [x] Phase 59: Monitoring & Error Tracking (2/2 plans) -- completed 2026-02-14
+- [x] Phase 60: LCP Optimization (3/3 plans) -- completed 2026-02-14
+- [x] Phase 61: Admin Pages (5/5 plans) -- completed 2026-02-14
+- [x] Phase 62: Production Operations (4/4 plans) -- completed 2026-02-14
+- [x] Phase 63: Branding & Compliance (3/3 plans) -- completed 2026-02-15
+- [x] Phase 64: Service Worker Hardening (5/5 plans) -- completed 2026-02-15
+- [x] Phase 65: CI/CD Hardening (1/1 plan) -- completed 2026-02-15
+- [x] Phase 66: Backlog Cleanup (7/7 plans) -- completed 2026-02-15
 
 </details>
 
 <details>
-<summary>✅ v1.8 Gap Closure (Phases 75-76) — SHIPPED 2026-02-26</summary>
+<summary>v1.8 Post-Launch Hardening & Driver Experience (Phases 67-74) -- SHIPPED 2026-02-19</summary>
 
-- [x] Phase 75: Fix Security & Navigation Wiring (SEC-02, DPROF-05) — 1/1 plans — completed 2026-02-26
-- [x] Phase 76: Surface Hidden Components & Dead Code Cleanup (DDASH-07) — 1/1 plans — completed 2026-02-26
+- [x] Phase 67: CSP & Security Headers (3/3 plans) -- completed 2026-02-17
+- [x] Phase 68: RLS Audit & Hardening (3/3 plans) -- completed 2026-02-17
+- [x] Phase 69: Distributed Rate Limiting (3/3 plans) -- completed 2026-02-18
+- [x] Phase 70: Role-Based Auth Redirects (3/3 plans) -- completed 2026-02-19
+- [x] Phase 71: Driver Profile Setup (2/2 plans) -- completed 2026-02-19
+- [x] Phase 72: Driver Earnings Dashboard (3/3 plans) -- completed 2026-02-19
+- [x] Phase 73: Driver Availability & Route Visibility (3/3 plans) -- completed 2026-02-19
+- [x] Phase 74: Guided Walkthrough & Driver UI Polish (3/3 plans) -- completed 2026-02-19
 
 </details>
+
+<details>
+<summary>v1.8 Gap Closure (Phases 75-76) -- SHIPPED 2026-02-26</summary>
+
+- [x] Phase 75: Fix Security & Navigation Wiring (SEC-02, DPROF-05) -- 1/1 plans -- completed 2026-02-26
+- [x] Phase 76: Surface Hidden Components & Dead Code Cleanup (DDASH-07) -- 1/1 plans -- completed 2026-02-26
+
+</details>
+
+### v1.9 Launch-Ready MVP (Phases 77-84)
+
+**Milestone Goal:** Production-ready for real Saturday operations -- solo operator triaging 20-50 orders with family/friend drivers.
+
+- [ ] **Phase 77: Critical Bug Fixes** - Fix checkout TOCTOU, cutoff logic, cart race condition, and data integrity issues
+- [ ] **Phase 78: Configurable Business Rules** - Admin-editable settings replace all hardcoded constants (no deploy needed)
+- [ ] **Phase 79: Saturday Ops Dashboard** - Single-screen command center for Saturday order triage with bulk operations
+- [ ] **Phase 80: Route & Driver Assignment** - Visual dashboard for creating routes and assigning drivers to orders
+- [ ] **Phase 81: Customer Pre-Checkout Gate** - Saturday-only messaging and cutoff enforcement across customer pages
+- [ ] **Phase 82: Email Reliability** - Failure tracking, retry, webhook verification, and self-service recovery
+- [ ] **Phase 83: Driver Simplification** - Simple mode for non-technical family drivers (name, address, phone, deliver)
+- [ ] **Phase 84: Production Hardening** - Indexes, N+1 fixes, rate limit tuning, and pre-launch checklist
+
+## Phase Details
+
+### Phase 77: Critical Bug Fixes
+**Goal**: Checkout and cart operations produce correct, consistent results under all timing conditions
+**Depends on**: Nothing (first phase -- unblocks everything)
+**Requirements**: BUG-01, BUG-02, BUG-03, BUG-04, BUG-05, BUG-06, BUG-07, BUG-08
+**Success Criteria** (what must be TRUE):
+  1. Checkout cleanup deletes exactly the items belonging to the current order (no orphaned or cross-order deletions)
+  2. Orders placed after Saturday cutoff are rejected with a clear "next Saturday" message, regardless of what day/time the user visits
+  3. Rapid add-to-cart clicks produce the correct final quantity (no duplicates, no lost updates)
+  4. Stale modifier prices in the cart are detected and surfaced to the user before payment
+  5. Refund status is tracked as a distinct order state visible in admin
+**Plans**: TBD
+
+### Phase 78: Configurable Business Rules
+**Goal**: Operator changes delivery fee, cutoff time, and delivery hours from admin settings without a code deploy
+**Depends on**: Phase 77 (bug fixes stabilize cutoff logic that settings will control)
+**Requirements**: RULES-01, RULES-02, RULES-03, RULES-04, RULES-05, RULES-06, RULES-07, RULES-08, RULES-09, RULES-10
+**Success Criteria** (what must be TRUE):
+  1. Admin can edit cutoff day/hour, delivery fee, free delivery threshold, delivery hours, and radius from a single settings page
+  2. Customer-facing pages (menu banner, cart, checkout, hero) display the configured delivery fee and cutoff time -- not hardcoded values
+  3. Ops dashboard countdown timers use the configured cutoff and delivery start times
+  4. Changes take effect on the next page load without a deploy (verified by changing a value and refreshing)
+  5. Invalid settings are rejected with clear validation errors (e.g., cutoff_hour outside 0-23)
+**Plans**: TBD
+
+### Phase 79: Saturday Ops Dashboard
+**Goal**: Operator answers "what needs attention right now?" from a single screen in under 3 seconds
+**Depends on**: Phase 78 (countdown timers consume configured cutoff/delivery times)
+**Requirements**: OPS-01, OPS-02, OPS-03, OPS-04, OPS-05, OPS-06, OPS-07
+**Success Criteria** (what must be TRUE):
+  1. Ops center shows live order counts by status (pending, confirmed, preparing, out, delivered) with 5-second auto-refresh
+  2. Operator can select multiple orders via checkboxes and change their status in a single bulk action
+  3. Countdown timers show time remaining until cutoff and delivery start, sourced from configured settings
+  4. A red badge shows the count of unassigned orders (confirmed but not on any route)
+  5. Driver availability widget shows which drivers are ready and who hasn't checked in
+**Plans**: TBD
+
+### Phase 80: Route & Driver Assignment
+**Goal**: Operator creates delivery routes and assigns drivers without texting or spreadsheets
+**Depends on**: Phase 79 (shares unassigned orders data layer and ops context)
+**Requirements**: ROUTE-01, ROUTE-02, ROUTE-03, ROUTE-04, ROUTE-05, ROUTE-06, ROUTE-07
+**Success Criteria** (what must be TRUE):
+  1. Unassigned orders panel shows all confirmed orders not yet on a route, filterable by time window
+  2. Operator selects orders + a driver and creates a route in one click (atomic -- no orphaned routes on failure)
+  3. Route summary shows stop count, estimated duration, and a map preview with pins
+  4. Orders can be reassigned between existing routes
+  5. Driver API queries enforce ownership -- drivers only see their own routes and stops
+**Plans**: TBD
+
+### Phase 81: Customer Pre-Checkout Gate
+**Goal**: Customers always know when the next delivery is, whether they can still order, and what happens if they cannot
+**Depends on**: Phase 78 (cutoff modal displays database-driven cutoff time, not hardcoded)
+**Requirements**: GATE-01, GATE-02, GATE-03, GATE-04, GATE-05, GATE-06
+**Success Criteria** (what must be TRUE):
+  1. Homepage hero CTA changes dynamically based on whether ordering is currently open or closed
+  2. Menu page banner shows the upcoming Saturday delivery date and time until cutoff
+  3. Cart drawer displays the delivery date and a live cutoff countdown
+  4. Past-cutoff checkout attempt shows a modal with the next available Saturday date (not a generic error)
+  5. Order tracking page shows a polling indicator and "last updated X ago" timestamp
+**Plans**: TBD
+
+### Phase 82: Email Reliability
+**Goal**: Operator can self-diagnose and recover from email delivery failures without developer help
+**Depends on**: Phase 77 (stable order states required for email status tracking)
+**Requirements**: EMAIL-01, EMAIL-02, EMAIL-03, EMAIL-04, EMAIL-05, EMAIL-06
+**Success Criteria** (what must be TRUE):
+  1. Every email send attempt is logged with status (sent, delivered, failed, bounced) in a trackable table
+  2. Admin email dashboard shows failed emails with a one-click retry button
+  3. Order detail page shows whether the confirmation email was sent, delivered, or failed
+  4. After 3 failed attempts, the order is flagged for manual customer contact
+  5. Resend webhook payloads are verified via signature check before processing (no forged updates)
+**Plans**: TBD
+
+### Phase 83: Driver Simplification
+**Goal**: A non-technical family member completes a delivery route without any verbal instructions
+**Depends on**: Phase 77 (stable order/delivery states)
+**Requirements**: DRV-01, DRV-02, DRV-03, DRV-04, DRV-05
+**Success Criteria** (what must be TRUE):
+  1. Simple mode shows only: customer name, address (tap opens Maps), phone (tap calls), and a large "Mark Delivered" button
+  2. Marking an order as delivered requires explicit confirmation ("Mark as delivered at [address]?")
+  3. Complex UI sections (route optimization, exception modals, earnings dashboard) are hidden in simple mode
+  4. Simple mode preference persists across devices (stored server-side, not localStorage)
+  5. Offline instructions are displayed when connectivity is lost ("Route saved locally. Will sync when reconnected.")
+**Plans**: TBD
+
+### Phase 84: Production Hardening
+**Goal**: The app handles a full Saturday cycle (50 orders, 4 drivers) without performance degradation, data errors, or unmonitored failures
+**Depends on**: Phase 83 (indexes and N+1 fixes benefit from seeing final query patterns from all preceding phases)
+**Requirements**: HARD-01, HARD-02, HARD-03, HARD-04, HARD-05, HARD-06, HARD-07
+**Success Criteria** (what must be TRUE):
+  1. Bulk status endpoint is rate-limited (max 100 orders per call) and all API endpoints have specific rate limits
+  2. N+1 query on ops dashboard is eliminated -- orders load with driver info and addresses in a single query
+  3. Admin pagination shows "Showing X of Y" with correct totals on all list pages
+  4. Database indexes exist for high-frequency query patterns (orders by status/date, unassigned orders, notification logs, routes by date)
+  5. All critical API paths have specific error handling with correct HTTP status codes and Sentry context
+**Plans**: TBD
 
 ## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 77 -> 78 -> 79 -> 80 -> 81 -> 82 -> 83 -> 84
+Phases 82 and 83 are independent of each other and can execute after Phase 80 in any order.
+
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 77. Critical Bug Fixes | v1.9 | 0/TBD | Not started | - |
+| 78. Configurable Business Rules | v1.9 | 0/TBD | Not started | - |
+| 79. Saturday Ops Dashboard | v1.9 | 0/TBD | Not started | - |
+| 80. Route & Driver Assignment | v1.9 | 0/TBD | Not started | - |
+| 81. Customer Pre-Checkout Gate | v1.9 | 0/TBD | Not started | - |
+| 82. Email Reliability | v1.9 | 0/TBD | Not started | - |
+| 83. Driver Simplification | v1.9 | 0/TBD | Not started | - |
+| 84. Production Hardening | v1.9 | 0/TBD | Not started | - |
+
+### Historical Progress
 
 | Milestone          | Phases | Plans | Shipped    |
 | ------------------ | ------ | ----- | ---------- |
@@ -67,26 +195,7 @@
 | v1.7 Deployment    | 58-66  | 32    | 2026-02-16 |
 | v1.8 Hardening     | 67-74  | 23    | 2026-02-19 |
 | v1.8 Gap Closure   | 75-76  | 2     | 2026-02-26 |
-| v1.9 Quality & A11y| 77-89  | 33    | planning   |
-| **Total**          | **89** | **345** |          |
-
-### v1.9 Quality, Accessibility & UX Excellence (Phases 77-89) — PLANNING
-
-**Focus:** Accessibility compliance, UI/UX polish, code quality, testing depth, i18n foundation
-
-- [ ] Phase 77: Repo Hygiene & Dead Code Cleanup (2 plans) — P0
-- [ ] Phase 78: Medium-Priority Bug Fixes from Audit (3 plans) — P0
-- [ ] Phase 79: Oversized Component Splitting (4 plans) — P1
-- [ ] Phase 80: Accessibility Foundations (4 plans) — P1
-- [ ] Phase 81: Real-Time & Driver Accessibility (2 plans) — P1
-- [ ] Phase 82: Form Validation UX Improvements (2 plans) — P1
-- [ ] Phase 83: Image Optimization & Performance (2 plans) — P2
-- [ ] Phase 84: High-Contrast Mode & Reduced Motion (1 plan) — P2
-- [ ] Phase 85: Storybook & Visual Regression (3 plans) — P2
-- [ ] Phase 86: Internationalization Foundation (3 plans) — P2
-- [ ] Phase 87: Component Unit Testing (3 plans) — P2
-- [ ] Phase 88: Webhook & Integration Testing (2 plans) — P2
-- [ ] Phase 89: Notifications & Real-Time Polish (2 plans) — P3
+| **Total shipped**  | **76** | **312** |          |
 
 ---
 

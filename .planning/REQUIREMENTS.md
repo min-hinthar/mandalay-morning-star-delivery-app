@@ -133,68 +133,68 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | — | Pending |
-| BUG-02 | — | Pending |
-| BUG-03 | — | Pending |
-| BUG-04 | — | Pending |
-| BUG-05 | — | Pending |
-| BUG-06 | — | Pending |
-| BUG-07 | — | Pending |
-| BUG-08 | — | Pending |
-| OPS-01 | — | Pending |
-| OPS-02 | — | Pending |
-| OPS-03 | — | Pending |
-| OPS-04 | — | Pending |
-| OPS-05 | — | Pending |
-| OPS-06 | — | Pending |
-| OPS-07 | — | Pending |
-| ROUTE-01 | — | Pending |
-| ROUTE-02 | — | Pending |
-| ROUTE-03 | — | Pending |
-| ROUTE-04 | — | Pending |
-| ROUTE-05 | — | Pending |
-| ROUTE-06 | — | Pending |
-| ROUTE-07 | — | Pending |
-| GATE-01 | — | Pending |
-| GATE-02 | — | Pending |
-| GATE-03 | — | Pending |
-| GATE-04 | — | Pending |
-| GATE-05 | — | Pending |
-| GATE-06 | — | Pending |
-| RULES-01 | — | Pending |
-| RULES-02 | — | Pending |
-| RULES-03 | — | Pending |
-| RULES-04 | — | Pending |
-| RULES-05 | — | Pending |
-| RULES-06 | — | Pending |
-| RULES-07 | — | Pending |
-| RULES-08 | — | Pending |
-| RULES-09 | — | Pending |
-| RULES-10 | — | Pending |
-| EMAIL-01 | — | Pending |
-| EMAIL-02 | — | Pending |
-| EMAIL-03 | — | Pending |
-| EMAIL-04 | — | Pending |
-| EMAIL-05 | — | Pending |
-| EMAIL-06 | — | Pending |
-| DRV-01 | — | Pending |
-| DRV-02 | — | Pending |
-| DRV-03 | — | Pending |
-| DRV-04 | — | Pending |
-| DRV-05 | — | Pending |
-| HARD-01 | — | Pending |
-| HARD-02 | — | Pending |
-| HARD-03 | — | Pending |
-| HARD-04 | — | Pending |
-| HARD-05 | — | Pending |
-| HARD-06 | — | Pending |
-| HARD-07 | — | Pending |
+| BUG-01 | Phase 77 | Pending |
+| BUG-02 | Phase 77 | Pending |
+| BUG-03 | Phase 77 | Pending |
+| BUG-04 | Phase 77 | Pending |
+| BUG-05 | Phase 77 | Pending |
+| BUG-06 | Phase 77 | Pending |
+| BUG-07 | Phase 77 | Pending |
+| BUG-08 | Phase 77 | Pending |
+| OPS-01 | Phase 79 | Pending |
+| OPS-02 | Phase 79 | Pending |
+| OPS-03 | Phase 79 | Pending |
+| OPS-04 | Phase 79 | Pending |
+| OPS-05 | Phase 79 | Pending |
+| OPS-06 | Phase 79 | Pending |
+| OPS-07 | Phase 79 | Pending |
+| ROUTE-01 | Phase 80 | Pending |
+| ROUTE-02 | Phase 80 | Pending |
+| ROUTE-03 | Phase 80 | Pending |
+| ROUTE-04 | Phase 80 | Pending |
+| ROUTE-05 | Phase 80 | Pending |
+| ROUTE-06 | Phase 80 | Pending |
+| ROUTE-07 | Phase 80 | Pending |
+| GATE-01 | Phase 81 | Pending |
+| GATE-02 | Phase 81 | Pending |
+| GATE-03 | Phase 81 | Pending |
+| GATE-04 | Phase 81 | Pending |
+| GATE-05 | Phase 81 | Pending |
+| GATE-06 | Phase 81 | Pending |
+| RULES-01 | Phase 78 | Pending |
+| RULES-02 | Phase 78 | Pending |
+| RULES-03 | Phase 78 | Pending |
+| RULES-04 | Phase 78 | Pending |
+| RULES-05 | Phase 78 | Pending |
+| RULES-06 | Phase 78 | Pending |
+| RULES-07 | Phase 78 | Pending |
+| RULES-08 | Phase 78 | Pending |
+| RULES-09 | Phase 78 | Pending |
+| RULES-10 | Phase 78 | Pending |
+| EMAIL-01 | Phase 82 | Pending |
+| EMAIL-02 | Phase 82 | Pending |
+| EMAIL-03 | Phase 82 | Pending |
+| EMAIL-04 | Phase 82 | Pending |
+| EMAIL-05 | Phase 82 | Pending |
+| EMAIL-06 | Phase 82 | Pending |
+| DRV-01 | Phase 83 | Pending |
+| DRV-02 | Phase 83 | Pending |
+| DRV-03 | Phase 83 | Pending |
+| DRV-04 | Phase 83 | Pending |
+| DRV-05 | Phase 83 | Pending |
+| HARD-01 | Phase 84 | Pending |
+| HARD-02 | Phase 84 | Pending |
+| HARD-03 | Phase 84 | Pending |
+| HARD-04 | Phase 84 | Pending |
+| HARD-05 | Phase 84 | Pending |
+| HARD-06 | Phase 84 | Pending |
+| HARD-07 | Phase 84 | Pending |
 
 **Coverage:**
 - v1.9 requirements: 49 total
-- Mapped to phases: 0
-- Unmapped: 49
+- Mapped to phases: 49
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-01*
-*Last updated: 2026-03-01 after initial definition*
+*Last updated: 2026-03-01 after roadmap creation (all 49 requirements mapped to Phases 77-84)*
