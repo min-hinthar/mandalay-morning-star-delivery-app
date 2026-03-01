@@ -1,13 +1,13 @@
 ---
 gsd_state_version: 1.0
 milestone: v1.9
-milestone_name: Quality, Accessibility & UX Excellence
+milestone_name: Launch-Ready MVP
 status: planning
-last_updated: "2026-02-27"
+last_updated: "2026-03-01"
 progress:
-  total_phases: 89
+  total_phases: 76
   completed_phases: 76
-  total_plans: 345
+  total_plans: 312
   completed_plans: 312
 ---
 
@@ -15,19 +15,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-02-26)
+See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.9 Quality, Accessibility & UX Excellence — 13 phases, 33 plans, 30 requirements
+**Current focus:** v1.9 Launch-Ready MVP — production-ready for real Saturday operations
 
 ## Current Position
 
-Phase: 76 of 89 — v1.9 PLANNING
-Milestone: v1.9 Quality, Accessibility & UX Excellence
-Status: CI errors fixed (2026-02-27), milestone context created, awaiting phase execution
-Last activity: 2026-02-27 — CI fix + v1.9 milestone context created
-
-Progress: [████████████████░░░░] 85%
+Phase: Not started (defining requirements)
+Milestone: v1.9 Launch-Ready MVP
+Status: Defining requirements
+Last activity: 2026-03-01 — Milestone v1.9 started
 
 ## Performance Metrics
 
@@ -61,21 +59,20 @@ All decisions archived in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-- Execute v1.9 phases 77-89 (33 plans, 30 requirements)
 - Apply migration 027 to production Supabase (human action)
 - Decide: `out_for_delivery` refund cancellation policy
 - Decide: background email queue technology (Inngest vs QStash vs waitUntil)
-- Decide: i18n scope (all customer pages vs menu+checkout first)
+- Provision Upstash Redis on Vercel Marketplace for production rate limiting
+- Create Sentry alert rule "Rate Limit Spike" in Sentry Dashboard
 
 ### Blockers/Concerns
 
 - Human verification needed: OAuth sign-in, email delivery, Stripe webhook, Search Console (8 items from v1.7)
 - Upstash Redis provisioning needed via Vercel Marketplace before rate limiting is active in production
-- Sentry alert rule "Rate Limit Spike" needs manual creation in Sentry Dashboard
 - Migration 027 must be applied before deploying checkout (H-10 fix)
 
 ## Session Continuity
 
-Last session: 2026-02-27
-Stopped at: CI errors fixed, v1.9 milestone context created
-Next action: Execute Phase 77 (Repo Hygiene & Dead Code Cleanup)
+Last session: 2026-03-01
+Stopped at: v1.9 Launch-Ready MVP milestone initialized
+Next action: Define requirements and create roadmap
