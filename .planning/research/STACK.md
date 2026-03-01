@@ -1,324 +1,379 @@
-# Stack Research: v1.8 Post-Launch Hardening & Driver Experience
+# Stack Research: v1.9 Launch-Ready MVP
 
-**Domain:** Security hardening (CSP, RLS, rate limiting) + driver dashboard features
-**Researched:** 2026-02-16
+**Domain:** Ops dashboard, route assignment, configurable business rules, email reliability, driver simplification
+**Researched:** 2026-03-01
 **Confidence:** HIGH
 
 ## Executive Summary
 
-v1.8 requires **two new npm packages** (`@upstash/redis`, `@upstash/ratelimit`) and **one new file convention** (`proxy.ts`). Everything else uses existing installed packages or Supabase-side SQL changes. The CSP implementation uses Next.js 16's `proxy.ts` (renamed from `middleware.ts`) with a non-nonce approach to preserve static rendering. Rate limiting upgrades from the in-memory Map to Upstash Redis via the Vercel Marketplace integration. Driver dashboards use already-installed Recharts 3.6.0 and date-fns 4.1.0. RLS audit is pure SQL work requiring no new dependencies. Role-based redirects are implemented in the auth callback route and proxy.ts with zero additional libraries.
+v1.9 requires **zero new npm packages**. Every feature builds on existing installed dependencies. The ops dashboard uses Supabase Realtime (already used in `useTrackingSubscription`). Email reliability uses the existing Resend SDK v6.9.x which already includes `webhooks.verify()` for proper svix signature verification. Configurable business rules extend the existing `app_settings` table + admin settings API + validation schemas. Driver simplification is pure UI work using existing Zustand, Radix UI, and Framer Motion. Route assignment extends existing admin routes API with visual components built from Radix primitives already installed.
+
+The codebase already has:
+- Supabase Realtime subscriptions (`useTrackingSubscription.ts`) -- extend pattern to ops dashboard
+- Email send with retry + notification_logs + Resend webhook handler -- add svix verification, enhance failure tracking
+- `app_settings` table with CRUD API + Zod validation schemas -- add new setting keys
+- Admin routes/orders/drivers pages -- add ops dashboard page + route assignment UI
+- Driver pages with profile/earnings/schedule -- add simple mode toggle
 
 ---
 
-## New Dependencies (Install These)
+## No New Dependencies Required
 
-### Rate Limiting Infrastructure
+### Already Installed -- Use As-Is
 
-| Technology         | Version | Purpose                                      | Why Recommended                                                                                                                                                                                                             |
-| ------------------ | ------- | -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| @upstash/redis     | ^1.36.2 | Serverless Redis client for Vercel           | HTTP-based (no persistent connections), works in serverless/edge. Vercel KV is deprecated -- Upstash Redis is the official Vercel Marketplace replacement. Free tier: 500K commands/month, sufficient for this app's scale. |
-| @upstash/ratelimit | ^2.0.8  | Rate limiting library built on Upstash Redis | Purpose-built for serverless. Sliding window algorithm prevents burst abuse at window boundaries. Caches "hot" function data to minimize Redis calls. Drop-in replacement for existing in-memory `checkRateLimit()`.        |
-
-**Installation:**
-
-```bash
-pnpm add @upstash/redis @upstash/ratelimit
-```
-
-**Environment variables (set via Vercel Marketplace integration):**
-
-```bash
-UPSTASH_REDIS_REST_URL=https://xxx.upstash.io
-UPSTASH_REDIS_REST_TOKEN=AXxx...
-```
-
-**Integration pattern:**
-
-```typescript
-// src/lib/utils/rate-limit.ts (replaces existing in-memory implementation)
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
-
-const redis = Redis.fromEnv();
-
-export const authLimiter = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(5, "60 s"), // 5 per minute
-  prefix: "rl:auth",
-});
-
-export const apiLimiter = new Ratelimit({
-  redis,
-  limiter: Ratelimit.slidingWindow(30, "60 s"), // 30 per minute
-  prefix: "rl:api",
-});
-
-// Usage: const { success, remaining } = await authLimiter.limit(identifier);
-```
-
-**Algorithms available:**
-
-- `fixedWindow(tokens, window)` -- simple, lowest Redis cost
-- `slidingWindow(tokens, window)` -- prevents burst at boundaries, recommended
-- `tokenBucket(refillRate, interval, maxTokens)` -- smooths bursts, regional only
-
-**Recommendation:** Use `slidingWindow` for auth endpoints (existing pattern), `fixedWindow` for general API rate limiting (cheaper).
+| Technology | Installed Version | v1.9 Usage | Confidence |
+|---|---|---|---|
+| `@supabase/supabase-js` | ^2.90.1 | Realtime subscriptions for ops dashboard live order status | HIGH |
+| `resend` | ^6.9.1 | `resend.webhooks.verify()` for proper svix webhook signature verification | HIGH |
+| `@tanstack/react-query` | ^5.90.1 | Data fetching + optimistic updates for bulk operations | HIGH |
+| `zod` | ^4.3.5 | Validation schemas for new settings keys, bulk operation payloads | HIGH |
+| `react-hook-form` + `@hookform/resolvers` | ^7.71.1 / ^5.2.2 | Admin settings forms for configurable business rules | HIGH |
+| `zustand` | ^5.0.10 | Driver simple mode preference (persisted to localStorage) | HIGH |
+| `date-fns` | ^4.1.0 | Countdown timers, cutoff calculations, delivery window formatting | HIGH |
+| `recharts` | ^3.6.0 | Ops dashboard status count charts (PieChart for order distribution) | HIGH |
+| `lucide-react` | ^0.562.0 | Dashboard icons (Truck, Clock, Users, AlertTriangle, Phone, MapPin) | HIGH |
+| `framer-motion` | ^12.26.1 | AnimatePresence for bulk operation toasts, dashboard transitions | HIGH |
+| `@radix-ui/react-checkbox` | ^1.3.2 | Bulk selection checkboxes in ops dashboard order list | HIGH |
+| `@radix-ui/react-select` | ^2.2.6 | Driver assignment dropdown, status filter, time window filter | HIGH |
+| `@radix-ui/react-dialog` | ^1.1.15 | Confirmation dialogs for driver simple mode, route creation | HIGH |
+| `@radix-ui/react-alert-dialog` | ^1.1.15 | Destructive confirmations (bulk status change, delivery mark) | HIGH |
+| `@radix-ui/react-progress` | ^1.1.8 | Route completion progress bars | HIGH |
+| `@react-google-maps/api` | ^2.20.8 | Route map preview in assignment UI (already used in tracking) | HIGH |
+| `class-variance-authority` | ^0.7.1 | Variant-based status badges (pending/confirmed/preparing/delivered) | HIGH |
+| `clsx` + `tailwind-merge` | ^2.1.1 / ^3.4.0 | Conditional class composition across all new UI | HIGH |
+| `@upstash/redis` + `@upstash/ratelimit` | ^1.36.2 / ^2.0.8 | Rate limiting on new bulk operation endpoints | HIGH |
+| `idb-keyval` | ^6.2.2 | Offline route data persistence for driver simple mode | HIGH |
+| `@sentry/nextjs` | ^10.38.0 | Error tracking for new API routes and dashboard components | HIGH |
 
 ---
 
-## New File Conventions (No Package Install)
+## Feature-by-Feature Stack Mapping
 
-### Content Security Policy via proxy.ts
+### 1. Saturday Ops Dashboard (Phase 1)
 
-Next.js 16 renamed `middleware.ts` to `proxy.ts`. This project has no middleware/proxy file yet. CSP headers go here.
+**What's needed:** Real-time order status counts, bulk operations, countdown timers.
 
-**File location:** `src/proxy.ts` (same level as `app/`)
+| Capability | Technology | Pattern | Reference |
+|---|---|---|---|
+| Live order status updates | Supabase Realtime | Same channel pattern as `useTrackingSubscription.ts` | `src/lib/hooks/useTrackingSubscription.ts` |
+| Status count cards | Recharts PieChart | Same patterns as admin analytics | `src/app/(admin)/admin/analytics/` |
+| Bulk checkbox select | Radix Checkbox + local state | useState array of selected IDs | `@radix-ui/react-checkbox` |
+| Bulk status change API | Next.js API route + Zod | Validate array of order IDs + target status | `src/app/api/admin/orders/[id]/status/route.ts` |
+| Countdown to cutoff | date-fns `differenceInSeconds` + `useEffect` interval | Client-side countdown, reads cutoff from `app_settings` | `src/types/delivery.ts` (currently hardcoded) |
+| Optimistic UI on status change | React Query `useMutation` + `onMutate` | Optimistic cache update, rollback on error | `@tanstack/react-query` |
+| Toast confirmations | Existing toast system | `useToastV8` hook | `src/lib/hooks/useToastV8.ts` |
 
-**Approach: Non-nonce CSP (preserving static rendering)**
-
-Nonce-based CSP forces ALL pages to dynamic rendering, killing CDN caching and increasing server load. This app has many statically-rendered pages (menu, home, legal pages). Use `'unsafe-inline'` for scripts/styles with strict domain allowlisting instead.
-
-**Why not nonces:**
-
-- App has 20+ static/ISR pages that would lose caching
-- LCP already optimized to <4s -- dynamic rendering would regress this
-- Sentry tunnel route (`/monitoring`) bypasses CSP connect-src for error reporting
-- `'unsafe-inline'` + strict domain allowlist is standard for apps with many third-party integrations
-
-**Why not SRI (experimental):**
-
-- Webpack-only, project uses Turbopack dev mode
-- Experimental feature, may change
-- Does not cover inline styles/scripts from third parties
-
-**CSP domains needed:**
-
-| Directive         | Domains                                                                                                         | Why                                      |
-| ----------------- | --------------------------------------------------------------------------------------------------------------- | ---------------------------------------- |
-| `default-src`     | `'self'`                                                                                                        | Baseline restriction                     |
-| `script-src`      | `'self' 'unsafe-inline' 'unsafe-eval'` (dev only for eval)                                                      | Next.js inline scripts, Stripe.js        |
-| `script-src`      | `https://js.stripe.com`                                                                                         | Stripe checkout                          |
-| `script-src`      | `https://maps.googleapis.com`                                                                                   | Google Maps                              |
-| `style-src`       | `'self' 'unsafe-inline'`                                                                                        | TailwindCSS, Framer Motion inline styles |
-| `style-src`       | `https://fonts.googleapis.com`                                                                                  | Google Fonts                             |
-| `img-src`         | `'self' blob: data: https://*.supabase.co https://lh3.googleusercontent.com`                                    | Supabase Storage, Google avatars         |
-| `font-src`        | `'self' https://fonts.gstatic.com`                                                                              | Google Fonts                             |
-| `connect-src`     | `'self' https://*.supabase.co https://api.stripe.com https://*.ingest.us.sentry.io https://maps.googleapis.com` | API calls to services                    |
-| `frame-src`       | `https://js.stripe.com https://hooks.stripe.com`                                                                | Stripe 3D Secure iframe                  |
-| `object-src`      | `'none'`                                                                                                        | Block plugins                            |
-| `base-uri`        | `'self'`                                                                                                        | Prevent base tag injection               |
-| `form-action`     | `'self'`                                                                                                        | Restrict form targets                    |
-| `frame-ancestors` | `'none'`                                                                                                        | Prevent clickjacking                     |
-
-**Additional security headers to add alongside CSP:**
-
-| Header                      | Value                                          | Purpose                          |
-| --------------------------- | ---------------------------------------------- | -------------------------------- |
-| `X-Content-Type-Options`    | `nosniff`                                      | Prevent MIME sniffing            |
-| `X-Frame-Options`           | `DENY`                                         | Clickjacking (legacy browsers)   |
-| `X-XSS-Protection`          | `0`                                            | Disable buggy browser XSS filter |
-| `Referrer-Policy`           | `strict-origin-when-cross-origin`              | Limit referrer leakage           |
-| `Permissions-Policy`        | `camera=(), microphone=(), geolocation=(self)` | Restrict device APIs             |
-| `Strict-Transport-Security` | `max-age=63072000; includeSubDomains; preload` | Force HTTPS                      |
-
-**Implementation sketch:**
+**Supabase Realtime pattern for ops dashboard:**
 
 ```typescript
-// src/proxy.ts
-import { NextResponse, NextRequest } from "next/server";
+// Subscribe to ALL order changes (admin dashboard, not filtered by order ID)
+const channel = supabase
+  .channel('ops-orders')
+  .on(
+    'postgres_changes',
+    { event: 'UPDATE', schema: 'public', table: 'orders' },
+    (payload) => {
+      // Update order status counts in real-time
+      queryClient.invalidateQueries({ queryKey: ['ops-orders'] });
+    }
+  )
+  .subscribe();
+```
 
-const isDev = process.env.NODE_ENV === "development";
+**Key difference from tracking:** Ops dashboard subscribes to ALL order updates (no filter), while customer tracking subscribes to a single order ID. RLS on the `orders` table must allow admin SELECT of all orders (already works via existing admin API routes using service client).
 
-const cspDirectives = [
-  "default-src 'self'",
-  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""} https://js.stripe.com https://maps.googleapis.com`,
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "img-src 'self' blob: data: https://*.supabase.co https://lh3.googleusercontent.com https://drive.google.com",
-  "font-src 'self' https://fonts.gstatic.com",
-  "connect-src 'self' https://*.supabase.co https://api.stripe.com https://*.ingest.us.sentry.io https://maps.googleapis.com",
-  "frame-src https://js.stripe.com https://hooks.stripe.com",
-  "object-src 'none'",
-  "base-uri 'self'",
-  "form-action 'self'",
-  "frame-ancestors 'none'",
-  "upgrade-insecure-requests",
-].join("; ");
+**Important:** The Realtime subscription uses the browser Supabase client, which respects RLS. Admin must have a SELECT policy on `orders`. The existing pattern uses API routes with `createServiceClient()` (bypasses RLS). For real-time, either:
+1. Add admin SELECT RLS policy to `orders` table (recommended -- cleaner)
+2. Or use API polling instead of Realtime (simpler, acceptable at 20-50 orders)
 
-export function proxy(request: NextRequest) {
-  const response = NextResponse.next();
-  response.headers.set("Content-Security-Policy", cspDirectives);
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
-  response.headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(self)");
-  response.headers.set("Strict-Transport-Security", "max-age=63072000; includeSubDomains; preload");
-  return response;
+**Recommendation:** Use React Query polling at 5-second intervals for v1.9 MVP. Supabase Realtime adds complexity for marginal benefit at 20-50 orders/Saturday. Switch to Realtime when order volume exceeds 100/week.
+
+```typescript
+// Polling approach (simpler, sufficient for MVP scale)
+const { data: orders } = useQuery({
+  queryKey: ['ops-orders', statusFilter],
+  queryFn: () => fetch('/api/admin/orders?status=' + statusFilter).then(r => r.json()),
+  refetchInterval: 5_000, // 5 seconds
+});
+```
+
+### 2. Route & Driver Assignment (Phase 2)
+
+**What's needed:** Visual unassigned orders panel, driver selection, route creation.
+
+| Capability | Technology | Pattern |
+|---|---|---|
+| Unassigned orders list | React Query fetch + filter | Filter orders where `route_stop` is null |
+| Available drivers list | React Query fetch | `/api/admin/drivers` with availability filter |
+| Driver assignment dropdown | Radix Select | `@radix-ui/react-select` |
+| Route creation form | React Hook Form + Zod | `react-hook-form` + `@hookform/resolvers` |
+| Route map preview | Google Maps API | `@react-google-maps/api` (already used) |
+| Drag-and-drop reorder | **Not needed** | At 2-4 drivers / 5-10 stops, manual reorder via up/down buttons is simpler |
+| Order reassignment | API PATCH + optimistic update | Move order between routes via stop reassignment |
+
+**No drag-and-drop library needed.** At the current scale (2-4 drivers, 5-10 stops per route), click-to-assign and up/down reorder buttons are faster and less error-prone than drag-and-drop. Avoid `@dnd-kit` or `react-beautiful-dnd` -- they add bundle size and touch-device complexity for negligible UX benefit at this scale.
+
+### 3. Configurable Business Rules (Phase 4)
+
+**What's needed:** Extend `app_settings` table with new keys, admin UI form, server reads from table.
+
+| Capability | Technology | Pattern | Reference |
+|---|---|---|---|
+| Settings CRUD API | Existing API route | Extend `GET/PATCH /api/admin/settings` | `src/app/api/admin/settings/route.ts` |
+| Validation | Zod schemas | Add keys to `deliverySettingsSchema` | `src/lib/validations/settings.ts` |
+| Admin settings form | React Hook Form + Radix | Extend existing settings page | `src/app/(admin)/admin/settings/page.tsx` |
+| Server-side config read | Supabase query + cache | Read `app_settings` with 5-min TTL | `src/lib/email/send.ts` (kill switch pattern) |
+| Replace hardcoded constants | Remove constants, read from settings | Replace `DELIVERY_FEE_CENTS`, `CUTOFF_HOUR` | `src/types/cart.ts`, `src/types/delivery.ts` |
+
+**New setting keys to add to `app_settings` table:**
+
+| Key | Type | Default | Currently Hardcoded In |
+|---|---|---|---|
+| `cutoff_day` | number (0-6, 0=Sunday) | 5 (Friday) | `src/types/delivery.ts` |
+| `cutoff_hour` | number (0-23) | 15 (3 PM) | `src/types/delivery.ts` |
+| `delivery_fee_cents` | number | 1500 | `src/types/cart.ts` |
+| `free_delivery_threshold_cents` | number | 10000 | `src/types/cart.ts` |
+| `delivery_start_hour` | number | 11 | Hardcoded in UI |
+| `delivery_end_hour` | number | 19 | Hardcoded in UI |
+| `max_delivery_radius_miles` | number | 15 | Coverage check |
+| `max_delivery_duration_minutes` | number | 45 | Coverage check |
+
+**Caching pattern for server-side reads:**
+
+```typescript
+// src/lib/settings/cache.ts
+let cachedSettings: Record<string, unknown> | null = null;
+let cacheTimestamp = 0;
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+export async function getAppSettings(): Promise<Record<string, unknown>> {
+  const now = Date.now();
+  if (cachedSettings && now - cacheTimestamp < CACHE_TTL) {
+    return cachedSettings;
+  }
+  const supabase = createServiceClient();
+  const { data } = await supabase.from('app_settings').select('key, value');
+  cachedSettings = Object.fromEntries((data || []).map(r => [r.key, r.value]));
+  cacheTimestamp = now;
+  return cachedSettings;
+}
+```
+
+**Note:** This in-memory cache works per-request on serverless (cache lives within the invocation), but is acceptable because `app_settings` rarely changes and a single Supabase query per cold start is fast enough. For true cross-request caching, use `unstable_cache` from Next.js or Upstash Redis, but that is unnecessary at this scale.
+
+**Correction:** On Vercel serverless, in-memory cache actually persists across warm invocations within the same function instance. So this pattern does provide caching benefit during sustained traffic (Saturday operations). Cache invalidation happens naturally on cold starts.
+
+### 4. Email Reliability (Phase 5)
+
+**What's needed:** Proper webhook verification, failure tracking dashboard, retry from admin.
+
+| Capability | Technology | Pattern | Reference |
+|---|---|---|---|
+| Webhook signature verification | `resend.webhooks.verify()` | Built into Resend SDK v6.9+ | `src/app/api/webhooks/resend/route.ts` |
+| Failure tracking | Existing `notification_logs` table | Already logs sent/failed status | `src/lib/email/send.ts` |
+| Admin email dashboard | Existing admin emails page | Already has list + resend | `src/app/(admin)/admin/emails/page.tsx` |
+| One-click retry | Existing resend endpoint | Already implemented | `src/app/api/admin/emails/[id]/resend/route.ts` |
+| Webhook audit logging | `webhook_events` table | Already exists with RLS | `src/app/api/webhooks/resend/route.ts` |
+| Bounce/complaint handling | Resend webhook events | Already mapped in webhook handler | `EVENT_STATUS_MAP` in webhook route |
+
+**What needs to change (code changes, not new packages):**
+
+1. **Replace simple secret check with `resend.webhooks.verify()`:**
+   ```typescript
+   // BEFORE (current - insecure, just compares strings)
+   if (webhookSecret !== RESEND_WEBHOOK_SECRET) { ... }
+
+   // AFTER (proper svix signature verification)
+   const resend = getResendClient();
+   const payload = await request.text(); // Must be raw text, not parsed JSON
+   const verified = resend.webhooks.verify({
+     payload,
+     headers: {
+       id: request.headers.get('svix-id') ?? '',
+       timestamp: request.headers.get('svix-timestamp') ?? '',
+       signature: request.headers.get('svix-signature') ?? '',
+     },
+     webhookSecret: RESEND_WEBHOOK_SECRET,
+   });
+   ```
+
+2. **Add `retry_count` column to `notification_logs`** -- track how many times an email has been retried. Flag for manual contact after 3 failures.
+
+3. **Add email status indicator on order detail page** -- query `notification_logs` for the order and show sent/failed/delivered badge.
+
+4. **Log webhook events to `webhook_events` table** -- for audit trail (body hash + timestamp, not full payload).
+
+**No new packages needed.** The Resend SDK `^6.9.1` already includes `webhooks.verify()`. The svix package is bundled internally within the Resend SDK.
+
+### 5. Driver Simplification (Phase 6)
+
+**What's needed:** Simple mode toggle, confirmation dialogs, one-tap contact.
+
+| Capability | Technology | Pattern | Reference |
+|---|---|---|---|
+| Simple mode preference | Zustand store + localStorage | Same pattern as theme/sound prefs | `src/lib/hooks/useSoundPreference.ts` |
+| Confirmation dialogs | Radix AlertDialog | Already used for destructive actions | `@radix-ui/react-alert-dialog` |
+| One-tap phone/text | Native `tel:` / `sms:` links | HTML anchor with `href="tel:+1..."` | Standard mobile web |
+| Offline route data | idb-keyval | Already used for cart persistence | `src/stores/cart-store.ts` |
+| Conditional UI rendering | React conditional rendering | `{!simpleMode && <ComplexComponent />}` | Standard pattern |
+
+**Simple mode store:**
+
+```typescript
+// src/stores/driver-prefs-store.ts
+import { create } from 'zustand';
+import { persist, createJSONStorage } from 'zustand/middleware';
+
+interface DriverPrefs {
+  simpleMode: boolean;
+  toggleSimpleMode: () => void;
 }
 
-export const config = {
-  matcher: [
+export const useDriverPrefsStore = create<DriverPrefs>()(
+  persist(
+    (set) => ({
+      simpleMode: false,
+      toggleSimpleMode: () => set((state) => ({ simpleMode: !state.simpleMode })),
+    }),
     {
-      source: "/((?!api|_next/static|_next/image|favicon.ico|icons|fonts|monitoring|sw.js).*)",
-      missing: [
-        { type: "header", key: "next-router-prefetch" },
-        { type: "header", key: "purpose", value: "prefetch" },
-      ],
-    },
-  ],
-};
+      name: 'driver-prefs',
+      storage: createJSONStorage(() => localStorage),
+    }
+  )
+);
 ```
 
-**Note:** The Sentry tunnel route (`/monitoring`) is excluded from the matcher so CSP does not interfere with error reporting. The `/sw.js` service worker file is also excluded.
+**No new packages needed.** Zustand with localStorage persistence handles the toggle. idb-keyval handles offline route caching (same as cart).
 
----
+### 6. Critical Bug Fixes (Phase 0)
 
-## Existing Dependencies (Already Installed, No Changes)
+**What's needed:** TOCTOU fix, cutoff logic, cart race condition.
 
-### Driver Dashboards & Scheduling
+| Bug | Technology | Pattern |
+|---|---|---|
+| Checkout TOCTOU cleanup | Supabase `.in()` operator | Replace `.eq()` with `.in()` for batch cleanup |
+| `isPastCutoff()` fix | date-fns `isBefore`/`isAfter` | Full datetime comparison, not just hour |
+| Cart debounce race | Zustand + timestamp dedup | Add `lastModified` timestamp to cart items |
+| Time window validation | Zod `.refine()` | Validate against `TIME_WINDOWS` list |
 
-| Technology               | Installed Version | v1.8 Usage                                                         | Notes                                                                                                     |
-| ------------------------ | ----------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------- |
-| recharts                 | 3.6.0             | Earnings charts (BarChart, LineChart, AreaChart), route stats      | Already used for admin analytics. Extend to driver earnings dashboard. ResponsiveContainer for mobile.    |
-| date-fns                 | 4.1.0             | Availability scheduling date math, route date formatting           | Already used across the app. `format`, `startOfWeek`, `eachDayOfInterval`, `isSameDay` for scheduling UI. |
-| @radix-ui/react-select   | 2.2.6             | Vehicle type, time slot, availability day pickers                  | Already installed. Use for driver profile setup selects.                                                  |
-| @radix-ui/react-checkbox | 1.3.2             | Availability day toggles                                           | Already installed.                                                                                        |
-| @radix-ui/react-dialog   | 1.1.15            | Profile setup, earnings detail modals                              | Already installed.                                                                                        |
-| react-hook-form + zod    | 7.71.1 / 4.3.5    | Driver profile form, availability form validation                  | Already installed. Add driver-specific schemas to `src/lib/validations/`.                                 |
-| framer-motion            | 12.26.1           | Dashboard card animations, earnings chart entry animations         | Already installed. Use `m.*` components (LazyMotion strict mode).                                         |
-| @react-google-maps/api   | 2.20.8            | Route history map visualization, planned route preview             | Already installed. Used in tracking page. Extend to driver route history view.                            |
-| lucide-react             | 0.562.0           | Dashboard icons (DollarSign, Clock, MapPin, Star, Calendar, Truck) | Already installed.                                                                                        |
-| @supabase/supabase-js    | 2.90.1            | All database queries for driver data                               | Already installed. No version change needed.                                                              |
-
-### Supabase RLS Audit
-
-| Technology                        | Version | v1.8 Usage                                                             | Notes                                                                 |
-| --------------------------------- | ------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------- |
-| @supabase/supabase-js             | 2.90.1  | RLS policy testing via client SDK (not SQL Editor, which bypasses RLS) | Already installed.                                                    |
-| Existing `rls-isolation-test.mjs` | n/a     | Extend existing test script to cover all 24 tables                     | Script exists at `scripts/rls-isolation-test.mjs`. Expand test cases. |
-
-### Role-Based Redirects
-
-No new dependencies. Implementation in:
-
-1. `src/proxy.ts` -- check auth session, redirect based on `user_metadata.role`
-2. `src/app/auth/callback/route.ts` -- already handles driver invite flow, extend with role-based `next` parameter
-
----
-
-## Supabase RLS Audit Scope
-
-**All tables with RLS enabled (24 total):**
-
-| Table                  | RLS Status | Policy Quality                                                              | Audit Priority |
-| ---------------------- | ---------- | --------------------------------------------------------------------------- | -------------- |
-| profiles               | Enabled    | Good -- uses `(select auth.uid())` initplan                                 | LOW            |
-| addresses              | Enabled    | Good -- user_id scoped                                                      | LOW            |
-| menu_categories        | Enabled    | Good -- public read, admin write                                            | LOW            |
-| menu_items             | Enabled    | Good -- public read, admin write                                            | LOW            |
-| modifier_groups        | Enabled    | Good -- public read, admin write                                            | LOW            |
-| modifier_options       | Enabled    | Good -- public read, admin write                                            | LOW            |
-| item_modifier_groups   | Enabled    | Good -- public read, admin write                                            | LOW            |
-| orders                 | Enabled    | Check -- no driver SELECT policy (drivers need to see assigned orders)      | HIGH           |
-| order_items            | Enabled    | Good -- JOIN-based access                                                   | LOW            |
-| order_item_modifiers   | Enabled    | Good -- nested JOIN access                                                  | LOW            |
-| drivers                | Enabled    | Good -- user_id + admin scoped                                              | LOW            |
-| routes                 | Enabled    | Good -- uses `get_my_driver_id()`                                           | LOW            |
-| route_stops            | Enabled    | Good -- complex multi-role access                                           | LOW            |
-| location_updates       | Enabled    | Good -- driver + customer access via routes                                 | LOW            |
-| delivery_exceptions    | Enabled    | Good -- driver via route, admin access                                      | LOW            |
-| notification_logs      | Enabled    | Good -- user_id + admin                                                     | LOW            |
-| driver_ratings         | Enabled    | Good -- multi-role with delivered check                                     | LOW            |
-| featured_sections      | Enabled    | Check policy patterns                                                       | MEDIUM         |
-| featured_section_items | Enabled    | Check policy patterns                                                       | MEDIUM         |
-| app_settings           | Enabled    | Check -- should be admin-only read/write                                    | MEDIUM         |
-| order_audit_log        | Enabled    | Check -- uses `profiles.role = 'admin'` instead of `is_admin()` function    | HIGH           |
-| driver_invites         | Enabled    | Check -- multiple RLS fix migrations (014, 016, 017, 018) suggest fragility | HIGH           |
-| customer_settings      | Enabled    | Good -- user_id scoped, uses `(SELECT auth.uid())`                          | LOW            |
-| webhook_events         | Enabled    | Good -- no policies = service_role only                                     | LOW            |
-
-**Key findings:**
-
-- `order_audit_log` uses raw `profiles.role = 'admin'` instead of the `is_admin()` security function -- inconsistent with other tables
-- `driver_invites` has had 4 RLS fix migrations, suggesting the policies are fragile and need consolidation
-- `orders` table lacks driver SELECT access -- drivers currently use API routes with service role, but direct access would be cleaner
-- All original tables (002_rls_policies.sql) use proper `(select auth.uid())` initplan optimization
+**No new packages needed.** All fixes use existing Supabase client, date-fns, Zustand, and Zod.
 
 ---
 
 ## Alternatives Considered
 
-| Recommended                         | Alternative                     | When to Use Alternative                                                                                                                        |
-| ----------------------------------- | ------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| @upstash/redis + @upstash/ratelimit | Redis Cloud / self-hosted Redis | If you need >500K commands/month free tier; or if you want connection pooling for non-serverless environments                                  |
-| Non-nonce CSP via proxy.ts          | Nonce-based CSP via proxy.ts    | If app moves to 100% dynamic rendering; if `'unsafe-inline'` is unacceptable for compliance                                                    |
-| proxy.ts for security headers       | next.config.ts `headers()` only | For simpler CSP without request-time logic; current `headers()` approach works but proxy.ts enables future middleware logic (auth redirects)   |
-| Sliding window rate limit           | Token bucket                    | If you need to allow short bursts while enforcing average rate; token bucket is regional-only in Upstash                                       |
-| Recharts (existing) for earnings    | Victory, Nivo, Tremor           | Only if Recharts proves insufficient for specific chart types; Recharts is already installed and used for admin analytics, consistency matters |
-| date-fns (existing) for scheduling  | Temporal API, Day.js            | date-fns already pervasive in codebase; Temporal is not yet stable in all runtimes; Day.js adds unnecessary second date library                |
+| Recommended | Alternative | Why Not |
+|---|---|---|
+| React Query polling (5s) for ops dashboard | Supabase Realtime subscriptions | Realtime adds admin RLS complexity. At 20-50 orders, 5s polling is indistinguishable from real-time. Revisit at 100+ orders/week. |
+| Click-to-assign route UI | Drag-and-drop (`@dnd-kit`) | At 2-4 drivers and 5-10 stops, click-to-assign is faster. DnD adds ~15KB bundle + touch device complexity. |
+| In-memory settings cache | Upstash Redis cache / `unstable_cache` | Warm serverless instances cache in-memory. Settings change <1x/week. Redis adds network hop for negligible benefit. |
+| Resend SDK `webhooks.verify()` | Separate `svix` package (v1.84.1) | Resend SDK bundles svix internally. Adding svix separately is redundant. |
+| Zustand localStorage for simple mode | Supabase `drivers` table column | Simple mode is device-specific preference (this phone is simple, laptop is normal). localStorage is correct scope. |
+| `tel:` / `sms:` HTML links for driver contact | Twilio / SendGrid for SMS | At 20-50 orders with family drivers, native phone/text links are sufficient. Twilio is for automated notifications at scale. |
 
 ---
 
 ## What NOT to Use
 
-| Avoid                                                           | Why                                                                                            | Use Instead                                                                                                  |
-| --------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| `@vercel/kv`                                                    | Deprecated December 2024, replaced by Upstash Redis via Marketplace                            | `@upstash/redis` directly                                                                                    |
-| `middleware.ts`                                                 | Deprecated in Next.js 16, renamed to `proxy.ts`                                                | `proxy.ts` with `export function proxy()`                                                                    |
-| Nonce-based CSP                                                 | Forces dynamic rendering on ALL pages, kills CDN caching, regresses LCP                        | Non-nonce CSP with domain allowlisting                                                                       |
-| `next-safe` / `@next-safe/middleware`                           | Third-party wrapper around CSP headers, adds dependency for what's 20 lines of code            | Direct CSP header string in proxy.ts                                                                         |
-| `express-rate-limit` / `rate-limiter-flexible`                  | Designed for persistent servers, not serverless. In-memory stores reset on cold starts.        | @upstash/ratelimit (serverless-native)                                                                       |
-| `ioredis` / `redis` (node-redis)                                | Require persistent TCP connections, incompatible with Vercel serverless                        | @upstash/redis (HTTP-based, connectionless)                                                                  |
-| pgTAP for RLS testing                                           | Requires Supabase CLI local dev setup (Docker), adds complexity for what can be tested via SDK | Extend existing `rls-isolation-test.mjs` script + Vitest tests hitting Supabase with different auth contexts |
-| Separate scheduling library (react-big-calendar, @fullcalendar) | Overkill for simple weekly availability toggling                                               | Custom UI with Radix checkboxes + date-fns for day-of-week logic                                             |
+| Avoid | Why | Use Instead |
+|---|---|---|
+| `@dnd-kit` or `react-beautiful-dnd` | Overkill for 5-10 stops. Adds 15-30KB. Touch device bugs. | Click-to-assign + up/down reorder buttons |
+| `svix` npm package | Resend SDK v6.9+ includes `webhooks.verify()` internally | `resend.webhooks.verify()` |
+| `socket.io` or custom WebSocket | Supabase Realtime already handles WebSocket. Custom adds ops burden. | Supabase Realtime or React Query polling |
+| `node-cron` or `cron` package | Vercel has native cron via `vercel.json`. Already using `/api/cron/delivery-reminders`. | Vercel Cron Jobs |
+| Any state management beyond Zustand | Redux, Jotai, Recoil -- already committed to Zustand. Adding another creates split. | Zustand for all client state |
+| `react-table` or `@tanstack/react-table` | Admin tables are simple enough with native `<table>`. Adding a table library for 20-50 rows is overhead. | Native HTML tables with Tailwind styling |
+| Server Actions for mutations | Project uses API routes consistently. Mixing patterns creates confusion. | Next.js API routes (`src/app/api/`) |
+| `pusher` or `ably` for real-time | Already using Supabase Realtime (included free). Third-party adds cost + dependency. | Supabase Realtime (when needed) or polling |
 
 ---
 
 ## Version Compatibility
 
-| Package A                | Compatible With                  | Notes                                                       |
-| ------------------------ | -------------------------------- | ----------------------------------------------------------- |
-| @upstash/ratelimit@2.0.8 | @upstash/redis@1.36.2            | ratelimit requires redis as peer dependency                 |
-| @upstash/redis@1.36.2    | Next.js 16.1.2 (Node.js runtime) | HTTP-based, works in serverless and proxy.ts                |
-| proxy.ts                 | Next.js >= 16.0.0                | Renamed from middleware.ts; uses Node.js runtime (not Edge) |
-| Recharts 3.6.0           | React 19.2.3                     | Already working in production for admin analytics           |
+| Package | Current Version | Compatible With | Notes |
+|---|---|---|---|
+| resend@^6.9.1 | 6.9.3 (latest) | `webhooks.verify()` available | Bump to ^6.9.3 for latest fixes, but ^6.9.1 range already covers it |
+| @supabase/supabase-js@^2.90.1 | Installed | Realtime postgres_changes | Already using in `useTrackingSubscription` |
+| zod@^4.3.5 | Installed | Zod 4 API (`.error` param, not `.message`) | Already migrated from v3 |
+| @tanstack/react-query@^5.90.1 | 5.90.21 (latest) | `refetchInterval` for polling | ^5.90.1 range covers latest |
+| zustand@^5.0.10 | Installed | `persist` middleware with localStorage | Already using for cart |
+| date-fns@^4.1.0 | Installed | `differenceInSeconds`, `isBefore`, `isAfter` | Already pervasive in codebase |
+
+**No version bumps required.** All existing `^` ranges cover the latest patch versions.
 
 ---
 
-## Infrastructure Setup
+## Database Changes (No npm packages, SQL only)
 
-### Upstash Redis via Vercel Marketplace
+These are schema changes needed in Supabase, not npm packages:
 
-1. Go to Vercel Dashboard > project > Storage > Browse Marketplace
-2. Select "Upstash Redis"
-3. Create database (select US region for LA-based service)
-4. Link to project -- auto-sets `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
-5. For local dev: copy env vars to `.env.local`
+| Change | Table | Purpose |
+|---|---|---|
+| Add `retry_count` column | `notification_logs` | Track email retry attempts |
+| Add new setting rows | `app_settings` | `cutoff_day`, `cutoff_hour`, `delivery_fee_cents`, etc. |
+| Add admin SELECT policy | `orders` | If using Supabase Realtime for ops dashboard (optional) |
+| Add indexes | `orders(status)`, `orders(delivery_date)`, `notification_logs(order_id)` | Performance at scale |
+| Add `simple_mode` column | `drivers` | Optional: server-side toggle sync (or use localStorage only) |
 
-**Free tier limits (sufficient for Morning Star):**
+---
 
-- 500K commands/month
-- 100GB storage
-- 200GB bandwidth/month
-- Single region (US)
+## Integration Points
 
-**Estimated usage:** Auth rate limiting + API rate limiting for ~100 users = <10K commands/month. Well within free tier.
+### How New Features Connect to Existing Code
+
+```
+Ops Dashboard
+  reads from: /api/admin/orders (existing)
+  extends: add ?status= filter, add bulk PATCH endpoint
+  uses: React Query polling, Radix Checkbox, Recharts PieChart
+
+Route Assignment
+  reads from: /api/admin/routes (existing), /api/admin/drivers (existing)
+  extends: add POST /api/admin/routes with order assignment
+  uses: Radix Select, Google Maps, React Hook Form
+
+Configurable Settings
+  reads from: /api/admin/settings (existing)
+  extends: add new keys to validation schema + settings form
+  replaces: hardcoded constants in src/types/cart.ts, src/types/delivery.ts
+  uses: React Hook Form, Zod, existing settings page
+
+Email Reliability
+  reads from: /api/admin/emails (existing), /api/webhooks/resend (existing)
+  extends: add svix verification, add retry_count tracking
+  uses: Resend SDK webhooks.verify(), existing notification_logs table
+
+Driver Simple Mode
+  reads from: Zustand localStorage store (new)
+  extends: existing driver pages conditionally render based on simpleMode
+  uses: Zustand persist, Radix AlertDialog, idb-keyval
+```
+
+---
+
+## Installation
+
+```bash
+# No new packages to install.
+# All v1.9 features use existing dependencies.
+
+# Verify current installation is up to date:
+pnpm install
+```
 
 ---
 
 ## Sources
 
-- [Next.js CSP Guide](https://nextjs.org/docs/app/guides/content-security-policy) -- official docs, last updated 2026-02-11, verified proxy.ts approach (HIGH confidence)
-- [Next.js proxy.ts File Convention](https://nextjs.org/docs/app/api-reference/file-conventions/proxy) -- official docs for middleware-to-proxy migration (HIGH confidence)
-- [Upstash Ratelimit Getting Started](https://upstash.com/docs/redis/sdks/ratelimit-ts/gettingstarted) -- official docs, sliding window usage pattern (HIGH confidence)
-- [Upstash Ratelimit Algorithms](https://upstash.com/docs/redis/sdks/ratelimit-ts/algorithms) -- fixed window, sliding window, token bucket details (HIGH confidence)
-- [Upstash Pricing](https://upstash.com/pricing/redis) -- free tier 500K commands/month confirmed (HIGH confidence)
-- [Vercel Redis Marketplace](https://vercel.com/docs/redis) -- Vercel KV deprecated, Upstash is official replacement (HIGH confidence)
-- [Sentry CSP Configuration](https://docs.sentry.io/platforms/javascript/guides/nextjs/security-policy-reporting/) -- connect-src domain for `*.ingest.us.sentry.io` (HIGH confidence)
-- [Supabase RLS Best Practices](https://supabase.com/docs/guides/troubleshooting/rls-performance-and-best-practices-Z5Jjwv) -- index columns in RLS policies, test via SDK not SQL Editor (HIGH confidence)
-- [@upstash/ratelimit npm](https://www.npmjs.com/package/@upstash/ratelimit) -- version 2.0.8 (MEDIUM confidence, npm page 403'd, version from search results)
-- [@upstash/redis npm](https://www.npmjs.com/package/@upstash/redis) -- version 1.36.2 (MEDIUM confidence, from search results)
+- [Resend Webhook Verification](https://resend.com/docs/dashboard/webhooks/verify-webhooks-requests) -- confirms `resend.webhooks.verify()` available in SDK (HIGH confidence)
+- [Resend npm](https://www.npmjs.com/package/resend) -- v6.9.3 latest, ^6.9.1 range compatible (HIGH confidence)
+- [Supabase Realtime Postgres Changes](https://supabase.com/docs/guides/realtime/postgres-changes) -- channel subscription patterns (HIGH confidence)
+- [Svix npm](https://www.npmjs.com/package/svix) -- v1.84.1 latest, but NOT needed separately (HIGH confidence)
+- [Zod v4 Release Notes](https://zod.dev/v4) -- confirms v4 API compatibility (HIGH confidence)
+- [TanStack React Query](https://tanstack.com/query/latest) -- v5.90.x `refetchInterval` for polling (HIGH confidence)
+- Codebase analysis of existing patterns: `useTrackingSubscription.ts`, `send.ts`, `settings/route.ts`, `resend/route.ts` (HIGH confidence)
 
 ---
 
-_Stack research for: v1.8 Post-Launch Hardening & Driver Experience_
-_Researched: 2026-02-16_
+*Stack research for: v1.9 Launch-Ready MVP*
+*Researched: 2026-03-01*
