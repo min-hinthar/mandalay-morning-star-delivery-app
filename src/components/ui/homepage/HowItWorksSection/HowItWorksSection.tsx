@@ -67,7 +67,7 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
     >
       {/* Background Image */}
       <Image
-        src="/images/sunset_ubein.png"
+        src="/images/sunset_ubein.webp"
         alt="U Bein Bridge sunset"
         fill
         sizes="100vw"

@@ -69,3 +69,7 @@ nul
 .claude/settings.local.json
 .claude/session-logs/
 storybook-static
+
+# test artifacts
+contrast-audit-output.txt
+e2e/__snapshots__/
