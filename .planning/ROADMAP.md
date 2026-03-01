@@ -83,13 +83,13 @@
 ### Phase 78: Configurable Business Rules
 **Goal**: Operator changes delivery fee, cutoff time, and delivery hours from admin settings without a code deploy
 **Depends on**: Phase 77 (bug fixes stabilize cutoff logic that settings will control)
-**Requirements**: RULES-01, RULES-02, RULES-03, RULES-04, RULES-05, RULES-06, RULES-07, RULES-08, RULES-09, RULES-10
+**Requirements**: RULES-01, RULES-02, RULES-03, RULES-04, RULES-05, RULES-06, RULES-07, RULES-08, RULES-10
 **Success Criteria** (what must be TRUE):
   1. Admin can edit cutoff day/hour, delivery fee, free delivery threshold, delivery hours, and radius from a single settings page
-  2. Customer-facing pages (menu banner, cart, checkout, hero) display the configured delivery fee and cutoff time -- not hardcoded values
-  3. Ops dashboard countdown timers use the configured cutoff and delivery start times
-  4. Changes take effect on the next page load without a deploy (verified by changing a value and refreshing)
-  5. Invalid settings are rejected with clear validation errors (e.g., cutoff_hour outside 0-23)
+  2. Customer-facing pages (menu banner, cart, checkout, hero, order confirmation) display the configured delivery fee and cutoff time -- not hardcoded values
+  3. Changes take effect on the next page load without a deploy (verified by changing a value and refreshing)
+  4. Invalid settings are rejected with clear validation errors (e.g., cutoff_hour outside 0-23)
+  _Note: RULES-09 (ops countdown timers) deferred to Phase 79 where the ops dashboard is built._
 **Plans**: 4 plans
 Plans:
 - [ ] 78-01-PLAN.md -- Foundation: settings library, migration, schema extension, cache invalidation
