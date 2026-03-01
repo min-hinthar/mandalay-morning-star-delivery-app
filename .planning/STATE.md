@@ -8,7 +8,7 @@ progress:
   total_phases: 84
   completed_phases: 77
   total_plans: 321
-  completed_plans: 318
+  completed_plans: 319
 ---
 
 # Project State
@@ -23,10 +23,10 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 78 of 84 (Configurable Business Rules) -- IN PROGRESS
-Plan: 1 of 4 in Phase 78
+Plan: 2 of 4 in Phase 78
 Milestone: v1.9 Launch-Ready MVP (8 phases, 49 requirements)
-Status: Phase 78 Plan 01 complete, ready for Plan 02
-Last activity: 2026-03-01 -- Phase 78 Plan 01 executed (business rules foundation)
+Status: Phase 78 Plan 02 complete, ready for Plan 03
+Last activity: 2026-03-01 -- Phase 78 Plan 02 executed (server-side consumer migration)
 
 Progress: [=========================.........] 77/84 phases
 
@@ -52,8 +52,8 @@ Progress: [=========================.........] 77/84 phases
 | v1.7           | 9      | 32    | 3 days   |
 | v1.8           | 8      | 23    | 3 days   |
 | v1.8 Gap Close | 2      | 2     | <1 day   |
-| v1.9 (partial) | 2      | 6     | <1 day   |
-| **Total**      | **78** | **318** | **30 days** |
+| v1.9 (partial) | 2      | 7     | <1 day   |
+| **Total**      | **78** | **319** | **30 days** |
 
 ## Accumulated Context
 
@@ -70,6 +70,8 @@ Progress: [=========================.........] 77/84 phases
 - v1.9 P78: unstable_cache + tag-based invalidation for business rules settings reader
 - v1.9 P78: Base schema + refine separation for Zod partial validation compatibility
 - v1.9 P78: revalidateTag({ expire: 0 }) profile for Next.js 16 route handler context
+- v1.9 P78: Optional params with defaults for backward-compatible parameterization migration
+- v1.9 P78: TIME_WINDOWS validation moved from Zod schema to route handler for dynamic generation
 
 ### Pending Todos
 
@@ -89,5 +91,5 @@ Progress: [=========================.........] 77/84 phases
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Phase 78 Plan 01 (Business Rules Foundation) complete -- settings reader, time windows, migration, cache invalidation
-Next action: `/gsd:execute-phase 78` -- continue with Plan 02
+Stopped at: Phase 78 Plan 02 (Server-Side Consumer Migration) complete -- parameterized utils, checkout wired to getBusinessRules()
+Next action: `/gsd:execute-phase 78` -- continue with Plan 03
