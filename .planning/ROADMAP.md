@@ -178,7 +178,7 @@ Phases 82 and 83 are independent of each other and can execute after Phase 80 in
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 77. Critical Bug Fixes | v1.9 | 5/5 | Complete | 2026-03-01 |
-| 78. Configurable Business Rules | 2/4 | In Progress|  | - |
+| 78. Configurable Business Rules | 3/4 | In Progress|  | - |
 | 79. Saturday Ops Dashboard | v1.9 | 0/TBD | Not started | - |
 | 80. Route & Driver Assignment | v1.9 | 0/TBD | Not started | - |
 | 81. Customer Pre-Checkout Gate | v1.9 | 0/TBD | Not started | - |
