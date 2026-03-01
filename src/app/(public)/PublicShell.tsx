@@ -3,27 +3,28 @@
 import type { ReactNode } from "react";
 import { CartOverlays } from "@/components/ui/cart/CartOverlays";
 import { DeliverySettingsSync } from "@/components/ui/cart/DeliverySettingsSync";
-import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
+import { SiteFooter } from "@/components/ui/homepage/SiteFooter";
 
-interface CustomerShellProps {
+interface PublicShellProps {
   children: ReactNode;
   deliveryFeeCents: number;
   freeDeliveryThresholdCents: number;
 }
 
-export function CustomerShell({
+export function PublicShell({
   children,
   deliveryFeeCents,
   freeDeliveryThresholdCents,
-}: CustomerShellProps) {
+}: PublicShellProps) {
   return (
-    <DomMaxProvider>
+    <>
       <DeliverySettingsSync
         deliveryFeeCents={deliveryFeeCents}
         freeDeliveryThresholdCents={freeDeliveryThresholdCents}
       />
       {children}
+      <SiteFooter />
       <CartOverlays />
-    </DomMaxProvider>
+    </>
   );
 }

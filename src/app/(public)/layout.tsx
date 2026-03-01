@@ -1,15 +1,16 @@
-"use client";
-
 import type { ReactNode } from "react";
-import { CartOverlays } from "@/components/ui/cart/CartOverlays";
-import { SiteFooter } from "@/components/ui/homepage/SiteFooter";
+import { getBusinessRules } from "@/lib/settings";
+import { PublicShell } from "./PublicShell";
 
-export default function PublicLayout({ children }: { children: ReactNode }) {
+export default async function PublicLayout({ children }: { children: ReactNode }) {
+  const rules = await getBusinessRules();
+
   return (
-    <>
+    <PublicShell
+      deliveryFeeCents={rules.deliveryFeeCents}
+      freeDeliveryThresholdCents={rules.freeDeliveryThresholdCents}
+    >
       {children}
-      <SiteFooter />
-      <CartOverlays />
-    </>
+    </PublicShell>
   );
 }

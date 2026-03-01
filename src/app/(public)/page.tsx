@@ -1,6 +1,7 @@
 import type { ReactElement } from "react";
 import { Suspense, lazy } from "react";
 import { getFeaturedSections } from "@/lib/queries/sections";
+import { getBusinessRules } from "@/lib/settings";
 import { HomePageWrapper } from "@/components/ui/homepage/HomePageWrapper";
 import { HomepageMenuSection } from "@/components/ui/homepage/HomepageMenuSection";
 import { Hero } from "@/components/ui/homepage/Hero";
@@ -92,9 +93,10 @@ function MenuSection({ featuredSections }: { featuredSections: FeaturedSectionWi
 // ============================================
 
 export default async function HomePage(): Promise<ReactElement> {
-  // Fetch featured sections at page level (server-side data fetching)
-  // Gracefully degrade to empty sections if Supabase is unavailable (e.g., CI)
+  // Fetch business rules and featured sections in parallel
+  // Gracefully degrade if Supabase is unavailable (e.g., CI)
   let featuredSections: FeaturedSectionWithItems[] = [];
+  const rules = await getBusinessRules();
   try {
     featuredSections = await getFeaturedSections();
   } catch {
@@ -105,8 +107,14 @@ export default async function HomePage(): Promise<ReactElement> {
     <div className="min-h-screen bg-background">
       {/* HomePageWrapper provides SectionNavDots (scroll spy) */}
       <HomePageWrapper>
-        {/* Hero Section - client component (animations tightly coupled) */}
-        <Hero ctaHref="/menu" />
+        {/* Hero Section - client component with server-fetched business rules */}
+        <Hero
+          ctaHref="/menu"
+          deliveryFeeCents={rules.deliveryFeeCents}
+          freeDeliveryThresholdCents={rules.freeDeliveryThresholdCents}
+          cutoffDay={rules.cutoffDay}
+          cutoffHour={rules.cutoffHour}
+        />
 
         {/* Settings Nudge Banner - client component (auth check, inline saves) */}
         <SettingsNudgeBanner />
