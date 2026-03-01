@@ -92,7 +92,11 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
           items: items.map((item) => ({
             menuItemId: item.menuItemId,
             quantity: item.quantity,
-            modifiers: item.modifiers.map((m) => ({ optionId: m.optionId })),
+            basePriceCents: item.basePriceCents,
+            modifiers: item.modifiers.map((m) => ({
+              optionId: m.optionId,
+              priceDeltaCents: m.priceDeltaCents,
+            })),
             notes: item.notes || undefined,
           })),
           customerNotes: customerNotes || undefined,
