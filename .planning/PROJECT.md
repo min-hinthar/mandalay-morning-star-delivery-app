@@ -88,15 +88,48 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 
 ### Active
 
-_(No active milestone — ready for v1.9+ planning)_
+**v1.9 Launch-Ready MVP** — Production-ready for real Saturday operations (20-50 orders/Sat, family/friend drivers)
+
+- [ ] Fix checkout TOCTOU cleanup, cutoff logic, cart race condition
+- [ ] Saturday Ops Dashboard with bulk operations and status counts
+- [ ] Route & driver assignment from visual dashboard
+- [ ] Customer pre-checkout gate with Saturday-only messaging
+- [ ] Configurable business rules via admin settings (no deploy)
+- [ ] Email reliability with failure tracking and retry
+- [ ] Driver simplification mode for non-technical family members
+- [ ] Production hardening (rate limits, N+1 fixes, indexes)
 
 ### Out of Scope
 
-- Backend/schema changes — Supabase + Stripe contracts stay stable
+- Real-time GPS map for customers — text status updates suffice at 20-50 orders
+- Driver gamification/badges — family drivers don't need this
+- Advanced analytics dashboards — simple counts + revenue enough
+- Route optimization algorithm — manual assignment fine at 2-4 drivers
+- Push notifications via service worker — email + text covers it
+- Customer loyalty/referral system — get first 50 regulars first
+- Multi-admin role system — solo operator for now
+- WCAG 2.1 AA compliance — deferred from original v1.9 plan
+- Internationalization (Myanmar/English) — deferred from original v1.9 plan
+- Storybook/Chromatic visual regression — deferred from original v1.9 plan
 - Multi-restaurant marketplace — not part of Morning Star scope
-- Real-time subscriptions — current REST pattern sufficient for launch
 - Docker/Kubernetes — Vercel is serverless; containerization adds zero value
-- Multi-region deployment — single US region fine for LA-based service
+
+## Current Milestone: v1.9 Launch-Ready MVP
+
+**Goal:** Production-ready for real Saturday operations — solo operator triaging 20-50 orders with family/friend drivers.
+
+**Target features:**
+- Critical bug fixes (checkout TOCTOU, cutoff logic, cart debounce race)
+- Saturday Ops Dashboard (bulk status changes, countdown timers, unassigned badge)
+- Route & Driver Assignment (visual dashboard, one-click routes)
+- Customer Pre-Checkout Gate (Saturday messaging, cutoff modal)
+- Configurable Business Rules (admin settings table, no deploys)
+- Email Reliability (failure tracking, retry, webhook audit)
+- Driver Simplification (simple mode toggle, confirmation dialogs)
+- Production Hardening (rate limits, N+1 queries, indexes)
+
+**Context:** Staging → Live | Solo operator | 20-50 orders/Sat | Family/friend drivers
+**Duration:** 10 weeks | Start: March 2026
 
 ## Context
 
@@ -185,4 +218,4 @@ _(No active milestone — ready for v1.9+ planning)_
 
 ---
 
-_Last updated: 2026-02-26 after v1.8 gap closure_
+_Last updated: 2026-03-01 after v1.9 Launch-Ready MVP milestone start_
