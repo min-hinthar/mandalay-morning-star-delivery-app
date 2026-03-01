@@ -1,8 +1,8 @@
 import { useMemo, useState } from "react";
-import { TIME_WINDOWS, type DeliverySelection, type TimeWindow } from "@/types/delivery";
+import type { DeliverySelection, TimeWindow } from "@/types/delivery";
 import { getDeliveryDate } from "@/lib/utils/delivery-dates";
 
-export function useTimeSlot() {
+export function useTimeSlot(timeWindows: TimeWindow[]) {
   const [selectedWindow, setSelectedWindow] = useState<TimeWindow | null>(null);
   const deliveryDate = useMemo(() => getDeliveryDate(), []);
 
@@ -20,6 +20,6 @@ export function useTimeSlot() {
     selection,
     deliveryDate,
     isValid: selectedWindow !== null,
-    windows: TIME_WINDOWS,
+    windows: timeWindows,
   };
 }

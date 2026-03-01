@@ -20,7 +20,6 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { formatPrice } from "@/lib/utils/format";
-import { FREE_DELIVERY_THRESHOLD_CENTS } from "@/types/cart";
 
 // ============================================
 // TYPES
@@ -50,13 +49,19 @@ const summaryRowVariants = {
 
 export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
-  const { items, itemsSubtotal, estimatedDeliveryFee, estimatedTotal, amountToFreeDelivery } =
-    useCart();
+  const {
+    items,
+    itemsSubtotal,
+    estimatedDeliveryFee,
+    estimatedTotal,
+    amountToFreeDelivery,
+    freeDeliveryThresholdCents,
+  } = useCart();
 
   // Calculate progress percentage toward free delivery
   const progressPercent = Math.min(
     100,
-    ((FREE_DELIVERY_THRESHOLD_CENTS - amountToFreeDelivery) / FREE_DELIVERY_THRESHOLD_CENTS) * 100
+    ((freeDeliveryThresholdCents - amountToFreeDelivery) / freeDeliveryThresholdCents) * 100
   );
 
   const hasFreeDelivery = amountToFreeDelivery <= 0;

@@ -1,5 +1,9 @@
 import { useCartStore, __clearDebounceState } from "@/lib/stores/cart-store";
-import { DELIVERY_FEE_CENTS, FREE_DELIVERY_THRESHOLD_CENTS, MAX_ITEM_QUANTITY } from "@/types/cart";
+import { MAX_ITEM_QUANTITY } from "@/types/cart";
+
+// Use literal values matching defaults (same as DB seed values)
+const DELIVERY_FEE = 1500;
+const FREE_DELIVERY_THRESHOLD = 10000;
 
 const baseItem = {
   menuItemId: "item-1",
@@ -18,6 +22,8 @@ describe("CartStore", () => {
     useCartStore.getState().clearCart();
     useCartStore.persist.clearStorage?.();
     __clearDebounceState(); // Reset debounce tracking between tests
+    // Initialize delivery settings to match defaults
+    useCartStore.getState().setDeliverySettings(DELIVERY_FEE, FREE_DELIVERY_THRESHOLD);
   });
 
   describe("addItem", () => {
@@ -66,18 +72,37 @@ describe("CartStore", () => {
       const store = useCartStore.getState();
       store.addItem({
         ...baseItem,
-        basePriceCents: FREE_DELIVERY_THRESHOLD_CENTS - 1,
+        basePriceCents: FREE_DELIVERY_THRESHOLD - 1,
       });
 
-      expect(store.getEstimatedDeliveryFee()).toBe(DELIVERY_FEE_CENTS);
+      expect(store.getEstimatedDeliveryFee()).toBe(DELIVERY_FEE);
     });
 
     it("returns zero when at or above threshold", () => {
       const store = useCartStore.getState();
       store.addItem({
         ...baseItem,
-        basePriceCents: FREE_DELIVERY_THRESHOLD_CENTS,
+        basePriceCents: FREE_DELIVERY_THRESHOLD,
       });
+
+      expect(store.getEstimatedDeliveryFee()).toBe(0);
+    });
+  });
+
+  describe("setDeliverySettings", () => {
+    it("updates delivery fee and threshold", () => {
+      const store = useCartStore.getState();
+      store.setDeliverySettings(2000, 15000);
+
+      const updated = useCartStore.getState();
+      expect(updated.deliveryFeeCents).toBe(2000);
+      expect(updated.freeDeliveryThresholdCents).toBe(15000);
+    });
+
+    it("uses updated settings in fee calculation", () => {
+      const store = useCartStore.getState();
+      store.setDeliverySettings(2000, 5000);
+      store.addItem({ ...baseItem, basePriceCents: 5000 });
 
       expect(store.getEstimatedDeliveryFee()).toBe(0);
     });

@@ -1,11 +1,11 @@
 import { useMemo } from "react";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { formatPrice } from "@/lib/utils/format";
-import { FREE_DELIVERY_THRESHOLD_CENTS } from "@/types/cart";
 
 export function useCart() {
   // Get items array directly - this is the source of truth for reactivity
   const items = useCartStore((state) => state.items);
+  const freeDeliveryThresholdCents = useCartStore((state) => state.freeDeliveryThresholdCents);
 
   // Get stable action references (Zustand action selectors are stable)
   const addItem = useCartStore((state) => state.addItem);
@@ -50,7 +50,8 @@ export function useCart() {
       formattedDeliveryFee: formatPrice(estimatedDeliveryFee),
       formattedTotal: formatPrice(estimatedTotal),
 
-      amountToFreeDelivery: Math.max(0, FREE_DELIVERY_THRESHOLD_CENTS - itemsSubtotal),
+      amountToFreeDelivery: Math.max(0, freeDeliveryThresholdCents - itemsSubtotal),
+      freeDeliveryThresholdCents,
 
       addItem,
       updateQuantity,
@@ -64,6 +65,7 @@ export function useCart() {
       itemsSubtotal,
       estimatedDeliveryFee,
       estimatedTotal,
+      freeDeliveryThresholdCents,
       addItem,
       updateQuantity,
       removeItem,

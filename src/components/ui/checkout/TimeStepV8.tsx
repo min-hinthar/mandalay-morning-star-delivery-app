@@ -23,7 +23,7 @@ import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
 import { getAvailableDeliveryDates } from "@/lib/utils/delivery-dates";
 import { TimeSlotPicker } from "./TimeSlotPicker";
 import { Button } from "@/components/ui/button";
-import type { DeliverySelection } from "@/types/delivery";
+import type { DeliverySelection, TimeWindow } from "@/types/delivery";
 
 /** Button entry animation variant */
 const buttonEntry = {
@@ -46,13 +46,15 @@ export interface TimeStepV8Props {
   onNext?: () => void;
   /** Custom back step handler */
   onBack?: () => void;
+  /** Dynamic time windows generated from configured delivery hours */
+  timeWindows?: TimeWindow[];
 }
 
 // ============================================
 // MAIN COMPONENT
 // ============================================
 
-export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
+export function TimeStepV8({ className, onNext, onBack, timeWindows = [] }: TimeStepV8Props) {
   const { shouldAnimate } = useAnimationPreference();
   const {
     delivery,
@@ -97,6 +99,7 @@ export function TimeStepV8({ className, onNext, onBack }: TimeStepV8Props) {
           availableDates={availableDates}
           selectedDelivery={delivery}
           onSelectionChange={handleSelectionChange}
+          timeWindows={timeWindows}
         />
       </m.div>
 
