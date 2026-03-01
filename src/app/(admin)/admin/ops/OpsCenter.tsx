@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import { RefreshCw } from "lucide-react";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
@@ -8,10 +8,13 @@ import type { BusinessRules } from "@/lib/settings/business-rules";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { OpsCountdownBar } from "@/components/ui/admin/ops/OpsCountdownBar";
 import { OpsKPIGrid } from "@/components/ui/admin/ops/OpsKPIGrid";
+import { OpsOrderList } from "@/components/ui/admin/ops/OpsOrderList";
+import { OpsBulkToolbar } from "@/components/ui/admin/ops/OpsBulkToolbar";
 import {
   useOpsPolling,
   useCountdown,
   computeStatusCounts,
+  groupByTimeWindow,
   getNextSaturday,
   getDeliveryStart,
 } from "@/components/ui/admin/ops";
@@ -31,9 +34,13 @@ export interface OpsCenterProps {
 export function OpsCenter({ rules }: OpsCenterProps) {
   const {
     orders,
+    selectedIds,
+    setSelectedIds,
     isRefreshing,
     statusFilter,
     setStatusFilter,
+    refetch,
+    setIsBulkOperating,
   } = useOpsPolling();
 
   // Countdown targets
@@ -55,6 +62,42 @@ export function OpsCenter({ rules }: OpsCenterProps) {
   const unassignedCount = useMemo(
     () => orders.filter((o) => o.status === "confirmed" && !o.isAssigned).length,
     [orders]
+  );
+
+  const filteredOrders = useMemo(() => {
+    if (statusFilter === "all") return orders;
+    return orders.filter((o) => o.status === statusFilter);
+  }, [orders, statusFilter]);
+
+  const groupedOrders = useMemo(() => groupByTimeWindow(filteredOrders), [filteredOrders]);
+
+  // Handlers
+  const handleBulkComplete = useCallback(() => {
+    setSelectedIds(new Set());
+    void refetch();
+  }, [setSelectedIds, refetch]);
+
+  const handleClearSelection = useCallback(() => {
+    setSelectedIds(new Set());
+  }, [setSelectedIds]);
+
+  const handleBulkStart = useCallback(() => {
+    setIsBulkOperating(true);
+  }, [setIsBulkOperating]);
+
+  const handleBulkEnd = useCallback(() => {
+    setIsBulkOperating(false);
+  }, [setIsBulkOperating]);
+
+  const handleClearFilter = useCallback(() => {
+    setStatusFilter("all");
+  }, [setStatusFilter]);
+
+  const handleSelectionChange = useCallback(
+    (fn: (prev: Set<string>) => Set<string>) => {
+      setSelectedIds(fn(selectedIds));
+    },
+    [setSelectedIds, selectedIds]
   );
 
   return (
@@ -89,8 +132,24 @@ export function OpsCenter({ rules }: OpsCenterProps) {
         unassignedCount={unassignedCount}
       />
 
-      {/* Order list area -- wired in Task 2 */}
-      <div id="ops-order-list" />
+      {/* Order list with checkboxes and time window grouping */}
+      <OpsOrderList
+        groupedOrders={groupedOrders}
+        selectedIds={selectedIds}
+        onSelectionChange={handleSelectionChange}
+        statusFilter={statusFilter === "all" ? null : statusFilter}
+        onClearFilter={handleClearFilter}
+      />
+
+      {/* Bulk toolbar (floating at bottom) */}
+      <OpsBulkToolbar
+        selectedIds={selectedIds}
+        orders={filteredOrders}
+        onComplete={handleBulkComplete}
+        onBulkStart={handleBulkStart}
+        onBulkEnd={handleBulkEnd}
+        onClearSelection={handleClearSelection}
+      />
 
       {/* Driver panel area -- wired in Plan 03 */}
       <div id="ops-driver-panel" />
