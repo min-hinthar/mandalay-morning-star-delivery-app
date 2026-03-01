@@ -8,6 +8,8 @@ export type OrderStatus =
   | "delivered"
   | "cancelled";
 
+export type RefundStatus = "none" | "partial" | "full";
+
 export type ProfileRole = "customer" | "admin" | "driver";
 
 export type ModifierSelectionType = "single" | "multiple";
@@ -297,6 +299,7 @@ export interface OrdersRow {
   address_id: string | null;
   assigned_driver_id: string | null;
   status: OrderStatus;
+  refund_status: RefundStatus;
   subtotal_cents: number;
   delivery_fee_cents: number;
   tax_cents: number;
@@ -319,6 +322,7 @@ export interface OrdersInsert {
   address_id?: string | null;
   assigned_driver_id?: string | null;
   status?: OrderStatus;
+  refund_status?: RefundStatus;
   subtotal_cents: number;
   delivery_fee_cents?: number;
   tax_cents?: number;
@@ -341,6 +345,7 @@ export interface OrdersUpdate {
   address_id?: string | null;
   assigned_driver_id?: string | null;
   status?: OrderStatus;
+  refund_status?: RefundStatus;
   subtotal_cents?: number;
   delivery_fee_cents?: number;
   tax_cents?: number;
