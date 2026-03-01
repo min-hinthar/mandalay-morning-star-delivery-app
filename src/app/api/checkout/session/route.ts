@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
 import { validateCartItems, calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
+import { isPastCutoff, getDeliveryDate } from "@/lib/utils/delivery-dates";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
 import type { CheckoutError, CheckoutErrorCode } from "@/types/checkout";
@@ -37,6 +38,18 @@ export async function POST(request: Request) {
 
     const input = parsed.data;
 
+    // BUG-05: Re-validate cutoff timing at submission
+    const scheduledSaturday = new Date(input.scheduledDate + "T12:00:00");
+    if (isPastCutoff(scheduledSaturday)) {
+      const nextDelivery = getDeliveryDate();
+      return errorResponse(
+        "CUTOFF_PASSED",
+        `Orders for ${input.scheduledDate} closed at 3:00 PM Friday. Next delivery: ${nextDelivery.displayDate}.`,
+        400,
+        { nextDeliveryDate: nextDelivery.dateString }
+      );
+    }
+
     // Authenticate user
     const supabase = await createClient();
     const {
@@ -67,7 +80,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate address belongs to user and is verified
+    // Validate address belongs to user and is verified (BUG-05: coverage re-validation)
     const { data: address, error: addressError } = await supabase
       .from("addresses")
       .select("*")
@@ -133,6 +146,60 @@ export async function POST(request: Request) {
         firstError.message,
         400,
         validation.errors
+      );
+    }
+
+    // BUG-08: Detect price drift — compare client-reported prices against DB
+    const priceDrifts: Array<{
+      itemIndex: number;
+      menuItemId: string;
+      itemName: string;
+      field: "base_price" | "modifier_price";
+      cartPriceCents: number;
+      currentPriceCents: number;
+      modifierName?: string;
+    }> = [];
+
+    for (let i = 0; i < input.items.length; i++) {
+      const cartItem = input.items[i];
+      const dbItem = menuItems.get(cartItem.menuItemId);
+      if (!dbItem) continue;
+
+      // Check base price drift
+      if (cartItem.basePriceCents !== dbItem.base_price_cents) {
+        priceDrifts.push({
+          itemIndex: i,
+          menuItemId: cartItem.menuItemId,
+          itemName: dbItem.name_en,
+          field: "base_price",
+          cartPriceCents: cartItem.basePriceCents,
+          currentPriceCents: dbItem.base_price_cents,
+        });
+      }
+
+      // Check modifier price drift
+      for (const mod of cartItem.modifiers) {
+        const dbMod = modifierOptions.get(mod.optionId);
+        if (dbMod && mod.priceDeltaCents !== dbMod.price_delta_cents) {
+          priceDrifts.push({
+            itemIndex: i,
+            menuItemId: cartItem.menuItemId,
+            itemName: dbItem.name_en,
+            field: "modifier_price",
+            cartPriceCents: mod.priceDeltaCents,
+            currentPriceCents: dbMod.price_delta_cents,
+            modifierName: dbMod.name,
+          });
+        }
+      }
+    }
+
+    if (priceDrifts.length > 0) {
+      return errorResponse(
+        "PRICE_CHANGED",
+        "Some prices have changed since you added items to your cart. Please review the updated prices.",
+        409,
+        { priceDrifts }
       );
     }
 
@@ -219,10 +286,14 @@ export async function POST(request: Request) {
       .in("id", menuItemIds);
 
     if (freshMenuError) {
+      // BUG-01 FIX: Use .in() with proper order_item_id array (was broken .eq())
       await supabase
         .from("order_item_modifiers")
         .delete()
-        .eq("order_item_id", orderItems.map((oi) => oi.id)[0] ? "" : "");
+        .in(
+          "order_item_id",
+          orderItems.map((oi) => oi.id)
+        );
       await supabase.from("order_items").delete().eq("order_id", order.id);
       await supabase.from("orders").delete().eq("id", order.id);
       return errorResponse("INTERNAL_ERROR", "Failed to re-validate menu items", 500);
