@@ -1,505 +1,311 @@
-# Pitfalls Research: v1.8 Post-Launch Hardening & Driver Experience
+# Pitfalls Research: v1.9 Launch-Ready MVP
 
-**Domain:** CSP headers, Supabase RLS hardening, distributed rate limiting, driver features, role-based auth redirects for existing Next.js 16 + Supabase + Vercel app
-**Researched:** 2026-02-16
-**Confidence:** HIGH (codebase audit + official docs + WebSearch verified)
+**Domain:** Ops dashboard bulk operations, route assignment, configurable business rules, email reliability, driver simplification, production cutover for Saturday-only meal delivery (20-50 orders, family/friend drivers)
+**Researched:** 2026-03-01
+**Confidence:** HIGH (codebase audit + official docs + WebSearch verified + project error history)
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: CSP Breaks GSAP and Framer Motion Inline Styles
+### Pitfall 1: Bulk Status Change Without Atomic Transaction
 
 **What goes wrong:**
-Adding a Content Security Policy with strict `style-src` (no `'unsafe-inline'`) breaks the entire app. GSAP animations freeze, Framer Motion transitions stop working, and 315+ components with inline `style=` attributes render incorrectly. The app looks broken with no console errors visible to users -- only CSP violation reports in the browser console.
+Operator clicks "Confirm All" on 40 pending orders. The API processes them sequentially with individual `.update()` calls. Order #23 fails (e.g., already cancelled by customer). Orders 1-22 are confirmed, 23-40 are not. UI shows "success" via optimistic update, but 17 orders are still pending. Operator doesn't notice until drivers report missing orders.
 
 **Why it happens:**
-This project has 700+ inline style usages across 315 files. CSP `style-src` treats different style application methods differently:
+The existing `admin/orders/[id]/status/route.ts` handles single-order status changes. The natural approach is to loop over selected orders and call the same endpoint N times from the client. Each call is independent -- no transactional guarantee. The current code also sends emails per status change (`sendStatusEmail`), so 40 bulk confirms trigger 40 email renders + 40 Resend API calls in sequence, creating a ~20-second blocking operation.
 
-| Method                                     | Blocked by CSP?                  | Used in this project?                                                  |
-| ------------------------------------------ | -------------------------------- | ---------------------------------------------------------------------- |
-| `element.style.opacity = 1` (DOM property) | NO                               | Yes -- GSAP and Framer Motion primarily use this                       |
-| `element.style.cssText = "..."`            | YES                              | Yes -- `FlyToCart.tsx` line 145, `CustomMarkers.tsx` lines 11/36/52/70 |
-| `element.setAttribute("style", "...")`     | YES                              | Potentially by libraries                                               |
-| `<style dangerouslySetInnerHTML>`          | YES (needs nonce)                | Yes -- `AppHeader.tsx` line 170 (dark mode glassmorphism)              |
-| JSX `style={{ }}` prop                     | YES (via React's `setAttribute`) | Yes -- 700+ occurrences across codebase                                |
-
-The critical nuance: React renders JSX `style={{ }}` props via `setAttribute`, which IS blocked by strict CSP. But GSAP's `gsap.to()` and Framer Motion's `animate` use individual DOM property assignments, which are NOT blocked. However, GSAP's `SplitText` and some internal methods use `cssText`, which IS blocked.
-
-**How to avoid:**
-
-- Use `'unsafe-inline'` for `style-src` initially. This is the pragmatic choice for animation-heavy apps
-- Strict CSP for `script-src` (nonce-based) provides the real security value; `style-src: 'unsafe-inline'` is an acceptable tradeoff
-- Refactor the 5 `cssText` usages in `CustomMarkers.tsx` and `FlyToCart.tsx` to use individual property assignments
-- Add `nonce` to the `<style dangerouslySetInnerHTML>` in `AppHeader.tsx` via the `x-nonce` header
-- Pass nonce to Framer Motion's `<MotionConfig nonce={nonce}>` for any internal `<style>` blocks it generates
-- Do NOT attempt strict `style-src` with nonces for the entire app -- JSX `style={}` props cannot receive nonces
-
-**Warning signs:**
-
-- Animations freeze or elements appear unstyled after CSP deployment
-- Browser console floods with `Refused to apply inline style` violations
-- Cart fly-to-cart animation breaks (uses `cssText`)
-- Google Maps custom markers disappear (use `cssText`)
-- AppHeader dark mode glassmorphism stops working
-
-**Phase to address:** CSP Headers phase (early -- validates whether strict or relaxed approach needed)
-
-**Source confidence:** HIGH -- verified via [MDN style-src documentation](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/style-src), [Next.js CSP guide](https://nextjs.org/docs/app/guides/content-security-policy), [Framer Motion CSP issue #1727](https://github.com/framer/motion/issues/1727), [GSAP SplitText CSP thread](https://gsap.com/community/forums/topic/34053-splittext-inline-style-content-security-policy-violation/)
-
----
-
-### Pitfall 2: CSP Third-Party Domain Whitelist Is Incomplete, Breaks Google Maps / Stripe / Sentry
-
-**What goes wrong:**
-CSP with `default-src 'self'` blocks all external resource loading. Google Maps tiles don't render, Stripe Elements iframe won't load, Sentry events can't be sent, and Supabase auth calls fail. Each third-party service needs specific CSP directives across multiple categories (`script-src`, `connect-src`, `frame-src`, `img-src`, `font-src`, `worker-src`).
-
-**Why it happens:**
-This project integrates 6+ external services, each requiring its own CSP whitelist entries. Missing even one domain for one directive breaks that service silently. The full matrix:
-
-| Service          | script-src                      | connect-src                                        | frame-src                                        | img-src                                                                     | font-src            | worker-src |
-| ---------------- | ------------------------------- | -------------------------------------------------- | ------------------------------------------------ | --------------------------------------------------------------------------- | ------------------- | ---------- |
-| Google Maps      | `*.googleapis.com`              | `*.googleapis.com *.google.com *.gstatic.com`      | `*.google.com`                                   | `*.googleapis.com *.gstatic.com *.google.com *.googleusercontent.com data:` | `fonts.gstatic.com` | `blob:`    |
-| Stripe Elements  | `js.stripe.com *.js.stripe.com` | `api.stripe.com`                                   | `js.stripe.com *.js.stripe.com hooks.stripe.com` | `*.stripe.com`                                                              | --                  | `blob:`    |
-| Sentry           | --                              | `*.ingest.sentry.io` (or tunnel via `/monitoring`) | --                                               | --                                                                          | --                  | --         |
-| Supabase         | --                              | `*.supabase.co`                                    | --                                               | `*.supabase.co`                                                             | --                  | --         |
-| Vercel Analytics | --                              | `vitals.vercel-insights.com`                       | --                                               | --                                                                          | --                  | --         |
-| Google Fonts     | --                              | `fonts.googleapis.com`                             | --                                               | --                                                                          | `fonts.gstatic.com` | --         |
-
-**How to avoid:**
-
-- Build the CSP incrementally: start with `Content-Security-Policy-Report-Only` header that logs violations without blocking
-- Run `Content-Security-Policy-Report-Only` in production for 1-2 weeks to catch ALL violation domains
-- Use Sentry CSP violation reporting (`report-uri` directive) to aggregate violations
-- Add domains to the policy one service at a time, verifying each works
-- Use the Sentry tunnel route (`/monitoring`) to avoid needing `*.ingest.sentry.io` in `connect-src`
-- Test every user flow after enabling enforcing CSP: checkout (Stripe), tracking (Maps), login (Supabase), error reporting (Sentry)
-
-**Warning signs:**
-
-- Google Maps shows gray tiles or "This page can't load Google Maps correctly"
-- Stripe checkout shows blank white iframe
-- Sentry dashboard stops receiving events
-- Supabase auth calls fail with CORS-like errors (actually CSP blocks)
-- Console shows `Refused to load the script` or `Refused to connect` violations
-
-**Phase to address:** CSP Headers phase (must be comprehensive from day one)
-
-**Source confidence:** HIGH -- verified via [Google Maps CSP guide](https://developers.google.com/maps/documentation/javascript/content-security-policy), [Stripe CSP requirements](https://docs.stripe.com/security/guide), [Sentry CSP reporting](https://docs.sentry.io/platforms/javascript/guides/nextjs/security-policy-reporting/)
-
----
-
-### Pitfall 3: CSP Nonces Force All Pages to Dynamic Rendering, Killing Performance
-
-**What goes wrong:**
-Adding nonce-based CSP requires every page to be dynamically rendered (no static generation, no ISR, no CDN caching). For an app with 60K+ lines and animation-heavy pages, this means: (a) every page request hits the server, (b) TTFB increases significantly, (c) LCP regresses from <4s (already hard-won in v1.5-v1.7) back to 6-8s, (d) Vercel costs increase due to more serverless function invocations.
-
-**Why it happens:**
-CSP nonces must be unique per request. Static pages are generated at build time with no request context, so nonces can't be injected. The [Next.js CSP guide](https://nextjs.org/docs/app/guides/content-security-policy) explicitly states: "When you use nonces in your CSP, all pages must be dynamically rendered... Static optimization and Incremental Static Regeneration (ISR) are disabled." Additionally, Partial Prerendering (PPR) is incompatible with nonce-based CSP since static shell scripts won't have access to the nonce.
-
-This project already optimized LCP from 19.9s to <4s through Server Components, lazy loading, and code splitting. Forcing dynamic rendering undoes much of that work.
-
-**How to avoid:**
-
-- Use nonces ONLY for `script-src`, which provides the real XSS protection
-- Use `'unsafe-inline'` for `style-src` (safe for this animation-heavy app; style injection is low-risk compared to script injection)
-- Consider Next.js experimental SRI (Subresource Integrity) as an alternative to nonces: hash-based CSP that preserves static generation. But note: SRI is experimental and webpack-only (not Turbopack)
-- If nonces are required, use `await connection()` in pages that need dynamic rendering, and accept the performance cost
-- Monitor LCP impact with Vercel Analytics after CSP deployment; have a rollback plan
-
-**Warning signs:**
-
-- LCP regresses after CSP deployment (check Vercel Analytics)
-- Build output shows all pages as dynamic (lambda) instead of static
-- Vercel serverless function invocation count spikes
-- Pages that were previously fast (menu, homepage) become noticeably slower
-
-**Phase to address:** CSP Headers phase (architecture decision: nonce vs non-nonce)
-
-**Source confidence:** HIGH -- verified via [Next.js CSP guide](https://nextjs.org/docs/app/guides/content-security-policy) (explicitly documents dynamic rendering requirement and PPR incompatibility)
-
----
-
-### Pitfall 4: Enabling RLS on Existing Tables Locks Out All Users
-
-**What goes wrong:**
-Running `ALTER TABLE orders ENABLE ROW LEVEL SECURITY` on a table that already has RLS enabled but with policies that need changes drops all existing policies during the migration, leaving a window where RLS is enabled with no policies. During this window, all authenticated user queries return empty results. No errors -- just empty data. Customers see no orders, drivers see no routes, admin sees no data.
-
-**Why it happens:**
-This project already has RLS enabled on all tables (migration `002_rls_policies.sql`). The v1.8 RLS audit will modify existing policies. The danger is the migration pattern:
-
-```sql
--- DANGEROUS: Gap between DROP and CREATE
-DROP POLICY IF EXISTS "orders_select" ON orders;
--- If migration fails HERE, table has RLS but no select policy
-CREATE POLICY "orders_select_v2" ON orders FOR SELECT USING (...);
+Existing code pattern (line 120-127 of `admin/orders/[id]/status/route.ts`):
+```typescript
+// Single update -- no batch capability
+const { error: updateError } = await supabase
+  .from("orders")
+  .update(updateData)
+  .eq("id", orderId);
 ```
 
-The project has already experienced this exact pattern with driver invites -- 5 consecutive migration files (014 through 018) fixing RLS policies that broke in production. The root cause each time: policy logic assumed access patterns that didn't match reality.
-
-Additionally, the existing `is_admin()` function uses `SECURITY DEFINER` which means it runs as the function owner (postgres), not the calling user. If this function is modified during the RLS audit, all policies that depend on it break simultaneously across every table.
-
 **How to avoid:**
-
-- NEVER drop a policy without immediately creating its replacement in the same transaction
-- Use `CREATE OR REPLACE POLICY` when available, or wrap DROP + CREATE in a transaction:
-  ```sql
-  BEGIN;
-  DROP POLICY IF EXISTS "old_policy" ON table;
-  CREATE POLICY "new_policy" ON table ...;
-  COMMIT;
-  ```
-- Test ALL policy changes against the Supabase local development database first (`supabase db reset && supabase db push`)
-- Test with the Supabase client SDK (not SQL Editor, which bypasses RLS as superuser)
-- Add a new policy BEFORE dropping the old one (overlap is safe; multiple permissive policies OR together)
-- Never modify `is_admin()` or `get_my_driver_id()` functions without testing every table's policies
-- Write RLS tests (the project already has `supabase/tests/00_rls_policies.test.sql` -- extend it)
+- Create a dedicated `POST /api/admin/orders/bulk-status` endpoint that accepts `{ orderIds: string[], status: OrderStatus }`.
+- Use a Supabase RPC function (`bulk_update_order_status`) wrapping the update in a single transaction. If any order fails validation (wrong current status), the entire batch rolls back.
+- Return per-order results: `{ succeeded: string[], failed: { id: string, reason: string }[] }`.
+- Queue emails asynchronously after the transaction succeeds -- never inside the transaction.
+- UI should show partial failure clearly: "38 confirmed, 2 failed (already cancelled)".
 
 **Warning signs:**
+- API response time > 3 seconds for bulk operations
+- Sentry errors showing "status transition invalid" during bulk operations
+- Orders stuck in intermediate states after Saturday morning triage
 
-- Users report "no data" after a deployment (not errors, just empty results)
-- Admin dashboard shows 0 orders, 0 drivers, 0 categories
-- Driver sees "No routes assigned" when they have an active route
-- SQL Editor shows data (superuser bypasses RLS) but client SDK returns empty
-
-**Phase to address:** RLS Audit phase (must have rollback plan for every policy change)
-
-**Source confidence:** HIGH -- verified via [Supabase RLS docs](https://supabase.com/docs/guides/database/postgres/row-level-security), [Supabase RLS performance guide](https://supabase.com/docs/guides/troubleshooting/rls-performance-and-best-practices-Z5Jjwv), and project migration history (014-018 driver invite RLS fixes)
+**Phase to address:** Phase 1 (Saturday Ops Dashboard)
 
 ---
 
-### Pitfall 5: RLS Policies Using user_metadata for Role Checks Are Insecure
+### Pitfall 2: Optimistic UI Without Proper Rollback Corrupts Dashboard State
 
 **What goes wrong:**
-New driver-related RLS policies check `auth.jwt() -> 'user_metadata' ->> 'role'` to determine if a user is a driver. But `user_metadata` can be modified by authenticated end users via the Supabase client SDK. Any authenticated user could set their role to "driver" or "admin" and bypass RLS.
+Operator clicks "Confirm All". UI instantly shows all 40 orders as "confirmed" (optimistic update). API returns partial failure -- 5 orders were already cancelled. The Zustand/React Query cache now shows 5 cancelled orders as "confirmed". Operator assigns these phantom-confirmed orders to routes. Drivers show up at addresses for orders that don't exist.
 
 **Why it happens:**
-The auth callback (`src/app/auth/callback/route.ts` line 80-88) sets `user_metadata.role = "driver"` via the service role client. This is fine for the initial role assignment. But if RLS policies rely on `user_metadata` claims, any user can call `supabase.auth.updateUser({ data: { role: 'admin' } })` from the browser and gain unauthorized access.
-
-The project already handles this correctly for admin checks -- `is_admin()` queries the `profiles.role` column (database truth), not JWT metadata. But new driver policies might be tempted to use the faster JWT check instead.
+Optimistic UI is the standard pattern for responsive admin dashboards, but most implementations only handle the happy path. The existing codebase uses this pattern for single-order status changes (toast confirmation in `admin/orders/[id]/status`), but bulk operations multiply the failure surface area. React Query's `onMutate` → `onError` rollback pattern requires storing the exact previous state snapshot, which is error-prone with 40+ items.
 
 **How to avoid:**
-
-- ALWAYS use database-backed role checks (`is_admin()`, `is_driver()`, `get_my_driver_id()`) in RLS policies
-- NEVER use `auth.jwt() -> 'user_metadata' ->> 'role'` in RLS policies
-- The existing `is_driver()` and `get_my_driver_id()` functions already query the `drivers` table -- use these exclusively
-- Use `user_metadata` ONLY for non-security purposes (display name, preferences)
-- Add a comment to RLS migration files: `-- SECURITY: Never use user_metadata for access control`
-- The one exception: `auth.jwt() ->> 'email'` is safe (email is verified by Supabase, not user-modifiable via metadata)
+- For bulk operations, do NOT use optimistic updates. Instead, use a "pending" intermediate state with a loading spinner overlay on affected rows.
+- After the API responds, update all rows atomically based on the response.
+- Use React Query's `useMutation` with `onSettled` that triggers a hard refetch (`queryClient.invalidateQueries`) rather than manual cache patching.
+- Display a summary toast: "38 orders confirmed. 2 failed -- see details."
+- Keep the "pending" visual state (dimmed rows, spinner) until the refetch completes.
 
 **Warning signs:**
+- Order counts in the dashboard don't match database counts after bulk operations
+- Assigned orders showing wrong status on driver's route view
+- "Order not found" errors when drivers try to deliver
 
-- New RLS policy contains `user_metadata` or `raw_user_meta_data`
-- Policy checks role from JWT claims instead of profiles/drivers table
-- Security review finds policies that can be bypassed by `supabase.auth.updateUser()`
-
-**Phase to address:** RLS Audit phase (policy review checklist)
-
-**Source confidence:** HIGH -- verified via [Supabase RLS guide](https://designrevision.com/blog/supabase-row-level-security) ("user_metadata claim... can be modified by authenticated end users"), and existing project pattern in `is_admin()` function
+**Phase to address:** Phase 1 (Saturday Ops Dashboard)
 
 ---
 
-### Pitfall 6: Middleware Auth Redirect Loop -- Supabase Token Refresh + Role Check + CSP Nonce
+### Pitfall 3: Route Creation Non-Atomic -- Stops Insert Fails, Route Orphaned
 
 **What goes wrong:**
-Adding role-based redirects in Next.js middleware creates infinite redirect loops. User hits `/menu`, middleware checks auth, token is expired, middleware refreshes token but redirect already fired, user bounces between `/login` and `/menu` endlessly. Browser shows "ERR_TOO_MANY_REDIRECTS."
+Admin creates a route with 8 orders. Route row inserts successfully, but `route_stops` insert fails (e.g., one order already assigned to another active route). The existing code (line 266-269 of `admin/routes/route.ts`) attempts manual rollback by deleting the route, but if the rollback also fails (network issue, RLS, timeout), an empty route orphan exists in the database.
 
 **Why it happens:**
-Three concerns converge in middleware, each with its own redirect behavior:
-
-1. **CSP nonce generation** -- must run on every request (adds `x-nonce` header)
-2. **Supabase token refresh** -- must call `supabase.auth.getUser()` to refresh cookies
-3. **Role-based redirect** -- admin users redirected to `/admin`, drivers to `/driver`
-
-The conflicts:
-
-- Middleware runs on EVERY matching request, including redirects. If middleware redirects to `/login`, the `/login` request also runs through middleware, which may redirect again
-- Supabase token refresh requires setting cookies on both request and response objects. If the middleware redirects before the cookie is set, the token stays expired
-- The existing login page (line 13-14) redirects authenticated users to `/` -- if middleware also redirects authenticated users, they loop between the two redirects
-- Static assets and API routes should NOT run through auth/redirect logic but DO run through CSP nonce logic
-- The auth callback route (`/auth/callback`) must be excluded from ALL middleware redirect logic
+The current route creation code uses two separate operations (insert route, then insert stops) with manual rollback on failure:
+```typescript
+// Current pattern -- manual rollback is fragile
+const { error: stopsError } = await supabase.from("route_stops").insert(stops);
+if (stopsError) {
+  await supabase.from("routes").delete().eq("id", newRoute.id);
+  return NextResponse.json({ error: "Failed to create route stops" }, { status: 500 });
+}
+```
+This is not transactional. If the delete fails, the route orphan persists.
 
 **How to avoid:**
-
-- Structure middleware as a chain with explicit ordering:
-  1. CSP nonce (runs on all non-static requests)
-  2. Supabase token refresh (runs on all non-static requests, no redirects)
-  3. Role-based redirect (runs ONLY on specific paths, after token refresh)
-- Exclude these paths from redirect logic: `/auth/callback`, `/api/*`, `/_next/*`, `/monitoring`, `/driver/onboard`, static assets
-- Never redirect FROM the login page in middleware (the page component handles post-login redirect via `?next=` param)
-- Use the Supabase `getClaims()` method (validates JWT cryptographically) instead of `getSession()` (trusts cookies that can be spoofed)
-- Test the complete flow: unauthenticated user -> login -> magic link -> callback -> role-based redirect -> dashboard
+- Create an RPC function `create_route_with_stops(p_route, p_stops)` that wraps both inserts in a PostgreSQL transaction. If `route_stops` insert fails, the entire transaction rolls back automatically -- no orphaned routes.
+- The checkout flow already uses this pattern successfully (`create_order_with_items` RPC, line 171-185 of `checkout/session/route.ts`). Follow the same approach.
+- Add a unique constraint or check in the RPC: `SELECT COUNT(*) FROM route_stops WHERE order_id = ANY(p_order_ids) AND routes.status != 'completed'` to prevent double-assignment atomically.
 
 **Warning signs:**
+- Routes with 0 stops appearing in the admin dashboard
+- "Some orders are already assigned" errors during route creation
+- Sentry errors from the manual rollback delete call
 
-- Browser shows "This page redirected you too many times"
-- Middleware matcher is too broad (matches `/_next/static` or `/api/` paths)
-- Auth callback route goes through redirect logic
-- Login page and middleware both redirect authenticated users
-- Token refresh happens AFTER redirect decision (stale token used for role check)
-
-**Phase to address:** Role-Based Redirects phase (must handle middleware chain carefully)
-
-**Source confidence:** HIGH -- verified via [Supabase SSR Next.js guide](https://supabase.com/docs/guides/auth/server-side/nextjs), [Next.js middleware redirect issues](https://github.com/vercel/next.js/issues/32739), and project's existing layout-level auth checks
+**Phase to address:** Phase 2 (Route & Driver Assignment)
 
 ---
 
-### Pitfall 7: In-Memory Rate Limiter Silently Fails in Serverless (Already Failing in Production)
+### Pitfall 4: Configurable Business Rules Cache Causes Stale Cutoff Enforcement
 
 **What goes wrong:**
-The current in-memory rate limiter (`src/lib/utils/rate-limit.ts`) using a `Map` does not work correctly on Vercel. Each serverless function invocation gets its own memory space. Rate limit state is never shared between invocations. An attacker can send 100 requests to `/api/auth/signIn` and each hits a different serverless instance, never triggering the 5-per-minute limit.
+Operator changes cutoff from Friday 3PM to Friday 5PM at 4:30PM. The `isPastCutoff()` function still uses the old hardcoded `CUTOFF_HOUR` constant (imported from `@/types/delivery`). Customer tries to order at 4:45PM, gets "ordering closed" despite the new 5PM cutoff. Or worse: the API route reads the new setting but the client-side countdown timer still shows the old cutoff, creating a confusing mismatch.
 
 **Why it happens:**
-Vercel serverless functions are stateless. The `rateLimitStore = new Map()` (line 11) is created fresh for each cold start. Even if the function stays "warm," Vercel may run multiple concurrent instances, each with their own Map. The `setInterval(cleanupExpiredEntries, 5 * 60 * 1000)` (line 84) is harmless but misleading -- it suggests persistence that doesn't exist.
+The current cutoff logic imports a compile-time constant:
+```typescript
+// delivery-dates.ts line 1
+import { CUTOFF_HOUR, TIMEZONE, type DeliveryDate } from "@/types/delivery";
+```
+Moving to a database-driven setting requires every consumer of `CUTOFF_HOUR` to read from `app_settings` instead. With Next.js App Router caching, the server-side read may be cached, and the client-side components won't re-render until the cache is invalidated.
 
-The rate limiter also uses email as the identifier (line 45: `action:${identifier.toLowerCase()}`), which means an attacker can rotate email addresses to bypass rate limiting even if it worked correctly.
+Additionally, Supabase + Next.js has a documented stale data issue: GET requests immediately following PUT/POST operations may return stale data.
 
 **How to avoid:**
-
-- Migrate to Upstash Redis rate limiting (`@upstash/ratelimit`):
-  - HTTP-based (connectionless) -- works in serverless and edge
-  - Provides sliding window, fixed window, and token bucket algorithms
-  - Built-in ephemeral cache to reduce Redis calls during hot function instances
-- Create the `Ratelimit` instance OUTSIDE the handler function (module scope) to benefit from ephemeral caching between requests on the same instance
-- Use IP address as primary identifier (not email): `request.headers.get('x-forwarded-for')` on Vercel
-- Keep email as secondary identifier for auth endpoints (rate limit per IP AND per email)
-- Add rate limiting to ALL API routes, not just auth endpoints (current limiter only covers signIn/signUp/resetPassword)
-- Consider Vercel Edge middleware-level rate limiting for global protection
+- Create a `getBusinessRules()` server function that reads from `app_settings` with `{ cache: 'no-store' }` or a short TTL (5 minutes as planned).
+- Use `revalidateTag('business-rules')` in the settings PATCH handler to bust the cache immediately on admin update.
+- Client-side countdown timers must fetch the cutoff from the API, not from a hardcoded constant.
+- Audit EVERY import of `CUTOFF_HOUR`, `DELIVERY_FEE_CENTS`, `FREE_DELIVERY_THRESHOLD_CENTS` from constants and replace with the dynamic `getBusinessRules()` call.
+- The existing `src/lib/utils/order.ts` hardcodes `DELIVERY_FEE_CENTS = 1500` and `FREE_DELIVERY_THRESHOLD_CENTS = 10000` -- both must come from the database.
 
 **Warning signs:**
+- Customer successfully orders after cutoff (or gets rejected before cutoff)
+- Client countdown timer and server-side validation disagree
+- Settings page shows new value, but checkout still uses old value
+- "Ordering closed" errors immediately after changing cutoff to a later time
 
-- Auth brute-force attempts succeed despite rate limiter being "configured"
-- Multiple concurrent API requests from same IP all succeed
-- Rate limiter Map is empty on every cold start (no persistence)
-- `setInterval` for cleanup runs but Map is always empty
-
-**Phase to address:** Rate Limiting Upgrade phase (replace in-memory with Upstash Redis)
-
-**Source confidence:** HIGH -- verified via [Upstash Rate Limiting docs](https://upstash.com/docs/redis/sdks/ratelimit-ts/features), [Vercel + Upstash template](https://vercel.com/templates/next.js/ratelimit-with-upstash-redis), and project code audit showing `new Map()` at module scope
+**Phase to address:** Phase 4 (Configurable Business Rules)
 
 ---
 
-### Pitfall 8: Driver RLS Policies Missing for New Driver Feature Tables
+### Pitfall 5: Email Retry Creates Duplicate Emails to Customer
 
 **What goes wrong:**
-New v1.8 driver features (earnings, availability scheduling, planned routes) require new database tables or columns. If these are added without RLS policies, they're publicly accessible via the Supabase anon key. If RLS is enabled without policies, drivers can't access their own data. If policies are wrong, drivers can see other drivers' earnings.
+Admin clicks "Retry" on a failed email. The original email was actually delivered (Resend returned success, but the webhook status update failed). Customer receives the same "Order Confirmed" email twice. Or: retry is triggered while original send is still being retried by the internal retry loop (3 attempts with exponential backoff), resulting in overlapping sends.
 
 **Why it happens:**
-The existing driver-related RLS is well-structured (routes, route_stops, location_updates, delivery_exceptions all have proper policies). But new tables for earnings, availability, or driver preferences may not get the same treatment. The `drivers_insert` policy only allows admin insertion (line 236: `WITH CHECK (public.is_admin())`), so drivers can't create their own availability records if the policy follows the same pattern.
-
-New columns added to existing tables (e.g., adding `earnings_cents` to `route_stops`) inherit the existing table's RLS policies, which may not account for the new data sensitivity level.
-
-**How to avoid:**
-
-- For every new table: enable RLS AND add policies in the SAME migration file
-- Follow the existing pattern: use `get_my_driver_id()` for driver-owned data, `is_admin()` for admin operations
-- New driver self-service tables (availability, preferences) need INSERT/UPDATE policies for `user_id = auth.uid()` or `driver_id = get_my_driver_id()`
-- Earnings data should be SELECT-only for drivers (computed by system, not user-editable):
-  ```sql
-  CREATE POLICY "drivers_view_own_earnings" ON driver_earnings
-    FOR SELECT USING (driver_id = get_my_driver_id() OR is_admin());
-  -- No INSERT/UPDATE policy for drivers -- only admin/system can write
-  ```
-- Add RLS tests for every new table to `supabase/tests/00_rls_policies.test.sql`
-- Test as each role: anon, customer, driver, admin
-
-**Warning signs:**
-
-- New migration enables RLS without any policies
-- New table allows drivers to modify their own earnings
-- Policy uses `auth.uid()` directly instead of `get_my_driver_id()` for driver tables
-- No RLS tests written for new tables
-
-**Phase to address:** Driver Features phase (RLS must be part of each feature's migration, not a separate task)
-
-**Source confidence:** HIGH -- verified via existing project RLS patterns and [Supabase RLS best practices](https://supabase.com/docs/guides/troubleshooting/rls-performance-and-best-practices-Z5Jjwv)
-
----
-
-### Pitfall 9: Role-Based Redirect Breaks Driver Onboarding Flow
-
-**What goes wrong:**
-Middleware detects user has `role: "driver"` in their profile/metadata and redirects them to `/driver`. But the user hasn't completed onboarding yet -- they need to reach `/driver/onboard` first. The middleware redirect sends them to `/driver`, the driver layout checks `is_active = true`, finds no active driver record, and redirects to `/?error=not_driver`. User is stuck in a loop or lands on the homepage with a confusing error.
-
-**Why it happens:**
-The driver onboarding flow has a specific lifecycle:
-
-1. Admin sends invite -> driver gets magic link email
-2. Driver clicks link -> lands on `/auth/callback?invite_id=xxx`
-3. Callback sets `user_metadata.role = "driver"` (line 87)
-4. User redirected to `/driver/onboard` (via `?next=/driver/onboard` param)
-5. User fills out onboarding form -> creates driver record with `is_active = true`
-6. THEN user can access `/driver` dashboard
-
-If middleware sees `role: "driver"` at step 3 and redirects to `/driver`, the user never reaches step 4-5. The driver layout (line 23-34) requires `is_active = true`, which doesn't exist until after onboarding.
+The current `sendEmail()` function (in `lib/email/send.ts`) already has a 3-retry internal loop. The admin retry feature adds a second layer of retry. The idempotency key uses `Date.now()` (line 248, 316 of `admin/orders/[id]/status/route.ts`):
+```typescript
+idempotencyKey: `status-confirmed-${orderId}-${Date.now()}`,
+```
+This generates a unique key every time, defeating idempotency. Each retry is treated as a new send by Resend.
 
 **How to avoid:**
-
-- Middleware role-based redirect must check BOTH role AND active status:
-  - `role = "driver"` AND `is_active = true` -> redirect to `/driver`
-  - `role = "driver"` AND `is_active = false` (or no driver record) -> allow through (let them reach `/driver/onboard`)
-- Whitelist `/driver/onboard` from driver redirects
-- The simplest approach: don't redirect to `/driver` in middleware at all. Let the login page handle the redirect via `?next=` parameter. Use middleware only for protection (blocking access), not for convenience (redirecting to dashboards)
-- If middleware redirect is required, query the drivers table or check a reliable indicator:
-  - Option A: Check `profiles.role` in middleware (requires Supabase query on every request -- expensive)
-  - Option B: Set a custom claim via Supabase Auth Hook (requires Supabase Pro plan)
-  - Option C: Use `user_metadata.onboarding_complete` flag (set after onboarding, but user-modifiable -- use for UX only, not security)
+- Use a stable idempotency key based on `orderId + emailType + attemptNumber`, not `Date.now()`.
+- Before retry, check the `notification_logs` table for the latest status. If status is "delivered" or "opened" (from Resend webhook), don't retry.
+- Add a `retry_count` column to `notification_logs`. Cap retries at 3 total (across both automatic and manual retries).
+- The admin retry button should be disabled when status is "delivered", "opened", or "clicked".
+- Add a confirmation dialog: "This email was sent 2 hours ago. Resend hasn't confirmed delivery yet. Send again?"
 
 **Warning signs:**
+- Customers report receiving duplicate emails
+- `notification_logs` has multiple "sent" entries for the same `order_id + notification_type`
+- Resend dashboard shows higher email count than expected
 
-- New driver invited but can't complete onboarding
-- Driver stuck on homepage with `?error=not_driver` after clicking magic link
-- Middleware redirects before onboarding form is accessible
-- Login page `?next=` parameter is overridden by middleware redirect
-
-**Phase to address:** Role-Based Redirects phase (must account for onboarding lifecycle)
-
-**Source confidence:** HIGH -- verified via project code: auth callback (lines 61-108), driver layout (lines 23-34), onboard page (lines 91-119)
+**Phase to address:** Phase 5 (Email Reliability)
 
 ---
 
 ## Technical Debt Patterns
 
-| Shortcut                                             | Immediate Benefit                                         | Long-term Cost                                                                                                | When Acceptable                                                                                                                              |
-| ---------------------------------------------------- | --------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| `style-src 'unsafe-inline'` in CSP                   | All existing styles work, no refactoring needed           | Lower security grade on scanners; style injection theoretically possible (low risk)                           | Acceptable for animation-heavy apps with GSAP/Framer Motion -- the alternative (strict style-src) breaks the app or forces dynamic rendering |
-| Checking role in layout instead of middleware        | No middleware complexity, works with current architecture | Auth check runs AFTER page component loads; flicker on role mismatch; redundant Supabase calls per request    | Acceptable for launch; migrate to middleware when role-based redirects are stable                                                            |
-| Rate limiting auth endpoints only                    | Simple, covers highest-risk endpoints                     | Other API routes unprotected (menu scraping, order enumeration, analytics abuse)                              | Only during initial migration; expand to all routes within same milestone                                                                    |
-| `Content-Security-Policy-Report-Only` in production  | No risk of breaking the app; collects violation data      | No actual security enforcement; gives false sense of protection                                               | Acceptable for 2-4 weeks during CSP rollout to discover missing domains                                                                      |
-| Hardcoding driver earnings calculation in API routes | Fast implementation, no new database tables               | Scattered business logic; hard to audit; no historical record of calculation changes                          | Never for production -- use database-computed values or at minimum a centralized service function                                            |
-| Skipping RLS tests for simple policies               | Faster development                                        | Policy bugs discovered by users, not tests; 014-018 migration sequence proves this creates multi-fix cascades | Never -- the project's own history shows RLS bugs cascade into 5+ fix migrations                                                             |
-
-## Integration Gotchas
-
-| Integration                         | Common Mistake                                             | Correct Approach                                                                                                                                                                                    |
-| ----------------------------------- | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Framer Motion + CSP nonce           | Forgetting `<MotionConfig nonce={nonce}>` wrapper          | Wrap the app root with `<MotionConfig nonce={nonce}>` in layout.tsx. Pass nonce from `headers().get('x-nonce')` to client component via prop                                                        |
-| GSAP + CSP                          | Assuming GSAP supports nonce for style attributes          | GSAP has NO nonce support for inline styles. Use `'unsafe-inline'` for `style-src`, or refactor GSAP animations to use CSS classes instead of inline transforms                                     |
-| Upstash Redis + Vercel              | Creating `Ratelimit` instance inside handler function      | Create at module scope so ephemeral cache persists between warm invocations. Inside handler = new instance = no caching = more Redis calls = higher latency + cost                                  |
-| Supabase middleware + token refresh | Using `getSession()` for auth check in middleware          | Use `getClaims()` which validates JWT signatures. `getSession()` trusts cookie data that can be spoofed                                                                                             |
-| CSP + Sentry tunnel route           | Not excluding `/monitoring` from CSP enforcement           | If using `connect-src 'self'`, the tunnel works. But if middleware adds CSP to `/monitoring` responses, Sentry's internal scripts may be blocked. Exclude `/monitoring` from CSP middleware matcher |
-| CSP + Service Worker                | SW not respecting CSP headers from server                  | Service worker fetch responses don't automatically inherit CSP. The SW must forward CSP headers from network responses, or the browser may strip them                                               |
-| RLS + Supabase Realtime             | Adding RLS without checking Realtime channel subscriptions | Realtime subscriptions use the same RLS policies. Changing policies may silently break real-time updates for tracking/driver location features                                                      |
-| Upstash + Multi-region              | Using single-region Redis for global users                 | For LA-based delivery service, single US region is fine. Don't over-engineer with `MultiRegionRatelimit`                                                                                            |
-| Google Maps + CSP `worker-src`      | Missing `blob:` in `worker-src` directive                  | Google Maps uses web workers loaded from blob URLs. Add `worker-src blob:` or the map tiles won't load correctly                                                                                    |
-| Stripe + CSP `worker-src`           | Missing `blob:` in `worker-src` for Stripe.js              | Stripe.js uses blob-based web workers. If `worker-src` is set without `blob:`, Stripe Elements break. If `worker-src` is absent, it falls back to `script-src` which may also be missing `blob:`    |
-
-## Performance Traps
-
-| Trap                                          | Symptoms                                                                                                           | Prevention                                                                                                                                     | When It Breaks                                                               |
-| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------- |
-| Middleware Supabase query on every request    | TTFB increases 100-300ms per page load; serverless cold starts compound the latency                                | Cache role in JWT custom claims or use lightweight JWT-only check in middleware; full Supabase query only on protected routes                  | Immediately -- every page load pays the cost                                 |
-| Upstash Redis call on every API request       | Added latency of 5-50ms per Redis call; monthly cost scales with request volume                                    | Use ephemeral cache (`new Map()` outside handler) to avoid Redis on hot instances; set reasonable rate limits that don't penalize normal users | >1000 requests/minute (unlikely for delivery app, but defense against abuse) |
-| CSP nonces on static pages                    | All pages become dynamic; no CDN caching; TTFB increases 200-500ms; Vercel function count spikes                   | Use nonces only for `script-src`, use `'unsafe-inline'` for `style-src`; consider non-nonce CSP for public pages (menu, homepage)              | Immediately on deployment -- measurable LCP regression                       |
-| RLS policy with unindexed column              | Queries slow down as table grows; RLS adds subquery per row                                                        | Run `EXPLAIN ANALYZE` after enabling new policies; ensure every column in a policy USING clause has an index                                   | 10K+ rows in table                                                           |
-| Driver location polling without rate limiting | Driver app sends location every 5s; 10 drivers = 120 requests/minute; each hits Supabase + triggers RLS evaluation | Batch location updates (queue 3-5 updates client-side, send as batch); use Upstash rate limit on location endpoint                             | 10+ active drivers simultaneously                                            |
-
-## Security Mistakes
-
-| Mistake                                                   | Risk                                                                         | Prevention                                                                                                          |
-| --------------------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| RLS policy using `user_metadata` for role check           | Any authenticated user can set `role: "admin"` via client SDK and bypass RLS | Always use database-backed functions: `is_admin()`, `is_driver()`, `get_my_driver_id()`                             |
-| CSP with `script-src 'unsafe-inline'`                     | XSS vulnerabilities remain exploitable; CSP provides no script protection    | Use nonce-based `script-src` with `'strict-dynamic'`; `'unsafe-inline'` is only acceptable for `style-src`          |
-| Rate limiter uses email only (no IP)                      | Attacker rotates email addresses to bypass per-email rate limit              | Use IP (`x-forwarded-for`) as primary identifier; add email as secondary for auth-specific limits                   |
-| Driver can see other drivers' routes via API manipulation | Data leak; drivers see delivery addresses for other routes                   | Enforce `driver_id = get_my_driver_id()` in ALL driver-facing RLS policies; test with two different driver accounts |
-| Earnings data modifiable by driver via RLS                | Driver inflates their own earnings                                           | Earnings tables should have NO INSERT/UPDATE policies for the `driver` role; only admin/service role can write      |
-| CSP report-uri sends violation data to third party        | Violation reports may contain page URLs with sensitive query params          | Use Sentry's CSP reporting endpoint (already trusted); don't use random third-party CSP report collectors           |
-
-## UX Pitfalls
-
-| Pitfall                                                           | User Impact                                                                            | Better Approach                                                                                                                  |
-| ----------------------------------------------------------------- | -------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| Role-based redirect ignores `?next=` parameter                    | User bookmarks `/admin/orders/123`, gets redirected to `/admin` instead                | Middleware should preserve the full URL path; redirect to login with `?next=/admin/orders/123`, then redirect back after auth    |
-| CSP blocks third-party in Report-Only but nobody monitors reports | False security; violations accumulate; when CSP is enforced, everything breaks at once | Set up Sentry CSP violation reporting; create alert for new violation types; review weekly before switching to enforcing mode    |
-| Rate limiting shows generic "Too many requests" error             | User doesn't know when they can retry; frustration; support tickets                    | Return `Retry-After` header with seconds until reset; show countdown in UI: "Try again in 45 seconds"                            |
-| Driver sees empty dashboard after role migration                  | Old driver accounts may not have metadata set correctly; confusing empty state         | Add a "profile incomplete" banner for drivers missing vehicle type, phone, or profile image; link to profile setup               |
-| Middleware redirect flickers on client navigation                 | User briefly sees login page before being redirected to dashboard                      | Use `loading.tsx` to show a branded loading state during auth check; middleware redirect should happen before any page rendering |
-
-## "Looks Done But Isn't" Checklist
-
-- [ ] **CSP Headers:** Policy is enforcing (not Report-Only). Tested on ALL routes: homepage, menu, checkout (Stripe), tracking (Maps), admin, driver, login
-- [ ] **CSP Third-Party:** Google Maps renders tiles AND markers. Stripe Elements loads AND processes payment. Sentry receives error events. Supabase auth flow works end-to-end
-- [ ] **RLS Audit:** Every table has RLS enabled (run `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND NOT rowsecurity`). Every table with RLS has at least one SELECT policy
-- [ ] **RLS Role Isolation:** Test as customer -- cannot see other customers' orders. Test as driver -- cannot see other drivers' routes. Test as anon -- cannot see any protected data
-- [ ] **Rate Limiting:** Send 6 rapid requests to auth endpoint from same IP -- 6th should be blocked. Verify with Upstash dashboard that state is shared across serverless instances
-- [ ] **Role-Based Redirect:** Login as admin -- lands on `/admin`. Login as driver (active) -- lands on `/driver`. Login as driver (pending onboard) -- lands on `/driver/onboard`. Login as customer -- lands on `/menu`
-- [ ] **Onboarding Flow:** Send driver invite, click magic link, complete onboarding form, verify redirect to `/driver` dashboard. Repeat without completing form -- should NOT redirect to `/driver`
-- [ ] **cssText Refactoring:** Search for `cssText` in src/ -- should be 0 occurrences after refactoring (currently 5). Search for `dangerouslySetInnerHTML` on `<style>` tags -- all should have `nonce` attribute
-- [ ] **Middleware Excludes:** `/auth/callback`, `/api/*`, `/_next/*`, `/monitoring`, `/driver/onboard` are NOT processed by redirect logic
-
-## Recovery Strategies
-
-| Pitfall                                      | Recovery Cost | Recovery Steps                                                                                                                                                                                                 |
-| -------------------------------------------- | ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| CSP blocks critical functionality            | LOW           | Switch CSP header to `Content-Security-Policy-Report-Only` immediately. Add missing domains. Re-enable enforcing after testing. No data loss                                                                   |
-| RLS policy locks out users                   | HIGH          | Emergency fix: run `DROP POLICY` + `CREATE POLICY` in Supabase SQL Editor as superuser. Or temporarily bypass via service role client in API routes. Then deploy proper migration                              |
-| Rate limiter blocks legitimate users         | LOW           | Reduce rate limit thresholds or temporarily disable via environment variable. Upstash dashboard allows manual key deletion                                                                                     |
-| Middleware redirect loop                     | LOW           | Remove middleware file entirely (app falls back to layout-level auth checks). Fix redirect logic. Re-add middleware                                                                                            |
-| Driver can't complete onboarding             | MEDIUM        | Check auth callback handled invite correctly (`user_metadata.invite_id`). Verify driver_invites table has pending invite. If metadata is wrong, fix via Supabase Dashboard > Auth > Users > edit user metadata |
-| Performance regression from CSP nonces       | MEDIUM        | Switch to non-nonce CSP (`'unsafe-inline'` for scripts and styles in headers config). Regain static rendering. Plan nonce approach for later with dedicated performance budget                                 |
-| Upstash Redis outage blocks all API requests | LOW           | Rate limiter should fail open (allow request if Redis is unreachable). Upstash has built-in `analytics: { enabled: false }` to reduce overhead. Fallback: temporarily comment out rate limiting                |
-
-## Pitfall-to-Phase Mapping
-
-| Pitfall                                 | Prevention Phase                    | Verification                                                                                                                                                             |
-| --------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| CSP breaks animations                   | CSP Headers                         | GSAP scroll animation works. Framer Motion page transitions work. Fly-to-cart animates correctly. Google Maps custom markers visible                                     |
-| CSP missing third-party domains         | CSP Headers                         | Full checkout flow with Stripe payment. Google Maps tracking page loads. Sentry receives test error. Login via Google OAuth works                                        |
-| CSP nonces kill performance             | CSP Headers (architecture decision) | LCP on menu page stays <4s after CSP deployment. Check Vercel Analytics for TTFB regression                                                                              |
-| RLS locks out users                     | RLS Audit                           | Run full RLS test suite. Query each table as anon/customer/driver/admin -- verify expected access. Zero empty-result regressions                                         |
-| RLS user_metadata security              | RLS Audit                           | No RLS policy contains `user_metadata`. All role checks use `is_admin()` / `is_driver()` / `get_my_driver_id()`                                                          |
-| Middleware redirect loop                | Role-Based Redirects                | Unauthenticated user hits `/admin` -- gets `/login?next=/admin`. After login, lands on `/admin`. No redirect loops in browser network tab                                |
-| Rate limiter doesn't work in serverless | Rate Limiting Upgrade               | Send 6 rapid auth requests from different terminal sessions (simulating different serverless instances). Verify 6th is blocked. Check Upstash dashboard for shared state |
-| Missing driver RLS                      | Driver Features                     | New driver tables have RLS enabled + policies. Driver A can't see Driver B's data. Test with two driver accounts                                                         |
-| Onboarding flow broken by redirect      | Role-Based Redirects                | Invite new driver. Click magic link. Reach onboarding form (not redirected away). Complete form. Land on `/driver` dashboard                                             |
-
-## Sources
-
-### CSP Implementation (HIGH confidence)
-
-- [Next.js CSP Guide (v16.1.6)](https://nextjs.org/docs/app/guides/content-security-policy) -- nonce implementation, dynamic rendering requirement, SRI alternative
-- [MDN style-src Reference](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Content-Security-Policy/style-src) -- critical distinction: DOM property assignment NOT blocked, cssText/setAttribute ARE blocked
-- [Google Maps CSP Guide](https://developers.google.com/maps/documentation/javascript/content-security-policy) -- required domains for Maps JS API
-- [Stripe CSP Requirements](https://docs.stripe.com/security/guide) -- script-src, connect-src, frame-src domains for Stripe Elements
-- [Sentry CSP Reporting](https://docs.sentry.io/platforms/javascript/guides/nextjs/security-policy-reporting/) -- report-uri configuration
-- [Framer Motion MotionConfig nonce](https://motion.dev/docs/react-motion-config) -- nonce prop for CSP compliance
-- [Framer Motion CSP Issue #1727](https://github.com/framer/motion/issues/1727) -- inline styles incompatibility documented
-- [GSAP SplitText CSP Thread](https://gsap.com/community/forums/topic/34053-splittext-inline-style-content-security-policy-violation/) -- GSAP has NO nonce support for style attributes
-
-### Supabase RLS (HIGH confidence)
-
-- [Supabase RLS Documentation](https://supabase.com/docs/guides/database/postgres/row-level-security) -- policy structure, USING vs WITH CHECK
-- [Supabase RLS Performance Guide](https://supabase.com/docs/guides/troubleshooting/rls-performance-and-best-practices-Z5Jjwv) -- index requirements, query plan verification
-- [Supabase RLS Common Pitfalls](https://prosperasoft.com/blog/database/supabase/supabase-rls-issues/) -- user_metadata security warning
-- [Supabase Complete RLS Guide 2026](https://designrevision.com/blog/supabase-row-level-security) -- user_metadata modification risk
-
-### Rate Limiting (HIGH confidence)
-
-- [Upstash Ratelimit Documentation](https://upstash.com/docs/redis/sdks/ratelimit-ts/features) -- ephemeral cache, module-scope instantiation
-- [Vercel + Upstash Template](https://vercel.com/templates/next.js/ratelimit-with-upstash-redis) -- reference implementation
-- [Upstash Rate Limiting Blog](https://upstash.com/blog/nextjs-ratelimiting) -- Next.js API route integration patterns
-
-### Auth & Middleware (HIGH confidence)
-
-- [Supabase SSR Next.js Guide](https://supabase.com/docs/guides/auth/server-side/nextjs) -- middleware setup, getClaims() vs getSession(), cookie management
-- [Next.js Middleware Redirect Issues](https://github.com/vercel/next.js/issues/32739) -- common infinite redirect causes
-- [Supabase OAuth + Next.js Middleware](https://usebasejump.com/blog/supabase-oauth-with-nextjs-middleware) -- token hash accessibility from middleware
-
-### Project-Specific (HIGH confidence)
-
-- `src/lib/utils/rate-limit.ts` -- in-memory Map at module scope, email-only identifier
-- `src/app/auth/callback/route.ts` -- driver invite flow, user_metadata.role assignment
-- `src/app/(driver)/driver/layout.tsx` -- is_active check, redirect to /?error=not_driver
-- `src/app/(public)/driver/onboard/page.tsx` -- invite verification, onboarding lifecycle
-- `src/app/(admin)/admin/layout.tsx` -- admin role check via profiles table
-- `supabase/migrations/002_rls_policies.sql` -- existing RLS policy patterns
-- `supabase/migrations/014-018_*.sql` -- driver invite RLS fix cascade (5 consecutive fixes)
-- `src/components/ui/cart/FlyToCart.tsx` -- cssText usage (line 145)
-- `src/components/ui/orders/tracking/DeliveryMap/CustomMarkers.tsx` -- cssText usage (lines 11/36/52/70)
-- `src/components/ui/layout/AppHeader/AppHeader.tsx` -- dangerouslySetInnerHTML on <style> (line 170)
-- `next.config.ts` -- Sentry tunnel route `/monitoring`, existing headers config
+| Shortcut | Immediate Benefit | Long-term Cost | When Acceptable |
+|----------|-------------------|----------------|-----------------|
+| Client-side N sequential API calls for bulk ops | Reuse existing single-order endpoint | 40x network round-trips, no atomicity, 20s blocking | Never for bulk ops -- create dedicated endpoint |
+| Hardcoded constants alongside app_settings table | Faster initial migration | Two sources of truth, stale values, missed consumers | Only during migration (< 1 sprint) |
+| Manual rollback (delete after insert failure) | No RPC function needed | Orphaned records on rollback failure | Never when RPC is available |
+| `Date.now()` in idempotency keys | Unique keys every time | Defeats idempotency entirely | Never for email/payment idempotency |
+| Optimistic UI for bulk operations | Instant visual feedback | Complex rollback, phantom state, data corruption | Only for single-item operations at this scale |
+| Fire-and-forget email in bulk status change | Non-blocking API response | 40 emails sent without tracking, no retry on partial failure | Acceptable for v1.0 single orders, not for bulk |
+| Driver simple mode as CSS-only toggle | Fast to implement | Both modes ship to client, toggle adds conditional complexity everywhere | MVP only -- convert to separate route after validation |
 
 ---
 
-_Pitfalls research for: v1.8 Post-Launch Hardening & Driver Experience_
-_Researched: 2026-02-16_
+## Integration Gotchas
+
+| Integration | Common Mistake | Correct Approach |
+|-------------|----------------|------------------|
+| Resend webhooks | Not verifying Svix signatures in production. Current code (line 62-90 of `webhooks/resend/route.ts`) falls back to simple secret header check or skips verification entirely if `RESEND_WEBHOOK_SECRET` is not set. | Install the `svix` package. Use `new Webhook(secret).verify(rawBody, headers)` for cryptographic verification. Verify timestamp to prevent replay attacks (Svix rejects > 5 min old). Raw body is critical -- do not parse then re-stringify. |
+| Resend webhooks | Not handling webhook idempotency. Same event delivered multiple times (at-least-once delivery). | Track `svix-id` header in `notification_logs.metadata`. Before processing, check if this `svix-id` was already handled. Skip duplicates. |
+| Supabase RPC | Passing complex objects to RPC without matching PostgreSQL function parameter types. | Define function parameters as `jsonb` or custom composite types. Test with actual Supabase client, not raw SQL, since the JS client serializes differently. |
+| Supabase `.in()` queries | Passing empty arrays to `.in()` generates invalid SQL (`WHERE id IN ()`). | Guard with `if (ids.length === 0) return [];` or use a placeholder UUID (existing pattern in checkout, line 110-111). |
+| Next.js `revalidatePath` | Using default `"page"` type when layout provides data. Already burned by this in v1.8 (driver avatar not syncing). | Always use `revalidatePath(path, "layout")` when layouts contain data-dependent components. See `.claude/ERROR_HISTORY.md` and `.claude/learnings/nextjs.md`. |
+| Stripe checkout + Supabase | Creating order before payment confirmed, then failing to clean up on TOCTOU re-validation failure. Current cleanup code (lines 222-227 of `checkout/session/route.ts`) has a broken `.eq()` on order_item_modifiers. | Fix the CQ-01 TOCTOU bug first (Phase 0). Use `.in()` with actual `orderItemIds` array for modifier cleanup, not the broken empty-string comparison. |
+
+---
+
+## Performance Traps
+
+| Trap | Symptoms | Prevention | When It Breaks |
+|------|----------|------------|----------------|
+| N+1 queries in ops dashboard | Dashboard takes 3+ seconds to load 40 orders. Each order triggers separate query for customer profile, delivery address, route assignment. | Use Supabase joins: `orders.select('*, profiles(*), addresses(*), route_stops(route_id)')`. Single query returns all data. Existing `admin/orders/route.ts` already joins `profiles` and `order_items` but is missing `addresses` and route assignment. | > 30 orders (current scale) |
+| Unindexed `delivery_date` filter on routes | Route list page scans full `routes` table when filtering by Saturday date. | Add index: `CREATE INDEX idx_routes_delivery_date ON routes(delivery_date)`. Also add `CREATE INDEX idx_orders_status ON orders(status)` for the ops dashboard status counts. | > 100 routes (a few months of Saturdays) |
+| Client-side geographic grouping | Calculating distances between all order addresses client-side using Google Maps Distance Matrix API. 40 orders = 40x40 = 1,600 API calls ($5/1,000 calls = $8 per dashboard load). | Pre-compute lat/lng at address verification time. Store in `addresses` table. Use Haversine formula server-side for simple geographic clustering. No external API needed for "group by neighborhood" at 20-50 orders. | Immediately (cost + rate limits) |
+| Countdown timer re-renders | Cutoff countdown updating every second re-renders entire dashboard. | Isolate countdown in its own component with `React.memo`. Use `setInterval` with `useRef` for the timer value. Only re-render the countdown number, not parent. | > 20 components on dashboard |
+| Bulk email rendering | 40 order confirmations each render a React Email template to HTML. `render()` is synchronous and CPU-intensive. Serverless function timeout at 10s. | Batch email rendering. Or better: decouple email sending from status change. Status change returns immediately; emails are queued via a separate process (Supabase Edge Function or cron). | > 20 emails in single request |
+| Settings read on every request | `sendEmail()` reads `app_settings` for kill switch on every email. In bulk operations, 40 emails = 40 reads of the same row. | Cache the kill switch value in-memory with a 60-second TTL. Or read once at the start of the bulk operation and pass as parameter. | > 10 emails per request |
+
+---
+
+## Security Mistakes
+
+| Mistake | Risk | Prevention |
+|---------|------|------------|
+| Bulk status endpoint without rate limiting | Malicious admin (or compromised session) could spam-confirm/cancel all orders in seconds | Apply existing `adminLimiter` to bulk endpoint. Additionally add per-operation limit: max 100 orders per bulk call |
+| Route assignment without driver ownership verification | The V4 milestone doc flags SC-03: driver API queries need ownership checks. If missed, one driver could view/modify another driver's route data | All driver-facing endpoints must include `.eq('driver_id', currentDriverId)` in queries. Use `get_my_driver_id()` RLS function consistently |
+| Resend webhook without Svix signature verification | Attacker can forge webhook payloads to mark all emails as "delivered" or "bounced", corrupting email status tracking | Install `svix` package. Implement proper HMAC-SHA256 signature verification. The current fallback (simple secret header check) is insufficient for production |
+| Configurable business rules with no validation bounds | Admin accidentally sets delivery fee to $15,000 (15000 typed instead of 1500 cents) or cutoff hour to 25 | Add Zod schema validation with reasonable bounds: `cutoff_hour: z.number().min(0).max(23)`, `delivery_fee_cents: z.number().min(0).max(10000)`, etc. Current `updateSettingsSchema` validates structure but not business-logic bounds |
+| Admin settings endpoint without audit trail | Business-critical values (cutoff time, delivery fee) changed with no record of who changed what when | Add `settings_audit_log` table or extend `order_audit_log` to track settings changes. Store `{ key, old_value, new_value, changed_by, changed_at }`. The existing `updated_by` column in `app_settings` only tracks the last change, not history |
+| Production Supabase shared with staging | Same database for staging and production means test data pollutes real orders, or test operations affect real customers | Use separate Supabase projects for staging and production. Different API keys, different database. Migrate schema, not data |
+
+---
+
+## UX Pitfalls
+
+| Pitfall | User Impact | Better Approach |
+|---------|-------------|-----------------|
+| Bulk operation with no progress indicator | Operator clicks "Confirm All" on 40 orders, nothing happens for 5 seconds, clicks again, now 80 confirmation emails are queued | Show inline progress bar: "Confirming orders... 23/40". Disable the button immediately on click. Show result summary on completion |
+| Driver simple mode that hides too much | Non-technical family member can't find the "complete route" button because it's hidden in simple mode | Simple mode should show: customer name, address, phone, "Mark Delivered" button, and "Complete Route" button. Nothing else. Test with actual non-technical family member before launch |
+| Driver simple mode toggle resets on refresh | Driver toggles to simple mode, closes browser, reopens -- back to complex mode. Has to ask operator for help every Saturday | Persist simple mode preference in `drivers` table (not localStorage -- different devices). Or better: make simple mode the default for drivers with `is_family: true` flag. Operator sets this once during driver setup |
+| Past-cutoff messaging without next available date | Customer visits at 4PM Friday, sees "Ordering closed" with no context about when they can order | Always show: "Ordering closed for this Saturday. Order now for next Saturday, March 8th." Include the specific next date. Current `getDeliveryDate()` already calculates this but it's not surfaced in error modals |
+| Route assignment without visual confirmation of address grouping | Operator assigns 8 orders to a route but can't see if they're geographically close. Results in inefficient routes with 30-minute detours | Show a mini-map preview with pins when orders are selected. Even without optimization algorithm, visual clustering helps the operator make better decisions. Use existing Google Maps integration |
+| Email failure surfaced only in admin dashboard | Admin doesn't check email dashboard during hectic Saturday morning. Customer never gets order confirmation. Customer calls to ask if order was received | Add a visual indicator on the order row itself: red email icon = failed. Make it impossible to miss. Add to the ops dashboard status counts: "3 emails failed" badge |
+
+---
+
+## "Looks Done But Isn't" Checklist
+
+- [ ] **Bulk status change:** Often missing per-order error handling -- verify individual failures are surfaced, not swallowed
+- [ ] **Bulk status change:** Often missing email deduplication -- verify same order doesn't get confirmation email twice (once from individual handler, once from bulk)
+- [ ] **Route creation:** Often missing check for orders already assigned to other active routes -- verify `route_stops` uniqueness constraint or pre-check exists
+- [ ] **Route creation:** Often missing order status update after assignment -- orders should transition to "preparing" or stay "confirmed", but driver should see them
+- [ ] **Configurable settings:** Often missing migration of ALL hardcoded consumers -- verify `DELIVERY_FEE_CENTS` in `src/lib/utils/order.ts`, `CUTOFF_HOUR` in `src/types/delivery.ts`, and `TIME_WINDOWS` are all reading from database
+- [ ] **Configurable settings:** Often missing client-side sync -- verify checkout page, cart drawer, and menu page all read cutoff/delivery fee from API, not constants
+- [ ] **Email retry:** Often missing idempotency -- verify retried email uses same idempotency key, not a new `Date.now()` key
+- [ ] **Email retry:** Often missing status check before retry -- verify "Retry" is disabled when Resend webhook confirmed delivery
+- [ ] **Driver simple mode:** Often missing test with actual non-technical user -- verify family member can complete a 5-stop route without any guidance
+- [ ] **Driver simple mode:** Often missing persistence -- verify mode preference survives browser close, device switch, and app update
+- [ ] **Production cutover:** Often missing separate Supabase project -- verify production uses different API keys, URL, and database from staging
+- [ ] **Production cutover:** Often missing Resend domain verification -- verify `delivery.mandalaymorningstar.com` domain is verified in Resend dashboard for production email sending
+- [ ] **Production cutover:** Often missing Upstash Redis provisioning -- verify Upstash Redis is provisioned via Vercel Marketplace for production rate limiting
+- [ ] **Saturday dry run:** Often missing full lifecycle test -- verify 10 orders through: place -> confirm -> assign route -> driver starts -> deliver -> complete route -> emails received
+
+---
+
+## Recovery Strategies
+
+| Pitfall | Recovery Cost | Recovery Steps |
+|---------|---------------|----------------|
+| Bulk status change partial failure | LOW | Refetch all orders from database. Update UI to match actual state. Retry failed orders individually with error details |
+| Orphaned route (stops insert failed) | MEDIUM | Query for routes with 0 stops (`SELECT * FROM routes WHERE id NOT IN (SELECT DISTINCT route_id FROM route_stops)`). Delete orphans. Add periodic cleanup job |
+| Stale business rules (cached cutoff) | LOW | Clear Next.js cache: `revalidateTag('business-rules')`. Hard refresh client. Worst case: restart Vercel deployment |
+| Duplicate emails sent | LOW | Apologize to customer. No technical recovery needed. Add idempotency to prevent recurrence |
+| Driver mode preference lost | LOW | Operator resets driver preference via admin panel. Low severity -- annoying but not data-corrupting |
+| Production database corrupted by staging data | HIGH | Restore from Supabase point-in-time recovery. Audit all rows created during contamination window. This is why separate projects are critical |
+| Resend webhook forgery (no signature verification) | MEDIUM | Audit `notification_logs` for suspicious patterns. Reset webhook secret. Implement proper Svix verification. Re-sync status from Resend API for affected emails |
+| Settings changed to invalid values (no bounds checking) | MEDIUM | Restore from `app_settings` audit log (if implemented) or use the existing restore endpoint (`/api/admin/settings/restore`). Add validation bounds to prevent recurrence |
+
+---
+
+## Pitfall-to-Phase Mapping
+
+| Pitfall | Prevention Phase | Verification |
+|---------|------------------|--------------|
+| Bulk status change non-atomic | Phase 1 (Ops Dashboard) | Test: confirm 40 orders where 5 are already cancelled. All 35 should confirm; 5 should report failure. No orders in inconsistent state |
+| Optimistic UI corruption | Phase 1 (Ops Dashboard) | Test: trigger a network error during bulk operation. Dashboard should show accurate state after retry, not phantom confirmed orders |
+| Route creation non-atomic | Phase 2 (Route Assignment) | Test: create route with order already assigned to another route. Should fail entirely, no orphaned route created |
+| N+1 queries on dashboard | Phase 1 (Ops Dashboard) + Phase 7 (Hardening) | Measure: dashboard load with 40 orders should be < 500ms. Check Supabase logs for query count (should be 1-3, not 40+) |
+| Stale cutoff from cached settings | Phase 4 (Business Rules) | Test: change cutoff from 3PM to 5PM. Within 60 seconds, checkout page should accept orders between 3-5PM |
+| Duplicate emails on retry | Phase 5 (Email Reliability) | Test: retry a "sent" email. Resend dashboard should show only 1 delivery (idempotency key prevents duplicate) |
+| Driver simple mode not persisted | Phase 6 (Driver Simplification) | Test: toggle simple mode, close browser, reopen. Mode should persist |
+| Resend webhook not verified | Phase 5 (Email Reliability) | Test: send forged webhook payload with wrong signature. Should return 401, not update notification_logs |
+| Settings without bounds validation | Phase 4 (Business Rules) | Test: set `cutoff_hour` to 25, `delivery_fee_cents` to -100. Both should be rejected with validation error |
+| Production database shared with staging | Phase 7 (Production Hardening) | Verify: production `.env` has different `NEXT_PUBLIC_SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` from staging |
+| Email bulk rendering timeout | Phase 5 (Email Reliability) | Test: bulk confirm 40 orders. API should respond in < 3 seconds. Emails should send asynchronously after response |
+| Checkout TOCTOU cleanup bug (CQ-01) | Phase 0 (Critical Bugs) | Test: checkout with item deactivated between validation and Stripe session creation. Order + items + modifiers should be fully cleaned up. Verify `.in()` used, not broken `.eq()` |
+
+---
+
+## Phase-Specific Warnings
+
+| Phase | Likely Pitfall | Mitigation |
+|-------|---------------|------------|
+| Phase 0 (Critical Bugs) | Fix introduces regression in checkout flow | Run existing 335 unit tests + checkout test suite after every fix. Add new test for each bug fixed |
+| Phase 1 (Ops Dashboard) | Dashboard becomes too complex -- operator overwhelmed on Saturday morning | Design for the "Saturday 10AM panic" scenario. Default view should answer "what needs attention NOW?" in < 3 seconds. Progressive disclosure for details |
+| Phase 2 (Route Assignment) | Geographic grouping implementation scope creep (auto-optimization, Google Maps integration) | Keep it manual. Show pins on a map, let operator drag-select. No algorithm needed at 20-50 orders. Flag for post-launch if > 100 orders |
+| Phase 3 (Customer Gate) | Saturday-only messaging confuses international customers or creates timezone issues | All cutoff logic uses `Asia/Yangon` timezone (TIMEZONE constant). Display times in customer's context: "Order by Friday 3PM Myanmar time" |
+| Phase 4 (Business Rules) | Incomplete migration leaves some paths using old constants | Create a lint rule or grep search for all hardcoded values being migrated. Run before closing the phase: `grep -r "CUTOFF_HOUR\|DELIVERY_FEE_CENTS\|FREE_DELIVERY_THRESHOLD" src/` should return 0 results from non-migration files |
+| Phase 5 (Email Reliability) | Retry storm from admin repeatedly clicking retry on "pending" emails | Disable retry button for 30 seconds after click. Show "Retrying..." state. Rate-limit the retry endpoint separately |
+| Phase 6 (Driver Simplification) | Testing only with technical users, not actual family members | Mandatory user test: hand phone to non-technical family member, ask them to complete 3 mock deliveries. No verbal instructions allowed |
+| Phase 7 (Production Hardening) | Production cutover treated as "just deploy" | Full checklist: separate Supabase project, Upstash Redis provisioned, Resend domain verified, Stripe webhook URL updated, DNS configured, Sentry DSN for production, Google Maps API billing enabled, CRON job scheduled, database backup strategy |
+
+---
+
+## Sources
+
+- Codebase audit: `src/app/api/admin/orders/[id]/status/route.ts`, `src/app/api/admin/routes/route.ts`, `src/app/api/admin/settings/route.ts`, `src/app/api/webhooks/resend/route.ts`, `src/lib/email/send.ts`, `src/lib/utils/delivery-dates.ts`, `src/lib/utils/order.ts`
+- Project error history: `.claude/ERROR_HISTORY.md` (driver avatar cache, NEXT_REDIRECT handling, storage migration permissions)
+- Project learnings: `.claude/learnings/supabase-auth.md` (RLS patterns, metadata staleness), `.claude/learnings/state-management.md` (single mutation owner, debounce)
+- [Resend webhook verification docs](https://resend.com/docs/dashboard/webhooks/verify-webhooks-requests) -- Svix signature verification requirements
+- [Svix verification guide](https://docs.svix.com/receiving/verifying-payloads/how) -- HMAC-SHA256 verification, replay attack prevention
+- [Webhook security best practices](https://dev.to/digital_trubador/webhook-security-best-practices-for-production-2025-2026-384n) -- idempotency, retry storm prevention
+- [Supabase query optimization](https://supabase.com/docs/guides/database/query-optimization) -- join performance, indexing strategies
+- [Supabase joins and nesting](https://supabase.com/docs/guides/database/joins-and-nesting) -- avoiding N+1 with embedded selects
+- [Supabase stale data troubleshooting](https://supabase.com/docs/guides/troubleshooting/nextjs-1314-stale-data-when-changing-rls-or-table-data-85b8oQ) -- Next.js cache + Supabase race conditions
+- [Next.js caching guide](https://nextjs.org/docs/app/guides/caching) -- revalidatePath, revalidateTag patterns
+- [Vercel production checklist](https://vercel.com/docs/production-checklist) -- DNS, environment variables, monitoring
+- [Martin Fowler: Feature Toggles](https://martinfowler.com/articles/feature-toggles.html) -- toggle lifecycle management, testing complexity
+- V4 Milestone doc: `V4_MILESTONE_MVP.md` -- Phase structure, acceptance criteria, pre-launch checklist
+
+---
+*Pitfalls research for: v1.9 Launch-Ready MVP*
+*Researched: 2026-03-01*

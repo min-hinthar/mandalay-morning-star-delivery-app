@@ -1,534 +1,212 @@
-# Feature Landscape: v1.8 Post-Launch Hardening & Driver Experience
-
-**Domain:** Driver experience overhaul, security hardening, and role-based auth for weekly meal delivery PWA
-**Researched:** 2026-02-16
-**Confidence:** HIGH (verified against codebase, official Supabase/Next.js docs, web research)
-
-## Current State Assessment
-
-| Area                | Current State                                                                                 | v1.8 Target                                                                      |
-| ------------------- | --------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------- |
-| Driver dashboard    | Home with today's route + stats, active route view, history page                              | Add earnings, planned routes, availability, profile setup                        |
-| Driver nav          | 3 tabs: Home, Route, History                                                                  | Expand for earnings + schedule tabs                                              |
-| Driver onboarding   | POST /api/driver/onboard collects name, phone, vehicle, plate, password                       | Add guided first-delivery walkthrough                                            |
-| Auth redirects      | All users land on `/` after login; driver layout checks role on render                        | Middleware-based redirect: admin -> /admin, driver -> /driver, customer -> /menu |
-| CSP headers         | None configured; `poweredByHeader: false` is only security header                             | Full CSP with nonces for inline scripts                                          |
-| RLS policies        | 17 tables have RLS policies in migration 002; newer tables (011-020) have partial RLS         | Audit all tables, add missing policies                                           |
-| Rate limiting       | In-memory Map in `rate-limit.ts`; resets per serverless cold start                            | Upgrade to Upstash Redis or Vercel KV                                            |
-| Driver profile      | DriversRow has vehicle_type, license_plate, phone, profile_image_url, onboarding_completed_at | Add profile edit page, photo upload                                              |
-| Driver earnings     | DriverDashboardProps has `weeklyEarningsCents` field (unused, always undefined)               | Compute from route/delivery data, display dashboard                              |
-| Driver availability | No concept of availability or schedule in schema                                              | New: driver_availability table + UI                                              |
-| Planned routes      | Driver only sees today's in_progress/planned routes                                           | Show future assigned routes                                                      |
-
----
-
-## Table Stakes (Users Expect These)
-
-Features that are non-negotiable for the v1.8 driver experience and security milestones.
-
-### 1. Role-Based Login Redirects
-
-| Feature                                                                 | Why Expected                                                                               | Complexity | Depends On                                                               |
-| ----------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------ |
-| Middleware-based auth redirect                                          | Drivers currently land on customer homepage after login; confusing UX                      | MEDIUM     | Next.js middleware, Supabase session, profiles.role lookup               |
-| Role detection from JWT/profile                                         | Must check `profiles.role` (or `app_metadata.role` for admin) to determine redirect target | LOW        | Existing `requireAdmin`/`requireDriver` patterns                         |
-| Redirect targets: admin -> /admin, driver -> /driver, customer -> /menu | Each role has a distinct landing page already built                                        | LOW        | Existing route groups                                                    |
-| Auth callback role-aware redirect                                       | `/auth/callback` currently redirects to `next` param or `/`; should detect role            | LOW        | Existing callback route at `src/app/auth/callback/route.ts`              |
-| Protect admin routes from non-admins at middleware level                | Currently checked in layout.tsx; middleware is more secure (blocks before render)          | MEDIUM     | Middleware must NOT call `getUser()` (expensive); use session JWT claims |
-
-**Implementation pattern (verified from Supabase docs):**
-
-- Create `middleware.ts` at project root (currently none exists)
-- Use `@supabase/ssr` `updateSession()` to refresh auth tokens
-- Read role from `session.user.app_metadata.role` (fast, no DB query)
-- For drivers, fall back to profiles table check (role not in app_metadata by default)
-- Redirect map: `{ admin: '/admin', driver: '/driver', customer: '/menu' }`
-- Exclude from middleware: `/api/*`, `/_next/*`, `/auth/*`, `/login`, public pages
-
-**Caveats:**
-
-- `user_metadata` is user-editable and MUST NOT be trusted for auth. Use `app_metadata` (server-side only) or DB query.
-- Middleware runs on edge; cannot use Node.js-only Supabase client. Use `@supabase/ssr` cookie-based client.
-- Do NOT use middleware for heavy role lookups on every request; cache role in JWT claims via Supabase auth hook.
-
-**Confidence:** HIGH -- verified via Supabase official docs for Next.js server-side auth and middleware pattern.
-
-### 2. Content Security Policy Headers
-
-| Feature                                             | Why Expected                                                                | Complexity | Depends On                                       |
-| --------------------------------------------------- | --------------------------------------------------------------------------- | ---------- | ------------------------------------------------ |
-| CSP header via middleware (nonce-based)             | Prevents XSS; required for production security                              | MEDIUM     | Next.js middleware                               |
-| Nonce generation per request                        | Each page render gets a unique nonce for inline scripts                     | LOW        | `crypto.randomUUID()` in middleware              |
-| Allow Supabase, Stripe, Google Maps, Sentry domains | External scripts/connections must be whitelisted                            | LOW        | Know all external domains used                   |
-| Allow Framer Motion/GSAP inline styles              | Animation libraries set inline styles; `style-src 'unsafe-inline'` or nonce | LOW        | App Router requires `'unsafe-inline'` for styles |
-| Report-only mode first                              | Deploy CSP in report-only to catch violations before enforcing              | LOW        | `Content-Security-Policy-Report-Only` header     |
-
-**Required CSP directives for this app:**
-
-```
-default-src 'self';
-script-src 'self' 'nonce-{nonce}' 'strict-dynamic' https://js.stripe.com https://maps.googleapis.com;
-style-src 'self' 'unsafe-inline';  // Required for App Router + animation libs
-img-src 'self' blob: data: https://*.supabase.co https://lh3.googleusercontent.com https://drive.google.com;
-font-src 'self' https://fonts.gstatic.com;
-connect-src 'self' https://*.supabase.co https://api.stripe.com https://maps.googleapis.com https://*.sentry.io https://vitals.vercel-insights.com;
-frame-src https://js.stripe.com https://hooks.stripe.com;
-object-src 'none';
-base-uri 'self';
-form-action 'self';
-frame-ancestors 'none';
-upgrade-insecure-requests;
-```
-
-**Confidence:** HIGH -- verified via Next.js official CSP guide; `style-src 'unsafe-inline'` is required for App Router.
-
-### 3. Supabase RLS Audit
-
-| Feature                                         | Why Expected                                                                                                                                                    | Complexity | Depends On                                |
-| ----------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- | ----------------------------------------- |
-| Audit all tables for RLS enabled                | Some newer tables may lack RLS                                                                                                                                  | MEDIUM     | SQL query against pg_tables + pg_policies |
-| Verify driver can only see own routes/stops     | `get_my_driver_id()` function used correctly                                                                                                                    | LOW        | Existing function in migrations           |
-| Verify customer can only see own orders         | Existing policies look correct; need testing                                                                                                                    | LOW        | Test with different user sessions         |
-| Verify admin bypass works for all tables        | `is_admin()` function checked                                                                                                                                   | LOW        | Existing function                         |
-| Add RLS for tables added after 002_rls_policies | Tables from migrations 008-020: featured_sections, customer_settings, driver_invites, webhook_events, driver_ratings, order_audit_log, email_logs, app_settings | MEDIUM     | Individual migration files                |
-| Index columns used in RLS policies              | `user_id`, `driver_id`, `route_id` used in WHERE clauses of policies                                                                                            | LOW        | CREATE INDEX IF NOT EXISTS                |
-
-**Tables needing RLS audit (codebase-verified):**
-
-| Table               | RLS Enabled? | Policies Exist?     | Notes                                         |
-| ------------------- | ------------ | ------------------- | --------------------------------------------- |
-| profiles            | YES          | YES (002)           | Select own + admin, update own                |
-| addresses           | YES          | YES (002)           | Full CRUD for own, admin select               |
-| menu_categories     | YES          | YES (002)           | Public read, admin write                      |
-| menu_items          | YES          | YES (002)           | Public read, admin write                      |
-| orders              | YES          | YES (002)           | Own read, admin update                        |
-| order_items         | YES          | YES (002)           | Join-based own read                           |
-| drivers             | YES          | YES (002)           | Own read/update, admin insert/delete          |
-| routes              | YES          | YES (002)           | Driver-own + admin                            |
-| route_stops         | YES          | YES (002)           | Route-owner + order-owner + admin             |
-| location_updates    | YES          | YES (002)           | Driver-own insert, tracking read              |
-| delivery_exceptions | YES          | YES (002)           | Route-owner + admin                           |
-| driver_ratings      | YES          | YES (002)           | Order-owner insert, driver-own read           |
-| featured_sections   | NEEDS CHECK  | Likely from 008/009 | May need admin-only write policy              |
-| customer_settings   | NEEDS CHECK  | Likely from 019     | Own-only read/write                           |
-| driver_invites      | YES          | YES (012-018)       | Multiple fix migrations -- verify final state |
-| webhook_events      | NEEDS CHECK  | Unknown             | Should be service-role only                   |
-| order_audit_log     | NEEDS CHECK  | Likely from 011     | Admin read, system insert                     |
-| app_settings        | NEEDS CHECK  | Likely from 010     | Admin read/write                              |
-| email_logs          | NEEDS CHECK  | Likely from 020     | Admin read                                    |
-
-**Confidence:** HIGH -- verified from migration files in codebase.
-
-### 4. Rate Limiting Upgrade
-
-| Feature                                      | Why Expected                                                                                | Complexity | Depends On                         |
-| -------------------------------------------- | ------------------------------------------------------------------------------------------- | ---------- | ---------------------------------- |
-| Replace in-memory Map with distributed store | Current rate limiter resets on each serverless cold start; useless on Vercel                | MEDIUM     | Upstash Redis or Vercel KV         |
-| Sliding window algorithm                     | Current implementation is basic fixed-window; upgrade to sliding window for smoother limits | LOW        | `@upstash/ratelimit` provides this |
-| Rate limit auth endpoints                    | signIn: 5/min, signUp: 3/hr, resetPassword: 3/hr (current config is good)                   | LOW        | Preserve existing config values    |
-| Rate limit API routes                        | Add rate limiting to driver location updates, order creation, admin bulk operations         | LOW        | Apply to high-traffic endpoints    |
-| Edge middleware rate limiting                | Block abusive IPs before they hit API routes                                                | MEDIUM     | Middleware + Upstash Redis         |
-
-**Recommended approach: Upstash Redis + @upstash/ratelimit**
-
-- Vercel KV is also Upstash-backed but Upstash direct is cheaper and has better rate limit SDK
-- `@upstash/ratelimit` provides sliding window, token bucket, fixed window algorithms
-- Caches data in edge function memory when "hot"; only calls Redis on cold start
-- Cost: Upstash free tier gives 10K commands/day (sufficient for this app)
-
-**Confidence:** HIGH -- verified via Upstash docs and Vercel rate limiting template.
-
-### 5. Driver Earnings Dashboard
-
-| Feature                           | Why Expected                                           | Complexity | Depends On                                             |
-| --------------------------------- | ------------------------------------------------------ | ---------- | ------------------------------------------------------ |
-| Weekly earnings summary card      | Drivers need to see what they earned this week         | MEDIUM     | Earnings computation logic; no `earnings` table exists |
-| Per-route earnings breakdown      | Show earnings per completed route                      | LOW        | Computed from deliveries_count + route stats           |
-| Earnings history (weekly/monthly) | Drivers want to see trends over time                   | MEDIUM     | Aggregate from completed routes                        |
-| Earnings chart (bar/line)         | Visual earnings trend; Recharts already in the project | LOW        | Recharts (already installed, lazy-loaded)              |
-
-**Schema consideration:**
-The app has no `earnings` or `payments` table. Earnings must be derived from existing data or a new table.
-
-Option A: **Compute from config** -- Admin sets per-delivery rate in app_settings; earnings = rate x deliveries. Simple but inflexible.
-
-Option B: **New `driver_earnings` table** -- Track per-route earnings with columns: driver_id, route_id, delivery_date, base_pay_cents, bonus_cents, tip_cents, total_cents. More flexible, supports future features (bonuses, tips).
-
-**Recommendation:** Option A for v1.8 (compute from config). The app is a small weekly delivery service with a fixed per-delivery rate. A dedicated earnings table is over-engineering for the current scale. Add it later if tip/bonus features are needed.
-
-**Confidence:** MEDIUM -- earnings model depends on business rules not fully specified.
-
-### 6. Driver Route History & Stats
-
-| Feature                                 | Why Expected                                                  | Complexity | Depends On                  |
-| --------------------------------------- | ------------------------------------------------------------- | ---------- | --------------------------- |
-| Past routes list with completion stats  | Already exists at `/driver/history` with DriverHistoryContent | LOW        | Already built; enhance only |
-| On-time percentage (computed from data) | Already showing real on-time percentage                       | DONE       | Already in v1.6             |
-| Total deliveries count                  | Already on dashboard (deliveriesCount)                        | DONE       | DriversRow.deliveries_count |
-| Average rating display                  | Already on dashboard (ratingAvg)                              | DONE       | DriversRow.rating_avg       |
-| Route detail view with map              | Already exists at `/driver/route/[stopId]`                    | DONE       | Existing pages              |
-
-**What's actually missing (codebase-verified):**
-
-- No lifetime/monthly stats aggregation beyond the 3 stat cards
-- No date-range filtering on history
-- History shows recent routes but no pagination
-- No "best week" or performance milestones
-
-**Recommendation:** The history/stats feature is largely built. Focus v1.8 enhancement on: (1) date-range filtering, (2) pagination for history, (3) monthly summary view. Keep scope small.
-
-**Confidence:** HIGH -- verified from existing DriverHistoryContent.tsx and history page.
-
-### 7. Planned/Assigned Route Visibility
-
-| Feature                                              | Why Expected                                                 | Complexity | Depends On                                               |
-| ---------------------------------------------------- | ------------------------------------------------------------ | ---------- | -------------------------------------------------------- |
-| See upcoming assigned routes (not just today's)      | Drivers currently only see today's planned/in_progress route | MEDIUM     | Query routes table for future dates                      |
-| Weekly schedule view                                 | Show all routes assigned for the coming week                 | LOW        | Simple date-range query on routes table                  |
-| Route preview with stop count and estimated duration | Before delivery day, driver sees what's coming               | LOW        | stats_json already has stop counts and duration          |
-| Push notification for new route assignment           | Alert driver when admin assigns them a route                 | HIGH       | Requires push notification infrastructure (not in scope) |
-
-**Implementation:**
-
-- API: Add `/api/driver/routes/upcoming` endpoint querying `routes` where `driver_id = mine AND delivery_date > today AND status = 'planned'`
-- UI: New section on driver home page showing upcoming routes, or a separate `/driver/schedule` page
-- RLS: Existing `routes_select` policy already allows drivers to see their own routes (any date)
-
-**Confidence:** HIGH -- routes table already has delivery_date and driver_id; just needs a new query endpoint.
-
-### 8. Driver Availability Scheduling
-
-| Feature                                 | Why Expected                                                   | Complexity | Depends On                       |
-| --------------------------------------- | -------------------------------------------------------------- | ---------- | -------------------------------- |
-| Mark available/unavailable days         | Admin needs to know which drivers are available for assignment | MEDIUM     | New `driver_availability` table  |
-| Weekly availability calendar            | Visual day-of-week picker for recurring availability           | LOW        | Client-side calendar component   |
-| One-off unavailability (vacation, sick) | Driver can block specific dates                                | LOW        | Date picker + availability table |
-| Admin view of driver availability       | Admin sees who's available when creating routes                | MEDIUM     | Admin drivers page enhancement   |
-
-**Schema recommendation:**
-
-```sql
-CREATE TABLE driver_availability (
-  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  driver_id UUID REFERENCES drivers(id) NOT NULL,
-  day_of_week INT,            -- 0=Sun..6=Sat (recurring weekly)
-  specific_date DATE,          -- For one-off overrides
-  is_available BOOLEAN DEFAULT true,
-  notes TEXT,
-  created_at TIMESTAMPTZ DEFAULT now(),
-  updated_at TIMESTAMPTZ DEFAULT now()
-);
-```
-
-- `day_of_week` for recurring (e.g., "I'm available every Saturday")
-- `specific_date` for overrides (e.g., "Not available Feb 22")
-- Specific date overrides recurring availability
-- RLS: Driver can read/write own, admin can read all
-
-**Context:** This is a weekly Saturday delivery service. Availability is primarily "am I available this Saturday?" Simple toggle per week is sufficient MVP.
-
-**Confidence:** MEDIUM -- schema design is straightforward but business rules for availability need confirmation.
-
-### 9. Driver Profile Setup & Edit
-
-| Feature                                         | Why Expected                                                  | Complexity | Depends On                                                              |
-| ----------------------------------------------- | ------------------------------------------------------------- | ---------- | ----------------------------------------------------------------------- |
-| Profile edit page (name, phone, vehicle, plate) | Onboarding collects these but driver can't change them        | LOW        | Update drivers/profiles tables                                          |
-| Profile photo upload                            | `profile_image_url` field exists but no upload UI for drivers | MEDIUM     | Supabase Storage (menu-photos bucket exists; need driver-photos bucket) |
-| Vehicle info display on dashboard               | Show vehicle type badge on driver home                        | LOW        | Already in DriversRow.vehicle_type                                      |
-| Profile completeness indicator                  | Show what's missing from profile                              | LOW        | Check null fields                                                       |
-
-**Existing onboarding flow (codebase-verified):**
-
-- Admin invites driver via email magic link
-- Driver clicks link -> auth callback sets role metadata -> redirect to /driver/onboard
-- Onboard form collects: fullName, phone, vehicleType, licensePlate, password
-- Creates profile + drivers record, marks invite accepted
-- No profile photo upload in onboarding
-
-**What to add:**
-
-- `/driver/profile` page with edit form
-- Photo upload component (reuse pattern from admin MenuItemPhotoSection)
-- New Supabase Storage bucket: `driver-photos`
-- Update to drivers table via PATCH endpoint
-
-**Confidence:** HIGH -- existing onboard flow is well-understood; profile edit is straightforward extension.
-
-### 10. Guided First Delivery Walkthrough
-
-| Feature                                                | Why Expected                                       | Complexity | Depends On                                          |
-| ------------------------------------------------------ | -------------------------------------------------- | ---------- | --------------------------------------------------- |
-| Step-by-step tooltip walkthrough on first login        | New drivers need to understand the delivery flow   | MEDIUM     | Onboarding state tracking (onboarding_completed_at) |
-| Interactive tour of dashboard, route view, stop detail | Walk through each major screen with action prompts | MEDIUM     | Tooltip/highlight overlay system                    |
-| Test delivery mode                                     | Practice delivery flow without real orders         | HIGH       | Mock data system for test routes                    |
-| Checklist showing completed onboarding steps           | Progress indicator for what's been learned         | LOW        | Local storage or driver record flags                |
-
-**Recommendation:** Skip the full interactive tour and test delivery mode for v1.8. Instead:
-
-1. **Onboarding checklist** on dashboard for new drivers (profile complete? first route viewed? first delivery done?)
-2. **Contextual tooltips** on first visit to route/stop pages (use `onboarding_completed_at` as gate)
-3. **Test page for delivery flow** -- a dedicated `/driver/test-delivery` with mock data (specified in project scope)
-
-**Confidence:** MEDIUM -- walkthrough UX is well-documented in industry but implementation complexity varies.
-
----
-
-## Differentiators (Competitive Advantage)
-
-Features that elevate the driver experience beyond basic functionality.
-
-| Feature                           | Value Proposition                                                                                                    | Complexity | Notes                                             |
-| --------------------------------- | -------------------------------------------------------------------------------------------------------------------- | ---------- | ------------------------------------------------- |
-| Earnings streak/badges            | Gamification motivates consistent availability; DriverDashboard already has `badges` and `streakDays` props (unused) | LOW        | Wire up existing UI props with computed data      |
-| Performance milestones            | "100 deliveries" badge, "5-star streak" -- driver retention tool                                                     | LOW        | Computed from existing driver stats fields        |
-| Offline-first availability toggle | Driver can mark available/unavailable even without connection; sync via existing IndexedDB queue                     | MEDIUM     | Extend existing offline sync system               |
-| Animated earnings counter         | Earnings number animates up as deliveries complete; AnimatedValue component already exists                           | LOW        | Reuse existing AnimatedValue from admin dashboard |
-| Route preview with Google Maps    | Show upcoming route on map before delivery day; Google Maps already integrated                                       | LOW        | Reuse existing route map components               |
-| Driver-to-admin messaging         | Quick message to admin about route issues without phone call                                                         | HIGH       | Requires new messaging infrastructure             |
-| Weather-aware route alerts        | Show weather warnings for delivery day                                                                               | MEDIUM     | External weather API integration                  |
-
----
-
-## Anti-Features (Do NOT Build for v1.8)
-
-| Feature                             | Why It Seems Needed                | Why Problematic                                                                                              | Alternative                                                           |
-| ----------------------------------- | ---------------------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------- |
-| Real-time earnings tracking         | "Drivers want instant updates"     | This is a weekly Saturday delivery, not gig economy; real-time adds complexity with no value                 | Show earnings on route completion                                     |
-| Driver-side route optimization      | "Let drivers reorder stops"        | Admin assigns optimized routes; driver reordering undermines admin control and optimization                  | Admin optimizes, driver follows                                       |
-| Tip tracking from customers         | "Drivers want to see tips"         | No tip infrastructure exists; Stripe checkout doesn't include tips; adding is a major feature                | Defer to v2 if tips are desired                                       |
-| In-app navigation (turn-by-turn)    | "Drivers need directions"          | Google Maps/Waze deep links already provide this; building in-app nav is enormous scope                      | Keep existing "Navigate" button that opens native maps                |
-| Driver chat/messaging               | "Drivers need to communicate"      | Phone call to admin is sufficient for small team; chat requires infrastructure (websockets, message storage) | Phone number on dashboard                                             |
-| Multi-language driver interface     | "Burmese drivers need Burmese UI"  | Internationalization is a large cross-cutting concern; driver UI is small and action-oriented                | Keep English; add Burmese labels for key actions only if needed       |
-| Automated route assignment          | "System should auto-assign routes" | Weekly delivery with 2-3 drivers doesn't need automation; admin manual assignment works                      | Keep admin manual assignment                                          |
-| Driver payments/payroll integration | "Pay drivers through the app"      | Payroll is a regulated, complex domain; Morning Star pays drivers outside the app                            | Track earnings for visibility; actual payment stays external          |
-| Push notifications                  | "Notify drivers of new routes"     | Requires service worker push subscription, backend push service, permission flow                             | Use email notifications for route assignments (Resend already set up) |
-
----
+# Feature Research
+
+**Domain:** Meal delivery ops tooling (small-scale, Saturday-only, solo operator, family drivers)
+**Researched:** 2026-03-01
+**Confidence:** HIGH
+
+## Feature Landscape
+
+### Table Stakes (Users Expect These)
+
+Features the solo operator and customers will assume exist for a functional Saturday operation. Missing any of these means the app cannot go live.
+
+| Feature | Why Expected | Complexity | Notes |
+|---------|--------------|------------|-------|
+| **Ops status overview** -- at-a-glance order counts by status (pending/confirmed/preparing/out/delivered) | Operator needs situational awareness in <5 seconds on Saturday morning | LOW | Existing admin orders page has status filter badges with counts; needs elevation to a dedicated ops view scoped to current Saturday |
+| **Bulk status transitions** -- select multiple orders, advance status in one click | 40 orders x individual clicks = 10 min wasted; every delivery platform has bulk actions | MEDIUM | No bulk endpoint exists. Need `POST /api/admin/orders/bulk-status` with array of order IDs + target status. Optimistic UI with rollback on partial failure |
+| **Order-to-route assignment** -- assign confirmed orders to a driver's route | Core operational workflow; without this, operator must call/text drivers manually | MEDIUM | Route creation API exists (`POST /api/admin/routes` with `orderIds` + `driverId`). UI needs a visual assignment panel. `PATCH /api/admin/orders/[id]/driver` assigns driver to individual order |
+| **Unassigned orders indicator** -- badge showing orders not yet on any route | Operator must know at a glance how many orders still need routing | LOW | Query: orders with status `confirmed`/`preparing` with no matching `route_stops` entry. Display as red badge count |
+| **Order cutoff enforcement** -- prevent checkout after cutoff time | Customers will attempt to order Saturday morning; must be blocked with clear messaging | LOW | `isPastCutoff()` exists in `delivery-dates.ts` but has bug (BL-01: time-only comparison). Fix + surface cutoff modal at checkout |
+| **Email delivery status visibility** -- admin sees whether email reached customer | If customer says "I never got confirmation", operator needs to check | LOW | `notification_logs` table tracks status (sent/failed/delivered/opened/bounced). Need admin UI to surface per-order email status |
+| **Failed email retry** -- one-click resend for failed emails | Emails fail; operator needs self-service recovery without developer help | LOW | `POST /api/admin/emails/[id]/resend` already exists. Wire into admin email dashboard and per-order detail view |
+| **Configurable delivery fee** -- change delivery fee without code deploy | Business rule that changes seasonally | LOW | `app_settings` table + admin settings UI exist with `baseDeliveryFeeCents`. Wire server-side reads to use DB value instead of hardcoded constant |
+| **Configurable cutoff time** -- change order cutoff without code deploy | May shift from Friday 3PM to Friday 5PM based on kitchen capacity | MEDIUM | `CUTOFF_HOUR` and `CUTOFF_DAY` are hardcoded in `types/delivery.ts`. Refactor `getCutoffForSaturday()` and `isPastCutoff()` to read from `app_settings`. Settings schema already has `deliveryCutoffTime` |
+| **Driver stop list** -- driver sees ordered list of stops with name, address, phone | Minimum viable driver experience for completing deliveries | LOW | Existing driver route page (`/driver/route`) fetches active route with stops. Already functional |
+| **Mark delivered action** -- driver taps to mark individual stop delivered | Core delivery completion workflow | LOW | Existing `PATCH /api/driver/routes/[routeId]/stops/[stopId]`. Already functional |
+
+### Differentiators (Competitive Advantage)
+
+Features that make this app specifically suited for a solo operator running 20-50 Saturday orders with family/friend drivers.
+
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| **Saturday ops command center** -- single-screen dashboard with countdown timers, status pipeline, driver status, time-slot grouping | Solo operator manages entire Saturday from one screen in <3 minutes; generic admin pages force navigation between orders/routes/drivers | HIGH | New page or redesign of `/admin` for Saturday context. Combines: order status counts with action buttons, cutoff countdown, delivery-start countdown, driver availability widget, time-window groupings (11am: 12, 1pm: 8). Heavy frontend, light backend (reuses existing APIs) |
+| **One-click route builder** -- "Unassigned Orders" panel + "Available Drivers" panel, click to create route | Reduces route creation from multi-step form to visual assignment. At 2-4 drivers and 40 orders, highest-leverage UX improvement | HIGH | Backend: existing `POST /api/admin/routes` accepts `orderIds` + `driverId`. Frontend: split-panel layout, order cards grouped by time window or geography, driver cards with capacity indicator, click-to-assign |
+| **Driver simple mode** -- toggle that strips driver UI to stop list, customer info, "Mark Delivered" button, one-tap call/text | Family members who deliver occasionally need zero-training UI; existing pages have earnings, badges, availability that confuse non-technical users | MEDIUM | Add `simple_mode` boolean to `drivers` table or `driver_preferences` JSONB. When enabled: hide earnings, badges, availability scheduling. Show only: current route stops, address, phone, "Mark Delivered" with confirmation |
+| **Confirmation dialogs on delivery** -- "Mark as delivered at 123 Main St?" before completing | Prevents accidental delivery completion on wrong stop; critical for non-technical family drivers | LOW | Frontend-only: confirmation modal before `PATCH /api/driver/routes/[routeId]/stops/[stopId]`. No backend changes |
+| **Pre-checkout Saturday messaging** -- dynamic hero CTA, menu banner, cart countdown, cutoff modal | Customer instantly understands Saturday-only model within 3 seconds; reduces support questions and abandoned carts | MEDIUM | Touches hero section, menu page, cart drawer, checkout page. Uses existing `getDeliveryDate()` and `getTimeUntilCutoff()`. Mostly frontend with existing data |
+| **Email reliability dashboard** -- failure rate summary, bounce tracking, webhook event audit trail | Solo operator self-diagnoses email issues without developer; surfaces Resend webhook data already captured | MEDIUM | `notification_logs` captures webhook events via Resend handler. Need: admin page with stats summary, failure list with retry buttons, email event timeline from `metadata.resend_events` |
+| **Auto-suggest geographic grouping** -- group unassigned orders by delivery area for route creation | At 40 orders, visual geographic grouping helps operator create efficient routes without a routing algorithm | MEDIUM | Cluster by zip code or postal code from delivery addresses. No Google Maps API needed for clustering |
+| **Offline route instructions** -- banner telling driver their route is cached locally | Family driver in cellular dead zone can still see stops; service worker already exists | LOW | Service worker caches pages. Need: explicit prefetch of route data into IndexedDB when route loads, offline-aware banner |
+
+### Anti-Features (Commonly Requested, Often Problematic)
+
+| Feature | Why Requested | Why Problematic | Alternative |
+|---------|---------------|-----------------|-------------|
+| **Real-time GPS tracking for customers** | "I want to see my driver like Uber" | Continuous location streaming, battery drain, privacy, WebSocket infrastructure. Overkill at 20-50 orders | Text-based status: "Out for delivery" then "Delivered". Order tracking page exists with polling |
+| **Route optimization algorithm** | "Auto-optimize stop order" | Google Directions API cost, TSP solver complexity, poor time-window handling. Manual ordering fine at 5-10 stops per route | Geographic grouping suggestions + manual drag-to-reorder within route |
+| **Push notifications** | "Notify customers on status change" | VAPID keys, permission UX, cross-browser testing, background sync. Email + text covers it | Transactional emails (already built) + optional SMS later |
+| **Multi-admin role system** | "Different permissions for helper" | Solo operator now. RBAC adds schema complexity, permission checks everywhere, role management UI | Single admin role (already implemented). Revisit when second operator hired |
+| **Driver gamification / leaderboard** | "Motivate drivers with badges" | Family drivers are not gig workers. Gamification creates awkward family dynamics. Badges exist from v1.8 | Simple route completion celebration. Hide badges/streaks in simple mode |
+| **Auto-assign drivers to routes** | "System should auto-create routes" | At 2-4 drivers, manual takes <2 minutes. Auto-assignment needs availability, capacity balancing, geo optimization. Gets it wrong and operator wastes more time fixing | One-click visual assignment panel. Fast enough at current scale |
+| **Customer loyalty / referral** | "Reward repeat customers" | Need 50 regulars first. Points tracking, reward redemption, abuse prevention | Focus on delivery quality. Word of mouth is the referral system |
+| **Advanced analytics** | "Heatmaps, cohort analysis" | Current 7-day KPIs sufficient. Analytics require data warehouse, aggregation, complex viz. 20-50 orders/week doesn't need this | Simple KPIs (built): orders, revenue, fulfillment rate. Add email delivery rate |
 
 ## Feature Dependencies
 
 ```
-Role-Based Redirects
-    requires -> Next.js middleware.ts (new file)
-    requires -> Supabase session refresh in middleware
-    enhances -> All role-specific landing pages (already built)
-
-CSP Headers
-    requires -> Next.js middleware.ts (same file as auth redirects)
-    requires -> Nonce generation per request
-    requires -> Audit all external scripts/styles/connections
-    conflicts with -> Nothing (additive security)
-
-RLS Audit
-    requires -> Access to Supabase SQL editor or migration files
-    independent of -> All other features
-    blocks -> Nothing (but should complete before adding new tables)
-
-Rate Limiting Upgrade
-    requires -> Upstash Redis account + API keys
-    requires -> @upstash/ratelimit package install
-    replaces -> src/lib/utils/rate-limit.ts (in-memory Map)
-    independent of -> Other features
-
-Driver Earnings Dashboard
-    requires -> Earnings computation logic (per-delivery rate from app_settings)
-    requires -> Completed routes/deliveries data (already exists)
-    enhances -> Driver dashboard home page
-    independent of -> Availability scheduling
-
-Driver Route History Enhancement
-    requires -> Existing history page (already built)
-    independent of -> Other features
-    enhances -> Driver history page with filtering/pagination
-
-Planned Route Visibility
-    requires -> New API endpoint for upcoming routes
-    requires -> Existing routes table and RLS policies
-    enhances -> Driver home page
-    independent of -> Availability scheduling (but complementary)
-
-Driver Availability Scheduling
-    requires -> New driver_availability table
-    requires -> RLS policies for new table
-    enhances -> Admin route assignment workflow
-    complements -> Planned route visibility
-
-Driver Profile Setup
-    requires -> Supabase Storage bucket for photos
-    requires -> New /driver/profile page
-    enhances -> Driver onboarding flow
-    independent of -> Other features
-
-Guided First Delivery
-    requires -> Driver profile setup (needs completed profile first)
-    requires -> Test route data or mock system
-    enhances -> Driver onboarding experience
-    should follow -> Profile setup and planned routes
+[Bug Fixes (Phase 0)]
+    |
+    +--requires--> [Configurable Business Rules]
+    |                  |
+    |                  +--enables--> [Customer Pre-Checkout Gate]
+    |                  |               (reads cutoff from app_settings)
+    |                  |
+    |                  +--enables--> [Saturday Ops Dashboard]
+    |                                  (reads cutoff for countdown timers)
+    |
+    +--requires--> [Saturday Ops Dashboard]
+    |                  |
+    |                  +--enables--> [Route & Driver Assignment]
+    |                                  (unassigned orders panel feeds from ops view)
+    |
+    +--independent--> [Email Reliability]
+    |                    (existing APIs + webhook handler + notification_logs)
+    |
+    +--independent--> [Driver Simplification]
+    |                    (existing driver pages + mode toggle)
+    |
+    +--independent--> [Production Hardening]
+                        (N+1 fixes, indexes, rate limits)
 ```
 
-### Critical Path
+### Dependency Notes
 
-```
-Middleware.ts (shared foundation)
-    ├── Role-based redirects (add auth redirect logic)
-    └── CSP headers (add CSP nonce generation)
+- **Bug Fixes must precede everything:** TOCTOU cleanup bug, cutoff logic, and cart race condition are production blockers. No feature work until these are resolved.
+- **Configurable Business Rules enables Pre-Checkout Gate:** Checkout gate needs cutoff time from `app_settings` instead of hardcoded `CUTOFF_HOUR=15`. Building gate with hardcoded values creates immediate tech debt.
+- **Configurable Business Rules enables Ops Dashboard:** Countdown timers need cutoff time and delivery hours from `app_settings`.
+- **Ops Dashboard enables Route Assignment:** Route assignment UI lives within or adjacent to ops dashboard. Unassigned orders count flows from the same data. Building assignment without ops context means rework.
+- **Email Reliability is independent:** The pipeline (`sendEmail` -> `notification_logs` -> Resend webhook -> status update) already works. This is purely admin UI + webhook audit enhancement.
+- **Driver Simplification is independent:** Adding `simple_mode` toggle and conditional rendering has no feature dependencies. Build in parallel.
+- **Production Hardening is independent:** N+1 fixes, indexes, rate limit tuning are infrastructure with no feature dependencies.
 
-Security (can run in parallel)
-    ├── RLS audit (SQL work, independent)
-    └── Rate limiting upgrade (package install + refactor)
+## MVP Definition
 
-Driver Experience (sequential within, parallel to security)
-    ├── Driver profile setup (foundation for others)
-    ├── Earnings dashboard (independent of profile)
-    ├── Planned route visibility (independent)
-    ├── Availability scheduling (needs new table)
-    ├── History enhancement (existing page polish)
-    └── First delivery walkthrough (last -- needs other features working)
-```
+### Launch With (v1.9)
 
----
+Essential for the first real Saturday operation:
 
-## Milestone Phase Recommendation
+- [x] Bug fixes (TOCTOU, cutoff, cart race) -- production blockers
+- [ ] Saturday Ops Dashboard with bulk status transitions -- operator manages 40 orders from one screen
+- [ ] Route & Driver Assignment panel -- operator creates routes and assigns drivers visually
+- [ ] Customer Pre-Checkout Gate -- Saturday-only messaging, cutoff enforcement modal
+- [ ] Configurable cutoff time + delivery fee -- operator adjusts without deploy
+- [ ] Email status visibility per order -- operator answers "did customer get the email?"
+- [ ] Failed email retry -- self-service recovery for email failures
+- [ ] Driver simple mode toggle -- family member completes route without training
+- [ ] Confirmation dialogs on driver delivery actions -- prevents mis-delivery
 
-### Phase 1: Security Foundation
+### Add After Validation (v1.9.x)
 
-- Middleware.ts with role-based redirects + CSP headers
-- RLS audit for all tables
-- Rate limiting upgrade to Upstash
+Add once first 2-3 Saturdays run successfully:
 
-### Phase 2: Driver Profile & Earnings
+- [ ] Geographic grouping suggestions for route creation -- after seeing real address distribution
+- [ ] Email reliability dashboard with failure rate charts -- after accumulating enough email volume
+- [ ] Webhook audit trail with body hash + svix signature verification -- security hardening
+- [ ] Offline route instructions with explicit prefetch -- after testing in low-signal areas
+- [ ] Order tracking polling indicator with "last updated" timestamp -- customer UX polish
 
-- Driver profile edit page with photo upload
-- Earnings dashboard (computed from app_settings rate)
-- Driver home page enhancements
+### Future Consideration (v2+)
 
-### Phase 3: Route Visibility & Scheduling
+Defer until consistent 100+ orders/week:
 
-- Planned/upcoming route view
-- Availability scheduling (new table + UI)
-- History page enhancements (filtering, pagination)
-
-### Phase 4: Onboarding & Polish
-
-- Guided first delivery walkthrough
-- Test delivery page
-- Driver UI polish (layout, mobile usability, visual consistency)
-
-**Phase ordering rationale:**
-
-1. Security first because it's foundational and doesn't depend on feature work
-2. Profile + earnings next because they're the most visible driver improvements
-3. Routes + scheduling require new schema (driver_availability) -- keep schema changes together
-4. Onboarding walkthrough last because it needs the other features working to walk through
-
----
+- [ ] Route optimization algorithm -- manual scales to ~100 orders
+- [ ] Real-time GPS tracking -- text status sufficient
+- [ ] Push notifications -- email + text covers communication
+- [ ] Multi-admin roles -- solo operator for now
+- [ ] Advanced analytics -- simple KPIs sufficient
+- [ ] Customer loyalty/referral -- get 50 regulars first
 
 ## Feature Prioritization Matrix
 
-| Feature                  | User Value | Implementation Cost | Priority | Phase |
-| ------------------------ | ---------- | ------------------- | -------- | ----- |
-| Role-based redirects     | HIGH       | MEDIUM              | P0       | 1     |
-| CSP headers              | HIGH       | MEDIUM              | P0       | 1     |
-| RLS audit                | HIGH       | MEDIUM              | P0       | 1     |
-| Rate limiting upgrade    | MEDIUM     | MEDIUM              | P1       | 1     |
-| Driver profile edit      | HIGH       | LOW                 | P1       | 2     |
-| Earnings dashboard       | HIGH       | MEDIUM              | P1       | 2     |
-| Planned route visibility | HIGH       | LOW                 | P1       | 3     |
-| Availability scheduling  | MEDIUM     | MEDIUM              | P1       | 3     |
-| History enhancements     | LOW        | LOW                 | P2       | 3     |
-| Guided walkthrough       | MEDIUM     | MEDIUM              | P2       | 4     |
-| Test delivery page       | MEDIUM     | HIGH                | P2       | 4     |
-| Driver UI polish         | MEDIUM     | LOW                 | P2       | 4     |
-| Earnings badges/streaks  | LOW        | LOW                 | P3       | 4     |
+| Feature | User Value | Implementation Cost | Priority | Depends On |
+|---------|------------|---------------------|----------|------------|
+| Bug fixes (TOCTOU, cutoff, cart race) | CRITICAL | LOW | P0 | Nothing |
+| Bulk status transitions | HIGH | MEDIUM | P1 | Bug fixes |
+| Ops status overview with counts | HIGH | LOW | P1 | Bug fixes |
+| Countdown timers (cutoff + delivery start) | HIGH | LOW | P1 | Configurable rules |
+| Unassigned orders badge | HIGH | LOW | P1 | Bug fixes |
+| Configurable cutoff time + cutoff day | HIGH | MEDIUM | P1 | Bug fixes |
+| Configurable delivery fee + free threshold | MEDIUM | LOW | P1 | Bug fixes |
+| One-click route builder | HIGH | HIGH | P1 | Ops dashboard |
+| Unassigned orders panel | HIGH | MEDIUM | P1 | Ops dashboard |
+| Available drivers panel | MEDIUM | LOW | P1 | Ops dashboard |
+| Customer pre-checkout gate (cutoff modal) | HIGH | MEDIUM | P1 | Configurable rules |
+| Saturday messaging (hero, menu, cart) | MEDIUM | MEDIUM | P1 | Configurable rules |
+| Email status on order detail | MEDIUM | LOW | P2 | Nothing |
+| Failed email retry UI | MEDIUM | LOW | P2 | Nothing |
+| Driver simple mode toggle | MEDIUM | MEDIUM | P2 | Nothing |
+| Confirmation dialogs on delivery | MEDIUM | LOW | P2 | Nothing |
+| One-tap customer contact (call/text) | MEDIUM | LOW | P2 | Nothing |
+| Geographic grouping suggestions | LOW | MEDIUM | P3 | Route builder |
+| Email reliability dashboard | LOW | MEDIUM | P3 | Email visibility |
+| Webhook audit logging (body hash) | LOW | LOW | P3 | Nothing |
+| N+1 query fixes | MEDIUM | LOW | P2 | Nothing |
+| DB index audit | MEDIUM | LOW | P2 | Nothing |
+| Rate limit tuning | LOW | LOW | P3 | Nothing |
+| Driver ownership check (SC-03) | MEDIUM | LOW | P2 | Nothing |
 
 **Priority key:**
+- P0: Blocks everything. Fix before any feature work
+- P1: Must have for first Saturday. Core operational capability
+- P2: Should have. Important for quality and reliability
+- P3: Nice to have. Defer if timeline is tight
 
-- P0: Security requirements -- must ship before other features
-- P1: Core driver experience improvements
-- P2: Polish and onboarding enhancements
-- P3: Nice to have, wire up existing unused UI props
+## Existing Infrastructure Leverage
 
----
+This milestone builds heavily on existing code. Understanding what exists avoids rebuilding.
+
+| Feature Need | What Already Exists | Gap to Close |
+|---|---|---|
+| Order status management | `PATCH /api/admin/orders/[id]/status` with valid transitions map, audit logging via `order_audit_log`, email notification on status change | Need bulk endpoint for multiple orders simultaneously |
+| Route creation | `POST /api/admin/routes` accepts `orderIds` + `driverId`, validates order status (confirmed/preparing), checks for duplicate route assignments, creates `route_stops` | Need visual UI; currently API-only |
+| Driver assignment | `PATCH /api/admin/orders/[id]/driver` with driver validation, audit logging, previous driver tracking | Need batch assignment via route creation UI |
+| Settings storage | `app_settings` table with `GET/PATCH /api/admin/settings`, Zod validation schemas (delivery/operations/notifications), admin settings UI with 3 tab forms, `FloatingUnsavedBar`, `RestoreDefaultsDialog` | Wire server logic to read cutoff/fees from DB instead of hardcoded constants in `types/delivery.ts` |
+| Email sending | `sendEmail()` with admin kill switch (`email_sending_enabled`), user preference check (`customer_settings.notification_prefs`), retry with exponential backoff (3 attempts, 10s base), notification_logs insert on success/failure | Surface logs in admin UI per order |
+| Email retry | `POST /api/admin/emails/[id]/resend` reconstructs email from order data, re-sends via full pipeline | Wire retry button into admin email UI |
+| Resend webhooks | `POST /api/webhooks/resend` maps events (delivered/opened/clicked/bounced/complained), updates `notification_logs` status, appends to `metadata.resend_events` array | Surface webhook data in admin; add svix signature verification |
+| Email log listing | `GET /api/admin/emails` with pagination, filtering by order/type/status/date, sorting by 5 columns | Need admin dashboard page to render this data |
+| Cutoff logic | `isPastCutoff()`, `getCutoffForSaturday()`, `getTimeUntilCutoff()`, `getDeliveryDate()` in `delivery-dates.ts` with timezone-aware calculations | Bug fix (BL-01) + refactor to read cutoff_hour/cutoff_day from `app_settings` |
+| Delivery constants | `CUTOFF_DAY=5` (Friday), `CUTOFF_HOUR=15` (3PM), `TIMEZONE="America/Los_Angeles"`, 8 time windows (11am-7pm hourly) in `types/delivery.ts` | Move to `app_settings`; keep constants as fallback defaults |
+| Driver dashboard | Full page with route status, stops, earnings, badges, availability, streak days, next route date | Add simple mode conditional rendering to hide complex sections |
+| Driver route view | `/driver/route` with active route, stop list, stop status, delivery actions, map polyline | Add confirmation dialog before status change, one-tap contact buttons |
+| Admin settings UI | `SettingsClient` with `DeliverySettingsForm`, `OperationsSettingsForm`, `NotificationSettingsForm`, restore defaults, `FloatingUnsavedBar` for unsaved changes | Add cutoff_day, cutoff_hour, delivery_start/end hours to delivery settings form |
+| Admin orders page | Status filter badges with counts, `OrdersTable`, individual status change via dropdown, refresh button | Elevate to ops dashboard with bulk actions and action buttons per status group |
+| Admin routes page | Route listing with date filter, driver info, stop counts, completion rate | Enhance with visual assignment panel for unassigned orders |
 
 ## Competitor Feature Analysis
 
-| Feature            | DoorDash Dasher                                | Uber Eats Driver                        | Morning Star (v1.8)                        |
-| ------------------ | ---------------------------------------------- | --------------------------------------- | ------------------------------------------ |
-| Earnings dashboard | Real-time per-delivery + weekly summary + tips | Real-time with fare breakdown           | Weekly summary computed from delivery rate |
-| Route assignment   | On-demand offers                               | On-demand offers                        | Admin-assigned weekly routes               |
-| Availability       | Set hours per day/week                         | Toggle online/offline                   | Weekly availability toggle                 |
-| Profile setup      | Photo, vehicle, documents, background check    | Photo, vehicle, documents               | Photo, vehicle, license plate              |
-| Navigation         | Built-in turn-by-turn                          | Built-in with Uber nav                  | External maps deep link                    |
-| Performance stats  | Acceptance rate, completion rate, on-time      | Rating, satisfaction, cancellation rate | Rating, on-time %, delivery count          |
-| Onboarding         | Multi-day orientation + test deliveries        | Video tutorials + shadow delivery       | Guided walkthrough + test page             |
-
-**Key insight:** Morning Star is NOT a gig platform. It's a small weekly delivery service with 2-3 regular drivers. Features like on-demand offers, real-time earnings, and built-in navigation are over-engineering. Focus on clarity, simplicity, and reliability over feature parity with DoorDash/Uber.
-
----
-
-## Feature Complexity Estimates
-
-| Feature                 | Frontend                 | Backend                   | Schema                  | Total             |
-| ----------------------- | ------------------------ | ------------------------- | ----------------------- | ----------------- |
-| Role-based redirects    | None                     | Middleware.ts             | None                    | MEDIUM (1 day)    |
-| CSP headers             | None                     | Middleware.ts (same file) | None                    | MEDIUM (0.5 day)  |
-| RLS audit               | None                     | SQL migration             | None                    | MEDIUM (1 day)    |
-| Rate limiting upgrade   | None                     | Refactor rate-limit.ts    | None                    | MEDIUM (0.5 day)  |
-| Driver profile edit     | New page + form          | PATCH endpoint            | None                    | LOW (1 day)       |
-| Profile photo upload    | Upload component         | Storage bucket            | None                    | MEDIUM (0.5 day)  |
-| Earnings dashboard      | Dashboard UI + chart     | Earnings API endpoint     | None (use app_settings) | MEDIUM (1-2 days) |
-| Planned route view      | Route list component     | GET upcoming routes API   | None                    | LOW (0.5 day)     |
-| Availability scheduling | Calendar UI              | CRUD API                  | New table               | MEDIUM (1-2 days) |
-| History enhancements    | Date filter + pagination | Existing API tweaks       | None                    | LOW (0.5 day)     |
-| Guided walkthrough      | Tooltip overlay system   | None                      | None                    | MEDIUM (1-2 days) |
-| Test delivery page      | Mock route view          | Mock data endpoint        | None                    | MEDIUM (1 day)    |
-| Driver UI polish        | Layout/style updates     | None                      | None                    | LOW (1 day)       |
-
-**Total estimated effort:** 10-14 days across 4 phases
-
----
+| Feature | DoorDash Merchant | Square for Restaurants | Toast | Our Approach |
+|---------|-------------------|------------------------|-------|--------------|
+| Ops dashboard | Real-time order board with auto-accept, kitchen display | POS-integrated order flow with ticket management | Kitchen display system with prep timing | Saturday-focused command center with batch operations, countdown timers |
+| Route assignment | Automated gig worker dispatch, algorithm-driven | Not applicable (customer pickup model) | Not applicable (dine-in/pickup focus) | Visual split-panel, manual one-click assignment (family drivers, 2-4 max) |
+| Cutoff / scheduling | Rolling availability with per-item prep time estimates | Business hours + online ordering windows | Daypart scheduling with auto-disable | Saturday-only with configurable cutoff, clear customer messaging, countdown |
+| Email reliability | Automated transactional, no admin visibility into delivery | Basic receipt emails, no failure tracking | Automated via integration, minimal admin tools | Admin dashboard with per-email status, one-click retry, webhook audit trail |
+| Driver simplification | Dasher app redesigned May 2025 with simplified layout, "Earn by Time" mode | Not applicable | Not applicable | Simple mode toggle for family/friend drivers, confirmation dialogs, one-tap contact |
+| Business rules config | Merchant portal with extensive settings | Dashboard settings with pos integration | Web admin with restaurant-specific config | `app_settings` DB table with admin form, takes effect immediately, no deploy |
 
 ## Sources
 
-### Role-Based Redirects
-
-- [Supabase: Setting up Server-Side Auth for Next.js](https://supabase.com/docs/guides/auth/server-side/nextjs) -- HIGH confidence
-- [Supabase: Use Supabase Auth with Next.js](https://supabase.com/docs/guides/auth/quickstarts/nextjs) -- HIGH confidence
-
-### Content Security Policy
-
-- [Next.js: Content Security Policy Guide](https://nextjs.org/docs/pages/guides/content-security-policy) -- HIGH confidence
-- [Next.js: next.config.js headers](https://nextjs.org/docs/pages/api-reference/config/next-config-js/headers) -- HIGH confidence
-- [Adding Security Headers to a Next.js Application](https://alvinwanjala.com/blog/adding-security-headers-nextjs/) -- MEDIUM confidence
-
-### Supabase RLS
-
-- [Supabase: Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security) -- HIGH confidence
-- [Supabase: Performance and Security Advisors](https://supabase.com/docs/guides/database/database-advisors) -- HIGH confidence
-- [Supabase RLS Best Practices: Production Patterns](https://makerkit.dev/blog/tutorials/supabase-rls-best-practices) -- MEDIUM confidence
-- [Supabase RLS Complete Guide 2026](https://vibeappscanner.com/supabase-row-level-security) -- MEDIUM confidence
-
-### Rate Limiting
-
-- [Vercel: Ratelimit with Upstash Redis Template](https://vercel.com/templates/next.js/ratelimit-with-upstash-redis) -- HIGH confidence
-- [Upstash: Rate Limiting Next.js API Routes](https://upstash.com/blog/nextjs-ratelimiting) -- HIGH confidence
-- [Upstash: Edge Rate Limiting](https://upstash.com/blog/edge-rate-limiting) -- HIGH confidence
-- [@upstash/ratelimit-js GitHub](https://github.com/upstash/ratelimit-js) -- HIGH confidence
-
-### Driver Experience / Delivery Apps
-
-- [Delivery Driver Statistics 2026 (Upper)](https://www.upperinc.com/blog/delivery-driver-statistics/) -- MEDIUM confidence
-- [10 Best Delivery Driver Apps (8ration)](https://www.8ration.com/blogs/apps-for-delivery-drivers/) -- MEDIUM confidence
-- [Dashboard Design Principles 2026 (DesignRush)](https://www.designrush.com/agency/ui-ux-design/dashboard/trends/dashboard-design-principles) -- MEDIUM confidence
-
-### Onboarding UX
-
-- [19 Onboarding UX Examples (UserPilot)](https://userpilot.com/blog/onboarding-ux-examples/) -- MEDIUM confidence
-- [In-App Onboarding Guide (Userflow)](https://www.userflow.com/blog/the-ultimate-guide-to-in-app-onboarding-boost-user-retention-and-engagement) -- MEDIUM confidence
-- [Product Tour UI/UX Patterns (Appcues)](https://www.appcues.com/blog/product-tours-ui-patterns) -- MEDIUM confidence
+- Codebase analysis: `src/app/api/admin/orders/`, `src/app/api/admin/routes/`, `src/app/api/admin/settings/`, `src/app/api/admin/emails/`, `src/app/api/webhooks/resend/`, `src/lib/email/`, `src/lib/utils/delivery-dates.ts`, `src/types/delivery.ts`, `src/lib/validations/settings.ts`, `src/components/ui/admin/settings/`
+- [Resend Webhook Documentation](https://resend.com/docs/webhooks/introduction) -- webhook events, retry policy (5s/5m/30m/2h/5h/10h), svix-id deduplication, at-least-once delivery guarantee
+- [Webhook reliability checklist](https://appmaster.io/blog/webhook-reliability-checklist) -- idempotency patterns, dead-letter queues, signature verification
+- [Food Delivery App Architecture (Enatega)](https://enatega.com/food-delivery-app-architecture/) -- dispatch service patterns, courier app features
+- [Redesigning A Delivery Driver App](https://amillionadventures.medium.com/redesigning-a-delivery-driver-app-part-3-ui-design-1b54d68eb6a7) -- driver UX simplification: friendlier tone, information hierarchy, obvious actions
+- [Food Delivery App Design (Agente)](https://agentestudio.com/blog/food-delivery-app-design) -- admin dashboard capabilities, order management patterns
+- [DispatchTrack Mobile App UX Refresh](https://www.dispatchtrack.com/company/news/mobile-app-ui-ux) -- driver app simplification: improved readability, modernized design, intuitive workflows
+- [Resend email best practices (GitHub)](https://github.com/resend/email-best-practices) -- email sending patterns, error handling
+- V4_MILESTONE_MVP.md -- existing milestone plan with 8-phase structure and acceptance criteria
 
 ---
-
-_Feature research for: v1.8 Post-Launch Hardening & Driver Experience_
-_Researched: 2026-02-16_
+*Feature research for: Meal delivery ops tooling (v1.9 Launch-Ready MVP)*
+*Researched: 2026-03-01*
