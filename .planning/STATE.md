@@ -49,10 +49,10 @@ See: .planning/PROJECT.md (updated 2026-03-01)
 ## Current Position
 
 Phase: 79 of 84 (Saturday Ops Dashboard) -- IN PROGRESS
-Plan: 1 of 3 in Phase 79 (Plan 01 complete)
+Plan: 2 of 3 in Phase 79 (Plan 02 complete)
 Milestone: v1.9 Launch-Ready MVP (8 phases, 49 requirements)
-Status: Phase 79 Plan 01 complete, ready for Plan 02
-Last activity: 2026-03-01 -- Phase 79 Plan 01 executed (ops foundation: helpers, hooks, API, tests)
+Status: Phase 79 Plan 02 complete, ready for Plan 03
+Last activity: 2026-03-01 -- Phase 79 Plan 02 executed (core dashboard UI: countdown bar, KPI grid, order list, bulk toolbar)
 
 Progress: [==========================........] 78/84 phases
 
@@ -81,6 +81,7 @@ Progress: [==========================........] 78/84 phases
 | v1.9 (partial) | 3      | 12    | <1 day   |
 | **Total**      | **78** | **321** | **30 days** |
 | Phase 79 P01 | 5min | 2 tasks | 8 files |
+| Phase 79 P02 | 9min | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,9 @@ Progress: [==========================........] 78/84 phases
 - v1.9 P79: Pure computeCountdown function exported separately from useCountdown hook for testability
 - v1.9 P79: useRef for isBulkOperating in polling hook to prevent stale closure in setInterval
 - v1.9 P79: Driver readiness checks ordered: inactive -> no availability -> day mismatch -> blocked date
+- v1.9 P79: AnimatePresence mode='wait' for countdown-to-alert transition (clean state swap)
+- v1.9 P79: Sequential PATCH with 100ms delay for bulk ops (avoids rate limiting)
+- v1.9 P79: ConfirmDialog reused from settings for bulk action confirmation (consistent UX)
 
 ### Pending Todos
 
@@ -126,5 +130,5 @@ Progress: [==========================........] 78/84 phases
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Phase 79 Plan 01 complete -- ops foundation (helpers, hooks, API, 26 tests)
-Next action: `/gsd:execute-phase 79` -- continue with Plan 02 (dashboard UI components)
+Stopped at: Phase 79 Plan 02 complete -- core dashboard UI (countdown bar, KPI grid, order list, bulk toolbar)
+Next action: `/gsd:execute-phase 79` -- continue with Plan 03 (driver panel)

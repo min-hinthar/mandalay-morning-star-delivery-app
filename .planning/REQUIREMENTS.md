@@ -21,12 +21,12 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 ### Ops Dashboard
 
 - [x] **OPS-01**: Ops center widget with order status counts and quick-action buttons
-- [ ] **OPS-02**: Bulk operations — checkbox select + bulk status change
+- [x] **OPS-02**: Bulk operations — checkbox select + bulk status change
 - [x] **OPS-03**: Countdown timers — cutoff warning and delivery start time
 - [x] **OPS-04**: Unassigned orders badge — red indicator for orders not on a route
 - [x] **OPS-05**: Driver availability widget — who's ready, who hasn't arrived
 - [x] **OPS-06**: Time window grouping — orders by delivery slot
-- [ ] **OPS-07**: Toast confirmation + optimistic UI on status changes
+- [x] **OPS-07**: Toast confirmation + optimistic UI on status changes
 
 ### Route Assignment
 
@@ -142,12 +142,12 @@ Which phases cover which requirements. Updated during roadmap creation.
 | BUG-07 | Phase 77 | Pending |
 | BUG-08 | Phase 77 | Pending |
 | OPS-01 | Phase 79 | Complete |
-| OPS-02 | Phase 79 | Pending |
+| OPS-02 | Phase 79 | Complete |
 | OPS-03 | Phase 79 | Complete |
 | OPS-04 | Phase 79 | Complete |
 | OPS-05 | Phase 79 | Complete |
 | OPS-06 | Phase 79 | Complete |
-| OPS-07 | Phase 79 | Pending |
+| OPS-07 | Phase 79 | Complete |
 | ROUTE-01 | Phase 80 | Pending |
 | ROUTE-02 | Phase 80 | Pending |
 | ROUTE-03 | Phase 80 | Pending |
