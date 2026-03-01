@@ -38,15 +38,28 @@ export const deliveryTimeWindowSchema = z.object({
 // DELIVERY SETTINGS
 // ===========================================
 
-export const deliverySettingsSchema = z.object({
+/** Base delivery settings object (used for .partial() in update validation) */
+export const deliverySettingsBaseSchema = z.object({
   delivery_radius_miles: z.number().min(1).max(100),
   minimum_order_cents: z.number().min(0),
   free_delivery_threshold_cents: z.number().min(0),
   base_delivery_fee_cents: z.number().min(0),
-  delivery_cutoff_time: z.string().regex(hhmmRegex, "Must be HH:MM format").optional(),
-  delivery_time_windows: z.array(deliveryTimeWindowSchema).optional(),
+  cutoff_day: z.number().int().min(0).max(6), // 0=Sunday..6=Saturday
+  cutoff_hour: z.number().int().min(0).max(23),
+  delivery_start_hour: z.number().int().min(0).max(23),
+  delivery_end_hour: z.number().int().min(1).max(24), // 24 = midnight end
+  max_delivery_duration_minutes: z.number().int().min(1).max(480),
   delivery_zones: z.array(deliveryZoneSchema).optional(),
 });
+
+/** Full delivery settings with cross-field validation */
+export const deliverySettingsSchema = deliverySettingsBaseSchema.refine(
+  (data) => data.delivery_end_hour > data.delivery_start_hour,
+  {
+    message: "End hour must be after start hour",
+    path: ["delivery_end_hour"],
+  }
+);
 
 export type DeliverySettings = z.infer<typeof deliverySettingsSchema>;
 
@@ -99,7 +112,7 @@ export const updateSettingsSchema = z
       // Validate settings based on category
       switch (data.category) {
         case "delivery":
-          return deliverySettingsSchema.partial().safeParse(data.settings).success;
+          return deliverySettingsBaseSchema.partial().safeParse(data.settings).success;
         case "operations":
           return operationsSettingsSchema.partial().safeParse(data.settings).success;
         case "notifications":

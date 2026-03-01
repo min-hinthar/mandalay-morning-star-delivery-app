@@ -49,8 +49,11 @@ export interface DeliverySettings {
   minimumOrderCents: number;
   freeDeliveryThresholdCents: number;
   baseDeliveryFeeCents: number;
-  deliveryCutoffTime: string;
-  deliveryTimeWindows: DeliveryTimeWindow[];
+  cutoffDay: number; // 0=Sunday..6=Saturday
+  cutoffHour: number; // 0-23
+  deliveryStartHour: number; // 0-23
+  deliveryEndHour: number; // 1-24
+  maxDeliveryDurationMinutes: number; // 1-480
   deliveryZones: DeliveryZone[];
 }
 

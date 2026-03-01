@@ -14,7 +14,11 @@ export interface DeliveryValidationErrors {
   minimumOrderCents?: string;
   freeDeliveryThresholdCents?: string;
   baseDeliveryFeeCents?: string;
-  deliveryCutoffTime?: string;
+  cutoffDay?: string;
+  cutoffHour?: string;
+  deliveryStartHour?: string;
+  deliveryEndHour?: string;
+  maxDeliveryDurationMinutes?: string;
 }
 
 export function validateDeliveryField(
@@ -34,10 +38,19 @@ export function validateDeliveryField(
     case "baseDeliveryFeeCents":
       if (typeof value !== "number" || value < 0) return "Must be 0 or greater";
       return undefined;
-    case "deliveryCutoffTime":
-      if (typeof value !== "string" || !/^([01]\d|2[0-3]):([0-5]\d)$/.test(value)) {
-        return "Must be valid time (HH:MM)";
-      }
+    case "cutoffDay":
+      if (typeof value !== "number" || value < 0 || value > 6) return "Must be 0-6 (Sun-Sat)";
+      return undefined;
+    case "cutoffHour":
+    case "deliveryStartHour":
+      if (typeof value !== "number" || value < 0 || value > 23) return "Must be 0-23";
+      return undefined;
+    case "deliveryEndHour":
+      if (typeof value !== "number" || value < 1 || value > 24) return "Must be 1-24";
+      return undefined;
+    case "maxDeliveryDurationMinutes":
+      if (typeof value !== "number" || value < 1) return "Must be at least 1 minute";
+      if (value > 480) return "Cannot exceed 480 minutes";
       return undefined;
     default:
       return undefined;
