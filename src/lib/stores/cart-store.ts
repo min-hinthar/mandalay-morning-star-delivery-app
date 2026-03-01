@@ -2,12 +2,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 import { v4 as uuidv4 } from "uuid";
 import type { CartItem, CartStore, SelectedModifier } from "@/types/cart";
-import {
-  DELIVERY_FEE_CENTS,
-  FREE_DELIVERY_THRESHOLD_CENTS,
-  MAX_CART_ITEMS,
-  MAX_ITEM_QUANTITY,
-} from "@/types/cart";
+import { MAX_CART_ITEMS, MAX_ITEM_QUANTITY } from "@/types/cart";
 import { cartIDBStorage } from "@/lib/services/cart-idb-storage";
 import { toast } from "@/lib/hooks/useToastV8";
 
@@ -87,6 +82,12 @@ export const useCartStore = create<CartStore>()(
       items: [],
       _hasHydrated: false,
       _setHasHydrated: (v: boolean) => set({ _hasHydrated: v }),
+
+      // Configurable delivery settings (defaults match DB seed values)
+      deliveryFeeCents: 1500,
+      freeDeliveryThresholdCents: 10000,
+      setDeliverySettings: (fee: number, threshold: number) =>
+        set({ deliveryFeeCents: fee, freeDeliveryThresholdCents: threshold }),
 
       /**
        * Add item to cart with deduplication and debounce protection.
@@ -202,8 +203,9 @@ export const useCartStore = create<CartStore>()(
       },
 
       getEstimatedDeliveryFee: () => {
+        const { freeDeliveryThresholdCents, deliveryFeeCents } = get();
         const subtotal = get().getItemsSubtotal();
-        return subtotal >= FREE_DELIVERY_THRESHOLD_CENTS ? 0 : DELIVERY_FEE_CENTS;
+        return subtotal >= freeDeliveryThresholdCents ? 0 : deliveryFeeCents;
       },
 
       getItemCount: () => {

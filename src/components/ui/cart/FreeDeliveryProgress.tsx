@@ -14,7 +14,7 @@ import { Truck, Sparkles, PartyPopper } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { FREE_DELIVERY_THRESHOLD_CENTS } from "@/types/cart";
+import { useCartStore } from "@/lib/stores/cart-store";
 
 // ============================================
 // TYPES
@@ -36,10 +36,13 @@ export function FreeDeliveryProgress({
   className,
 }: FreeDeliveryProgressProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  const freeDeliveryThresholdCents = useCartStore(
+    (state) => state.freeDeliveryThresholdCents
+  );
 
   const progressPercent = Math.min(
     100,
-    ((FREE_DELIVERY_THRESHOLD_CENTS - amountToFreeDelivery) / FREE_DELIVERY_THRESHOLD_CENTS) * 100
+    ((freeDeliveryThresholdCents - amountToFreeDelivery) / freeDeliveryThresholdCents) * 100
   );
 
   const hasFreeDelivery = amountToFreeDelivery === 0;
@@ -124,7 +127,9 @@ export function FreeDeliveryProgress({
             <span className="text-amber-600 dark:text-amber-400 font-medium">
               {Math.round(progressPercent)}% there
             </span>
-            <span className="text-text-money font-medium">Free at $100</span>
+            <span className="text-text-money font-medium">
+              Free at ${(freeDeliveryThresholdCents / 100).toFixed(0)}
+            </span>
           </div>
         </m.div>
       )}
@@ -161,7 +166,7 @@ export function FreeDeliveryProgress({
                 <PartyPopper className="w-4 h-4 text-green-500" />
               </div>
               <span className="text-xs text-green-600/80 dark:text-green-400/80">
-                You&apos;ve hit the $100 threshold
+                You&apos;ve hit the ${(freeDeliveryThresholdCents / 100).toFixed(0)} threshold
               </span>
             </div>
           </div>

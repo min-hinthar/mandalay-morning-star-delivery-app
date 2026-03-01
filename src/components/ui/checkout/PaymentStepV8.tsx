@@ -23,6 +23,7 @@ import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
+import type { TimeWindow } from "@/types/delivery";
 import { TimeSlotDisplay } from "./TimeSlotDisplay";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -52,13 +53,20 @@ export interface PaymentStepV8Props {
   onBack?: () => void;
   /** Disable navigation guard before external redirect */
   disableGuard?: () => void;
+  /** Dynamic time windows for display labels */
+  timeWindows?: TimeWindow[];
 }
 
 // ============================================
 // MAIN COMPONENT
 // ============================================
 
-export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8Props) {
+export function PaymentStepV8({
+  className,
+  onBack,
+  disableGuard,
+  timeWindows = [],
+}: PaymentStepV8Props) {
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -206,6 +214,7 @@ export function PaymentStepV8({ className, onBack, disableGuard }: PaymentStepV8
                 {delivery && (
                   <TimeSlotDisplay
                     selection={delivery}
+                    timeWindows={timeWindows}
                     className="mt-1 bg-primary/10 rounded-lg p-3 justify-center"
                   />
                 )}

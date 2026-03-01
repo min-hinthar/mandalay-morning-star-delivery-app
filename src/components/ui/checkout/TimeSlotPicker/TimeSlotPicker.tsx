@@ -13,7 +13,6 @@ import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import type { TimeWindow, DeliveryDate, DeliverySelection } from "@/types/delivery";
-import { TIME_WINDOWS } from "@/types/delivery";
 import { DatePill } from "./DatePill";
 import { TimeSlotPill } from "./TimeSlotPill";
 
@@ -21,6 +20,8 @@ export interface TimeSlotPickerProps {
   availableDates: DeliveryDate[];
   selectedDelivery: DeliverySelection | null;
   onSelectionChange: (selection: DeliverySelection) => void;
+  /** Dynamic time windows generated from configured delivery hours */
+  timeWindows: TimeWindow[];
   className?: string;
 }
 
@@ -28,6 +29,7 @@ export function TimeSlotPicker({
   availableDates,
   selectedDelivery,
   onSelectionChange,
+  timeWindows,
   className,
 }: TimeSlotPickerProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
@@ -80,11 +82,11 @@ export function TimeSlotPicker({
       if (selectedDelivery && selectedDelivery.date === date.dateString) return;
       onSelectionChange({
         date: date.dateString,
-        windowStart: TIME_WINDOWS[0].start,
-        windowEnd: TIME_WINDOWS[0].end,
+        windowStart: timeWindows[0].start,
+        windowEnd: timeWindows[0].end,
       });
     },
-    [selectedDelivery, onSelectionChange]
+    [selectedDelivery, onSelectionChange, timeWindows]
   );
 
   const handleTimeSelect = useCallback(
@@ -194,7 +196,7 @@ export function TimeSlotPicker({
               animate="visible"
               className="grid grid-cols-1 gap-3 px-1 w-full"
             >
-              {TIME_WINDOWS.map((slot, index) => {
+              {timeWindows.map((slot, index) => {
                 const isSlotSelected =
                   selectedTime?.start === slot.start && selectedTime?.end === slot.end;
                 return (

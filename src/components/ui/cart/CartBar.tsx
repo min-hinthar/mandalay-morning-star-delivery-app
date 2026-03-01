@@ -36,7 +36,6 @@ import {
   badgeVariants,
   triggerHaptic,
 } from "@/lib/motion-tokens";
-import { FREE_DELIVERY_THRESHOLD_CENTS } from "@/types/cart";
 
 // ============================================
 // TYPES
@@ -133,7 +132,8 @@ function FreeDeliveryBanner() {
 
 export function CartBar({ className, showCheckoutButton = true }: CartBarProps) {
   const router = useRouter();
-  const { isEmpty, itemCount, estimatedTotal, amountToFreeDelivery } = useCart();
+  const { isEmpty, itemCount, estimatedTotal, amountToFreeDelivery, freeDeliveryThresholdCents } =
+    useCart();
   const { open } = useCartDrawer();
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const playSound = usePlaySound();
@@ -165,7 +165,7 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
   // Calculate delivery progress
   const progressPercent = Math.min(
     100,
-    ((FREE_DELIVERY_THRESHOLD_CENTS - amountToFreeDelivery) / FREE_DELIVERY_THRESHOLD_CENTS) * 100
+    ((freeDeliveryThresholdCents - amountToFreeDelivery) / freeDeliveryThresholdCents) * 100
   );
   const hasFreeDelivery = amountToFreeDelivery === 0;
 

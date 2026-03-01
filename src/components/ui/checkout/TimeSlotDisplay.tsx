@@ -2,15 +2,16 @@
 
 import { Calendar, Clock } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { TIME_WINDOWS, TIMEZONE, type DeliverySelection } from "@/types/delivery";
+import { TIMEZONE, type DeliverySelection, type TimeWindow } from "@/types/delivery";
 
 interface TimeSlotDisplayProps {
   selection: DeliverySelection;
+  timeWindows: TimeWindow[];
   className?: string;
 }
 
-export function TimeSlotDisplay({ selection, className }: TimeSlotDisplayProps) {
-  const window = TIME_WINDOWS.find((item) => item.start === selection.windowStart);
+export function TimeSlotDisplay({ selection, timeWindows, className }: TimeSlotDisplayProps) {
+  const window = timeWindows.find((item) => item.start === selection.windowStart);
   const [year, month, day] = selection.date.split("-").map(Number);
   const displayDate = new Intl.DateTimeFormat("en-US", {
     weekday: "short",

@@ -28,6 +28,12 @@ export interface CartStore {
   items: CartItem[];
   _hasHydrated: boolean;
   _setHasHydrated: (v: boolean) => void;
+
+  /** Configurable delivery fee settings (populated from server on page load) */
+  deliveryFeeCents: number;
+  freeDeliveryThresholdCents: number;
+  setDeliverySettings: (fee: number, threshold: number) => void;
+
   addItem: (item: Omit<CartItem, "cartItemId" | "addedAt">) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   removeItem: (cartItemId: string) => void;
