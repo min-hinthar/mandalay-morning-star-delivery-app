@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
+  Activity,
   UtensilsCrossed,
   ClipboardList,
   FolderTree,
@@ -28,6 +29,11 @@ const navItems = [
     label: "Dashboard",
     href: "/admin",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Ops Center",
+    href: "/admin/ops",
+    icon: Activity,
   },
   {
     label: "Orders",
