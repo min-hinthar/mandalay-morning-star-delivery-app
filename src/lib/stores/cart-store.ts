@@ -104,54 +104,73 @@ export const useCartStore = create<CartStore>()(
           return;
         }
 
-        const { items } = get();
+        // BUG-04: Use atomic set((state) => ...) to prevent race conditions
+        // from concurrent calls reading stale state via get()
+        set((state) => {
+          const { items } = state;
 
-        // Find existing item with same signature for deduplication
-        const existingIndex = items.findIndex(
-          (existing) => createItemSignature(existing) === signature
-        );
+          // Find existing item with same signature for deduplication
+          const existingIndex = items.findIndex(
+            (existing) => createItemSignature(existing) === signature
+          );
 
-        if (existingIndex !== -1) {
-          // Merge: increment quantity of existing item
-          const existing = items[existingIndex];
-          const newQuantity = Math.min(existing.quantity + (item.quantity || 1), MAX_ITEM_QUANTITY);
+          if (existingIndex !== -1) {
+            // Merge: increment quantity of existing item
+            const existing = items[existingIndex];
+            const requestedQuantity = existing.quantity + (item.quantity || 1);
+            const newQuantity = Math.min(requestedQuantity, MAX_ITEM_QUANTITY);
 
-          set({
-            items: items.map((cartItem, idx) =>
-              idx === existingIndex ? { ...cartItem, quantity: newQuantity } : cartItem
-            ),
-          });
-          return;
-        }
+            // BUG-06: Toast when per-item quantity cap is hit
+            if (requestedQuantity > MAX_ITEM_QUANTITY) {
+              setTimeout(() => {
+                toast({ message: `Maximum ${MAX_ITEM_QUANTITY} per item`, type: "warning" });
+              }, 0);
+            }
 
-        // No match: add as new item
-        if (items.length >= MAX_CART_ITEMS) {
-          console.warn("[cart] Cart limit reached:", MAX_CART_ITEMS);
-          return;
-        }
+            return {
+              items: items.map((cartItem, idx) =>
+                idx === existingIndex ? { ...cartItem, quantity: newQuantity } : cartItem
+              ),
+            };
+          }
 
-        const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
+          // No match: add as new item
+          if (items.length >= MAX_CART_ITEMS) {
+            // BUG-06: Toast when cart items cap is hit (was console.warn)
+            setTimeout(() => {
+              toast({ message: `Cart is full (max ${MAX_CART_ITEMS} items)`, type: "warning" });
+            }, 0);
+            return state;
+          }
 
-        const newItem: CartItem = {
-          menuItemId: item.menuItemId,
-          menuItemSlug: item.menuItemSlug,
-          nameEn: item.nameEn,
-          nameMy: item.nameMy ?? null,
-          imageUrl: item.imageUrl ?? null,
-          basePriceCents: item.basePriceCents,
-          modifiers: item.modifiers || [],
-          notes: (item.notes || "").trim(),
-          cartItemId: uuidv4(),
-          addedAt: new Date().toISOString(),
-          quantity: Math.min(Math.max(1, item.quantity || 1), MAX_ITEM_QUANTITY),
-          ...(isOffline ? { pendingSync: true } : {}),
-        };
+          const isOffline = typeof navigator !== "undefined" && !navigator.onLine;
 
-        set({ items: [...items, newItem] });
+          const newItem: CartItem = {
+            menuItemId: item.menuItemId,
+            menuItemSlug: item.menuItemSlug,
+            nameEn: item.nameEn,
+            nameMy: item.nameMy ?? null,
+            imageUrl: item.imageUrl ?? null,
+            basePriceCents: item.basePriceCents,
+            modifiers: item.modifiers || [],
+            notes: (item.notes || "").trim(),
+            cartItemId: uuidv4(),
+            addedAt: new Date().toISOString(),
+            quantity: Math.min(Math.max(1, item.quantity || 1), MAX_ITEM_QUANTITY),
+            ...(isOffline ? { pendingSync: true } : {}),
+          };
+
+          return { items: [...items, newItem] };
+        });
       },
 
       updateQuantity: (cartItemId, quantity) => {
         const clampedQty = Math.min(Math.max(1, quantity), MAX_ITEM_QUANTITY);
+
+        // BUG-06: Toast when quantity stepper hits per-item cap
+        if (quantity > MAX_ITEM_QUANTITY) {
+          toast({ message: `Maximum ${MAX_ITEM_QUANTITY} per item`, type: "warning" });
+        }
 
         set((state) => ({
           items: state.items.map((item) =>
