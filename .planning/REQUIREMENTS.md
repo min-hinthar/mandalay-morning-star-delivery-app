@@ -169,7 +169,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RULES-06 | Phase 78 | Pending |
 | RULES-07 | Phase 78 | Pending |
 | RULES-08 | Phase 78 | Pending |
-| RULES-09 | Phase 78 | Pending |
+| RULES-09 | Phase 79 | Pending |
 | RULES-10 | Phase 78 | Pending |
 | EMAIL-01 | Phase 82 | Pending |
 | EMAIL-02 | Phase 82 | Pending |
