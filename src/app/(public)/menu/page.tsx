@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { getBusinessRules } from "@/lib/settings";
 import { MenuContent, MenuSkeleton } from "@/components/ui/menu";
 
 export const metadata = {
@@ -6,11 +7,13 @@ export const metadata = {
   description: "Browse our authentic Burmese menu - 47 dishes across 8 categories",
 };
 
-export default function MenuPage() {
+export default async function MenuPage() {
+  const rules = await getBusinessRules();
+
   return (
     <main className="min-h-screen bg-background pb-32">
       <Suspense fallback={<MenuSkeleton />}>
-        <MenuContent />
+        <MenuContent cutoffDay={rules.cutoffDay} cutoffHour={rules.cutoffHour} />
       </Suspense>
     </main>
   );

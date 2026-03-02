@@ -30,6 +30,7 @@ import type { MenuItem, MenuCategory, MenuResponse } from "@/types/menu";
 import type { SelectedModifier } from "@/lib/utils/price";
 
 import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
+import { DeliveryBanner } from "@/components/ui/delivery";
 import { CategoryTabs } from "./CategoryTabs";
 import { MenuSection } from "./MenuSection";
 import { MenuGrid } from "./MenuGrid";
@@ -44,13 +45,17 @@ import { StaleBadge } from "@/components/ui/offline";
 export interface MenuContentProps {
   /** Additional className */
   className?: string;
+  /** Cutoff day of week (0=Sun..6=Sat). Defaults to Friday (5). */
+  cutoffDay?: number;
+  /** Cutoff hour (0-23). Defaults to 15 (3 PM). */
+  cutoffHour?: number;
 }
 
 // ============================================
 // MAIN COMPONENT
 // ============================================
 
-export function MenuContent({ className }: MenuContentProps) {
+export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentProps) {
   // ============================================
   // ROUTING
   // ============================================
@@ -310,6 +315,9 @@ export function MenuContent({ className }: MenuContentProps) {
 
   return (
     <div className={cn("relative", className)}>
+      {/* Delivery Banner - sticky below MenuHeader (top-14) */}
+      <DeliveryBanner cutoffDay={cutoffDay ?? 5} cutoffHour={cutoffHour ?? 15} />
+
       {/* Category Tabs */}
       <CategoryTabs categories={tabCategories} />
 
