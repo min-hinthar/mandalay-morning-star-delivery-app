@@ -92,7 +92,7 @@ export default async function DriverLayout({ children }: { children: React.React
   return (
     <DomMaxProvider>
       <DriverAvatarProvider avatarUrl={avatarUrl} driverName={driverName}>
-        <SimpleModeProvider initialMode={simpleMode ?? true}>
+        <SimpleModeProvider initialMode={simpleMode ?? false}>
           <DriverShell>
             <div className="flex min-h-screen flex-col bg-cream">
               {/* Main content area - scrollable */}
