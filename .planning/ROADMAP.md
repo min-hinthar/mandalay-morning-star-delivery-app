@@ -61,7 +61,7 @@
 - [x] **Phase 78: Configurable Business Rules** - Admin-editable settings replace all hardcoded constants (no deploy needed) (completed 2026-03-01)
 - [x] **Phase 79: Saturday Ops Dashboard** - Single-screen command center for Saturday order triage with bulk operations (completed 2026-03-01)
 - [x] **Phase 80: Route & Driver Assignment** - Visual dashboard for creating routes and assigning drivers to orders (completed 2026-03-02)
-- [ ] **Phase 81: Customer Pre-Checkout Gate** - Saturday-only messaging and cutoff enforcement across customer pages
+- [x] **Phase 81: Customer Pre-Checkout Gate** - Saturday-only messaging and cutoff enforcement across customer pages (completed 2026-03-02)
 - [ ] **Phase 82: Email Reliability** - Failure tracking, retry, webhook verification, and self-service recovery
 - [ ] **Phase 83: Driver Simplification** - Simple mode for non-technical family drivers (name, address, phone, deliver)
 - [ ] **Phase 84: Production Hardening** - Indexes, N+1 fixes, rate limit tuning, and pre-launch checklist
@@ -217,7 +217,7 @@ Phase 86 can execute immediately (only depends on completed Phase 78).
 | 78. Configurable Business Rules | 4/4 | Complete    | 2026-03-01 | - |
 | 79. Saturday Ops Dashboard | 3/3 | Complete    | 2026-03-01 | - |
 | 80. Route & Driver Assignment | 4/4 | Complete    | 2026-03-02 | - |
-| 81. Customer Pre-Checkout Gate | 2/3 | In Progress|  | - |
+| 81. Customer Pre-Checkout Gate | 3/3 | Complete   | 2026-03-02 | - |
 | 82. Email Reliability | v1.9 | 0/TBD | Not started | - |
 | 83. Driver Simplification | v1.9 | 0/TBD | Not started | - |
 | 84. Production Hardening | v1.9 | 0/TBD | Not started | - |

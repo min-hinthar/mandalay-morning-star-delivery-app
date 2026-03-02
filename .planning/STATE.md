@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
 status: in_progress
-last_updated: "2026-03-01T22:50:00Z"
+last_updated: "2026-03-02T06:49:05Z"
 progress:
   total_phases: 7
   completed_phases: 4
@@ -18,15 +18,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.9 Launch-Ready MVP -- Phase 81 Plan 03 COMPLETE
+**Current focus:** v1.9 Launch-Ready MVP -- Phase 81 Plan 02 COMPLETE (all Phase 81 plans done)
 
 ## Current Position
 
-Phase: 81 of 84 (Customer Pre-Checkout Gate) -- IN PROGRESS
-Plan: 3 of 3 in Phase 81 (Plans 01 + 03 complete; Plan 02 pending)
+Phase: 81 of 84 (Customer Pre-Checkout Gate) -- COMPLETE
+Plan: All 3 plans in Phase 81 complete
 Milestone: v1.9 Launch-Ready MVP (8 phases, 49 requirements)
-Status: Phase 81 Plan 03 complete -- delivery gate wired to cart, checkout, empty states, tracking
-Last activity: 2026-03-01 -- Phase 81 Plan 03 executed (CartFooter gate, CheckoutClient CutoffModal, empty state schedule text, tracking enhancements)
+Status: Phase 81 all plans complete -- full delivery gate system implemented
+Last activity: 2026-03-02 -- Phase 81 Plan 02 executed (Hero dynamic CTA + countdown + stat bar, menu DeliveryBanner)
 
 Progress: [==============================....] 81/84 phases (in progress)
 
@@ -62,6 +62,7 @@ Progress: [==============================....] 81/84 phases (in progress)
 | Phase 80 P03 | 10 | 2 tasks | 7 files |
 | Phase 80 P04 | 8 | 1 task | 1 file |
 | Phase 81 P01 | 12 | 2 tasks | 9 files |
+| Phase 81 P02 | 11 | 2 tasks | 3 files |
 | Phase 81 P03 | 8 | 2 tasks | 7 files |
 
 ## Accumulated Context
@@ -110,6 +111,9 @@ Progress: [==============================....] 81/84 phases (in progress)
 - [Phase 81 P01]: CutoffModal cart items preserved per locked phase decision
 - [Phase 81]: CartFooter uses useDeliveryGate defaults (5, 15) -- cutoff not in cart store; adding to store is Phase 86 scope
 - [Phase 81]: onCutoffPassed callback on PaymentStepV8 bubbles CUTOFF_PASSED API error to CheckoutClient for modal display
+- [Phase 81 P02]: Gate-driven CTA: ctaText prop used as "Order Now" value; replaced with "Pre-Order for [date]" when closed
+- [Phase 81 P02]: Menu page async server component fetches getBusinessRules(), passes cutoffDay/cutoffHour as props to MenuContent
+- [Phase 81 P02]: MenuContentProps extended with optional cutoffDay/cutoffHour (defaults 5/15) for zero breaking changes
 
 ### Pending Todos
 
@@ -128,6 +132,6 @@ Progress: [==============================....] 81/84 phases (in progress)
 
 ## Session Continuity
 
-Last session: 2026-03-01
-Stopped at: Phase 81 Plan 03 complete -- delivery gate wired to cart drawer, checkout, empty states, tracking page
-Next action: `/gsd:execute-phase 81` Plan 02 (if it exists) or next phase
+Last session: 2026-03-02
+Stopped at: Phase 81 Plan 02 complete -- Hero dynamic CTA/countdown + menu DeliveryBanner wired to delivery gate
+Next action: Phase 82 (next phase in v1.9 sequence)
