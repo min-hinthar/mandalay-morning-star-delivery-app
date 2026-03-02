@@ -99,6 +99,14 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
         Browse our authentic Burmese dishes and add something delicious to your cart!
       </m.p>
 
+      {/* Delivery schedule context */}
+      <m.p
+        variants={shouldAnimate ? itemVariants : undefined}
+        className="mt-1 text-xs text-text-muted"
+      >
+        We deliver every Saturday &mdash; order by Friday 3:00 PM.
+      </m.p>
+
       {/* CTA Button */}
       <m.div
         variants={shouldAnimate ? itemVariants : undefined}
