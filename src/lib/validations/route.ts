@@ -28,7 +28,10 @@ export const createRouteSchema = z.object({
     .regex(/^\d{4}-\d{2}-\d{2}$/, "Invalid date format (YYYY-MM-DD)")
     .refine(isSaturday, "Delivery date must be a Saturday"),
   driverId: z.string().uuid("Invalid driver ID").optional(),
-  orderIds: z.array(z.string().uuid("Invalid order ID")).min(1, "At least one order required"),
+  orderIds: z
+    .array(z.string().uuid("Invalid order ID"))
+    .min(1, "At least one order required")
+    .max(100, "Maximum 100 orders per route"),
 });
 
 // Update route schema
@@ -39,7 +42,10 @@ export const updateRouteSchema = z.object({
 
 // Add stops to route
 export const addStopsSchema = z.object({
-  orderIds: z.array(z.string().uuid("Invalid order ID")).min(1, "At least one order required"),
+  orderIds: z
+    .array(z.string().uuid("Invalid order ID"))
+    .min(1, "At least one order required")
+    .max(100, "Maximum 100 orders per request"),
 });
 
 // Reorder stops

@@ -66,7 +66,7 @@ export async function GET() {
       `
       )
       .order("placed_at", { ascending: false })
-      .limit(200)
+      .limit(100)
       .returns<OrderRow[]>();
 
     if (ordersError) {
