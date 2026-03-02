@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
 status: in_progress
-last_updated: "2026-03-02T09:30:00Z"
+last_updated: "2026-03-02T10:00:00Z"
 progress:
-  total_phases: 7
-  completed_phases: 7
-  total_plans: 27
-  completed_plans: 27
+  total_phases: 8
+  completed_phases: 8
+  total_plans: 31
+  completed_plans: 31
 ---
 
 # Project State
@@ -18,17 +18,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.9 Launch-Ready MVP -- Phase 83 COMPLETE (Driver Simplification)
+**Current focus:** v1.9 Launch-Ready MVP -- Phase 84 COMPLETE (Production Hardening)
 
 ## Current Position
 
-Phase: 83 of 84 (Driver Simplification) -- COMPLETE
-Plan: All 4 plans in Phase 83 complete
-Milestone: v1.9 Launch-Ready MVP (8 phases, 49 requirements)
-Status: Phase 83 all plans complete -- simple mode with single-stop focus, conditional nav, offline overlay
-Last activity: 2026-03-02 -- Phase 83 executed (4 plans: DB + provider, SimpleHome + toggle, SimpleStopView + wiring, offline overlay)
+Phase: 84 of 84 (Production Hardening) -- COMPLETE
+Plan: All 4 plans in Phase 84 complete
+Milestone: v1.9 Launch-Ready MVP (8 phases, 49 requirements) -- ALL PHASES COMPLETE
+Status: Phase 84 all plans complete -- DB indexes, rate limits, N+1 fix, pagination, modifier validation
+Last activity: 2026-03-02 -- Phase 84 executed (4 plans: indexes, rate limits + Sentry, N+1 + pagination, validation)
 
-Progress: [================================..] 83/84 phases (in progress)
+Progress: [====================================] 84/84 phases (COMPLETE)
 
 ## Performance Metrics
 
@@ -72,6 +72,10 @@ Progress: [================================..] 83/84 phases (in progress)
 | Phase 83 P02 | 8 | 2 tasks | 4 files |
 | Phase 83 P03 | 15 | 2 tasks | 8 files |
 | Phase 83 P04 | 8 | 2 tasks | 3 files |
+| Phase 84 P01 | 5 | 1 task | 1 file |
+| Phase 84 P02 | 15 | 2 tasks | 12 files |
+| Phase 84 P03 | 20 | 2 tasks | 16 files |
+| Phase 84 P04 | 5 | 1 task | 2 files |
 
 ## Accumulated Context
 
@@ -141,6 +145,10 @@ Progress: [================================..] 83/84 phases (in progress)
 - [Phase 83 P03]: 1.5s success animation before auto-advance to next stop
 - [Phase 83 P04]: Full-screen overlay for simple mode, compact banner for normal mode
 - [Phase 83 P04]: Overlay dismissed state resets on new offline event
+- [Phase 84]: 9 tier-based rate limiters kept, 4 endpoint-specific overrides added
+- [Phase 84]: Offset pagination with 25 default page size on all admin list endpoints
+- [Phase 84]: Sentry error tracking only (no performance tracing) -- structured logger context enrichment
+- [Phase 84]: N+1 fix via PostgREST relation join (notification_logs in single query)
 
 ### Pending Todos
 
@@ -160,8 +168,12 @@ Progress: [================================..] 83/84 phases (in progress)
 - Migrations 027 + 028 must be applied before deploying checkout
 - Timezone for customer-facing cutoff messaging needs confirmation before Phase 81
 
+### Pending Todos (Phase 84)
+
+- Apply migration 032_production_indexes.sql to production Supabase (human action)
+
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Phase 83 complete -- Driver simplification with simple mode, single-stop focus, conditional nav, offline overlay
-Next action: Phase 84 (final phase in v1.9 sequence)
+Stopped at: Phase 84 complete -- Production hardening with DB indexes, rate limits, Sentry enrichment, N+1 fix, pagination, validation
+Next action: v1.9 milestone complete -- run audit-milestone
