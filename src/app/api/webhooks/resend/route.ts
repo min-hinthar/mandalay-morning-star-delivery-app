@@ -4,10 +4,15 @@
  * Receives email delivery events (delivered, opened, clicked, bounced, complained)
  * and updates notification_logs status + metadata for admin tracking.
  *
- * Always returns 200 to prevent Resend retries on processing errors.
+ * Verifies webhook signatures via Svix HMAC. Logs all attempts to webhook_audit_logs.
+ * Deduplicates by svix-id to prevent double-processing.
+ * Always returns 200 after verification to prevent Resend retries.
  */
 
+import { createHash } from "crypto";
+
 import { NextResponse } from "next/server";
+import { Webhook } from "svix";
 
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
@@ -36,6 +41,17 @@ const EVENT_STATUS_MAP: Record<ResendEventType, string> = {
 
 const SUPPORTED_EVENTS = new Set<string>(Object.keys(EVENT_STATUS_MAP));
 
+/** Higher number = higher priority. Don't downgrade status. */
+const STATUS_PRIORITY: Record<string, number> = {
+  pending: 0,
+  sent: 1,
+  delivered: 2,
+  opened: 3,
+  clicked: 4,
+  bounced: 5,
+  failed: 5,
+};
+
 // ===========================================
 // RESEND WEBHOOK PAYLOAD TYPES
 // ===========================================
@@ -52,36 +68,88 @@ interface ResendWebhookPayload {
 }
 
 // ===========================================
+// HELPERS
+// ===========================================
+
+function hashPayload(body: string): string {
+  return createHash("sha256").update(body).digest("hex");
+}
+
+function getSourceIp(request: Request): string | null {
+  return request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? null;
+}
+
+// ===========================================
 // POST HANDLER
 // ===========================================
 
 export async function POST(request: Request) {
+  const supabase = createServiceClient();
+  const sourceIp = getSourceIp(request);
+
   // -----------------------------------------------
-  // Step 1: Webhook secret verification
+  // Step 1: Read raw body (required for Svix verification)
+  // -----------------------------------------------
+  let rawBody: string;
+  try {
+    rawBody = await request.text();
+  } catch {
+    logger.error("Failed to read Resend webhook body", {
+      flowId: FLOW_ID,
+      api: "resend-webhook",
+    });
+    return NextResponse.json({ error: "Bad request" }, { status: 400 });
+  }
+
+  const payloadHash = hashPayload(rawBody);
+  const svixId = request.headers.get("svix-id") ?? "";
+
+  // -----------------------------------------------
+  // Step 2: Svix HMAC signature verification
   // -----------------------------------------------
   if (RESEND_WEBHOOK_SECRET) {
-    const svixId = request.headers.get("svix-id");
-    const webhookSecret = request.headers.get("webhook-secret");
+    const svixTimestamp = request.headers.get("svix-timestamp") ?? "";
+    const svixSignature = request.headers.get("svix-signature") ?? "";
 
-    // Support simple secret header check
-    if (webhookSecret) {
-      if (webhookSecret !== RESEND_WEBHOOK_SECRET) {
-        logger.warn("Resend webhook secret mismatch", {
-          flowId: FLOW_ID,
-          api: "resend-webhook",
-        });
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-    } else if (!svixId) {
-      // No verification headers present at all
-      logger.warn("Resend webhook missing verification headers", {
+    try {
+      const wh = new Webhook(RESEND_WEBHOOK_SECRET);
+      wh.verify(rawBody, {
+        "svix-id": svixId,
+        "svix-timestamp": svixTimestamp,
+        "svix-signature": svixSignature,
+      });
+
+      // Log successful verification
+      await supabase.from("webhook_audit_logs").insert({
+        svix_id: svixId || null,
+        event_type: "verification_passed",
+        payload_hash: payloadHash,
+        signature_valid: true,
+        source_ip: sourceIp,
+      });
+    } catch (verifyErr) {
+      // Log rejected webhook
+      const errorMsg =
+        verifyErr instanceof Error ? verifyErr.message : "Unknown verification error";
+
+      logger.warn("Resend webhook signature verification failed", {
         flowId: FLOW_ID,
         api: "resend-webhook",
+        sourceIp,
+        payloadHash,
       });
+
+      await supabase.from("webhook_audit_logs").insert({
+        svix_id: svixId || null,
+        event_type: "verification_failed",
+        payload_hash: payloadHash,
+        signature_valid: false,
+        source_ip: sourceIp,
+        error_message: errorMsg,
+      });
+
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
-    // If svix headers present but no svix package, log and proceed
-    // Full svix verification can be added later with the svix package
   } else {
     logger.warn("RESEND_WEBHOOK_SECRET not configured, skipping verification", {
       flowId: FLOW_ID,
@@ -90,24 +158,45 @@ export async function POST(request: Request) {
   }
 
   // -----------------------------------------------
-  // Step 2: Parse event payload
+  // Step 3: Idempotency check — skip duplicate events
+  // -----------------------------------------------
+  if (svixId) {
+    const { data: existing } = (await supabase
+      .from("webhook_audit_logs")
+      .select("id")
+      .eq("svix_id", svixId)
+      .eq("event_type", "processed")
+      .limit(1)
+      .single()) as { data: { id: string } | null; error: unknown };
+
+    if (existing) {
+      logger.info("Duplicate webhook event skipped", {
+        flowId: FLOW_ID,
+        api: "resend-webhook",
+        svixId,
+      });
+      return NextResponse.json({ received: true });
+    }
+  }
+
+  // -----------------------------------------------
+  // Step 4: Parse event payload
   // -----------------------------------------------
   let payload: ResendWebhookPayload;
   try {
-    payload = (await request.json()) as ResendWebhookPayload;
+    payload = JSON.parse(rawBody) as ResendWebhookPayload;
   } catch {
     logger.error("Failed to parse Resend webhook payload", {
       flowId: FLOW_ID,
       api: "resend-webhook",
     });
-    // Return 200 to prevent retries
     return NextResponse.json({ received: true });
   }
 
   const { type: eventType, created_at: eventCreatedAt, data } = payload;
 
   // -----------------------------------------------
-  // Step 3: Check if we handle this event type
+  // Step 5: Check if we handle this event type
   // -----------------------------------------------
   if (!SUPPORTED_EVENTS.has(eventType)) {
     logger.info(`Unhandled Resend event type: ${eventType}`, {
@@ -129,19 +218,16 @@ export async function POST(request: Request) {
   }
 
   // -----------------------------------------------
-  // Step 4: Update notification_logs
+  // Step 6: Update notification_logs
   // -----------------------------------------------
   try {
-    const supabase = createServiceClient();
-
-    // First, find the notification log entry by resend_id
-    // notification_logs not in Database type — cast result
+    // Find the notification log entry by resend_id
     const { data: logEntry, error: findError } = (await supabase
       .from("notification_logs")
-      .select("id, metadata")
+      .select("id, status, metadata")
       .eq("resend_id", emailId)
       .single()) as {
-      data: { id: string; metadata: Record<string, unknown> | null } | null;
+      data: { id: string; status: string; metadata: Record<string, unknown> | null } | null;
       error: { message: string } | null;
     };
 
@@ -153,6 +239,11 @@ export async function POST(request: Request) {
       });
       return NextResponse.json({ received: true });
     }
+
+    // Status downgrade protection — don't overwrite higher-priority status
+    const currentPriority = STATUS_PRIORITY[logEntry.status] ?? 0;
+    const newPriority = STATUS_PRIORITY[mappedStatus] ?? 0;
+    const shouldUpdateStatus = newPriority >= currentPriority;
 
     // Build updated metadata with event history
     const existingMetadata = (logEntry.metadata ?? {}) as Record<string, unknown>;
@@ -170,13 +261,17 @@ export async function POST(request: Request) {
       resend_events: resendEvents,
     };
 
-    // Update status and metadata
+    // Update status (if not downgrade) and always update metadata
+    const updatePayload: Record<string, unknown> = {
+      metadata: updatedMetadata,
+    };
+    if (shouldUpdateStatus) {
+      updatePayload.status = mappedStatus;
+    }
+
     const { error: updateError } = await supabase
       .from("notification_logs")
-      .update({
-        status: mappedStatus,
-        metadata: updatedMetadata,
-      })
+      .update(updatePayload)
       .eq("id", logEntry.id);
 
     if (updateError) {
@@ -190,14 +285,27 @@ export async function POST(request: Request) {
         api: "resend-webhook",
       });
     } else {
-      logger.info(`Notification log updated: ${eventType} -> ${mappedStatus}`, {
-        flowId: FLOW_ID,
-        api: "resend-webhook",
-        emailId,
+      logger.info(
+        `Notification log updated: ${eventType} -> ${shouldUpdateStatus ? mappedStatus : `skipped (current: ${logEntry.status})`}`,
+        {
+          flowId: FLOW_ID,
+          api: "resend-webhook",
+          emailId,
+        }
+      );
+    }
+
+    // Mark as processed for idempotency
+    if (svixId) {
+      await supabase.from("webhook_audit_logs").insert({
+        svix_id: svixId,
+        event_type: "processed",
+        payload_hash: payloadHash,
+        signature_valid: true,
+        source_ip: sourceIp,
       });
     }
   } catch (err) {
-    // Log errors but always return 200
     logger.error("Error processing Resend webhook", {
       flowId: FLOW_ID,
       api: "resend-webhook",
@@ -207,7 +315,7 @@ export async function POST(request: Request) {
   }
 
   // -----------------------------------------------
-  // Step 5: Always return 200
+  // Step 7: Always return 200
   // -----------------------------------------------
   return NextResponse.json({ received: true });
 }
