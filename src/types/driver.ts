@@ -57,6 +57,7 @@ export interface DriversRow {
   rating_avg: number;
   deliveries_count: number;
   availability_json: DriverAvailability | null;
+  simple_mode: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -73,6 +74,7 @@ export interface DriversInsert {
   rating_avg?: number;
   deliveries_count?: number;
   availability_json?: DriverAvailability | null;
+  simple_mode?: boolean;
   created_at?: string;
   updated_at?: string;
 }
@@ -89,6 +91,7 @@ export interface DriversUpdate {
   rating_avg?: number;
   deliveries_count?: number;
   availability_json?: DriverAvailability | null;
+  simple_mode?: boolean;
   created_at?: string;
   updated_at?: string;
 }
