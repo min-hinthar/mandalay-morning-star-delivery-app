@@ -49,8 +49,7 @@ export function DeliveryConfirmDialog({
             onClick={(e) => e.stopPropagation()}
           >
             <p className="text-center font-body text-lg font-medium text-text-primary">
-              Mark as delivered at{" "}
-              <span className="font-semibold">{address}</span>?
+              Mark as delivered at <span className="font-semibold">{address}</span>?
             </p>
 
             <div className="mt-6 flex gap-3">
@@ -80,11 +79,7 @@ export function DeliveryConfirmDialog({
                   "disabled:cursor-not-allowed disabled:opacity-50"
                 )}
               >
-                {isLoading ? (
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                ) : (
-                  "Yes, Delivered"
-                )}
+                {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Yes, Delivered"}
               </button>
             </div>
           </m.div>
