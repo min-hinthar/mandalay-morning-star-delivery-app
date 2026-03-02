@@ -66,7 +66,7 @@
 - [ ] **Phase 83: Driver Simplification** - Simple mode for non-technical family drivers (name, address, phone, deliver)
 - [ ] **Phase 84: Production Hardening** - Indexes, N+1 fixes, rate limit tuning, and pre-launch checklist
 - [x] **Phase 85: Phase 77 Verification & Bug Traceability** - Verify bug fixes, create VERIFICATION.md, update traceability (gap closure) (completed 2026-03-02)
-- [ ] **Phase 86: Deferred Integration & Tech Debt Cleanup** - Wire remaining cutoff callsites to DB, fix SUMMARY frontmatter (gap closure)
+- [x] **Phase 86: Deferred Integration & Tech Debt Cleanup** - Wire remaining cutoff callsites to DB, fix SUMMARY frontmatter (gap closure) (completed 2026-03-02)
 
 ## Phase Details
 
@@ -222,7 +222,7 @@ Phase 86 can execute immediately (only depends on completed Phase 78).
 | 83. Driver Simplification | v1.9 | 0/TBD | Not started | - |
 | 84. Production Hardening | v1.9 | 0/TBD | Not started | - |
 | 85. Phase 77 Verification & Bug Traceability | 2/2 | Complete    | 2026-03-02 | - |
-| 86. Deferred Integration & Tech Debt Cleanup | v1.9 | 0/TBD | Not started | - |
+| 86. Deferred Integration & Tech Debt Cleanup | 2/2 | Complete   | 2026-03-02 | - |
 
 ### Historical Progress
 
