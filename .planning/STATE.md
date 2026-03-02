@@ -3,6 +3,19 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
 status: unknown
+last_updated: "2026-03-02T00:46:47.329Z"
+progress:
+  total_phases: 6
+  completed_phases: 3
+  total_plans: 16
+  completed_plans: 14
+---
+
+---
+gsd_state_version: 1.0
+milestone: v1.9
+milestone_name: Launch-Ready MVP
+status: unknown
 last_updated: "2026-03-02T00:33:04.780Z"
 progress:
   total_phases: 6
@@ -31,17 +44,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.9 Launch-Ready MVP -- Phase 80 Plan 01 complete
+**Current focus:** v1.9 Launch-Ready MVP -- Phase 80 Plan 03 complete
 
 ## Current Position
 
 Phase: 80 of 84 (Route & Driver Assignment) -- IN PROGRESS
-Plan: 1 of 4 in Phase 80 (Plan 01 complete -- foundation layer done)
+Plan: 3 of 4 in Phase 80 (Plans 01+03 complete -- foundation + reassignment done)
 Milestone: v1.9 Launch-Ready MVP (8 phases, 49 requirements)
-Status: Phase 80 Plan 01 complete, ready for Plan 02 (Route Builder Map UI)
-Last activity: 2026-03-02 -- Phase 80 Plan 01 executed (Leaflet install, clustering utility, validation schemas)
+Status: Phase 80 Plan 03 complete, ready for Plan 04
+Last activity: 2026-03-02 -- Phase 80 Plan 03 executed (stop reassignment API, Reassign dropdown, ConfirmDialog remove, route list duration stats)
 
-Progress: [============================......] 80/84 phases (plan 1/4)
+Progress: [============================......] 80/84 phases (plan 3/4)
 
 ## Performance Metrics
 
@@ -71,6 +84,7 @@ Progress: [============================......] 80/84 phases (plan 1/4)
 | Phase 79 P02 | 9min | 2 tasks | 9 files |
 | Phase 79 P03 | 5min | 2 tasks | 3 files |
 | Phase 80 P01 | 7 | 2 tasks | 10 files |
+| Phase 80 P03 | 10 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -105,6 +119,8 @@ Progress: [============================......] 80/84 phases (plan 1/4)
 - [Phase 80]: Greedy clustering over k-means: simpler, stable for 10-50 orders, no cluster count param
 - [Phase 80]: 2km cluster radius for Covina delivery area coverage balance
 - [Phase 80]: public/leaflet/ for marker icons: avoids webpack config changes, SSR-safe
+- [Phase 80]: availableRoutes fetch piggybacks inside fetchRoute for simplicity and single refresh point
+- [Phase 80]: estimatedDurationMinutes optional on AdminRoute for backward-compatible stats_json duration display
 
 ### Pending Todos
 
@@ -124,5 +140,5 @@ Progress: [============================......] 80/84 phases (plan 1/4)
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Phase 80 Plan 01 complete -- Route Foundation (Leaflet install, clustering utility, route validation schemas, 36 new tests)
-Next action: `/gsd:execute-phase 80` Plan 02 -- Route Builder Map UI
+Stopped at: Phase 80 Plan 03 complete -- Stop reassignment API, Reassign dropdown in route stop cards, ConfirmDialog for remove, enhanced route list duration stats
+Next action: `/gsd:execute-phase 80` Plan 04

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { m } from "framer-motion";
 import { format, subDays, addDays, startOfDay, parseISO } from "date-fns";
 import { RefreshCw, Plus, Filter, MapPin, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
@@ -180,11 +181,13 @@ export default function AdminRoutesPage() {
                 Refresh
               </Button>
               <Button
-                onClick={() => setIsCreateModalOpen(true)}
+                asChild
                 className="bg-accent-teal hover:bg-accent-teal/90 text-text-inverse shadow-md"
               >
-                <Plus className="mr-2 h-4 w-4" />
-                Create Route
+                <Link href="/admin/routes/new">
+                  <Plus className="mr-2 h-4 w-4" />
+                  Create Route
+                </Link>
               </Button>
             </div>
           }
