@@ -2,6 +2,8 @@
 
 import { useEffect } from "react";
 import { OfflineBanner } from "./OfflineBanner";
+import { SimpleOfflineOverlay } from "./SimpleOfflineOverlay";
+import { useSimpleMode } from "./SimpleModeProvider";
 import { useServiceWorker } from "@/lib/hooks/useServiceWorker";
 import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 import { DriverContrastProvider } from "@/app/contexts/DriverContrastContext";
@@ -11,6 +13,8 @@ interface DriverShellProps {
 }
 
 export function DriverShell({ children }: DriverShellProps) {
+  const { isSimpleMode } = useSimpleMode();
+
   // Register service worker
   useServiceWorker();
 
@@ -31,7 +35,7 @@ export function DriverShell({ children }: DriverShellProps) {
 
   return (
     <DriverContrastProvider>
-      <OfflineBanner />
+      {isSimpleMode ? <SimpleOfflineOverlay /> : <OfflineBanner />}
       {children}
     </DriverContrastProvider>
   );

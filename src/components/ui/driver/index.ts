@@ -26,3 +26,4 @@ export { SimpleHome } from "./SimpleHome";
 export { SimpleModeToggle } from "./SimpleModeToggle";
 export { SimpleStopView } from "./SimpleStopView";
 export { DeliveryConfirmDialog } from "./DeliveryConfirmDialog";
+export { SimpleOfflineOverlay } from "./SimpleOfflineOverlay";
