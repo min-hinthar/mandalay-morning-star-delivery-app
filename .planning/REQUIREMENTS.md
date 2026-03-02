@@ -31,7 +31,7 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 ### Route Assignment
 
 - [x] **ROUTE-01**: Unassigned orders panel — confirmed orders not on a route
-- [ ] **ROUTE-02**: Available drivers panel — drivers with capacity indicator
+- [x] **ROUTE-02**: Available drivers panel — drivers with capacity indicator
 - [x] **ROUTE-03**: One-click route creation — select orders + driver = route
 - [x] **ROUTE-04**: Auto-suggest grouping by geography / time window
 - [x] **ROUTE-05**: Route summary — stop count, estimated duration, map preview
@@ -149,7 +149,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | OPS-06 | Phase 79 | Complete |
 | OPS-07 | Phase 79 | Complete |
 | ROUTE-01 | Phase 80 | Complete |
-| ROUTE-02 | Phase 80 | Pending |
+| ROUTE-02 | Phase 80 | Complete |
 | ROUTE-03 | Phase 80 | Complete |
 | ROUTE-04 | Phase 80 | Complete |
 | ROUTE-05 | Phase 80 | Complete |

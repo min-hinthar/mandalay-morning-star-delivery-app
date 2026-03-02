@@ -125,7 +125,7 @@ Plans:
   3. Route summary shows stop count, estimated duration, and a map preview with pins
   4. Orders can be reassigned between existing routes
   5. Driver API queries enforce ownership -- drivers only see their own routes and stops
-**Plans**: TBD
+**Plans**: Plan 01 (DONE - clustering, Leaflet, validation), Plan 02 (DONE - route builder UI, Leaflet map, driver selector), Plans 03-04 (pending)
 
 ### Phase 81: Customer Pre-Checkout Gate
 **Goal**: Customers always know when the next delivery is, whether they can still order, and what happens if they cannot
