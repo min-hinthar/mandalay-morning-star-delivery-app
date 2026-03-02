@@ -2,8 +2,8 @@ import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { DriverPageHeader } from "@/components/ui/driver/DriverPageHeader";
-import { ActiveRouteView } from "@/components/ui/driver/ActiveRouteView";
 import { Skeleton } from "@/components/ui/skeleton/base";
+import { DriverRouteSwitch } from "./DriverRouteSwitch";
 import type { RouteStats, RouteStopStatus } from "@/types/driver";
 
 const TIMEZONE = "America/Los_Angeles";
@@ -95,6 +95,7 @@ async function getActiveRoute() {
       delivery_window_end: string | null;
       customer: {
         full_name: string | null;
+        phone: string | null;
       };
       address: {
         line1: string;
@@ -118,7 +119,8 @@ async function getActiveRoute() {
         delivery_window_start,
         delivery_window_end,
         customer:profiles!orders_customer_id_fkey (
-          full_name
+          full_name,
+          phone
         ),
         address:addresses!orders_delivery_address_id_fkey (
           line1,
@@ -146,6 +148,7 @@ async function getActiveRoute() {
       customer: {
         fullName: stop.order?.customer?.full_name ?? null,
       },
+      phone: stop.order?.customer?.phone ?? null,
       address: {
         line1: stop.order?.address?.line1 ?? "",
         line2: stop.order?.address?.line2 ?? null,
@@ -195,38 +198,5 @@ export default async function DriverRoutePage() {
 async function DriverRoutePageContent() {
   const { route, stops } = await getActiveRoute();
 
-  if (!route) {
-    return (
-      <div className="min-h-screen bg-surface-secondary">
-        <DriverPageHeader title="Route" showBack backHref="/driver" />
-        <div className="flex flex-col items-center justify-center px-4 py-16">
-          <div className="text-center">
-            <h2 className="mb-2 font-display text-xl font-semibold text-text-primary">
-              No Active Route
-            </h2>
-            <p className="font-body text-text-secondary">
-              You don&apos;t have a route assigned for today.
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  const deliveredCount = stops.filter((s) => s.status === "delivered").length;
-  const totalCount = stops.length;
-
-  return (
-    <div className="min-h-screen bg-surface-secondary pb-20">
-      <DriverPageHeader
-        title="Route"
-        subtitle={`${deliveredCount}/${totalCount} Complete`}
-        showBack
-        backHref="/driver"
-      />
-      <div className="p-4">
-        <ActiveRouteView routeId={route.id} routeStatus={route.status} stops={stops} />
-      </div>
-    </div>
-  );
+  return <DriverRouteSwitch route={route} stops={stops} />;
 }

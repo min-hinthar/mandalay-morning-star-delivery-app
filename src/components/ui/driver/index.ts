@@ -24,3 +24,5 @@ export { UpgradeConfirmation } from "./UpgradeConfirmation";
 export { SimpleModeProvider, useSimpleMode } from "./SimpleModeProvider";
 export { SimpleHome } from "./SimpleHome";
 export { SimpleModeToggle } from "./SimpleModeToggle";
+export { SimpleStopView } from "./SimpleStopView";
+export { DeliveryConfirmDialog } from "./DeliveryConfirmDialog";
