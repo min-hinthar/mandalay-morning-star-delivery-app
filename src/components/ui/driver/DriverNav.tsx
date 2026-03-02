@@ -14,6 +14,9 @@ import { Home, Package, Banknote, CalendarDays, History } from "lucide-react";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { InitialsAvatar } from "./InitialsAvatar";
+import { useSimpleMode } from "./SimpleModeProvider";
+
+const SIMPLE_MODE_KEYS = new Set(["home", "route"]);
 
 const navItems = [
   {
@@ -67,6 +70,8 @@ interface DriverNavProps {
 
 export function DriverNav({ badges, avatarUrl, driverName }: DriverNavProps) {
   const pathname = usePathname();
+  const { isSimpleMode } = useSimpleMode();
+  const items = isSimpleMode ? navItems.filter((item) => SIMPLE_MODE_KEYS.has(item.key)) : navItems;
 
   return (
     <nav
@@ -76,7 +81,7 @@ export function DriverNav({ badges, avatarUrl, driverName }: DriverNavProps) {
       className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-surface-primary safe-area-pb"
     >
       <div className="flex h-16 items-center justify-around px-4">
-        {navItems.map((item) => {
+        {items.map((item) => {
           const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
           const Icon = item.icon;
           const badgeCount = badges?.[item.key] ?? 0;

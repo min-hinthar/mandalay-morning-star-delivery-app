@@ -28,22 +28,39 @@ export async function PATCH(request: NextRequest) {
     if (rl.limited) return rl.response;
 
     const body = await request.json();
-    const result = driverSelfUpdateSchema.safeParse(body);
 
-    if (!result.success) {
-      return NextResponse.json(
-        { error: "Validation failed", details: result.error.flatten() },
-        { status: 400 }
-      );
+    // Handle simpleMode toggle separately (not part of profile form schema)
+    const simpleMode = typeof body.simpleMode === "boolean" ? body.simpleMode : undefined;
+
+    // If only simpleMode is being toggled, skip form validation
+    const hasProfileFields =
+      body.fullName !== undefined ||
+      body.phone !== undefined ||
+      body.vehicleType !== undefined ||
+      body.licensePlate !== undefined;
+
+    let fullName: string | undefined;
+    let phone: string | undefined;
+    let vehicleType: string | null | undefined;
+    let licensePlate: string | null | undefined;
+
+    if (hasProfileFields) {
+      const result = driverSelfUpdateSchema.safeParse(body);
+      if (!result.success) {
+        return NextResponse.json(
+          { error: "Validation failed", details: result.error.flatten() },
+          { status: 400 }
+        );
+      }
+      ({ fullName, phone, vehicleType, licensePlate } = result.data);
     }
-
-    const { fullName, phone, vehicleType, licensePlate } = result.data;
 
     // Update drivers table first (more likely to fail on enum validation)
     const driverUpdate: Record<string, unknown> = {};
     if (vehicleType !== undefined) driverUpdate.vehicle_type = vehicleType as VehicleType | null;
     if (licensePlate !== undefined) driverUpdate.license_plate = licensePlate;
     if (phone !== undefined) driverUpdate.phone = phone;
+    if (simpleMode !== undefined) driverUpdate.simple_mode = simpleMode;
 
     if (Object.keys(driverUpdate).length > 0) {
       const { error: driverError } = await supabase
