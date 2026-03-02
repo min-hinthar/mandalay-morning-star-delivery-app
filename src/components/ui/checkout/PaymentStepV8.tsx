@@ -55,6 +55,8 @@ export interface PaymentStepV8Props {
   disableGuard?: () => void;
   /** Dynamic time windows for display labels */
   timeWindows?: TimeWindow[];
+  /** Called when server returns CUTOFF_PASSED error — caller shows cutoff modal */
+  onCutoffPassed?: () => void;
 }
 
 // ============================================
@@ -66,6 +68,7 @@ export function PaymentStepV8({
   onBack,
   disableGuard,
   timeWindows = [],
+  onCutoffPassed,
 }: PaymentStepV8Props) {
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -120,6 +123,12 @@ export function PaymentStepV8({
       const data = await response.json();
 
       if (!response.ok) {
+        // CUTOFF_PASSED: show cutoff modal instead of generic error
+        if (data.error?.code === "CUTOFF_PASSED" && onCutoffPassed) {
+          setIsCreatingSession(false);
+          onCutoffPassed();
+          return;
+        }
         throw new Error(data.error?.message ?? "Checkout failed");
       }
 

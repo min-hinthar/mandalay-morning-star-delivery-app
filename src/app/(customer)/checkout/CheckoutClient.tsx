@@ -10,7 +10,9 @@ import { useNavigationGuard } from "@/lib/hooks/useNavigationGuard";
 import { toast } from "@/lib/hooks/useToastV8";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useDeliveryGate } from "@/lib/hooks/useDeliveryGate";
 import { CartNavigationGuard } from "@/components/ui/cart/CartNavigationGuard";
+import { CutoffModal } from "@/components/ui/delivery";
 import { spring } from "@/lib/motion-tokens";
 import {
   CheckoutStepperV8,
@@ -58,14 +60,24 @@ const STEPS: CheckoutStep[] = ["address", "time", "payment"];
 
 interface CheckoutClientProps {
   timeWindows: TimeWindow[];
+  /** Cutoff day of week (0=Sun..6=Sat). Defaults to Friday (5). */
+  cutoffDay?: number;
+  /** Cutoff hour (0-23). Defaults to 15 (3 PM). */
+  cutoffHour?: number;
 }
 
-export default function CheckoutClient({ timeWindows }: CheckoutClientProps) {
+export default function CheckoutClient({
+  timeWindows,
+  cutoffDay = 5,
+  cutoffHour = 15,
+}: CheckoutClientProps) {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const { isEmpty } = useCart();
   const { step, setStep, reset } = useCheckoutStore();
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  const gate = useDeliveryGate(cutoffDay, cutoffHour);
+  const [showCutoffModal, setShowCutoffModal] = useState(false);
 
   // Navigation guard: warn when leaving checkout with items in cart
   const {
@@ -107,6 +119,13 @@ export default function CheckoutClient({ timeWindows }: CheckoutClientProps) {
       setStep(STEPS[currentIndex - 1]);
     }
   };
+
+  // Show CutoffModal when ordering closes (on mount if past cutoff, or mid-session when gate flips)
+  useEffect(() => {
+    if (!gate.isOpen) {
+      setShowCutoffModal(true);
+    }
+  }, [gate.isOpen]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -225,6 +244,7 @@ export default function CheckoutClient({ timeWindows }: CheckoutClientProps) {
                       onBack={goToPrevStep}
                       disableGuard={disableGuard}
                       timeWindows={timeWindows}
+                      onCutoffPassed={() => setShowCutoffModal(true)}
                     />
                   </m.div>
                 )}
@@ -246,6 +266,12 @@ export default function CheckoutClient({ timeWindows }: CheckoutClientProps) {
         onStay={cancel}
         onLeave={proceed}
         variant="checkout"
+      />
+
+      <CutoffModal
+        isOpen={showCutoffModal}
+        onClose={() => setShowCutoffModal(false)}
+        nextDeliveryDate={gate.deliveryDate.displayDate}
       />
     </div>
   );
