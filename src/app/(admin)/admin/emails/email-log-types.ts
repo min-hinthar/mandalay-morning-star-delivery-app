@@ -1,3 +1,5 @@
+import { ERROR_GUIDANCE } from "@/lib/email/constants";
+
 // ===========================================
 // EMAIL LOG SHARED TYPES & CONSTANTS
 // ===========================================
@@ -13,8 +15,26 @@ export interface EmailLogEntry {
   resend_id: string | null;
   status: string;
   error_message: string | null;
+  retry_count: number | null;
+  metadata: {
+    resend_events?: Array<{ type: string; at: string }>;
+    [key: string]: unknown;
+  } | null;
   sent_at: string | null;
   created_at: string;
+}
+
+export interface EmailStatsBucket {
+  sent: number;
+  delivered: number;
+  failed: number;
+  bounced: number;
+}
+
+export interface EmailStats {
+  today: EmailStatsBucket;
+  week: EmailStatsBucket;
+  allTime: EmailStatsBucket;
 }
 
 export interface PaginationMeta {
@@ -75,4 +95,16 @@ export function formatEmailDate(dateStr: string | null): string {
 
 export function formatEmailType(type: string): string {
   return type.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+/**
+ * Get operator-friendly guidance for an email status/error.
+ * Matches status first, then scans error message for keywords.
+ */
+export function getErrorGuidance(status: string, errorMessage: string | null): string | null {
+  if (ERROR_GUIDANCE[status]) return ERROR_GUIDANCE[status].guidance;
+  if (errorMessage?.toLowerCase().includes("timeout")) return ERROR_GUIDANCE.timeout.guidance;
+  if (errorMessage?.toLowerCase().includes("rate")) return ERROR_GUIDANCE.rate_limit.guidance;
+  if (errorMessage?.toLowerCase().includes("invalid")) return ERROR_GUIDANCE.invalid_address.guidance;
+  return ERROR_GUIDANCE.unknown.guidance;
 }

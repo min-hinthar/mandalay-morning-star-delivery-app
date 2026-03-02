@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { Mail, Search, ChevronLeft, ChevronRight, RefreshCw, Loader2 } from "lucide-react";
+import { Mail, Search, ChevronLeft, ChevronRight, ChevronDown, RefreshCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +17,8 @@ import {
   formatEmailDate,
   formatEmailType,
 } from "./email-log-types";
+import { EmailStatsBar } from "./EmailStatsBar";
+import { EmailDetailPanel } from "./EmailDetailPanel";
 
 // ===========================================
 // COMPONENT
@@ -28,6 +30,7 @@ export default function AdminEmailLogPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const [emails, setEmails] = useState<EmailLogEntry[]>([]);
   const [pagination, setPagination] = useState<PaginationMeta>({
@@ -38,8 +41,6 @@ export default function AdminEmailLogPage() {
   });
   const [loading, setLoading] = useState(true);
   const [resendingId, setResendingId] = useState<string | null>(null);
-  const [totalSent, setTotalSent] = useState(0);
-  const [totalFailed, setTotalFailed] = useState(0);
 
   const fetchEmails = useCallback(
     async (page = 1) => {
@@ -60,14 +61,6 @@ export default function AdminEmailLogPage() {
 
         setEmails(result.data || []);
         setPagination(result.pagination || { page, limit: PAGE_SIZE, total: 0, totalPages: 0 });
-
-        const data = result.data || [];
-        setTotalSent(
-          data.filter((e: EmailLogEntry) => e.status !== "failed" && e.status !== "bounced").length
-        );
-        setTotalFailed(
-          data.filter((e: EmailLogEntry) => e.status === "failed" || e.status === "bounced").length
-        );
       } catch {
         toast({ message: "Failed to load email log", type: "error" });
       } finally {
@@ -127,21 +120,8 @@ export default function AdminEmailLogPage() {
         </Button>
       </div>
 
-      {/* Stats Row */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="rounded-card-sm border border-border-subtle p-3">
-          <p className="text-xs text-text-secondary uppercase tracking-wide">Total</p>
-          <p className="text-xl font-bold text-text-primary">{pagination.total}</p>
-        </div>
-        <div className="rounded-card-sm border border-border-subtle p-3">
-          <p className="text-xs text-text-secondary uppercase tracking-wide">Sent</p>
-          <p className="text-xl font-bold text-green">{totalSent}</p>
-        </div>
-        <div className="rounded-card-sm border border-border-subtle p-3">
-          <p className="text-xs text-text-secondary uppercase tracking-wide">Failed</p>
-          <p className="text-xl font-bold text-status-error">{totalFailed}</p>
-        </div>
-      </div>
+      {/* Stats Bar (today/week/all-time) */}
+      <EmailStatsBar />
 
       {/* Filter Bar */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 mb-6">
@@ -205,6 +185,7 @@ export default function AdminEmailLogPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border-subtle bg-surface-secondary">
+                <th className="w-8 px-2" />
                 <th className="text-left px-4 py-3 font-semibold text-text-secondary">Recipient</th>
                 <th className="text-left px-4 py-3 font-semibold text-text-secondary">Type</th>
                 <th className="text-left px-4 py-3 font-semibold text-text-secondary hidden md:table-cell">
@@ -219,54 +200,74 @@ export default function AdminEmailLogPage() {
             </thead>
             <tbody className="divide-y divide-border-subtle">
               {emails.map((email) => (
-                <tr key={email.id} className="hover:bg-surface-secondary/50 transition-colors">
-                  <td className="px-4 py-3 text-text-primary truncate max-w-[180px]">
-                    {email.recipient}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant="outline" size="sm">
-                      {formatEmailType(email.notification_type)}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-text-secondary truncate max-w-[250px] hidden md:table-cell">
-                    {email.subject}
-                  </td>
-                  <td className="px-4 py-3">
-                    <Badge variant={STATUS_BADGE_MAP[email.status] || "default"} size="sm">
-                      {email.status}
-                    </Badge>
-                  </td>
-                  <td className="px-4 py-3 text-text-secondary text-xs hidden sm:table-cell">
-                    {formatEmailDate(email.sent_at || email.created_at)}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      {email.order_id && (
-                        <Link
-                          href={`/admin/orders/${email.order_id}`}
-                          className="text-xs text-primary hover:underline"
-                        >
-                          View Order
-                        </Link>
-                      )}
-                      {email.status === "failed" && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          disabled={resendingId === email.id}
-                          onClick={() => handleResend(email.id)}
-                          className="text-xs"
-                        >
-                          {resendingId === email.id ? (
-                            <Loader2 className="h-3 w-3 animate-spin" />
-                          ) : (
-                            "Resend"
-                          )}
-                        </Button>
-                      )}
-                    </div>
-                  </td>
-                </tr>
+                <>
+                  <tr
+                    key={email.id}
+                    className="hover:bg-surface-secondary/50 transition-colors cursor-pointer"
+                    onClick={() => setExpandedId(expandedId === email.id ? null : email.id)}
+                  >
+                    <td className="px-2 py-3 text-center">
+                      <ChevronDown
+                        className={`h-3.5 w-3.5 text-text-muted transition-transform ${
+                          expandedId === email.id ? "rotate-180" : ""
+                        }`}
+                      />
+                    </td>
+                    <td className="px-4 py-3 text-text-primary truncate max-w-[180px]">
+                      {email.recipient}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant="outline" size="sm">
+                        {formatEmailType(email.notification_type)}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3 text-text-secondary truncate max-w-[250px] hidden md:table-cell">
+                      {email.subject}
+                    </td>
+                    <td className="px-4 py-3">
+                      <Badge variant={STATUS_BADGE_MAP[email.status] || "default"} size="sm">
+                        {email.status}
+                      </Badge>
+                    </td>
+                    <td className="px-4 py-3 text-text-secondary text-xs hidden sm:table-cell">
+                      {formatEmailDate(email.sent_at || email.created_at)}
+                    </td>
+                    <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-2">
+                        {email.order_id && (
+                          <Link
+                            href={`/admin/orders/${email.order_id}`}
+                            className="text-xs text-primary hover:underline"
+                          >
+                            View Order
+                          </Link>
+                        )}
+                        {email.status === "failed" && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={resendingId === email.id}
+                            onClick={() => handleResend(email.id)}
+                            className="text-xs"
+                          >
+                            {resendingId === email.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              "Resend"
+                            )}
+                          </Button>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                  {expandedId === email.id && (
+                    <tr key={`${email.id}-detail`}>
+                      <td colSpan={7}>
+                        <EmailDetailPanel email={email} />
+                      </td>
+                    </tr>
+                  )}
+                </>
               ))}
             </tbody>
           </table>
