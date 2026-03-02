@@ -337,7 +337,12 @@ export default async function OrderDetailPage({ params }: PageProps) {
               orderId={order.id}
               isPastCutoff={
                 order.deliveryWindowStart
-                  ? isPastCutoff(parseISO(order.deliveryWindowStart), new Date(), rules.cutoffDay, rules.cutoffHour)
+                  ? isPastCutoff(
+                      parseISO(order.deliveryWindowStart),
+                      new Date(),
+                      rules.cutoffDay,
+                      rules.cutoffHour
+                    )
                   : false
               }
             />
