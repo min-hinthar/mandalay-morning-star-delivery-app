@@ -80,8 +80,13 @@ export function RouteBuilderClient() {
         throw new Error("Failed to fetch data");
       }
 
-      const [rawOrders, rawDrivers] = await Promise.all([ordersRes.json(), driversRes.json()]);
+      const [rawOrdersJson, rawDriversJson] = await Promise.all([
+        ordersRes.json(),
+        driversRes.json(),
+      ]);
 
+      const rawOrders = rawOrdersJson.data ?? rawOrdersJson;
+      const rawDrivers = rawDriversJson.data ?? rawDriversJson;
       setOrders((rawOrders as Record<string, unknown>[]).map((o) => transformApiOrder(o)));
       setDrivers(rawDrivers as DriverApiResponse[]);
     } catch {

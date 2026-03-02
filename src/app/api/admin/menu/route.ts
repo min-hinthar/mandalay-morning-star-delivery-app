@@ -44,7 +44,7 @@ const createMenuItemSchema = z.object({
   tags: z.array(z.string()).optional().default([]),
 });
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
@@ -59,7 +59,17 @@ export async function GET() {
     });
     if (rl.limited) return rl.response;
 
-    const { data: items, error } = await auth.supabase
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "25", 10)));
+    const rangeStart = (page - 1) * limit;
+    const rangeEnd = rangeStart + limit - 1;
+
+    const {
+      data: items,
+      error,
+      count,
+    } = await auth.supabase
       .from("menu_items")
       .select(
         `
@@ -69,9 +79,11 @@ export async function GET() {
           name,
           slug
         )
-      `
+      `,
+        { count: "exact" }
       )
       .order("created_at", { ascending: false })
+      .range(rangeStart, rangeEnd)
       .returns<MenuItemRow[]>();
 
     if (error) {
@@ -79,7 +91,17 @@ export async function GET() {
       return NextResponse.json({ error: "Failed to fetch menu items" }, { status: 500 });
     }
 
-    return NextResponse.json(items);
+    const total = count ?? 0;
+
+    return NextResponse.json({
+      data: items ?? [],
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     logger.exception(error, { api: "admin/menu", flowId: "fetch" });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

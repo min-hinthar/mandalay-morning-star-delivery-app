@@ -99,7 +99,8 @@ export function OpsDriverPanel() {
         if (!res.ok) {
           throw new Error(`Failed to fetch drivers: ${res.status}`);
         }
-        const data: DriverApiResponse[] = await res.json();
+        const json = await res.json();
+        const data: DriverApiResponse[] = json.data ?? json;
         if (!cancelled) {
           setDrivers(data);
           setError(null);

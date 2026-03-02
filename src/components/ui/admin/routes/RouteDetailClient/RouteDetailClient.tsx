@@ -101,7 +101,8 @@ export function RouteDetailClient() {
     try {
       const response = await fetch("/api/admin/drivers");
       if (!response.ok) return;
-      const data = await response.json();
+      const json = await response.json();
+      const data = json.data ?? json;
       setDrivers(data.filter((d: DriverOption) => d.isActive));
     } catch {
       // Non-critical - continue without driver list

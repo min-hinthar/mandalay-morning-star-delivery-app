@@ -22,11 +22,7 @@ interface OrderRow {
     email: string;
   } | null;
   route_stops: Array<{ id: string }> | null;
-}
-
-interface EmailLogRow {
-  order_id: string;
-  status: string;
+  notification_logs: Array<{ status: string; created_at: string }> | null;
 }
 
 // ============================================
@@ -65,7 +61,8 @@ export async function GET() {
           full_name,
           email
         ),
-        route_stops (id)
+        route_stops (id),
+        notification_logs (status, created_at)
       `
       )
       .order("placed_at", { ascending: false })
@@ -73,49 +70,42 @@ export async function GET() {
       .returns<OrderRow[]>();
 
     if (ordersError) {
-      logger.exception(ordersError, { api: "admin/ops/orders", flowId: "fetch" });
+      logger.exception(ordersError, {
+        api: "admin/ops/orders",
+        flowId: "fetch",
+        userId: auth.userId,
+      });
       return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
     }
 
-    // Fetch latest email status per order
-    const orderIds = (orders ?? []).map((o) => o.id);
-    const emailStatusMap = new Map<string, string>();
-    if (orderIds.length > 0) {
-      const { data: emailLogs } = await supabase
-        .from("notification_logs")
-        .select("order_id, status")
-        .in("order_id", orderIds)
-        .order("created_at", { ascending: false })
-        .returns<EmailLogRow[]>();
-      // Keep only the latest status per order (first seen wins since sorted desc)
-      for (const log of emailLogs ?? []) {
-        if (!emailStatusMap.has(log.order_id)) {
-          emailStatusMap.set(log.order_id, log.status);
-        }
-      }
-    }
+    const mapped = (orders ?? []).map((row) => {
+      // Get latest email status from joined notification_logs (sorted by created_at DESC)
+      const latestLog = row.notification_logs?.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      )?.[0];
 
-    const mapped = (orders ?? []).map((row) => ({
-      id: row.id,
-      status: row.status,
-      refundStatus: row.refund_status,
-      totalCents: row.total_cents,
-      deliveryWindowStart: row.delivery_window_start,
-      placedAt: row.placed_at,
-      itemCount: row.order_items.reduce((sum, i) => sum + i.quantity, 0),
-      customerName: row.profiles?.full_name ?? null,
-      customerEmail: row.profiles?.email ?? "",
-      isAssigned: (row.route_stops?.length ?? 0) > 0,
-      emailStatus: (emailStatusMap.get(row.id) ?? null) as
-        | "delivered"
-        | "failed"
-        | "pending"
-        | "sent"
-        | "bounced"
-        | "opened"
-        | null,
-      needsContact: row.needs_contact ?? false,
-    }));
+      return {
+        id: row.id,
+        status: row.status,
+        refundStatus: row.refund_status,
+        totalCents: row.total_cents,
+        deliveryWindowStart: row.delivery_window_start,
+        placedAt: row.placed_at,
+        itemCount: row.order_items.reduce((sum, i) => sum + i.quantity, 0),
+        customerName: row.profiles?.full_name ?? null,
+        customerEmail: row.profiles?.email ?? "",
+        isAssigned: (row.route_stops?.length ?? 0) > 0,
+        emailStatus: (latestLog?.status ?? null) as
+          | "delivered"
+          | "failed"
+          | "pending"
+          | "sent"
+          | "bounced"
+          | "opened"
+          | null,
+        needsContact: row.needs_contact ?? false,
+      };
+    });
 
     return NextResponse.json(mapped);
   } catch (error) {

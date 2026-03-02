@@ -28,7 +28,8 @@ export default function AdminMenuPage() {
     try {
       const response = await fetch("/api/admin/menu");
       if (!response.ok) throw new Error("Failed to fetch menu items");
-      const data: MenuTableItem[] = await response.json();
+      const json = await response.json();
+      const data: MenuTableItem[] = json.data ?? json;
       setItems(data);
 
       const uniqueCategories = data.reduce((acc: Category[], item) => {

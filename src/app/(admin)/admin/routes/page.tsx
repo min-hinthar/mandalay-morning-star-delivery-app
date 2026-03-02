@@ -52,7 +52,8 @@ export default function AdminRoutesPage() {
       if (!response.ok) {
         throw new Error("Failed to fetch routes");
       }
-      const data: AdminRoute[] = await response.json();
+      const json = await response.json();
+      const data: AdminRoute[] = json.data ?? json;
       setRoutes(data);
     } catch {
       setError("Failed to load routes. Please try again.");

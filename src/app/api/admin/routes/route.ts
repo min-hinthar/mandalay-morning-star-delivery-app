@@ -21,13 +21,17 @@ interface RouteWithDriver extends RoutesRow {
 
 /**
  * GET /api/admin/routes
- * List routes with optional date filter
+ * List routes with optional date filter (paginated)
  */
 export async function GET(request: NextRequest) {
   try {
     const supabase = await createClient();
     const { searchParams } = new URL(request.url);
     const date = searchParams.get("date");
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "25", 10)));
+    const rangeStart = (page - 1) * limit;
+    const rangeEnd = rangeStart + limit - 1;
 
     // Check authentication
     const {
@@ -84,7 +88,8 @@ export async function GET(request: NextRequest) {
           id,
           status
         )
-      `
+      `,
+        { count: "exact" }
       )
       .order("delivery_date", { ascending: false })
       .order("created_at", { ascending: false });
@@ -94,7 +99,11 @@ export async function GET(request: NextRequest) {
       query = query.eq("delivery_date", date);
     }
 
-    const { data: routes, error: routesError } = await query.limit(50).returns<RouteWithDriver[]>();
+    const {
+      data: routes,
+      error: routesError,
+      count,
+    } = await query.range(rangeStart, rangeEnd).returns<RouteWithDriver[]>();
 
     if (routesError) {
       logger.exception(routesError, { api: "admin/routes" });
@@ -102,7 +111,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform to API response format
-    const response = routes.map((route) => {
+    const data = (routes ?? []).map((route) => {
       const stopCount = route.route_stops?.length ?? 0;
       const deliveredCount = route.route_stops?.filter((s) => s.status === "delivered").length ?? 0;
       const statsJson = route.stats_json as RouteStats | null;
@@ -125,7 +134,17 @@ export async function GET(request: NextRequest) {
       };
     });
 
-    return NextResponse.json(response);
+    const total = count ?? 0;
+
+    return NextResponse.json({
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     logger.exception(error, { api: "admin/routes" });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
@@ -190,7 +209,12 @@ export async function POST(request: NextRequest) {
       .in("id", orderIds);
 
     if (ordersError) {
-      logger.exception(ordersError, { api: "admin/routes", flowId: "create-verify-orders" });
+      logger.exception(ordersError, {
+        api: "admin/routes",
+        flowId: "create-verify-orders",
+        driverId,
+        orderIds,
+      });
       return NextResponse.json({ error: "Failed to verify orders" }, { status: 500 });
     }
 
@@ -250,7 +274,12 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (routeError) {
-      logger.exception(routeError, { api: "admin/routes", flowId: "create-route" });
+      logger.exception(routeError, {
+        api: "admin/routes",
+        flowId: "create-route",
+        driverId,
+        orderIds,
+      });
       return NextResponse.json({ error: "Failed to create route" }, { status: 500 });
     }
 
@@ -265,7 +294,13 @@ export async function POST(request: NextRequest) {
     const { error: stopsError } = await supabase.from("route_stops").insert(stops);
 
     if (stopsError) {
-      logger.exception(stopsError, { api: "admin/routes", flowId: "create-stops" });
+      logger.exception(stopsError, {
+        api: "admin/routes",
+        flowId: "create-stops",
+        routeId: newRoute.id,
+        driverId,
+        orderIds,
+      });
       // Rollback route creation
       await supabase.from("routes").delete().eq("id", newRoute.id);
       return NextResponse.json({ error: "Failed to create route stops" }, { status: 500 });

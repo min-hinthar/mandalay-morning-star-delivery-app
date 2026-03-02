@@ -50,7 +50,8 @@ export default function AdminDriversPage() {
       if (!response.ok) {
         throw new Error("Failed to fetch drivers");
       }
-      const data: AdminDriver[] = await response.json();
+      const json = await response.json();
+      const data: AdminDriver[] = json.data ?? json;
       setDrivers(data);
     } catch {
       setError("Failed to load drivers. Please try again.");
