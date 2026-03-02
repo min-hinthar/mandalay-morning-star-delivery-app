@@ -116,7 +116,7 @@ export async function GET(request: Request) {
     let query = supabase
       .from("notification_logs")
       .select(
-        "id, order_id, user_id, notification_type, channel, recipient, subject, resend_id, status, error_message, sent_at, created_at",
+        "id, order_id, user_id, notification_type, channel, recipient, subject, resend_id, status, error_message, retry_count, metadata, sent_at, created_at",
         { count: "exact" }
       );
 
