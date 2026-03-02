@@ -5,7 +5,7 @@ import { Clock, AlertTriangle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import type { CountdownState } from "./useCountdown";
+import type { CountdownState } from "@/lib/hooks/useCountdown";
 
 // ============================================
 // TYPES
