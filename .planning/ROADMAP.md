@@ -212,7 +212,7 @@ Phase 86 can execute immediately (only depends on completed Phase 78).
 | 77. Critical Bug Fixes | v1.9 | 5/5 | Complete | 2026-03-01 |
 | 78. Configurable Business Rules | 4/4 | Complete    | 2026-03-01 | - |
 | 79. Saturday Ops Dashboard | 3/3 | Complete    | 2026-03-01 | - |
-| 80. Route & Driver Assignment | 4/4 | Complete   | 2026-03-02 | - |
+| 80. Route & Driver Assignment | 4/4 | Complete    | 2026-03-02 | - |
 | 81. Customer Pre-Checkout Gate | v1.9 | 0/TBD | Not started | - |
 | 82. Email Reliability | v1.9 | 0/TBD | Not started | - |
 | 83. Driver Simplification | v1.9 | 0/TBD | Not started | - |
