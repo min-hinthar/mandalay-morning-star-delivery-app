@@ -21,3 +21,6 @@ export { OfflineBanner } from "./OfflineBanner";
 export { HighContrastToggle } from "./HighContrastToggle";
 export { OnboardingForm } from "./OnboardingForm";
 export { UpgradeConfirmation } from "./UpgradeConfirmation";
+export { SimpleModeProvider, useSimpleMode } from "./SimpleModeProvider";
+export { SimpleHome } from "./SimpleHome";
+export { SimpleModeToggle } from "./SimpleModeToggle";
