@@ -13,6 +13,7 @@ export interface AdminRoute {
   deliveredCount: number;
   completionRate: number;
   createdAt: string;
+  estimatedDurationMinutes?: number | null;
 }
 
 export interface RouteListTableProps {

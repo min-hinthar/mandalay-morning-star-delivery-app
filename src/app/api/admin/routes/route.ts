@@ -105,6 +105,7 @@ export async function GET(request: NextRequest) {
     const response = routes.map((route) => {
       const stopCount = route.route_stops?.length ?? 0;
       const deliveredCount = route.route_stops?.filter((s) => s.status === "delivered").length ?? 0;
+      const statsJson = route.stats_json as RouteStats | null;
 
       return {
         id: route.id,
@@ -120,6 +121,7 @@ export async function GET(request: NextRequest) {
         deliveredCount,
         completionRate: stopCount > 0 ? Math.round((deliveredCount / stopCount) * 100) : 0,
         createdAt: route.created_at,
+        estimatedDurationMinutes: statsJson?.total_duration_minutes ?? null,
       };
     });
 

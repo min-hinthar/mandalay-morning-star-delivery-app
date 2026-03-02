@@ -6,12 +6,20 @@ import { Package } from "lucide-react";
 import { RouteStopCard } from "./RouteStopCard";
 import type { RouteStopStatus, StopDetail, RouteStatus } from "@/types/driver";
 
+interface AvailableRoute {
+  id: string;
+  driverName: string | null;
+  stopCount: number;
+}
+
 interface StopsListProps {
   stops: StopDetail[];
   routeStatus: RouteStatus;
   onStatusChange: (stopId: string, status: RouteStopStatus) => void;
   onRemoveStop: (stopId: string) => void;
   stopRefs?: MutableRefObject<Record<string, HTMLDivElement | null>>;
+  availableRoutes?: AvailableRoute[];
+  onReassign?: (stopId: string, targetRouteId: string) => void;
 }
 
 export function StopsList({
@@ -20,6 +28,8 @@ export function StopsList({
   onStatusChange,
   onRemoveStop,
   stopRefs,
+  availableRoutes,
+  onReassign,
 }: StopsListProps) {
   // Sort stops by stop_index
   const sortedStops = [...stops].sort((a, b) => a.stopIndex - b.stopIndex);
@@ -70,6 +80,8 @@ export function StopsList({
               routeStatus={routeStatus}
               onStatusChange={onStatusChange}
               onRemoveStop={onRemoveStop}
+              availableRoutes={availableRoutes}
+              onReassign={onReassign}
             />
           </div>
         ))}
