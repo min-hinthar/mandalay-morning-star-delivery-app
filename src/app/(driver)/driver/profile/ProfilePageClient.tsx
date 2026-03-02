@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { AvatarUpload } from "@/components/ui/driver/AvatarUpload";
+import { SimpleModeToggle } from "@/components/ui/driver/SimpleModeToggle";
 import type { VehicleType } from "@/types/driver";
 
 const vehicleOptions = [
@@ -389,6 +390,17 @@ export function ProfilePageClient({
           </Button>
         </m.div>
       </form>
+
+      {/* Simple Mode Toggle */}
+      <div className="px-4 pb-6">
+        <m.div
+          initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+          animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+          transition={{ ...getSpring(spring.default), delay: 0.3 }}
+        >
+          <SimpleModeToggle />
+        </m.div>
+      </div>
     </div>
   );
 }
