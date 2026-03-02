@@ -65,7 +65,8 @@ export default function AdminPhotosPage() {
       const response = await fetch("/api/admin/menu");
       if (!response.ok) throw new Error("Failed to fetch menu items");
 
-      const data = await response.json();
+      const json = await response.json();
+      const data = json.data ?? json;
       setMenuItems(
         data.map(
           (item: {

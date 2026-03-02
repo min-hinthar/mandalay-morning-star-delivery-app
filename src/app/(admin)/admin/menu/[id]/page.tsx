@@ -97,7 +97,8 @@ export default function AdminMenuItemEditPage() {
       const response = await fetch("/api/admin/menu");
       if (!response.ok) return;
 
-      const items: MenuItem[] = await response.json();
+      const json = await response.json();
+      const items: MenuItem[] = json.data ?? json;
       const uniqueCategories = items.reduce((acc: Category[], item) => {
         if (item.menu_categories && !acc.find((c) => c.id === item.menu_categories!.id)) {
           acc.push(item.menu_categories);

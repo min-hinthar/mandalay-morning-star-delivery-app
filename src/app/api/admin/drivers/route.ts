@@ -12,9 +12,9 @@ interface DriverWithProfile extends DriversRow {
 
 /**
  * GET /api/admin/drivers
- * List all drivers with their profile info
+ * List all drivers with their profile info (paginated)
  */
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
@@ -30,8 +30,17 @@ export async function GET() {
     if (rl.limited) return rl.response;
     const { supabase } = auth;
 
-    // Fetch all drivers with profile info
-    const { data: drivers, error: driversError } = await supabase
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "25", 10)));
+    const rangeStart = (page - 1) * limit;
+    const rangeEnd = rangeStart + limit - 1;
+
+    const {
+      data: drivers,
+      error: driversError,
+      count,
+    } = await supabase
       .from("drivers")
       .select(
         `
@@ -53,9 +62,11 @@ export async function GET() {
           full_name,
           phone
         )
-      `
+      `,
+        { count: "exact" }
       )
       .order("created_at", { ascending: false })
+      .range(rangeStart, rangeEnd)
       .returns<DriverWithProfile[]>();
 
     if (driversError) {
@@ -64,7 +75,7 @@ export async function GET() {
     }
 
     // Transform to API response format
-    const response = drivers.map((driver) => ({
+    const data = (drivers ?? []).map((driver) => ({
       id: driver.id,
       userId: driver.user_id,
       email: driver.profiles?.email ?? "",
@@ -81,7 +92,17 @@ export async function GET() {
       createdAt: driver.created_at,
     }));
 
-    return NextResponse.json(response);
+    const total = count ?? 0;
+
+    return NextResponse.json({
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     logger.exception(error, { api: "admin/drivers", flowId: "fetch" });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

@@ -18,7 +18,7 @@ interface OrderRow {
   } | null;
 }
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
@@ -34,8 +34,17 @@ export async function GET() {
     if (rl.limited) return rl.response;
     const { supabase } = auth;
 
-    // Fetch all orders with customer info
-    const { data: orders, error: ordersError } = await supabase
+    const { searchParams } = new URL(request.url);
+    const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
+    const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "25", 10)));
+    const rangeStart = (page - 1) * limit;
+    const rangeEnd = rangeStart + limit - 1;
+
+    const {
+      data: orders,
+      error: ordersError,
+      count,
+    } = await supabase
       .from("orders")
       .select(
         `
@@ -50,10 +59,11 @@ export async function GET() {
           full_name,
           email
         )
-      `
+      `,
+        { count: "exact" }
       )
       .order("placed_at", { ascending: false })
-      .limit(100)
+      .range(rangeStart, rangeEnd)
       .returns<OrderRow[]>();
 
     if (ordersError) {
@@ -61,7 +71,17 @@ export async function GET() {
       return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
     }
 
-    return NextResponse.json(orders);
+    const total = count ?? 0;
+
+    return NextResponse.json({
+      data: orders ?? [],
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit),
+      },
+    });
   } catch (error) {
     logger.exception(error, { api: "admin/orders", flowId: "fetch" });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

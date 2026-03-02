@@ -66,7 +66,8 @@ export default function AdminOrdersPage() {
       if (!response.ok) {
         throw new Error("Failed to fetch orders");
       }
-      const data: OrderRow[] = await response.json();
+      const json = await response.json();
+      const data: OrderRow[] = json.data ?? json;
 
       const transformedOrders: AdminOrder[] = data.map((order) => ({
         id: order.id,

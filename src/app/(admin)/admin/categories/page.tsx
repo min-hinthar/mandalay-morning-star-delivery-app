@@ -19,7 +19,8 @@ export default function AdminCategoriesPage() {
     try {
       const response = await fetch("/api/admin/categories");
       if (!response.ok) throw new Error("Failed to fetch categories");
-      const data: CategoryRow[] = await response.json();
+      const json = await response.json();
+      const data: CategoryRow[] = json.data ?? json;
       setCategories(data);
     } catch {
       toast({
