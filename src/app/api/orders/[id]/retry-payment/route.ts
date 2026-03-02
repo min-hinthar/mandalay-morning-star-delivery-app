@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { isPastCutoff } from "@/lib/utils/delivery-dates";
+import { getBusinessRules } from "@/lib/settings";
 import { checkRateLimit, checkoutLimiter } from "@/lib/rate-limit";
 import type { ProfilesRow } from "@/types/database";
 
@@ -101,10 +102,11 @@ export async function POST(_request: Request, { params }: RouteParams) {
     );
   }
 
-  // Check if delivery cutoff has passed
+  // Check if delivery cutoff has passed (using DB-sourced business rules)
+  const rules = await getBusinessRules();
   if (order.delivery_window_start) {
     const deliveryDate = new Date(order.delivery_window_start);
-    if (isPastCutoff(deliveryDate)) {
+    if (isPastCutoff(deliveryDate, new Date(), rules.cutoffDay, rules.cutoffHour)) {
       return NextResponse.json(
         {
           error: {

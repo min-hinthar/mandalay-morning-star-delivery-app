@@ -10,6 +10,7 @@ import { PendingOrderActions } from "@/components/ui/orders/PendingOrderActions"
 import { formatPrice } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
 import { isPastCutoff } from "@/lib/utils/delivery-dates";
+import { getBusinessRules } from "@/lib/settings";
 import type { Order, OrderItem, OrderItemModifier, OrderAddress, OrderStatus } from "@/types/order";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/types/order";
 
@@ -167,6 +168,9 @@ export default async function OrderDetailPage({ params }: PageProps) {
     address,
     items,
   };
+
+  // Load DB-sourced business rules for cutoff check
+  const rules = await getBusinessRules();
 
   const deliveryDate = order.deliveryWindowStart
     ? format(parseISO(order.deliveryWindowStart), "EEEE, MMMM d, yyyy")
@@ -333,7 +337,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
               orderId={order.id}
               isPastCutoff={
                 order.deliveryWindowStart
-                  ? isPastCutoff(parseISO(order.deliveryWindowStart))
+                  ? isPastCutoff(parseISO(order.deliveryWindowStart), new Date(), rules.cutoffDay, rules.cutoffHour)
                   : false
               }
             />
