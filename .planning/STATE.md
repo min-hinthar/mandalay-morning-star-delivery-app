@@ -2,21 +2,8 @@
 gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
-status: unknown
-last_updated: "2026-03-02T01:04:49.582Z"
-progress:
-  total_phases: 6
-  completed_phases: 4
-  total_plans: 16
-  completed_plans: 16
----
-
----
-gsd_state_version: 1.0
-milestone: v1.9
-milestone_name: Launch-Ready MVP
 status: in_progress
-last_updated: "2026-03-02T01:01:00Z"
+last_updated: "2026-03-01T22:35:00Z"
 progress:
   total_phases: 6
   completed_phases: 4
@@ -31,23 +18,23 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.9 Launch-Ready MVP -- Phase 80 COMPLETE
+**Current focus:** v1.9 Launch-Ready MVP -- Phase 81 Plan 01 COMPLETE
 
 ## Current Position
 
-Phase: 80 of 84 (Route & Driver Assignment) -- COMPLETE
-Plan: 4 of 4 in Phase 80 (All plans 01-04 complete)
+Phase: 81 of 84 (Customer Pre-Checkout Gate) -- IN PROGRESS
+Plan: 1 of N in Phase 81 (Plan 01 complete)
 Milestone: v1.9 Launch-Ready MVP (8 phases, 49 requirements)
-Status: Phase 80 complete -- ready for Phase 81
-Last activity: 2026-03-02 -- Phase 80 Plan 04 executed (driver API ownership enforcement audit, ROUTE-07 verified)
+Status: Phase 81 Plan 01 complete -- delivery gate infrastructure built
+Last activity: 2026-03-01 -- Phase 81 Plan 01 executed (useDeliveryGate hook + DeliveryBanner/DeliveryCountdown/CutoffModal components)
 
-Progress: [==============================....] 80/84 phases (complete)
+Progress: [==============================....] 81/84 phases (in progress)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 324 (across v1.0-v1.8 + gap closure + v1.9)
+- Total plans completed: 325 (across v1.0-v1.8 + gap closure + v1.9)
 - Average duration: ~15 min
 - Total execution time: ~78 hours
 
@@ -74,6 +61,7 @@ Progress: [==============================....] 80/84 phases (complete)
 | Phase 80 P02 | 12 | 2 tasks | 11 files |
 | Phase 80 P03 | 10 | 2 tasks | 7 files |
 | Phase 80 P04 | 8 | 1 task | 1 file |
+| Phase 81 P01 | 12 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -114,6 +102,11 @@ Progress: [==============================....] 80/84 phases (complete)
 - [Phase 80 P03]: availableRoutes fetch piggybacks inside fetchRoute for simplicity and single refresh point
 - [Phase 80 P03]: estimatedDurationMinutes optional on AdminRoute for backward-compatible stats_json duration display
 - [Phase 80 P04]: No gaps found in driver API ownership enforcement -- defense-in-depth confirmed (API middleware + RLS)
+- [Phase 81 P01]: computeDeliveryGate pure function exported separately for testability without renderHook
+- [Phase 81 P01]: useCountdown relocated to @/lib/hooks with admin re-export for zero breaking changes
+- [Phase 81 P01]: Urgency thresholds: >2h=normal, <=2h=warning, <=30m or past=critical
+- [Phase 81 P01]: DeliveryBanner countdown shows Xh Ym format (customer-readable vs HH:MM:SS admin style)
+- [Phase 81 P01]: CutoffModal cart items preserved per locked phase decision
 
 ### Pending Todos
 
@@ -132,6 +125,6 @@ Progress: [==============================....] 80/84 phases (complete)
 
 ## Session Continuity
 
-Last session: 2026-03-02
-Stopped at: Phase 80 Plan 04 complete -- driver API ownership audit, ROUTE-07 verified, 80-04-VERIFICATION.md created
-Next action: `/gsd:execute-phase 81` (next phase)
+Last session: 2026-03-01
+Stopped at: Phase 81 Plan 01 complete -- delivery gate infrastructure (useDeliveryGate, useCountdown relocated, DeliveryBanner, DeliveryCountdown, CutoffModal)
+Next action: `/gsd:execute-phase 81` Plan 02 (next plan in phase)
