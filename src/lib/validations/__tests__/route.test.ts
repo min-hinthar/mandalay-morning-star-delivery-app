@@ -4,11 +4,7 @@
  */
 
 import { describe, it, expect } from "vitest";
-import {
-  reassignStopSchema,
-  createRouteSchema,
-  type ReassignStopInput,
-} from "../route";
+import { reassignStopSchema, createRouteSchema, type ReassignStopInput } from "../route";
 
 const VALID_UUID_1 = "550e8400-e29b-41d4-a716-446655440000";
 const VALID_UUID_2 = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";

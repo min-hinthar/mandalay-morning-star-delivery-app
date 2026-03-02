@@ -83,9 +83,7 @@ describe("clusterOrders", () => {
   });
 
   it("assigns a label to each cluster", () => {
-    const orders: ClusterableOrder[] = [
-      { id: "order-1", lat: 34.08, lng: -117.89 },
-    ];
+    const orders: ClusterableOrder[] = [{ id: "order-1", lat: 34.08, lng: -117.89 }];
     const result = clusterOrders(orders);
     expect(result[0].label).toBeTruthy();
     expect(typeof result[0].label).toBe("string");
@@ -94,9 +92,7 @@ describe("clusterOrders", () => {
   });
 
   it("assigns a color to each cluster", () => {
-    const orders: ClusterableOrder[] = [
-      { id: "order-1", lat: 34.08, lng: -117.89 },
-    ];
+    const orders: ClusterableOrder[] = [{ id: "order-1", lat: 34.08, lng: -117.89 }];
     const result = clusterOrders(orders);
     expect(result[0].color).toBeTruthy();
     expect(CLUSTER_COLORS).toContain(result[0].color);
@@ -190,7 +186,7 @@ describe("estimateRouteDuration", () => {
   it("returns positive duration and distance for multiple stops", () => {
     const result = estimateRouteDuration([
       { lat: 34.08, lng: -117.89 },
-      { lat: 34.09, lng: -117.90 },
+      { lat: 34.09, lng: -117.9 },
     ]);
     expect(result.durationMinutes).toBeGreaterThan(0);
     expect(result.distanceKm).toBeGreaterThan(0);
@@ -200,7 +196,7 @@ describe("estimateRouteDuration", () => {
     // Two stops ~1.4km straight-line apart
     const stops = [
       { lat: 34.08, lng: -117.89 },
-      { lat: 34.09, lng: -117.90 },
+      { lat: 34.09, lng: -117.9 },
     ];
     const result = estimateRouteDuration(stops);
     // distanceKm should be road-adjusted (1.3x Haversine)
@@ -213,7 +209,7 @@ describe("estimateRouteDuration", () => {
     const oneStop = estimateRouteDuration([{ lat: 34.08, lng: -117.89 }]);
     const twoStops = estimateRouteDuration([
       { lat: 34.08, lng: -117.89 },
-      { lat: 34.09, lng: -117.90 },
+      { lat: 34.09, lng: -117.9 },
     ]);
     // Two stops should have more stop time (+5 min more than 1 stop baseline)
     // twoStops = driving time + 10 min stop time
@@ -224,7 +220,7 @@ describe("estimateRouteDuration", () => {
   it("returns rounded values", () => {
     const result = estimateRouteDuration([
       { lat: 34.08, lng: -117.89 },
-      { lat: 34.09, lng: -117.90 },
+      { lat: 34.09, lng: -117.9 },
     ]);
     // Values should be numbers (rounded)
     expect(Number.isFinite(result.durationMinutes)).toBe(true);
@@ -236,7 +232,7 @@ describe("getUnclusteredOrders", () => {
   it("returns empty array when all orders have coordinates", () => {
     const orders: ClusterableOrder[] = [
       { id: "order-1", lat: 34.08, lng: -117.89 },
-      { id: "order-2", lat: 34.09, lng: -117.90 },
+      { id: "order-2", lat: 34.09, lng: -117.9 },
     ];
     expect(getUnclusteredOrders(orders)).toEqual([]);
   });
