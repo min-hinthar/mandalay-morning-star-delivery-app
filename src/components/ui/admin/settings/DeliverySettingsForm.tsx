@@ -112,21 +112,19 @@ export function DeliverySettingsForm({
         <p className="mt-1 text-sm text-text-secondary">
           Configure delivery pricing, schedule, and coverage area.
         </p>
-        {lastChangedLabel && (
-          <p className="mt-2 text-sm text-text-secondary">{lastChangedLabel}</p>
-        )}
+        {lastChangedLabel && <p className="mt-2 text-sm text-text-secondary">{lastChangedLabel}</p>}
       </div>
 
       {/* ========== PRICING SUBSECTION ========== */}
       <div className="space-y-6">
-        <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide">
-          Pricing
-        </h3>
+        <h3 className="text-sm font-semibold text-text-primary uppercase tracking-wide">Pricing</h3>
         <div className="grid gap-6 sm:grid-cols-2">
           <div className={cn("space-y-2", changed("baseDeliveryFeeCents") && CHANGED_BORDER)}>
             <Label htmlFor="deliveryFee">Base Delivery Fee</Label>
             <div className="relative max-w-[200px]">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
+                $
+              </span>
               <Input
                 id="deliveryFee"
                 type="number"
@@ -143,12 +141,12 @@ export function DeliverySettingsForm({
             <p className="text-xs text-text-muted">Standard delivery fee charged to customers</p>
           </div>
 
-          <div
-            className={cn("space-y-2", changed("freeDeliveryThresholdCents") && CHANGED_BORDER)}
-          >
+          <div className={cn("space-y-2", changed("freeDeliveryThresholdCents") && CHANGED_BORDER)}>
             <Label htmlFor="freeThreshold">Free Delivery Threshold</Label>
             <div className="relative max-w-[200px]">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
+                $
+              </span>
               <Input
                 id="freeThreshold"
                 type="number"
@@ -172,7 +170,9 @@ export function DeliverySettingsForm({
           <div className={cn("space-y-2", changed("minimumOrderCents") && CHANGED_BORDER)}>
             <Label htmlFor="minimumOrder">Minimum Order Amount</Label>
             <div className="relative max-w-[200px]">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
+                $
+              </span>
               <Input
                 id="minimumOrder"
                 type="number"
@@ -309,9 +309,7 @@ export function DeliverySettingsForm({
             <p className="text-xs text-text-muted">Maximum distance for deliveries (1-100 miles)</p>
           </div>
 
-          <div
-            className={cn("space-y-2", changed("maxDeliveryDurationMinutes") && CHANGED_BORDER)}
-          >
+          <div className={cn("space-y-2", changed("maxDeliveryDurationMinutes") && CHANGED_BORDER)}>
             <Label htmlFor="maxDuration">Max Delivery Duration</Label>
             <div className="flex items-center gap-2">
               <Input

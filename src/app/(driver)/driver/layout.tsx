@@ -33,7 +33,9 @@ export default async function DriverLayout({ children }: { children: React.React
   // Query driver record WITHOUT is_active filter to detect deactivated vs no-record
   const { data: driver } = await supabase
     .from("drivers")
-    .select("id, user_id, is_active, vehicle_type, rating_avg, deliveries_count, profile_image_url, simple_mode")
+    .select(
+      "id, user_id, is_active, vehicle_type, rating_avg, deliveries_count, profile_image_url, simple_mode"
+    )
     .eq("user_id", user.id)
     .returns<
       Pick<

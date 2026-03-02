@@ -47,8 +47,6 @@ export function SimpleModeProvider({ initialMode, children }: SimpleModeProvider
   }, [isSimpleMode]);
 
   return (
-    <SimpleModeContext value={{ isSimpleMode, toggleSimpleMode }}>
-      {children}
-    </SimpleModeContext>
+    <SimpleModeContext value={{ isSimpleMode, toggleSimpleMode }}>{children}</SimpleModeContext>
   );
 }

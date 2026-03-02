@@ -36,9 +36,7 @@ export function FreeDeliveryProgress({
   className,
 }: FreeDeliveryProgressProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
-  const freeDeliveryThresholdCents = useCartStore(
-    (state) => state.freeDeliveryThresholdCents
-  );
+  const freeDeliveryThresholdCents = useCartStore((state) => state.freeDeliveryThresholdCents);
 
   const progressPercent = Math.min(
     100,

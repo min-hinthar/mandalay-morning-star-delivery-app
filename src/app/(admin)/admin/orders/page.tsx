@@ -202,11 +202,13 @@ export default function AdminOrdersPage() {
             <div className="flex items-center gap-2 text-text-muted mr-2">
               <span className="text-sm">Refund:</span>
             </div>
-            {([
-              { value: "all" as const, label: "All" },
-              { value: "partial" as const, label: "Partial Refund", count: refundCounts.partial },
-              { value: "full" as const, label: "Full Refund", count: refundCounts.full },
-            ] as const).map((filter) => (
+            {(
+              [
+                { value: "all" as const, label: "All" },
+                { value: "partial" as const, label: "Partial Refund", count: refundCounts.partial },
+                { value: "full" as const, label: "Full Refund", count: refundCounts.full },
+              ] as const
+            ).map((filter) => (
               <Badge
                 key={filter.value}
                 variant={refundFilter === filter.value ? "default" : "outline"}
@@ -241,7 +243,10 @@ export default function AdminOrdersPage() {
             onStatusChange={handleStatusChange}
             onRefresh={handleRefresh}
             isFiltered={isFiltered}
-            onClearFilters={() => { setStatusFilter("all"); setRefundFilter("all"); }}
+            onClearFilters={() => {
+              setStatusFilter("all");
+              setRefundFilter("all");
+            }}
           />
         )}
       </SkeletonCrossfade>

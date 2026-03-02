@@ -47,9 +47,7 @@ export function EmailDetailPanel({ email }: EmailDetailPanelProps) {
 
       {/* Retry count */}
       {email.retry_count != null && email.retry_count > 0 && (
-        <div className="text-xs text-text-muted">
-          Attempt {email.retry_count} of 3
-        </div>
+        <div className="text-xs text-text-muted">Attempt {email.retry_count} of 3</div>
       )}
 
       {/* Webhook event timeline */}
@@ -66,9 +64,7 @@ export function EmailDetailPanel({ email }: EmailDetailPanelProps) {
                   <Badge variant={variant} size="sm" className="text-2xs">
                     {eventStatus}
                   </Badge>
-                  <span className="text-2xs text-text-muted">
-                    {formatEmailDate(event.at)}
-                  </span>
+                  <span className="text-2xs text-text-muted">{formatEmailDate(event.at)}</span>
                 </div>
               );
             })}

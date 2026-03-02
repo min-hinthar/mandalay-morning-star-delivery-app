@@ -32,7 +32,10 @@ export function EmailStatsBar() {
     return (
       <div className="grid grid-cols-4 gap-4 mb-6">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="rounded-card-sm border border-border-subtle p-3 flex items-center justify-center">
+          <div
+            key={i}
+            className="rounded-card-sm border border-border-subtle p-3 flex items-center justify-center"
+          >
             <Loader2 className="h-4 w-4 animate-spin text-text-muted" />
           </div>
         ))}

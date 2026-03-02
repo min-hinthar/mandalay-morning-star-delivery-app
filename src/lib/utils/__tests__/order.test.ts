@@ -394,7 +394,10 @@ describe("validateCartItems", () => {
           menuItemId: "item-1",
           quantity: 2,
           basePriceCents: 1500,
-          modifiers: [{ optionId: "mod-1", priceDeltaCents: 200 }, { optionId: "mod-2", priceDeltaCents: 100 }],
+          modifiers: [
+            { optionId: "mod-1", priceDeltaCents: 200 },
+            { optionId: "mod-2", priceDeltaCents: 100 },
+          ],
           notes: "extra sauce",
         },
       ],

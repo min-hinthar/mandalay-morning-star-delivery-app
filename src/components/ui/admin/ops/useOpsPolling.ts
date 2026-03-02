@@ -59,9 +59,7 @@ export function useOpsPolling(intervalMs = 5000): OpsPollingState {
       // Prune selected IDs: only keep IDs present in filtered view
       const currentFilter = statusFilterRef.current;
       const filteredIds = new Set(
-        data
-          .filter((o) => currentFilter === "all" || o.status === currentFilter)
-          .map((o) => o.id)
+        data.filter((o) => currentFilter === "all" || o.status === currentFilter).map((o) => o.id)
       );
       const currentSelected = selectedIdsRef.current;
       const pruned = new Set([...currentSelected].filter((id) => filteredIds.has(id)));

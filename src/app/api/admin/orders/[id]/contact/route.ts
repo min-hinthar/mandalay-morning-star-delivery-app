@@ -44,10 +44,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     }
 
     if (!order.needs_contact) {
-      return NextResponse.json(
-        { error: "Order is not flagged for contact" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Order is not flagged for contact" }, { status: 400 });
     }
 
     // Clear the flag and record resolution

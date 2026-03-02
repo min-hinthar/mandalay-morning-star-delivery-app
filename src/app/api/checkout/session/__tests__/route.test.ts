@@ -159,7 +159,15 @@ describe("Checkout Session Validation", () => {
       const modifierOptions = new Map<string, ModifierOptionsRow>();
 
       const result = await validateCartItems(
-        [{ menuItemId: "nonexistent", quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" }],
+        [
+          {
+            menuItemId: "nonexistent",
+            quantity: 1,
+            basePriceCents: 1500,
+            modifiers: [],
+            notes: "",
+          },
+        ],
         menuItems,
         modifierOptions
       );
