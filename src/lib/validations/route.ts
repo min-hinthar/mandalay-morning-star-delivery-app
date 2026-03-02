@@ -72,6 +72,12 @@ export const optimizeRouteSchema = z.object({
   routeId: z.string().uuid("Invalid route ID"),
 });
 
+// Reassign stop between routes
+export const reassignStopSchema = z.object({
+  stopId: z.string().uuid("Invalid stop ID"),
+  targetRouteId: z.string().uuid("Invalid target route ID"),
+});
+
 // Type exports
 export type CreateRouteInput = z.infer<typeof createRouteSchema>;
 export type UpdateRouteInput = z.infer<typeof updateRouteSchema>;
@@ -80,3 +86,4 @@ export type ReorderStopsInput = z.infer<typeof reorderStopsSchema>;
 export type UpdateStopStatusInput = z.infer<typeof updateStopStatusSchema>;
 export type ResolveExceptionInput = z.infer<typeof resolveExceptionSchema>;
 export type OptimizeRouteInput = z.infer<typeof optimizeRouteSchema>;
+export type ReassignStopInput = z.infer<typeof reassignStopSchema>;
