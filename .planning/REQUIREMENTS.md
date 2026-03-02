@@ -9,14 +9,14 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 
 ### Bug Fixes
 
-- [ ] **BUG-01**: Fix checkout TOCTOU cleanup — `.eq()` → `.in()` with proper order_item_id array
-- [ ] **BUG-02**: Fix `isPastCutoff()` — add full date+time comparison, not just time
-- [ ] **BUG-03**: Add time window validation — `.refine()` against `TIME_WINDOWS` list
-- [ ] **BUG-04**: Fix cart debounce race condition — timestamp-based dedup
-- [ ] **BUG-05**: Re-validate coverage + cutoff at checkout submission
-- [ ] **BUG-06**: Add quantity limit toast when silently capped
-- [ ] **BUG-07**: Unify refund and status transition logic — add 'refunded' status
-- [ ] **BUG-08**: Re-validate modifiers against DB at checkout — stale cart warning
+- [x] **BUG-01**: Fix checkout TOCTOU cleanup — `.eq()` → `.in()` with proper order_item_id array
+- [x] **BUG-02**: Fix `isPastCutoff()` — add full date+time comparison, not just time
+- [x] **BUG-03**: Add time window validation — `.refine()` against `TIME_WINDOWS` list
+- [x] **BUG-04**: Fix cart debounce race condition — timestamp-based dedup
+- [x] **BUG-05**: Re-validate coverage + cutoff at checkout submission
+- [x] **BUG-06**: Add quantity limit toast when silently capped
+- [x] **BUG-07**: Unify refund and status transition logic — add 'refunded' status
+- [x] **BUG-08**: Re-validate modifiers against DB at checkout — stale cart warning
 
 ### Ops Dashboard
 
@@ -133,14 +133,14 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | Phase 85 (gap closure) | Pending |
-| BUG-02 | Phase 85 (gap closure) | Pending |
-| BUG-03 | Phase 85 (gap closure) | Pending |
-| BUG-04 | Phase 85 (gap closure) | Pending |
-| BUG-05 | Phase 85 (gap closure) | Pending |
-| BUG-06 | Phase 85 (gap closure) | Pending |
-| BUG-07 | Phase 85 (gap closure) | Pending |
-| BUG-08 | Phase 85 (gap closure) | Pending |
+| BUG-01 | Phase 77 | Complete |
+| BUG-02 | Phase 77 | Complete |
+| BUG-03 | Phase 77 | Complete |
+| BUG-04 | Phase 77 | Complete |
+| BUG-05 | Phase 77 | Complete |
+| BUG-06 | Phase 77 | Complete |
+| BUG-07 | Phase 77 | Complete |
+| BUG-08 | Phase 77 | Complete |
 | OPS-01 | Phase 79 | Complete |
 | OPS-02 | Phase 79 | Complete |
 | OPS-03 | Phase 79 | Complete |
@@ -197,4 +197,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-01*
-*Last updated: 2026-03-01 after gap closure planning (BUG-01–08 reassigned to Phase 85; 49 requirements mapped to Phases 78-86)*
+*Last updated: 2026-03-02 after Phase 85 verification (BUG-01–08 verified complete in Phase 77)*
