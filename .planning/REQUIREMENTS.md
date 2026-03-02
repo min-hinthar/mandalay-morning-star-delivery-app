@@ -36,7 +36,7 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 - [x] **ROUTE-04**: Auto-suggest grouping by geography / time window
 - [x] **ROUTE-05**: Route summary — stop count, estimated duration, map preview
 - [x] **ROUTE-06**: Reassign orders between routes
-- [ ] **ROUTE-07**: Driver ownership check on all driver API queries
+- [x] **ROUTE-07**: Driver ownership check on all driver API queries
 
 ### Customer Gate
 
@@ -154,7 +154,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ROUTE-04 | Phase 80 | Complete |
 | ROUTE-05 | Phase 80 | Complete |
 | ROUTE-06 | Phase 80 | Complete |
-| ROUTE-07 | Phase 80 | Pending |
+| ROUTE-07 | Phase 80 | Complete |
 | GATE-01 | Phase 81 | Pending |
 | GATE-02 | Phase 81 | Pending |
 | GATE-03 | Phase 81 | Pending |
