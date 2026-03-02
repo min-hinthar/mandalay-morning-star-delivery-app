@@ -49,5 +49,7 @@ export interface OrderDetail {
   isPriority: boolean;
   assignedDriverId: string | null;
   assignedDriverName: string | null;
+  emailStatus: "delivered" | "failed" | "pending" | "sent" | "bounced" | "opened" | null;
+  needsContact: boolean;
   auditLog: AuditLogEntry[];
 }

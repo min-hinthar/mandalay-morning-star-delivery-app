@@ -2,6 +2,7 @@
 
 import { m } from "framer-motion";
 import { formatDistanceToNow, parseISO } from "date-fns";
+import { CheckCircle2, XCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { cardItem } from "@/components/ui/admin/CardRow";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -72,6 +73,18 @@ export function OpsOrderRow({ order, isSelected, onToggle }: OpsOrderRowProps) {
 
       {/* Status badge */}
       <StatusBadge status={order.status} />
+
+      {/* Email status icon */}
+      {(order.emailStatus === "delivered" || order.emailStatus === "opened") && (
+        <span aria-label="Email delivered">
+          <CheckCircle2 className="h-3.5 w-3.5 shrink-0 text-green" />
+        </span>
+      )}
+      {(order.emailStatus === "failed" || order.emailStatus === "bounced") && (
+        <span aria-label="Email failed">
+          <XCircle className="h-3.5 w-3.5 shrink-0 text-status-error" />
+        </span>
+      )}
 
       {/* Total */}
       <span className="hidden text-sm font-semibold tabular-nums text-text-primary sm:block">

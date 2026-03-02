@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Star, Loader2 } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils/cn";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/admin/StatusBadge";
 import { toast } from "@/lib/hooks/useToastV8";
@@ -18,15 +19,49 @@ interface OrderHeaderCardProps {
   order: OrderDetail;
   onStatusAction: (newStatus: OrderStatus) => void;
   onPriorityChanged: (isPriority: boolean) => void;
+  onContactResolved?: () => void;
 }
 
 export function OrderHeaderCard({
   order,
   onStatusAction,
   onPriorityChanged,
+  onContactResolved,
 }: OrderHeaderCardProps) {
   const [togglingPriority, setTogglingPriority] = useState(false);
+  const [markingContacted, setMarkingContacted] = useState(false);
   const nextStatuses = NEXT_STATUSES[order.status];
+
+  const handleMarkContacted = async () => {
+    try {
+      setMarkingContacted(true);
+      const res = await fetch(`/api/admin/orders/${order.id}/contact`, { method: "POST" });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error || "Failed to mark as contacted");
+      }
+      toast({ message: "Order marked as contacted", type: "success" });
+      onContactResolved?.();
+    } catch (err) {
+      toast({
+        message: err instanceof Error ? err.message : "Failed to mark as contacted",
+        type: "error",
+      });
+    } finally {
+      setMarkingContacted(false);
+    }
+  };
+
+  function getEmailBadgeLabel(status: string): string {
+    if (status === "opened") return "Delivered";
+    return status.charAt(0).toUpperCase() + status.slice(1);
+  }
+
+  function getEmailBadgeVariant(status: string) {
+    if (status === "delivered" || status === "opened") return "status-success" as const;
+    if (status === "failed" || status === "bounced") return "status-error" as const;
+    return "status-warning" as const;
+  }
 
   const handleTogglePriority = async () => {
     try {
@@ -74,6 +109,18 @@ export function OrderHeaderCard({
           #{order.id.slice(0, 8).toUpperCase()}
         </span>
         <StatusBadge status={order.status} size="md" />
+        {/* Email status badge */}
+        {order.emailStatus && (
+          <Badge variant={getEmailBadgeVariant(order.emailStatus)} size="sm">
+            Email: {getEmailBadgeLabel(order.emailStatus)}
+          </Badge>
+        )}
+        {/* Needs Contact badge */}
+        {order.needsContact && (
+          <Badge variant="status-error" size="sm" className="animate-pulse">
+            Needs Contact
+          </Badge>
+        )}
         <button
           type="button"
           onClick={handleTogglePriority}
@@ -93,6 +140,18 @@ export function OrderHeaderCard({
           )}
           {order.isPriority ? "Priority" : "Set Priority"}
         </button>
+        {/* Mark Contacted button */}
+        {order.needsContact && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleMarkContacted}
+            disabled={markingContacted}
+            className="text-xs"
+          >
+            {markingContacted ? <Loader2 className="h-3 w-3 animate-spin" /> : "Mark Contacted"}
+          </Button>
+        )}
       </div>
 
       {/* Delivery window */}

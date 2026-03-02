@@ -19,6 +19,7 @@ interface OrderRow {
   delivery_window_end: string | null;
   stripe_payment_intent_id: string | null;
   is_priority: boolean | null;
+  needs_contact: boolean | null;
   user_id: string;
   profiles: {
     full_name: string | null;
@@ -32,6 +33,10 @@ interface OrderRow {
     state: string;
     postal_code: string;
   } | null;
+}
+
+interface EmailLogRow {
+  status: string;
 }
 
 interface OrderItemRow {
@@ -103,6 +108,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         delivery_window_end,
         stripe_payment_intent_id,
         is_priority,
+        needs_contact,
         user_id,
         profiles (
           full_name,
@@ -197,6 +203,20 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       }
     }
 
+    // Fetch latest email status for this order
+    let emailStatus: string | null = null;
+    const { data: emailLog } = await supabase
+      .from("notification_logs")
+      .select("status")
+      .eq("order_id", orderId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .returns<EmailLogRow[]>()
+      .single();
+    if (emailLog) {
+      emailStatus = emailLog.status;
+    }
+
     // Transform to API response
     const response = {
       id: order.id,
@@ -237,6 +257,15 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       deliveryWindowEnd: order.delivery_window_end ?? null,
       stripePaymentIntentId: order.stripe_payment_intent_id ?? null,
       isPriority: order.is_priority ?? false,
+      emailStatus: emailStatus as
+        | "delivered"
+        | "failed"
+        | "pending"
+        | "sent"
+        | "bounced"
+        | "opened"
+        | null,
+      needsContact: order.needs_contact ?? false,
       auditLog: (auditLog || []).map((entry) => ({
         id: entry.id,
         action: entry.action,

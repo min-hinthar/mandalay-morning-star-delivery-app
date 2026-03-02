@@ -270,6 +270,8 @@ function mockOrder(overrides: Partial<OpsOrder> = {}): OpsOrder {
     customerName: "Test Customer",
     customerEmail: "test@example.com",
     isAssigned: false,
+    emailStatus: null,
+    needsContact: false,
     ...overrides,
   };
 }

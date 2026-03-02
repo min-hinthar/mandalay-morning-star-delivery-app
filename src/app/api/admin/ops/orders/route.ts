@@ -15,12 +15,18 @@ interface OrderRow {
   total_cents: number;
   delivery_window_start: string | null;
   placed_at: string;
+  needs_contact: boolean | null;
   order_items: Array<{ quantity: number }>;
   profiles: {
     full_name: string | null;
     email: string;
   } | null;
   route_stops: Array<{ id: string }> | null;
+}
+
+interface EmailLogRow {
+  order_id: string;
+  status: string;
 }
 
 // ============================================
@@ -53,6 +59,7 @@ export async function GET() {
         total_cents,
         delivery_window_start,
         placed_at,
+        needs_contact,
         order_items (quantity),
         profiles (
           full_name,
@@ -70,6 +77,24 @@ export async function GET() {
       return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
     }
 
+    // Fetch latest email status per order
+    const orderIds = (orders ?? []).map((o) => o.id);
+    const emailStatusMap = new Map<string, string>();
+    if (orderIds.length > 0) {
+      const { data: emailLogs } = await supabase
+        .from("notification_logs")
+        .select("order_id, status")
+        .in("order_id", orderIds)
+        .order("created_at", { ascending: false })
+        .returns<EmailLogRow[]>();
+      // Keep only the latest status per order (first seen wins since sorted desc)
+      for (const log of emailLogs ?? []) {
+        if (!emailStatusMap.has(log.order_id)) {
+          emailStatusMap.set(log.order_id, log.status);
+        }
+      }
+    }
+
     const mapped = (orders ?? []).map((row) => ({
       id: row.id,
       status: row.status,
@@ -81,6 +106,15 @@ export async function GET() {
       customerName: row.profiles?.full_name ?? null,
       customerEmail: row.profiles?.email ?? "",
       isAssigned: (row.route_stops?.length ?? 0) > 0,
+      emailStatus: (emailStatusMap.get(row.id) ?? null) as
+        | "delivered"
+        | "failed"
+        | "pending"
+        | "sent"
+        | "bounced"
+        | "opened"
+        | null,
+      needsContact: row.needs_contact ?? false,
     }));
 
     return NextResponse.json(mapped);
