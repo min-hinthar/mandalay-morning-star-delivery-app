@@ -170,6 +170,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
         subject: options.subject,
         resend_id: resendId ?? null,
         status: "sent",
+        retry_count: attempt,
         sent_at: new Date().toISOString(),
       });
 
@@ -204,6 +205,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
     recipient: options.to,
     subject: options.subject,
     status: "failed",
+    retry_count: MAX_RETRY_ATTEMPTS,
     error_message: lastError ?? "Unknown error after retries",
   });
 
@@ -212,6 +214,30 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
     orderId: options.orderId,
     userId: options.userId,
   });
+
+  // -----------------------------------------------
+  // Step 7: Flag order for manual customer contact
+  // -----------------------------------------------
+  try {
+    // needs_contact column added in migration 030 — not in generated types yet
+    await (supabase
+      .from("orders")
+      .update({ needs_contact: true } as Record<string, unknown>)
+      .eq("id", options.orderId) as unknown as Promise<unknown>);
+
+    logger.warn("Order flagged for manual contact after email failure", {
+      flowId,
+      orderId: options.orderId,
+      userId: options.userId,
+    });
+  } catch (flagErr) {
+    // Non-blocking — email failure is already logged
+    logger.error("Failed to flag order for manual contact", {
+      flowId,
+      orderId: options.orderId,
+    });
+    logger.exception(flagErr, { flowId, orderId: options.orderId });
+  }
 
   return { success: false, error: lastError };
 }
