@@ -3,6 +3,7 @@ import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, webhookLimiter, getClientIp } from "@/lib/rate-limit";
 import type Stripe from "stripe";
 import {
   handleCheckoutSessionCompleted,
@@ -14,6 +15,15 @@ import {
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET;
 
 export async function POST(request: Request) {
+  // Rate limit webhook endpoint (HARD-01)
+  const rl = await checkRateLimit({
+    limiter: webhookLimiter,
+    identifier: getClientIp(request),
+    role: "anon",
+    route: "webhooks/stripe",
+  });
+  if (rl.limited) return rl.response;
+
   if (!WEBHOOK_SECRET) {
     logger.error("STRIPE_WEBHOOK_SECRET is not configured", {
       api: "stripe-webhook",
@@ -98,11 +108,14 @@ export async function POST(request: Request) {
         });
     }
   } catch (err) {
+    // Extract orderId from event metadata for Sentry context
+    const eventObj = event.data.object as { metadata?: { order_id?: string } };
     logger.exception(err, {
       api: "stripe-webhook",
       flowId: "webhook",
       eventType: event.type,
       eventId: event.id,
+      orderId: eventObj.metadata?.order_id,
     });
     // Return 200 to acknowledge receipt (Stripe will retry on 4xx/5xx)
   }

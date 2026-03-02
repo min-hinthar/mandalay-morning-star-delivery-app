@@ -6,7 +6,7 @@ import { validateCartItems, calculateOrderTotals, createStripeLineItems } from "
 import { isPastCutoff, getDeliveryDate } from "@/lib/utils/delivery-dates";
 import { getBusinessRules, generateTimeWindows } from "@/lib/settings";
 import { logger } from "@/lib/utils/logger";
-import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
+import { checkRateLimit, checkoutLimiter } from "@/lib/rate-limit";
 import type { CheckoutError, CheckoutErrorCode } from "@/types/checkout";
 import type {
   AddressesRow,
@@ -77,7 +77,7 @@ export async function POST(request: Request) {
 
     // Rate limit: prevent double-orders
     const rl = await checkRateLimit({
-      limiter: apiWriteLimiter,
+      limiter: checkoutLimiter,
       identifier: user.id,
       role: "customer",
       route: "checkout/session",
@@ -274,6 +274,8 @@ export async function POST(request: Request) {
         userId: user.id,
         api: "checkout-session",
         flowId: "checkout",
+        itemCount: input.items.length,
+        totalCents: totals.totalCents,
       });
       return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
     }
@@ -380,7 +382,10 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    logger.exception(error, { api: "checkout-session", flowId: "checkout" });
+    logger.exception(error, {
+      api: "checkout-session",
+      flowId: "checkout",
+    });
 
     if (error instanceof Error && error.message.includes("Stripe")) {
       return errorResponse("STRIPE_ERROR", "Payment service error", 500);

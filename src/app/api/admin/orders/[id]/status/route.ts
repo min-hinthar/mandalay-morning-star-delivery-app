@@ -175,7 +175,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       emailSent: notifyCustomer ? emailSent : false,
     });
   } catch (error) {
-    logger.exception(error, { api: "admin/orders/[id]/status" });
+    logger.exception(error, { api: "admin/orders/[id]/status", orderId });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -72,7 +72,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       .eq("id", routeId);
 
     if (updateError) {
-      logger.exception(updateError, { api: "driver/routes/[routeId]/start" });
+      logger.exception(updateError, { api: "driver/routes/[routeId]/start", routeId, driverId });
       return NextResponse.json({ error: "Failed to start route" }, { status: 500 });
     }
 

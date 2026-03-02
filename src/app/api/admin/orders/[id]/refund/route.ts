@@ -6,7 +6,7 @@ import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import { RefundNotification } from "@/emails/RefundNotification";
 import type { Json } from "@/types/database";
-import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
+import { checkRateLimit, refundLimiter } from "@/lib/rate-limit";
 
 interface OrderItemRow {
   id: string;
@@ -43,7 +43,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     const rl = await checkRateLimit({
-      limiter: adminLimiter,
+      limiter: refundLimiter,
       identifier: auth.userId,
       role: "admin",
       route: "admin/orders/:id/refund",
@@ -265,7 +265,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       message: `Refund of $${(totalRefundCents / 100).toFixed(2)} processed`,
     });
   } catch (error) {
-    logger.exception(error, { api: "admin/orders/[id]/refund" });
+    logger.exception(error, { api: "admin/orders/[id]/refund", orderId });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
