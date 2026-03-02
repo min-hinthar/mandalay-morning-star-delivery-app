@@ -56,9 +56,7 @@ export function HeroContent({
   const gate = useDeliveryGate(cutoffDay ?? 5, cutoffHour ?? 15);
 
   // Dynamic CTA text based on gate state
-  const dynamicCtaText = gate.isOpen
-    ? ctaText
-    : `Pre-Order for ${gate.deliveryDate.displayDate}`;
+  const dynamicCtaText = gate.isOpen ? ctaText : `Pre-Order for ${gate.deliveryDate.displayDate}`;
 
   // Compute dynamic delivery schedule text from business rules
   // cutoffDay is the cutoff day (e.g., 5=Friday), delivery day is next day (e.g., 6=Saturday)
@@ -141,9 +139,7 @@ export function HeroContent({
               <DeliveryCountdown cutoffDate={gate.cutoffDate} urgency={gate.urgency} />
             </div>
           ) : (
-            <p className="text-sm text-hero-text-muted">
-              Orders open {DAY_NAMES[cutoffDay ?? 5]}
-            </p>
+            <p className="text-sm text-hero-text-muted">Orders open {DAY_NAMES[cutoffDay ?? 5]}</p>
           )}
         </div>
 
