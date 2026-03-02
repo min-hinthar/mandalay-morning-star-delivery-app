@@ -8,53 +8,51 @@
 
 ## Stack
 
-<!-- Fill in your project's stack -->
-<!-- Example: Next.js 16 | React 19 | Supabase | Stripe | TailwindCSS | Zustand -->
+Next.js 16 (App Router) | React 19 | TypeScript 5 (strict) | Tailwind CSS v4 + shadcn/ui + Radix UI | Zustand + TanStack React Query | React Hook Form + Zod | Supabase (Auth + Postgres + RLS + Storage) | Stripe | Resend + React Email | Serwist (PWA) | Sentry | Vitest + Playwright | Storybook
 
 ## Commands
 
+```bash
+pnpm dev               # dev server
+pnpm build             # production build
+pnpm start             # production server
+pnpm test              # unit tests (Vitest)
+pnpm test:ci           # CI tests (bail on first)
+pnpm test:e2e          # E2E tests (Playwright)
+pnpm lint              # ESLint
+pnpm lint:css          # Stylelint
+pnpm typecheck         # tsc --noEmit
+pnpm format:check      # Prettier check
+pnpm storybook         # Storybook dev (port 6006)
+pnpm analyze           # bundle analysis
+pnpm seed:menu         # seed menu from YAML
+pnpm rls:test          # test RLS policy isolation
 ```
-# Fill in your project's commands
-# pnpm dev          # dev server
-# pnpm build        # production build
-# pnpm test         # unit tests
-# pnpm test:e2e     # e2e tests
-# pnpm typecheck    # type checking
-```
 
-## Agent Strategy
+## Verification
 
-| Scope                         | Approach                    |
-| ----------------------------- | --------------------------- |
-| Multi-file changes (>2 files) | Plan mode first             |
-| Single file                   | Direct implementation       |
-| Unknown scope                 | Explore agent for discovery |
-| Design decisions              | Plan agent for architecture |
-
-## Model Selection
-
-| Task                                      | Model                                       |
-| ----------------------------------------- | ------------------------------------------- |
-| Architecture, refactors, multi-file logic | Most capable (Opus)                         |
-| Boilerplate, tests, docs, lint fixes      | Sonnet (not Haiku)                          |
-| Subagents (Explore, Plan, Research)       | Inherit parent model (see global CLAUDE.md) |
-
-## Context Hygiene
-
-- `/compact` at 50% context usage
-- `/clear` between unrelated tasks
-- Read only @-mentioned files or direct dependencies
-- Keep files <400 lines; split when larger
+Run before completing: `pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test && pnpm build`
 
 ## Paths
 
-<!-- Fill in your project's key paths -->
-
-| Path              | Purpose            |
-| ----------------- | ------------------ |
-| `src/app/`        | App router pages   |
-| `src/components/` | React components   |
-| `src/lib/`        | Utilities, clients |
+| Path                    | Purpose                             |
+| ----------------------- | ----------------------------------- |
+| `src/app/`              | App Router pages (route groups)     |
+| `src/app/(admin)/`      | Admin dashboard                     |
+| `src/app/(customer)/`   | Customer UX (menu, cart, checkout)  |
+| `src/app/(driver)/`     | Driver mobile interface             |
+| `src/app/(public)/`     | Homepage, public menu               |
+| `src/app/api/`          | API routes                          |
+| `src/components/ui/`    | 70+ React components                |
+| `src/emails/`           | React Email templates               |
+| `src/lib/`              | Utilities, clients, services        |
+| `src/lib/hooks/`        | 30+ custom hooks                    |
+| `src/lib/stores/`       | Zustand stores                      |
+| `src/types/`            | TypeScript definitions              |
+| `supabase/migrations/`  | Database migrations                 |
+| `data/`                 | Menu seed YAML                      |
+| `e2e/`                  | Playwright tests                    |
+| `docs/`                 | Architecture guides                 |
 
 ## File Organization
 
@@ -77,48 +75,20 @@ ComponentName/
   helpers.ts         # camelCase
 ```
 
-**Lib subfolder:**
-
-```
-lib-file/
-  index.ts           # Barrel re-exports everything
-  concern-a.ts       # By domain
-  concern-b.ts
-```
-
 - Every extracted file using hooks/events needs `'use client'`
 - Barrel `index.tsx` must re-export ALL original exports
-- Import paths don't change (subfolder index resolves automatically)
 - Exempt from 400-line rule: `src/types/**`, test files, Storybook stories
 
-## Session Memory
+## Critical Notes
 
-- `.claude/learnings/INDEX.md` - learnings index (scan first)
-- `.claude/learnings/` - topic-specific learnings (11 topic files)
+- **React Compiler enabled** — auto-memoizes client components, no manual useMemo
+- **Tailwind v4** — `@theme inline` is source of truth; `tailwind.config.ts` content is dead code
+- **62+ design tokens** enforced via ESLint (z-index, colors, spacing, shadows, blur)
+- **Serwist PWA** — service worker built separately via `scripts/build-sw.mjs`
+- **Saturday-only delivery** — cutoff Friday 3 PM PT, coverage 50mi/90min from Covina CA
+
+## Learnings
+
+- `.claude/learnings/INDEX.md` - scan first, links all 13 topic files
 - `.claude/ERROR_HISTORY.md` - past bugs, root causes, fixes
-- `/retro` - capture insights, routes to correct topic file
 
-## Error Protocol
-
-1. Check `.claude/ERROR_HISTORY.md` before debugging
-2. Scan `.claude/learnings/INDEX.md` for related topic
-3. **When to log:**
-   - Same error type 2+ times in session
-   - Error spans >2 files
-   - Non-obvious root cause
-   - Skip: typos, simple one-offs
-4. Log errors -> `ERROR_HISTORY.md`, patterns -> `.claude/learnings/[topic].md`
-5. **Format:** date, type, severity, files, error, root cause, fix
-
-## MCP Tools
-
-| Tool       | Trigger               | Action                               |
-| ---------- | --------------------- | ------------------------------------ |
-| Sentry     | Bug fix, error report | Fetch trace first; use AI root-cause |
-| Playwright | UI change, E2E        | Visual validation before commit      |
-| Supabase   | DB issue, migration   | Query logs, check schema             |
-| GitHub     | PR, issue ref         | Pull context, link commits           |
-
-## Verification
-
-Run before completing: `pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test && pnpm build`
