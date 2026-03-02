@@ -2,18 +2,30 @@
 
 import Link from "next/link";
 import { m, AnimatePresence } from "framer-motion";
-import { ShoppingBag, X, Trash2, AlertTriangle, Expand } from "lucide-react";
+import { ShoppingBag, X, Trash2, AlertTriangle, Expand, CalendarClock } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
+import { useDeliveryGate } from "@/lib/hooks/useDeliveryGate";
 import { Button } from "@/components/ui/button";
+import { DeliveryCountdown } from "@/components/ui/delivery";
 import { CartItem } from "./CartItem";
 import { CartSummary } from "./CartSummary";
 import { CartEmptyState } from "./CartEmptyState";
 import { SuggestionRow } from "./CartPage/SuggestionRow";
 import type { CartValidationResult } from "@/types/cart";
 import type { MenuItem } from "@/types/menu";
+
+// Day name helper
+const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+function formatCutoffTime(cutoffDay: number, cutoffHour: number): string {
+  const dayName = DAY_NAMES[cutoffDay] ?? "Friday";
+  const period = cutoffHour >= 12 ? "PM" : "AM";
+  const hour12 = cutoffHour % 12 === 0 ? 12 : cutoffHour % 12;
+  return `${dayName} at ${hour12}:00 ${period}`;
+}
 
 // ============================================
 // CART HEADER
@@ -224,6 +236,10 @@ interface CartFooterProps {
   onCheckout: () => void;
   hasBlockingIssues?: boolean;
   showFullCartLink?: boolean;
+  /** Cutoff day of week (0=Sun..6=Sat). Defaults to Friday (5). */
+  cutoffDay?: number;
+  /** Cutoff hour (0-23). Defaults to 15 (3 PM). */
+  cutoffHour?: number;
 }
 
 export function CartFooter({
@@ -231,8 +247,14 @@ export function CartFooter({
   onCheckout,
   hasBlockingIssues = false,
   showFullCartLink,
+  cutoffDay = 5,
+  cutoffHour = 15,
 }: CartFooterProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  const gate = useDeliveryGate(cutoffDay, cutoffHour);
+
+  const isDisabled = hasBlockingIssues || !gate.isOpen;
+  const closedText = `Checkout opens ${formatCutoffTime(cutoffDay, cutoffHour)}`;
 
   return (
     <m.div
@@ -241,16 +263,37 @@ export function CartFooter({
       transition={{ delay: 0.2 }}
       className={cn("border-t border-border", "bg-surface-secondary", "px-4 py-4")}
     >
+      {/* Delivery info row */}
+      <div className="mb-3 flex items-center justify-between rounded-lg bg-surface-tertiary px-3 py-2">
+        <div className="flex items-center gap-2">
+          <CalendarClock className="h-3.5 w-3.5 text-primary/70 flex-shrink-0" />
+          <span className="text-xs text-text-secondary">
+            {gate.isOpen ? (
+              <>Delivery <span className="font-medium text-text-primary">{gate.deliveryDate.displayDate}</span></>
+            ) : (
+              <span className="text-amber-600 dark:text-amber-400">{closedText}</span>
+            )}
+          </span>
+        </div>
+        {gate.isOpen && (
+          <DeliveryCountdown
+            cutoffDate={gate.cutoffDate}
+            urgency={gate.urgency}
+            className="text-xs"
+          />
+        )}
+      </div>
+
       <CartSummary />
 
       <div className="mt-4 flex flex-col gap-3">
         <m.div
-          whileHover={shouldAnimate && !hasBlockingIssues ? { scale: 1.01 } : undefined}
-          whileTap={shouldAnimate && !hasBlockingIssues ? { scale: 0.99 } : undefined}
+          whileHover={shouldAnimate && !isDisabled ? { scale: 1.01 } : undefined}
+          whileTap={shouldAnimate && !isDisabled ? { scale: 0.99 } : undefined}
           transition={getSpring(spring.snappyButton)}
           className="relative"
         >
-          {shouldAnimate && !hasBlockingIssues && (
+          {shouldAnimate && !isDisabled && (
             <div className="absolute inset-0 rounded-xl bg-primary/30 blur-lg opacity-50" />
           )}
           <Button
@@ -258,16 +301,16 @@ export function CartFooter({
             size="lg"
             className={cn(
               "relative w-full shadow-elevated",
-              hasBlockingIssues && "opacity-50 cursor-not-allowed"
+              isDisabled && "opacity-50 cursor-not-allowed"
             )}
-            onClick={hasBlockingIssues ? undefined : onCheckout}
-            disabled={hasBlockingIssues}
+            onClick={isDisabled ? undefined : onCheckout}
+            disabled={isDisabled}
           >
-            Proceed to Checkout
+            {gate.isOpen ? "Proceed to Checkout" : closedText}
           </Button>
         </m.div>
 
-        {hasBlockingIssues && (
+        {hasBlockingIssues && gate.isOpen && (
           <p className="flex items-center justify-center gap-1.5 text-xs text-text-muted">
             <AlertTriangle className="w-3.5 h-3.5 text-amber-500" />
             Remove unavailable items to checkout
