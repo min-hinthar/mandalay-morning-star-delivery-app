@@ -2,26 +2,13 @@
 gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
-status: unknown
-last_updated: "2026-03-02T06:56:34.062Z"
-progress:
-  total_phases: 7
-  completed_phases: 5
-  total_plans: 19
-  completed_plans: 19
----
-
----
-gsd_state_version: 1.0
-milestone: v1.9
-milestone_name: Launch-Ready MVP
 status: in_progress
-last_updated: "2026-03-02T06:49:05Z"
+last_updated: "2026-03-02T07:50:00Z"
 progress:
   total_phases: 7
-  completed_phases: 4
-  total_plans: 19
-  completed_plans: 19
+  completed_phases: 6
+  total_plans: 23
+  completed_plans: 23
 ---
 
 # Project State
@@ -31,17 +18,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.9 Launch-Ready MVP -- Phase 81 Plan 02 COMPLETE (all Phase 81 plans done)
+**Current focus:** v1.9 Launch-Ready MVP -- Phase 82 COMPLETE (Email Reliability)
 
 ## Current Position
 
-Phase: 81 of 84 (Customer Pre-Checkout Gate) -- COMPLETE
-Plan: All 3 plans in Phase 81 complete
+Phase: 82 of 84 (Email Reliability) -- COMPLETE
+Plan: All 4 plans in Phase 82 complete
 Milestone: v1.9 Launch-Ready MVP (8 phases, 49 requirements)
-Status: Phase 81 all plans complete -- full delivery gate system implemented
-Last activity: 2026-03-02 -- Phase 81 Plan 02 executed (Hero dynamic CTA + countdown + stat bar, menu DeliveryBanner)
+Status: Phase 82 all plans complete -- email reliability with webhook verification, dashboard, and status indicators
+Last activity: 2026-03-02 -- Phase 82 executed (4 plans: DB migration + svix webhook, needs-contact flagging, email dashboard, order/ops indicators)
 
-Progress: [==============================....] 81/84 phases (in progress)
+Progress: [===============================...] 82/84 phases (in progress)
 
 ## Performance Metrics
 
@@ -65,8 +52,8 @@ Progress: [==============================....] 81/84 phases (in progress)
 | v1.7           | 9      | 32    | 3 days   |
 | v1.8           | 8      | 23    | 3 days   |
 | v1.8 Gap Close | 2      | 2     | <1 day   |
-| v1.9 (partial) | 3      | 12    | <1 day   |
-| **Total**      | **79** | **324** | **30 days** |
+| v1.9 (partial) | 4      | 16    | <1 day   |
+| **Total**      | **80** | **328** | **30 days** |
 | Phase 79 P01 | 5min | 2 tasks | 8 files |
 | Phase 79 P02 | 9min | 2 tasks | 9 files |
 | Phase 79 P03 | 5min | 2 tasks | 3 files |
@@ -77,6 +64,10 @@ Progress: [==============================....] 81/84 phases (in progress)
 | Phase 81 P01 | 12 | 2 tasks | 9 files |
 | Phase 81 P02 | 11 | 2 tasks | 3 files |
 | Phase 81 P03 | 8 | 2 tasks | 7 files |
+| Phase 82 P01 | 10 | 2 tasks | 4 files |
+| Phase 82 P02 | 8 | 2 tasks | 2 files |
+| Phase 82 P03 | 10 | 2 tasks | 6 files |
+| Phase 82 P04 | 12 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -127,12 +118,24 @@ Progress: [==============================....] 81/84 phases (in progress)
 - [Phase 81 P02]: Gate-driven CTA: ctaText prop used as "Order Now" value; replaced with "Pre-Order for [date]" when closed
 - [Phase 81 P02]: Menu page async server component fetches getBusinessRules(), passes cutoffDay/cutoffHour as props to MenuContent
 - [Phase 81 P02]: MenuContentProps extended with optional cutoffDay/cutoffHour (defaults 5/15) for zero breaking changes
+- [Phase 82 P01]: svix v1.86.0 HMAC webhook verification over raw body text (not JSON)
+- [Phase 82 P01]: STATUS_PRIORITY map for downgrade protection (prevents delivered->sent regression)
+- [Phase 82 P01]: Idempotent webhook processing via svix-id lookup in webhook_audit_logs
+- [Phase 82 P01]: crypto.createHash for payload audit hashing (no additional deps)
+- [Phase 82 P02]: needs_contact flagged after all retries exhausted (MAX_RETRIES=3)
+- [Phase 82 P02]: Type casts `as Record<string, unknown>` for migration columns not in generated types
+- [Phase 82 P03]: 12 parallel count queries (4 statuses x 3 time ranges) for stats efficiency
+- [Phase 82 P03]: EmailDetailPanel shows error guidance + webhook event timeline
+- [Phase 82 P04]: Ops API batch-fetches email statuses via single IN query (not N+1)
+- [Phase 82 P04]: Green check / red X icons only (no pending icon) for minimal ops dashboard noise
 
 ### Pending Todos
 
 - Apply migration 027 to production Supabase (human action)
 - Apply migration 028_refund_status.sql to production Supabase (human action)
 - Apply migration 029_business_rules_settings.sql to production Supabase (human action)
+- Apply migration 030_email_reliability.sql to production Supabase (human action)
+- Configure RESEND_WEBHOOK_SECRET env var for svix webhook verification
 - Provision Upstash Redis on Vercel Marketplace for production rate limiting
 - Create Sentry alert rule "Rate Limit Spike" in Sentry Dashboard
 - Verify timezone for customer gate: Asia/Yangon vs America/Los_Angeles
@@ -146,5 +149,5 @@ Progress: [==============================....] 81/84 phases (in progress)
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Phase 81 Plan 02 complete -- Hero dynamic CTA/countdown + menu DeliveryBanner wired to delivery gate
-Next action: Phase 82 (next phase in v1.9 sequence)
+Stopped at: Phase 82 complete -- Email reliability with webhook verification, dashboard enhancements, and status indicators
+Next action: Phase 83 (next phase in v1.9 sequence)
