@@ -40,10 +40,10 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 
 ### Customer Gate
 
-- [ ] **GATE-01**: Homepage hero — dynamic CTA based on delivery availability
-- [ ] **GATE-02**: Menu page banner — Saturday delivery schedule + cutoff
-- [ ] **GATE-03**: Cart drawer — show delivery date + cutoff countdown
-- [ ] **GATE-04**: Checkout gate — past cutoff modal with next Saturday date
+- [x] **GATE-01**: Homepage hero — dynamic CTA based on delivery availability
+- [x] **GATE-02**: Menu page banner — Saturday delivery schedule + cutoff
+- [x] **GATE-03**: Cart drawer — show delivery date + cutoff countdown
+- [x] **GATE-04**: Checkout gate — past cutoff modal with next Saturday date
 - [ ] **GATE-05**: Update empty states with Saturday schedule context
 - [ ] **GATE-06**: Order tracking — polling indicator + "last updated" timestamp
 
@@ -155,10 +155,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ROUTE-05 | Phase 80 | Complete |
 | ROUTE-06 | Phase 80 | Complete |
 | ROUTE-07 | Phase 80 | Complete |
-| GATE-01 | Phase 81 | Pending |
-| GATE-02 | Phase 81 | Pending |
-| GATE-03 | Phase 81 | Pending |
-| GATE-04 | Phase 81 | Pending |
+| GATE-01 | Phase 81 | Complete |
+| GATE-02 | Phase 81 | Complete |
+| GATE-03 | Phase 81 | Complete |
+| GATE-04 | Phase 81 | Complete |
 | GATE-05 | Phase 81 | Pending |
 | GATE-06 | Phase 81 | Pending |
 | RULES-01 | Phase 78 | Complete |
