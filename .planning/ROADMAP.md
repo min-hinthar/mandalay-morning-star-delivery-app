@@ -137,7 +137,11 @@ Plans:
   3. Cart drawer displays the delivery date and a live cutoff countdown
   4. Past-cutoff checkout attempt shows a modal with the next available Saturday date (not a generic error)
   5. Order tracking page shows a polling indicator and "last updated X ago" timestamp
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+- [ ] 81-01-PLAN.md -- Foundation: useDeliveryGate hook, useCountdown relocation, DeliveryBanner/CutoffModal components
+- [ ] 81-02-PLAN.md -- Hero dynamic CTA + countdown, menu page delivery banner
+- [ ] 81-03-PLAN.md -- Cart delivery info, checkout cutoff gate, empty states, tracking enhancement
 
 ### Phase 82: Email Reliability
 **Goal**: Operator can self-diagnose and recover from email delivery failures without developer help
@@ -190,7 +194,7 @@ Plans:
 ### Phase 86: Deferred Integration & Tech Debt Cleanup
 **Goal**: All known deferred integration gaps and documentation tech debt from phases 77-79 are resolved
 **Depends on**: Phase 78 (extends its business rules wiring to remaining callsites)
-**Requirements**: None (integration/tech debt closure — no new requirements)
+**Requirements**: None (integration/tech debt closure -- no new requirements)
 **Gap Closure:** Closes integration gaps and tech debt from v1.9 audit
 **Success Criteria** (what must be TRUE):
   1. retry-payment route uses `getBusinessRules()` for cutoff params (not hardcoded defaults)
@@ -213,7 +217,7 @@ Phase 86 can execute immediately (only depends on completed Phase 78).
 | 78. Configurable Business Rules | 4/4 | Complete    | 2026-03-01 | - |
 | 79. Saturday Ops Dashboard | 3/3 | Complete    | 2026-03-01 | - |
 | 80. Route & Driver Assignment | 4/4 | Complete    | 2026-03-02 | - |
-| 81. Customer Pre-Checkout Gate | v1.9 | 0/TBD | Not started | - |
+| 81. Customer Pre-Checkout Gate | v1.9 | 0/3 | Not started | - |
 | 82. Email Reliability | v1.9 | 0/TBD | Not started | - |
 | 83. Driver Simplification | v1.9 | 0/TBD | Not started | - |
 | 84. Production Hardening | v1.9 | 0/TBD | Not started | - |
