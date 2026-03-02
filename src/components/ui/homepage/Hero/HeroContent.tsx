@@ -13,6 +13,8 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDynamicTheme } from "@/components/ui/theme";
+import { useDeliveryGate } from "@/lib/hooks/useDeliveryGate";
+import { DeliveryCountdown } from "@/components/ui/delivery";
 import { Button } from "@/components/ui/button";
 import { AnimatedHeadline, StatItem } from "./HeroSubComponents";
 
@@ -51,14 +53,21 @@ export function HeroContent({
 }: HeroContentProps) {
   const { shouldAnimate } = useAnimationPreference();
   const { timeOfDay } = useDynamicTheme();
+  const gate = useDeliveryGate(cutoffDay ?? 5, cutoffHour ?? 15);
+
+  // Dynamic CTA text based on gate state
+  const dynamicCtaText = gate.isOpen
+    ? ctaText
+    : `Pre-Order for ${gate.deliveryDate.displayDate}`;
 
   // Compute dynamic delivery schedule text from business rules
   // cutoffDay is the cutoff day (e.g., 5=Friday), delivery day is next day (e.g., 6=Saturday)
   const deliveryDayName = cutoffDay !== undefined ? DAY_NAMES[(cutoffDay + 1) % 7] : "Saturday";
-  const deliveryScheduleText =
-    cutoffDay !== undefined && cutoffHour !== undefined
+  const deliveryScheduleText = gate.isOpen
+    ? cutoffDay !== undefined && cutoffHour !== undefined
       ? `Order by ${DAY_NAMES[cutoffDay]} ${formatCutoffHour(cutoffHour)}`
-      : `Every ${deliveryDayName}`;
+      : `Every ${deliveryDayName}`
+    : `Orders closed -- next ${gate.deliveryDate.displayDate}`;
   const deliveryFeeText =
     deliveryFeeCents !== undefined && freeDeliveryThresholdCents !== undefined
       ? `$${(deliveryFeeCents / 100).toFixed(0)} delivery, free over $${(freeDeliveryThresholdCents / 100).toFixed(0)}`
@@ -94,34 +103,48 @@ export function HeroContent({
           {subheadline}
         </p>
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12 animate-fade-in-up-delay-3">
-          <m.div
-            whileHover={shouldAnimate ? { scale: 1.05, y: -2 } : undefined}
-            whileTap={shouldAnimate ? { scale: 0.97 } : undefined}
-            transition={spring.snappy}
-          >
-            <Button
-              variant="primary"
-              size="lg"
-              asChild
-              className={cn(
-                "relative overflow-hidden group px-8 py-6 text-lg rounded-full",
-                "bg-gradient-to-r from-secondary via-secondary-hover to-secondary",
-                "hover:from-secondary-hover hover:via-secondary hover:to-secondary-hover",
-                "shadow-lg shadow-secondary/30",
-                "hover:shadow-xl hover:shadow-secondary/40",
-                "hover:ring-2 hover:ring-secondary/30",
-                "transition-all duration-300"
-              )}
+        <div className="flex flex-col items-center gap-3 mb-12 animate-fade-in-up-delay-3">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+            <m.div
+              whileHover={shouldAnimate ? { scale: 1.05, y: -2 } : undefined}
+              whileTap={shouldAnimate ? { scale: 0.97 } : undefined}
+              transition={spring.snappy}
             >
-              <Link href={ctaHref}>
-                <span className="relative z-10 flex items-center gap-2 text-text-primary font-semibold">
-                  {ctaText}
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </span>
-              </Link>
-            </Button>
-          </m.div>
+              <Button
+                variant="primary"
+                size="lg"
+                asChild
+                className={cn(
+                  "relative overflow-hidden group px-8 py-6 text-lg rounded-full",
+                  "bg-gradient-to-r from-secondary via-secondary-hover to-secondary",
+                  "hover:from-secondary-hover hover:via-secondary hover:to-secondary-hover",
+                  "shadow-lg shadow-secondary/30",
+                  "hover:shadow-xl hover:shadow-secondary/40",
+                  "hover:ring-2 hover:ring-secondary/30",
+                  "transition-all duration-300"
+                )}
+              >
+                <Link href={ctaHref}>
+                  <span className="relative z-10 flex items-center gap-2 text-text-primary font-semibold">
+                    {dynamicCtaText}
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                </Link>
+              </Button>
+            </m.div>
+          </div>
+
+          {/* Countdown / closed state text near CTA */}
+          {gate.isOpen ? (
+            <div className="flex items-center gap-1.5 text-sm text-hero-text/70">
+              <span>Order within</span>
+              <DeliveryCountdown cutoffDate={gate.cutoffDate} urgency={gate.urgency} />
+            </div>
+          ) : (
+            <p className="text-sm text-hero-text-muted">
+              Orders open {DAY_NAMES[cutoffDay ?? 5]}
+            </p>
+          )}
         </div>
 
         <div className="flex flex-wrap justify-center items-center gap-2 md:gap-4 p-4 rounded-2xl bg-hero-stat-bg sm:bg-hero-stat-bg/50 sm:backdrop-blur-md border border-hero-text/10 animate-fade-in-up-delay-4">
