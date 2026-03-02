@@ -80,8 +80,11 @@ export default async function OrdersPage() {
               <ShoppingBag className="h-10 w-10 text-text-muted" />
             </div>
             <h2 className="text-xl font-display font-bold text-text-primary mb-2">No orders yet</h2>
-            <p className="font-body text-text-secondary mb-8">
+            <p className="font-body text-text-secondary mb-2">
               When you place an order, it will appear here.
+            </p>
+            <p className="font-body text-xs text-text-muted mb-8">
+              We deliver every Saturday &mdash; order by Friday 3:00 PM.
             </p>
             <Button asChild variant="primary" size="lg" className="shadow-elevated">
               <Link href="/menu">Browse Menu</Link>

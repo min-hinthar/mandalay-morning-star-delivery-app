@@ -14,6 +14,7 @@ import { useState, useMemo, useEffect, useRef } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
+import { cn } from "@/lib/utils/cn";
 import { StatusTimeline } from "./StatusTimeline";
 import { StatusStepper } from "./StatusStepper";
 import { ETACountdown } from "./ETACountdown";
@@ -191,7 +192,7 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
                 </>
               )}
               {lastUpdateDisplay && (
-                <span className="text-charcoal-400">&bull; {lastUpdateDisplay}</span>
+                <span className="text-charcoal-500 font-medium">&bull; {lastUpdateDisplay}</span>
               )}
               <ShareButton orderId={orderId} orderStatus={orderStatus} />
               <button
@@ -199,7 +200,12 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
                 className="p-1 hover:bg-charcoal-100 rounded-full transition-colors"
                 aria-label="Refresh tracking data"
               >
-                <RefreshCw className="h-3.5 w-3.5" />
+                <RefreshCw
+                  className={cn(
+                    "h-3.5 w-3.5 transition-colors",
+                    subscription.isConnected ? "text-jade-500" : "text-charcoal-400"
+                  )}
+                />
               </button>
             </div>
           </div>
