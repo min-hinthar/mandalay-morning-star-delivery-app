@@ -64,10 +64,7 @@ export interface RouteDurationEstimate {
  * Generates a cardinal-direction label for a cluster centroid relative to
  * the kitchen location, with order count suffix.
  */
-function generateClusterLabel(
-  centroid: { lat: number; lng: number },
-  count: number
-): string {
+function generateClusterLabel(centroid: { lat: number; lng: number }, count: number): string {
   const latDiff = centroid.lat - KITCHEN_LOCATION.lat;
   const lngDiff = centroid.lng - KITCHEN_LOCATION.lng;
 
@@ -106,8 +103,7 @@ function calcCentroid(lats: number[], lngs: number[]): { lat: number; lng: numbe
 export function clusterOrders(orders: ClusterableOrder[]): OrderCluster[] {
   // Filter to orders with valid coordinates
   const validOrders = orders.filter(
-    (o): o is ClusterableOrder & { lat: number; lng: number } =>
-      o.lat !== null && o.lng !== null
+    (o): o is ClusterableOrder & { lat: number; lng: number } => o.lat !== null && o.lng !== null
   );
 
   if (validOrders.length === 0) {
@@ -224,7 +220,5 @@ export function estimateRouteDuration(
  * @returns Array of order IDs with null coordinates
  */
 export function getUnclusteredOrders(orders: ClusterableOrder[]): string[] {
-  return orders
-    .filter((o) => o.lat === null || o.lng === null)
-    .map((o) => o.id);
+  return orders.filter((o) => o.lat === null || o.lng === null).map((o) => o.id);
 }
