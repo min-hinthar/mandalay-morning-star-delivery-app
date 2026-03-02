@@ -22,6 +22,12 @@ import { TimeComparison } from "./TimeComparison";
 import { ExceptionAlert } from "./ExceptionAlert";
 import type { RouteDetailResponse, DriverOption, RouteStatus, RouteStopStatus } from "./types";
 
+interface AvailableRoute {
+  id: string;
+  driverName: string | null;
+  stopCount: number;
+}
+
 export function RouteDetailClient() {
   const params = useParams();
   const router = useRouter();
@@ -29,6 +35,7 @@ export function RouteDetailClient() {
 
   const [route, setRoute] = useState<RouteDetailResponse | null>(null);
   const [drivers, setDrivers] = useState<DriverOption[]>([]);
+  const [availableRoutes, setAvailableRoutes] = useState<AvailableRoute[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,6 +59,39 @@ export function RouteDetailClient() {
       const data = await response.json();
       setRoute(data);
       setError(null);
+
+      // After loading route, fetch other planned routes for the same delivery date
+      if (data.deliveryDate) {
+        try {
+          const routesResponse = await fetch(`/api/admin/routes?date=${data.deliveryDate}`);
+          if (routesResponse.ok) {
+            const allRoutes = await routesResponse.json();
+            const others = allRoutes
+              .filter(
+                (r: {
+                  id: string;
+                  status: string;
+                  stopCount: number;
+                  driver: { fullName: string | null } | null;
+                }) => r.id !== routeId && r.status === "planned"
+              )
+              .map(
+                (r: {
+                  id: string;
+                  stopCount: number;
+                  driver: { fullName: string | null } | null;
+                }) => ({
+                  id: r.id,
+                  driverName: r.driver?.fullName ?? null,
+                  stopCount: r.stopCount,
+                })
+              );
+            setAvailableRoutes(others);
+          }
+        } catch {
+          // Non-critical — reassign dropdown simply won't show
+        }
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load route");
     }
@@ -144,7 +184,6 @@ export function RouteDetailClient() {
 
   const handleRemoveStop = async (stopId: string) => {
     if (!route || isUpdating) return;
-    if (!confirm("Are you sure you want to remove this stop from the route?")) return;
     setIsUpdating(true);
     const previousStops = [...route.stops];
     setRoute({ ...route, stops: route.stops.filter((s) => s.id !== stopId) });
@@ -160,7 +199,38 @@ export function RouteDetailClient() {
       await fetchRoute();
     } catch (err) {
       setRoute({ ...route, stops: previousStops });
-      alert(err instanceof Error ? err.message : "Failed to remove stop");
+      toast({
+        message: err instanceof Error ? err.message : "Failed to remove stop",
+        type: "error",
+      });
+    } finally {
+      setIsUpdating(false);
+    }
+  };
+
+  const handleReassign = async (stopId: string, targetRouteId: string) => {
+    if (!route || isUpdating) return;
+    setIsUpdating(true);
+
+    try {
+      const response = await fetch(`/api/admin/routes/${routeId}/stops/reassign`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stopId, targetRouteId }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to reassign stop");
+      }
+
+      toast({ message: "Order reassigned", type: "success" });
+      await fetchRoute();
+    } catch (err) {
+      toast({
+        message: err instanceof Error ? err.message : "Failed to reassign stop",
+        type: "error",
+      });
     } finally {
       setIsUpdating(false);
     }
@@ -312,6 +382,8 @@ export function RouteDetailClient() {
               onStatusChange={handleStopStatusChange}
               onRemoveStop={handleRemoveStop}
               stopRefs={stopRefs}
+              availableRoutes={availableRoutes}
+              onReassign={handleReassign}
             />
 
             <OptimizationModal

@@ -142,7 +142,9 @@ export function RouteCardRow({ route, selected, onClick }: RouteCardRowProps) {
 
         {/* Duration */}
         <div className="min-w-[80px] text-sm text-text-secondary">
-          {route.stopCount * 15} min est.
+          {route.estimatedDurationMinutes != null
+            ? `${route.estimatedDurationMinutes} min`
+            : `~${route.stopCount * 15} min`}
         </div>
 
         {/* Actions - always visible */}
