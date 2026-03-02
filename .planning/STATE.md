@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
 status: in_progress
-last_updated: "2026-03-02T12:00:00Z"
+last_updated: "2026-03-02T18:00:00Z"
 progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 33
-  completed_plans: 33
+  total_phases: 10
+  completed_phases: 10
+  total_plans: 35
+  completed_plans: 35
 ---
 
 # Project State
@@ -18,15 +18,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.9 Launch-Ready MVP -- Phase 85 COMPLETE (Verification & Bug Traceability)
+**Current focus:** v1.9 Launch-Ready MVP -- Phase 86 COMPLETE (Integration & Tech Debt Cleanup)
 
 ## Current Position
 
-Phase: 85 of 85 (Verification & Bug Traceability) -- COMPLETE
-Plan: All 2 plans in Phase 85 complete
-Milestone: v1.9 Launch-Ready MVP (9 phases, 49 requirements) -- ALL PHASES COMPLETE
-Status: Phase 85 complete -- BUG-01-08 verified with code evidence, traceability updated
-Last activity: 2026-03-02 -- Phase 85 executed (2 plans: VERIFICATION.md + REQUIREMENTS.md traceability)
+Phase: 86 of 86 (Integration & Tech Debt Cleanup) -- COMPLETE
+Plan: All 2 plans in Phase 86 complete
+Milestone: v1.9 Launch-Ready MVP (10 phases, 49 requirements) -- ALL PHASES COMPLETE
+Status: Phase 86 complete -- remaining isPastCutoff callsites wired to DB business rules, deferred enforcement documented
+Last activity: 2026-03-02 -- Phase 86 executed (2 plans: cutoff wiring + documentation)
 
 Progress: [====================================] 85/85 phases (COMPLETE)
 
