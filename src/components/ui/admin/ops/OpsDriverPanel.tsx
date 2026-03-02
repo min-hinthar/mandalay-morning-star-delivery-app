@@ -176,12 +176,7 @@ export function OpsDriverPanel() {
             </Link>
           </div>
         ) : (
-          <m.div
-            variants={cardContainer}
-            initial="hidden"
-            animate="visible"
-            className="space-y-2"
-          >
+          <m.div variants={cardContainer} initial="hidden" animate="visible" className="space-y-2">
             {readinessData.map((driver) => (
               <m.div key={driver.id} variants={cardItem}>
                 <Link
@@ -222,7 +217,10 @@ export function OpsDriverPanel() {
                   )}
 
                   {/* Vehicle type */}
-                  <span className="shrink-0 text-text-muted" title={driver.vehicleType ?? "Unknown"}>
+                  <span
+                    className="shrink-0 text-text-muted"
+                    title={driver.vehicleType ?? "Unknown"}
+                  >
                     {getVehicleIcon(driver.vehicleType)}
                   </span>
 

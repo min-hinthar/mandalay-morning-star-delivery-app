@@ -61,9 +61,7 @@ export function SimpleHome({ driverName, todayRoute, dayOfWeek, dateDisplay }: S
           transition={getSpring(spring.default)}
           className="text-center"
         >
-          <h1 className="font-display text-3xl font-bold text-text-primary">
-            Hello, {firstName}!
-          </h1>
+          <h1 className="font-display text-3xl font-bold text-text-primary">Hello, {firstName}!</h1>
           <p className="mt-2 flex items-center justify-center gap-1.5 font-body text-text-muted">
             <Calendar className="h-4 w-4" />
             {dayOfWeek}, {dateDisplay}
@@ -141,9 +139,7 @@ export function SimpleHome({ driverName, todayRoute, dayOfWeek, dateDisplay }: S
               <h2 className="mt-4 font-display text-xl font-semibold text-text-primary">
                 No Route Today
               </h2>
-              <p className="mt-1 font-body text-text-muted">
-                Check back when a route is assigned.
-              </p>
+              <p className="mt-1 font-body text-text-muted">Check back when a route is assigned.</p>
             </div>
           )}
         </m.div>

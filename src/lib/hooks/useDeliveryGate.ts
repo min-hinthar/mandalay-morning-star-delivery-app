@@ -27,11 +27,7 @@ export interface DeliveryGateState {
 // HELPERS
 // ============================================
 
-function computeUrgency(
-  isPastCutoff: boolean,
-  hours: number,
-  minutes: number
-): Urgency {
+function computeUrgency(isPastCutoff: boolean, hours: number, minutes: number): Urgency {
   if (isPastCutoff) return "critical";
   const totalMinutes = hours * 60 + minutes;
   if (totalMinutes <= 30) return "critical";

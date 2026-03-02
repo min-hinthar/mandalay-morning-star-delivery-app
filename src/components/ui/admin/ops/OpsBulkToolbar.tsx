@@ -130,9 +130,7 @@ export function OpsBulkToolbar({
           className="fixed bottom-4 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-xl border border-border bg-surface-primary px-4 py-3 shadow-elevated"
         >
           {/* Selection count */}
-          <span className="text-sm font-medium text-text-secondary">
-            {count} selected
-          </span>
+          <span className="text-sm font-medium text-text-secondary">{count} selected</span>
 
           {/* Action button or mixed status message */}
           {isMixed ? (
@@ -149,9 +147,7 @@ export function OpsBulkToolbar({
               Move {count} to {formatStatusLabel(nextStatus)}
             </Button>
           ) : commonStatus ? (
-            <span className="text-sm text-text-muted">
-              No further transition available
-            </span>
+            <span className="text-sm text-text-muted">No further transition available</span>
           ) : null}
 
           {/* Clear selection button */}

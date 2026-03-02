@@ -68,7 +68,12 @@ const KPI_CARDS: KPICardConfig[] = [
 // COMPONENT
 // ============================================
 
-export function OpsKPIGrid({ counts, activeFilter, onFilterChange, unassignedCount }: OpsKPIGridProps) {
+export function OpsKPIGrid({
+  counts,
+  activeFilter,
+  onFilterChange,
+  unassignedCount,
+}: OpsKPIGridProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   function handleClick(status: OrderStatus) {
@@ -116,11 +121,7 @@ export function OpsKPIGrid({ counts, activeFilter, onFilterChange, unassignedCou
             {card.status === "confirmed" && unassignedCount > 0 && (
               <m.span
                 initial={shouldAnimate ? { scale: 0 } : undefined}
-                animate={
-                  shouldAnimate
-                    ? { scale: [1, 1.15, 1] }
-                    : undefined
-                }
+                animate={shouldAnimate ? { scale: [1, 1.15, 1] } : undefined}
                 transition={
                   shouldAnimate
                     ? { scale: { duration: 1.5, repeat: Infinity, ease: "easeInOut" } }

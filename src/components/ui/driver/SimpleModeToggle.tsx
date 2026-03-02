@@ -61,12 +61,13 @@ export function SimpleModeToggle() {
           </div>
 
           <p className="mt-1 font-body text-sm text-text-secondary">
-            Shows only essential delivery info — perfect for new or occasional drivers.
-            Hides earnings, schedule, and history tabs.
+            Shows only essential delivery info — perfect for new or occasional drivers. Hides
+            earnings, schedule, and history tabs.
           </p>
 
           <p className="mt-2 font-body text-xs text-text-muted">
-            {isSimpleMode ? "On" : "Off"} — {isSimpleMode ? "showing essentials only" : "showing all features"}
+            {isSimpleMode ? "On" : "Off"} —{" "}
+            {isSimpleMode ? "showing essentials only" : "showing all features"}
           </p>
         </div>
       </div>

@@ -67,7 +67,9 @@ export function OrdersTab() {
 
       const { data: ordersData, error } = await supabase
         .from("orders")
-        .select(`id, status, refund_status, total_cents, delivery_window_start, placed_at, order_items (quantity)`)
+        .select(
+          `id, status, refund_status, total_cents, delivery_window_start, placed_at, order_items (quantity)`
+        )
         .eq("user_id", user.id)
         .order("placed_at", { ascending: false })
         .returns<OrderRow[]>();

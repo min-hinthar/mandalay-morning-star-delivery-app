@@ -59,7 +59,9 @@ function CountdownDisplay({ state, shouldAnimate }: CountdownDisplayProps) {
             className="flex items-center gap-1.5"
           >
             <AlertTriangle className="h-4 w-4 text-text-inverse" />
-            <span className="text-sm font-bold text-text-inverse">{getAlertLabel(state.label)}</span>
+            <span className="text-sm font-bold text-text-inverse">
+              {getAlertLabel(state.label)}
+            </span>
           </m.div>
         ) : (
           <m.div
@@ -103,10 +105,7 @@ export function OpsCountdownBar({ cutoff, deliveryStart }: OpsCountdownBarProps)
     >
       <CountdownDisplay state={cutoff} shouldAnimate={shouldAnimate} />
       <div
-        className={cn(
-          "hidden h-8 w-px sm:block",
-          hasAlert ? "bg-text-inverse/20" : "bg-border"
-        )}
+        className={cn("hidden h-8 w-px sm:block", hasAlert ? "bg-text-inverse/20" : "bg-border")}
       />
       <CountdownDisplay state={deliveryStart} shouldAnimate={shouldAnimate} />
     </m.div>

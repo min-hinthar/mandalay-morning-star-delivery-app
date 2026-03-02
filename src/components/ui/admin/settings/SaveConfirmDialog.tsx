@@ -44,9 +44,7 @@ export function SaveConfirmDialog({
         <div>
           <h3 className="text-lg font-semibold text-text-primary">Confirm Settings Changes</h3>
           <p className="mt-1 text-sm text-text-secondary">
-            {hasChanges
-              ? "Review the following changes before saving."
-              : "No changes to save."}
+            {hasChanges ? "Review the following changes before saving." : "No changes to save."}
           </p>
         </div>
 

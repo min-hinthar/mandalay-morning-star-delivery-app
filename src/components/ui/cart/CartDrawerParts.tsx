@@ -269,7 +269,12 @@ export function CartFooter({
           <CalendarClock className="h-3.5 w-3.5 text-primary/70 flex-shrink-0" />
           <span className="text-xs text-text-secondary">
             {gate.isOpen ? (
-              <>Delivery <span className="font-medium text-text-primary">{gate.deliveryDate.displayDate}</span></>
+              <>
+                Delivery{" "}
+                <span className="font-medium text-text-primary">
+                  {gate.deliveryDate.displayDate}
+                </span>
+              </>
             ) : (
               <span className="text-amber-600 dark:text-amber-400">{closedText}</span>
             )}

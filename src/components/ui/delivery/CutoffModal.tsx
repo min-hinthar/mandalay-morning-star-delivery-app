@@ -53,21 +53,14 @@ export function CutoffModal({ isOpen, onClose, nextDeliveryDate }: CutoffModalPr
         </p>
 
         {/* Reassurance */}
-        <p className="text-sm text-text-muted">
-          Your cart items are saved for next time.
-        </p>
+        <p className="text-sm text-text-muted">Your cart items are saved for next time.</p>
 
         {/* Actions */}
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">
           <Button variant="outline" size="md" onClick={onClose} className="sm:min-w-[120px]">
             Got it
           </Button>
-          <Button
-            variant="primary"
-            size="md"
-            asChild
-            className="sm:min-w-[140px]"
-          >
+          <Button variant="primary" size="md" asChild className="sm:min-w-[140px]">
             <Link href="/menu" onClick={onClose}>
               Browse Menu
             </Link>

@@ -105,6 +105,7 @@ export function getErrorGuidance(status: string, errorMessage: string | null): s
   if (ERROR_GUIDANCE[status]) return ERROR_GUIDANCE[status].guidance;
   if (errorMessage?.toLowerCase().includes("timeout")) return ERROR_GUIDANCE.timeout.guidance;
   if (errorMessage?.toLowerCase().includes("rate")) return ERROR_GUIDANCE.rate_limit.guidance;
-  if (errorMessage?.toLowerCase().includes("invalid")) return ERROR_GUIDANCE.invalid_address.guidance;
+  if (errorMessage?.toLowerCase().includes("invalid"))
+    return ERROR_GUIDANCE.invalid_address.guidance;
   return ERROR_GUIDANCE.unknown.guidance;
 }
