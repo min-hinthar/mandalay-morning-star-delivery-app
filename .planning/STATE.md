@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
 status: unknown
-last_updated: "2026-03-01T23:18:24.698Z"
+last_updated: "2026-03-02T00:33:04.780Z"
 progress:
-  total_phases: 3
+  total_phases: 6
   completed_phases: 3
-  total_plans: 12
-  completed_plans: 12
+  total_plans: 16
+  completed_plans: 13
 ---
 
 ---
@@ -31,17 +31,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.9 Launch-Ready MVP -- Phase 79 complete, ready for Phase 80
+**Current focus:** v1.9 Launch-Ready MVP -- Phase 80 Plan 01 complete
 
 ## Current Position
 
-Phase: 79 of 84 (Saturday Ops Dashboard) -- COMPLETE
-Plan: 3 of 3 in Phase 79 (Plan 03 complete -- phase done)
+Phase: 80 of 84 (Route & Driver Assignment) -- IN PROGRESS
+Plan: 1 of 4 in Phase 80 (Plan 01 complete -- foundation layer done)
 Milestone: v1.9 Launch-Ready MVP (8 phases, 49 requirements)
-Status: Phase 79 complete, ready for Phase 80 (Route & Driver Assignment)
-Last activity: 2026-03-01 -- Phase 79 Plan 03 executed (driver readiness panel, end-to-end verification)
+Status: Phase 80 Plan 01 complete, ready for Plan 02 (Route Builder Map UI)
+Last activity: 2026-03-02 -- Phase 80 Plan 01 executed (Leaflet install, clustering utility, validation schemas)
 
-Progress: [===========================.......] 79/84 phases
+Progress: [============================......] 80/84 phases (plan 1/4)
 
 ## Performance Metrics
 
@@ -70,6 +70,7 @@ Progress: [===========================.......] 79/84 phases
 | Phase 79 P01 | 5min | 2 tasks | 8 files |
 | Phase 79 P02 | 9min | 2 tasks | 9 files |
 | Phase 79 P03 | 5min | 2 tasks | 3 files |
+| Phase 80 P01 | 7 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -101,6 +102,9 @@ Progress: [===========================.......] 79/84 phases
 - v1.9 P79: ConfirmDialog reused from settings for bulk action confirmation (consistent UX)
 - v1.9 P79: Self-contained OpsDriverPanel with internal fetch (no props from parent OpsCenter)
 - v1.9 P79: Available drivers sorted first with green indicator, unavailable grayed with reason
+- [Phase 80]: Greedy clustering over k-means: simpler, stable for 10-50 orders, no cluster count param
+- [Phase 80]: 2km cluster radius for Covina delivery area coverage balance
+- [Phase 80]: public/leaflet/ for marker icons: avoids webpack config changes, SSR-safe
 
 ### Pending Todos
 
@@ -119,6 +123,6 @@ Progress: [===========================.......] 79/84 phases
 
 ## Session Continuity
 
-Last session: 2026-03-01
-Stopped at: Phase 79 complete -- Saturday Ops Dashboard (all 3 plans: foundation, core UI, driver panel + verification)
-Next action: `/gsd:execute-phase 80` -- Route & Driver Assignment
+Last session: 2026-03-02
+Stopped at: Phase 80 Plan 01 complete -- Route Foundation (Leaflet install, clustering utility, route validation schemas, 36 new tests)
+Next action: `/gsd:execute-phase 80` Plan 02 -- Route Builder Map UI
