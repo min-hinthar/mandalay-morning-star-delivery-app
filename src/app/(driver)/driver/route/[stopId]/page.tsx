@@ -10,10 +10,6 @@ interface PageProps {
   params: Promise<{ stopId: string }>;
 }
 
-interface DriverQueryResult {
-  id: string;
-}
-
 interface StopQueryResult {
   id: string;
   stop_index: number;
@@ -57,6 +53,11 @@ interface StopQueryResult {
   };
 }
 
+interface DriverWithModeResult {
+  id: string;
+  simple_mode: boolean;
+}
+
 async function getStopDetail(stopId: string) {
   const supabase = await createClient();
 
@@ -70,17 +71,22 @@ async function getStopDetail(stopId: string) {
     redirect("/login?next=/driver/route");
   }
 
-  // Get driver
+  // Get driver (include simple_mode for redirect check)
   const { data: driver } = await supabase
     .from("drivers")
-    .select("id")
+    .select("id, simple_mode")
     .eq("user_id", user.id)
     .eq("is_active", true)
-    .returns<DriverQueryResult[]>()
+    .returns<DriverWithModeResult[]>()
     .single();
 
   if (!driver) {
     redirect("/driver");
+  }
+
+  // Simple mode uses single-stop focus on the route page — redirect away from individual stop pages
+  if ((driver as unknown as Record<string, unknown>).simple_mode === true) {
+    redirect("/driver/route");
   }
 
   // Get stop with all related data

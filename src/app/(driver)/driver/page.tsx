@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
 import { notFound, redirect } from "next/navigation";
-import { DriverDashboard } from "@/components/ui/driver/DriverDashboard";
+import { DriverHomeSwitch } from "./DriverHomeSwitch";
 import { Skeleton } from "@/components/ui/skeleton/base";
 import type { RoutesRow, RouteStats, VehicleType, DriverBadgesRow } from "@/types/driver";
 
@@ -258,5 +258,5 @@ export default async function DriverHomePage() {
 async function DriverHomePageContent() {
   const data = await getDriverData();
 
-  return <DriverDashboard {...data} />;
+  return <DriverHomeSwitch {...data} />;
 }
