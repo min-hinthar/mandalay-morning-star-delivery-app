@@ -103,14 +103,11 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
       if (!navigator.onLine) {
         await queueStatusUpdate(routeId, currentStop.id, "delivered");
       } else {
-        const response = await fetch(
-          `/api/driver/routes/${routeId}/stops/${currentStop.id}`,
-          {
-            method: "PATCH",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: "delivered" }),
-          }
-        );
+        const response = await fetch(`/api/driver/routes/${routeId}/stops/${currentStop.id}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: "delivered" }),
+        });
 
         if (!response.ok && response.status >= 500) {
           await queueStatusUpdate(routeId, currentStop.id, "delivered");
@@ -340,9 +337,7 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
               className="text-center"
             >
               <Check className="mx-auto h-20 w-20 text-text-inverse" strokeWidth={3} />
-              <p className="mt-4 font-display text-3xl font-bold text-text-inverse">
-                Delivered!
-              </p>
+              <p className="mt-4 font-display text-3xl font-bold text-text-inverse">Delivered!</p>
             </m.div>
           </m.div>
         )}

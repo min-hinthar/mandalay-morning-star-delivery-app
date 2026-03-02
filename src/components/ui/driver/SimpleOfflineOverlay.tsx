@@ -84,18 +84,17 @@ export function SimpleOfflineOverlay() {
               <WifiOff className="h-10 w-10 text-status-warning" />
             </div>
 
-            <h1 className="mt-6 font-display text-2xl font-bold text-text-primary">
-              No Internet
-            </h1>
+            <h1 className="mt-6 font-display text-2xl font-bold text-text-primary">No Internet</h1>
 
             <p className="mt-3 max-w-xs font-body text-lg text-text-secondary">
-              Don&apos;t worry! Your route is saved. Deliveries will sync when
-              you&apos;re back online.
+              Don&apos;t worry! Your route is saved. Deliveries will sync when you&apos;re back
+              online.
             </p>
 
             {pendingCounts.total > 0 && (
               <p className="mt-3 font-body text-sm text-text-muted">
-                {pendingCounts.total} delivery update{pendingCounts.total === 1 ? "" : "s"} saved locally
+                {pendingCounts.total} delivery update{pendingCounts.total === 1 ? "" : "s"} saved
+                locally
               </p>
             )}
           </m.div>

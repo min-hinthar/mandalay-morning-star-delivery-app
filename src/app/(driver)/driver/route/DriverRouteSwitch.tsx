@@ -48,9 +48,7 @@ export function DriverRouteSwitch({ route, stops }: DriverRouteSwitchProps) {
           <h2 className="mt-4 font-display text-xl font-semibold text-text-primary">
             No Route Today
           </h2>
-          <p className="mt-1 font-body text-text-muted">
-            Check back when a route is assigned.
-          </p>
+          <p className="mt-1 font-body text-text-muted">Check back when a route is assigned.</p>
         </div>
       );
     }
