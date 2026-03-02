@@ -16,6 +16,8 @@ export interface OpsOrder {
   customerName: string | null;
   customerEmail: string;
   isAssigned: boolean;
+  emailStatus: "delivered" | "failed" | "pending" | "sent" | "bounced" | "opened" | null;
+  needsContact: boolean;
 }
 
 export type OpsStatusCounts = Record<OrderStatus, number>;

@@ -156,6 +156,10 @@ export function OrderDetailClient() {
           order={order}
           onStatusAction={handleStatusAction}
           onPriorityChanged={handlePriorityChanged}
+          onContactResolved={() => {
+            if (!order) return;
+            setOrder({ ...order, needsContact: false });
+          }}
         />
       </div>
 

@@ -110,7 +110,9 @@ export function OpsCenter({ rules }: OpsCenterProps) {
         actions={
           <m.div
             animate={isRefreshing ? { rotate: 360 } : { rotate: 0 }}
-            transition={isRefreshing ? { duration: 1, repeat: Infinity, ease: "linear" } : { duration: 0 }}
+            transition={
+              isRefreshing ? { duration: 1, repeat: Infinity, ease: "linear" } : { duration: 0 }
+            }
           >
             <RefreshCw
               className={cn(
@@ -140,6 +142,8 @@ export function OpsCenter({ rules }: OpsCenterProps) {
         onSelectionChange={handleSelectionChange}
         statusFilter={statusFilter === "all" ? null : statusFilter}
         onClearFilter={handleClearFilter}
+        allOrders={orders}
+        onRefresh={refetch}
       />
 
       {/* Driver readiness panel */}
