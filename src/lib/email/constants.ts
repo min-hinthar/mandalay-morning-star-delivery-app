@@ -37,3 +37,34 @@ export const MAX_RETRY_ATTEMPTS = 3;
 
 /** Base delay between retries in ms (multiplied by attempt number) */
 export const RETRY_BASE_DELAY_MS = 10_000;
+
+// ===========================================
+// ERROR GUIDANCE (operator-friendly messages)
+// ===========================================
+
+export const ERROR_GUIDANCE: Record<string, { label: string; guidance: string }> = {
+  bounced: {
+    label: "Bounced",
+    guidance: "Bad email address — contact customer for correct email",
+  },
+  complained: {
+    label: "Spam Report",
+    guidance: "Customer marked as spam — do not resend, contact directly",
+  },
+  timeout: {
+    label: "Timeout",
+    guidance: "Temporary issue — safe to retry",
+  },
+  rate_limit: {
+    label: "Rate Limited",
+    guidance: "Too many emails — wait 1 hour then retry",
+  },
+  invalid_address: {
+    label: "Invalid Address",
+    guidance: "Email format invalid — verify with customer",
+  },
+  unknown: {
+    label: "Unknown Error",
+    guidance: "Check error details — may need developer review",
+  },
+};
