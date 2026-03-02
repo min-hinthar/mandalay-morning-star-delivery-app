@@ -96,3 +96,33 @@ export const globalLimiter = createLimiter(
   RATE_LIMITS["global"].max,
   RATE_LIMITS["global"].window
 );
+
+// Endpoint-specific limiters (HARD-01: Production Hardening)
+
+/** Checkout: 3 req / 1 min — prevent double-orders */
+export const checkoutLimiter = createLimiter(
+  "rl:checkout",
+  RATE_LIMITS["checkout"].max,
+  RATE_LIMITS["checkout"].window
+);
+
+/** Refund: 5 req / 1 min — protect financial operations */
+export const refundLimiter = createLimiter(
+  "rl:refund",
+  RATE_LIMITS["refund"].max,
+  RATE_LIMITS["refund"].window
+);
+
+/** Admin bulk operations: 10 req / 1 min */
+export const adminBulkLimiter = createLimiter(
+  "rl:admin-bulk",
+  RATE_LIMITS["admin-bulk"].max,
+  RATE_LIMITS["admin-bulk"].window
+);
+
+/** Webhook: 30 req / 1 min — external service callbacks */
+export const webhookLimiter = createLimiter(
+  "rl:webhook",
+  RATE_LIMITS["webhook"].max,
+  RATE_LIMITS["webhook"].window
+);

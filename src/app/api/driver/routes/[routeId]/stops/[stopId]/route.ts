@@ -123,7 +123,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       .eq("id", stopId);
 
     if (updateError) {
-      logger.exception(updateError, { api: "driver/routes/[routeId]/stops/[stopId]" });
+      logger.exception(updateError, {
+        api: "driver/routes/[routeId]/stops/[stopId]",
+        routeId,
+        stopId,
+        driverId,
+      });
       return NextResponse.json({ error: "Failed to update stop" }, { status: 500 });
     }
 

@@ -100,7 +100,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       .eq("id", routeId);
 
     if (updateError) {
-      logger.exception(updateError, { api: "driver/routes/[routeId]/complete" });
+      logger.exception(updateError, { api: "driver/routes/[routeId]/complete", routeId, driverId });
       return NextResponse.json({ error: "Failed to complete route" }, { status: 500 });
     }
 
@@ -157,6 +157,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       logger.exception(badgeError, {
         api: "driver/routes/[routeId]/complete",
         context: "badge_award",
+        routeId,
+        driverId,
       });
     }
 

@@ -212,7 +212,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json(response);
   } catch (error) {
-    logger.exception(error, { api: "admin/routes/[id]" });
+    logger.exception(error, { api: "admin/routes/[id]", flowId: "get" });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
@@ -272,7 +272,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           .eq("route_id", id);
 
         if (updateError) {
-          logger.exception(updateError, { api: "admin/routes/[id]", flowId: "reorder-stops" });
+          logger.exception(updateError, {
+            api: "admin/routes/[id]",
+            flowId: "reorder-stops",
+            routeId: id,
+          });
           return NextResponse.json({ error: "Failed to reorder stops" }, { status: 500 });
         }
       }
@@ -323,7 +327,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       .single();
 
     if (updateError) {
-      logger.exception(updateError, { api: "admin/routes/[id]", flowId: "update" });
+      logger.exception(updateError, { api: "admin/routes/[id]", flowId: "update", routeId: id });
       return NextResponse.json({ error: "Failed to update route" }, { status: 500 });
     }
 
@@ -393,7 +397,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     const { error: deleteError } = await supabase.from("routes").delete().eq("id", id);
 
     if (deleteError) {
-      logger.exception(deleteError, { api: "admin/routes/[id]", flowId: "delete" });
+      logger.exception(deleteError, { api: "admin/routes/[id]", flowId: "delete", routeId: id });
       return NextResponse.json({ error: "Failed to delete route" }, { status: 500 });
     }
 

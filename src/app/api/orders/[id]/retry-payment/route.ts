@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { isPastCutoff } from "@/lib/utils/delivery-dates";
-import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
+import { checkRateLimit, checkoutLimiter } from "@/lib/rate-limit";
 import type { ProfilesRow } from "@/types/database";
 
 interface RouteParams {
@@ -52,7 +52,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
 
   // Rate limit
   const rl = await checkRateLimit({
-    limiter: apiWriteLimiter,
+    limiter: checkoutLimiter,
     identifier: user.id,
     role: "customer",
     route: "orders/retry-payment",
@@ -215,7 +215,11 @@ export async function POST(_request: Request, { params }: RouteParams) {
       tags: { api: "retry-payment" },
       extra: { orderId: order.id, userId: user.id },
     });
-    logger.exception(error, { api: "orders/[id]/retry-payment" });
+    logger.exception(error, {
+      api: "orders/[id]/retry-payment",
+      orderId: order.id,
+      userId: user.id,
+    });
     return NextResponse.json(
       { error: { code: "STRIPE_ERROR", message: "Failed to create payment session" } },
       { status: 500 }

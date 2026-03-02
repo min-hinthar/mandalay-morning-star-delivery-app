@@ -12,7 +12,12 @@ export type RateLimitTier =
   | "driver-action"
   | "customer"
   | "admin"
-  | "global";
+  | "global"
+  // Endpoint-specific overrides (HARD-01)
+  | "checkout"
+  | "refund"
+  | "admin-bulk"
+  | "webhook";
 
 export interface RateLimitConfig {
   /** Maximum requests allowed in the window */
@@ -72,5 +77,22 @@ export const RATE_LIMITS: Record<RateLimitTier, RateLimitConfig> = {
   global: {
     max: envInt("RATE_LIMIT_GLOBAL_IP_MAX", 120),
     window: envStr("RATE_LIMIT_GLOBAL_IP_WINDOW", "1 m"),
+  },
+  // Endpoint-specific limits (HARD-01: Production Hardening)
+  checkout: {
+    max: envInt("RATE_LIMIT_CHECKOUT_MAX", 3),
+    window: envStr("RATE_LIMIT_CHECKOUT_WINDOW", "1 m"),
+  },
+  refund: {
+    max: envInt("RATE_LIMIT_REFUND_MAX", 5),
+    window: envStr("RATE_LIMIT_REFUND_WINDOW", "1 m"),
+  },
+  "admin-bulk": {
+    max: envInt("RATE_LIMIT_ADMIN_BULK_MAX", 10),
+    window: envStr("RATE_LIMIT_ADMIN_BULK_WINDOW", "1 m"),
+  },
+  webhook: {
+    max: envInt("RATE_LIMIT_WEBHOOK_MAX", 30),
+    window: envStr("RATE_LIMIT_WEBHOOK_WINDOW", "1 m"),
   },
 };
