@@ -12,7 +12,18 @@ export interface BusinessRules {
   freeDeliveryThresholdCents: number;
   deliveryStartHour: number; // 0-23
   deliveryEndHour: number; // 1-24
+  /**
+   * Configurable via admin settings but NOT currently enforced at checkout.
+   * Enforcement requires geocoding (address -> coordinates) and distance
+   * calculation, which naturally fits a future route optimization phase.
+   * Intentionally deferred -- not a bug. See Phase 86 SUMMARY for rationale.
+   */
   deliveryRadiusMiles: number;
+  /**
+   * Configurable via admin settings but NOT currently enforced at checkout.
+   * Enforcement requires estimated delivery time calculation from route data.
+   * Intentionally deferred -- not a bug. See Phase 86 SUMMARY for rationale.
+   */
   maxDeliveryDurationMinutes: number;
   minimumOrderCents: number;
 }
