@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
 status: in_progress
-last_updated: "2026-03-02T07:50:00Z"
+last_updated: "2026-03-02T09:30:00Z"
 progress:
   total_phases: 7
-  completed_phases: 6
-  total_plans: 23
-  completed_plans: 23
+  completed_phases: 7
+  total_plans: 27
+  completed_plans: 27
 ---
 
 # Project State
@@ -18,17 +18,17 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.9 Launch-Ready MVP -- Phase 82 COMPLETE (Email Reliability)
+**Current focus:** v1.9 Launch-Ready MVP -- Phase 83 COMPLETE (Driver Simplification)
 
 ## Current Position
 
-Phase: 82 of 84 (Email Reliability) -- COMPLETE
-Plan: All 4 plans in Phase 82 complete
+Phase: 83 of 84 (Driver Simplification) -- COMPLETE
+Plan: All 4 plans in Phase 83 complete
 Milestone: v1.9 Launch-Ready MVP (8 phases, 49 requirements)
-Status: Phase 82 all plans complete -- email reliability with webhook verification, dashboard, and status indicators
-Last activity: 2026-03-02 -- Phase 82 executed (4 plans: DB migration + svix webhook, needs-contact flagging, email dashboard, order/ops indicators)
+Status: Phase 83 all plans complete -- simple mode with single-stop focus, conditional nav, offline overlay
+Last activity: 2026-03-02 -- Phase 83 executed (4 plans: DB + provider, SimpleHome + toggle, SimpleStopView + wiring, offline overlay)
 
-Progress: [===============================...] 82/84 phases (in progress)
+Progress: [================================..] 83/84 phases (in progress)
 
 ## Performance Metrics
 
@@ -52,8 +52,8 @@ Progress: [===============================...] 82/84 phases (in progress)
 | v1.7           | 9      | 32    | 3 days   |
 | v1.8           | 8      | 23    | 3 days   |
 | v1.8 Gap Close | 2      | 2     | <1 day   |
-| v1.9 (partial) | 4      | 16    | <1 day   |
-| **Total**      | **80** | **328** | **30 days** |
+| v1.9 (partial) | 5      | 20    | <1 day   |
+| **Total**      | **81** | **332** | **30 days** |
 | Phase 79 P01 | 5min | 2 tasks | 8 files |
 | Phase 79 P02 | 9min | 2 tasks | 9 files |
 | Phase 79 P03 | 5min | 2 tasks | 3 files |
@@ -68,6 +68,10 @@ Progress: [===============================...] 82/84 phases (in progress)
 | Phase 82 P02 | 8 | 2 tasks | 2 files |
 | Phase 82 P03 | 10 | 2 tasks | 6 files |
 | Phase 82 P04 | 12 | 2 tasks | 10 files |
+| Phase 83 P01 | 10 | 2 tasks | 7 files |
+| Phase 83 P02 | 8 | 2 tasks | 4 files |
+| Phase 83 P03 | 15 | 2 tasks | 8 files |
+| Phase 83 P04 | 8 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -128,6 +132,15 @@ Progress: [===============================...] 82/84 phases (in progress)
 - [Phase 82 P03]: EmailDetailPanel shows error guidance + webhook event timeline
 - [Phase 82 P04]: Ops API batch-fetches email statuses via single IN query (not N+1)
 - [Phase 82 P04]: Green check / red X icons only (no pending icon) for minimal ops dashboard noise
+- [Phase 83 P01]: simple_mode default true -- new drivers start in simple mode
+- [Phase 83 P01]: Server-side DB column over localStorage for cross-device persistence
+- [Phase 83 P01]: Optimistic toggle with API PATCH rollback pattern
+- [Phase 83 P01]: SIMPLE_MODE_KEYS Set for O(1) nav item filtering
+- [Phase 83 P03]: Client wrapper pattern (DriverHomeSwitch, DriverRouteSwitch) for server-to-client branching
+- [Phase 83 P03]: Server-side redirect from stop detail page in simple mode
+- [Phase 83 P03]: 1.5s success animation before auto-advance to next stop
+- [Phase 83 P04]: Full-screen overlay for simple mode, compact banner for normal mode
+- [Phase 83 P04]: Overlay dismissed state resets on new offline event
 
 ### Pending Todos
 
@@ -135,6 +148,7 @@ Progress: [===============================...] 82/84 phases (in progress)
 - Apply migration 028_refund_status.sql to production Supabase (human action)
 - Apply migration 029_business_rules_settings.sql to production Supabase (human action)
 - Apply migration 030_email_reliability.sql to production Supabase (human action)
+- Apply migration 031_driver_simple_mode.sql to production Supabase (human action)
 - Configure RESEND_WEBHOOK_SECRET env var for svix webhook verification
 - Provision Upstash Redis on Vercel Marketplace for production rate limiting
 - Create Sentry alert rule "Rate Limit Spike" in Sentry Dashboard
@@ -149,5 +163,5 @@ Progress: [===============================...] 82/84 phases (in progress)
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Phase 82 complete -- Email reliability with webhook verification, dashboard enhancements, and status indicators
-Next action: Phase 83 (next phase in v1.9 sequence)
+Stopped at: Phase 83 complete -- Driver simplification with simple mode, single-stop focus, conditional nav, offline overlay
+Next action: Phase 84 (final phase in v1.9 sequence)
