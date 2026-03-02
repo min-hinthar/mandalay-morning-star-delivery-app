@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
 status: in_progress
-last_updated: "2026-03-01T22:35:00Z"
+last_updated: "2026-03-01T22:50:00Z"
 progress:
-  total_phases: 6
+  total_phases: 7
   completed_phases: 4
-  total_plans: 16
-  completed_plans: 16
+  total_plans: 19
+  completed_plans: 19
 ---
 
 # Project State
@@ -18,15 +18,15 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-01)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v1.9 Launch-Ready MVP -- Phase 81 Plan 01 COMPLETE
+**Current focus:** v1.9 Launch-Ready MVP -- Phase 81 Plan 03 COMPLETE
 
 ## Current Position
 
 Phase: 81 of 84 (Customer Pre-Checkout Gate) -- IN PROGRESS
-Plan: 1 of N in Phase 81 (Plan 01 complete)
+Plan: 3 of 3 in Phase 81 (Plans 01 + 03 complete; Plan 02 pending)
 Milestone: v1.9 Launch-Ready MVP (8 phases, 49 requirements)
-Status: Phase 81 Plan 01 complete -- delivery gate infrastructure built
-Last activity: 2026-03-01 -- Phase 81 Plan 01 executed (useDeliveryGate hook + DeliveryBanner/DeliveryCountdown/CutoffModal components)
+Status: Phase 81 Plan 03 complete -- delivery gate wired to cart, checkout, empty states, tracking
+Last activity: 2026-03-01 -- Phase 81 Plan 03 executed (CartFooter gate, CheckoutClient CutoffModal, empty state schedule text, tracking enhancements)
 
 Progress: [==============================....] 81/84 phases (in progress)
 
@@ -62,6 +62,7 @@ Progress: [==============================....] 81/84 phases (in progress)
 | Phase 80 P03 | 10 | 2 tasks | 7 files |
 | Phase 80 P04 | 8 | 1 task | 1 file |
 | Phase 81 P01 | 12 | 2 tasks | 9 files |
+| Phase 81 P03 | 8 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -107,6 +108,8 @@ Progress: [==============================....] 81/84 phases (in progress)
 - [Phase 81 P01]: Urgency thresholds: >2h=normal, <=2h=warning, <=30m or past=critical
 - [Phase 81 P01]: DeliveryBanner countdown shows Xh Ym format (customer-readable vs HH:MM:SS admin style)
 - [Phase 81 P01]: CutoffModal cart items preserved per locked phase decision
+- [Phase 81]: CartFooter uses useDeliveryGate defaults (5, 15) -- cutoff not in cart store; adding to store is Phase 86 scope
+- [Phase 81]: onCutoffPassed callback on PaymentStepV8 bubbles CUTOFF_PASSED API error to CheckoutClient for modal display
 
 ### Pending Todos
 
@@ -126,5 +129,5 @@ Progress: [==============================....] 81/84 phases (in progress)
 ## Session Continuity
 
 Last session: 2026-03-01
-Stopped at: Phase 81 Plan 01 complete -- delivery gate infrastructure (useDeliveryGate, useCountdown relocated, DeliveryBanner, DeliveryCountdown, CutoffModal)
-Next action: `/gsd:execute-phase 81` Plan 02 (next plan in phase)
+Stopped at: Phase 81 Plan 03 complete -- delivery gate wired to cart drawer, checkout, empty states, tracking page
+Next action: `/gsd:execute-phase 81` Plan 02 (if it exists) or next phase

@@ -44,8 +44,8 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 - [x] **GATE-02**: Menu page banner — Saturday delivery schedule + cutoff
 - [x] **GATE-03**: Cart drawer — show delivery date + cutoff countdown
 - [x] **GATE-04**: Checkout gate — past cutoff modal with next Saturday date
-- [ ] **GATE-05**: Update empty states with Saturday schedule context
-- [ ] **GATE-06**: Order tracking — polling indicator + "last updated" timestamp
+- [x] **GATE-05**: Update empty states with Saturday schedule context
+- [x] **GATE-06**: Order tracking — polling indicator + "last updated" timestamp
 
 ### Business Rules
 
@@ -159,8 +159,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | GATE-02 | Phase 81 | Complete |
 | GATE-03 | Phase 81 | Complete |
 | GATE-04 | Phase 81 | Complete |
-| GATE-05 | Phase 81 | Pending |
-| GATE-06 | Phase 81 | Pending |
+| GATE-05 | Phase 81 | Complete |
+| GATE-06 | Phase 81 | Complete |
 | RULES-01 | Phase 78 | Complete |
 | RULES-02 | Phase 78 | Complete |
 | RULES-03 | Phase 78 | Complete |
