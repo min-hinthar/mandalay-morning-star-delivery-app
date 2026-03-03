@@ -140,7 +140,7 @@ items:
     base_price_cents: 1800
     is_active: true
     is_sold_out: false
-    tags: ["contains_egg", "contains_gluten_wheat_optional"]
+    tags: []
     allergens: ["egg"]
     modifier_group_slugs: ["kyay_o_style", "kyay_o_protein", "kyay_o_addons"]
 
@@ -164,7 +164,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["contains_soy"]
+    tags: []
     allergens: ["soy"]
     modifier_group_slugs: []
 
@@ -176,7 +176,7 @@ items:
     base_price_cents: 1500
     is_active: true
     is_sold_out: false
-    tags: ["contains_egg", "contains_gluten_wheat"]
+    tags: []
     allergens: ["egg", "gluten_wheat"]
     modifier_group_slugs: []
 
@@ -188,7 +188,7 @@ items:
     base_price_cents: 1300
     is_active: true
     is_sold_out: false
-    tags: ["contains_peanuts"]
+    tags: []
     allergens: ["peanuts"]
     modifier_group_slugs: []
 
@@ -200,7 +200,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["contains_fish", "contains_egg"]
+    tags: []
     allergens: ["fish", "egg"]
     modifier_group_slugs: []
 
@@ -210,10 +210,10 @@ items:
     name_en: "Burmese Fried Rice"
     name_my: "ပဲပြုတ်ထမင်းကြော်"
     description_en: "Stir-fried rice with eggs, onion, garlic, and boiled yellow peas."
-    base_price_cents: 1900
+    base_price_cents: 1300 # Updated from 1900 — matched to order.online direct price (Mar 2026)
     is_active: true
     is_sold_out: false
-    tags: ["contains_egg"]
+    tags: []
     allergens: ["egg"]
     modifier_group_slugs: []
 
@@ -222,7 +222,7 @@ items:
     name_en: "Goat-Marrow Soup"
     name_my: "ဆိတ်ရိုးစွပ်ပြုတ်"
     description_en: "Goat stew + bone marrow infused soup with chickpeas and potatoes. Best paired with Parata."
-    base_price_cents: 1200
+    base_price_cents: 1900 # Updated from 1200 — matched to order.online direct price (Mar 2026)
     is_active: true
     is_sold_out: false
     tags: []
@@ -237,7 +237,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["contains_shellfish_optional"]
+    tags: []
     allergens: ["shellfish"]
     modifier_group_slugs: []
 
@@ -249,7 +249,7 @@ items:
     base_price_cents: 1300
     is_active: true
     is_sold_out: false
-    tags: ["contains_fish", "contains_egg"]
+    tags: []
     allergens: ["fish", "egg"]
     modifier_group_slugs: []
 
@@ -261,9 +261,22 @@ items:
     base_price_cents: 1300
     is_active: true
     is_sold_out: false
-    tags: ["contains_egg"]
+    tags: []
     allergens: ["egg"]
     modifier_group_slugs: []
+
+  - slug: mixed-veggie-shrimp-stir-fry-rice
+    category_slug: rice-noodles-soups
+    name_en: "Mixed Veggie & Shrimp Stir Fry Over Rice"
+    name_my: "ရန်ကုန်ထမင်းပေါင်း"
+    description_en: "Crisp, fresh vegetables and tender quail eggs with succulent shrimp, stir-fried and served over a bed of steamed rice."
+    base_price_cents: 2000
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["egg", "shellfish"]
+    modifier_group_slugs: []
+    # Added Mar 2026 — found on DoorDash/UberEats platforms, absent from app
 
   - slug: tom-yum-fried-rice-or-noodles
     category_slug: rice-noodles-soups
@@ -273,7 +286,7 @@ items:
     base_price_cents: 1600
     is_active: true
     is_sold_out: false
-    tags: ["contains_shellfish"]
+    tags: []
     allergens: ["shellfish"]
     modifier_group_slugs: ["tom_yum_base"]
 
@@ -286,7 +299,7 @@ items:
     base_price_cents: 500
     is_active: true
     is_sold_out: false
-    tags: ["contains_gluten_wheat"]
+    tags: []
     allergens: ["gluten_wheat"]
     modifier_group_slugs: []
 
@@ -322,7 +335,7 @@ items:
     base_price_cents: 300
     is_active: true
     is_sold_out: false
-    tags: ["contains_shellfish"]
+    tags: []
     allergens: ["shellfish"]
     modifier_group_slugs: []
 
@@ -455,9 +468,35 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["contains_egg"]
+    tags: []
     allergens: ["egg"]
     modifier_group_slugs: []
+
+  - slug: chicken-gourd-curry
+    category_slug: curries-a-la-carte
+    name_en: "Chicken Gourd Curry"
+    name_my: "ကြက်ဗူးသီး"
+    description_en: "Chicken curry cooked with bottle gourd in traditional Burmese style."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: []
+    modifier_group_slugs: []
+    # Added Mar 2026 — found on DoorDash/UberEats platforms, absent from app
+
+  - slug: pinto-beans
+    category_slug: vegetables
+    name_en: "Pinto Beans"
+    name_my: "ပဲရေပွကြော်"
+    description_en: "Pinto beans stir-fried in Burmese style with onions, garlic, and spices."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: ["vegetarian"]
+    allergens: []
+    modifier_group_slugs: []
+    # Added Mar 2026 — found on DoorDash/UberEats platforms, absent from app
 
   # --- Vegetables ---
   - slug: roselle-with-shrimp-curry
@@ -468,7 +507,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["contains_shellfish"]
+    tags: []
     allergens: ["shellfish"]
     modifier_group_slugs: []
 
@@ -480,7 +519,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["contains_shellfish"]
+    tags: []
     allergens: ["shellfish"]
     modifier_group_slugs: []
 
@@ -574,7 +613,7 @@ items:
     name_en: "Snakehead Innards Curry"
     name_my: "ငါးရံအူဟင်း"
     description_en: "Snakehead intestines curry in spiced sauce."
-    base_price_cents: 1400
+    base_price_cents: 1900 # Updated from 1400 — matched to order.online direct price (Mar 2026)
     is_active: true
     is_sold_out: false
     tags: []
@@ -613,7 +652,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["contains_fish"]
+    tags: []
     allergens: ["fish"]
     modifier_group_slugs: []
 
@@ -622,7 +661,7 @@ items:
     name_en: "Fried Catfish Curry"
     name_my: "ငါးခူကြော်နှပ်"
     description_en: "Fried catfish curry."
-    base_price_cents: 1900
+    base_price_cents: 1400 # Updated from 1900 — matched to order.online direct price (Mar 2026)
     is_active: true
     is_sold_out: false
     tags: []
@@ -637,7 +676,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["contains_fish"]
+    tags: []
     allergens: ["fish"]
     modifier_group_slugs: []
 
@@ -650,7 +689,7 @@ items:
     base_price_cents: 1200
     is_active: true
     is_sold_out: false
-    tags: ["contains_peanuts", "contains_shellfish"]
+    tags: []
     allergens: ["peanuts", "shellfish"]
     modifier_group_slugs: []
 
@@ -674,7 +713,7 @@ items:
     base_price_cents: 1200
     is_active: true
     is_sold_out: false
-    tags: ["contains_peanuts", "contains_shellfish"]
+    tags: []
     allergens: ["peanuts", "shellfish"]
     modifier_group_slugs: []
 
@@ -686,7 +725,7 @@ items:
     base_price_cents: 1200
     is_active: true
     is_sold_out: false
-    tags: ["contains_peanuts", "contains_shellfish", "contains_egg"]
+    tags: []
     allergens: ["peanuts", "shellfish", "egg"]
     modifier_group_slugs: []
 
@@ -698,7 +737,7 @@ items:
     base_price_cents: 1200
     is_active: true
     is_sold_out: false
-    tags: ["contains_peanuts"]
+    tags: []
     allergens: ["peanuts"]
     modifier_group_slugs: []
 
@@ -711,9 +750,22 @@ items:
     base_price_cents: 400
     is_active: true
     is_sold_out: false
-    tags: ["contains_dairy"]
+    tags: []
     allergens: ["dairy"]
     modifier_group_slugs: []
+
+  - slug: coffee
+    category_slug: drinks
+    name_en: "Coffee"
+    name_my: "ကော်ဖီ"
+    description_en: "Hot or cold coffee, 10 oz."
+    base_price_cents: 650
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: []
+    modifier_group_slugs: []
+    # Added Mar 2026 — found on DoorDash/UberEats platforms, absent from app
 
   - slug: faluda
     category_slug: drinks
@@ -723,7 +775,7 @@ items:
     base_price_cents: 900
     is_active: true
     is_sold_out: false
-    tags: ["contains_tree_nuts_optional", "contains_dairy_optional"]
+    tags: []
     allergens: ["tree_nuts", "dairy"]
     modifier_group_slugs: []
 
