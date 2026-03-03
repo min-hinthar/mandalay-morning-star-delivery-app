@@ -144,17 +144,73 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ## Traceability
 
-Which phases cover which requirements. Updated during roadmap creation.
-
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| (populated by roadmapper) | | |
+| BUG-01 | Phase 89 | Pending |
+| BUG-02 | Phase 89 | Pending |
+| BUG-03 | Phase 89 | Pending |
+| BUG-04 | Phase 89 | Pending |
+| BUG-05 | Phase 89 | Pending |
+| MENU-01 | Phase 90 | Pending |
+| MENU-02 | Phase 90 | Pending |
+| MENU-03 | Phase 90 | Pending |
+| MENU-04 | Phase 90 | Pending |
+| MENU-05 | Phase 90 | Pending |
+| MENU-06 | Phase 90 | Pending |
+| ADMIN-02 | Phase 90 | Pending |
+| CHKT-01 | Phase 91 | Pending |
+| CHKT-02 | Phase 91 | Pending |
+| CHKT-03 | Phase 91 | Pending |
+| CHKT-04 | Phase 91 | Pending |
+| CHKT-05 | Phase 91 | Pending |
+| CHKT-06 | Phase 91 | Pending |
+| CHKT-07 | Phase 91 | Pending |
+| CHKT-08 | Phase 91 | Pending |
+| CHKT-09 | Phase 91 | Pending |
+| CHKT-10 | Phase 91 | Pending |
+| CUX-01 | Phase 92 | Pending |
+| CUX-02 | Phase 92 | Pending |
+| CUX-03 | Phase 92 | Pending |
+| CUX-04 | Phase 92 | Pending |
+| CUX-05 | Phase 92 | Pending |
+| CUX-06 | Phase 92 | Pending |
+| CUX-07 | Phase 92 | Pending |
+| CUX-08 | Phase 92 | Pending |
+| CUX-09 | Phase 92 | Pending |
+| CUX-10 | Phase 92 | Pending |
+| CUX-11 | Phase 93 | Pending |
+| CUX-12 | Phase 93 | Pending |
+| CUX-13 | Phase 93 | Pending |
+| CUX-14 | Phase 93 | Pending |
+| CUX-15 | Phase 93 | Pending |
+| CUX-16 | Phase 93 | Pending |
+| CUX-17 | Phase 93 | Pending |
+| CUX-18 | Phase 93 | Pending |
+| CUX-19 | Phase 93 | Pending |
+| ADMIN-01 | Phase 94 | Pending |
+| DRV-01 | Phase 94 | Pending |
+| DRV-02 | Phase 94 | Pending |
+| DRV-03 | Phase 94 | Pending |
+| OBS-01 | Phase 95 | Pending |
+| OBS-02 | Phase 95 | Pending |
+| OBS-03 | Phase 95 | Pending |
+| OBS-04 | Phase 95 | Pending |
+| OBS-05 | Phase 95 | Pending |
+| OBS-06 | Phase 95 | Pending |
+| OBS-07 | Phase 95 | Pending |
+| TST-01 | Phase 95 | Pending |
+| TST-02 | Phase 95 | Pending |
+| TST-03 | Phase 95 | Pending |
+| TST-04 | Phase 95 | Pending |
+| TST-05 | Phase 95 | Pending |
+| TST-06 | Phase 95 | Pending |
+| TST-07 | Phase 95 | Pending |
 
 **Coverage:**
 - v2.0 requirements: 59 total
-- Mapped to phases: 0
-- Unmapped: 59
+- Mapped to phases: 59
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-03*
-*Last updated: 2026-03-03 after initial definition*
+*Last updated: 2026-03-03 after roadmap creation*
