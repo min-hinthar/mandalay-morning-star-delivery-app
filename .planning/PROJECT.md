@@ -99,7 +99,16 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 ### Active
 
-(No active requirements — define next milestone with `/gsd:new-milestone`)
+<!-- v2.0 Production-Grade Launch MVP -->
+
+- [ ] Critical bug fixes (payment idempotency, cart race condition, modifier validation, cutoff precision, cleanup rollback)
+- [ ] Menu photo upload pipeline (Supabase Storage, admin bulk upload, quality standards)
+- [ ] Checkout hardening (tips, promo codes, guest checkout, duplicate prevention, delivery instructions)
+- [ ] Customer UX overhaul (search, filters, reorder, accessibility, Saturday schedule hero)
+- [ ] Admin ops center (bulk status, route creation, settings form, email dashboard, photo management)
+- [ ] Driver experience v2 (simple mode default, photo proof, offline, nav links, confirmation dialogs)
+- [ ] Configurable business rules (all operational params admin-editable from app_settings)
+- [ ] Production hardening (security, performance, testing, observability, launch prep)
 
 ### Out of Scope
 
@@ -116,11 +125,23 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - Multi-restaurant marketplace — not part of Morning Star scope
 - Docker/Kubernetes — Vercel is serverless; containerization adds zero value
 
+## Current Milestone: v2.0 Production-Grade Launch MVP
+
+**Goal:** Battle-tested, revenue-ready Saturday delivery platform for real-money operations at 50–150 orders/Sat with 3–6 drivers and solo admin operator.
+
+**Target features:**
+- Critical bug fixes (5 CRITICAL + 7 HIGH severity)
+- Menu sync & photo pipeline (53 items, 22 still need photos)
+- Checkout & payment hardening (tips, promos, guest checkout)
+- Customer UX overhaul (search, filters, reorder, accessibility)
+- Admin operations center (bulk ops, route creation, settings)
+- Driver experience v2 (simple mode, photo proof, offline)
+- Configurable business rules (all params admin-editable)
+- Production hardening (security, performance, testing, dry run)
+
 ## Last Milestone: v1.9 Launch-Ready MVP (SHIPPED 2026-03-03)
 
 **Delivered:** Production-ready for real Saturday operations — solo operator triaging 20-50 orders with family/friend drivers. All 49 requirements satisfied across 12 phases.
-
-**Next:** Define with `/gsd:new-milestone`
 
 ## Context
 
@@ -228,4 +249,4 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 ---
 
-_Last updated: 2026-03-03 after v1.9 Launch-Ready MVP milestone_
+_Last updated: 2026-03-03 after v2.0 milestone initialization_
