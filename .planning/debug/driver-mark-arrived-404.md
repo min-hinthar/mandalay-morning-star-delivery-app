@@ -1,5 +1,5 @@
 ---
-status: awaiting_human_verify
+status: resolved
 trigger: "Mark arrived action in the driver app returns a 404 Not Found API response. User wants to verify all driver route API functions are working."
 created: 2026-03-02T00:00:00Z
 updated: 2026-03-02T18:30:00Z

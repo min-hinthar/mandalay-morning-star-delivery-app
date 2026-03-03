@@ -110,7 +110,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         is_priority,
         needs_contact,
         user_id,
-        profiles (
+        profiles!orders_user_id_fkey (
           full_name,
           email,
           phone

@@ -62,7 +62,7 @@ export async function GET() {
         delivery_window_end,
         placed_at,
         order_items (quantity),
-        profiles (
+        profiles!orders_user_id_fkey (
           full_name,
           email
         ),

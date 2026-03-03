@@ -106,7 +106,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
               lat,
               lng
             ),
-            profiles (
+            profiles!orders_user_id_fkey (
               id,
               full_name,
               phone,

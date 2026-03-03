@@ -100,7 +100,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
         submitted_at,
         order_id,
         orders (
-          profiles (
+          profiles!orders_user_id_fkey (
             full_name
           )
         )

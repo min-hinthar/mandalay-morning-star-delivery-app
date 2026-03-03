@@ -55,7 +55,7 @@ export async function GET(request: Request) {
         delivery_window_start,
         placed_at,
         order_items (quantity),
-        profiles (
+        profiles!orders_user_id_fkey (
           full_name,
           email
         )
