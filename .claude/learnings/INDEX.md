@@ -15,7 +15,7 @@ Consolidated knowledge from working on this codebase. Scan this file first, then
 | Testing          | `testing.md`          | E2E DOM removal for AnimatePresence; cmdk state binding; **stale tests after validation rule changes**                                                      | 2026-03-03   |
 | Tooling          | `tooling.md`          | Git case rename; barrel cleanup; ESLint guards; .prettierignore non-source dirs; CI format:check + --max-warnings 0; **OneDrive + multi-terminal freeze fix**; **GH Actions permissions allowlist** | 2026-02-28   |
 | Performance      | `performance.md`      | Lazy load below-fold; IntersectionObserver pause; willChange on interaction; tree-shaking                                                                  | 2026-01-29   |
-| Data Schema      | `data-schema.md`      | Allergen duplication in tags vs allergens columns; Fuse.js tuning for menu dataset; **PostgREST ambiguous FK hints required for multi-FK tables**           | 2026-03-02   |
+| Data Schema      | `data-schema.md`      | Allergen single source (contains_* removed Phase 90); Fuse.js tuning for menu dataset; **PostgREST ambiguous FK hints required for multi-FK tables**        | 2026-03-03   |
 
 ## Usage
 
