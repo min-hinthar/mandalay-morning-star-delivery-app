@@ -23,7 +23,6 @@ describe("Checkout Session Validation", () => {
         {
           menuItemId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
           quantity: 2,
-          basePriceCents: 1500,
           modifiers: [],
           notes: "",
         },
@@ -127,10 +126,88 @@ describe("Checkout Session Validation", () => {
         items: [
           {
             ...validBody.items[0],
-            modifiers: [{ optionId: "not-a-uuid", priceDeltaCents: 0 }],
+            modifiers: [{ optionId: "not-a-uuid" }],
           },
         ],
       };
+      const result = createCheckoutSessionSchema.safeParse(body);
+      expect(result.success).toBe(false);
+    });
+
+    // CHKT-01: Server-authoritative pricing — schema no longer accepts price fields
+    it("strips basePriceCents from items (server-authoritative pricing)", () => {
+      const body = {
+        ...validBody,
+        items: [{ ...validBody.items[0], basePriceCents: 9999 }],
+      };
+      const result = createCheckoutSessionSchema.safeParse(body);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect("basePriceCents" in result.data.items[0]).toBe(false);
+      }
+    });
+
+    it("strips priceDeltaCents from modifiers (server-authoritative pricing)", () => {
+      const body = {
+        ...validBody,
+        items: [
+          {
+            ...validBody.items[0],
+            modifiers: [
+              {
+                optionId: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+                priceDeltaCents: 500,
+              },
+            ],
+          },
+        ],
+      };
+      const result = createCheckoutSessionSchema.safeParse(body);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect("priceDeltaCents" in result.data.items[0].modifiers[0]).toBe(false);
+      }
+    });
+
+    // New optional fields
+    it("accepts optional tipCents", () => {
+      const body = { ...validBody, tipCents: 500 };
+      const result = createCheckoutSessionSchema.safeParse(body);
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects negative tipCents", () => {
+      const body = { ...validBody, tipCents: -100 };
+      const result = createCheckoutSessionSchema.safeParse(body);
+      expect(result.success).toBe(false);
+    });
+
+    it("rejects tipCents over $1000", () => {
+      const body = { ...validBody, tipCents: 100_001 };
+      const result = createCheckoutSessionSchema.safeParse(body);
+      expect(result.success).toBe(false);
+    });
+
+    it("accepts optional promoCode", () => {
+      const body = { ...validBody, promoCode: "SAVE10" };
+      const result = createCheckoutSessionSchema.safeParse(body);
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects promoCode over 50 chars", () => {
+      const body = { ...validBody, promoCode: "a".repeat(51) };
+      const result = createCheckoutSessionSchema.safeParse(body);
+      expect(result.success).toBe(false);
+    });
+
+    it("accepts optional deliveryInstructions", () => {
+      const body = { ...validBody, deliveryInstructions: "Leave at gate" };
+      const result = createCheckoutSessionSchema.safeParse(body);
+      expect(result.success).toBe(true);
+    });
+
+    it("rejects deliveryInstructions over 500 chars", () => {
+      const body = { ...validBody, deliveryInstructions: "a".repeat(501) };
       const result = createCheckoutSessionSchema.safeParse(body);
       expect(result.success).toBe(false);
     });
@@ -144,7 +221,7 @@ describe("Checkout Session Validation", () => {
       const modifierOptions = new Map<string, ModifierOptionsRow>();
 
       const result = await validateCartItems(
-        [{ menuItemId: "item-1", quantity: 2, basePriceCents: 1500, modifiers: [], notes: "" }],
+        [{ menuItemId: "item-1", quantity: 2, modifiers: [], notes: "" }],
         menuItems,
         modifierOptions
       );
@@ -159,15 +236,7 @@ describe("Checkout Session Validation", () => {
       const modifierOptions = new Map<string, ModifierOptionsRow>();
 
       const result = await validateCartItems(
-        [
-          {
-            menuItemId: "nonexistent",
-            quantity: 1,
-            basePriceCents: 1500,
-            modifiers: [],
-            notes: "",
-          },
-        ],
+        [{ menuItemId: "nonexistent", quantity: 1, modifiers: [], notes: "" }],
         menuItems,
         modifierOptions
       );
@@ -183,7 +252,7 @@ describe("Checkout Session Validation", () => {
       const modifierOptions = new Map<string, ModifierOptionsRow>();
 
       const result = await validateCartItems(
-        [{ menuItemId: "item-1", quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" }],
+        [{ menuItemId: "item-1", quantity: 1, modifiers: [], notes: "" }],
         menuItems,
         modifierOptions
       );
@@ -199,7 +268,7 @@ describe("Checkout Session Validation", () => {
       const modifierOptions = new Map<string, ModifierOptionsRow>();
 
       const result = await validateCartItems(
-        [{ menuItemId: "item-1", quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" }],
+        [{ menuItemId: "item-1", quantity: 1, modifiers: [], notes: "" }],
         menuItems,
         modifierOptions
       );
@@ -223,8 +292,7 @@ describe("Checkout Session Validation", () => {
           {
             menuItemId: "item-1",
             quantity: 1,
-            basePriceCents: 1500,
-            modifiers: [{ optionId: "mod-1", priceDeltaCents: 100 }],
+            modifiers: [{ optionId: "mod-1" }],
             notes: "",
           },
         ],
@@ -239,8 +307,7 @@ describe("Checkout Session Validation", () => {
           {
             menuItemId: "item-1",
             quantity: 1,
-            basePriceCents: 1500,
-            modifiers: [{ optionId: "mod-2", priceDeltaCents: 100 }],
+            modifiers: [{ optionId: "mod-2" }],
             notes: "",
           },
         ],
@@ -269,6 +336,8 @@ describe("Checkout Session Validation", () => {
       expect(totals.subtotalCents).toBe(4000);
       expect(totals.deliveryFeeCents).toBe(1500); // Below $100 threshold
       expect(totals.taxCents).toBe(0);
+      expect(totals.tipCents).toBe(0);
+      expect(totals.discountCents).toBe(0);
       expect(totals.totalCents).toBe(5500);
     });
 
@@ -288,6 +357,79 @@ describe("Checkout Session Validation", () => {
       expect(totals.subtotalCents).toBe(10000);
       expect(totals.deliveryFeeCents).toBe(0);
       expect(totals.totalCents).toBe(10000);
+    });
+
+    it("includes tip in total", () => {
+      const items = [
+        {
+          menuItem: createMockMenuItem({ base_price_cents: 5000 }),
+          modifiers: [],
+          quantity: 1,
+          notes: "",
+          lineTotalCents: 5000,
+        },
+      ];
+
+      const totals = calculateOrderTotals(items, 1500, 10000, 500);
+
+      expect(totals.subtotalCents).toBe(5000);
+      expect(totals.deliveryFeeCents).toBe(1500);
+      expect(totals.tipCents).toBe(500);
+      expect(totals.discountCents).toBe(0);
+      // 5000 + 1500 + 0 + 500 - 0 = 7000
+      expect(totals.totalCents).toBe(7000);
+    });
+
+    it("subtracts discount from total", () => {
+      const items = [
+        {
+          menuItem: createMockMenuItem({ base_price_cents: 5000 }),
+          modifiers: [],
+          quantity: 1,
+          notes: "",
+          lineTotalCents: 5000,
+        },
+      ];
+
+      const totals = calculateOrderTotals(items, 1500, 10000, 0, 2000);
+
+      expect(totals.subtotalCents).toBe(5000);
+      expect(totals.discountCents).toBe(2000);
+      // 5000 + 1500 + 0 + 0 - 2000 = 4500
+      expect(totals.totalCents).toBe(4500);
+    });
+
+    it("includes tip and discount together", () => {
+      const items = [
+        {
+          menuItem: createMockMenuItem({ base_price_cents: 5000 }),
+          modifiers: [],
+          quantity: 1,
+          notes: "",
+          lineTotalCents: 5000,
+        },
+      ];
+
+      const totals = calculateOrderTotals(items, 1500, 10000, 500, 2000);
+
+      // 5000 + 1500 + 0 + 500 - 2000 = 5000
+      expect(totals.totalCents).toBe(5000);
+    });
+
+    it("clamps total to 0 when discount exceeds subtotal", () => {
+      const items = [
+        {
+          menuItem: createMockMenuItem({ base_price_cents: 1000 }),
+          modifiers: [],
+          quantity: 1,
+          notes: "",
+          lineTotalCents: 1000,
+        },
+      ];
+
+      const totals = calculateOrderTotals(items, 0, 10000, 0, 50000);
+
+      expect(totals.totalCents).toBe(0);
     });
   });
 
@@ -335,14 +477,49 @@ describe("Checkout Session Validation", () => {
         lineItems.find((i) => i.price_data.product_data.name === "Delivery Fee")
       ).toBeUndefined();
     });
+
+    it("adds tip as Stripe line item when tipCents > 0", () => {
+      const items = [
+        {
+          menuItem: createMockMenuItem({ base_price_cents: 1500 }),
+          modifiers: [],
+          quantity: 1,
+          notes: "",
+          lineTotalCents: 1500,
+        },
+      ];
+
+      const lineItems = createStripeLineItems(items, 1500, 300);
+
+      expect(lineItems).toHaveLength(3); // Item + delivery + tip
+      const tipItem = lineItems.find((i) => i.price_data.product_data.name === "Tip");
+      expect(tipItem).toBeDefined();
+      expect(tipItem!.price_data.unit_amount).toBe(300);
+      expect(tipItem!.quantity).toBe(1);
+    });
+
+    it("omits tip line item when tipCents is 0", () => {
+      const items = [
+        {
+          menuItem: createMockMenuItem({ base_price_cents: 1500 }),
+          modifiers: [],
+          quantity: 1,
+          notes: "",
+          lineTotalCents: 1500,
+        },
+      ];
+
+      const lineItems = createStripeLineItems(items, 1500, 0);
+
+      expect(lineItems).toHaveLength(2); // Item + delivery
+      expect(lineItems.find((i) => i.price_data.product_data.name === "Tip")).toBeUndefined();
+    });
   });
 });
 
 describe("Checkout Session Business Rules", () => {
   describe("Price Calculation Security", () => {
-    it("server calculates prices - client prices are ignored", async () => {
-      // This test verifies that validateCartItems calculates line totals
-      // from the server-side menu data, not from client input
+    it("server calculates prices from DB - not from client input", async () => {
       const menuItems = new Map<string, MenuItemsRow>([
         ["item-1", createMockMenuItem({ id: "item-1", base_price_cents: 1500 })],
       ]);
@@ -350,13 +527,13 @@ describe("Checkout Session Business Rules", () => {
         ["mod-1", createMockModifierOption({ id: "mod-1", price_delta_cents: 200 })],
       ]);
 
+      // Client sends no prices — server resolves from DB
       const result = await validateCartItems(
         [
           {
             menuItemId: "item-1",
             quantity: 3,
-            basePriceCents: 1500,
-            modifiers: [{ optionId: "mod-1", priceDeltaCents: 200 }],
+            modifiers: [{ optionId: "mod-1" }],
             notes: "",
           },
         ],

@@ -24,6 +24,8 @@ export interface OrderCalculation {
   subtotalCents: number;
   deliveryFeeCents: number;
   taxCents: number;
+  tipCents: number;
+  discountCents: number;
   totalCents: number;
 }
 
@@ -65,12 +67,18 @@ export function calculateTax(_subtotalCents: number): number {
 
 /**
  * Calculate full order totals
+ * totalCents = subtotal + delivery + tax + tip - discount (min 0)
  */
 export function calculateOrderTotals(
   validatedItems: ValidatedCartItem[],
   deliveryFeeCentsParam: number = DEFAULT_DELIVERY_FEE_CENTS,
-  freeDeliveryThresholdCents: number = DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS
-): Pick<OrderCalculation, "subtotalCents" | "deliveryFeeCents" | "taxCents" | "totalCents"> {
+  freeDeliveryThresholdCents: number = DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS,
+  tipCents: number = 0,
+  discountCents: number = 0
+): Pick<
+  OrderCalculation,
+  "subtotalCents" | "deliveryFeeCents" | "taxCents" | "tipCents" | "discountCents" | "totalCents"
+> {
   const subtotalCents = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
 
   const deliveryFeeCents = calculateDeliveryFee(
@@ -79,22 +87,29 @@ export function calculateOrderTotals(
     freeDeliveryThresholdCents
   );
   const taxCents = calculateTax(subtotalCents);
-  const totalCents = subtotalCents + deliveryFeeCents + taxCents;
+  const totalCents = Math.max(
+    0,
+    subtotalCents + deliveryFeeCents + taxCents + tipCents - discountCents
+  );
 
   return {
     subtotalCents,
     deliveryFeeCents,
     taxCents,
+    tipCents,
+    discountCents,
     totalCents,
   };
 }
 
 /**
- * Create Stripe line items from validated cart items
+ * Create Stripe line items from validated cart items.
+ * Note: Discounts are applied via Stripe's `discounts` param on the session, not as line items.
  */
 export function createStripeLineItems(
   validatedItems: ValidatedCartItem[],
-  deliveryFeeCents: number
+  deliveryFeeCents: number,
+  tipCents: number = 0
 ): Array<{
   price_data: {
     currency: string;
@@ -133,6 +148,21 @@ export function createStripeLineItems(
         product_data: {
           name: "Delivery Fee",
           description: "Saturday delivery to your address",
+        },
+      },
+      quantity: 1,
+    });
+  }
+
+  // Add tip as a line item if present
+  if (tipCents > 0) {
+    lineItems.push({
+      price_data: {
+        currency: "usd",
+        unit_amount: tipCents,
+        product_data: {
+          name: "Tip",
+          description: "Thank you for your generosity",
         },
       },
       quantity: 1,

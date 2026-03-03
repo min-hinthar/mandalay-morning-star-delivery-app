@@ -7,11 +7,9 @@ export const checkoutItemSchema = z.object({
     .int()
     .min(1, "Quantity must be at least 1")
     .max(50, "Maximum quantity is 50"),
-  basePriceCents: z.number().int().min(0, "Invalid price"),
   modifiers: z.array(
     z.object({
       optionId: z.string().uuid("Invalid modifier option ID"),
-      priceDeltaCents: z.number().int("Invalid modifier price"),
     })
   ),
   notes: z.string().max(500, "Notes too long").optional(),
@@ -27,6 +25,9 @@ export const createCheckoutSessionSchema = z.object({
   timeWindowEnd: z.string().regex(/^\d{2}:\d{2}$/, "Invalid time format (HH:MM)"),
   items: z.array(checkoutItemSchema).min(1, "Cart cannot be empty").max(50, "Too many items"),
   customerNotes: z.string().max(1000, "Notes too long").optional(),
+  tipCents: z.number().int().min(0).max(100_000, "Maximum tip is $1000").optional(),
+  promoCode: z.string().max(50, "Promo code too long").optional(),
+  deliveryInstructions: z.string().max(500, "Delivery instructions too long").optional(),
 });
 
 export type CreateCheckoutSessionInput = z.infer<typeof createCheckoutSessionSchema>;

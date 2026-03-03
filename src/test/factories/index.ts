@@ -125,17 +125,16 @@ export function createValidatedCartItem(
 
 /**
  * Create checkout item input (for validateCartItems tests)
+ * CHKT-01: No client-sent prices — server resolves from DB
  */
 export function createCheckoutItemInput(
   menuItemId: string,
   quantity = 1,
-  modifiers: Array<{ optionId: string; priceDeltaCents: number }> = [],
-  basePriceCents = 1500
+  modifiers: Array<{ optionId: string }> = []
 ) {
   return {
     menuItemId,
     quantity,
-    basePriceCents,
     modifiers,
     notes: "",
   };
