@@ -63,12 +63,12 @@
 - [x] **Phase 80: Route & Driver Assignment** - Visual dashboard for creating routes and assigning drivers to orders (completed 2026-03-02)
 - [x] **Phase 81: Customer Pre-Checkout Gate** - Saturday-only messaging and cutoff enforcement across customer pages (completed 2026-03-02)
 - [x] **Phase 82: Email Reliability** - Failure tracking, retry, webhook verification, and self-service recovery (completed 2026-03-02)
-- [ ] **Phase 83: Driver Simplification** - Simple mode for non-technical family drivers (name, address, phone, deliver)
-- [ ] **Phase 84: Production Hardening** - Indexes, N+1 fixes, rate limit tuning, and pre-launch checklist
+- [x] **Phase 83: Driver Simplification** - Simple mode for non-technical family drivers (name, address, phone, deliver) (4/4 plans) -- completed 2026-03-02
+- [x] **Phase 84: Production Hardening** - Indexes, N+1 fixes, rate limit tuning, and pre-launch checklist (4/4 plans) -- completed 2026-03-02
 - [x] **Phase 85: Phase 77 Verification & Bug Traceability** - Verify bug fixes, create VERIFICATION.md, update traceability (gap closure) (completed 2026-03-02)
 - [x] **Phase 86: Deferred Integration & Tech Debt Cleanup** - Wire remaining cutoff callsites to DB, fix SUMMARY frontmatter (gap closure) (completed 2026-03-02)
 - [x] **Phase 87: Fix Code Gaps (GATE-03 + DRV-05)** - Wire cart drawer cutoff to DB values, add simple mode page guard (gap closure) (completed 2026-03-03)
-- [ ] **Phase 88: Phase 83 & 84 Verification** - Create VERIFICATION.md for Phases 83/84, update traceability (gap closure)
+- [x] **Phase 88: Phase 83 & 84 Verification** - Create VERIFICATION.md for Phases 83/84, update traceability (gap closure) (2/2 plans) -- completed 2026-03-03
 
 ## Phase Details
 
@@ -167,7 +167,12 @@ Plans:
   3. Complex UI sections (route optimization, exception modals, earnings dashboard) are hidden in simple mode
   4. Simple mode preference persists across devices (stored server-side, not localStorage)
   5. Offline instructions are displayed when connectivity is lost ("Route saved locally. Will sync when reconnected.")
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [x] 83-01-PLAN.md -- DB migration + SimpleModeProvider + nav filtering
+- [x] 83-02-PLAN.md -- SimpleHome + SimpleModeToggle
+- [x] 83-03-PLAN.md -- SimpleStopView + DeliveryConfirmDialog + page wiring
+- [x] 83-04-PLAN.md -- SimpleOfflineOverlay + DriverShell wiring
 
 ### Phase 84: Production Hardening
 **Goal**: The app handles a full Saturday cycle (50 orders, 4 drivers) without performance degradation, data errors, or unmonitored failures
@@ -179,7 +184,12 @@ Plans:
   3. Admin pagination shows "Showing X of Y" with correct totals on all list pages
   4. Database indexes exist for high-frequency query patterns (orders by status/date, unassigned orders, notification logs, routes by date)
   5. All critical API paths have specific error handling with correct HTTP status codes and Sentry context
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [x] 84-01-PLAN.md -- Production indexes (HARD-05)
+- [x] 84-02-PLAN.md -- Rate limiting + error context + Sentry (HARD-01, HARD-02, HARD-07)
+- [x] 84-03-PLAN.md -- N+1 fix + admin pagination (HARD-03, HARD-04)
+- [x] 84-04-PLAN.md -- Modifier validation + bulk limits (HARD-06)
 
 ### Phase 87: Fix Code Gaps (GATE-03 + DRV-05)
 **Goal:** Cart drawer uses DB-sourced cutoff values and /driver/earnings is guarded in simple mode
@@ -205,7 +215,10 @@ Plans:
   2. VERIFICATION.md exists for Phase 84 with pass/fail for HARD-01 through HARD-07
   3. REQUIREMENTS.md traceability shows DRV-01–05 and HARD-01–07 as Complete
   4. Phases 83 and 84 checked off in ROADMAP.md
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [x] 88-01-PLAN.md -- Verify DRV-01-05 and HARD-01-07, create VERIFICATION.md files
+- [x] 88-02-PLAN.md -- Update REQUIREMENTS.md traceability + ROADMAP.md checkoff
 
 ### Phase 85: Phase 77 Verification & Bug Traceability
 **Goal**: All 8 BUG requirements are formally verified with evidence, traceability table reflects completion, and Phase 77 documentation gaps are closed
@@ -249,12 +262,12 @@ Phase 88 depends on Phase 87 (DRV-05 fix must happen before verification).
 | 80. Route & Driver Assignment | 4/4 | Complete    | 2026-03-02 | - |
 | 81. Customer Pre-Checkout Gate | 3/3 | Complete    | 2026-03-02 | - |
 | 82. Email Reliability | 4/4 | Complete    | 2026-03-03 | - |
-| 83. Driver Simplification | v1.9 | 0/TBD | Not started | - |
-| 84. Production Hardening | v1.9 | 0/TBD | Not started | - |
+| 83. Driver Simplification | v1.9 | 4/4 | Complete | 2026-03-02 |
+| 84. Production Hardening | v1.9 | 4/4 | Complete | 2026-03-02 |
 | 85. Phase 77 Verification & Bug Traceability | 2/2 | Complete    | 2026-03-02 | - |
 | 86. Deferred Integration & Tech Debt Cleanup | 2/2 | Complete   | 2026-03-02 | - |
 | 87. Fix Code Gaps (GATE-03 + DRV-05) | v1.9 | Complete    | 2026-03-03 | - |
-| 88. Phase 83 & 84 Verification | v1.9 | 0/TBD | Not started | - |
+| 88. Phase 83 & 84 Verification | v1.9 | 2/2 | Complete | 2026-03-03 |
 
 ### Historical Progress
 
