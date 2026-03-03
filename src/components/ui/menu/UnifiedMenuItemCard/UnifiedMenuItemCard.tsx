@@ -150,6 +150,8 @@ export function UnifiedMenuItemCard({
     handleMouseLeave,
     handleTiltTouchMove,
     resetTilt,
+    handleFocus,
+    handleBlur,
   } = useTiltEffect({ enabled: shouldEnableTilt, cardRef });
 
   // Card interactions (click, add, increment, decrement, favorite, long-press)
@@ -190,6 +192,8 @@ export function UnifiedMenuItemCard({
         "relative group cursor-pointer",
         config.rounded,
         "overflow-visible",
+        // Visible focus ring for keyboard navigation (CUX-14)
+        "outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
         // Add tilt-container for Safari stacking context isolation
         shouldEnableTilt && "tilt-container",
         item.isSoldOut && "opacity-60 cursor-not-allowed",
@@ -199,6 +203,8 @@ export function UnifiedMenuItemCard({
       onMouseMove={handleMouseMove}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
       onTouchMove={handleTouchMove}
