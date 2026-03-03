@@ -13,7 +13,7 @@
  * Phase 9 Plan 01
  */
 
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { m } from "framer-motion";
 import { Clock, ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -69,6 +69,19 @@ export function TimeStepV8({ className, onNext, onBack, timeWindows = [] }: Time
 
   // Memoize available dates to prevent recalculation on every render
   const availableDates = useMemo(() => getAvailableDeliveryDates(), []);
+
+  // Auto-select first available delivery date when none selected
+  useEffect(() => {
+    if (delivery) return; // Already selected, don't override user choice
+    const firstAvailable = availableDates.find((d) => !d.cutoffPassed);
+    if (firstAvailable && timeWindows.length > 0) {
+      setDelivery({
+        date: firstAvailable.dateString,
+        windowStart: timeWindows[0].start,
+        windowEnd: timeWindows[0].end,
+      });
+    }
+  }, [delivery, availableDates, timeWindows, setDelivery]);
 
   const handleSelectionChange = useCallback(
     (selection: DeliverySelection) => {
