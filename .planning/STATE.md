@@ -3,27 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Production-Grade Launch MVP
 status: active
-stopped_at: Phase 92 context gathered
-last_updated: "2026-03-03T19:18:53.049Z"
-last_activity: 2026-03-03 — Cart price refresh, duplicate order detection, guest checkout flow
+stopped_at: Completed 92-04-PLAN.md
+last_updated: "2026-03-03T19:47:25Z"
+last_activity: 2026-03-03 — Modifier scroll overflow fade indicator in ItemDetailSheet
 progress:
   total_phases: 7
-  completed_phases: 4
-  total_plans: 14
-  completed_plans: 14
----
-
----
-gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Production-Grade Launch MVP
-status: active
-last_updated: "2026-03-03"
-progress:
-  total_phases: 7
-  completed_phases: 4
-  total_plans: 14
-  completed_plans: 12
+  completed_phases: 5
+  total_plans: 18
+  completed_plans: 18
+  percent: 100
 ---
 
 # Project State
@@ -33,16 +21,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v2.0 Production-Grade Launch MVP — Phase 91 in progress
+**Current focus:** v2.0 Production-Grade Launch MVP — Phase 92 complete
 
 ## Current Position
 
-Phase: 91 of 95 (Checkout & Payment Hardening) - COMPLETE
+Phase: 92 of 95 (Customer UX: Discovery & Shopping) - COMPLETE
 Plan: 4/4 completed
-Status: Phase 91 complete
-Last activity: 2026-03-03 — Cart price refresh, duplicate order detection, guest checkout flow
+Status: Phase 92 complete
+Last activity: 2026-03-03 — Modifier scroll overflow fade indicator in ItemDetailSheet
 
-Progress: [######░░░░] 57% (4/7 phases)
+Progress: [██████████] 100% (5/7 phases)
 
 ## Performance Metrics
 
@@ -71,7 +59,8 @@ Progress: [######░░░░] 57% (4/7 phases)
 | v2.0 91-02         | 1      | 1     | 10 min   |
 | v2.0 91-03         | 1      | 1     | 20 min   |
 | v2.0 91-04         | 1      | 1     | 7 min    |
-| **Total**          | **95** | **364** | **41 days** |
+| v2.0 92-02         | 1      | 1     | 8 min    |
+| **Total**          | **95** | **365** | **41 days** |
 
 ## Accumulated Context
 
@@ -90,6 +79,14 @@ Progress: [######░░░░] 57% (4/7 phases)
 - useCartStore.getState() for non-hook access inside fetch handler — safe pattern for event callbacks
 - Duplicate order check uses delivery.date from checkout store (not gate.deliveryDate) — matches actual selection
 - Dual-layer duplicate detection: useExistingOrder (client warning) + server DUPLICATE_ORDER (enforcement)
+
+### Phase 92 Decisions
+- setTimeout chain replaces setInterval for dynamic 10s/60s polling based on cutoff proximity
+- Hero delivery date text placed between CTA and countdown for visual hierarchy
+- Auto-select only fires when delivery is null -- preserves user manual selection
+- max-h-[50vh] constrains modifier container to trigger overflow on items with many modifier groups
+- 4px threshold for isAtBottom handles sub-pixel rounding across browsers
+- from-surface-primary token for gradient ensures dark mode compatibility (#fff light / #000 dark)
 
 ### Phase 94 Decisions
 - useState<Set<string>> for collapse state (not Radix Collapsible — overkill for toggle)
@@ -133,7 +130,7 @@ Progress: [######░░░░] 57% (4/7 phases)
 
 ## Session Continuity
 
-Last session: 2026-03-03T19:18:53.045Z
-Stopped at: Phase 92 context gathered
-Resume file: .planning/phases/92-customer-ux-discovery-shopping/92-CONTEXT.md
-Next action: Begin next phase in v2.0 milestone
+Last session: 2026-03-03T19:46:51Z
+Stopped at: Completed 92-02-PLAN.md
+Resume file: .planning/phases/92-customer-ux-discovery-shopping/92-03-PLAN.md
+Next action: Execute 92-03 plan
