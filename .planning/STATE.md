@@ -6,9 +6,9 @@ status: active
 last_updated: "2026-03-03"
 progress:
   total_phases: 7
-  completed_phases: 1
-  total_plans: 4
-  completed_plans: 4
+  completed_phases: 2
+  total_plans: 8
+  completed_plans: 8
 ---
 
 # Project State
@@ -18,16 +18,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v2.0 Production-Grade Launch MVP — Phase 89 complete, Phase 90 next
+**Current focus:** v2.0 Production-Grade Launch MVP — Phase 90 complete, Phase 91 next
 
 ## Current Position
 
-Phase: 89 of 95 (Critical Bug Fixes) - COMPLETE
+Phase: 90 of 95 (Menu & Photo Pipeline) - COMPLETE
 Plan: 4/4 completed
 Status: Phase complete
-Last activity: 2026-03-03 — All 7 bugs fixed, verified, committed
+Last activity: 2026-03-03 — Photo pipeline, allergen dedup, seed script, bulk upload all done
 
-Progress: [#░░░░░░░░░] 14% (1/7 phases)
+Progress: [##░░░░░░░░] 29% (2/7 phases)
 
 ## Performance Metrics
 
@@ -51,10 +51,19 @@ Progress: [#░░░░░░░░░] 14% (1/7 phases)
 | v1.7               | 9      | 32    | 3 days   |
 | v1.8               | 10     | 25    | 10 days  |
 | v1.9               | 12     | 38    | 3 days   |
-| v2.0 (in progress) | 1      | 4     | 1 day    |
-| **Total**          | **89** | **354** | **41 days** |
+| v2.0 (in progress) | 2      | 8     | 1 day    |
+| **Total**          | **90** | **358** | **41 days** |
 
 ## Accumulated Context
+
+### Phase 90 Decisions
+- Server-side sharp for WebP conversion (not client-side Canvas) — consistent output across devices
+- 4:3 aspect ratio at 800x600 standardized for all menu photos
+- Removed Google Drive URL from photo management — Supabase Storage is sole source
+- Slug-based photo matching: filename minus extension = menu item slug
+- Allergen dedup: removed redundant contains_* tags, canonical allergens_enum is single source
+- Bulk upload threshold: >1 files triggers BulkUploadMatcher modal
+- Photo seed only updates image_url when null or contains "fallback"
 
 ### Phase 89 Decisions
 - Idempotency key uses only order ID (no attempt counter) — Stripe handles concurrent retries
@@ -81,6 +90,6 @@ Progress: [#░░░░░░░░░] 14% (1/7 phases)
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 90 context gathered
-Resume file: .planning/phases/90-menu-photo-pipeline/90-CONTEXT.md
-Next action: /gsd:plan-phase 90
+Stopped at: Phase 90 complete
+Resume file: .planning/phases/90-menu-photo-pipeline/90-04-SUMMARY.md
+Next action: /gsd:plan-phase 91

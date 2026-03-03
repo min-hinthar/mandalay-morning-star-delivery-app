@@ -109,7 +109,12 @@
   4. Admin can mark menu items as inactive so they disappear from the customer-facing menu
   5. Each menu item has a single authoritative allergen source (no tag/allergen overlap)
   6. All 53 items have at least a fallback photo seeded from `data/menu-photos/` into Supabase Storage
-**Plans**: TBD
+**Plans**: 4/4 complete
+  - Plan 01 (Wave 1): MENU-03, MENU-04 - Server-side sharp WebP processing + image_updated_at tracking
+  - Plan 02 (Wave 1): MENU-05, MENU-06 - Allergen dedup + inactive item filtering verification
+  - Plan 03 (Wave 1): MENU-07 - Photo seed script with slug-based matching
+  - Plan 04 (Wave 2): MENU-01, MENU-02, ADMIN-02 - BulkUploadMatcher + admin photo management
+  - Completed: 2026-03-03
 
 ### Phase 91: Checkout & Payment Hardening
 **Goal**: Checkout is airtight -- server-authoritative pricing, graceful conflict resolution, and revenue features (tips, promos) ready for launch
@@ -189,12 +194,12 @@
 | v1.7 Deployment        | 58-66  | 32    | 2026-02-16 |
 | v1.8 Hardening         | 67-76  | 25    | 2026-02-26 |
 | v1.9 Launch-Ready MVP  | 77-88  | 38    | 2026-03-03 |
-| **Total shipped**      | **88** | **350** |          |
+| **Total shipped**      | **88** | **350** |            |
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 89. Critical Bug Fixes | v2.0 | 4/4 | Complete | 2026-03-03 |
-| 90. Menu & Photo Pipeline | v2.0 | 0/TBD | Not started | - |
+| 90. Menu & Photo Pipeline | v2.0 | 4/4 | Complete | 2026-03-03 |
 | 91. Checkout & Payment Hardening | v2.0 | 0/TBD | Not started | - |
 | 92. Customer UX - Discovery & Shopping | v2.0 | 0/TBD | Not started | - |
 | 93. Customer UX - Engagement & Accessibility | v2.0 | 0/TBD | Not started | - |
