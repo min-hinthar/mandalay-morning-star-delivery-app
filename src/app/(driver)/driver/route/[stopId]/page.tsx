@@ -30,13 +30,13 @@ interface StopQueryResult {
       phone: string | null;
     };
     address: {
-      line1: string;
-      line2: string | null;
+      line_1: string;
+      line_2: string | null;
       city: string;
       state: string;
-      zip_code: string;
-      latitude: number | null;
-      longitude: number | null;
+      postal_code: string;
+      lat: number | null;
+      lng: number | null;
     };
     items: Array<{
       id: string;
@@ -108,18 +108,18 @@ async function getStopDetail(stopId: string) {
         id,
         delivery_window_start,
         delivery_window_end,
-        customer:profiles!orders_customer_id_fkey (
+        customer:profiles!orders_user_id_fkey (
           full_name,
           phone
         ),
-        address:addresses!orders_delivery_address_id_fkey (
-          line1,
-          line2,
+        address:addresses!orders_address_id_fkey (
+          line_1,
+          line_2,
           city,
           state,
-          zip_code,
-          latitude,
-          longitude
+          postal_code,
+          lat,
+          lng
         ),
         items:order_items (
           id,
@@ -219,13 +219,13 @@ async function StopDetailPageContent({ params }: PageProps) {
             phone: stop.order?.customer?.phone ?? null,
           }}
           address={{
-            line1: stop.order?.address?.line1 ?? "",
-            line2: stop.order?.address?.line2 ?? null,
+            line1: stop.order?.address?.line_1 ?? "",
+            line2: stop.order?.address?.line_2 ?? null,
             city: stop.order?.address?.city ?? "",
             state: stop.order?.address?.state ?? "",
-            zipCode: stop.order?.address?.zip_code ?? "",
-            latitude: stop.order?.address?.latitude ?? null,
-            longitude: stop.order?.address?.longitude ?? null,
+            zipCode: stop.order?.address?.postal_code ?? "",
+            latitude: stop.order?.address?.lat ?? null,
+            longitude: stop.order?.address?.lng ?? null,
           }}
           timeWindow={{
             start: stop.order?.delivery_window_start ?? null,

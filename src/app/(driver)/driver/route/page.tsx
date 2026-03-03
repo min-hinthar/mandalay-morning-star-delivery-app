@@ -98,8 +98,8 @@ async function getActiveRoute() {
         phone: string | null;
       };
       address: {
-        line1: string;
-        line2: string | null;
+        line_1: string;
+        line_2: string | null;
         city: string;
         state: string;
       };
@@ -118,13 +118,13 @@ async function getActiveRoute() {
         id,
         delivery_window_start,
         delivery_window_end,
-        customer:profiles!orders_customer_id_fkey (
+        customer:profiles!orders_user_id_fkey (
           full_name,
           phone
         ),
-        address:addresses!orders_delivery_address_id_fkey (
-          line1,
-          line2,
+        address:addresses!orders_address_id_fkey (
+          line_1,
+          line_2,
           city,
           state
         )
@@ -150,8 +150,8 @@ async function getActiveRoute() {
       },
       phone: stop.order?.customer?.phone ?? null,
       address: {
-        line1: stop.order?.address?.line1 ?? "",
-        line2: stop.order?.address?.line2 ?? null,
+        line1: stop.order?.address?.line_1 ?? "",
+        line2: stop.order?.address?.line_2 ?? null,
         city: stop.order?.address?.city ?? "",
         state: stop.order?.address?.state ?? "",
       },

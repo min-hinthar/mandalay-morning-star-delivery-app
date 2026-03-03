@@ -20,7 +20,10 @@ declare global {
 declare const self: WorkerGlobalScope & typeof globalThis;
 
 // Cache version for invalidation control (OFFLINE-12)
-const CACHE_VERSION = "v1";
+// Bumped v1→v2 to bust stale opaque failure responses cached before the
+// referrerPolicy="no-referrer" fix (commit e3ae7892). Hard reload bypassed
+// the SW and worked; normal loads served the bad CacheFirst entry.
+const CACHE_VERSION = "v2";
 
 // Navigation handler - NetworkFirst with 3s timeout for page navigations
 const navigationHandler = new NetworkFirst({
