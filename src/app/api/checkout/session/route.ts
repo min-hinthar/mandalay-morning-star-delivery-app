@@ -27,6 +27,30 @@ function errorResponse(
   return NextResponse.json({ error }, { status });
 }
 
+// BUG-03 FIX: Independent cleanup — each delete wrapped in try/catch
+// so partial cleanup failures are logged but don't crash the cleanup chain
+async function cleanupOrder(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  orderId: string,
+  orderItemIds: string[]
+) {
+  try {
+    await supabase.from("order_item_modifiers").delete().in("order_item_id", orderItemIds);
+  } catch (e) {
+    logger.exception(e, { api: "checkout-session", cleanup: "order_item_modifiers", orderId });
+  }
+  try {
+    await supabase.from("order_items").delete().eq("order_id", orderId);
+  } catch (e) {
+    logger.exception(e, { api: "checkout-session", cleanup: "order_items", orderId });
+  }
+  try {
+    await supabase.from("orders").delete().eq("id", orderId);
+  } catch (e) {
+    logger.exception(e, { api: "checkout-session", cleanup: "orders", orderId });
+  }
+}
+
 export async function POST(request: Request) {
   try {
     // Parse and validate request body (structural validation only)
@@ -280,9 +304,25 @@ export async function POST(request: Request) {
       return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
     }
 
-    const order = { id: (rpcResult as { order_id: string }).order_id } as OrdersRow;
-    const orderItemIds = (rpcResult as { order_item_ids: string[] }).order_item_ids;
-    const orderItems = orderItemIds.map((id) => ({ id })) as OrderItemsRow[];
+    // BUG-04 FIX: Type-safe RPC result extraction (no assertion crash on unexpected shape)
+    const rpcData = rpcResult as Record<string, unknown> | null;
+    const orderId = typeof rpcData?.order_id === "string" ? rpcData.order_id : null;
+    const orderItemIdsParsed = Array.isArray(rpcData?.order_item_ids)
+      ? (rpcData.order_item_ids as string[])
+      : null;
+
+    if (!orderId || !orderItemIdsParsed) {
+      logger.exception(new Error("RPC create_order_with_items returned unexpected shape"), {
+        userId: user.id,
+        api: "checkout-session",
+        flowId: "checkout",
+        rpcResult: JSON.stringify(rpcResult),
+      });
+      return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
+    }
+
+    const order = { id: orderId } as OrdersRow;
+    const orderItems = orderItemIdsParsed.map((id) => ({ id })) as OrderItemsRow[];
 
     // Get or create Stripe customer
     const { data: profile } = await supabase
@@ -306,31 +346,15 @@ export async function POST(request: Request) {
       .in("id", menuItemIds);
 
     if (freshMenuError) {
-      // BUG-01 FIX: Use .in() with proper order_item_id array (was broken .eq())
-      await supabase
-        .from("order_item_modifiers")
-        .delete()
-        .in(
-          "order_item_id",
-          orderItems.map((oi) => oi.id)
-        );
-      await supabase.from("order_items").delete().eq("order_id", order.id);
-      await supabase.from("orders").delete().eq("id", order.id);
+      // BUG-03 FIX: Independent cleanup — each delete wrapped in try/catch
+      await cleanupOrder(supabase, order.id, orderItems.map((oi) => oi.id));
       return errorResponse("INTERNAL_ERROR", "Failed to re-validate menu items", 500);
     }
 
     const unavailableItems = (freshMenuItems ?? []).filter((item) => !item.is_active);
     if (unavailableItems.length > 0) {
-      // Clean up the order we already created — items are no longer available
-      await supabase
-        .from("order_item_modifiers")
-        .delete()
-        .in(
-          "order_item_id",
-          orderItems.map((oi) => oi.id)
-        );
-      await supabase.from("order_items").delete().eq("order_id", order.id);
-      await supabase.from("orders").delete().eq("id", order.id);
+      // BUG-03 FIX: Independent cleanup — each delete wrapped in try/catch
+      await cleanupOrder(supabase, order.id, orderItems.map((oi) => oi.id));
 
       const unavailableIds = unavailableItems.map((i) => i.id);
       const unavailableNames = validation.items
