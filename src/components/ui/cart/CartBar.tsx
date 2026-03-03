@@ -7,6 +7,7 @@
  * Features:
  * - Appears when cart has items, slides away when empty
  * - Free delivery progress indicator with animated truck
+ * - Minimum order warning with disabled checkout
  * - Item count badge with bounce animation
  * - Price ticker for total
  * - Opens CartDrawer on click
@@ -29,6 +30,7 @@ import { PriceTicker } from "@/components/ui/PriceTicker";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { zIndex } from "@/lib/design-system/tokens/z-index";
+import { BUSINESS_RULES_DEFAULTS } from "@/lib/settings/business-rules";
 import {
   spring,
   cartBarSlideUp,
@@ -46,6 +48,8 @@ export interface CartBarProps {
   className?: string;
   /** Show checkout button (default: true) */
   showCheckoutButton?: boolean;
+  /** Minimum order amount in cents (default: BUSINESS_RULES_DEFAULTS.minimumOrderCents) */
+  minimumOrderCents?: number;
 }
 
 // ============================================
@@ -130,10 +134,20 @@ function FreeDeliveryBanner() {
 // MAIN COMPONENT
 // ============================================
 
-export function CartBar({ className, showCheckoutButton = true }: CartBarProps) {
+export function CartBar({
+  className,
+  showCheckoutButton = true,
+  minimumOrderCents = BUSINESS_RULES_DEFAULTS.minimumOrderCents,
+}: CartBarProps) {
   const router = useRouter();
-  const { isEmpty, itemCount, estimatedTotal, amountToFreeDelivery, freeDeliveryThresholdCents } =
-    useCart();
+  const {
+    isEmpty,
+    itemCount,
+    itemsSubtotal,
+    estimatedTotal,
+    amountToFreeDelivery,
+    freeDeliveryThresholdCents,
+  } = useCart();
   const { open } = useCartDrawer();
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const playSound = usePlaySound();
@@ -162,6 +176,10 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
     prevCountRef.current = itemCount;
   }, [itemCount, mounted, playSound]);
 
+  // Minimum order shortfall
+  const shortfall = Math.max(0, minimumOrderCents - itemsSubtotal);
+  const belowMinimum = shortfall > 0;
+
   // Calculate delivery progress
   const progressPercent = Math.min(
     100,
@@ -176,10 +194,11 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
   }, [open, playSound]);
 
   const handleCheckout = useCallback(() => {
+    if (belowMinimum) return;
     playSound("swoosh");
     triggerHaptic("medium");
     router.push("/checkout");
-  }, [router, playSound]);
+  }, [belowMinimum, router, playSound]);
 
   // Don't render until mounted (hydration safety)
   if (!mounted) return null;
@@ -217,6 +236,21 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
           ) : (
             <FreeDeliveryBanner />
           )}
+
+          {/* Minimum order warning */}
+          <AnimatePresence>
+            {belowMinimum && (
+              <m.p
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+                className="text-xs text-status-warning text-center px-4 pb-1"
+              >
+                ${(shortfall / 100).toFixed(2)} more to reach $
+                {(minimumOrderCents / 100).toFixed(0)} minimum
+              </m.p>
+            )}
+          </AnimatePresence>
 
           {/* Main content row */}
           <m.div
@@ -292,7 +326,11 @@ export function CartBar({ className, showCheckoutButton = true }: CartBarProps) 
                 <Button
                   size="sm"
                   onClick={handleCheckout}
-                  className="bg-amber-500 text-text-inverse hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 font-semibold shadow-sm"
+                  disabled={belowMinimum}
+                  className={cn(
+                    "bg-amber-500 text-text-inverse hover:bg-amber-600 dark:bg-amber-600 dark:hover:bg-amber-500 font-semibold shadow-sm",
+                    belowMinimum && "opacity-50 cursor-not-allowed"
+                  )}
                 >
                   Checkout
                 </Button>
