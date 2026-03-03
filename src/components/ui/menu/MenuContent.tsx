@@ -7,7 +7,8 @@
  * Features:
  * - Uses useMenu hook for data fetching
  * - Uses useFavorites hook for favorite state
- * - Composes: CategoryTabs, MenuSection, MenuGrid, ItemDetailSheet
+ * - Uses useMenuFilters for text search, dietary filters, and sold-out sorting
+ * - Composes: MenuHeader, CategoryTabs, MenuSection, MenuGrid, ItemDetailSheet
  * - Shows MenuSkeleton while loading
  * - Error state with retry button
  * - Opens item modal from URL param (?item=slug) for command palette integration
@@ -23,6 +24,7 @@ import { m } from "framer-motion";
 import { useMenu } from "@/lib/hooks/useMenu";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useCart } from "@/lib/hooks/useCart";
+import { useMenuFilters } from "@/lib/hooks/useMenuFilters";
 import { useCustomerOfflineSync } from "@/lib/hooks/useCustomerOfflineSync";
 import { menuCache } from "@/lib/services/customer-offline-store";
 import { cn } from "@/lib/utils/cn";
@@ -31,6 +33,7 @@ import type { SelectedModifier } from "@/lib/utils/price";
 
 import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
 import { DeliveryBanner } from "@/components/ui/delivery";
+import { MenuHeader } from "./MenuHeader";
 import { CategoryTabs } from "./CategoryTabs";
 import { MenuSection } from "./MenuSection";
 import { MenuGrid } from "./MenuGrid";
@@ -132,6 +135,19 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
   const displayCategories = usingCachedData ? cachedCategories : categories;
 
   // ============================================
+  // FILTERING
+  // ============================================
+
+  const { setQuery, dietaryFilters, setDietaryFilters, hasActiveFilters, clearFilters, filterItems } =
+    useMenuFilters();
+
+  // Apply text + dietary + sold-out filtering
+  const filteredCategories = useMemo(
+    () => filterItems(displayCategories),
+    [filterItems, displayCategories]
+  );
+
+  // ============================================
   // FAVORITES
   // ============================================
 
@@ -141,15 +157,15 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
   // Create favorites Set for quick lookup
   const favoritesSet = useMemo(() => new Set(favorites), [favorites]);
 
-  // Memoize category tabs data transformation
+  // Memoize category tabs data transformation (use filtered categories)
   const tabCategories = useMemo(
     () =>
-      displayCategories.map((cat: MenuCategory) => ({
+      filteredCategories.map((cat: MenuCategory) => ({
         slug: cat.slug,
         name: cat.name,
         nameEn: cat.name,
       })),
-    [displayCategories]
+    [filteredCategories]
   );
 
   // ============================================
@@ -194,7 +210,7 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
     const itemSlug = searchParams.get("item");
 
     if (itemSlug) {
-      // Find the item across all categories
+      // Find the item across all categories (search unfiltered to find any item)
       const item = displayCategories
         .flatMap((c: MenuCategory) => c.items ?? [])
         .find((i: MenuItem) => i.slug === itemSlug);
@@ -225,12 +241,12 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
         basePriceCents: item.basePriceCents,
         imageUrl: item.imageUrl,
         quantity,
-        modifiers: modifiers.map((m) => ({
-          groupId: m.groupId,
-          groupName: m.groupName,
-          optionId: m.optionId,
-          optionName: m.optionName,
-          priceDeltaCents: m.priceDeltaCents,
+        modifiers: modifiers.map((mod) => ({
+          groupId: mod.groupId,
+          groupName: mod.groupName,
+          optionId: mod.optionId,
+          optionName: mod.optionName,
+          priceDeltaCents: mod.priceDeltaCents,
         })),
         notes,
       });
@@ -263,16 +279,16 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
           className
         )}
       >
-        <div className="text-4xl mb-4">:(</div>
-        <h2 className="text-lg font-semibold text-text-primary mb-2">Failed to load menu</h2>
-        <p className="text-text-muted mb-4 max-w-sm">
+        <div className="mb-4 text-4xl">:(</div>
+        <h2 className="mb-2 text-lg font-semibold text-text-primary">Failed to load menu</h2>
+        <p className="mb-4 max-w-sm text-text-muted">
           We couldn&apos;t load the menu right now. Please check your connection and try again.
         </p>
         <button
           onClick={handleRetry}
           className={cn(
-            "px-6 py-2.5 rounded-full",
-            "bg-primary text-text-inverse font-medium",
+            "rounded-full px-6 py-2.5",
+            "bg-primary font-medium text-text-inverse",
             "hover:bg-primary/90 active:scale-95",
             "transition-all duration-150",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
@@ -285,7 +301,7 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
   }
 
   // ============================================
-  // EMPTY STATE
+  // EMPTY STATE (no data at all)
   // ============================================
 
   if (displayCategories.length === 0) {
@@ -297,9 +313,9 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
           className
         )}
       >
-        <div className="text-4xl mb-4">:(</div>
-        <h2 className="text-lg font-semibold text-text-primary mb-2">Menu Coming Soon</h2>
-        <p className="text-text-muted max-w-sm">
+        <div className="mb-4 text-4xl">:(</div>
+        <h2 className="mb-2 text-lg font-semibold text-text-primary">Menu Coming Soon</h2>
+        <p className="max-w-sm text-text-muted">
           Our menu is being prepared. Check back soon for delicious Burmese cuisine!
         </p>
       </div>
@@ -315,7 +331,15 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
 
   return (
     <div className={cn("relative", className)}>
-      {/* Delivery Banner - sticky below MenuHeader (top-14) */}
+      {/* Menu Header: always-visible search + collapsible dietary chips */}
+      <MenuHeader
+        onQueryChange={setQuery}
+        onSelectItem={handleSelectItem}
+        dietaryFilters={dietaryFilters}
+        onDietaryChange={setDietaryFilters}
+      />
+
+      {/* Delivery Banner */}
       <DeliveryBanner cutoffDay={cutoffDay ?? 5} cutoffHour={cutoffHour ?? 15} />
 
       {/* Category Tabs */}
@@ -323,35 +347,58 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
 
       {/* Stale Badge - shown above menu grid when offline with cached data */}
       {showStaleBadge && (
-        <div className="px-4 pt-2 pb-1">
+        <div className="px-4 pb-1 pt-2">
           <StaleBadge cachedAt={cachedAt} />
         </div>
       )}
 
-      {/* Menu Sections with scroll-triggered animations */}
-      <div className="space-y-8 px-4 pb-8 pt-2">
-        {displayCategories.map((category: MenuCategory) => (
-          <AnimatedSection key={category.slug} as="div">
-            <m.div variants={itemVariants}>
-              <MenuSection
-                category={{
-                  slug: category.slug,
-                  name: category.name,
-                  nameEn: category.name,
-                }}
-              >
-                <MenuGrid
-                  items={category.items ?? []}
-                  categorySlug={category.slug}
-                  onSelectItem={handleSelectItem}
-                  onFavoriteToggle={handleFavoriteToggle}
-                  favorites={favoritesSet}
-                />
-              </MenuSection>
-            </m.div>
-          </AnimatedSection>
-        ))}
-      </div>
+      {/* No results empty state (filters active but nothing matches) */}
+      {hasActiveFilters && filteredCategories.length === 0 ? (
+        <div className="flex flex-col items-center justify-center p-8 text-center min-h-[200px]">
+          <div className="mb-3 text-3xl">:/</div>
+          <h2 className="mb-1 text-lg font-semibold text-text-primary">No items match your filters</h2>
+          <p className="mb-4 max-w-xs text-sm text-text-muted">
+            Try adjusting your search or dietary preferences.
+          </p>
+          <button
+            onClick={clearFilters}
+            className={cn(
+              "rounded-full px-5 py-2",
+              "bg-primary font-medium text-text-inverse text-sm",
+              "hover:bg-primary/90 active:scale-95",
+              "transition-all duration-150",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            )}
+          >
+            Clear filters
+          </button>
+        </div>
+      ) : (
+        /* Menu Sections with scroll-triggered animations */
+        <div className="space-y-8 px-4 pb-8 pt-2">
+          {filteredCategories.map((category: MenuCategory) => (
+            <AnimatedSection key={category.slug} as="div">
+              <m.div variants={itemVariants}>
+                <MenuSection
+                  category={{
+                    slug: category.slug,
+                    name: category.name,
+                    nameEn: category.name,
+                  }}
+                >
+                  <MenuGrid
+                    items={category.items ?? []}
+                    categorySlug={category.slug}
+                    onSelectItem={handleSelectItem}
+                    onFavoriteToggle={handleFavoriteToggle}
+                    favorites={favoritesSet}
+                  />
+                </MenuSection>
+              </m.div>
+            </AnimatedSection>
+          ))}
+        </div>
+      )}
 
       {/* Item Detail Sheet */}
       <ItemDetailSheet
