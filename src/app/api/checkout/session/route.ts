@@ -183,7 +183,9 @@ export async function POST(request: Request) {
     // BUG-02: Fetch modifier groups for constraint validation
     const { data: itemModifierGroupsData } = await supabase
       .from("item_modifier_groups")
-      .select("item_id, group_id, modifier_groups(id, slug, name, selection_type, min_select, max_select)")
+      .select(
+        "item_id, group_id, modifier_groups(id, slug, name, selection_type, min_select, max_select)"
+      )
       .in("item_id", menuItemIds);
 
     // Build modifier group lookup map
@@ -379,14 +381,22 @@ export async function POST(request: Request) {
 
     if (freshMenuError) {
       // BUG-03 FIX: Independent cleanup — each delete wrapped in try/catch
-      await cleanupOrder(supabase, order.id, orderItems.map((oi) => oi.id));
+      await cleanupOrder(
+        supabase,
+        order.id,
+        orderItems.map((oi) => oi.id)
+      );
       return errorResponse("INTERNAL_ERROR", "Failed to re-validate menu items", 500);
     }
 
     const unavailableItems = (freshMenuItems ?? []).filter((item) => !item.is_active);
     if (unavailableItems.length > 0) {
       // BUG-03 FIX: Independent cleanup — each delete wrapped in try/catch
-      await cleanupOrder(supabase, order.id, orderItems.map((oi) => oi.id));
+      await cleanupOrder(
+        supabase,
+        order.id,
+        orderItems.map((oi) => oi.id)
+      );
 
       const unavailableIds = unavailableItems.map((i) => i.id);
       const unavailableNames = validation.items
