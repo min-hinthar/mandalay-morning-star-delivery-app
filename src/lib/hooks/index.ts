@@ -71,6 +71,8 @@ export type { UseNavigationGuardOptions, UseNavigationGuardReturn } from "./useN
 // ============================================
 
 export { useMenu } from "./useMenu";
+export { useMenuFilters } from "./useMenuFilters";
+export type { UseMenuFiltersReturn } from "./useMenuFilters";
 export { useOrderHistorySearch, type OrderHistoryItem } from "./useOrderHistorySearch";
 export { useAddresses } from "./useAddresses";
 export { useFavorites, useFavoritesStore } from "./useFavorites";
