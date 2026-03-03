@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
+import type Stripe from "stripe";
 import { createClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
+import { validatePromoCode } from "@/lib/stripe/promo";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
-import {
-  validateCartItems,
-  calculateOrderTotals,
-  createStripeLineItems,
-  type ModifierGroupWithItems,
-} from "@/lib/utils/order";
+import { validateCartItems, calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
 import { isPastCutoff, getDeliveryDate } from "@/lib/utils/delivery-dates";
 import { getBusinessRules, generateTimeWindows } from "@/lib/settings";
 import { logger } from "@/lib/utils/logger";
@@ -16,12 +13,12 @@ import type { CheckoutError, CheckoutErrorCode } from "@/types/checkout";
 import type {
   AddressesRow,
   MenuItemsRow,
-  ModifierGroupsRow,
   ModifierOptionsRow,
   OrdersRow,
   OrderItemsRow,
   ProfilesRow,
 } from "@/types/database";
+import { cleanupOrder, buildModifierGroupsMap } from "./helpers";
 
 function errorResponse(
   code: CheckoutErrorCode,
@@ -31,30 +28,6 @@ function errorResponse(
 ) {
   const error: CheckoutError = { code, message, details };
   return NextResponse.json({ error }, { status });
-}
-
-// BUG-03 FIX: Independent cleanup — each delete wrapped in try/catch
-// so partial cleanup failures are logged but don't crash the cleanup chain
-async function cleanupOrder(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  orderId: string,
-  orderItemIds: string[]
-) {
-  try {
-    await supabase.from("order_item_modifiers").delete().in("order_item_id", orderItemIds);
-  } catch (e) {
-    logger.exception(e, { api: "checkout-session", cleanup: "order_item_modifiers", orderId });
-  }
-  try {
-    await supabase.from("order_items").delete().eq("order_id", orderId);
-  } catch (e) {
-    logger.exception(e, { api: "checkout-session", cleanup: "order_items", orderId });
-  }
-  try {
-    await supabase.from("orders").delete().eq("id", orderId);
-  } catch (e) {
-    logger.exception(e, { api: "checkout-session", cleanup: "orders", orderId });
-  }
 }
 
 export async function POST(request: Request) {
@@ -72,8 +45,12 @@ export async function POST(request: Request) {
     // Load business rules from DB (cached)
     const rules = await getBusinessRules();
 
-    // Validate time window against dynamically generated windows
-    const validWindows = generateTimeWindows(rules.deliveryStartHour, rules.deliveryEndHour);
+    // CHKT-04: Validate time window against dynamically generated windows (with prep buffer)
+    const validWindows = generateTimeWindows(
+      rules.deliveryStartHour,
+      rules.deliveryEndHour,
+      rules.prepTimeBufferMinutes
+    );
     const isValidWindow = validWindows.some(
       (tw) => tw.start === input.timeWindowStart && tw.end === input.timeWindowEnd
     );
@@ -124,6 +101,30 @@ export async function POST(request: Request) {
       );
     }
 
+    // CHKT-05: Duplicate order prevention — one non-cancelled order per user per Saturday
+    const nextDay = new Date(input.scheduledDate + "T00:00:00");
+    nextDay.setDate(nextDay.getDate() + 1);
+    const nextDayStr = nextDay.toISOString().split("T")[0];
+
+    const { data: existingOrder } = await supabase
+      .from("orders")
+      .select("id, status")
+      .eq("user_id", user.id)
+      .neq("status", "cancelled")
+      .gte("delivery_window_start", `${input.scheduledDate}T00:00:00`)
+      .lt("delivery_window_start", `${nextDayStr}T00:00:00`)
+      .limit(1)
+      .maybeSingle();
+
+    if (existingOrder) {
+      return errorResponse(
+        "DUPLICATE_ORDER",
+        "You already have an order for this Saturday. View your order or contact us to make changes.",
+        409,
+        { existingOrderId: existingOrder.id }
+      );
+    }
+
     // Validate address belongs to user and is verified (BUG-05: coverage re-validation)
     const { data: address, error: addressError } = await supabase
       .from("addresses")
@@ -143,6 +144,21 @@ export async function POST(request: Request) {
         "Address has not been verified for delivery coverage",
         400
       );
+    }
+
+    // CHKT-06: Promo code validation via Stripe Promotion Codes API
+    let discountCents = 0;
+    let validatedCouponId: string | null = null;
+    let promoPercentOff: number | null = null;
+
+    if (input.promoCode) {
+      const promoResult = await validatePromoCode(input.promoCode);
+      if (!promoResult.valid) {
+        return errorResponse("VALIDATION_ERROR", promoResult.message, 400);
+      }
+      discountCents = promoResult.discountCents;
+      validatedCouponId = promoResult.couponId;
+      promoPercentOff = promoResult.percentOff;
     }
 
     // Fetch all menu items and modifier options for validation
@@ -189,19 +205,7 @@ export async function POST(request: Request) {
       .in("item_id", menuItemIds);
 
     // Build modifier group lookup map
-    const modifierGroupsMap = new Map<string, ModifierGroupWithItems>();
-    if (itemModifierGroupsData) {
-      for (const row of itemModifierGroupsData) {
-        const mg = (row as Record<string, unknown>).modifier_groups as ModifierGroupsRow | null;
-        if (!mg) continue;
-        const existing = modifierGroupsMap.get(mg.id);
-        if (existing) {
-          existing.itemIds.push(row.item_id);
-        } else {
-          modifierGroupsMap.set(mg.id, { group: mg, itemIds: [row.item_id] });
-        }
-      }
-    }
+    const modifierGroupsMap = buildModifierGroupsMap(itemModifierGroupsData);
 
     // Validate cart items against database (with modifier group constraints)
     const validation = await validateCartItems(
@@ -221,15 +225,22 @@ export async function POST(request: Request) {
       );
     }
 
-    // CHKT-01: Price drift detection removed — client no longer sends prices.
-    // Server-authoritative price drift detection will be added in plan 91-02,
-    // comparing cart snapshot timestamps against last menu price update.
+    // CHKT-01: Server-authoritative pricing — all prices resolved from DB
+    const tipCents = input.tipCents ?? 0;
+
+    // For percent-off coupons, compute discount from subtotal first
+    if (promoPercentOff !== null) {
+      const subtotal = validation.items.reduce((sum, item) => sum + item.lineTotalCents, 0);
+      discountCents = Math.round((subtotal * promoPercentOff) / 100);
+    }
 
     // Calculate order totals (SERVER-SIDE - never trust client)
     const totals = calculateOrderTotals(
       validation.items,
       rules.deliveryFeeCents,
-      rules.freeDeliveryThresholdCents
+      rules.freeDeliveryThresholdCents,
+      tipCents,
+      discountCents
     );
 
     // H-10 FIX: Create order, items, and modifiers atomically via RPC.
@@ -261,6 +272,13 @@ export async function POST(request: Request) {
       }
     }
 
+    // CHKT-03: Validate modifier item_index bounds for RPC
+    for (const mod of rpcModifiers) {
+      if (mod.item_index < 0 || mod.item_index >= rpcItems.length) {
+        return errorResponse("VALIDATION_ERROR", "Invalid modifier item index", 400);
+      }
+    }
+
     const { data: rpcResult, error: rpcError } = await supabase.rpc("create_order_with_items", {
       p_order: {
         user_id: user.id,
@@ -268,10 +286,14 @@ export async function POST(request: Request) {
         subtotal_cents: totals.subtotalCents,
         delivery_fee_cents: totals.deliveryFeeCents,
         tax_cents: totals.taxCents,
+        tip_cents: tipCents,
+        promo_code: input.promoCode ?? null,
+        discount_cents: discountCents,
         total_cents: totals.totalCents,
         delivery_window_start: `${input.scheduledDate}T${input.timeWindowStart}:00`,
         delivery_window_end: `${input.scheduledDate}T${input.timeWindowEnd}:00`,
         special_instructions: input.customerNotes ?? null,
+        delivery_instructions: input.deliveryInstructions ?? null,
       },
       p_items: rpcItems,
       p_modifiers: rpcModifiers.length > 0 ? rpcModifiers : [],
@@ -362,34 +384,46 @@ export async function POST(request: Request) {
     }
 
     // Create Stripe Checkout Session
-    const lineItems = createStripeLineItems(validation.items, totals.deliveryFeeCents);
+    const lineItems = createStripeLineItems(validation.items, totals.deliveryFeeCents, tipCents);
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    const session = await stripe.checkout.sessions.create(
-      {
-        customer: stripeCustomerId,
-        mode: "payment",
-        payment_method_types: ["card"],
-        line_items: lineItems,
-        metadata: {
-          order_id: order.id,
-          user_id: user.id,
-          scheduled_date: input.scheduledDate,
-          time_window_start: input.timeWindowStart,
-          time_window_end: input.timeWindowEnd,
-        },
-        success_url: `${baseUrl}/orders/${order.id}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
-        cancel_url: `${baseUrl}/checkout?cancelled=true`,
-        expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
+    // Build session params — add discounts if promo validated
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
+      customer: stripeCustomerId,
+      mode: "payment",
+      payment_method_types: ["card"],
+      line_items: lineItems,
+      metadata: {
+        order_id: order.id,
+        user_id: user.id,
+        scheduled_date: input.scheduledDate,
+        time_window_start: input.timeWindowStart,
+        time_window_end: input.timeWindowEnd,
+        tip_cents: String(tipCents),
+        promo_code: input.promoCode ?? "",
       },
-      {
-        idempotencyKey: `checkout_${order.id}`,
-      }
-    );
+      success_url: `${baseUrl}/orders/${order.id}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${baseUrl}/checkout?cancelled=true`,
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
+      ...(validatedCouponId ? { discounts: [{ coupon: validatedCouponId }] } : {}),
+    };
 
-    // Note: stripe_payment_intent_id is set by webhook on checkout.session.completed
-    // session.payment_intent is null until payment completes
+    const session = await stripe.checkout.sessions.create(sessionParams, {
+      idempotencyKey: `checkout_${order.id}`,
+    });
+
+    // CHKT-10: Checkout logging
+    logger.info("Checkout session created", {
+      orderId: order.id,
+      totalCents: totals.totalCents,
+      userId: user.id,
+      paymentIntentId: session.payment_intent ?? "pending",
+      tipCents,
+      promoCode: input.promoCode ?? null,
+      discountCents,
+      itemCount: input.items.length,
+    });
 
     return NextResponse.json({
       data: {

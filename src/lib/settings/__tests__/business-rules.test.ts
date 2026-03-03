@@ -26,7 +26,7 @@ describe("getBusinessRules", () => {
     mockEq.mockReturnValue({ returns: mockReturns });
   });
 
-  it("returns all 9 fields with correct types when DB has data", async () => {
+  it("returns all 10 fields with correct types when DB has data", async () => {
     mockReturns.mockResolvedValue({
       data: [
         { key: "cutoff_day", value: 5 },
@@ -38,6 +38,7 @@ describe("getBusinessRules", () => {
         { key: "delivery_radius_miles", value: 40 },
         { key: "max_delivery_duration_minutes", value: 60 },
         { key: "minimum_order_cents", value: 2500 },
+        { key: "prep_time_buffer_minutes", value: 30 },
       ],
       error: null,
     });
@@ -54,6 +55,7 @@ describe("getBusinessRules", () => {
       deliveryRadiusMiles: 40,
       maxDeliveryDurationMinutes: 60,
       minimumOrderCents: 2500,
+      prepTimeBufferMinutes: 30,
     });
   });
 
@@ -132,6 +134,6 @@ describe("getBusinessRules", () => {
     const rules = await getBusinessRules();
     expect(rules.cutoffDay).toBe(5);
     // Should not have any unexpected fields
-    expect(Object.keys(rules)).toHaveLength(9);
+    expect(Object.keys(rules)).toHaveLength(10);
   });
 });
