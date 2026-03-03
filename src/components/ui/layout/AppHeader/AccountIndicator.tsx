@@ -107,6 +107,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   const [isOpen, setIsOpen] = useState(false);
+  const [avatarError, setAvatarError] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
@@ -219,13 +220,14 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
         aria-haspopup="true"
       >
         {/* Avatar image or initials fallback - use full size to respect className override */}
-        {avatarUrl ? (
+        {avatarUrl && !avatarError ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img
             src={avatarUrl}
             alt=""
             className="w-full h-full rounded-full object-cover"
             referrerPolicy="no-referrer"
+            onError={() => setAvatarError(true)}
           />
         ) : (
           <span
