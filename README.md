@@ -129,7 +129,7 @@ Key optimizations: CardImage to Next.js Image, LazyMotion with domMax, React Com
 
 | Rule             | Value                                           |
 | ---------------- | ----------------------------------------------- |
-| Delivery Day     | Saturday only, 11 AM – 7 PM PT                 |
+| Delivery Day     | Saturday only, 11 AM – 7 PM PT                  |
 | Order Cutoff     | Friday 3:00 PM PT                               |
 | Delivery Fee     | $15 (free for orders $100+)                     |
 | Coverage Area    | 50 miles AND 90 minutes drive time from kitchen |
@@ -272,29 +272,29 @@ public/                          # Static assets (logos, icons, images)
 
 ## API Routes
 
-| Domain          | Endpoints                                    | Purpose                               |
-| --------------- | -------------------------------------------- | ------------------------------------- |
-| Menu            | `/api/menu`, `/api/menu/search`              | Menu browsing, search                 |
-| Sections        | `/api/sections`                              | Featured sections                     |
-| Addresses       | `/api/addresses[/id][/default]`              | Address CRUD, geocoding               |
-| Checkout        | `/api/checkout/session`                      | Stripe session creation               |
-| Coverage        | `/api/coverage/check`                        | Delivery area validation              |
-| Orders          | `/api/orders[/id][/cancel][/rating]`         | Order CRUD, feedback                  |
-| Tracking        | `/api/tracking/[orderId]`                    | Real-time order tracking              |
-| Webhooks        | `/api/webhooks/stripe`                       | Payment + email triggers (idempotent) |
+| Domain          | Endpoints                                    | Purpose                                    |
+| --------------- | -------------------------------------------- | ------------------------------------------ |
+| Menu            | `/api/menu`, `/api/menu/search`              | Menu browsing, search                      |
+| Sections        | `/api/sections`                              | Featured sections                          |
+| Addresses       | `/api/addresses[/id][/default]`              | Address CRUD, geocoding                    |
+| Checkout        | `/api/checkout/session`                      | Stripe session creation                    |
+| Coverage        | `/api/coverage/check`                        | Delivery area validation                   |
+| Orders          | `/api/orders[/id][/cancel][/rating]`         | Order CRUD, feedback                       |
+| Tracking        | `/api/tracking/[orderId]`                    | Real-time order tracking                   |
+| Webhooks        | `/api/webhooks/stripe`                       | Payment + email triggers (idempotent)      |
 | Webhooks        | `/api/webhooks/resend`                       | Email delivery status (signature-verified) |
-| Cron            | `/api/cron/delivery-reminders`               | Morning-of delivery reminder emails   |
-| Admin Menu      | `/api/admin/menu[/id][/photo]`               | Menu item management                  |
-| Admin Orders    | `/api/admin/orders[/id][/...actions]`        | Order management, refunds             |
-| Admin Drivers   | `/api/admin/drivers[/id][/routes][/ratings]` | Driver CRUD                           |
-| Admin Routes    | `/api/admin/routes[/id][/optimize][/stops]`  | Route management                      |
-| Admin Analytics | `/api/admin/analytics/[drivers\|delivery]`   | Dashboard data                        |
-| Admin Settings  | `/api/admin/settings`                        | Business rules, app settings          |
-| Admin Ops       | `/api/admin/ops/*`                           | Ops center data, bulk operations      |
-| Driver          | `/api/driver/[me\|routes\|location]`         | Driver operations                     |
-| Admin Emails    | `/api/admin/emails[/id][/resend][/send]`     | Email log, resend, retry, manual trigger |
-| Test Email      | `/api/emails/test`                           | Send test emails from admin settings  |
-| Account         | `/api/account/[profile\|orders\|addresses]`  | Customer account                      |
+| Cron            | `/api/cron/delivery-reminders`               | Morning-of delivery reminder emails        |
+| Admin Menu      | `/api/admin/menu[/id][/photo]`               | Menu item management                       |
+| Admin Orders    | `/api/admin/orders[/id][/...actions]`        | Order management, refunds                  |
+| Admin Drivers   | `/api/admin/drivers[/id][/routes][/ratings]` | Driver CRUD                                |
+| Admin Routes    | `/api/admin/routes[/id][/optimize][/stops]`  | Route management                           |
+| Admin Analytics | `/api/admin/analytics/[drivers\|delivery]`   | Dashboard data                             |
+| Admin Settings  | `/api/admin/settings`                        | Business rules, app settings               |
+| Admin Ops       | `/api/admin/ops/*`                           | Ops center data, bulk operations           |
+| Driver          | `/api/driver/[me\|routes\|location]`         | Driver operations                          |
+| Admin Emails    | `/api/admin/emails[/id][/resend][/send]`     | Email log, resend, retry, manual trigger   |
+| Test Email      | `/api/emails/test`                           | Send test emails from admin settings       |
+| Account         | `/api/account/[profile\|orders\|addresses]`  | Customer account                           |
 
 ## Database
 
@@ -357,19 +357,19 @@ pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test &
 
 ## Milestones
 
-| Version  | Name                               | Phases | Plans | Shipped     |
-| -------- | ---------------------------------- | ------ | ----- | ----------- |
-| v1.0     | MVP                                | 1-8    | 32    | 2026-01-23  |
-| v1.1     | Tech Debt Cleanup                  | 9-14   | 21    | 2026-01-23  |
-| v1.2     | Playful UI Overhaul                | 15-24  | 29    | 2026-01-27  |
-| v1.3     | Full Codebase Consolidation        | 25-34  | 53    | 2026-01-28  |
-| v1.4     | Mobile Excellence                  | 35-39  | 39    | 2026-02-05  |
-| v1.5     | Performance & Repo Health          | 40-47  | 34    | 2026-02-07  |
-| v1.6     | Production Polish                  | 48-57  | 47    | 2026-02-13  |
-| v1.7     | Production Deployment & Readiness  | 58-66  | 32    | 2026-02-16  |
-| v1.8     | Post-Launch Hardening              | 67-74  | 23    | 2026-02-19  |
-| v1.8     | Gap Closure                        | 75-76  | 2     | 2026-02-26  |
-| **v1.9** | **Launch-Ready MVP**               | 77-86  | 23+   | In Progress |
+| Version  | Name                              | Phases | Plans | Shipped     |
+| -------- | --------------------------------- | ------ | ----- | ----------- |
+| v1.0     | MVP                               | 1-8    | 32    | 2026-01-23  |
+| v1.1     | Tech Debt Cleanup                 | 9-14   | 21    | 2026-01-23  |
+| v1.2     | Playful UI Overhaul               | 15-24  | 29    | 2026-01-27  |
+| v1.3     | Full Codebase Consolidation       | 25-34  | 53    | 2026-01-28  |
+| v1.4     | Mobile Excellence                 | 35-39  | 39    | 2026-02-05  |
+| v1.5     | Performance & Repo Health         | 40-47  | 34    | 2026-02-07  |
+| v1.6     | Production Polish                 | 48-57  | 47    | 2026-02-13  |
+| v1.7     | Production Deployment & Readiness | 58-66  | 32    | 2026-02-16  |
+| v1.8     | Post-Launch Hardening             | 67-74  | 23    | 2026-02-19  |
+| v1.8     | Gap Closure                       | 75-76  | 2     | 2026-02-26  |
+| **v1.9** | **Launch-Ready MVP**              | 77-86  | 23+   | In Progress |
 
 ## Deployment
 
@@ -396,23 +396,24 @@ supabase db push
 
 34 migrations will be applied (000–032 + 1 dated migration). Key migrations:
 
-| Migration | Purpose |
-| --------- | ------- |
-| 000-005   | Core schema, functions, RLS, analytics, storage, testing |
-| 006-008   | Menu seed, photos, featured sections |
+| Migration | Purpose                                                                  |
+| --------- | ------------------------------------------------------------------------ |
+| 000-005   | Core schema, functions, RLS, analytics, storage, testing                 |
+| 006-008   | Menu seed, photos, featured sections                                     |
 | 010-020   | App settings, audit log, driver invites, customer settings, email system |
-| 021-024   | Driver gamification, RLS hardening, admin contact, driver photos |
-| 025-026   | Driver pay rate, driver availability |
-| 027-028   | Atomic order creation, refund status |
-| 029       | Configurable business rules |
-| 030       | Email reliability (retry, failure tracking) |
-| 031-032   | Driver simple mode, production indexes |
+| 021-024   | Driver gamification, RLS hardening, admin contact, driver photos         |
+| 025-026   | Driver pay rate, driver availability                                     |
+| 027-028   | Atomic order creation, refund status                                     |
+| 029       | Configurable business rules                                              |
+| 030       | Email reliability (retry, failure tracking)                              |
+| 031-032   | Driver simple mode, production indexes                                   |
 
 ### Stripe Webhook
 
 Configure webhook endpoint: `https://your-app.vercel.app/api/webhooks/stripe`
 
 Required events:
+
 - `checkout.session.completed` — order creation + confirmation email
 - `checkout.session.expired` — cleanup abandoned carts
 - `payment_intent.succeeded` — payment confirmation
@@ -422,6 +423,7 @@ Required events:
 ### Google Maps API
 
 Enable these APIs in [Google Cloud Console](https://console.cloud.google.com/apis/library):
+
 - **Geocoding API** — address validation and lat/lng lookup
 - **Routes API** — delivery route optimization and duration estimates
 - **Maps JavaScript API** — interactive maps in admin route builder and driver views
