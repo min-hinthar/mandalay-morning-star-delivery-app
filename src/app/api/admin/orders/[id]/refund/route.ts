@@ -110,9 +110,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       );
     }
 
-    // Process refunds for each item
+    // BUG-05 FIX: Calculate refunds FIRST, validate ceiling, THEN apply DB updates.
+    // This prevents partial DB writes when the total exceeds the order amount.
+
+    // Phase 1: Calculate refund amounts (no DB writes)
     const refundedItems: RefundedItem[] = [];
     let totalRefundCents = 0;
+    const pendingUpdates: Array<{ orderItemId: string; newRefundedQuantity: number }> = [];
 
     for (const refundItem of items) {
       const orderItem = orderItems!.find((oi) => oi.id === refundItem.orderItemId)!;
@@ -136,20 +140,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       const unitPrice = orderItem.line_total_cents / orderItem.quantity;
       const refundAmount = Math.round(unitPrice * refundItem.quantity);
 
-      // Update order_items with refunded_quantity
       const newRefundedQuantity = alreadyRefunded + refundItem.quantity;
-      const { error: updateError } = await supabase
-        .from("order_items")
-        .update({ refunded_quantity: newRefundedQuantity })
-        .eq("id", refundItem.orderItemId);
-
-      if (updateError) {
-        logger.exception(updateError, {
-          api: "admin/orders/[id]/refund",
-          orderItemId: refundItem.orderItemId,
-        });
-        return NextResponse.json({ error: "Failed to update order item" }, { status: 500 });
-      }
+      pendingUpdates.push({ orderItemId: refundItem.orderItemId, newRefundedQuantity });
 
       refundedItems.push({
         orderItemId: refundItem.orderItemId,
@@ -166,6 +158,33 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (refundShipping && order.delivery_fee_cents > 0) {
       shippingRefundCents = order.delivery_fee_cents;
       totalRefundCents += shippingRefundCents;
+    }
+
+    // BUG-05 FIX: Validate total refund does not exceed order total
+    const orderTotal = order.total_cents ?? 0;
+    if (totalRefundCents > orderTotal) {
+      return NextResponse.json(
+        {
+          error: `Refund amount ($${(totalRefundCents / 100).toFixed(2)}) exceeds order total ($${(orderTotal / 100).toFixed(2)})`,
+        },
+        { status: 400 }
+      );
+    }
+
+    // Phase 2: Apply DB updates (ceiling validated)
+    for (const update of pendingUpdates) {
+      const { error: updateError } = await supabase
+        .from("order_items")
+        .update({ refunded_quantity: update.newRefundedQuantity })
+        .eq("id", update.orderItemId);
+
+      if (updateError) {
+        logger.exception(updateError, {
+          api: "admin/orders/[id]/refund",
+          orderItemId: update.orderItemId,
+        });
+        return NextResponse.json({ error: "Failed to update order item" }, { status: 500 });
+      }
     }
 
     // Create audit log entry
