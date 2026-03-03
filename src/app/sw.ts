@@ -23,7 +23,9 @@ declare const self: WorkerGlobalScope & typeof globalThis;
 // v1→v2: bust stale opaque failures from before referrerPolicy="no-referrer" fix
 // v2→v3: switched external images from CacheFirst to NetworkFirst -- bust any
 //        bad opaque responses that CacheFirst permanently cached in v2
-const CACHE_VERSION = "v3";
+// v3→v4: stopped caching opaque (status 0) responses for external images.
+//        Images now routed through next/image proxy (same-origin, status 200).
+const CACHE_VERSION = "v4";
 
 // Navigation handler - NetworkFirst with 3s timeout for page navigations
 const navigationHandler = new NetworkFirst({
@@ -45,9 +47,13 @@ const serwist = new Serwist({
   navigationPreload: true,
   runtimeCaching: [
     // External images (Google Drive, Supabase Storage) - NetworkFirst (OFFLINE-03)
-    // Previously CacheFirst, but opaque cross-origin responses (status 0) cannot
-    // be inspected -- if a fetch fails, the empty opaque response was cached
-    // permanently. NetworkFirst always tries network first; cache is offline fallback.
+    // Images should be routed through next/image proxy (same-origin) to avoid
+    // opaque cross-origin response issues. This handler is a safety net for any
+    // direct external image requests that still occur.
+    // IMPORTANT: Only cache status 200 (not opaque status 0). Opaque responses
+    // hide the real HTTP status -- a 403/429 rate-limit from Google appears as
+    // status 0, indistinguishable from success. Caching bad opaque responses
+    // causes images to stay broken until cache expires.
     {
       matcher: ({ url }) =>
         url.hostname.includes("drive.google.com") ||
@@ -56,10 +62,10 @@ const serwist = new Serwist({
         url.hostname.includes("supabase.com"),
       handler: new NetworkFirst({
         cacheName: `external-images-${CACHE_VERSION}`,
-        networkTimeoutSeconds: 3,
+        networkTimeoutSeconds: 5,
         plugins: [
           new CacheableResponsePlugin({
-            statuses: [0, 200], // 0 = opaque response (cross-origin)
+            statuses: [200], // Only cache verified successful responses
           }),
           new ExpirationPlugin({
             maxEntries: 200,

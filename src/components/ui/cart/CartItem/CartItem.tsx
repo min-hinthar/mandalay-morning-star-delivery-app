@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useState, useCallback, useRef, useEffect } from "react";
+import Image from "next/image";
 import { m, AnimatePresence, useMotionValue, useTransform, type PanInfo } from "framer-motion";
 import { Trash2, Edit3 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -145,12 +146,12 @@ export const CartItem = memo(function CartItem({
             transition={getSpring(spring.snappy)}
           >
             {item.imageUrl && !imgError ? (
-              /* eslint-disable-next-line @next/next/no-img-element -- Dynamic external URL in animation */
-              <img
+              <Image
                 src={item.imageUrl}
                 alt={item.nameEn}
+                width={80}
+                height={80}
                 className="w-full h-full object-cover"
-                referrerPolicy="no-referrer"
                 onError={() => setImgError(true)}
               />
             ) : (

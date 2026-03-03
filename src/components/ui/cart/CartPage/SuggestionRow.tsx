@@ -1,6 +1,7 @@
 "use client";
 
 import { memo, useCallback, useState } from "react";
+import Image from "next/image";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -43,12 +44,12 @@ const SuggestionCard = memo(function SuggestionCard({ item, onSelect }: Suggesti
       {/* Thumbnail */}
       <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-surface-secondary/50">
         {item.imageUrl && !imgError ? (
-          /* eslint-disable-next-line @next/next/no-img-element -- Dynamic external URL */
-          <img
+          <Image
             src={item.imageUrl}
             alt={item.nameEn}
+            width={48}
+            height={48}
             className="w-full h-full object-cover"
-            referrerPolicy="no-referrer"
             onError={() => setImgError(true)}
           />
         ) : (

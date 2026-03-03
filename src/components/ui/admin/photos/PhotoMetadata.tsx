@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { m } from "framer-motion";
 import { X, Trash2, Link2, CheckCircle, AlertCircle, Loader2, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -148,14 +149,14 @@ export function PhotoMetadata({
         </Button>
       </div>
 
-      {/* Photo Preview */}
-      <div className="aspect-square w-full overflow-hidden rounded-card-sm bg-surface-tertiary">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+      {/* Photo Preview -- routed through Next.js /_next/image proxy */}
+      <div className="relative aspect-square w-full overflow-hidden rounded-card-sm bg-surface-tertiary">
+        <Image
           src={photo.imageUrl}
           alt={photo.name}
-          className="h-full w-full object-cover"
-          referrerPolicy="no-referrer"
+          fill
+          className="object-cover"
+          sizes="(max-width: 768px) 100vw, 384px"
         />
       </div>
 
