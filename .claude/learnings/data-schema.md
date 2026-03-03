@@ -1,25 +1,19 @@
 # Data Schema Learnings
 
-## Menu Items: Allergen Data Duplication
+## Menu Items: Allergen Data — Single Source of Truth
 
-**Context:** SearchResultCard was showing `contains_egg`, `contains_peanuts` as tag badges, duplicating allergen info.
+**Context:** Originally `tags[]` included `contains_*` duplicates of `allergens[]`. Phase 90 (2026-03-03) removed all 23 redundant `contains_*` tags from seed YAML and added allergen validation to the seed script.
 
-**Learning:** The `menu_items` table stores allergen info in **two columns**:
+**Learning:** After Phase 90, allergen data has a single source:
 
-- `allergens`: Clean keys matching `ALLERGEN_MAP` — `['egg', 'fish', 'peanuts']`
-- `tags`: Includes `contains_*` prefixed duplicates — `['contains_egg', 'contains_fish', 'popular']`
+- `allergens[]`: Canonical keys from `allergens_enum` in seed YAML — `['egg', 'fish', 'peanuts']`
+- `tags[]`: Dietary/marketing labels only — `['popular', 'spicy', 'vegetarian']` (no `contains_*`)
 
-When rendering `item.tags` as UI badges, always filter out `contains_*`:
+Use `item.allergens` + `ALLERGEN_MAP` (`src/lib/constants/allergens.ts`) for allergen display. Tags are safe to render as-is without filtering.
 
-```ts
-const dietaryTags = item.tags.filter(
-  (t) => t !== "popular" && t !== "featured" && !t.startsWith("contains_")
-);
-```
+**Supersedes:** Previous entry about filtering `contains_*` from tags — no longer needed.
 
-Use `item.allergens` + `ALLERGEN_MAP` (`src/lib/constants/allergens.ts`) for allergen display.
-
-**Apply when:** Rendering menu item tags in any new component.
+**Apply when:** Rendering allergens or tags on menu items.
 
 ---
 

@@ -153,3 +153,27 @@ Migration `030_email_reliability.sql` added `orders.contacted_by → profiles`, 
 **Fix:** Add FK hint: `profiles!orders_user_id_fkey` to every query joining orders → profiles.
 
 **Prevention:** When adding a new FK to a table, grep ALL queries that join the target table and add FK hints. Check: `grep -r 'profiles' src/app/api/ --include='*.ts'`
+
+---
+
+## Storage Bucket Mime Type vs Processing Output | Migration/Config | Critical
+
+**Date:** 2026-03-03 | **Files:** `supabase/migrations/007_menu_photos_storage.sql`, `src/app/api/admin/photos/process/route.ts`
+
+Migration 007 set `allowed_mime_types = ARRAY['image/jpeg', 'image/png']` on the `menu-photos` bucket. Phase 90 added a sharp-based processing route that converts all uploads to WebP (`contentType: "image/webp"`). Every upload silently rejected by storage.
+
+**Fix:** Migration 034 adds `'image/webp'` to the bucket's `allowed_mime_types`.
+
+**Prevention:** When adding server-side image processing that changes output format, check the storage bucket's `allowed_mime_types` matches the output. Run: `grep -r 'allowed_mime_types' supabase/migrations/`
+
+---
+
+## API Pagination Default Breaks Bulk Operations | Logic | Moderate
+
+**Date:** 2026-03-03 | **Files:** `src/app/(admin)/admin/photos/page.tsx`, `src/app/(admin)/admin/menu/[id]/page.tsx`
+
+Admin pages fetched `/api/admin/menu` without `limit` param. API defaults to `limit=25`. With 53+ menu items, bulk upload slug matching only saw the first 25 items — rest failed to match.
+
+**Fix:** Added `?limit=500` to menu item fetch calls that need the full list.
+
+**Prevention:** When building features that need ALL records (slug matching, bulk operations, dropdowns), always pass an explicit high `limit` or paginate through all results. Never rely on API defaults.
