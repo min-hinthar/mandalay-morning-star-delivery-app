@@ -10,6 +10,12 @@ interface CheckoutStore extends CheckoutState {
   setAddress: (address: Address) => void;
   setDelivery: (delivery: DeliverySelection) => void;
   setCustomerNotes: (notes: string) => void;
+  setTipPercent: (percent: number | null) => void;
+  setCustomTipCents: (cents: number) => void;
+  setPromoCode: (code: string) => void;
+  applyPromo: (discountCents: number, label: string) => void;
+  clearPromo: () => void;
+  setDeliveryInstructions: (instructions: string) => void;
   reset: () => void;
 }
 
@@ -19,6 +25,13 @@ const initialState: CheckoutState = {
   address: null,
   delivery: null,
   customerNotes: "",
+  tipPercent: 15,
+  customTipCents: 0,
+  promoCode: "",
+  promoApplied: false,
+  discountCents: 0,
+  discountLabel: "",
+  deliveryInstructions: "",
 };
 
 const STEP_ORDER: CheckoutStep[] = ["address", "time", "payment"];
@@ -47,6 +60,21 @@ export const useCheckoutStore = create<CheckoutStore>((set, get) => ({
   setAddress: (address) => set({ address, addressId: address.id }),
   setDelivery: (delivery) => set({ delivery }),
   setCustomerNotes: (notes) => set({ customerNotes: notes }),
+
+  setTipPercent: (percent) => set({ tipPercent: percent }),
+
+  setCustomTipCents: (cents) =>
+    set({ customTipCents: Math.max(0, Math.min(cents, 100_000)), tipPercent: null }),
+
+  setPromoCode: (code) => set({ promoCode: code }),
+
+  applyPromo: (discountCents, label) =>
+    set({ promoApplied: true, discountCents, discountLabel: label }),
+
+  clearPromo: () =>
+    set({ promoCode: "", promoApplied: false, discountCents: 0, discountLabel: "" }),
+
+  setDeliveryInstructions: (instructions) => set({ deliveryInstructions: instructions }),
 
   reset: () => set(initialState),
 }));

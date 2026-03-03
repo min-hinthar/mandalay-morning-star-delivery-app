@@ -11,6 +11,20 @@ export interface CheckoutState {
   address: Address | null;
   delivery: DeliverySelection | null;
   customerNotes: string;
+  /** Tip preset percentage (15/20/25) or null for custom */
+  tipPercent: number | null;
+  /** User-entered custom tip amount in cents */
+  customTipCents: number;
+  /** Entered promo code string */
+  promoCode: string;
+  /** Whether promo has been validated and applied */
+  promoApplied: boolean;
+  /** Discount amount from applied promo in cents */
+  discountCents: number;
+  /** Discount label e.g. "20% off" or "$5.00 off" */
+  discountLabel: string;
+  /** Delivery instructions for the driver */
+  deliveryInstructions: string;
 }
 
 export interface CreateCheckoutSessionRequest {
