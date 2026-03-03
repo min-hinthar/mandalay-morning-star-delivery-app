@@ -11,7 +11,7 @@
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
-import { MapPin, Phone, Check, PartyPopper } from "lucide-react";
+import { MapPin, Phone, MessageSquare, Check, PartyPopper } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -272,11 +272,34 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
           </m.a>
         )}
 
+        {/* SMS - tap to text */}
+        {customerPhone && (
+          <m.a
+            href={`sms:${customerPhone}?body=${encodeURIComponent("Hi, this is your Morning Star delivery driver. I'm on my way!")}`}
+            initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+            animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+            transition={{ ...getSpring(spring.default), delay: 0.17 }}
+            className={cn(
+              "flex w-full min-h-[56px] items-center gap-3 rounded-card-sm",
+              "bg-surface-primary p-4 shadow-sm border border-border",
+              "transition-all duration-fast hover:shadow-md active:scale-[0.99]"
+            )}
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10">
+              <MessageSquare className="h-5 w-5 text-primary" />
+            </div>
+            <div className="text-left">
+              <p className="font-body text-sm text-text-muted">Tap to text</p>
+              <p className="font-body font-medium text-text-primary">Send SMS</p>
+            </div>
+          </m.a>
+        )}
+
         {/* Mark Delivered - large button */}
         <m.div
           initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-          transition={{ ...getSpring(spring.default), delay: 0.2 }}
+          transition={{ ...getSpring(spring.default), delay: 0.25 }}
         >
           <button
             onClick={handleMarkDelivered}
@@ -298,7 +321,7 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
           href={`tel:${OPERATOR_PHONE}`}
           initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-          transition={{ ...getSpring(spring.default), delay: 0.25 }}
+          transition={{ ...getSpring(spring.default), delay: 0.3 }}
           className={cn(
             "flex min-h-[56px] w-full items-center justify-center gap-2 rounded-card-sm",
             "border-2 border-border bg-surface-primary font-body font-medium text-text-primary",
