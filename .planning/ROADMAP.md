@@ -191,7 +191,9 @@ Plans:
   2. /driver/earnings redirects to /driver when simple mode is active (direct URL access blocked)
   3. Cart drawer past-cutoff gate flow works end-to-end with DB-sourced values
   4. Simple mode page enforcement flow blocks all hidden pages via URL
-**Plans**: TBD
+**Plans**: 1 plan
+Plans:
+- [ ] 87-01-PLAN.md -- Wire cart cutoff to DB via Zustand store + shared simple mode guard for all hidden driver pages
 
 ### Phase 88: Phase 83 & 84 Verification
 **Goal:** All Phase 83 and 84 code is formally verified, traceability reflects completion, phases checked off
@@ -251,7 +253,7 @@ Phase 88 depends on Phase 87 (DRV-05 fix must happen before verification).
 | 84. Production Hardening | v1.9 | 0/TBD | Not started | - |
 | 85. Phase 77 Verification & Bug Traceability | 2/2 | Complete    | 2026-03-02 | - |
 | 86. Deferred Integration & Tech Debt Cleanup | 2/2 | Complete   | 2026-03-02 | - |
-| 87. Fix Code Gaps (GATE-03 + DRV-05) | v1.9 | 0/TBD | Not started | - |
+| 87. Fix Code Gaps (GATE-03 + DRV-05) | v1.9 | 0/1 | Not started | - |
 | 88. Phase 83 & 84 Verification | v1.9 | 0/TBD | Not started | - |
 
 ### Historical Progress
