@@ -221,59 +221,9 @@ export async function POST(request: Request) {
       );
     }
 
-    // BUG-08: Detect price drift — compare client-reported prices against DB
-    const priceDrifts: Array<{
-      itemIndex: number;
-      menuItemId: string;
-      itemName: string;
-      field: "base_price" | "modifier_price";
-      cartPriceCents: number;
-      currentPriceCents: number;
-      modifierName?: string;
-    }> = [];
-
-    for (let i = 0; i < input.items.length; i++) {
-      const cartItem = input.items[i];
-      const dbItem = menuItems.get(cartItem.menuItemId);
-      if (!dbItem) continue;
-
-      // Check base price drift
-      if (cartItem.basePriceCents !== dbItem.base_price_cents) {
-        priceDrifts.push({
-          itemIndex: i,
-          menuItemId: cartItem.menuItemId,
-          itemName: dbItem.name_en,
-          field: "base_price",
-          cartPriceCents: cartItem.basePriceCents,
-          currentPriceCents: dbItem.base_price_cents,
-        });
-      }
-
-      // Check modifier price drift
-      for (const mod of cartItem.modifiers) {
-        const dbMod = modifierOptions.get(mod.optionId);
-        if (dbMod && mod.priceDeltaCents !== dbMod.price_delta_cents) {
-          priceDrifts.push({
-            itemIndex: i,
-            menuItemId: cartItem.menuItemId,
-            itemName: dbItem.name_en,
-            field: "modifier_price",
-            cartPriceCents: mod.priceDeltaCents,
-            currentPriceCents: dbMod.price_delta_cents,
-            modifierName: dbMod.name,
-          });
-        }
-      }
-    }
-
-    if (priceDrifts.length > 0) {
-      return errorResponse(
-        "PRICE_CHANGED",
-        "Some prices have changed since you added items to your cart. Please review the updated prices.",
-        409,
-        { priceDrifts }
-      );
-    }
+    // CHKT-01: Price drift detection removed — client no longer sends prices.
+    // Server-authoritative price drift detection will be added in plan 91-02,
+    // comparing cart snapshot timestamps against last menu price update.
 
     // Calculate order totals (SERVER-SIDE - never trust client)
     const totals = calculateOrderTotals(
