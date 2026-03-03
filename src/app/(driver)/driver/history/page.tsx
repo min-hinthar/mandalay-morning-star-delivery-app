@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { checkSimpleMode } from "@/lib/driver/simple-mode-guard";
 import { DriverPageHeader } from "@/components/ui/driver/DriverPageHeader";
 import { HistorySkeleton } from "@/components/ui/driver/DriverDashboard/HistorySkeleton";
 import { DriverHistoryContent } from "./DriverHistoryContent";
@@ -43,27 +43,19 @@ interface OrderDeliveryWindow {
 // ============================================
 
 async function getDriverHistory() {
+  const { id: driverId } = await checkSimpleMode();
+
   const supabase = await createClient();
-
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    redirect("/login?next=/driver/history");
-  }
 
   const { data: driver } = await supabase
     .from("drivers")
     .select("id, deliveries_count, rating_avg")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
+    .eq("id", driverId)
     .returns<DriverQueryResult[]>()
     .single();
 
   if (!driver) {
-    redirect("/driver");
+    return { driver: { deliveriesCount: 0, ratingAvg: 0, onTimePercentage: 0 }, routes: [], totalRoutes: 0 };
   }
 
   // Get total count + initial batch of completed routes

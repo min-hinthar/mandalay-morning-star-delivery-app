@@ -1,6 +1,7 @@
 import { Suspense } from "react";
-import { notFound, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { checkSimpleMode } from "@/lib/driver/simple-mode-guard";
 import { DriverPageHeader } from "@/components/ui/driver/DriverPageHeader";
 import { StopDetailView } from "@/components/ui/driver/StopDetailView";
 import { Skeleton } from "@/components/ui/skeleton/base";
@@ -53,41 +54,10 @@ interface StopQueryResult {
   };
 }
 
-interface DriverWithModeResult {
-  id: string;
-  simple_mode: boolean;
-}
-
 async function getStopDetail(stopId: string) {
+  const { id: driverId } = await checkSimpleMode();
+
   const supabase = await createClient();
-
-  // Check authentication
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    redirect("/login?next=/driver/route");
-  }
-
-  // Get driver (include simple_mode for redirect check)
-  const { data: driver } = await supabase
-    .from("drivers")
-    .select("id, simple_mode")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
-    .returns<DriverWithModeResult[]>()
-    .single();
-
-  if (!driver) {
-    redirect("/driver");
-  }
-
-  // Simple mode uses single-stop focus on the route page — redirect away from individual stop pages
-  if ((driver as unknown as Record<string, unknown>).simple_mode === true) {
-    redirect("/driver/route");
-  }
 
   // Get stop with all related data
   const { data: stop } = await supabase
@@ -145,7 +115,7 @@ async function getStopDetail(stopId: string) {
   }
 
   // Verify driver owns this route (also guards against null route join)
-  if (!stop.route || stop.route.driver_id !== driver.id) {
+  if (!stop.route || stop.route.driver_id !== driverId) {
     return null;
   }
 

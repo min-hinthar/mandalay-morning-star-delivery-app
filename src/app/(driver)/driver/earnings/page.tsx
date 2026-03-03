@@ -1,7 +1,7 @@
 import { Suspense } from "react";
-import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { computeRouteEarnings } from "@/lib/earnings";
+import { checkSimpleMode } from "@/lib/driver/simple-mode-guard";
 import type { DriverBadgesRow } from "@/types/driver";
 import { EarningsPageClient } from "./EarningsPageClient";
 import EarningsLoading from "./loading";
@@ -25,28 +25,20 @@ interface DriverResult {
 }
 
 async function getEarningsData() {
+  const { id: driverId } = await checkSimpleMode();
+
   const supabase = await createClient();
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    redirect("/login?next=/driver/earnings");
-  }
-
-  // Get driver record
+  // Get driver record for additional fields
   const { data: driver } = await supabase
     .from("drivers")
     .select("id, deliveries_count, rating_avg")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
+    .eq("id", driverId)
     .returns<DriverResult[]>()
     .single();
 
   if (!driver) {
-    redirect("/");
+    return { routeEarnings: [], rateCents: DEFAULT_PAY_RATE_CENTS, badges: [], streakDays: 0, driverStats: { deliveriesCount: 0, ratingAvg: 0 } };
   }
 
   // 12 months of data for maximum range
