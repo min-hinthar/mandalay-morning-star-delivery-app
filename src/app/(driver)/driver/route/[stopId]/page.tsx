@@ -144,8 +144,8 @@ async function getStopDetail(stopId: string) {
     return null;
   }
 
-  // Verify driver owns this route
-  if (stop.route?.driver_id !== driver.id) {
+  // Verify driver owns this route (also guards against null route join)
+  if (!stop.route || stop.route.driver_id !== driver.id) {
     return null;
   }
 
