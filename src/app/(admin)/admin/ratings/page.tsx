@@ -53,9 +53,7 @@ function StarDisplay({ rating }: { rating: number }) {
           key={i}
           className={cn(
             "h-4 w-4",
-            i < rating
-              ? "fill-status-warning text-status-warning"
-              : "fill-none text-text-muted"
+            i < rating ? "fill-status-warning text-status-warning" : "fill-none text-text-muted"
           )}
         />
       ))}
@@ -77,8 +75,7 @@ function formatDate(dateStr: string): string {
 
 export default async function RatingsPage({ searchParams }: RatingsPageProps) {
   const resolvedParams = await searchParams;
-  const sort: SortOption =
-    resolvedParams.sort === "stars" ? "stars" : "date";
+  const sort: SortOption = resolvedParams.sort === "stars" ? "stars" : "date";
 
   const supabase = await createClient();
 
@@ -142,9 +139,7 @@ export default async function RatingsPage({ searchParams }: RatingsPageProps) {
     <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
-        <h1 className="font-display text-2xl font-bold text-text-primary">
-          Ratings
-        </h1>
+        <h1 className="font-display text-2xl font-bold text-text-primary">Ratings</h1>
         <span className="rounded-full bg-accent-teal/10 px-3 py-1 text-sm font-semibold text-accent-teal">
           {ratings?.length ?? 0}
         </span>
@@ -181,9 +176,7 @@ export default async function RatingsPage({ searchParams }: RatingsPageProps) {
       {!ratings || ratings.length === 0 ? (
         <div className="rounded-card border border-border-subtle bg-surface-primary p-12 text-center">
           <Star className="mx-auto h-12 w-12 text-text-muted" />
-          <p className="mt-4 text-lg font-medium text-text-primary">
-            No ratings yet
-          </p>
+          <p className="mt-4 text-lg font-medium text-text-primary">No ratings yet</p>
           <p className="mt-1 text-sm text-text-secondary">
             Customer ratings will appear here once orders are reviewed.
           </p>
@@ -193,21 +186,11 @@ export default async function RatingsPage({ searchParams }: RatingsPageProps) {
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border-subtle bg-surface-secondary">
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">
-                  Order #
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">
-                  Customer
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">
-                  Stars
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">
-                  Feedback
-                </th>
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">
-                  Date
-                </th>
+                <th className="px-4 py-3 text-left font-medium text-text-secondary">Order #</th>
+                <th className="px-4 py-3 text-left font-medium text-text-secondary">Customer</th>
+                <th className="px-4 py-3 text-left font-medium text-text-secondary">Stars</th>
+                <th className="px-4 py-3 text-left font-medium text-text-secondary">Feedback</th>
+                <th className="px-4 py-3 text-left font-medium text-text-secondary">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-subtle">
