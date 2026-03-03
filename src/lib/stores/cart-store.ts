@@ -243,6 +243,40 @@ export const useCartStore = create<CartStore>()(
           ),
         }));
       },
+
+      /**
+       * CHKT-02: Update cart item prices from server response on 409 PRICE_CHANGED.
+       * Called when checkout returns price drifts — updates display prices to match DB.
+       */
+      updatePricesFromServer: (priceDrifts) => {
+        set((state) => ({
+          items: state.items.map((item) => {
+            // Find base price drift for this item
+            const baseDrift = priceDrifts.find(
+              (d) => d.menuItemId === item.menuItemId && !d.modifierName
+            );
+            // Find modifier price drifts for this item
+            const modDrifts = priceDrifts.filter(
+              (d) => d.menuItemId === item.menuItemId && d.modifierName
+            );
+
+            if (!baseDrift && modDrifts.length === 0) return item;
+
+            return {
+              ...item,
+              basePriceCents: baseDrift ? baseDrift.newPriceCents : item.basePriceCents,
+              modifiers: item.modifiers.map((mod) => {
+                const modDrift = modDrifts.find(
+                  (d) => d.modifierName === mod.optionName
+                );
+                return modDrift
+                  ? { ...mod, priceDeltaCents: modDrift.newPriceCents }
+                  : mod;
+              }),
+            };
+          }),
+        }));
+      },
     }),
     {
       name: "mms-cart",
