@@ -42,9 +42,9 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 
 ### Customer UX
 
-- [ ] **CUX-01**: Search bar always visible on mobile (not collapsed to icon)
-- [ ] **CUX-02**: Dietary filter chips above menu grid (Vegan, Gluten-Free, Spicy)
-- [ ] **CUX-03**: Sold-out items sorted to bottom of search results and grid
+- [x] **CUX-01**: Search bar always visible on mobile (not collapsed to icon)
+- [x] **CUX-02**: Dietary filter chips above menu grid (Vegan, Gluten-Free, Spicy)
+- [x] **CUX-03**: Sold-out items sorted to bottom of search results and grid
 - [x] **CUX-04**: Item detail sheet shows scroll indicator when modifiers overflow
 - [x] **CUX-05**: Dynamic Saturday schedule hero banner with next delivery date (audit: v1.9 has dynamic hero CTA — verify existing impl, enhance if needed)
 - [ ] **CUX-06**: Minimum order warning shown inline in cart
@@ -212,9 +212,9 @@ Explicitly excluded. Documented to prevent scope creep.
 | CHKT-08 | Phase 91 | Complete |
 | CHKT-09 | Phase 91 | Complete |
 | CHKT-10 | Phase 91 | Complete |
-| CUX-01 | Phase 92 | Pending |
-| CUX-02 | Phase 92 | Pending |
-| CUX-03 | Phase 92 | Pending |
+| CUX-01 | Phase 92 | Complete |
+| CUX-02 | Phase 92 | Complete |
+| CUX-03 | Phase 92 | Complete |
 | CUX-04 | Phase 92 | Complete |
 | CUX-05 | Phase 92 | Complete |
 | CUX-06 | Phase 92 | Pending |
