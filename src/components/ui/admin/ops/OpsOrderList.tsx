@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { m, LayoutGroup } from "framer-motion";
-import { AlertTriangle, Loader2 } from "lucide-react";
+import { AlertTriangle, ChevronRight, Loader2 } from "lucide-react";
 import { cardContainer } from "@/components/ui/admin/CardRow";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -56,6 +56,28 @@ export function OpsOrderList({
   onRefresh,
 }: OpsOrderListProps) {
   const [contactingId, setContactingId] = useState<string | null>(null);
+  const [collapsedWindows, setCollapsedWindows] = useState<Set<string>>(new Set());
+
+  function toggleWindow(key: string) {
+    setCollapsedWindows((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+
+  function handleWindowSelectAll(windowOrderIds: string[], allWindowSelected: boolean) {
+    onSelectionChange((prev) => {
+      const next = new Set(prev);
+      if (allWindowSelected) {
+        windowOrderIds.forEach((id) => next.delete(id));
+      } else {
+        windowOrderIds.forEach((id) => next.add(id));
+      }
+      return next;
+    });
+  }
 
   const needsContactOrders = useMemo(
     () => (allOrders ?? []).filter((o) => o.needsContact),
@@ -81,16 +103,17 @@ export function OpsOrderList({
       setContactingId(null);
     }
   }
-  // Flat list of all visible order IDs
+  // Flat list of all visible order IDs (excludes collapsed windows)
   const allVisibleIds = useMemo(() => {
     const ids: string[] = [];
-    for (const orders of groupedOrders.values()) {
+    for (const [windowKey, orders] of groupedOrders.entries()) {
+      if (collapsedWindows.has(windowKey)) continue;
       for (const order of orders) {
         ids.push(order.id);
       }
     }
     return ids;
-  }, [groupedOrders]);
+  }, [groupedOrders, collapsedWindows]);
 
   const totalVisible = allVisibleIds.length;
   const selectedCount = selectedIds.size;
@@ -196,36 +219,61 @@ export function OpsOrderList({
 
       {/* Grouped order list */}
       <LayoutGroup>
-        {[...groupedOrders.entries()].map(([windowKey, orders]) => (
-          <div key={windowKey} className="space-y-2">
-            {/* Section header */}
-            <div className="flex items-center gap-2 px-1">
-              <h3 className="text-sm font-semibold text-text-secondary">
-                {formatWindowLabel(windowKey)}
-              </h3>
-              <span className="rounded-full bg-surface-tertiary px-2 py-0.5 text-xs font-medium text-text-muted">
-                {orders.length}
-              </span>
-            </div>
+        {[...groupedOrders.entries()].map(([windowKey, orders]) => {
+          const isCollapsed = collapsedWindows.has(windowKey);
+          const windowOrderIds = orders.map((o) => o.id);
+          const windowSelectedCount = windowOrderIds.filter((id) => selectedIds.has(id)).length;
+          const allWindowSelected = windowSelectedCount === orders.length;
+          const someWindowSelected = windowSelectedCount > 0 && !allWindowSelected;
 
-            {/* Order rows */}
-            <m.div
-              variants={cardContainer}
-              initial="hidden"
-              animate="visible"
-              className="space-y-2"
-            >
-              {orders.map((order) => (
-                <OpsOrderRow
-                  key={order.id}
-                  order={order}
-                  isSelected={selectedIds.has(order.id)}
-                  onToggle={handleToggle}
+          return (
+            <div key={windowKey} className="space-y-2">
+              {/* Collapsible section header */}
+              <button
+                type="button"
+                onClick={() => toggleWindow(windowKey)}
+                className="flex w-full items-center gap-2 rounded-lg px-1 py-1 text-left transition-colors duration-fast hover:bg-surface-secondary/50"
+              >
+                <ChevronRight
+                  className={`h-4 w-4 text-text-muted transition-transform duration-fast ${
+                    !isCollapsed ? "rotate-90" : ""
+                  }`}
                 />
-              ))}
-            </m.div>
-          </div>
-        ))}
+                <Checkbox
+                  checked={allWindowSelected ? true : someWindowSelected ? "indeterminate" : false}
+                  onCheckedChange={() => handleWindowSelectAll(windowOrderIds, allWindowSelected)}
+                  onClick={(e) => e.stopPropagation()}
+                  aria-label={`Select all orders in ${formatWindowLabel(windowKey)}`}
+                />
+                <h3 className="text-sm font-semibold text-text-secondary">
+                  {formatWindowLabel(windowKey)}
+                </h3>
+                <span className="rounded-full bg-surface-tertiary px-2 py-0.5 text-xs font-medium text-text-muted">
+                  {orders.length}
+                </span>
+              </button>
+
+              {/* Order rows (hidden when collapsed) */}
+              {!isCollapsed && (
+                <m.div
+                  variants={cardContainer}
+                  initial="hidden"
+                  animate="visible"
+                  className="space-y-2"
+                >
+                  {orders.map((order) => (
+                    <OpsOrderRow
+                      key={order.id}
+                      order={order}
+                      isSelected={selectedIds.has(order.id)}
+                      onToggle={handleToggle}
+                    />
+                  ))}
+                </m.div>
+              )}
+            </div>
+          );
+        })}
       </LayoutGroup>
     </div>
   );
