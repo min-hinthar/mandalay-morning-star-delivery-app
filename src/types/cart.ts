@@ -48,6 +48,17 @@ export interface CartStore {
   getItemCount: () => number;
   getItemTotal: (cartItemId: string) => number;
   updateItemPrice: (cartItemId: string, newPriceCents: number) => void;
+  /**
+   * CHKT-02: Bulk update prices from server 409 PRICE_CHANGED response.
+   * Updates base prices and modifier prices for affected items.
+   */
+  updatePricesFromServer: (
+    priceDrifts: Array<{
+      menuItemId: string;
+      newPriceCents: number;
+      modifierName?: string;
+    }>
+  ) => void;
   updateItem: (
     cartItemId: string,
     updates: {

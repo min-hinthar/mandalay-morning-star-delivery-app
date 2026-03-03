@@ -62,6 +62,7 @@ export { useDebounce } from "./useDebounce";
 export { useCart } from "./useCart";
 export { useCartDrawer } from "./useCartDrawer";
 export { useCartValidation, useCartHydrated } from "./useCartValidation";
+export { useExistingOrder } from "./useExistingOrder";
 export { useNavigationGuard } from "./useNavigationGuard";
 export type { UseNavigationGuardOptions, UseNavigationGuardReturn } from "./useNavigationGuard";
 
