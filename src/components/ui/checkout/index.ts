@@ -32,6 +32,12 @@ export type { AddressInputProps } from "./AddressInput";
 export { TimeSlotPicker } from "./TimeSlotPicker";
 export type { TimeSlotPickerProps } from "./TimeSlotPicker";
 
+// Tip and promo components
+export { TipSelector } from "./TipSelector";
+export type { TipSelectorProps } from "./TipSelector";
+export { PromoCodeInput } from "./PromoCodeInput";
+export type { PromoCodeInputProps } from "./PromoCodeInput";
+
 // Payment success
 export { PaymentSuccess } from "./PaymentSuccess";
 export type { PaymentSuccessProps } from "./PaymentSuccess";
