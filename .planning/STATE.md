@@ -90,6 +90,6 @@ Progress: [##░░░░░░░░] 29% (2/7 phases)
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 91 context gathered
-Resume file: .planning/phases/91-checkout-payment-hardening/91-CONTEXT.md
-Next action: /gsd:plan-phase 91
+Stopped at: Phase 94 context gathered
+Resume file: .planning/phases/94-admin-driver-enhancements/94-CONTEXT.md
+Next action: /gsd:plan-phase 94
