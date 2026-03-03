@@ -11,6 +11,7 @@ import { toast } from "@/lib/hooks/useToastV8";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDeliveryGate } from "@/lib/hooks/useDeliveryGate";
+import { useExistingOrder } from "@/lib/hooks/useExistingOrder";
 import { CartNavigationGuard } from "@/components/ui/cart/CartNavigationGuard";
 import { CutoffModal } from "@/components/ui/delivery";
 import { spring } from "@/lib/motion-tokens";
@@ -74,10 +75,13 @@ export default function CheckoutClient({
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const { isEmpty } = useCart();
-  const { step, setStep, reset } = useCheckoutStore();
+  const { step, setStep, reset, delivery } = useCheckoutStore();
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const gate = useDeliveryGate(cutoffDay, cutoffHour);
   const [showCutoffModal, setShowCutoffModal] = useState(false);
+
+  // CHKT-05: Client-side duplicate order detection (early warning)
+  const { existingOrder } = useExistingOrder(user?.id, delivery?.date);
 
   // Navigation guard: warn when leaving checkout with items in cart
   const {
@@ -179,6 +183,21 @@ export default function CheckoutClient({
           onStepClick={handleStepClick}
           className="mb-6 sm:mb-8"
         />
+
+        {/* CHKT-05: Duplicate order early warning */}
+        {existingOrder && (
+          <div className="rounded-lg bg-status-warning-bg border border-status-warning/20 p-4 mb-4">
+            <p className="text-sm font-medium text-status-warning">
+              You already have an order for this Saturday.
+            </p>
+            <a
+              href={`/orders/${existingOrder.id}`}
+              className="text-sm text-primary underline mt-1 inline-block"
+            >
+              View your existing order
+            </a>
+          </div>
+        )}
 
         <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
           {/* Main content - order form with animated transitions */}
