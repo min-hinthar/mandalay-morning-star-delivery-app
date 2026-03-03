@@ -10,7 +10,7 @@
 
 import { useState } from "react";
 import { m } from "framer-motion";
-import { Check, AlertTriangle, MapPin, Loader2, WifiOff } from "lucide-react";
+import { Check, AlertTriangle, Camera, MapPin, Loader2, WifiOff } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 import type { RouteStopStatus } from "@/types/driver";
@@ -24,6 +24,8 @@ interface DeliveryActionsProps {
   onException?: () => void;
   disabled?: boolean;
   testMode?: boolean;
+  photoRequired?: boolean;
+  onPhotoPrompt?: () => void;
 }
 
 export function DeliveryActions({
@@ -35,6 +37,8 @@ export function DeliveryActions({
   onException,
   disabled = false,
   testMode,
+  photoRequired,
+  onPhotoPrompt,
 }: DeliveryActionsProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -152,6 +156,29 @@ export function DeliveryActions({
         );
 
       case "arrived":
+        if (photoRequired) {
+          return (
+            <m.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => onPhotoPrompt?.()}
+              disabled={disabled || isLoading}
+              className={cn(
+                "flex h-14 w-full items-center justify-center gap-3 rounded-card-sm",
+                "font-body font-semibold",
+                "bg-primary text-text-inverse shadow-md",
+                "transition-all duration-fast",
+                "hover:bg-primary-hover hover:shadow-lg",
+                "active:scale-[0.98]",
+                "disabled:cursor-not-allowed disabled:opacity-50"
+              )}
+              data-testid="take-photo-button"
+            >
+              {renderButtonContent(<Camera className="h-6 w-6" />, "Take Photo to Deliver")}
+            </m.button>
+          );
+        }
         return (
           <m.button
             initial={{ opacity: 0, y: 10 }}

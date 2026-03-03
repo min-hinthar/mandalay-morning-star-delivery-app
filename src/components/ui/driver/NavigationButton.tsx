@@ -12,8 +12,8 @@ import { Navigation } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 
 interface NavigationButtonProps {
-  latitude: number;
-  longitude: number;
+  latitude?: number;
+  longitude?: number;
   address?: string;
   className?: string;
   variant?: "primary" | "secondary";
@@ -34,14 +34,21 @@ export function NavigationButton({
       return;
     }
 
-    // Build Google Maps URL with destination coordinates
-    const destination = address ? encodeURIComponent(address) : `${latitude},${longitude}`;
+    const hasCoords = latitude && longitude;
+    const destination = hasCoords
+      ? `${latitude},${longitude}`
+      : address
+        ? encodeURIComponent(address)
+        : null;
+
+    if (!destination) return;
 
     const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${destination}&travelmode=driving`;
-
-    // Open in new tab/app
     window.open(mapsUrl, "_blank", "noopener,noreferrer");
   };
+
+  // Hide button when neither coordinates nor address is available
+  if (!latitude && !longitude && !address) return null;
 
   return (
     <m.button

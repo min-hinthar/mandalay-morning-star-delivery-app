@@ -330,6 +330,8 @@ export function StopDetailView({
           orderItems={orderItems}
           onStatusChange={handleStatusChange}
           onException={() => setIsExceptionModalOpen(true)}
+          photoRequired={canTakePhoto && !hasPhoto}
+          onPhotoPrompt={() => setIsPhotoCaptureOpen(true)}
         />
       </m.div>
 
@@ -344,14 +346,14 @@ export function StopDetailView({
             onClick={() => setIsPhotoCaptureOpen(true)}
             className={cn(
               "mt-4 flex h-12 w-full items-center justify-center gap-2 rounded-card-sm",
-              "border-2 font-body font-medium transition-all duration-fast",
+              "font-body font-medium transition-all duration-fast",
               hasPhoto
-                ? "border-green bg-green/10 text-green"
-                : "border-border bg-surface-primary text-text-primary hover:border-text-muted"
+                ? "border-2 border-green bg-green/10 text-green"
+                : "bg-primary text-text-inverse shadow-md hover:bg-primary-hover"
             )}
           >
             <Camera className="h-5 w-5" />
-            <span>{hasPhoto ? "Photo Added" : "Add Photo (Optional)"}</span>
+            <span>{hasPhoto ? "Photo Added" : "Take Delivery Photo"}</span>
           </button>
         </m.div>
       )}

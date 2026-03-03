@@ -8,7 +8,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Phone, MapPin, Clock, Copy, Package, FileText } from "lucide-react";
+import { Phone, MessageSquare, MapPin, Clock, Copy, Package, FileText } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils/cn";
 import { NavigationButton } from "./NavigationButton";
@@ -50,6 +50,8 @@ interface StopDetailProps {
   onStatusChange?: (newStatus: RouteStopStatus) => void;
   onException?: () => void;
   testMode?: boolean;
+  photoRequired?: boolean;
+  onPhotoPrompt?: () => void;
 }
 
 export function StopDetail({
@@ -66,6 +68,8 @@ export function StopDetail({
   onStatusChange,
   onException,
   testMode,
+  photoRequired,
+  onPhotoPrompt,
 }: StopDetailProps) {
   const [copied, setCopied] = useState(false);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -116,11 +120,9 @@ export function StopDetail({
     }
   }, [fullAddress]);
 
-  const handleCall = () => {
-    if (customer.phone) {
-      window.location.href = `tel:${customer.phone}`;
-    }
-  };
+  const smsBody = encodeURIComponent(
+    "Hi, this is your Morning Star delivery driver. I'm on my way!"
+  );
 
   return (
     <div className="space-y-6">
@@ -164,27 +166,42 @@ export function StopDetail({
         </div>
       </m.div>
 
-      {/* Contact */}
+      {/* Contact: Call + SMS */}
       {customer.phone && (
-        <m.button
+        <m.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
-          onClick={handleCall}
-          className={cn(
-            "flex w-full min-h-[56px] items-center gap-3 rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border",
-            "transition-all duration-fast hover:shadow-md active:scale-[0.99]"
-          )}
-          data-testid="call-button"
+          className="flex gap-2"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-full bg-green/10">
-            <Phone className="h-5 w-5 text-green" />
-          </div>
-          <div className="text-left">
-            <p className="font-body text-sm text-text-muted">Phone</p>
-            <p className="font-body font-medium text-text-primary">{customer.phone}</p>
-          </div>
-        </m.button>
+          <a
+            href={`tel:${customer.phone}`}
+            className={cn(
+              "flex flex-1 min-h-[56px] items-center gap-3 rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border",
+              "transition-all duration-fast hover:shadow-md active:scale-[0.99]"
+            )}
+            data-testid="call-button"
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green/10">
+              <Phone className="h-5 w-5 text-green" />
+            </div>
+            <div className="text-left min-w-0">
+              <p className="font-body text-sm text-text-muted">Call</p>
+              <p className="font-body font-medium text-text-primary truncate">{customer.phone}</p>
+            </div>
+          </a>
+          <a
+            href={`sms:${customer.phone}?body=${smsBody}`}
+            className={cn(
+              "flex min-h-[56px] w-14 items-center justify-center rounded-card-sm bg-surface-primary shadow-sm border border-border",
+              "transition-all duration-fast hover:shadow-md active:scale-[0.99]"
+            )}
+            data-testid="sms-button"
+            aria-label="Send SMS"
+          >
+            <MessageSquare className="h-5 w-5 text-primary" />
+          </a>
+        </m.div>
       )}
 
       {/* Address */}
@@ -291,15 +308,13 @@ export function StopDetail({
         </m.div>
       )}
 
-      {/* Navigation Button */}
-      {address.latitude && address.longitude && (
-        <NavigationButton
-          latitude={address.latitude}
-          longitude={address.longitude}
-          address={fullAddress}
-          className="w-full"
-        />
-      )}
+      {/* Navigation Button - always shown, falls back to address */}
+      <NavigationButton
+        latitude={address.latitude ?? undefined}
+        longitude={address.longitude ?? undefined}
+        address={fullAddress}
+        className="w-full"
+      />
 
       {/* Delivery Actions */}
       <DeliveryActions
@@ -309,6 +324,8 @@ export function StopDetail({
         onStatusChange={onStatusChange}
         onException={onException}
         testMode={testMode}
+        photoRequired={photoRequired}
+        onPhotoPrompt={onPhotoPrompt}
       />
     </div>
   );
