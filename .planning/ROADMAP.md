@@ -69,7 +69,7 @@
 
 **Milestone Goal:** Battle-tested, revenue-ready Saturday delivery platform for real-money operations at 50-150 orders/Sat with 3-6 drivers and solo admin operator.
 
-- [ ] **Phase 89: Critical Bug Fixes** - Fix payment idempotency, modifier validation, cleanup rollback, type crash, refund ceiling, cart race condition, cutoff safety buffer
+- [x] **Phase 89: Critical Bug Fixes** - Fix payment idempotency, modifier validation, cleanup rollback, type crash, refund ceiling, cart race condition, cutoff safety buffer
 - [ ] **Phase 90: Menu & Photo Pipeline** - Admin photo upload, bulk upload, auto-processing, freshness tracking, allergen dedup, inactive items, photo management grid, seed fallback photos
 - [ ] **Phase 91: Checkout & Payment Hardening** - Server-side pricing, price conflict auto-refresh, modifier bounds, prep time buffer, duplicate order prevention, promos, tips, delivery instructions, guest cart, checkout logging
 - [ ] **Phase 92: Customer UX - Discovery & Shopping** - Persistent search, dietary filters, sold-out sorting, modifier scroll indicator, Saturday hero, min order warning, sticky checkout footer, auto-select delivery date, cart sync status, offline banner, dynamic gate polling
@@ -91,7 +91,12 @@
   5. Refund endpoint rejects any amount exceeding order total_cents
   6. Concurrent cart addItem() calls cannot bypass debounce check (race condition eliminated)
   7. Orders submitted within 10 seconds of cutoff are rejected (safety buffer prevents DB-latency edge case)
-**Plans**: TBD
+**Plans**: 4/4 complete
+  - Plan 01 (Wave 1): BUG-01, BUG-03, BUG-04 - Payment retry + RPC null-safe + cleanup rollback
+  - Plan 02 (Wave 2): BUG-02 - Modifier group constraint validation
+  - Plan 03 (Wave 1): BUG-05, BUG-06 - Refund ceiling + cart debounce race condition
+  - Plan 04 (Wave 1): BUG-07 - 10-second cutoff safety buffer
+  - Completed: 2026-03-03
 
 ### Phase 90: Menu & Photo Pipeline
 **Goal**: Admin can manage all menu item photos from the dashboard, photos are production-quality, and all items have at least a fallback photo
@@ -188,7 +193,7 @@
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 89. Critical Bug Fixes | v2.0 | 0/TBD | Not started | - |
+| 89. Critical Bug Fixes | v2.0 | 4/4 | Complete | 2026-03-03 |
 | 90. Menu & Photo Pipeline | v2.0 | 0/TBD | Not started | - |
 | 91. Checkout & Payment Hardening | v2.0 | 0/TBD | Not started | - |
 | 92. Customer UX - Discovery & Shopping | v2.0 | 0/TBD | Not started | - |
