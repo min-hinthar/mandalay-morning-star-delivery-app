@@ -3,12 +3,12 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
 status: unknown
-last_updated: "2026-03-03T02:46:23.722Z"
+last_updated: "2026-03-03T02:47:06.904Z"
 progress:
   total_phases: 10
-  completed_phases: 9
+  completed_phases: 10
   total_plans: 35
-  completed_plans: 33
+  completed_plans: 35
 ---
 
 ---
@@ -91,6 +91,8 @@ Progress: [====================================] 85/85 phases (COMPLETE)
 | Phase 84 P04 | 5 | 1 task | 2 files |
 | Phase 82-email-reliability P02 | 8 | 2 tasks | 2 files |
 | Phase 82-email-reliability P01 | 10 | 2 tasks | 4 files |
+| Phase 82-email-reliability P03 | 10 | 2 tasks | 6 files |
+| Phase 82-email-reliability P04 | 12 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -170,6 +172,8 @@ Progress: [====================================] 85/85 phases (COMPLETE)
 - [Phase 82-email-reliability]: STATUS_PRIORITY map for downgrade protection (prevents delivered->sent regression)
 - [Phase 82-email-reliability]: Idempotent webhook processing via svix-id lookup in webhook_audit_logs
 - [Phase 82-email-reliability]: crypto.createHash for payload audit hashing (no additional deps)
+- [Phase 82-email-reliability]: 12 parallel count queries (4 statuses x 3 time ranges) for stats efficiency
+- [Phase 82-email-reliability]: EmailDetailPanel shows error guidance + webhook event timeline from metadata.resend_events
 
 ### Pending Todos
 
