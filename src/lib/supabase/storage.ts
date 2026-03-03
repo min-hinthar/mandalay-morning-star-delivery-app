@@ -7,7 +7,7 @@
 import { createClient } from "./client";
 
 const BUCKET = "menu-photos";
-const MAX_SIZE = 2 * 1024 * 1024; // 2MB (processed output limit)
+const MAX_SIZE = 10 * 1024 * 1024; // 10MB raw input limit (server processes to 2MB)
 const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const TARGET_WIDTH = 800; // Resize to max 800px width
 const QUALITY = 0.85;
@@ -45,10 +45,10 @@ export interface DriveVerifyResult {
  */
 export function validateFile(file: File): { valid: boolean; error?: string } {
   if (!ALLOWED_TYPES.includes(file.type)) {
-    return { valid: false, error: "Only JPEG and PNG files allowed" };
+    return { valid: false, error: "Only JPEG, PNG, and WebP files are accepted" };
   }
   if (file.size > MAX_SIZE) {
-    return { valid: false, error: "File exceeds 10MB limit" };
+    return { valid: false, error: `File exceeds ${MAX_SIZE / (1024 * 1024)}MB limit` };
   }
   return { valid: true };
 }
