@@ -1,11 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import { m } from "framer-motion";
-import { X, Image as ImageIcon, Link as LinkIcon, Clock, Loader2 } from "lucide-react";
+import { X, Image as ImageIcon, Clock, Info } from "lucide-react";
 import { toast } from "@/lib/hooks/useToastV8";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { PhotoUploadZone } from "@/components/ui/admin/photos/PhotoUploadZone";
 import type { UploadResult } from "@/lib/supabase/storage";
 
@@ -14,8 +11,6 @@ interface MenuItemPhotoSectionProps {
   nameEn: string;
   itemId: string;
   updatedAt: string;
-  initialDriveUrl: string;
-  initialDrivePreview: string | null;
   onImageChange: (url: string | null) => void;
 }
 
@@ -24,14 +19,8 @@ export function MenuItemPhotoSection({
   nameEn,
   itemId,
   updatedAt,
-  initialDriveUrl,
-  initialDrivePreview,
   onImageChange,
 }: MenuItemPhotoSectionProps) {
-  const [driveUrl, setDriveUrl] = useState(initialDriveUrl);
-  const [verifyingDrive, setVerifyingDrive] = useState(false);
-  const [drivePreview, setDrivePreview] = useState<string | null>(initialDrivePreview);
-
   const handlePhotoUploadComplete = (results: UploadResult[]) => {
     if (results.length > 0) {
       onImageChange(results[0].publicUrl);
@@ -41,59 +30,6 @@ export function MenuItemPhotoSection({
 
   const handleRemovePhoto = () => {
     onImageChange(null);
-  };
-
-  const handleVerifyDriveUrl = async () => {
-    if (!driveUrl) return;
-
-    setVerifyingDrive(true);
-    setDrivePreview(null);
-
-    try {
-      let fileId = "";
-      const patterns = [
-        /\/file\/d\/([a-zA-Z0-9_-]+)/,
-        /id=([a-zA-Z0-9_-]+)/,
-        /open\?id=([a-zA-Z0-9_-]+)/,
-      ];
-
-      for (const pattern of patterns) {
-        const match = driveUrl.match(pattern);
-        if (match) {
-          fileId = match[1];
-          break;
-        }
-      }
-
-      if (!fileId) {
-        throw new Error("Invalid Google Drive URL format");
-      }
-
-      const driveUrlForVerify = `https://drive.google.com/file/d/${fileId}/view`;
-      const response = await fetch("/api/admin/photos/verify-drive", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: driveUrlForVerify }),
-      });
-
-      const verifyData = await response.json();
-
-      if (!response.ok || !verifyData.valid) {
-        throw new Error(verifyData.error || "URL not accessible");
-      }
-
-      const verifiedImageUrl = verifyData.previewUrl;
-      setDrivePreview(verifiedImageUrl);
-      onImageChange(verifiedImageUrl);
-      toast({ message: "Image is accessible. Save to apply.", type: "success" });
-    } catch (err) {
-      toast({
-        message: err instanceof Error ? err.message : "Could not verify URL",
-        type: "error",
-      });
-    } finally {
-      setVerifyingDrive(false);
-    }
   };
 
   const formatDateTime = (dateStr: string) => {
@@ -123,7 +59,7 @@ export function MenuItemPhotoSection({
         {/* Current photo preview */}
         {imageUrl ? (
           <div className="relative">
-            <div className="relative w-full aspect-square max-w-xs mx-auto rounded-card-sm overflow-hidden border border-border">
+            <div className="relative w-full aspect-[4/3] max-w-xs mx-auto rounded-card-sm overflow-hidden border border-border">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imageUrl}
@@ -141,7 +77,7 @@ export function MenuItemPhotoSection({
             <p className="text-xs font-body text-text-muted text-center mt-2">Current photo</p>
           </div>
         ) : (
-          <div className="w-full aspect-square max-w-xs mx-auto rounded-card-sm border-2 border-dashed border-border flex flex-col items-center justify-center bg-surface-tertiary/50">
+          <div className="w-full aspect-[4/3] max-w-xs mx-auto rounded-card-sm border-2 border-dashed border-border flex flex-col items-center justify-center bg-surface-tertiary/50">
             <ImageIcon className="h-12 w-12 text-text-muted mb-2" />
             <span className="text-sm font-body text-text-muted">No photo</span>
           </div>
@@ -155,51 +91,10 @@ export function MenuItemPhotoSection({
             onUploadComplete={handlePhotoUploadComplete}
             className="!p-4"
           />
-        </div>
-
-        {/* Google Drive URL */}
-        <div className="pt-4 border-t border-border">
-          <p className="text-sm font-body font-medium text-text-secondary mb-3 flex items-center gap-2">
-            <LinkIcon className="h-4 w-4" />
-            Or use Google Drive URL
-          </p>
-          <div className="flex gap-2">
-            <Input
-              placeholder="Paste Google Drive share link..."
-              value={driveUrl}
-              onChange={(e) => setDriveUrl(e.target.value)}
-              className="bg-surface-primary border-border flex-1"
-            />
-            <Button
-              variant="outline"
-              onClick={handleVerifyDriveUrl}
-              disabled={!driveUrl || verifyingDrive}
-              className="shrink-0"
-            >
-              {verifyingDrive ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify"}
-            </Button>
+          <div className="flex items-center gap-1.5 mt-2 text-xs font-body text-text-muted">
+            <Info className="h-3 w-3 shrink-0" />
+            <span>Photos are auto-processed to WebP (4:3, 800x600)</span>
           </div>
-          {drivePreview && (
-            <div className="mt-3">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={drivePreview}
-                alt="Preview"
-                className="w-20 h-20 rounded-input object-cover border border-green"
-                referrerPolicy="no-referrer"
-              />
-              <p className="text-xs text-green mt-1">
-                {imageUrl === drivePreview ? "Current saved URL" : "URL verified - Save to apply"}
-              </p>
-            </div>
-          )}
-          {imageUrl && imageUrl.includes("drive.google.com") && (
-            <div className="mt-2">
-              <p className="text-xs text-text-muted break-all bg-surface-tertiary p-2 rounded-input">
-                {imageUrl}
-              </p>
-            </div>
-          )}
         </div>
       </div>
 

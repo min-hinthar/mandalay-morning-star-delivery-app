@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { PhotoUploadZone } from "@/components/ui/admin/photos/PhotoUploadZone";
 import { PhotoGrid, type PhotoItem } from "@/components/ui/admin/photos/PhotoGrid";
 import { PhotoMetadata } from "@/components/ui/admin/photos/PhotoMetadata";
+import { BulkUploadMatcher } from "@/components/ui/admin/photos/BulkUploadMatcher";
 import { PhotosStatsCards } from "./PhotosStatsCards";
 import { PhotosFilters } from "./PhotosFilters";
 
@@ -21,6 +22,7 @@ interface PhotoStats {
 
 interface MenuItem {
   id: string;
+  slug: string;
   name: string;
   categoryName: string;
   imageUrl: string | null;
@@ -39,6 +41,7 @@ export default function AdminPhotosPage() {
   const [filter, setFilter] = useState<FilterType>("all");
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoItem | null>(null);
+  const [bulkFiles, setBulkFiles] = useState<File[] | null>(null);
 
   const fetchPhotos = useCallback(async () => {
     try {
@@ -71,12 +74,14 @@ export default function AdminPhotosPage() {
         data.map(
           (item: {
             id: string;
+            slug: string;
             name_en: string;
             menu_categories: { name: string };
             image_url: string | null;
             base_price_cents: number;
           }) => ({
             id: item.id,
+            slug: item.slug,
             name: item.name_en,
             categoryName: item.menu_categories?.name || "Unknown",
             imageUrl: item.image_url,
@@ -112,6 +117,25 @@ export default function AdminPhotosPage() {
       type: "success",
     });
   };
+
+  const handleBulkUploadComplete = () => {
+    setBulkFiles(null);
+    fetchPhotos();
+    fetchMenuItems();
+  };
+
+  const handlePageDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith("image/"));
+    if (files.length > 1) {
+      setBulkFiles(files);
+    }
+    // Single file drops handled by PhotoUploadZone naturally
+  }, []);
+
+  const handlePageDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+  }, []);
 
   const handleSelect = (id: string) => {
     setSelectedIds((prev) => {
@@ -265,7 +289,19 @@ export default function AdminPhotosPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6">
+    <div className="p-4 md:p-8 space-y-6" onDrop={handlePageDrop} onDragOver={handlePageDragOver}>
+      {/* Bulk Upload Modal */}
+      <AnimatePresence>
+        {bulkFiles && (
+          <BulkUploadMatcher
+            files={bulkFiles}
+            menuItems={menuItems}
+            onComplete={handleBulkUploadComplete}
+            onCancel={() => setBulkFiles(null)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Header */}
       <m.div
         initial={{ opacity: 0, y: -20 }}

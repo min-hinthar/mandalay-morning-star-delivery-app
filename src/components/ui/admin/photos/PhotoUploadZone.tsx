@@ -5,7 +5,7 @@ import { m, AnimatePresence } from "framer-motion";
 import { Upload, X, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
-import { validateFile, uploadMenuPhoto, type UploadResult } from "@/lib/supabase/storage";
+import { validateFile, uploadMenuPhotoViaServer, type UploadResult } from "@/lib/supabase/storage";
 
 interface UploadingFile {
   id: string;
@@ -55,23 +55,12 @@ export function PhotoUploadZone({ menuItemId, onUploadComplete, className }: Pho
         );
 
         try {
-          const result = await uploadMenuPhoto(uploadFile.file, menuItemId, (progress) => {
-            setUploadingFiles((prev) =>
-              prev.map((f) => (f.id === uploadFile.id ? { ...f, progress: progress.percent } : f))
-            );
-          });
+          // Use server-side processing (WebP conversion, 4:3 crop, validation)
+          setUploadingFiles((prev) =>
+            prev.map((f) => (f.id === uploadFile.id ? { ...f, progress: 50 } : f))
+          );
 
-          // If menuItemId provided, also register with the API
-          if (menuItemId) {
-            await fetch("/api/admin/photos", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                imageUrl: result.publicUrl,
-                menuItemId,
-              }),
-            });
-          }
+          const result = await uploadMenuPhotoViaServer(uploadFile.file, menuItemId);
 
           results.push(result);
 
@@ -176,7 +165,7 @@ export function PhotoUploadZone({ menuItemId, onUploadComplete, className }: Pho
               {isDragging ? "Drop photos here" : "Drag and drop photos"}
             </p>
             <p className="text-sm font-body text-text-muted mt-1">
-              or click to browse (JPEG, PNG, max 10MB)
+              or click to browse (JPEG, PNG, WebP — auto-converted to WebP 4:3)
             </p>
           </div>
 
@@ -186,7 +175,7 @@ export function PhotoUploadZone({ menuItemId, onUploadComplete, className }: Pho
 
           <input
             type="file"
-            accept="image/jpeg,image/png"
+            accept="image/jpeg,image/png,image/webp"
             multiple
             onChange={handleFileInput}
             className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
