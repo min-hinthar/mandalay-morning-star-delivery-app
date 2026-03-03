@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 ## Current Position
 
 Phase: 91 of 95 (Checkout & Payment Hardening) - IN PROGRESS
-Plan: 1/4 completed
-Status: Executing plan 91-01
-Last activity: 2026-03-03 — Checkout hardening foundation (DB, types, schema, utils)
+Plan: 2/4 completed
+Status: Executing plan 91-02
+Last activity: 2026-03-03 — Checkout API hardening (tips, promos, duplicate, logging)
 
 Progress: [####░░░░░░] 43% (3/7 phases)
 
@@ -53,7 +53,8 @@ Progress: [####░░░░░░] 43% (3/7 phases)
 | v1.9               | 12     | 38    | 3 days   |
 | v2.0 (in progress) | 3      | 10    | 1 day    |
 | v2.0 91-01         | 1      | 1     | 7 min    |
-| **Total**          | **92** | **361** | **41 days** |
+| v2.0 91-02         | 1      | 1     | 10 min   |
+| **Total**          | **93** | **362** | **41 days** |
 
 ## Accumulated Context
 
@@ -63,6 +64,9 @@ Progress: [####░░░░░░] 43% (3/7 phases)
 - Server-authoritative pricing: Zod schema strips basePriceCents/priceDeltaCents from client input
 - totalCents clamped to Math.max(0) to prevent negative totals from large discounts
 - Tip represented as Stripe line item; discounts via Stripe discounts param
+- Extracted validatePromoCode to src/lib/stripe/promo.ts; cleanupOrder to helpers.ts
+- Stripe SDK v17+: coupon at promo.promotion.coupon (not promo.coupon)
+- Checkout page also passes prepTimeBufferMinutes for UI/API consistency
 
 ### Phase 94 Decisions
 - useState<Set<string>> for collapse state (not Radix Collapsible — overkill for toggle)
@@ -107,6 +111,6 @@ Progress: [####░░░░░░] 43% (3/7 phases)
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 91-01-PLAN.md
-Resume file: .planning/phases/91-checkout-payment-hardening/91-01-SUMMARY.md
-Next action: Execute 91-02-PLAN.md
+Stopped at: Completed 91-02-PLAN.md
+Resume file: .planning/phases/91-checkout-payment-hardening/91-02-SUMMARY.md
+Next action: Execute 91-03-PLAN.md
