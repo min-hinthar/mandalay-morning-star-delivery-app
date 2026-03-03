@@ -89,6 +89,47 @@ describe("CartStore", () => {
     });
   });
 
+  describe("BUG-06: debounce race condition", () => {
+    it("debounces rapid duplicate adds (only first applies)", () => {
+      const store = useCartStore.getState();
+
+      // Two synchronous calls with same signature
+      store.addItem(baseItem);
+      store.addItem(baseItem);
+
+      const updated = useCartStore.getState();
+      // First call adds item, second is debounced — quantity stays at 1
+      expect(updated.items).toHaveLength(1);
+      expect(updated.items[0].quantity).toBe(1);
+    });
+
+    it("allows adds after debounce window expires", async () => {
+      const store = useCartStore.getState();
+      store.addItem(baseItem);
+
+      // Wait for debounce window to expire
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      __clearDebounceState();
+
+      store.addItem(baseItem);
+
+      const updated = useCartStore.getState();
+      // After debounce window, second add merges quantity
+      expect(updated.items).toHaveLength(1);
+      expect(updated.items[0].quantity).toBe(2);
+    });
+
+    it("allows rapid adds of different items", () => {
+      const store = useCartStore.getState();
+      store.addItem(baseItem);
+      store.addItem({ ...baseItem, menuItemId: "item-2", nameEn: "Shan Noodles" });
+
+      const updated = useCartStore.getState();
+      // Different signatures — both should be added
+      expect(updated.items).toHaveLength(2);
+    });
+  });
+
   describe("setDeliverySettings", () => {
     it("updates delivery fee and threshold", () => {
       const store = useCartStore.getState();

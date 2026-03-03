@@ -44,33 +44,8 @@ function createItemSignature(item: {
 const recentAdditions = new Map<string, number>();
 const DEBOUNCE_MS = 300;
 
-/**
- * Check if an add operation should be debounced.
- * Returns true if this is a duplicate rapid-fire add.
- */
-function shouldDebounce(signature: string): boolean {
-  const now = Date.now();
-  const lastAdd = recentAdditions.get(signature);
-
-  if (lastAdd && now - lastAdd < DEBOUNCE_MS) {
-    return true;
-  }
-
-  // Update timestamp
-  recentAdditions.set(signature, now);
-
-  // Clean old entries periodically (keep map small)
-  if (recentAdditions.size > 100) {
-    const cutoff = now - DEBOUNCE_MS * 2;
-    for (const [key, time] of recentAdditions.entries()) {
-      if (time < cutoff) {
-        recentAdditions.delete(key);
-      }
-    }
-  }
-
-  return false;
-}
+// shouldDebounce logic moved inline into addItem's set() callback (BUG-06 fix)
+// to ensure debounce check + timestamp update is atomic with state mutation.
 
 // ============================================
 // CART STORE
@@ -104,15 +79,31 @@ export const useCartStore = create<CartStore>()(
       addItem: (item) => {
         const signature = createItemSignature(item);
 
-        // Debounce protection: ignore rapid-fire duplicate adds
-        if (shouldDebounce(signature)) {
-          console.debug("[cart] Debounced duplicate add:", signature);
-          return;
-        }
-
-        // BUG-04: Use atomic set((state) => ...) to prevent race conditions
-        // from concurrent calls reading stale state via get()
+        // BUG-06 FIX: Debounce check inside set() for atomicity.
+        // Previously, shouldDebounce() was called BEFORE set(), allowing
+        // concurrent calls to both pass the check before either reaches set().
         set((state) => {
+          const now = Date.now();
+          const lastAdd = recentAdditions.get(signature);
+
+          if (lastAdd && now - lastAdd < DEBOUNCE_MS) {
+            console.debug("[cart] Debounced duplicate add:", signature);
+            return state; // Return unchanged state
+          }
+
+          // Update timestamp atomically with state change
+          recentAdditions.set(signature, now);
+
+          // Clean old entries periodically (keep map small)
+          if (recentAdditions.size > 100) {
+            const cutoff = now - DEBOUNCE_MS * 2;
+            for (const [key, time] of recentAdditions.entries()) {
+              if (time < cutoff) {
+                recentAdditions.delete(key);
+              }
+            }
+          }
+
           const { items } = state;
 
           // Find existing item with same signature for deduplication
