@@ -13,11 +13,12 @@
  */
 
 import { m, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Truck, Sparkles } from "lucide-react";
+import { ShoppingBag, Truck, Sparkles, Tag } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerItem, staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
+import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { formatPrice } from "@/lib/utils/format";
 
@@ -57,6 +58,21 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
     amountToFreeDelivery,
     freeDeliveryThresholdCents,
   } = useCart();
+
+  const tipPercent = useCheckoutStore((s) => s.tipPercent);
+  const customTipCents = useCheckoutStore((s) => s.customTipCents);
+  const discountCents = useCheckoutStore((s) => s.discountCents);
+  const discountLabel = useCheckoutStore((s) => s.discountLabel);
+  const promoApplied = useCheckoutStore((s) => s.promoApplied);
+
+  // Compute tip cents from store state
+  const tipCents =
+    tipPercent !== null
+      ? Math.round((itemsSubtotal * tipPercent) / 100)
+      : customTipCents;
+
+  // Compute adjusted total with tip and discount
+  const adjustedTotal = estimatedTotal + tipCents - discountCents;
 
   // Calculate progress percentage toward free delivery
   const progressPercent = Math.min(
@@ -261,6 +277,44 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           )}
         </m.div>
 
+        {/* Tip */}
+        {tipCents > 0 && (
+          <m.div
+            variants={shouldAnimate ? summaryRowVariants : undefined}
+            initial={shouldAnimate ? "hidden" : undefined}
+            animate={shouldAnimate ? "visible" : undefined}
+            transition={{ delay: 0.1 }}
+            className="flex justify-between text-sm text-text-muted"
+          >
+            <span>Tip</span>
+            <PriceTicker
+              value={tipCents}
+              inCents={true}
+              size="sm"
+              className="text-text-money"
+            />
+          </m.div>
+        )}
+
+        {/* Promo Discount */}
+        {promoApplied && discountCents > 0 && (
+          <m.div
+            variants={shouldAnimate ? summaryRowVariants : undefined}
+            initial={shouldAnimate ? "hidden" : undefined}
+            animate={shouldAnimate ? "visible" : undefined}
+            transition={{ delay: 0.12 }}
+            className="flex justify-between text-sm"
+          >
+            <span className="flex items-center gap-1.5 text-status-success">
+              <Tag className="h-3.5 w-3.5" />
+              {discountLabel}
+            </span>
+            <span className="text-status-success font-medium">
+              -{formatPrice(discountCents)}
+            </span>
+          </m.div>
+        )}
+
         {/* Divider */}
         <div className="h-px bg-border" />
 
@@ -269,12 +323,12 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           variants={shouldAnimate ? summaryRowVariants : undefined}
           initial={shouldAnimate ? "hidden" : undefined}
           animate={shouldAnimate ? "visible" : undefined}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.15 }}
           className="flex justify-between items-center"
         >
           <span className="text-base font-bold text-text-primary">Estimated Total</span>
           <PriceTicker
-            value={estimatedTotal}
+            value={adjustedTotal}
             inCents={true}
             size="lg"
             className="text-text-money font-bold"

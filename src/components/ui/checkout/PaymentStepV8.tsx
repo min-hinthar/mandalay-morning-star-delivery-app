@@ -25,6 +25,8 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import type { TimeWindow } from "@/types/delivery";
 import { TimeSlotDisplay } from "./TimeSlotDisplay";
+import { TipSelector } from "./TipSelector";
+import { PromoCodeInput } from "./PromoCodeInput";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -74,14 +76,26 @@ export function PaymentStepV8({
   const [error, setError] = useState<string | null>(null);
 
   const { shouldAnimate, getSpring } = useAnimationPreference();
-  const { items } = useCart();
+  const { items, itemsSubtotal } = useCart();
   const {
     address,
     delivery,
     customerNotes,
     setCustomerNotes,
+    tipPercent,
+    customTipCents,
+    promoCode,
+    promoApplied,
+    deliveryInstructions,
+    setDeliveryInstructions,
     prevStep: storePrevStep,
   } = useCheckoutStore();
+
+  // Calculate tip cents from store state
+  const tipCents =
+    tipPercent !== null
+      ? Math.round((itemsSubtotal * tipPercent) / 100)
+      : customTipCents;
 
   const handleBack = onBack || storePrevStep;
 
@@ -103,14 +117,15 @@ export function PaymentStepV8({
           items: items.map((item) => ({
             menuItemId: item.menuItemId,
             quantity: item.quantity,
-            basePriceCents: item.basePriceCents,
-            modifiers: item.modifiers.map((m) => ({
-              optionId: m.optionId,
-              priceDeltaCents: m.priceDeltaCents,
+            modifiers: item.modifiers.map((mod) => ({
+              optionId: mod.optionId,
             })),
             notes: item.notes || undefined,
           })),
           customerNotes: customerNotes || undefined,
+          tipCents,
+          promoCode: promoApplied ? promoCode : undefined,
+          deliveryInstructions: deliveryInstructions || undefined,
         }),
       });
 
@@ -127,6 +142,12 @@ export function PaymentStepV8({
         if (data.error?.code === "CUTOFF_PASSED" && onCutoffPassed) {
           setIsCreatingSession(false);
           onCutoffPassed();
+          return;
+        }
+        // DUPLICATE_ORDER: show specific error
+        if (data.error?.code === "DUPLICATE_ORDER") {
+          setError("You already have an order for this Saturday.");
+          setIsCreatingSession(false);
           return;
         }
         throw new Error(data.error?.message ?? "Checkout failed");
@@ -255,6 +276,35 @@ export function PaymentStepV8({
               <p className="font-body text-xs text-text-muted">
                 {customerNotes.length}/500 characters
               </p>
+            </m.div>
+
+            {/* Delivery Instructions */}
+            <m.div variants={shouldAnimate ? staggerItem : undefined} className="space-y-2">
+              <Label
+                htmlFor="deliveryInstructions"
+                className="font-body text-sm font-medium text-text-primary"
+              >
+                Delivery Instructions (optional)
+              </Label>
+              <Textarea
+                id="deliveryInstructions"
+                placeholder="Leave at door, ring doorbell, etc."
+                value={deliveryInstructions}
+                onChange={(e) => setDeliveryInstructions(e.target.value)}
+                maxLength={500}
+                rows={2}
+                className="font-body"
+              />
+            </m.div>
+
+            {/* Tip Selector */}
+            <m.div variants={shouldAnimate ? staggerItem : undefined}>
+              <TipSelector subtotalCents={itemsSubtotal} />
+            </m.div>
+
+            {/* Promo Code */}
+            <m.div variants={shouldAnimate ? staggerItem : undefined}>
+              <PromoCodeInput />
             </m.div>
 
             {/* Security Badge with stagger */}
