@@ -7,15 +7,15 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
 const ALLERGEN_OPTIONS = [
-  "Gluten",
-  "Dairy",
-  "Nuts",
-  "Peanuts",
-  "Shellfish",
-  "Soy",
-  "Eggs",
-  "Fish",
-  "Sesame",
+  { value: "peanuts", label: "Peanuts" },
+  { value: "tree_nuts", label: "Tree Nuts" },
+  { value: "egg", label: "Egg" },
+  { value: "shellfish", label: "Shellfish" },
+  { value: "fish", label: "Fish" },
+  { value: "soy", label: "Soy" },
+  { value: "gluten_wheat", label: "Gluten/Wheat" },
+  { value: "sesame", label: "Sesame" },
+  { value: "dairy", label: "Dairy" },
 ];
 
 interface Category {
@@ -48,12 +48,12 @@ export function MenuItemFormFields({
   categories,
   onFormDataChange,
 }: MenuItemFormFieldsProps) {
-  const toggleAllergen = (allergen: string) => {
+  const toggleAllergen = (value: string) => {
     onFormDataChange((prev) => ({
       ...prev,
-      allergens: prev.allergens.includes(allergen)
-        ? prev.allergens.filter((a) => a !== allergen)
-        : [...prev.allergens, allergen],
+      allergens: prev.allergens.includes(value)
+        ? prev.allergens.filter((a) => a !== value)
+        : [...prev.allergens, value],
     }));
   };
 
@@ -209,17 +209,17 @@ export function MenuItemFormFields({
         <div className="flex flex-wrap gap-2">
           {ALLERGEN_OPTIONS.map((allergen) => (
             <Badge
-              key={allergen}
-              variant={formData.allergens.includes(allergen) ? "default" : "outline"}
+              key={allergen.value}
+              variant={formData.allergens.includes(allergen.value) ? "default" : "outline"}
               className={cn(
                 "cursor-pointer transition-all",
-                formData.allergens.includes(allergen)
+                formData.allergens.includes(allergen.value)
                   ? "bg-primary text-text-inverse"
                   : "bg-surface-primary border-border hover:bg-primary/10"
               )}
-              onClick={() => toggleAllergen(allergen)}
+              onClick={() => toggleAllergen(allergen.value)}
             >
-              {allergen}
+              {allergen.label}
             </Badge>
           ))}
         </div>

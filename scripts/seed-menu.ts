@@ -67,6 +67,26 @@ function loadSeedData(): SeedData {
   return parsed as SeedData;
 }
 
+function validateAllergens(data: SeedData): void {
+  const validAllergens = new Set(data.allergens_enum);
+  let totalAssignments = 0;
+
+  for (const item of data.items) {
+    for (const allergen of item.allergens) {
+      if (!validAllergens.has(allergen)) {
+        throw new Error(
+          `Invalid allergen "${allergen}" on item "${item.slug}". Valid: ${data.allergens_enum.join(", ")}`
+        );
+      }
+      totalAssignments++;
+    }
+  }
+
+  console.log(
+    `Allergen validation passed: ${data.items.length} items, ${totalAssignments} total allergen assignments`
+  );
+}
+
 function buildOptionSlug(groupSlug: string, optionSlug: string): string {
   // Ensure uniqueness across groups while preserving original slugs in the YAML.
   return `${groupSlug}${OPTION_SLUG_SEPARATOR}${optionSlug}`;
@@ -372,6 +392,8 @@ async function seedMenu(): Promise<void> {
   console.log(
     `Parsed: ${data.categories.length} categories, ${data.items.length} items, ${data.modifier_groups.length} modifier groups\n`
   );
+
+  validateAllergens(data);
 
   const supabase = createSupabaseClient();
   const categoryMap = await seedCategories(supabase, data.categories);
