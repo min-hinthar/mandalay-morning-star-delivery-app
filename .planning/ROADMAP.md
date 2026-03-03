@@ -126,7 +126,11 @@
   3. User can add a tip (15%/20%/25%/custom) and apply a promo code, both reflected in the Stripe charge
   4. User can browse menu and build cart without signing in, prompted to authenticate only at payment
   5. Each user can place at most one order per Saturday delivery window; duplicate attempts are blocked with a clear message
-**Plans**: TBD
+**Plans**: 4 plans
+  - [ ] 91-01-PLAN.md — DB migrations, types, Zod schema, order utilities (Wave 1)
+  - [ ] 91-02-PLAN.md — Checkout API hardening: server pricing, tips, promos, duplicate check, logging (Wave 2)
+  - [ ] 91-03-PLAN.md — Checkout UI: tip selector, promo input, delivery instructions, summary updates (Wave 2)
+  - [ ] 91-04-PLAN.md — Cart price refresh, guest flow wiring, duplicate order early warning (Wave 3)
 
 ### Phase 92: Customer UX - Discovery & Shopping
 **Goal**: Customers can efficiently find, filter, and purchase items with a polished mobile shopping experience
@@ -200,7 +204,7 @@
 |-------|-----------|----------------|--------|-----------|
 | 89. Critical Bug Fixes | v2.0 | 4/4 | Complete | 2026-03-03 |
 | 90. Menu & Photo Pipeline | v2.0 | 4/4 | Complete | 2026-03-03 |
-| 91. Checkout & Payment Hardening | v2.0 | 0/TBD | Not started | - |
+| 91. Checkout & Payment Hardening | v2.0 | 0/4 | Planned | - |
 | 92. Customer UX - Discovery & Shopping | v2.0 | 0/TBD | Not started | - |
 | 93. Customer UX - Engagement & Accessibility | v2.0 | 0/TBD | Not started | - |
 | 94. Admin & Driver Enhancements | v2.0 | 0/TBD | Not started | - |
