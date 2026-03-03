@@ -24,6 +24,16 @@ Match exact DOM structure of loaded state (sticky positions, heights, grid, aspe
 
 ---
 
+## `loading="lazy"` + Animated Containers = Images Never Load
+
+`loading="lazy"` on `<img>` inside framer-motion containers with `initial={{ opacity: 0 }}` prevents the browser's IntersectionObserver from ever triggering the image load during SPA navigation. The element is "invisible" (opacity 0, scale 0.9) when the observer checks, so the browser skips loading. Hard reload uses eager loading heuristics for initial paint, bypassing this.
+
+**Fix:** Don't use `loading="lazy"` on images inside animated wrappers that start invisible. Use the default `loading="eager"` for primary content images.
+
+**Apply when:** Any `<img>` with `loading="lazy"` inside framer-motion `<m.div>` or CSS animation that starts with `opacity: 0` or `display: none`.
+
+---
+
 ## Atomic Swap for Component Migration
 
 Replace ALL usages of legacy component in single commit, then delete. Incremental = "frankenstein" state.

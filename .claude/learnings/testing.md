@@ -29,3 +29,16 @@ const [query, setQuery] = useState("");
 ```
 
 **Apply when:** Using cmdk with custom filtering logic (`shouldFilter={false}`).
+
+---
+
+## Stale Tests After Validation Rule Changes
+
+**Context:** Phase 83 (Driver Simplification) changed `VALID_STOP_TRANSITIONS` in `src/lib/validations/driver-api.ts` to allow `pending → delivered` (simple-mode drivers skip intermediate steps). The test at `driver-api.test.ts:219` still asserted `pending → delivered` was invalid. CI caught it, but only after 21 commits were pushed.
+
+**Learning:** When modifying validation schemas, transition maps, or business rules, immediately grep for tests that assert on the old behavior:
+```bash
+grep -r "isValidStatusTransition\|VALID_STOP_TRANSITIONS" src/ --include="*.test.*"
+```
+
+**Apply when:** Changing any validation logic, status transition map, or business rule constant. The test name often says "should return false for invalid" — search for it.

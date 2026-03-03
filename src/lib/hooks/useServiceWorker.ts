@@ -106,11 +106,19 @@ export function useServiceWorker(): UseServiceWorkerReturn {
  */
 export async function invalidateMenuCache(): Promise<void> {
   try {
-    const cache = await caches.open("menu-api-cache-v1");
+    // Dynamically find the menu-api-cache regardless of CACHE_VERSION
+    const allCacheNames = await caches.keys();
+    const menuCacheName = allCacheNames.find((name) => name.startsWith("menu-api-cache-"));
+    if (!menuCacheName) {
+      console.log("[SW] No menu API cache found");
+      return;
+    }
+
+    const cache = await caches.open(menuCacheName);
     const keys = await cache.keys();
     const menuKeys = keys.filter((r) => r.url.includes("/api/menu"));
     await Promise.all(menuKeys.map((key) => cache.delete(key)));
-    console.log("[SW] Menu cache invalidated:", menuKeys.length, "entries");
+    console.log("[SW] Menu cache invalidated:", menuKeys.length, "entries from", menuCacheName);
   } catch (err) {
     console.error("[SW] Failed to invalidate menu cache:", err);
   }

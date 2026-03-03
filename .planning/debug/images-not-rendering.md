@@ -2,15 +2,15 @@
 status: awaiting_human_verify
 trigger: "Cart drawer menu images not rendering. Google user content (googleusercontent.com) images not rendering in headers."
 created: 2026-02-28T00:00:00Z
-updated: 2026-02-28T00:10:00Z
+updated: 2026-03-02T00:00:00Z
 ---
 
 ## Current Focus
 
-hypothesis: Confirmed -- missing referrerPolicy on external img tags + narrow googleusercontent.com hostname in remotePatterns
-test: Fixes applied, awaiting human verification
-expecting: Images render correctly in cart drawer and header after deployment
-next_action: User verifies images render in cart drawer and header/navbar
+hypothesis: CONFIRMED -- SW CacheFirst strategy for external images cached opaque (status 0) failure responses permanently. Hard reload bypassed SW.
+test: Fixes applied and self-verified (typecheck, lint, format, tests, build all pass)
+expecting: User confirms cart drawer images render correctly after deploy
+next_action: Awaiting human verification in production
 
 ## Symptoms
 
@@ -81,35 +81,53 @@ started: Unknown - may have never been fully configured or broke after a config 
   found: None had referrerPolicy attribute set. All relied on the page-level Referrer-Policy header (strict-origin-when-cross-origin)
   implication: Systematic issue affecting all external image loading via plain img tags
 
+- timestamp: 2026-03-02T00:01:00Z
+  checked: SW caching strategy for external images (sw.ts lines 47-68)
+  found: CacheFirst + CacheableResponsePlugin({statuses: [0, 200]}) for drive.google.com, googleusercontent.com, supabase.co. Opaque cross-origin responses (status 0) are cached. CacheFirst never re-fetches once cached.
+  implication: If ANY opaque request fails (empty body), the bad response is cached permanently. Matches symptom: blank images that hard reload fixes.
+
+- timestamp: 2026-03-02T00:02:00Z
+  checked: Serwist activate handler cleanup behavior (built sw.js line 407)
+  found: deleteOutdatedCaches only targets caches containing "-precache-" substring. Runtime caches (external-images-v1, external-images-v2, images-cache-v1, etc.) are NEVER cleaned up on activation.
+  implication: Bumping CACHE_VERSION creates new cache names but old caches linger. Old bad entries in v1 are not served (new requests go to v2), but v2 can also accumulate its own bad entries.
+
+- timestamp: 2026-03-02T00:03:00Z
+  checked: CartItem.tsx img tag (line 148-153)
+  found: No onError handler. If image fails to load (or SW serves bad cached response), img shows blank space. No fallback to emoji.
+  implication: Need onError handler to show emoji fallback when image load fails.
+
+- timestamp: 2026-03-02T00:04:00Z
+  checked: SuggestionRow.tsx img tag (line 47-51)
+  found: Same issue -- no onError handler, no fallback on failed load.
+  implication: Same fix needed.
+
 ## Resolution
 
 root_cause: |
-  Two contributing issues:
-  1. All external <img> tags for Google Drive thumbnails and Google OAuth avatars lack referrerPolicy="no-referrer". The app sets Referrer-Policy: strict-origin-when-cross-origin via security headers, causing the browser to send the app origin as referrer to Google services. Google services (Drive thumbnails, User Content avatars) block or restrict image serving when receiving referrers from unknown external origins.
-  2. remotePatterns in next.config.ts only configures lh3.googleusercontent.com specifically, but Google may use other subdomains (lh4, lh5, lh6) for avatar/image delivery. Needed wildcard **.googleusercontent.com for robustness.
-  3. The CSP img-src already uses wildcards (*.google.com, *.googleusercontent.com) so CSP is not the blocking issue.
+  Three-layer failure:
+  1. (Previously fixed) Missing referrerPolicy="no-referrer" on img tags caused Google to reject requests from unknown referrers.
+  2. (PRIMARY - this session) The SW uses CacheFirst + CacheableResponsePlugin({statuses: [0, 200]}) for external images. Cross-origin requests to drive.google.com / googleusercontent.com produce opaque responses (status 0). If ANY request fails (network blip, referrer rejection, transient Google error), the empty/failed opaque response gets cached by CacheFirst and is NEVER re-fetched. Hard reload bypasses SW, fetches from network, and works -- matching the exact user symptom.
+  3. No onError handler on <img> tags in CartItem/SuggestionRow, so when SW serves a bad cached response, the img renders blank space instead of falling back to the emoji placeholder.
+
+  Serwist's activate handler only cleans up precache entries (substring "-precache-"), NOT runtime caches like "external-images-v2". So bumping CACHE_VERSION v1->v2 created new cache buckets but old bad entries in v1 were never cleaned. Even v2 can accumulate bad entries.
 
 fix: |
-  1. Changed remotePatterns hostname from "lh3.googleusercontent.com" to "**.googleusercontent.com" to cover all Google user content subdomains.
-  2. Added referrerPolicy="no-referrer" to all 17 external <img> tags across the codebase to prevent Google services from rejecting image requests based on unknown referrer origins.
+  1. Switch external images from CacheFirst to NetworkFirst with 3s timeout -- network is always tried first, cache is offline fallback only. Bad responses don't persist permanently.
+  2. Remove CacheableResponsePlugin({statuses: [0, 200]}) -- NetworkFirst doesn't need it; it will naturally cache successful responses and fall back to cached versions.
+  3. Bump CACHE_VERSION v2 -> v3 to bust any stale bad entries in the v2 external-images cache.
+  4. Add onError fallback handlers to <img> tags in CartItem and SuggestionRow so if an image fails to load, the emoji fallback renders instead of blank space.
+  5. Add activate handler to clean up old versioned runtime caches (external-images-v1, external-images-v2, etc.) on SW activation.
 
-verification: Awaiting human verification -- user needs to confirm images render in cart drawer and header after deploying these changes.
+verification: |
+  Self-verified:
+  - TypeScript: 0 errors
+  - ESLint: pass
+  - Prettier: pass
+  - Vitest: 433/433 tests pass
+  - Build: success (SW compiles correctly)
+  Awaiting human verification: deploy and confirm cart drawer images render
 
 files_changed:
-  - next.config.ts
+  - src/app/sw.ts
   - src/components/ui/cart/CartItem/CartItem.tsx
   - src/components/ui/cart/CartPage/SuggestionRow.tsx
-  - src/components/ui/layout/AppHeader/AccountIndicator.tsx
-  - src/components/ui/layout/MobileDrawer/DrawerUserSection.tsx
-  - src/components/ui/layout/AdminLayout.tsx
-  - src/components/ui/avatar.tsx
-  - src/components/ui/menu/MenuAccordion.tsx
-  - src/components/ui/menu/SearchAutocomplete.tsx
-  - src/components/ui/orders/tracking/DriverCard.tsx
-  - src/components/ui/orders/tracking/DeliveredScreen.tsx
-  - src/components/ui/admin/photos/PhotoGrid.tsx
-  - src/components/ui/admin/photos/PhotoMetadata.tsx
-  - src/components/ui/admin/sections/ItemSelector.tsx
-  - src/components/ui/admin/sections/SectionCard.tsx
-  - src/app/(admin)/admin/menu/MenuItemsTable.tsx
-  - src/app/(admin)/admin/menu/[id]/MenuItemPhotoSection.tsx
