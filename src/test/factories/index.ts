@@ -91,6 +91,8 @@ export function createMockOrder(overrides?: Partial<OrdersRow>): OrdersRow {
     special_instructions: null,
     stripe_payment_intent_id: null,
     is_priority: false,
+    rating_dismissed: false,
+    share_token: null,
     placed_at: new Date().toISOString(),
     confirmed_at: null,
     delivered_at: null,
