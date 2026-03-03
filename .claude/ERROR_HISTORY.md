@@ -96,7 +96,9 @@ Three compounding root causes (each session found a new layer):
 3. **`loading="lazy"` + animated containers** — `<img loading="lazy">` inside framer-motion `initial={{ opacity: 0 }}` wrappers: IntersectionObserver never fires during SPA nav.
    **Fix:** Remove `loading="lazy"` from primary content images in animated containers. Add `onError` fallback.
 
-**Prevention:** Never use `CacheFirst` for cross-origin images. Never use `loading="lazy"` inside opacity-animated containers.
+4. **Opaque responses uncacheable** — Even with `NetworkFirst`, `CacheableResponsePlugin` with `statuses: [0, 200]` still cached bad opaques. Must use `statuses: [200]` only. The real fix: replace plain `<img>` with `next/image` which proxies through `/_next/image` (same-origin, real status codes).
+
+**Prevention:** In PWAs, always use `next/image` for external URLs (proxies same-origin). Never `CacheFirst` for cross-origin. Never `statuses: [0]` in CacheableResponsePlugin. Never `loading="lazy"` inside opacity-animated containers.
 
 ---
 
