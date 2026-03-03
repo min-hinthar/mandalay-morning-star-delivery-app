@@ -138,8 +138,14 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
   // FILTERING
   // ============================================
 
-  const { setQuery, dietaryFilters, setDietaryFilters, hasActiveFilters, clearFilters, filterItems } =
-    useMenuFilters();
+  const {
+    setQuery,
+    dietaryFilters,
+    setDietaryFilters,
+    hasActiveFilters,
+    clearFilters,
+    filterItems,
+  } = useMenuFilters();
 
   // Apply text + dietary + sold-out filtering
   const filteredCategories = useMemo(
@@ -356,7 +362,9 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
       {hasActiveFilters && filteredCategories.length === 0 ? (
         <div className="flex flex-col items-center justify-center p-8 text-center min-h-[200px]">
           <div className="mb-3 text-3xl">:/</div>
-          <h2 className="mb-1 text-lg font-semibold text-text-primary">No items match your filters</h2>
+          <h2 className="mb-1 text-lg font-semibold text-text-primary">
+            No items match your filters
+          </h2>
           <p className="mb-4 max-w-xs text-sm text-text-muted">
             Try adjusting your search or dietary preferences.
           </p>

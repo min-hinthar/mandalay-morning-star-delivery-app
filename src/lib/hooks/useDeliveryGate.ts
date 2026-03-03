@@ -90,8 +90,7 @@ export function useDeliveryGate(cutoffDay: number, cutoffHour: number): Delivery
     const tick = () => {
       const newState = computeDeliveryGate(cutoffDay, cutoffHour);
       setState(newState);
-      const totalMinutes =
-        newState.timeUntilCutoff.hours * 60 + newState.timeUntilCutoff.minutes;
+      const totalMinutes = newState.timeUntilCutoff.hours * 60 + newState.timeUntilCutoff.minutes;
       // 10s polling during final 30 minutes (and not past cutoff), 60s otherwise
       const interval =
         totalMinutes <= 30 && !newState.timeUntilCutoff.isPastCutoff ? 10_000 : 60_000;

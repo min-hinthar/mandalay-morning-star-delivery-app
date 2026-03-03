@@ -64,8 +64,7 @@ export function TipSelector({ subtotalCents, className }: TipSelectorProps) {
   const handleCustomInputChange = (value: string) => {
     const sanitized = value.replace(/[^0-9.]/g, "");
     const parts = sanitized.split(".");
-    const formatted =
-      parts.length > 2 ? parts[0] + "." + parts.slice(1).join("") : sanitized;
+    const formatted = parts.length > 2 ? parts[0] + "." + parts.slice(1).join("") : sanitized;
 
     setCustomInput(formatted);
 
@@ -79,9 +78,7 @@ export function TipSelector({ subtotalCents, className }: TipSelectorProps) {
 
   return (
     <div className={cn("space-y-3", className)}>
-      <Label className="font-body text-sm font-medium text-text-primary">
-        Add a tip
-      </Label>
+      <Label className="font-body text-sm font-medium text-text-primary">Add a tip</Label>
 
       <div className="grid grid-cols-4 gap-2">
         {TIP_PRESETS.map((percent) => {
@@ -102,10 +99,7 @@ export function TipSelector({ subtotalCents, className }: TipSelectorProps) {
             >
               <span className="text-sm font-semibold">{percent}%</span>
               <span
-                className={cn(
-                  "text-xs",
-                  isSelected ? "text-text-inverse/80" : "text-text-muted"
-                )}
+                className={cn("text-xs", isSelected ? "text-text-inverse/80" : "text-text-muted")}
               >
                 {formatPrice(tipCents)}
               </span>
@@ -125,16 +119,9 @@ export function TipSelector({ subtotalCents, className }: TipSelectorProps) {
         >
           <span className="text-sm font-semibold">Custom</span>
           {isCustom && customTipCents > 0 ? (
-            <span className="text-xs text-text-inverse/80">
-              {formatPrice(customTipCents)}
-            </span>
+            <span className="text-xs text-text-inverse/80">{formatPrice(customTipCents)}</span>
           ) : (
-            <span
-              className={cn(
-                "text-xs",
-                isCustom ? "text-text-inverse/80" : "text-text-muted"
-              )}
-            >
+            <span className={cn("text-xs", isCustom ? "text-text-inverse/80" : "text-text-muted")}>
               Amount
             </span>
           )}
@@ -145,9 +132,7 @@ export function TipSelector({ subtotalCents, className }: TipSelectorProps) {
         {isCustom && (
           <m.div
             initial={shouldAnimate ? { height: 0, opacity: 0 } : undefined}
-            animate={
-              shouldAnimate ? { height: "auto", opacity: 1 } : undefined
-            }
+            animate={shouldAnimate ? { height: "auto", opacity: 1 } : undefined}
             exit={shouldAnimate ? { height: 0, opacity: 0 } : undefined}
             transition={getSpring(spring.default)}
             className="overflow-hidden"

@@ -408,10 +408,7 @@ describe("validateCartItems", () => {
         {
           menuItemId: "item-1",
           quantity: 2,
-          modifiers: [
-            { optionId: "mod-1" },
-            { optionId: "mod-2" },
-          ],
+          modifiers: [{ optionId: "mod-1" }, { optionId: "mod-2" }],
           notes: "extra sauce",
         },
       ],
@@ -582,10 +579,7 @@ describe("validateCartItems", () => {
           {
             menuItemId: itemId,
             quantity: 1,
-            modifiers: [
-              { optionId: "mod-1" },
-              { optionId: "mod-2" },
-            ],
+            modifiers: [{ optionId: "mod-1" }, { optionId: "mod-2" }],
             notes: "",
           },
         ],
