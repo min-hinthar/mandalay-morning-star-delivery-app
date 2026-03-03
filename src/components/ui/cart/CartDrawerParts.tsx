@@ -3,15 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { m, AnimatePresence } from "framer-motion";
-import {
-  ShoppingBag,
-  X,
-  Trash2,
-  AlertTriangle,
-  Expand,
-  CalendarClock,
-  Check,
-} from "lucide-react";
+import { ShoppingBag, X, Trash2, AlertTriangle, Expand, CalendarClock, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";

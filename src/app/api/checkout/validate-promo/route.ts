@@ -12,19 +12,13 @@ export async function POST(request: Request) {
     const parsed = schema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { valid: false, error: "Invalid promo code" },
-        { status: 400 }
-      );
+      return NextResponse.json({ valid: false, error: "Invalid promo code" }, { status: 400 });
     }
 
     const result = await validatePromoCode(parsed.data.code);
 
     if (!result.valid) {
-      return NextResponse.json(
-        { valid: false, error: result.message },
-        { status: 200 }
-      );
+      return NextResponse.json({ valid: false, error: result.message }, { status: 200 });
     }
 
     return NextResponse.json({

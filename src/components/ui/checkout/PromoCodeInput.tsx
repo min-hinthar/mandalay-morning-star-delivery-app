@@ -120,12 +120,8 @@ export function PromoCodeInput({ className }: PromoCodeInputProps) {
       <AnimatePresence>
         {isExpanded && (
           <m.div
-            initial={
-              shouldAnimate ? { height: 0, opacity: 0 } : undefined
-            }
-            animate={
-              shouldAnimate ? { height: "auto", opacity: 1 } : undefined
-            }
+            initial={shouldAnimate ? { height: 0, opacity: 0 } : undefined}
+            animate={shouldAnimate ? { height: "auto", opacity: 1 } : undefined}
             exit={shouldAnimate ? { height: 0, opacity: 0 } : undefined}
             transition={getSpring(spring.default)}
             className="overflow-hidden"
@@ -151,26 +147,16 @@ export function PromoCodeInput({ className }: PromoCodeInputProps) {
                 disabled={isValidating || !promoCode.trim()}
                 className="shrink-0"
               >
-                {isValidating ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  "Apply"
-                )}
+                {isValidating ? <Loader2 className="h-4 w-4 animate-spin" /> : "Apply"}
               </Button>
             </div>
 
             <AnimatePresence>
               {error && (
                 <m.p
-                  initial={
-                    shouldAnimate ? { opacity: 0, y: -5 } : undefined
-                  }
-                  animate={
-                    shouldAnimate ? { opacity: 1, y: 0 } : undefined
-                  }
-                  exit={
-                    shouldAnimate ? { opacity: 0, y: -5 } : undefined
-                  }
+                  initial={shouldAnimate ? { opacity: 0, y: -5 } : undefined}
+                  animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+                  exit={shouldAnimate ? { opacity: 0, y: -5 } : undefined}
                   className="mt-1.5 text-xs text-status-error"
                 >
                   {error}

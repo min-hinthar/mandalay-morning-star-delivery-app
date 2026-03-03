@@ -21,14 +21,8 @@ interface ReorderButtonProps {
 }
 
 export function ReorderButton({ orderId }: ReorderButtonProps) {
-  const {
-    reorder,
-    confirmReorder,
-    cancelReorder,
-    isLoading,
-    showConfirmation,
-    cartItemCount,
-  } = useReorder();
+  const { reorder, confirmReorder, cancelReorder, isLoading, showConfirmation, cartItemCount } =
+    useReorder();
   const { shouldAnimate } = useAnimationPreference();
 
   const shortId = orderId.slice(0, 8).toUpperCase();
@@ -36,11 +30,7 @@ export function ReorderButton({ orderId }: ReorderButtonProps) {
   return (
     <>
       <m.div whileTap={shouldAnimate ? { scale: 0.95 } : undefined}>
-        <Button
-          variant="outline"
-          onClick={() => reorder(orderId)}
-          disabled={isLoading}
-        >
+        <Button variant="outline" onClick={() => reorder(orderId)} disabled={isLoading}>
           {isLoading ? (
             <Loader2 className="h-4 w-4 animate-spin mr-2" />
           ) : (

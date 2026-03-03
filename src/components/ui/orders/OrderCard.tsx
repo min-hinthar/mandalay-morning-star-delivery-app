@@ -43,14 +43,8 @@ interface OrderCardProps {
 
 export function OrderCard({ order, index = 0 }: OrderCardProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
-  const {
-    reorder,
-    confirmReorder,
-    cancelReorder,
-    isLoading,
-    showConfirmation,
-    cartItemCount,
-  } = useReorder();
+  const { reorder, confirmReorder, cancelReorder, isLoading, showConfirmation, cartItemCount } =
+    useReorder();
 
   const deliveryDate = order.deliveryWindowStart
     ? format(parseISO(order.deliveryWindowStart), "EEEE, MMM d")

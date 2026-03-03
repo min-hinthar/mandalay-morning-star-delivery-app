@@ -56,10 +56,7 @@ export function RatingBanner({ orderId }: RatingBannerProps) {
 
     try {
       const supabase = createClient();
-      await supabase
-        .from("orders")
-        .update({ rating_dismissed: true })
-        .eq("id", orderId);
+      await supabase.from("orders").update({ rating_dismissed: true }).eq("id", orderId);
     } catch {
       // Dismissal is best-effort
     }
@@ -92,12 +89,8 @@ export function RatingBanner({ orderId }: RatingBannerProps) {
               <Star className="h-5 w-5 text-saffron" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-charcoal text-sm">
-                How was your order?
-              </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Your feedback helps us improve
-              </p>
+              <p className="font-medium text-charcoal text-sm">How was your order?</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Your feedback helps us improve</p>
             </div>
             <Button
               variant="outline"

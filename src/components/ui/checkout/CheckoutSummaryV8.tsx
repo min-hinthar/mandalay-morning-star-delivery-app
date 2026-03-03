@@ -67,9 +67,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
 
   // Compute tip cents from store state
   const tipCents =
-    tipPercent !== null
-      ? Math.round((itemsSubtotal * tipPercent) / 100)
-      : customTipCents;
+    tipPercent !== null ? Math.round((itemsSubtotal * tipPercent) / 100) : customTipCents;
 
   // Compute adjusted total with tip and discount
   const adjustedTotal = estimatedTotal + tipCents - discountCents;
@@ -287,12 +285,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             className="flex justify-between text-sm text-text-muted"
           >
             <span>Tip</span>
-            <PriceTicker
-              value={tipCents}
-              inCents={true}
-              size="sm"
-              className="text-text-money"
-            />
+            <PriceTicker value={tipCents} inCents={true} size="sm" className="text-text-money" />
           </m.div>
         )}
 
@@ -309,9 +302,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
               <Tag className="h-3.5 w-3.5" />
               {discountLabel}
             </span>
-            <span className="text-status-success font-medium">
-              -{formatPrice(discountCents)}
-            </span>
+            <span className="text-status-success font-medium">-{formatPrice(discountCents)}</span>
           </m.div>
         )}
 
