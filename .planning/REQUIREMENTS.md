@@ -65,14 +65,14 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 
 ### Admin Enhancements
 
-- [ ] **ADMIN-01**: Orders grouped by delivery time window on ops dashboard
+- [x] **ADMIN-01**: Orders grouped by delivery time window on ops dashboard
 - [ ] **ADMIN-02**: Admin menu photo management grid (upload, crop, replace)
 
 ### Driver Enhancements
 
-- [ ] **DRV-01**: Driver can contact customer with one tap (phone or text)
-- [ ] **DRV-02**: Driver can open turn-by-turn navigation to stop address
-- [ ] **DRV-03**: Driver must capture photo proof on delivery completion (depends on Phase 90 photo storage infrastructure)
+- [x] **DRV-01**: Driver can contact customer with one tap (phone or text)
+- [x] **DRV-02**: Driver can open turn-by-turn navigation to stop address
+- [x] **DRV-03**: Driver must capture photo proof on delivery completion (depends on Phase 90 photo storage infrastructure)
 
 ### Observability
 
@@ -232,10 +232,10 @@ Explicitly excluded. Documented to prevent scope creep.
 | CUX-17 | Phase 93 | Pending |
 | CUX-18 | Phase 93 | Pending |
 | CUX-19 | Phase 93 | Pending |
-| ADMIN-01 | Phase 94 | Pending |
-| DRV-01 | Phase 94 | Pending |
-| DRV-02 | Phase 94 | Pending |
-| DRV-03 | Phase 94 | Pending |
+| ADMIN-01 | Phase 94 | Complete |
+| DRV-01 | Phase 94 | Complete |
+| DRV-02 | Phase 94 | Complete |
+| DRV-03 | Phase 94 | Complete |
 | OBS-01 | Phase 95 | Pending |
 | OBS-02 | Phase 95 | Pending |
 | OBS-03 | Phase 95 | Pending |

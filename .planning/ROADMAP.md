@@ -209,7 +209,7 @@
 | 91. Checkout & Payment Hardening | v2.0 | 0/4 | Planned | - |
 | 92. Customer UX - Discovery & Shopping | v2.0 | 0/TBD | Not started | - |
 | 93. Customer UX - Engagement & Accessibility | v2.0 | 0/TBD | Not started | - |
-| 94. Admin & Driver Enhancements | 2/2 | Complete   | 2026-03-03 | - |
+| 94. Admin & Driver Enhancements | 2/2 | Complete    | 2026-03-03 | - |
 | 95. Observability, Performance & Testing | v2.0 | 0/TBD | Not started | - |
 
 ---
