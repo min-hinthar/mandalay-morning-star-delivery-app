@@ -90,6 +90,6 @@ Progress: [##░░░░░░░░] 29% (2/7 phases)
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 90 complete
-Resume file: .planning/phases/90-menu-photo-pipeline/90-04-SUMMARY.md
+Stopped at: Phase 91 context gathered
+Resume file: .planning/phases/91-checkout-payment-hardening/91-CONTEXT.md
 Next action: /gsd:plan-phase 91
