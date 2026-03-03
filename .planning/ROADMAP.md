@@ -67,7 +67,7 @@
 - [ ] **Phase 84: Production Hardening** - Indexes, N+1 fixes, rate limit tuning, and pre-launch checklist
 - [x] **Phase 85: Phase 77 Verification & Bug Traceability** - Verify bug fixes, create VERIFICATION.md, update traceability (gap closure) (completed 2026-03-02)
 - [x] **Phase 86: Deferred Integration & Tech Debt Cleanup** - Wire remaining cutoff callsites to DB, fix SUMMARY frontmatter (gap closure) (completed 2026-03-02)
-- [ ] **Phase 87: Fix Code Gaps (GATE-03 + DRV-05)** - Wire cart drawer cutoff to DB values, add simple mode page guard (gap closure)
+- [x] **Phase 87: Fix Code Gaps (GATE-03 + DRV-05)** - Wire cart drawer cutoff to DB values, add simple mode page guard (gap closure) (completed 2026-03-03)
 - [ ] **Phase 88: Phase 83 & 84 Verification** - Create VERIFICATION.md for Phases 83/84, update traceability (gap closure)
 
 ## Phase Details
@@ -253,7 +253,7 @@ Phase 88 depends on Phase 87 (DRV-05 fix must happen before verification).
 | 84. Production Hardening | v1.9 | 0/TBD | Not started | - |
 | 85. Phase 77 Verification & Bug Traceability | 2/2 | Complete    | 2026-03-02 | - |
 | 86. Deferred Integration & Tech Debt Cleanup | 2/2 | Complete   | 2026-03-02 | - |
-| 87. Fix Code Gaps (GATE-03 + DRV-05) | v1.9 | 0/1 | Not started | - |
+| 87. Fix Code Gaps (GATE-03 + DRV-05) | v1.9 | Complete    | 2026-03-03 | - |
 | 88. Phase 83 & 84 Verification | v1.9 | 0/TBD | Not started | - |
 
 ### Historical Progress
