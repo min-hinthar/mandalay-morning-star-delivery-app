@@ -42,7 +42,7 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 
 - [x] **GATE-01**: Homepage hero — dynamic CTA based on delivery availability
 - [x] **GATE-02**: Menu page banner — Saturday delivery schedule + cutoff
-- [ ] **GATE-03**: Cart drawer — show delivery date + cutoff countdown
+- [x] **GATE-03**: Cart drawer — show delivery date + cutoff countdown
 - [x] **GATE-04**: Checkout gate — past cutoff modal with next Saturday date
 - [x] **GATE-05**: Update empty states with Saturday schedule context
 - [x] **GATE-06**: Order tracking — polling indicator + "last updated" timestamp
@@ -75,7 +75,7 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 - [ ] **DRV-02**: Confirmation dialogs — "Mark as delivered at [address]?"
 - [ ] **DRV-03**: One-tap customer contact — phone call / text button on each stop
 - [ ] **DRV-04**: Offline instructions — "Route saved locally. Will sync when reconnected."
-- [ ] **DRV-05**: Hide by default — route optimization, exception modals, earnings dashboard
+- [x] **DRV-05**: Hide by default — route optimization, exception modals, earnings dashboard
 
 ### Production Hardening
 
@@ -157,7 +157,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ROUTE-07 | Phase 80 | Complete |
 | GATE-01 | Phase 81 | Complete |
 | GATE-02 | Phase 81 | Complete |
-| GATE-03 | Phase 87 | Pending |
+| GATE-03 | Phase 87 | Complete |
 | GATE-04 | Phase 81 | Complete |
 | GATE-05 | Phase 81 | Complete |
 | GATE-06 | Phase 81 | Complete |
@@ -181,7 +181,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DRV-02 | Phase 88 | Pending |
 | DRV-03 | Phase 88 | Pending |
 | DRV-04 | Phase 88 | Pending |
-| DRV-05 | Phase 87 | Pending |
+| DRV-05 | Phase 87 | Complete |
 | HARD-01 | Phase 88 | Pending |
 | HARD-02 | Phase 88 | Pending |
 | HARD-03 | Phase 88 | Pending |
