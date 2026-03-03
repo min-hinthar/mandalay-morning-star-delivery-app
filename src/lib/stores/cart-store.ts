@@ -266,12 +266,8 @@ export const useCartStore = create<CartStore>()(
               ...item,
               basePriceCents: baseDrift ? baseDrift.newPriceCents : item.basePriceCents,
               modifiers: item.modifiers.map((mod) => {
-                const modDrift = modDrifts.find(
-                  (d) => d.modifierName === mod.optionName
-                );
-                return modDrift
-                  ? { ...mod, priceDeltaCents: modDrift.newPriceCents }
-                  : mod;
+                const modDrift = modDrifts.find((d) => d.modifierName === mod.optionName);
+                return modDrift ? { ...mod, priceDeltaCents: modDrift.newPriceCents } : mod;
               }),
             };
           }),
