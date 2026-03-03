@@ -339,6 +339,7 @@ export default function TestDeliveryPage() {
           orderItems={currentStop.orderItems}
           onStatusChange={handleStatusChange}
           onException={() => setShowException(true)}
+          testMode
         />
       </m.div>
     );
