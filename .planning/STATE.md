@@ -202,5 +202,6 @@ Progress: [====================================] 85/85 phases (COMPLETE)
 ## Session Continuity
 
 Last session: 2026-03-02
-Stopped at: Phase 85 complete -- Verification & bug traceability for Phase 77 BUG fixes
-Next action: Continue v1.9 gap closure phases or audit-milestone
+Stopped at: Phase 87 context gathered
+Resume file: .planning/phases/87-fix-code-gaps/87-CONTEXT.md
+Next action: /gsd:plan-phase 87
