@@ -81,6 +81,6 @@ Progress: [#░░░░░░░░░] 14% (1/7 phases)
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 89 complete (all 4 plans executed, verified)
-Resume file: .planning/phases/89-critical-bug-fixes/89-CONTEXT.md
+Stopped at: Phase 90 context gathered
+Resume file: .planning/phases/90-menu-photo-pipeline/90-CONTEXT.md
 Next action: /gsd:plan-phase 90
