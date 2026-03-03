@@ -85,9 +85,18 @@ Utilities: `useSafeTimeout`, `useSafeInterval`, `useSafeAsync` in `src/lib/hooks
 
 ## Google Images Not Rendering | Runtime/Config | High
 
-`Referrer-Policy: strict-origin-when-cross-origin` blocks Google image requests. Also narrow `remotePatterns` hostname.
+Three compounding root causes (each session found a new layer):
 
-**Fix:** `referrerPolicy="no-referrer"` on all external `<img>` tags. Use `**.googleusercontent.com` wildcard.
+1. **Referrer policy** — `Referrer-Policy: strict-origin-when-cross-origin` blocks Google image requests + narrow `remotePatterns` hostname.
+   **Fix:** `referrerPolicy="no-referrer"` on all external `<img>` tags. Use `**.googleusercontent.com` wildcard.
+
+2. **SW CacheFirst + opaque responses** — `CacheFirst` permanently cached failed opaque (status 0) cross-origin responses. One transient failure → blank images forever.
+   **Fix:** Switch to `NetworkFirst` with timeout for external images. Bump `CACHE_VERSION` to bust stale entries. Add activate handler to delete old versioned caches.
+
+3. **`loading="lazy"` + animated containers** — `<img loading="lazy">` inside framer-motion `initial={{ opacity: 0 }}` wrappers: IntersectionObserver never fires during SPA nav.
+   **Fix:** Remove `loading="lazy"` from primary content images in animated containers. Add `onError` fallback.
+
+**Prevention:** Never use `CacheFirst` for cross-origin images. Never use `loading="lazy"` inside opacity-animated containers.
 
 ---
 

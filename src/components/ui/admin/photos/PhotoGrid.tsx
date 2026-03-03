@@ -91,7 +91,6 @@ export function PhotoGrid({
                   src={photo.imageUrl}
                   alt={photo.name}
                   className="h-full w-full object-cover"
-                  loading="lazy"
                   referrerPolicy="no-referrer"
                 />
 

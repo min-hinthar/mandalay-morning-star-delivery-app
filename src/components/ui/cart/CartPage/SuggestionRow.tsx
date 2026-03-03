@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -22,6 +22,7 @@ interface SuggestionCardProps {
 
 const SuggestionCard = memo(function SuggestionCard({ item, onSelect }: SuggestionCardProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  const [imgError, setImgError] = useState(false);
 
   return (
     <m.button
@@ -41,13 +42,14 @@ const SuggestionCard = memo(function SuggestionCard({ item, onSelect }: Suggesti
     >
       {/* Thumbnail */}
       <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-surface-secondary/50">
-        {item.imageUrl ? (
+        {item.imageUrl && !imgError ? (
           /* eslint-disable-next-line @next/next/no-img-element -- Dynamic external URL */
           <img
             src={item.imageUrl}
             alt={item.nameEn}
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
+            onError={() => setImgError(true)}
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-xl">

@@ -56,6 +56,7 @@ export const CartItem = memo(function CartItem({
   const swipeProgress = useTransform(dragX, [-150, 0], [1, 0]);
   const [isDragging, setIsDragging] = useState(false);
   const [swipeValue, setSwipeValue] = useState(0);
+  const [imgError, setImgError] = useState(false);
 
   useEffect(() => {
     const unsubscribe = swipeProgress.on("change", setSwipeValue);
@@ -143,13 +144,14 @@ export const CartItem = memo(function CartItem({
             whileHover={shouldAnimate && !isStale ? { scale: 1.05 } : undefined}
             transition={getSpring(spring.snappy)}
           >
-            {item.imageUrl ? (
+            {item.imageUrl && !imgError ? (
               /* eslint-disable-next-line @next/next/no-img-element -- Dynamic external URL in animation */
               <img
                 src={item.imageUrl}
                 alt={item.nameEn}
                 className="w-full h-full object-cover"
                 referrerPolicy="no-referrer"
+                onError={() => setImgError(true)}
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center text-3xl">

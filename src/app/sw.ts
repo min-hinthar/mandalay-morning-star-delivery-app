@@ -20,10 +20,10 @@ declare global {
 declare const self: WorkerGlobalScope & typeof globalThis;
 
 // Cache version for invalidation control (OFFLINE-12)
-// Bumped v1→v2 to bust stale opaque failure responses cached before the
-// referrerPolicy="no-referrer" fix (commit e3ae7892). Hard reload bypassed
-// the SW and worked; normal loads served the bad CacheFirst entry.
-const CACHE_VERSION = "v2";
+// v1→v2: bust stale opaque failures from before referrerPolicy="no-referrer" fix
+// v2→v3: switched external images from CacheFirst to NetworkFirst -- bust any
+//        bad opaque responses that CacheFirst permanently cached in v2
+const CACHE_VERSION = "v3";
 
 // Navigation handler - NetworkFirst with 3s timeout for page navigations
 const navigationHandler = new NetworkFirst({
@@ -44,16 +44,19 @@ const serwist = new Serwist({
   clientsClaim: true,
   navigationPreload: true,
   runtimeCaching: [
-    // External images (Google Drive, Supabase Storage) - CacheFirst (OFFLINE-03)
-    // Uses CacheableResponsePlugin to cache opaque cross-origin responses (status 0)
+    // External images (Google Drive, Supabase Storage) - NetworkFirst (OFFLINE-03)
+    // Previously CacheFirst, but opaque cross-origin responses (status 0) cannot
+    // be inspected -- if a fetch fails, the empty opaque response was cached
+    // permanently. NetworkFirst always tries network first; cache is offline fallback.
     {
       matcher: ({ url }) =>
         url.hostname.includes("drive.google.com") ||
         url.hostname.includes("googleusercontent.com") ||
         url.hostname.includes("supabase.co") ||
         url.hostname.includes("supabase.com"),
-      handler: new CacheFirst({
+      handler: new NetworkFirst({
         cacheName: `external-images-${CACHE_VERSION}`,
+        networkTimeoutSeconds: 3,
         plugins: [
           new CacheableResponsePlugin({
             statuses: [0, 200], // 0 = opaque response (cross-origin)
@@ -132,6 +135,30 @@ const serwist = new Serwist({
 
 // Register NavigationRoute with denylist for safe navigation caching
 serwist.registerRoute(new NavigationRoute(navigationHandler, { denylist }));
+
+// Clean up old versioned runtime caches on activation (OFFLINE-12)
+// Serwist only cleans up precache entries; runtime caches with old CACHE_VERSION linger.
+(self as unknown as ServiceWorkerGlobalScope).addEventListener("activate", (event) => {
+  event.waitUntil(
+    caches.keys().then((cacheNames) => {
+      const currentSuffix = `-${CACHE_VERSION}`;
+      const versionedPrefixes = [
+        "external-images-",
+        "images-cache-",
+        "menu-api-cache-",
+        "static-assets-",
+        "navigations-",
+      ];
+      const toDelete = cacheNames.filter((name) => {
+        // Only target our versioned caches that don't match current version
+        return versionedPrefixes.some(
+          (prefix) => name.startsWith(prefix) && !name.endsWith(currentSuffix)
+        );
+      });
+      return Promise.all(toDelete.map((name) => caches.delete(name)));
+    })
+  );
+});
 
 // Listen for skip waiting message from update prompt (OFFLINE-11)
 self.addEventListener("message", (event: MessageEvent) => {

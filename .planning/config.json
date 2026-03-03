@@ -1,5 +1,6 @@
 {
   "workflow": {
     "auto_advance": true
-  }
+  },
+  "model_profile": "quality"
 }
