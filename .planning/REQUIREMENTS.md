@@ -14,6 +14,8 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [ ] **BUG-03**: Add checkout cleanup rollback with try/catch on each delete
 - [ ] **BUG-04**: Fix type assertion null crash on RPC checkout result
 - [ ] **BUG-05**: Add refund amount ceiling validation (cannot exceed total_cents)
+- [ ] **BUG-06**: Fix cart store debounce race condition — move tracking inside Zustand `set()` or use useDebounce on form submission (`cart-store.ts:51-73`)
+- [ ] **BUG-07**: Add cutoff time 10-second safety buffer — `isPastCutoff()` uses bare `getTime()` comparison with no margin for DB insert latency
 
 ### Menu & Photos
 
@@ -23,6 +25,7 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [ ] **MENU-04**: Menu items track photo freshness via image_updated_at column
 - [ ] **MENU-05**: Allergens come from single source (deduplicate tags/allergens overlap)
 - [ ] **MENU-06**: Admin can mark items inactive (for owner-verified app-only items)
+- [ ] **MENU-07**: Seed fallback photos from `data/menu-photos/` into Supabase Storage for items without admin-uploaded photos
 
 ### Checkout & Payment
 
@@ -34,8 +37,8 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [ ] **CHKT-06**: User can apply promo codes at checkout (Stripe coupon integration)
 - [ ] **CHKT-07**: User can add tip at checkout (15%/20%/25%/custom)
 - [ ] **CHKT-08**: User can add delivery instructions ("Leave at door", etc.)
-- [ ] **CHKT-09**: User can browse and build cart without signing in (sign in at payment)
-- [ ] **CHKT-10**: Successful checkouts logged with order ID, total, user ID
+- [ ] **CHKT-09**: User can browse and build cart without signing in — (a) anonymous browsing + localStorage cart, (b) auth prompt at checkout, (c) cart transfers to user account on sign-in
+- [ ] **CHKT-10**: Successful checkouts logged with order ID, total_cents, user_id, payment_intent_id to Sentry breadcrumb + structured log
 
 ### Customer UX
 
@@ -43,15 +46,16 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [ ] **CUX-02**: Dietary filter chips above menu grid (Vegan, Gluten-Free, Spicy)
 - [ ] **CUX-03**: Sold-out items sorted to bottom of search results and grid
 - [ ] **CUX-04**: Item detail sheet shows scroll indicator when modifiers overflow
-- [ ] **CUX-05**: Dynamic Saturday schedule hero banner with next delivery date
+- [ ] **CUX-05**: Dynamic Saturday schedule hero banner with next delivery date (audit: v1.9 has dynamic hero CTA — verify existing impl, enhance if needed)
 - [ ] **CUX-06**: Minimum order warning shown inline in cart
 - [ ] **CUX-07**: Sticky checkout footer on mobile (total + button always visible)
 - [ ] **CUX-08**: First available delivery date auto-selected
 - [ ] **CUX-09**: Cart sync status indicator ("Saved" / "Saving...")
-- [ ] **CUX-10**: Prominent "Offline Mode" banner when browsing cached menu
+- [ ] **CUX-10**: Prominent "Offline Mode" banner when browsing cached menu (audit: v1.6 has animated offline banner — verify existing impl, polish if needed)
+- [ ] **CUX-20**: Delivery gate poll interval reduces to 10s near cutoff (currently static 60s in `useDeliveryGate.ts`)
 - [ ] **CUX-11**: User can one-tap reorder from order history
-- [ ] **CUX-12**: Rating prompt appears after delivery confirmation
-- [ ] **CUX-13**: User can share order link for social proof
+- [ ] **CUX-12**: Rating prompt appears after delivery confirmation (needs: `ratings` table, POST API route, admin ratings view)
+- [ ] **CUX-13**: User can copy shareable order link (URL copy, not social media integration)
 - [ ] **CUX-14**: Interactive cards have visible focus rings
 - [ ] **CUX-15**: Cart items deletable via keyboard with confirmation
 - [ ] **CUX-16**: Drawer handles have descriptive aria-labels
@@ -68,7 +72,7 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 
 - [ ] **DRV-01**: Driver can contact customer with one tap (phone or text)
 - [ ] **DRV-02**: Driver can open turn-by-turn navigation to stop address
-- [ ] **DRV-03**: Driver must capture photo proof on delivery completion
+- [ ] **DRV-03**: Driver must capture photo proof on delivery completion (depends on Phase 90 photo storage infrastructure)
 
 ### Observability
 
@@ -87,8 +91,45 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [ ] **TST-03**: RLS policy multi-user edge case tests
 - [ ] **TST-04**: Cutoff boundary tests including DST transitions
 - [ ] **TST-05**: Refund calculation rounding/ceiling tests
-- [ ] **TST-06**: Full Saturday dry run (20 test orders through lifecycle)
-- [ ] **TST-07**: Load test (50 concurrent checkout submissions)
+- [ ] **TST-06**: Full Saturday dry run — 20 test orders through lifecycle (requires: test Stripe keys, test users, test addresses setup)
+- [ ] **TST-07**: Load test — 50 concurrent checkout submissions via k6 or Artillery
+
+### Pre-Launch Checklist
+
+- [ ] **LAUNCH-01**: Supabase production instance provisioned (separate from staging)
+- [ ] **LAUNCH-02**: Production env vars set (Stripe live keys, Resend domain, Sentry DSN)
+- [ ] **LAUNCH-03**: DNS + custom domain verified with SSL
+- [ ] **LAUNCH-04**: Google Maps API billing enabled with budget cap
+- [ ] **LAUNCH-05**: Upstash Redis provisioned on Vercel Marketplace
+- [ ] **LAUNCH-06**: Stripe webhook tested with real test payments
+- [ ] **LAUNCH-07**: Email delivery confirmed (all 4 templates: confirmation, reminder, tracking, feedback)
+- [ ] **LAUNCH-08**: Mobile testing (iOS Safari, Android Chrome, PWA install)
+- [ ] **LAUNCH-09**: Admin trained on ops dashboard
+- [ ] **LAUNCH-10**: Driver(s) completed test deliveries
+- [ ] **LAUNCH-11**: Refund and emergency procedures documented
+
+## Risk Register
+
+| Risk | Likelihood | Impact | Mitigation |
+|------|-----------|--------|------------|
+| Stripe webhook failures lose orders | Medium | Critical | Webhook retry + reconciliation dashboard |
+| Menu photos not available from owner | High | Medium | Fallbacks exist in `data/menu-photos/` |
+| Driver app offline during delivery | Medium | High | IndexedDB queue built; test in Phase 95 |
+| Cutoff time confusion for customers | High | Medium | Phase 92 hero banner + countdown |
+| Google Maps API quota exceeded | Low | High | Budget caps + Leaflet fallback |
+| Supabase free tier limits hit | Medium | Critical | Monitor usage; upgrade to Pro before launch |
+| Platform price drift | High | High | Periodic manual check; automated sync deferred |
+
+## Success Metrics (4 weeks post-launch)
+
+| Metric | Target |
+|--------|--------|
+| Orders per Saturday | 30+ |
+| Checkout completion rate | >70% |
+| Average order value | >$40 |
+| Zero payment double-charges | 100% |
+| Page load time (LCP) | <2.5s |
+| Admin time per Saturday | <30 minutes |
 
 ## Future Requirements
 
@@ -151,12 +192,15 @@ Explicitly excluded. Documented to prevent scope creep.
 | BUG-03 | Phase 89 | Pending |
 | BUG-04 | Phase 89 | Pending |
 | BUG-05 | Phase 89 | Pending |
+| BUG-06 | Phase 89 | Pending |
+| BUG-07 | Phase 89 | Pending |
 | MENU-01 | Phase 90 | Pending |
 | MENU-02 | Phase 90 | Pending |
 | MENU-03 | Phase 90 | Pending |
 | MENU-04 | Phase 90 | Pending |
 | MENU-05 | Phase 90 | Pending |
 | MENU-06 | Phase 90 | Pending |
+| MENU-07 | Phase 90 | Pending |
 | ADMIN-02 | Phase 90 | Pending |
 | CHKT-01 | Phase 91 | Pending |
 | CHKT-02 | Phase 91 | Pending |
@@ -178,6 +222,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | CUX-08 | Phase 92 | Pending |
 | CUX-09 | Phase 92 | Pending |
 | CUX-10 | Phase 92 | Pending |
+| CUX-20 | Phase 92 | Pending |
 | CUX-11 | Phase 93 | Pending |
 | CUX-12 | Phase 93 | Pending |
 | CUX-13 | Phase 93 | Pending |
@@ -205,12 +250,23 @@ Explicitly excluded. Documented to prevent scope creep.
 | TST-05 | Phase 95 | Pending |
 | TST-06 | Phase 95 | Pending |
 | TST-07 | Phase 95 | Pending |
+| LAUNCH-01 | Phase 95 | Pending |
+| LAUNCH-02 | Phase 95 | Pending |
+| LAUNCH-03 | Phase 95 | Pending |
+| LAUNCH-04 | Phase 95 | Pending |
+| LAUNCH-05 | Phase 95 | Pending |
+| LAUNCH-06 | Phase 95 | Pending |
+| LAUNCH-07 | Phase 95 | Pending |
+| LAUNCH-08 | Phase 95 | Pending |
+| LAUNCH-09 | Phase 95 | Pending |
+| LAUNCH-10 | Phase 95 | Pending |
+| LAUNCH-11 | Phase 95 | Pending |
 
 **Coverage:**
-- v2.0 requirements: 59 total
-- Mapped to phases: 59
+- v2.0 requirements: 74 total
+- Mapped to phases: 74
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-03*
-*Last updated: 2026-03-03 after roadmap creation*
+*Last updated: 2026-03-03 after audit findings review*

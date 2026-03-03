@@ -69,38 +69,41 @@
 
 **Milestone Goal:** Battle-tested, revenue-ready Saturday delivery platform for real-money operations at 50-150 orders/Sat with 3-6 drivers and solo admin operator.
 
-- [ ] **Phase 89: Critical Bug Fixes** - Fix payment idempotency, modifier validation, cleanup rollback, type crash, refund ceiling
-- [ ] **Phase 90: Menu & Photo Pipeline** - Admin photo upload, bulk upload, auto-processing, freshness tracking, allergen dedup, inactive items, photo management grid
+- [ ] **Phase 89: Critical Bug Fixes** - Fix payment idempotency, modifier validation, cleanup rollback, type crash, refund ceiling, cart race condition, cutoff safety buffer
+- [ ] **Phase 90: Menu & Photo Pipeline** - Admin photo upload, bulk upload, auto-processing, freshness tracking, allergen dedup, inactive items, photo management grid, seed fallback photos
 - [ ] **Phase 91: Checkout & Payment Hardening** - Server-side pricing, price conflict auto-refresh, modifier bounds, prep time buffer, duplicate order prevention, promos, tips, delivery instructions, guest cart, checkout logging
-- [ ] **Phase 92: Customer UX - Discovery & Shopping** - Persistent search, dietary filters, sold-out sorting, modifier scroll indicator, Saturday hero, min order warning, sticky checkout footer, auto-select delivery date, cart sync status, offline banner
+- [ ] **Phase 92: Customer UX - Discovery & Shopping** - Persistent search, dietary filters, sold-out sorting, modifier scroll indicator, Saturday hero, min order warning, sticky checkout footer, auto-select delivery date, cart sync status, offline banner, dynamic gate polling
 - [ ] **Phase 93: Customer UX - Engagement & Accessibility** - One-tap reorder, rating prompt, order sharing, focus rings, keyboard cart delete, drawer aria-labels, form error linking, icon+color status, 3D tilt keyboard fix
 - [ ] **Phase 94: Admin & Driver Enhancements** - Ops time-window grouping, driver one-tap contact, turn-by-turn nav, photo proof on delivery
-- [ ] **Phase 95: Observability, Performance & Testing** - Standardized errors, webhook logging, health alerting, DB backups, image preload, bundle audit, timezone from env, race condition tests, webhook tests, RLS edge cases, DST cutoff tests, refund rounding tests, Saturday dry run, load test
+- [ ] **Phase 95: Observability, Performance & Testing** - Standardized errors, webhook logging, health alerting, DB backups, image preload, bundle audit, timezone from env, race condition tests, webhook tests, RLS edge cases, DST cutoff tests, refund rounding tests, Saturday dry run, load test, pre-launch checklist
 
 ## Phase Details
 
 ### Phase 89: Critical Bug Fixes
-**Goal**: All known payment and checkout bugs are eliminated before building new features on top
+**Goal**: All known payment, checkout, and cart bugs are eliminated before building new features on top
 **Depends on**: Nothing (first phase of v2.0)
-**Requirements**: BUG-01, BUG-02, BUG-03, BUG-04, BUG-05
+**Requirements**: BUG-01, BUG-02, BUG-03, BUG-04, BUG-05, BUG-06, BUG-07
 **Success Criteria** (what must be TRUE):
   1. Payment retries reuse a deterministic idempotency key derived from order ID, not timestamp
   2. Checkout rejects modifier selections that violate min_select/max_select group constraints
   3. Failed checkout cleanup rolls back each resource independently with try/catch (no silent partial state)
   4. RPC checkout result handles null/error without type assertion crash
   5. Refund endpoint rejects any amount exceeding order total_cents
+  6. Concurrent cart addItem() calls cannot bypass debounce check (race condition eliminated)
+  7. Orders submitted within 10 seconds of cutoff are rejected (safety buffer prevents DB-latency edge case)
 **Plans**: TBD
 
 ### Phase 90: Menu & Photo Pipeline
-**Goal**: Admin can manage all menu item photos from the dashboard, and photos are production-quality
+**Goal**: Admin can manage all menu item photos from the dashboard, photos are production-quality, and all items have at least a fallback photo
 **Depends on**: Phase 89
-**Requirements**: MENU-01, MENU-02, MENU-03, MENU-04, MENU-05, MENU-06, ADMIN-02
+**Requirements**: MENU-01, MENU-02, MENU-03, MENU-04, MENU-05, MENU-06, MENU-07, ADMIN-02
 **Success Criteria** (what must be TRUE):
   1. Admin can upload a photo for any menu item and see it reflected on the customer menu
   2. Admin can drag-drop multiple photos and have them auto-matched to items by slug
   3. Uploaded photos are auto-converted to WebP/AVIF at 4:3 crop with size/dimension validation
   4. Admin can mark menu items as inactive so they disappear from the customer-facing menu
   5. Each menu item has a single authoritative allergen source (no tag/allergen overlap)
+  6. All 53 items have at least a fallback photo seeded from `data/menu-photos/` into Supabase Storage
 **Plans**: TBD
 
 ### Phase 91: Checkout & Payment Hardening
@@ -118,22 +121,25 @@
 ### Phase 92: Customer UX - Discovery & Shopping
 **Goal**: Customers can efficiently find, filter, and purchase items with a polished mobile shopping experience
 **Depends on**: Phase 90 (needs photo pipeline for menu display), Phase 91 (checkout features used in cart/checkout UI)
-**Requirements**: CUX-01, CUX-02, CUX-03, CUX-04, CUX-05, CUX-06, CUX-07, CUX-08, CUX-09, CUX-10
+**Requirements**: CUX-01, CUX-02, CUX-03, CUX-04, CUX-05, CUX-06, CUX-07, CUX-08, CUX-09, CUX-10, CUX-20
+**Audit notes**: CUX-05 and CUX-10 may overlap with v1.9/v1.6 implementations — audit existing code before building, enhance rather than rebuild.
 **Success Criteria** (what must be TRUE):
   1. Search bar is always visible on mobile (not collapsed behind an icon) and dietary filter chips appear above the menu grid
   2. Sold-out items are sorted to the bottom of all menu views and search results
   3. Saturday schedule hero banner displays the next delivery date, and the first available delivery date is auto-selected in checkout
   4. Cart shows minimum order warning inline, sync status indicator ("Saved"/"Saving..."), and a prominent offline banner when browsing cached menu
   5. Sticky checkout footer on mobile keeps total and checkout button always visible during scrolling
+  6. Delivery gate polls at 10s (not 60s) during the final 30 minutes before cutoff
 **Plans**: TBD
 
 ### Phase 93: Customer UX - Engagement & Accessibility
 **Goal**: Post-purchase engagement features work and all interactive elements meet accessibility standards
 **Depends on**: Phase 92 (builds on customer UX foundation)
 **Requirements**: CUX-11, CUX-12, CUX-13, CUX-14, CUX-15, CUX-16, CUX-17, CUX-18, CUX-19
+**Backend needed**: CUX-12 requires `ratings` table migration, POST /api/ratings route, admin ratings view.
 **Success Criteria** (what must be TRUE):
   1. User can one-tap reorder from order history, repopulating cart with previous items
-  2. Rating prompt appears after delivery confirmation and user can submit a rating
+  2. Rating prompt appears after delivery confirmation, user can submit rating, ratings stored in DB and visible to admin
   3. All interactive cards have visible focus rings, drawer handles have descriptive aria-labels, and form errors are linked to fields via aria-describedby
   4. Cart items can be deleted via keyboard with confirmation, and 3D tilt effect is disabled during keyboard navigation
   5. Status indicators use icons alongside color (not color-only) for colorblind accessibility
@@ -141,7 +147,7 @@
 
 ### Phase 94: Admin & Driver Enhancements
 **Goal**: Admin has time-window order grouping and drivers can contact customers, navigate, and capture photo proof
-**Depends on**: Phase 89 (bug fixes), Phase 90 (photo infrastructure for driver photo proof)
+**Depends on**: Phase 89 (bug fixes), Phase 90 (photo storage infrastructure reused for DRV-03 delivery photos)
 **Requirements**: ADMIN-01, DRV-01, DRV-02, DRV-03
 **Success Criteria** (what must be TRUE):
   1. Ops dashboard groups orders by delivery time window for batch processing
@@ -150,16 +156,18 @@
   4. Driver must capture a photo before marking a delivery as complete (enforced, not optional)
 **Plans**: TBD
 
-### Phase 95: Observability, Performance & Testing
-**Goal**: Production infrastructure is monitored, performant, and validated by comprehensive tests including a full Saturday dry run
+### Phase 95: Observability, Performance, Testing & Launch Prep
+**Goal**: Production infrastructure is monitored, performant, validated by comprehensive tests, and all pre-launch infrastructure is provisioned
 **Depends on**: All prior phases (tests validate the complete system)
-**Requirements**: OBS-01, OBS-02, OBS-03, OBS-04, OBS-05, OBS-06, OBS-07, TST-01, TST-02, TST-03, TST-04, TST-05, TST-06, TST-07
+**Requirements**: OBS-01, OBS-02, OBS-03, OBS-04, OBS-05, OBS-06, OBS-07, TST-01, TST-02, TST-03, TST-04, TST-05, TST-06, TST-07, LAUNCH-01 to LAUNCH-11
 **Success Criteria** (what must be TRUE):
   1. All API routes return errors in standardized format `{error: {code, message, details?}}` and webhook events are logged with body hash + signature
   2. Health check has external alerting (email/SMS on downtime) and database is backed up daily with automated verification
   3. First 4 menu images are preloaded (not lazy) above the fold and first-load JS bundle is under 200KB
   4. Timezone is read from env var (not hardcoded) and all cutoff boundary tests pass including DST transitions
   5. Full Saturday dry run completes successfully (20 test orders through entire lifecycle) and load test handles 50 concurrent checkout submissions
+  6. All pre-launch infrastructure provisioned: production Supabase, Stripe live keys, Resend domain, Redis, DNS/SSL verified
+  7. Admin trained on ops dashboard and driver(s) completed test deliveries
 **Plans**: TBD
 
 ## Progress
