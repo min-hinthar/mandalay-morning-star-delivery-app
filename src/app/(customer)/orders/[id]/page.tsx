@@ -7,6 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OrderTimeline } from "@/components/ui/orders/OrderTimeline";
 import { PendingOrderActions } from "@/components/ui/orders/PendingOrderActions";
+import { RatingBanner } from "./RatingBanner";
+import { ReorderButton } from "./ReorderButton";
+import { OrderShareButton } from "./OrderShareButton";
 import { formatPrice } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
 import { isPastCutoff } from "@/lib/utils/delivery-dates";
@@ -184,13 +187,19 @@ export default async function OrderDetailPage({ params }: PageProps) {
   return (
     <main className="min-h-screen bg-gradient-to-b from-cream to-lotus/30 pt-8 pb-32 px-4">
       <div className="mx-auto max-w-2xl">
-        {/* Back Button */}
-        <Button variant="ghost" asChild className="mb-6">
-          <Link href="/orders" className="flex items-center gap-2">
-            <ArrowLeft className="h-4 w-4" />
-            Back to Orders
-          </Link>
-        </Button>
+        {/* Back + Share */}
+        <div className="flex items-center justify-between mb-6">
+          <Button variant="ghost" asChild>
+            <Link href="/orders" className="flex items-center gap-2">
+              <ArrowLeft className="h-4 w-4" />
+              Back to Orders
+            </Link>
+          </Button>
+          <OrderShareButton orderId={order.id} />
+        </div>
+
+        {/* Rating Banner (delivered orders only) */}
+        {order.status === "delivered" && <RatingBanner orderId={order.id} />}
 
         {/* Order Header */}
         <div className="flex items-center justify-between mb-6">
@@ -349,9 +358,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
           )}
 
           <div className="flex justify-center">
-            <Button asChild variant="outline">
-              <Link href="/menu">Order Again</Link>
-            </Button>
+            <ReorderButton orderId={order.id} />
           </div>
         </div>
       </div>
