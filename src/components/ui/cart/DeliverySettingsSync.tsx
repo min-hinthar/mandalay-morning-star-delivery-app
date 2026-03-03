@@ -6,6 +6,8 @@ import { useCartStore } from "@/lib/stores/cart-store";
 interface DeliverySettingsSyncProps {
   deliveryFeeCents: number;
   freeDeliveryThresholdCents: number;
+  cutoffDay: number;
+  cutoffHour: number;
 }
 
 /**
@@ -16,10 +18,13 @@ interface DeliverySettingsSyncProps {
 export function DeliverySettingsSync({
   deliveryFeeCents,
   freeDeliveryThresholdCents,
+  cutoffDay,
+  cutoffHour,
 }: DeliverySettingsSyncProps) {
   useEffect(() => {
     useCartStore.getState().setDeliverySettings(deliveryFeeCents, freeDeliveryThresholdCents);
-  }, [deliveryFeeCents, freeDeliveryThresholdCents]);
+    useCartStore.getState().setCutoffSettings(cutoffDay, cutoffHour);
+  }, [deliveryFeeCents, freeDeliveryThresholdCents, cutoffDay, cutoffHour]);
 
   return null;
 }
