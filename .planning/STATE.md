@@ -6,9 +6,9 @@ status: active
 last_updated: "2026-03-03"
 progress:
   total_phases: 7
-  completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
+  completed_phases: 3
+  total_plans: 10
+  completed_plans: 10
 ---
 
 # Project State
@@ -18,22 +18,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v2.0 Production-Grade Launch MVP — Phase 90 complete, Phase 91 next
+**Current focus:** v2.0 Production-Grade Launch MVP — Phase 94 complete, Phase 91 next
 
 ## Current Position
 
-Phase: 90 of 95 (Menu & Photo Pipeline) - COMPLETE
-Plan: 4/4 completed
+Phase: 94 of 95 (Admin & Driver Enhancements) - COMPLETE
+Plan: 2/2 completed
 Status: Phase complete
-Last activity: 2026-03-03 — Photo pipeline, allergen dedup, seed script, bulk upload all done
+Last activity: 2026-03-03 — Admin collapsible groups, driver SMS/nav/photo enforcement
 
-Progress: [##░░░░░░░░] 29% (2/7 phases)
+Progress: [###░░░░░░░] 43% (3/7 phases)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 354 (across v1.0-v2.0)
+- Total plans completed: 360 (across v1.0-v2.0)
 - Average duration: ~15 min
 - Total execution time: ~88 hours
 
@@ -51,10 +51,19 @@ Progress: [##░░░░░░░░] 29% (2/7 phases)
 | v1.7               | 9      | 32    | 3 days   |
 | v1.8               | 10     | 25    | 10 days  |
 | v1.9               | 12     | 38    | 3 days   |
-| v2.0 (in progress) | 2      | 8     | 1 day    |
-| **Total**          | **90** | **358** | **41 days** |
+| v2.0 (in progress) | 3      | 10    | 1 day    |
+| **Total**          | **91** | **360** | **41 days** |
 
 ## Accumulated Context
+
+### Phase 94 Decisions
+- useState<Set<string>> for collapse state (not Radix Collapsible — overkill for toggle)
+- Top-level Select All excludes collapsed windows for consistent UX
+- Native sms: URI for driver SMS — no backend SMS service for MVP
+- NavigationButton lat/lng made optional; falls back to encodeURIComponent(address)
+- Photo enforcement is client-side only — no server-side gate on PATCH endpoint (offline sync safety)
+- Offline-queued photo sets hasPhoto=true immediately (driver not blocked by connectivity)
+- Extracted SimpleRouteDone to keep SimpleStopView under 400 lines
 
 ### Phase 90 Decisions
 - Server-side sharp for WebP conversion (not client-side Canvas) — consistent output across devices
@@ -90,6 +99,6 @@ Progress: [##░░░░░░░░] 29% (2/7 phases)
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 94 context gathered
-Resume file: .planning/phases/94-admin-driver-enhancements/94-CONTEXT.md
-Next action: /gsd:plan-phase 94
+Stopped at: Phase 94 complete
+Resume file: .planning/phases/94-admin-driver-enhancements/94-02-SUMMARY.md
+Next action: /gsd:execute-phase 91
