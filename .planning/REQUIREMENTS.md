@@ -54,8 +54,8 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [x] **CUX-10**: Prominent "Offline Mode" banner when browsing cached menu (audit: v1.6 has animated offline banner — verify existing impl, polish if needed)
 - [x] **CUX-20**: Delivery gate poll interval reduces to 10s near cutoff (currently static 60s in `useDeliveryGate.ts`)
 - [ ] **CUX-11**: User can one-tap reorder from order history
-- [ ] **CUX-12**: Rating prompt appears after delivery confirmation (needs: `ratings` table, POST API route, admin ratings view)
-- [ ] **CUX-13**: User can copy shareable order link (URL copy, not social media integration)
+- [x] **CUX-12**: Rating prompt appears after delivery confirmation (needs: `ratings` table, POST API route, admin ratings view)
+- [x] **CUX-13**: User can copy shareable order link (URL copy, not social media integration)
 - [x] **CUX-14**: Interactive cards have visible focus rings
 - [x] **CUX-15**: Cart items deletable via keyboard with confirmation
 - [x] **CUX-16**: Drawer handles have descriptive aria-labels
@@ -224,8 +224,8 @@ Explicitly excluded. Documented to prevent scope creep.
 | CUX-10 | Phase 92 | Complete |
 | CUX-20 | Phase 92 | Complete |
 | CUX-11 | Phase 93 | Pending |
-| CUX-12 | Phase 93 | Pending |
-| CUX-13 | Phase 93 | Pending |
+| CUX-12 | Phase 93 | Complete |
+| CUX-13 | Phase 93 | Complete |
 | CUX-14 | Phase 93 | Complete |
 | CUX-15 | Phase 93 | Complete |
 | CUX-16 | Phase 93 | Complete |

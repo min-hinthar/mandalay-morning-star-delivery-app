@@ -63,6 +63,7 @@ Progress: [█████████░] 95% (5/7 phases)
 | **Total**          | **95** | **366** | **41 days** |
 | Phase 92 P01 | 15min | 2 tasks | 4 files |
 | Phase 92 P03 | 16min | 2 tasks | 6 files |
+| Phase 93 P01 | 9min | 2 tasks | 6 files |
 | Phase 93 P02 | 5min | 2 tasks | 7 files |
 
 ## Accumulated Context
@@ -92,6 +93,10 @@ Progress: [█████████░] 95% (5/7 phases)
 - from-surface-primary token for gradient ensures dark mode compatibility (#fff light / #000 dark)
 
 ### Phase 93 Decisions
+- Service role client for share page reads (bypasses RLS for anonymous access)
+- crypto.randomUUID() for share token generation (standard, no extra dependency)
+- status-warning token for star fill color (matches existing rating patterns)
+- profiles!driver_ratings_user_id_fkey join for customer name in admin ratings
 - STATUS_ICONS uses same icons as StatusStepper for visual consistency across admin and customer UX
 - Tilt disabled via isKeyboardFocused state for full 3D transform reset during keyboard navigation
 - Form error audit (CUX-17): ModifierGroup uses Radix primitives with built-in a11y, no per-field errors to link
