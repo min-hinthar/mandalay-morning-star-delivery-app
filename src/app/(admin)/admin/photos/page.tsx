@@ -65,7 +65,7 @@ export default function AdminPhotosPage() {
 
   const fetchMenuItems = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin/menu");
+      const response = await fetch("/api/admin/menu?limit=500");
       if (!response.ok) throw new Error("Failed to fetch menu items");
 
       const json = await response.json();

@@ -94,7 +94,7 @@ export default function AdminMenuItemEditPage() {
 
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin/menu");
+      const response = await fetch("/api/admin/menu?limit=500");
       if (!response.ok) return;
 
       const json = await response.json();
