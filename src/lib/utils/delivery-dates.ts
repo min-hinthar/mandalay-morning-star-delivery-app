@@ -4,6 +4,11 @@ import { TIMEZONE, type DeliveryDate } from "@/types/delivery";
 const DEFAULT_CUTOFF_DAY = 5; // Friday
 const DEFAULT_CUTOFF_HOUR = 15; // 3 PM
 
+/** BUG-07 FIX: Safety buffer in ms — reject orders this close to cutoff
+ * to prevent DB-latency edge case where order is accepted but DB insert
+ * completes after the real cutoff. Buffer is invisible to customers. */
+const CUTOFF_SAFETY_BUFFER_MS = 10_000; // 10 seconds
+
 interface ZonedParts {
   year: number;
   month: number;
@@ -165,7 +170,9 @@ export function isPastCutoff(
   cutoffHour: number = DEFAULT_CUTOFF_HOUR
 ): boolean {
   const cutoff = getCutoffForSaturday(saturday, cutoffDay, cutoffHour);
-  return now.getTime() > cutoff.getTime();
+  // BUG-07 FIX: 10-second safety buffer prevents DB-latency edge case.
+  // Orders submitted within buffer are rejected (same message as normal cutoff).
+  return now.getTime() > cutoff.getTime() - CUTOFF_SAFETY_BUFFER_MS;
 }
 
 /**

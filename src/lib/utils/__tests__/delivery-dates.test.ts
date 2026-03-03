@@ -101,6 +101,69 @@ describe("delivery date utils", () => {
     });
   });
 
+  describe("BUG-07: cutoff safety buffer", () => {
+    // The 10-second safety buffer makes isPastCutoff return true
+    // when now > cutoff - 10s (i.e., within 10 seconds of cutoff).
+    // This prevents orders submitted at the boundary from failing
+    // due to DB insert latency.
+
+    it("returns false 11 seconds before cutoff (outside buffer)", () => {
+      const saturday = makePtDate("2026-01-17T00:00:00");
+      const cutoff = getCutoffForSaturday(saturday, CUTOFF_DAY, CUTOFF_HOUR);
+      const elevenSecBefore = new Date(cutoff.getTime() - 11_000);
+      expect(isPastCutoff(saturday, elevenSecBefore, CUTOFF_DAY, CUTOFF_HOUR)).toBe(false);
+    });
+
+    it("returns true 10 seconds before cutoff (at buffer boundary)", () => {
+      const saturday = makePtDate("2026-01-17T00:00:00");
+      const cutoff = getCutoffForSaturday(saturday, CUTOFF_DAY, CUTOFF_HOUR);
+      // now.getTime() > cutoff.getTime() - 10000
+      // cutoff - 10s + 1ms > cutoff - 10s → true
+      const tenSecBefore = new Date(cutoff.getTime() - 10_000 + 1);
+      expect(isPastCutoff(saturday, tenSecBefore, CUTOFF_DAY, CUTOFF_HOUR)).toBe(true);
+    });
+
+    it("returns true 5 seconds before cutoff (inside buffer)", () => {
+      const saturday = makePtDate("2026-01-17T00:00:00");
+      const cutoff = getCutoffForSaturday(saturday, CUTOFF_DAY, CUTOFF_HOUR);
+      const fiveSecBefore = new Date(cutoff.getTime() - 5_000);
+      expect(isPastCutoff(saturday, fiveSecBefore, CUTOFF_DAY, CUTOFF_HOUR)).toBe(true);
+    });
+
+    it("returns true at exact cutoff time", () => {
+      const saturday = makePtDate("2026-01-17T00:00:00");
+      const cutoff = getCutoffForSaturday(saturday, CUTOFF_DAY, CUTOFF_HOUR);
+      expect(isPastCutoff(saturday, cutoff, CUTOFF_DAY, CUTOFF_HOUR)).toBe(true);
+    });
+
+    it("returns true 1 second after cutoff", () => {
+      const saturday = makePtDate("2026-01-17T00:00:00");
+      const cutoff = getCutoffForSaturday(saturday, CUTOFF_DAY, CUTOFF_HOUR);
+      const oneSecAfter = new Date(cutoff.getTime() + 1_000);
+      expect(isPastCutoff(saturday, oneSecAfter, CUTOFF_DAY, CUTOFF_HOUR)).toBe(true);
+    });
+
+    it("returns false 1 hour before cutoff (well before buffer)", () => {
+      const saturday = makePtDate("2026-01-17T00:00:00");
+      const cutoff = getCutoffForSaturday(saturday, CUTOFF_DAY, CUTOFF_HOUR);
+      const oneHourBefore = new Date(cutoff.getTime() - 60 * 60 * 1000);
+      expect(isPastCutoff(saturday, oneHourBefore, CUTOFF_DAY, CUTOFF_HOUR)).toBe(false);
+    });
+
+    it("getTimeUntilCutoff does NOT include buffer (raw time for UI)", () => {
+      const saturday = makePtDate("2026-01-17T00:00:00");
+      const cutoff = getCutoffForSaturday(saturday, CUTOFF_DAY, CUTOFF_HOUR);
+      // 5 seconds before cutoff — isPastCutoff is true (buffer), but
+      // getTimeUntilCutoff should show ~0 minutes remaining (not past cutoff in UI)
+      const fiveSecBefore = new Date(cutoff.getTime() - 5_000);
+      const result = getTimeUntilCutoff(fiveSecBefore, CUTOFF_DAY, CUTOFF_HOUR);
+      // UI gate still shows as NOT past cutoff (raw comparison, no buffer)
+      expect(result.isPastCutoff).toBe(false);
+      expect(result.hours).toBe(0);
+      expect(result.minutes).toBe(0);
+    });
+  });
+
   describe("parameterization", () => {
     it("getCutoffForSaturday respects custom cutoff day/hour (Thursday 12pm)", () => {
       const saturday = makePtDate("2026-01-17T00:00:00");
