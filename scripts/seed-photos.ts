@@ -81,10 +81,10 @@ function readLocalPhotos(): LocalPhoto[] {
   return photos;
 }
 
-async function fetchMenuItems(supabase: SupabaseClient<Database>): Promise<Map<string, MenuItemRecord>> {
-  const { data, error } = await supabase
-    .from("menu_items")
-    .select("id, slug, image_url");
+async function fetchMenuItems(
+  supabase: SupabaseClient<Database>
+): Promise<Map<string, MenuItemRecord>> {
+  const { data, error } = await supabase.from("menu_items").select("id, slug, image_url");
 
   if (error) throw error;
 
@@ -176,7 +176,9 @@ async function seedPhotos(): Promise<void> {
         });
 
       if (uploadError) {
-        console.error(`  [${i + 1}/${toSeed.length}] FAILED: ${item.slug} — ${uploadError.message}`);
+        console.error(
+          `  [${i + 1}/${toSeed.length}] FAILED: ${item.slug} — ${uploadError.message}`
+        );
         failed++;
         continue;
       }
@@ -194,7 +196,9 @@ async function seedPhotos(): Promise<void> {
         .or("image_url.is.null,image_url.like.%fallback%");
 
       if (updateError) {
-        console.error(`  [${i + 1}/${toSeed.length}] DB UPDATE FAILED: ${item.slug} — ${updateError.message}`);
+        console.error(
+          `  [${i + 1}/${toSeed.length}] DB UPDATE FAILED: ${item.slug} — ${updateError.message}`
+        );
         failed++;
         continue;
       }
@@ -209,7 +213,9 @@ async function seedPhotos(): Promise<void> {
   }
 
   // Step 5: Summary
-  console.log(`\nPhoto seeding complete: ${success}/${toSeed.length} uploaded, ${skippedExisting} skipped, ${failed} failed`);
+  console.log(
+    `\nPhoto seeding complete: ${success}/${toSeed.length} uploaded, ${skippedExisting} skipped, ${failed} failed`
+  );
 }
 
 seedPhotos().catch((error: Error) => {

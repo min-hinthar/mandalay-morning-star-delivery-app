@@ -44,10 +44,7 @@ export async function POST(request: Request) {
     const menuItemId = formData.get("menuItemId") as string | null;
 
     if (!file) {
-      return NextResponse.json(
-        { error: "No file provided" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
     // Validate content type
@@ -60,10 +57,7 @@ export async function POST(request: Request) {
 
     // Validate raw size
     if (file.size > MAX_RAW_SIZE) {
-      return NextResponse.json(
-        { error: "File exceeds 10MB limit" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "File exceeds 10MB limit" }, { status: 400 });
     }
 
     // Read file into buffer
@@ -73,10 +67,7 @@ export async function POST(request: Request) {
     // Get metadata and validate dimensions
     const metadata = await sharp(inputBuffer).metadata();
     if (!metadata.width || !metadata.height) {
-      return NextResponse.json(
-        { error: "Could not read image dimensions" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Could not read image dimensions" }, { status: 400 });
     }
 
     if (metadata.width < MIN_WIDTH || metadata.height < MIN_HEIGHT) {
@@ -123,10 +114,7 @@ export async function POST(request: Request) {
 
     if (uploadError) {
       logger.error("Photo upload failed", { error: uploadError, storagePath });
-      return NextResponse.json(
-        { error: "Upload to storage failed" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Upload to storage failed" }, { status: 500 });
     }
 
     // Get public URL
@@ -144,9 +132,6 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     logger.error("Photo processing error", { error });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
