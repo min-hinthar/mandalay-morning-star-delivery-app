@@ -37,3 +37,30 @@ Use `item.allergens` + `ALLERGEN_MAP` (`src/lib/constants/allergens.ts`) for all
 Config: `src/lib/search/search-config.ts`
 
 **Apply when:** Adjusting search behavior or adding new search fields.
+
+---
+
+## PostgREST Ambiguous FK Hints Required
+
+**Context:** `orders` table has two FKs to `profiles`: `user_id` (customer) and `contacted_by` (admin who contacted). PostgREST failed on every un-hinted `profiles` join.
+
+**Learning:** When a table has multiple FKs to the same target, PostgREST requires explicit FK hints in the select string. This project's known ambiguous joins:
+
+| Source Table | Target | FK Hint |
+|-------------|--------|---------|
+| `orders` | `profiles` | `profiles!orders_user_id_fkey` |
+| `orders` | `addresses` | `addresses!orders_address_id_fkey` |
+
+**Affected routes (all fixed 2026-03-02):**
+- `api/admin/orders`, `api/admin/orders/[id]/details`, `api/admin/ops/orders`
+- `api/admin/routes/builder-orders`, `api/admin/routes/[id]`
+- `api/admin/drivers/[id]/ratings`
+- `(driver)/driver/route/page.tsx`, `(driver)/driver/route/[stopId]/page.tsx`
+
+**Prevention:** When adding a new FK to any table, run:
+```bash
+grep -rn 'from.*TABLE_NAME' src/app/api/ --include='*.ts' | grep 'select'
+```
+Add FK hints to every query joining the target table.
+
+**Apply when:** Adding new FK columns or writing Supabase queries that join tables with multiple FK relationships.
