@@ -72,7 +72,7 @@
 - [x] **Phase 89: Critical Bug Fixes** - Fix payment idempotency, modifier validation, cleanup rollback, type crash, refund ceiling, cart race condition, cutoff safety buffer
 - [ ] **Phase 90: Menu & Photo Pipeline** - Admin photo upload, bulk upload, auto-processing, freshness tracking, allergen dedup, inactive items, photo management grid, seed fallback photos
 - [x] **Phase 91: Checkout & Payment Hardening** - Server-side pricing, price conflict auto-refresh, modifier bounds, prep time buffer, duplicate order prevention, promos, tips, delivery instructions, guest cart, checkout logging (completed 2026-03-03)
-- [ ] **Phase 92: Customer UX - Discovery & Shopping** - Persistent search, dietary filters, sold-out sorting, modifier scroll indicator, Saturday hero, min order warning, sticky checkout footer, auto-select delivery date, cart sync status, offline banner, dynamic gate polling
+- [x] **Phase 92: Customer UX - Discovery & Shopping** - Persistent search, dietary filters, sold-out sorting, modifier scroll indicator, Saturday hero, min order warning, sticky checkout footer, auto-select delivery date, cart sync status, offline banner, dynamic gate polling (completed 2026-03-03)
 - [ ] **Phase 93: Customer UX - Engagement & Accessibility** - One-tap reorder, rating prompt, order sharing, focus rings, keyboard cart delete, drawer aria-labels, form error linking, icon+color status, 3D tilt keyboard fix
 - [x] **Phase 94: Admin & Driver Enhancements** - Ops time-window grouping, driver one-tap contact, turn-by-turn nav, photo proof on delivery (completed 2026-03-03)
 - [ ] **Phase 95: Observability, Performance & Testing** - Standardized errors, webhook logging, health alerting, DB backups, image preload, bundle audit, timezone from env, race condition tests, webhook tests, RLS edge cases, DST cutoff tests, refund rounding tests, Saturday dry run, load test, pre-launch checklist
@@ -212,7 +212,7 @@ Plans:
 | 89. Critical Bug Fixes | v2.0 | 4/4 | Complete | 2026-03-03 |
 | 90. Menu & Photo Pipeline | v2.0 | 4/4 | Complete | 2026-03-03 |
 | 91. Checkout & Payment Hardening | 4/4 | Complete    | 2026-03-03 | - |
-| 92. Customer UX - Discovery & Shopping | 2/4 | In Progress|  | - |
+| 92. Customer UX - Discovery & Shopping | 4/4 | Complete   | 2026-03-03 | - |
 | 93. Customer UX - Engagement & Accessibility | v2.0 | 0/TBD | Not started | - |
 | 94. Admin & Driver Enhancements | 2/2 | Complete    | 2026-03-03 | - |
 | 95. Observability, Performance & Testing | v2.0 | 0/TBD | Not started | - |
