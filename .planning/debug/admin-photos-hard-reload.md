@@ -1,5 +1,5 @@
 ---
-status: awaiting_human_verify
+status: resolved
 trigger: "Admin photos page requires hard reload to render photos. Normal navigation (client-side or direct URL) shows the page layout but photos are missing until a hard reload (Ctrl+F5) is performed."
 created: 2026-03-02T01:00:00Z
 updated: 2026-03-03T02:45:00Z

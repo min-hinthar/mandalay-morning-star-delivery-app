@@ -1,5 +1,5 @@
 ---
-status: awaiting_human_verify
+status: resolved
 trigger: "Cart drawer menu images not rendering. Google user content (googleusercontent.com) images not rendering in headers."
 created: 2026-02-28T00:00:00Z
 updated: 2026-03-02T00:00:00Z
