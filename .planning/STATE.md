@@ -23,9 +23,9 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 ## Current Position
 
 Phase: 91 of 95 (Checkout & Payment Hardening) - IN PROGRESS
-Plan: 2/4 completed
-Status: Executing plan 91-02
-Last activity: 2026-03-03 — Checkout API hardening (tips, promos, duplicate, logging)
+Plan: 3/4 completed
+Status: Executing plan 91-03
+Last activity: 2026-03-03 — Checkout tips, promo, delivery instructions UI
 
 Progress: [####░░░░░░] 43% (3/7 phases)
 
@@ -54,7 +54,8 @@ Progress: [####░░░░░░] 43% (3/7 phases)
 | v2.0 (in progress) | 3      | 10    | 1 day    |
 | v2.0 91-01         | 1      | 1     | 7 min    |
 | v2.0 91-02         | 1      | 1     | 10 min   |
-| **Total**          | **93** | **362** | **41 days** |
+| v2.0 91-03         | 1      | 1     | 20 min   |
+| **Total**          | **94** | **363** | **41 days** |
 
 ## Accumulated Context
 
@@ -65,6 +66,9 @@ Progress: [####░░░░░░] 43% (3/7 phases)
 - totalCents clamped to Math.max(0) to prevent negative totals from large discounts
 - Tip represented as Stripe line item; discounts via Stripe discounts param
 - Extracted validatePromoCode to src/lib/stripe/promo.ts; cleanupOrder to helpers.ts
+- Tip computed in UI from subtotal (reactive to cart changes), not stored as tipCents
+- Custom tip clamped to $0-$1000 matching Zod schema
+- text-text-inverse used instead of text-white per Tailwind v4 design token enforcement
 - Stripe SDK v17+: coupon at promo.promotion.coupon (not promo.coupon)
 - Checkout page also passes prepTimeBufferMinutes for UI/API consistency
 
@@ -111,6 +115,6 @@ Progress: [####░░░░░░] 43% (3/7 phases)
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 91-02-PLAN.md
-Resume file: .planning/phases/91-checkout-payment-hardening/91-02-SUMMARY.md
-Next action: Execute 91-03-PLAN.md
+Stopped at: Completed 91-03-PLAN.md
+Resume file: .planning/phases/91-checkout-payment-hardening/91-03-SUMMARY.md
+Next action: Execute 91-04-PLAN.md
