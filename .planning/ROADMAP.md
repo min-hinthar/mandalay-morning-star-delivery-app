@@ -71,7 +71,7 @@
 
 - [x] **Phase 89: Critical Bug Fixes** - Fix payment idempotency, modifier validation, cleanup rollback, type crash, refund ceiling, cart race condition, cutoff safety buffer
 - [ ] **Phase 90: Menu & Photo Pipeline** - Admin photo upload, bulk upload, auto-processing, freshness tracking, allergen dedup, inactive items, photo management grid, seed fallback photos
-- [x] **Phase 91: Checkout & Payment Hardening** - Server-side pricing, price conflict auto-refresh, modifier bounds, prep time buffer, duplicate order prevention, promos, tips, delivery instructions, guest cart, checkout logging (completed 2026-03-03)
+- [x] **Phase 91: Checkout & Payment Hardening** - Server-side pricing, price conflict auto-refresh, modifier bounds, prep time buffer, duplicate order prevention, promos, tips, delivery instructions, guest cart, checkout logging (completed 2026-03-03)
 - [ ] **Phase 92: Customer UX - Discovery & Shopping** - Persistent search, dietary filters, sold-out sorting, modifier scroll indicator, Saturday hero, min order warning, sticky checkout footer, auto-select delivery date, cart sync status, offline banner, dynamic gate polling
 - [ ] **Phase 93: Customer UX - Engagement & Accessibility** - One-tap reorder, rating prompt, order sharing, focus rings, keyboard cart delete, drawer aria-labels, form error linking, icon+color status, 3D tilt keyboard fix
 - [x] **Phase 94: Admin & Driver Enhancements** - Ops time-window grouping, driver one-tap contact, turn-by-turn nav, photo proof on delivery (completed 2026-03-03)
@@ -144,7 +144,12 @@
   4. Cart shows minimum order warning inline, sync status indicator ("Saved"/"Saving..."), and a prominent offline banner when browsing cached menu
   5. Sticky checkout footer on mobile keeps total and checkout button always visible during scrolling
   6. Delivery gate polls at 10s (not 60s) during the final 30 minutes before cutoff
-**Plans**: TBD
+**Plans**: 4 plans
+Plans:
+- [ ] 92-01-PLAN.md — Search + dietary filters + sold-out sorting on menu page (Wave 1)
+- [ ] 92-02-PLAN.md — Hero banner enhancement + delivery date auto-select + dynamic gate polling (Wave 1)
+- [ ] 92-03-PLAN.md — Cart min-order warning + sync status + offline banner (Wave 1)
+- [ ] 92-04-PLAN.md — Modifier scroll overflow indicator (Wave 1)
 
 ### Phase 93: Customer UX - Engagement & Accessibility
 **Goal**: Post-purchase engagement features work and all interactive elements meet accessibility standards
@@ -207,7 +212,7 @@
 | 89. Critical Bug Fixes | v2.0 | 4/4 | Complete | 2026-03-03 |
 | 90. Menu & Photo Pipeline | v2.0 | 4/4 | Complete | 2026-03-03 |
 | 91. Checkout & Payment Hardening | 4/4 | Complete    | 2026-03-03 | - |
-| 92. Customer UX - Discovery & Shopping | v2.0 | 0/TBD | Not started | - |
+| 92. Customer UX - Discovery & Shopping | v2.0 | 0/4 | Planned | - |
 | 93. Customer UX - Engagement & Accessibility | v2.0 | 0/TBD | Not started | - |
 | 94. Admin & Driver Enhancements | 2/2 | Complete    | 2026-03-03 | - |
 | 95. Observability, Performance & Testing | v2.0 | 0/TBD | Not started | - |
