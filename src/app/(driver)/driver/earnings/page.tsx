@@ -38,7 +38,13 @@ async function getEarningsData() {
     .single();
 
   if (!driver) {
-    return { routeEarnings: [], rateCents: DEFAULT_PAY_RATE_CENTS, badges: [], streakDays: 0, driverStats: { deliveriesCount: 0, ratingAvg: 0 } };
+    return {
+      routeEarnings: [],
+      rateCents: DEFAULT_PAY_RATE_CENTS,
+      badges: [],
+      streakDays: 0,
+      driverStats: { deliveriesCount: 0, ratingAvg: 0 },
+    };
   }
 
   // 12 months of data for maximum range

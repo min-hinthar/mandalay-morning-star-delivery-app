@@ -55,7 +55,11 @@ async function getDriverHistory() {
     .single();
 
   if (!driver) {
-    return { driver: { deliveriesCount: 0, ratingAvg: 0, onTimePercentage: 0 }, routes: [], totalRoutes: 0 };
+    return {
+      driver: { deliveriesCount: 0, ratingAvg: 0, onTimePercentage: 0 },
+      routes: [],
+      totalRoutes: 0,
+    };
   }
 
   // Get total count + initial batch of completed routes

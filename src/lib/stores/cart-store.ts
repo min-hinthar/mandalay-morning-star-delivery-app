@@ -92,8 +92,7 @@ export const useCartStore = create<CartStore>()(
       // Configurable cutoff settings (defaults match DB seed values)
       cutoffDay: 5,
       cutoffHour: 15,
-      setCutoffSettings: (day: number, hour: number) =>
-        set({ cutoffDay: day, cutoffHour: hour }),
+      setCutoffSettings: (day: number, hour: number) => set({ cutoffDay: day, cutoffHour: hour }),
 
       /**
        * Add item to cart with deduplication and debounce protection.
