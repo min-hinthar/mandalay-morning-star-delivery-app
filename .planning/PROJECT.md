@@ -2,27 +2,30 @@
 
 ## What This Is
 
-A full frontend rewrite of the Morning Star Weekly Delivery meal subscription app. Fresh V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. Nine milestones shipped (v1.0-v1.8) across 76 phases and 312 plans: customer flows, tech debt cleanup, playful UI overhaul, codebase consolidation, mobile excellence, performance infrastructure, production polish, production deployment, and post-launch hardening with driver experience. V1.8 completed security hardening (enforcing CSP + security headers, comprehensive RLS audit of all 24 tables, distributed rate limiting via Upstash Redis), full driver experience overhaul (profile setup with photo upload, earnings dashboard with charts and badges, availability scheduling, weekly route visibility, history with pagination), role-based auth redirects (admin/driver/customer), passwordless driver onboarding, guided walkthrough with test delivery page, glassmorphism UI polish, and gap closure (3 wiring fixes identified by milestone audit).
+A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. Ten milestones shipped (v1.0-v1.9) across 88 phases and 350 plans. V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. Complete operator tooling: ops dashboard with bulk status changes, route builder with Leaflet maps, configurable business rules, email reliability with webhook verification. Customer UX with Saturday-only delivery gate, cutoff countdown, and dynamic pricing. Driver experience with simple mode for non-technical family members, offline overlay, and guided onboarding. Production hardened with CSP headers, RLS on all tables, distributed rate limiting, composite indexes, and endpoint-specific error handling.
 
 ## Core Value
 
 **Every UI element is reliably clickable and the app feels delightfully alive with motion.** If overlays block clicks or animations feel janky, we've failed.
 
-## Current State (v1.8 + gap closure shipped)
+## Current State (v1.9 Launch-Ready MVP shipped)
 
-- 9 milestones complete: v1.0-v1.8 (76 phases, 312 plans, 37/37 v1.8 requirements at 100%)
+- 10 milestones complete: v1.0-v1.9 (88 phases, 350 plans, 49/49 v1.9 requirements at 100%)
 - Deployed to production at delivery.mandalaymorningstar.com
+- Saturday ops dashboard: bulk status changes, countdown timers, driver availability, unassigned badge
+- Route builder: Leaflet map with geographic clustering, one-click route creation, order reassignment
+- Configurable business rules: cutoff, delivery fee, hours, radius — all from admin settings (no deploy)
+- Customer delivery gate: dynamic hero CTA, menu banner, cart countdown, cutoff modal, order tracking
+- Email reliability: svix webhook verification, retry with max 3 attempts, admin dashboard with stats
+- Driver simple mode: 2-tab nav, SimpleStopView, confirm dialog, offline overlay (DB-backed, default on)
+- Production hardened: 5 composite indexes, endpoint-specific rate limits, N+1 eliminated, pagination on all lists
 - Health endpoint validates 5 services (Supabase, Stripe, Google OAuth, Search Console, Resend)
 - Full observability: Sentry client/server/edge with source maps, Speed Insights, web vitals
 - LCP optimized to <4s (async LazyMotion, CSS-only hero, CI-enforced)
-- Enforcing CSP + 5 security headers on all responses with Sentry violation reporting
+- Enforcing CSP + 5 security headers with Sentry violation reporting
 - All 24 Supabase tables have verified RLS policies with 62-assertion regression test
 - Distributed rate limiting via Upstash Redis on all API endpoints
-- Role-based auth redirects: admin→/admin, driver→/driver, customer→/menu
-- Full driver experience: profile, earnings, availability, schedule, history, onboarding walkthrough
-- Gap closure complete: walkthrough href wired, BlockedDateChips surfaced, stale closure fixed
-- 335 unit tests passing across 16 test files
-- ~123,633 lines TypeScript total
+- ~68,599 lines TypeScript (src/)
 
 ## Requirements
 
@@ -85,19 +88,18 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - ✓ Mobile-first driver layouts with WCAG touch targets — v1.8
 - ✓ Glassmorphism polish and stagger animations on driver pages — v1.8
 - ✓ Dead code cleanup (~10 unused exports, useABTest, barrel file) — v1.8
+- ✓ Checkout TOCTOU cleanup, cutoff datetime logic, cart dedup, modifier validation, refund status — v1.9
+- ✓ Configurable business rules (cutoff, fee, hours, radius) via admin settings — v1.9
+- ✓ Saturday Ops Dashboard with bulk operations, countdown timers, driver availability — v1.9
+- ✓ Route & driver assignment with Leaflet map, geographic clustering, one-click routes — v1.9
+- ✓ Customer delivery gate (dynamic hero, menu banner, cart countdown, cutoff modal) — v1.9
+- ✓ Email reliability (webhook verification, retry, admin dashboard, ops indicators) — v1.9
+- ✓ Driver simple mode (2-tab nav, SimpleStopView, confirm dialog, offline overlay) — v1.9
+- ✓ Production hardening (5 indexes, rate limits, N+1 fix, pagination, Sentry context) — v1.9
 
 ### Active
 
-**v1.9 Launch-Ready MVP** — Production-ready for real Saturday operations (20-50 orders/Sat, family/friend drivers)
-
-- [ ] Fix checkout TOCTOU cleanup, cutoff logic, cart race condition
-- [ ] Saturday Ops Dashboard with bulk operations and status counts
-- [ ] Route & driver assignment from visual dashboard
-- [ ] Customer pre-checkout gate with Saturday-only messaging
-- [ ] Configurable business rules via admin settings (no deploy)
-- [ ] Email reliability with failure tracking and retry
-- [ ] Driver simplification mode for non-technical family members
-- [ ] Production hardening (rate limits, N+1 fixes, indexes)
+(No active requirements — define next milestone with `/gsd:new-milestone`)
 
 ### Out of Scope
 
@@ -114,22 +116,11 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - Multi-restaurant marketplace — not part of Morning Star scope
 - Docker/Kubernetes — Vercel is serverless; containerization adds zero value
 
-## Current Milestone: v1.9 Launch-Ready MVP
+## Last Milestone: v1.9 Launch-Ready MVP (SHIPPED 2026-03-03)
 
-**Goal:** Production-ready for real Saturday operations — solo operator triaging 20-50 orders with family/friend drivers.
+**Delivered:** Production-ready for real Saturday operations — solo operator triaging 20-50 orders with family/friend drivers. All 49 requirements satisfied across 12 phases.
 
-**Target features:**
-- Critical bug fixes (checkout TOCTOU, cutoff logic, cart debounce race)
-- Saturday Ops Dashboard (bulk status changes, countdown timers, unassigned badge)
-- Route & Driver Assignment (visual dashboard, one-click routes)
-- Customer Pre-Checkout Gate (Saturday messaging, cutoff modal)
-- Configurable Business Rules (admin settings table, no deploys)
-- Email Reliability (failure tracking, retry, webhook audit)
-- Driver Simplification (simple mode toggle, confirmation dialogs)
-- Production Hardening (rate limits, N+1 queries, indexes)
-
-**Context:** Staging → Live | Solo operator | 20-50 orders/Sat | Family/friend drivers
-**Duration:** 10 weeks | Start: March 2026
+**Next:** Define with `/gsd:new-milestone`
 
 ## Context
 
@@ -146,13 +137,16 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 - Fuse.js for fuzzy search
 - Upstash Redis for distributed rate limiting
 - Recharts for driver earnings charts
-- ~123,633 lines TypeScript total
+- ~68,599 lines TypeScript (src/)
 
 **Remaining tech debt:**
 
-- Lighthouse CI gates at score 60 (target 70, conservative threshold)
+- 6 Supabase migrations pending production apply (027-032)
+- RESEND_WEBHOOK_SECRET env var needs configuration for webhook verification
 - Upstash Redis provisioning needed on Vercel Marketplace for production rate limiting
 - Sentry alert rule "Rate Limit Spike" needs manual dashboard creation
+- Timezone confirmation: Asia/Yangon vs America/Los_Angeles for customer-facing cutoff
+- Lighthouse CI gates at score 60 (target 70, conservative threshold)
 - Apple Sign-in deferred (no Apple Developer account)
 - Chromatic visual regression baselines deferred
 - SETT-04 language preference deferred
@@ -216,6 +210,22 @@ A full frontend rewrite of the Morning Star Weekly Delivery meal subscription ap
 | Gap closure via milestone audit | Audit caught 3 wiring gaps that verification missed | ✓ Essential — pre-built components need integration testing |
 | Wiring fixes over rebuilds | SEC-02, DPROF-05, DDASH-07 were all existing components needing connection | ✓ Good — minimal code, maximum impact |
 
+### v1.9 Decisions
+
+| Decision | Rationale | Outcome |
+|---|---|---|
+| 5s polling over Supabase Realtime for ops dashboard | Indistinguishable at 20-50 orders, no new dependency | ✓ Good — simpler, reliable |
+| Click-to-assign over drag-and-drop for routes | Faster at 2-4 drivers, research confirmed | ✓ Good — efficient UX |
+| Server-side simple_mode DB column | Persists across devices, not localStorage | ✓ Good — reliable |
+| Bulk ops via server-side RPC | Atomicity + sequential PATCH with 100ms delay avoids rate limits | ✓ Good — no partial failures |
+| Zero new npm packages for entire milestone | Reduced bundle, used installed deps | ✓ Good — discipline |
+| Trigger-based refund_status computation | Single source of truth, no application logic drift | ✓ Good — data integrity |
+| unstable_cache + tag invalidation for business rules | Immediate propagation on admin save, 5min default TTL | ✓ Good — fast updates |
+| Greedy clustering over k-means for route suggestions | Simpler, stable at 10-50 orders, no param tuning | ✓ Good — predictable |
+| svix HMAC for webhook verification | Industry standard, prevents forged email status updates | ✓ Good — security |
+| simple_mode default true for new drivers | Non-technical family members see simple UI by default | ✓ Good — safe default |
+| Gap closure via 4 additional phases (85-88) | Audit found verification + integration gaps after core 8 phases | ✓ Essential — 100% coverage |
+
 ---
 
-_Last updated: 2026-03-01 after v1.9 Launch-Ready MVP milestone start_
+_Last updated: 2026-03-03 after v1.9 Launch-Ready MVP milestone_

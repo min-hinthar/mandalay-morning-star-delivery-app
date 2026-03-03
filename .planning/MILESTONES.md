@@ -1,33 +1,41 @@
 # Project Milestones: Morning Star V8 UI Rewrite
+## v1.9 Launch-Ready MVP (Shipped: 2026-03-03)
 
-## v1.9 Launch-Ready MVP (Planning: 2026-03-01)
+**Delivered:** Production-ready for real Saturday operations — solo operator triaging 20-50 orders with family/friend drivers. 8 core phases + 4 gap closure phases covering bug fixes, ops tooling, customer UX, email reliability, driver simplification, and production hardening.
 
-**Goal:** Production-ready for real Saturday operations -- solo operator triaging 20-50 orders with family/friend drivers.
+**Phases completed:** 12 phases (77-88), 38 plans, 49/49 requirements
 
-**Phases planned:** 77-84 (8 phases, 49 requirements)
+**Key accomplishments:**
 
-**Key deliverables:**
+- Critical bug fixes — checkout TOCTOU cleanup with `.in()` array, full datetime cutoff logic, timestamp-based cart dedup, modifier price drift detection (409), trigger-based refund status
+- Configurable business rules — `app_settings` table with unstable_cache + tag invalidation, admin form with diff dialog, DeliverySettingsSync at layout level, all customer pages consume DB values
+- Saturday Ops Dashboard — single-screen command center with 5s polling, bulk status changes via sequential PATCH, countdown timers, unassigned orders badge, driver availability panel
+- Route & Driver Assignment — Leaflet map with greedy geographic clustering (2km radius), one-click route creation, order reassignment, driver ownership enforcement (API + RLS)
+- Customer Pre-Checkout Gate — dynamic hero CTA (order/pre-order), menu delivery banner, cart cutoff countdown, past-cutoff modal with next Saturday date, order tracking polling
+- Email Reliability — svix HMAC webhook verification, status priority downgrade protection, notification_logs with retry (max 3), admin email dashboard with stats, ops email indicators
+- Driver Simplification — simple mode (DB-backed, default on), 2-tab navigation, SimpleStopView with confirm dialog + auto-advance, full-screen offline overlay
+- Production Hardening — 5 composite indexes, endpoint-specific rate limits, N+1 elimination via PostgREST joins, offset pagination (25/page), Sentry error context enrichment
 
-- Critical bug fixes -- checkout TOCTOU cleanup, cutoff datetime logic, cart debounce race, stale modifier detection, refund status tracking
-- Configurable business rules -- admin-editable cutoff time, delivery fee, delivery hours, radius (no deploy needed)
-- Saturday Ops Dashboard -- status counts, bulk operations, countdown timers, unassigned badge, driver availability
-- Route & driver assignment -- unassigned orders panel, one-click route creation, map preview, reassignment
-- Customer pre-checkout gate -- dynamic hero CTA, menu banner, cart countdown, cutoff modal, order tracking polling
-- Email reliability -- failure tracking, one-click retry, webhook signature verification, manual contact flagging
-- Driver simplification -- simple mode toggle, confirmation dialogs, one-tap contact, offline instructions
-- Production hardening -- rate limit tuning, N+1 fixes, DB indexes, pagination, Sentry review
+**Stats:**
 
-**Phase ordering (dependency-driven):**
-1. Bug fixes first (unblock everything)
-2. Business rules before ops dashboard (timers consume settings)
-3. Ops dashboard before route assignment (shared data layer)
-4. Customer gate after business rules (cutoff modal needs dynamic settings)
-5. Email reliability and driver simplification independent (any order after bugs)
-6. Production hardening last (indexes benefit from final query patterns)
+- 12 phases, 38 plans
+- 49/49 requirements satisfied (100%)
+- 74 commits, 192 files modified
+- +13,339 / -1,570 lines
+- ~68,599 lines TypeScript (src/)
+- 3 days (2026-03-01 to 2026-03-03)
 
-**Research confirmed:** Zero new npm packages. Bulk ops via server-side RPC. Click-to-assign (no drag-and-drop). 5s polling (no Realtime). Server-side simple_mode column.
+**Git range:** 2ac16521..8e440207
 
-**Context:** `.planning/research/SUMMARY.md`
+**Tech debt remaining:**
+
+- 6 migrations pending production apply (027-032)
+- RESEND_WEBHOOK_SECRET env var needs configuration
+- Upstash Redis provisioning on Vercel Marketplace
+- Sentry "Rate Limit Spike" alert rule needs manual creation
+- Timezone confirmation needed: Asia/Yangon vs America/Los_Angeles
+
+**What's next:** Post-launch — accessibility, internationalization, Storybook, advanced features
 
 ---
 
