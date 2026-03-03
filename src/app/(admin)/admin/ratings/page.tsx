@@ -20,10 +20,10 @@ interface RatingRow {
   submitted_at: string;
   orders: {
     id: string;
+    profiles: {
+      full_name: string | null;
+    } | null;
   };
-  profiles: {
-    full_name: string | null;
-  } | null;
 }
 
 type SortOption = "date" | "stars";
@@ -110,10 +110,10 @@ export default async function RatingsPage({ searchParams }: RatingsPageProps) {
       feedback_text,
       submitted_at,
       orders!inner (
-        id
-      ),
-      profiles!driver_ratings_user_id_fkey (
-        full_name
+        id,
+        profiles (
+          full_name
+        )
       )
     `
     )
@@ -200,7 +200,7 @@ export default async function RatingsPage({ searchParams }: RatingsPageProps) {
                     #{r.orders.id.slice(0, 8).toUpperCase()}
                   </td>
                   <td className="px-4 py-3 text-text-primary">
-                    {r.profiles?.full_name ?? "Unknown"}
+                    {r.orders.profiles?.full_name ?? "Unknown"}
                   </td>
                   <td className="px-4 py-3">
                     <StarDisplay rating={r.rating} />
