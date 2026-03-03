@@ -21,6 +21,7 @@ export function createMockMenuItem(overrides?: Partial<MenuItemsRow>): MenuItems
     is_sold_out: false,
     allergens: [],
     tags: [],
+    image_updated_at: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     ...overrides,

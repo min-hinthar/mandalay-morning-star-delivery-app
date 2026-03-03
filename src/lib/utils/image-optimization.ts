@@ -13,11 +13,11 @@ import type { ImageProps } from "next/image";
  * Maps to common breakpoints and aspect ratios
  */
 export const IMAGE_SIZES = {
-  // Menu item cards (16:9)
+  // Menu item cards (4:3)
   menuCard: {
     sizes: "(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw",
     width: 400,
-    height: 225,
+    height: 300,
   },
   // Featured/hero images
   hero: {
