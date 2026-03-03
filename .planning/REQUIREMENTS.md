@@ -42,7 +42,7 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 
 - [x] **GATE-01**: Homepage hero — dynamic CTA based on delivery availability
 - [x] **GATE-02**: Menu page banner — Saturday delivery schedule + cutoff
-- [x] **GATE-03**: Cart drawer — show delivery date + cutoff countdown
+- [ ] **GATE-03**: Cart drawer — show delivery date + cutoff countdown
 - [x] **GATE-04**: Checkout gate — past cutoff modal with next Saturday date
 - [x] **GATE-05**: Update empty states with Saturday schedule context
 - [x] **GATE-06**: Order tracking — polling indicator + "last updated" timestamp
@@ -157,7 +157,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ROUTE-07 | Phase 80 | Complete |
 | GATE-01 | Phase 81 | Complete |
 | GATE-02 | Phase 81 | Complete |
-| GATE-03 | Phase 81 | Complete |
+| GATE-03 | Phase 87 | Pending |
 | GATE-04 | Phase 81 | Complete |
 | GATE-05 | Phase 81 | Complete |
 | GATE-06 | Phase 81 | Complete |
@@ -177,18 +177,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EMAIL-04 | Phase 82 | Complete |
 | EMAIL-05 | Phase 82 | Complete |
 | EMAIL-06 | Phase 82 | Complete |
-| DRV-01 | Phase 83 | Pending |
-| DRV-02 | Phase 83 | Pending |
-| DRV-03 | Phase 83 | Pending |
-| DRV-04 | Phase 83 | Pending |
-| DRV-05 | Phase 83 | Pending |
-| HARD-01 | Phase 84 | Pending |
-| HARD-02 | Phase 84 | Pending |
-| HARD-03 | Phase 84 | Pending |
-| HARD-04 | Phase 84 | Pending |
-| HARD-05 | Phase 84 | Pending |
-| HARD-06 | Phase 84 | Pending |
-| HARD-07 | Phase 84 | Pending |
+| DRV-01 | Phase 88 | Pending |
+| DRV-02 | Phase 88 | Pending |
+| DRV-03 | Phase 88 | Pending |
+| DRV-04 | Phase 88 | Pending |
+| DRV-05 | Phase 87 | Pending |
+| HARD-01 | Phase 88 | Pending |
+| HARD-02 | Phase 88 | Pending |
+| HARD-03 | Phase 88 | Pending |
+| HARD-04 | Phase 88 | Pending |
+| HARD-05 | Phase 88 | Pending |
+| HARD-06 | Phase 88 | Pending |
+| HARD-07 | Phase 88 | Pending |
 
 **Coverage:**
 - v1.9 requirements: 49 total
@@ -197,4 +197,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-01*
-*Last updated: 2026-03-02 after Phase 85 verification (BUG-01–08 verified complete in Phase 77)*
+*Last updated: 2026-03-02 after gap closure phases 87-88 created (GATE-03 reset to Pending, DRV/HARD reqs assigned to gap phases)*

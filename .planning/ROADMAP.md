@@ -12,7 +12,7 @@
 - ✅ **v1.7 Production Deployment & Readiness** — Phases 58-66 (shipped 2026-02-16)
 - ✅ **v1.8 Post-Launch Hardening & Driver Experience** — Phases 67-74 (shipped 2026-02-19)
 - ✅ **v1.8 Gap Closure** — Phases 75-76 (shipped 2026-02-26)
-- **v1.9 Launch-Ready MVP** — Phases 77-86 (in progress)
+- **v1.9 Launch-Ready MVP** — Phases 77-88 (in progress)
 
 ## Phases
 
@@ -53,7 +53,7 @@
 
 </details>
 
-### v1.9 Launch-Ready MVP (Phases 77-84)
+### v1.9 Launch-Ready MVP (Phases 77-88)
 
 **Milestone Goal:** Production-ready for real Saturday operations -- solo operator triaging 20-50 orders with family/friend drivers.
 
@@ -67,6 +67,8 @@
 - [ ] **Phase 84: Production Hardening** - Indexes, N+1 fixes, rate limit tuning, and pre-launch checklist
 - [x] **Phase 85: Phase 77 Verification & Bug Traceability** - Verify bug fixes, create VERIFICATION.md, update traceability (gap closure) (completed 2026-03-02)
 - [x] **Phase 86: Deferred Integration & Tech Debt Cleanup** - Wire remaining cutoff callsites to DB, fix SUMMARY frontmatter (gap closure) (completed 2026-03-02)
+- [ ] **Phase 87: Fix Code Gaps (GATE-03 + DRV-05)** - Wire cart drawer cutoff to DB values, add simple mode page guard (gap closure)
+- [ ] **Phase 88: Phase 83 & 84 Verification** - Create VERIFICATION.md for Phases 83/84, update traceability (gap closure)
 
 ## Phase Details
 
@@ -179,6 +181,30 @@ Plans:
   5. All critical API paths have specific error handling with correct HTTP status codes and Sentry context
 **Plans**: TBD
 
+### Phase 87: Fix Code Gaps (GATE-03 + DRV-05)
+**Goal:** Cart drawer uses DB-sourced cutoff values and /driver/earnings is guarded in simple mode
+**Depends on**: Phase 86 (extends business rules wiring to cart drawer)
+**Requirements**: GATE-03, DRV-05
+**Gap Closure:** Closes code gaps and integration/flow gaps from v1.9 audit
+**Success Criteria** (what must be TRUE):
+  1. CartFooter cutoff countdown uses cutoffDay/cutoffHour from getBusinessRules() — not hardcoded Friday 3PM defaults
+  2. /driver/earnings redirects to /driver when simple mode is active (direct URL access blocked)
+  3. Cart drawer past-cutoff gate flow works end-to-end with DB-sourced values
+  4. Simple mode page enforcement flow blocks all hidden pages via URL
+**Plans**: TBD
+
+### Phase 88: Phase 83 & 84 Verification
+**Goal:** All Phase 83 and 84 code is formally verified, traceability reflects completion, phases checked off
+**Depends on**: Phase 87 (DRV-05 code fix must happen before verification)
+**Requirements**: DRV-01, DRV-02, DRV-03, DRV-04, DRV-05, HARD-01, HARD-02, HARD-03, HARD-04, HARD-05, HARD-06, HARD-07
+**Gap Closure:** Closes verification gaps from v1.9 audit
+**Success Criteria** (what must be TRUE):
+  1. VERIFICATION.md exists for Phase 83 with pass/fail for DRV-01 through DRV-05
+  2. VERIFICATION.md exists for Phase 84 with pass/fail for HARD-01 through HARD-07
+  3. REQUIREMENTS.md traceability shows DRV-01–05 and HARD-01–07 as Complete
+  4. Phases 83 and 84 checked off in ROADMAP.md
+**Plans**: TBD
+
 ### Phase 85: Phase 77 Verification & Bug Traceability
 **Goal**: All 8 BUG requirements are formally verified with evidence, traceability table reflects completion, and Phase 77 documentation gaps are closed
 **Depends on**: Phase 77 (verifying its completed work)
@@ -206,10 +232,12 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 77 -> 78 -> 79 -> 80 -> 81 -> 82 -> 83 -> 84 -> 85 -> 86
+Phases execute in numeric order: 77 -> 78 -> 79 -> 80 -> 81 -> 82 -> 83 -> 84 -> 85 -> 86 -> 87 -> 88
 Phases 82 and 83 are independent of each other and can execute after Phase 80 in any order.
 Phase 85 can execute immediately (only depends on completed Phase 77).
 Phase 86 can execute immediately (only depends on completed Phase 78).
+Phase 87 can execute immediately (extends Phase 86 business rules wiring).
+Phase 88 depends on Phase 87 (DRV-05 fix must happen before verification).
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -223,6 +251,8 @@ Phase 86 can execute immediately (only depends on completed Phase 78).
 | 84. Production Hardening | v1.9 | 0/TBD | Not started | - |
 | 85. Phase 77 Verification & Bug Traceability | 2/2 | Complete    | 2026-03-02 | - |
 | 86. Deferred Integration & Tech Debt Cleanup | 2/2 | Complete   | 2026-03-02 | - |
+| 87. Fix Code Gaps (GATE-03 + DRV-05) | v1.9 | 0/TBD | Not started | - |
+| 88. Phase 83 & 84 Verification | v1.9 | 0/TBD | Not started | - |
 
 ### Historical Progress
 
