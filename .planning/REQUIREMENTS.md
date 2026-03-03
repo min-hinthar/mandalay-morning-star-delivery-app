@@ -47,11 +47,11 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [x] **CUX-03**: Sold-out items sorted to bottom of search results and grid
 - [x] **CUX-04**: Item detail sheet shows scroll indicator when modifiers overflow
 - [x] **CUX-05**: Dynamic Saturday schedule hero banner with next delivery date (audit: v1.9 has dynamic hero CTA — verify existing impl, enhance if needed)
-- [ ] **CUX-06**: Minimum order warning shown inline in cart
-- [ ] **CUX-07**: Sticky checkout footer on mobile (total + button always visible)
+- [x] **CUX-06**: Minimum order warning shown inline in cart
+- [x] **CUX-07**: Sticky checkout footer on mobile (total + button always visible)
 - [x] **CUX-08**: First available delivery date auto-selected
-- [ ] **CUX-09**: Cart sync status indicator ("Saved" / "Saving...")
-- [ ] **CUX-10**: Prominent "Offline Mode" banner when browsing cached menu (audit: v1.6 has animated offline banner — verify existing impl, polish if needed)
+- [x] **CUX-09**: Cart sync status indicator ("Saved" / "Saving...")
+- [x] **CUX-10**: Prominent "Offline Mode" banner when browsing cached menu (audit: v1.6 has animated offline banner — verify existing impl, polish if needed)
 - [x] **CUX-20**: Delivery gate poll interval reduces to 10s near cutoff (currently static 60s in `useDeliveryGate.ts`)
 - [ ] **CUX-11**: User can one-tap reorder from order history
 - [ ] **CUX-12**: Rating prompt appears after delivery confirmation (needs: `ratings` table, POST API route, admin ratings view)
@@ -217,11 +217,11 @@ Explicitly excluded. Documented to prevent scope creep.
 | CUX-03 | Phase 92 | Complete |
 | CUX-04 | Phase 92 | Complete |
 | CUX-05 | Phase 92 | Complete |
-| CUX-06 | Phase 92 | Pending |
-| CUX-07 | Phase 92 | Pending |
+| CUX-06 | Phase 92 | Complete |
+| CUX-07 | Phase 92 | Complete |
 | CUX-08 | Phase 92 | Complete |
-| CUX-09 | Phase 92 | Pending |
-| CUX-10 | Phase 92 | Pending |
+| CUX-09 | Phase 92 | Complete |
+| CUX-10 | Phase 92 | Complete |
 | CUX-20 | Phase 92 | Complete |
 | CUX-11 | Phase 93 | Pending |
 | CUX-12 | Phase 93 | Pending |
