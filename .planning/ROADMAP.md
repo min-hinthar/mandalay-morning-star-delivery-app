@@ -206,7 +206,7 @@
 |-------|-----------|----------------|--------|-----------|
 | 89. Critical Bug Fixes | v2.0 | 4/4 | Complete | 2026-03-03 |
 | 90. Menu & Photo Pipeline | v2.0 | 4/4 | Complete | 2026-03-03 |
-| 91. Checkout & Payment Hardening | v2.0 | 0/4 | Planned | - |
+| 91. Checkout & Payment Hardening | 1/4 | In Progress|  | - |
 | 92. Customer UX - Discovery & Shopping | v2.0 | 0/TBD | Not started | - |
 | 93. Customer UX - Engagement & Accessibility | v2.0 | 0/TBD | Not started | - |
 | 94. Admin & Driver Enhancements | 2/2 | Complete    | 2026-03-03 | - |

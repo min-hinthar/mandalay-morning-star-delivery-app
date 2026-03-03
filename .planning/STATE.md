@@ -7,8 +7,8 @@ last_updated: "2026-03-03"
 progress:
   total_phases: 7
   completed_phases: 3
-  total_plans: 10
-  completed_plans: 10
+  total_plans: 14
+  completed_plans: 11
 ---
 
 # Project State
@@ -18,22 +18,22 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-03)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v2.0 Production-Grade Launch MVP — Phase 94 complete, Phase 91 next
+**Current focus:** v2.0 Production-Grade Launch MVP — Phase 91 in progress
 
 ## Current Position
 
-Phase: 94 of 95 (Admin & Driver Enhancements) - COMPLETE
-Plan: 2/2 completed
-Status: Phase complete
-Last activity: 2026-03-03 — Admin collapsible groups, driver SMS/nav/photo enforcement
+Phase: 91 of 95 (Checkout & Payment Hardening) - IN PROGRESS
+Plan: 1/4 completed
+Status: Executing plan 91-01
+Last activity: 2026-03-03 — Checkout hardening foundation (DB, types, schema, utils)
 
-Progress: [###░░░░░░░] 43% (3/7 phases)
+Progress: [####░░░░░░] 43% (3/7 phases)
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 360 (across v1.0-v2.0)
+- Total plans completed: 361 (across v1.0-v2.0)
 - Average duration: ~15 min
 - Total execution time: ~88 hours
 
@@ -52,9 +52,17 @@ Progress: [###░░░░░░░] 43% (3/7 phases)
 | v1.8               | 10     | 25    | 10 days  |
 | v1.9               | 12     | 38    | 3 days   |
 | v2.0 (in progress) | 3      | 10    | 1 day    |
-| **Total**          | **91** | **360** | **41 days** |
+| v2.0 91-01         | 1      | 1     | 7 min    |
+| **Total**          | **92** | **361** | **41 days** |
 
 ## Accumulated Context
+
+### Phase 91 Decisions
+- Migration numbered 035 (033/034 taken by photo pipeline)
+- Removed BUG-08 client-side price drift detection; 91-02 implements server-side approach
+- Server-authoritative pricing: Zod schema strips basePriceCents/priceDeltaCents from client input
+- totalCents clamped to Math.max(0) to prevent negative totals from large discounts
+- Tip represented as Stripe line item; discounts via Stripe discounts param
 
 ### Phase 94 Decisions
 - useState<Set<string>> for collapse state (not Radix Collapsible — overkill for toggle)
@@ -85,7 +93,7 @@ Progress: [###░░░░░░░] 43% (3/7 phases)
 
 ### Pending Todos (Human Actions)
 
-- Apply migrations 027-032 to production Supabase
+- Apply migrations 027-035 to production Supabase
 - Configure RESEND_WEBHOOK_SECRET env var for svix webhook verification
 - Provision Upstash Redis on Vercel Marketplace for production rate limiting
 - Create Sentry alert rule "Rate Limit Spike" in Sentry Dashboard
@@ -94,11 +102,11 @@ Progress: [###░░░░░░░] 43% (3/7 phases)
 ### Blockers/Concerns
 
 - Upstash Redis provisioning needed via Vercel Marketplace before rate limiting is active in production
-- Migrations 027-032 must be applied before deploying v1.9 features
+- Migrations 027-035 must be applied before deploying v2.0 features
 
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Phase 94 complete
-Resume file: .planning/phases/94-admin-driver-enhancements/94-02-SUMMARY.md
-Next action: /gsd:execute-phase 91
+Stopped at: Completed 91-01-PLAN.md
+Resume file: .planning/phases/91-checkout-payment-hardening/91-01-SUMMARY.md
+Next action: Execute 91-02-PLAN.md
