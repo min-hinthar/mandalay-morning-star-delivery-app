@@ -91,6 +91,11 @@ export function ItemDetailSheet({
   const [notes, setNotes] = useState("");
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
+  // Modifier scroll overflow detection
+  const [hasOverflow, setHasOverflow] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(false);
+  const modifierContainerRef = useRef<HTMLDivElement>(null);
+
   // Track initial edit values to detect dirty state
   const initialEditState = useRef<{
     modifiers: SelectedModifier[];
@@ -133,6 +138,24 @@ export function ItemDetailSheet({
       initialEditState.current = null;
     }
   }, [item, isOpen, editingCartItem]);
+
+  // Detect modifier container overflow and track scroll position
+  useEffect(() => {
+    const el = modifierContainerRef.current;
+    if (!el) {
+      setHasOverflow(false);
+      return;
+    }
+    setHasOverflow(el.scrollHeight > el.clientHeight);
+    setIsAtBottom(false);
+
+    const onScroll = () => {
+      // 4px threshold for "at bottom" to handle sub-pixel rounding
+      setIsAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 4);
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => el.removeEventListener("scroll", onScroll);
+  }, [item?.modifierGroups]);
 
   // Compute dirty state for edit mode
   const isDirty = useMemo(() => {
@@ -309,20 +332,31 @@ export function ItemDetailSheet({
             <AllergenWarning allergens={item.allergens} />
           )}
 
-          {/* Modifier Groups */}
+          {/* Modifier Groups with overflow fade indicator */}
           {item.modifierGroups && item.modifierGroups.length > 0 && (
-            <div className="divide-y divide-border">
-              {item.modifierGroups.map((group) => (
-                <ModifierGroup
-                  key={group.id}
-                  group={group}
-                  selectedOptions={selectedModifiers
-                    .filter((m) => m.groupId === group.id)
-                    .map((m) => m.optionId)}
-                  onSelect={handleModifierSelect}
-                  onDeselect={handleModifierDeselect}
+            <div className="relative">
+              <div
+                ref={modifierContainerRef}
+                className="max-h-[50vh] overflow-y-auto overscroll-contain divide-y divide-border"
+              >
+                {item.modifierGroups.map((group) => (
+                  <ModifierGroup
+                    key={group.id}
+                    group={group}
+                    selectedOptions={selectedModifiers
+                      .filter((m) => m.groupId === group.id)
+                      .map((m) => m.optionId)}
+                    onSelect={handleModifierSelect}
+                    onDeselect={handleModifierDeselect}
+                  />
+                ))}
+              </div>
+              {hasOverflow && !isAtBottom && (
+                <div
+                  className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-surface-primary to-transparent"
+                  aria-hidden="true"
                 />
-              ))}
+              )}
             </div>
           )}
 
