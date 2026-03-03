@@ -177,6 +177,7 @@ export interface MenuItemsRow {
   is_sold_out: boolean;
   allergens: string[];
   tags: string[];
+  image_updated_at: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -194,6 +195,7 @@ export interface MenuItemsInsert {
   is_sold_out?: boolean;
   allergens?: string[];
   tags?: string[];
+  image_updated_at?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -211,6 +213,7 @@ export interface MenuItemsUpdate {
   is_sold_out?: boolean;
   allergens?: string[];
   tags?: string[];
+  image_updated_at?: string | null;
   created_at?: string;
   updated_at?: string;
 }

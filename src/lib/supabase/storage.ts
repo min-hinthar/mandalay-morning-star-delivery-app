@@ -7,8 +7,8 @@
 import { createClient } from "./client";
 
 const BUCKET = "menu-photos";
-const MAX_SIZE = 10 * 1024 * 1024; // 10MB
-const ALLOWED_TYPES = ["image/jpeg", "image/png"];
+const MAX_SIZE = 2 * 1024 * 1024; // 2MB (processed output limit)
+const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const TARGET_WIDTH = 800; // Resize to max 800px width
 const QUALITY = 0.85;
 
@@ -121,6 +121,41 @@ export async function optimizeImage(file: File): Promise<Blob> {
 }
 
 /**
+ * Upload photo via server-side processing (recommended).
+ * Server handles WebP conversion, 4:3 crop, dimension/size validation.
+ */
+export async function uploadMenuPhotoViaServer(
+  file: File,
+  menuItemId?: string
+): Promise<UploadResult> {
+  const formData = new FormData();
+  formData.append("file", file);
+  if (menuItemId) {
+    formData.append("menuItemId", menuItemId);
+  }
+
+  const response = await fetch("/api/admin/photos/process", {
+    method: "POST",
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const data = await response.json();
+    throw new Error(data.error || "Photo processing failed");
+  }
+
+  const result = await response.json();
+  return {
+    path: result.path,
+    publicUrl: result.publicUrl,
+    width: result.width,
+    height: result.height,
+    size: result.size,
+  };
+}
+
+/**
+ * @deprecated Use `uploadMenuPhotoViaServer` for server-side WebP processing.
  * Upload photo to storage with progress callback
  * Automatically optimizes the image before upload
  */
