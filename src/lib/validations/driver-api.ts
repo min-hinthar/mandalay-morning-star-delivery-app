@@ -44,10 +44,12 @@ export type LocationUpdateInput = z.infer<typeof locationUpdateSchema>;
 export type ReportExceptionInput = z.infer<typeof reportExceptionSchema>;
 export type CompleteRouteInput = z.infer<typeof completeRouteSchema>;
 
-// Valid status transitions for stop status
+// Valid status transitions for stop status.
+// pending/enroute → delivered is allowed so simple-mode drivers (who skip the
+// arrived step) can mark a stop delivered in one tap.
 export const VALID_STOP_TRANSITIONS: Record<string, string[]> = {
-  pending: ["enroute", "skipped"],
-  enroute: ["arrived", "skipped"],
+  pending: ["enroute", "arrived", "delivered", "skipped"],
+  enroute: ["arrived", "delivered", "skipped"],
   arrived: ["delivered", "skipped"],
   delivered: [], // Terminal state
   skipped: [], // Terminal state

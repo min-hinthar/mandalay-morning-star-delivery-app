@@ -59,6 +59,11 @@ export function DeliveryActions({
       return;
     }
 
+    if (!routeId) {
+      setError("Route ID missing — cannot update stop");
+      return;
+    }
+
     setIsLoading(true);
     setError(null);
 
