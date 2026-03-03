@@ -95,9 +95,7 @@ export function PaymentStepV8({
 
   // Calculate tip cents from store state
   const tipCents =
-    tipPercent !== null
-      ? Math.round((itemsSubtotal * tipPercent) / 100)
-      : customTipCents;
+    tipPercent !== null ? Math.round((itemsSubtotal * tipPercent) / 100) : customTipCents;
 
   const handleBack = onBack || storePrevStep;
 
