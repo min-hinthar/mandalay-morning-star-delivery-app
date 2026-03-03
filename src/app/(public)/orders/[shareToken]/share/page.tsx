@@ -123,17 +123,12 @@ export default async function SharePage({ params }: SharePageProps) {
                       <span className="text-sm font-medium text-text-secondary">
                         {item.quantity}x
                       </span>
-                      <span className="font-medium text-text-primary">
-                        {item.name_snapshot}
-                      </span>
+                      <span className="font-medium text-text-primary">{item.name_snapshot}</span>
                     </div>
                     {item.order_item_modifiers.length > 0 && (
                       <div className="mt-0.5 flex flex-wrap gap-1">
                         {item.order_item_modifiers.map((mod, modIdx) => (
-                          <span
-                            key={modIdx}
-                            className="text-xs text-text-muted"
-                          >
+                          <span key={modIdx} className="text-xs text-text-muted">
                             + {mod.name_snapshot}
                           </span>
                         ))}
@@ -151,21 +146,15 @@ export default async function SharePage({ params }: SharePageProps) {
             <div className="mt-4 space-y-1 border-t border-border-subtle pt-4 text-sm">
               <div className="flex justify-between">
                 <span className="text-text-secondary">Subtotal</span>
-                <span className="text-text-primary">
-                  {formatPrice(order.subtotal_cents)}
-                </span>
+                <span className="text-text-primary">{formatPrice(order.subtotal_cents)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-text-secondary">Delivery Fee</span>
-                <span className="text-text-primary">
-                  {formatPrice(order.delivery_fee_cents)}
-                </span>
+                <span className="text-text-primary">{formatPrice(order.delivery_fee_cents)}</span>
               </div>
               <div className="flex justify-between border-t border-border-subtle pt-2 font-semibold">
                 <span className="text-text-primary">Total</span>
-                <span className="text-text-primary">
-                  {formatPrice(order.total_cents)}
-                </span>
+                <span className="text-text-primary">{formatPrice(order.total_cents)}</span>
               </div>
             </div>
           </CardContent>

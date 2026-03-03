@@ -23,13 +23,9 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     const orderId = resolvedParams.id;
 
     // Validate UUID format
-    const uuidRegex =
-      /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!orderId || !uuidRegex.test(orderId)) {
-      return NextResponse.json(
-        { error: "Invalid order ID format" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Invalid order ID format" }, { status: 400 });
     }
 
     const supabase = await createClient();
@@ -58,10 +54,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
 
     // Verify ownership
     if (order.user_id !== user.id) {
-      return NextResponse.json(
-        { error: "You can only share your own orders" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "You can only share your own orders" }, { status: 403 });
     }
 
     // Determine origin for shareUrl
@@ -92,10 +85,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
         api: "orders/[id]/share-token",
         flowId: "generate",
       });
-      return NextResponse.json(
-        { error: "Failed to generate share token" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to generate share token" }, { status: 500 });
     }
 
     return NextResponse.json({
@@ -104,9 +94,6 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     });
   } catch (error) {
     logger.exception(error, { api: "orders/[id]/share-token" });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
