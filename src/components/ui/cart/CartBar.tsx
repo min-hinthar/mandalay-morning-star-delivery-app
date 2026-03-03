@@ -30,7 +30,6 @@ import { PriceTicker } from "@/components/ui/PriceTicker";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { zIndex } from "@/lib/design-system/tokens/z-index";
-import { BUSINESS_RULES_DEFAULTS } from "@/lib/settings/business-rules";
 import {
   spring,
   cartBarSlideUp,
@@ -38,6 +37,13 @@ import {
   badgeVariants,
   triggerHaptic,
 } from "@/lib/motion-tokens";
+
+// ============================================
+// CONSTANTS
+// ============================================
+
+/** Default minimum order in cents ($25). Matches BUSINESS_RULES_DEFAULTS.minimumOrderCents. */
+const DEFAULT_MINIMUM_ORDER_CENTS = 2500;
 
 // ============================================
 // TYPES
@@ -48,7 +54,7 @@ export interface CartBarProps {
   className?: string;
   /** Show checkout button (default: true) */
   showCheckoutButton?: boolean;
-  /** Minimum order amount in cents (default: BUSINESS_RULES_DEFAULTS.minimumOrderCents) */
+  /** Minimum order amount in cents (default: 2500 = $25) */
   minimumOrderCents?: number;
 }
 
@@ -137,7 +143,7 @@ function FreeDeliveryBanner() {
 export function CartBar({
   className,
   showCheckoutButton = true,
-  minimumOrderCents = BUSINESS_RULES_DEFAULTS.minimumOrderCents,
+  minimumOrderCents = DEFAULT_MINIMUM_ORDER_CENTS,
 }: CartBarProps) {
   const router = useRouter();
   const {

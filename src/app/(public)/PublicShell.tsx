@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { CartOverlays } from "@/components/ui/cart/CartOverlays";
 import { DeliverySettingsSync } from "@/components/ui/cart/DeliverySettingsSync";
+import { OfflineBanner } from "@/components/ui/customer";
 import { SiteFooter } from "@/components/ui/homepage/SiteFooter";
 
 interface PublicShellProps {
@@ -22,6 +23,7 @@ export function PublicShell({
 }: PublicShellProps) {
   return (
     <>
+      <OfflineBanner />
       <DeliverySettingsSync
         deliveryFeeCents={deliveryFeeCents}
         freeDeliveryThresholdCents={freeDeliveryThresholdCents}
