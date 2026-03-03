@@ -215,8 +215,13 @@ describe("Driver API Validation Schemas", () => {
       expect(isValidStatusTransition("arrived", "delivered")).toBe(true);
     });
 
+    it("should return true for simple-mode skip transitions", () => {
+      // Simple-mode drivers can skip intermediate steps
+      expect(isValidStatusTransition("pending", "delivered")).toBe(true);
+      expect(isValidStatusTransition("enroute", "delivered")).toBe(true);
+    });
+
     it("should return false for invalid transitions", () => {
-      expect(isValidStatusTransition("pending", "delivered")).toBe(false);
       expect(isValidStatusTransition("delivered", "pending")).toBe(false);
       expect(isValidStatusTransition("skipped", "delivered")).toBe(false);
       expect(isValidStatusTransition("enroute", "pending")).toBe(false);
