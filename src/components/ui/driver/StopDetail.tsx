@@ -49,6 +49,7 @@ interface StopDetailProps {
   orderItems: OrderItem[];
   onStatusChange?: (newStatus: RouteStopStatus) => void;
   onException?: () => void;
+  testMode?: boolean;
 }
 
 export function StopDetail({
@@ -64,6 +65,7 @@ export function StopDetail({
   orderItems,
   onStatusChange,
   onException,
+  testMode,
 }: StopDetailProps) {
   const [copied, setCopied] = useState(false);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -306,6 +308,7 @@ export function StopDetail({
         currentStatus={status}
         onStatusChange={onStatusChange}
         onException={onException}
+        testMode={testMode}
       />
     </div>
   );

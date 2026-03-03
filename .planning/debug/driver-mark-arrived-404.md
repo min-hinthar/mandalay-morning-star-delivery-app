@@ -2,14 +2,17 @@
 status: awaiting_human_verify
 trigger: "Mark arrived action in the driver app returns a 404 Not Found API response. User wants to verify all driver route API functions are working."
 created: 2026-03-02T00:00:00Z
-updated: 2026-03-02T00:15:00Z
+updated: 2026-03-02T18:30:00Z
 ---
 
 ## Current Focus
 
-hypothesis: Three bugs identified and fixed. Bug 1 (FK hints) was already fixed in 91e52462. Bug 2 (empty routeId defensive gap) fixed by hardening the null-route guard in [stopId]/page.tsx and adding guard in DeliveryActions. Bug 3 (SimpleStopView invalid status transition) fixed by extending VALID_STOP_TRANSITIONS to allow pending/enroute → delivered directly.
-test: pnpm typecheck passes, pnpm lint passes, pnpm format:check only flags pre-existing README.md
-expecting: Human to verify Mark Arrived/Delivered buttons now work end-to-end
+hypothesis: BUG 4 (CONFIRMED + FIXED): test-delivery/page.tsx rendered StopDetail without testMode
+  prop, causing DeliveryActions to fire real API calls with mock routeId "test-route-000" → 404.
+  ExceptionModal had testMode so Skip was mocked. Fix: added testMode prop to StopDetail and
+  threaded it to DeliveryActions. test-delivery/page.tsx now passes testMode to StopDetail.
+test: typecheck passes, lint passes clean
+expecting: Human confirms Mark Arrived + Mark Delivered now work on test-delivery page
 next_action: Await human verification
 
 ## Symptoms
@@ -36,6 +39,14 @@ started: Discovered after v1.9 milestone (all 86 phases done). May have never wo
 
 - hypothesis: stop.route is null because orders FK hint failure causes it
   evidence: stop.route join uses route:routes(...) with standard FK (no hint). Independent of orders join. The orders FK fix does not affect stop.route.
+  timestamp: 2026-03-02
+
+- hypothesis: VALID_STOP_TRANSITIONS blocks pending→delivered (fixed in 848f5441)
+  evidence: driver-api.ts now has pending→[enroute, arrived, delivered, skipped]. Fix confirmed in git.
+  timestamp: 2026-03-02
+
+- hypothesis: Route status is not in_progress (blocking PATCH)
+  evidence: Exception modal (Skip) also requires route.status===in_progress and works, so route IS in_progress.
   timestamp: 2026-03-02
 
 ## Evidence
@@ -75,44 +86,48 @@ started: Discovered after v1.9 milestone (all 86 phases done). May have never wo
   found: typecheck passes clean, lint passes clean, format:check only flags pre-existing README.md
   implication: All fixes are type-safe and pass CI checks
 
+- timestamp: 2026-03-02 (NEW INVESTIGATION)
+  checked: test-delivery/page.tsx StopDetail render (line 329-342)
+  found: StopDetail is called with routeId="test-route-000" and stopId=currentStop.id but NO testMode prop.
+    ExceptionModal at line 441-446 IS called with testMode={true}.
+  implication: DeliveryActions (nested inside StopDetail) fires real API calls to
+    /api/driver/routes/test-route-000/stops/<stopId> → 404 Route not found. Exception modal mocks
+    the call and returns success. This is why Skip works and Mark Arrived/Delivered does not.
+
+- timestamp: 2026-03-02
+  checked: StopDetailProps interface in StopDetail.tsx
+  found: No testMode field exists. StopDetail passes nothing to DeliveryActions for testMode.
+  implication: There is no mechanism for test-delivery to opt DeliveryActions into mock mode.
+    Both StopDetail and DeliveryActions need the testMode prop added and threaded through.
+
 ## Resolution
 
 root_cause: |
-  Three bugs found and fixed:
+  BUG 1 (FIXED by 91e52462): Wrong FK hints/column names in Supabase queries.
 
-  BUG 1 (FIXED by 91e52462): Wrong FK hints and column names in Supabase queries for
-  orders → profiles and orders → addresses joins. Customer name, phone, and address data
-  were null in both the stop detail page and route list page.
+  BUG 2 (FIXED by 848f5441): Empty routeId defensive gap + DeliveryActions guard.
 
-  BUG 2 (LATENT 404 path, defensive fix applied): routeId={stop.route?.id ?? ""} passed
-  empty string to DeliveryActions if stop.route was ever null. This would produce fetch URL
-  /api/driver/routes//stops/[stopId] which Next.js cannot match → 404.
-  Fixed by:
-    - Strengthening the null route guard in getStopDetail (explicit !stop.route check)
-    - Adding early-return guard in DeliveryActions.updateStatus when routeId is empty
+  BUG 3 (FIXED by 848f5441): VALID_STOP_TRANSITIONS missing pending/enroute → delivered.
 
-  BUG 3 (CONFIRMED 400 on SimpleStopView): SimpleStopView sends { status: "delivered" }
-  directly, but VALID_STOP_TRANSITIONS did not allow pending→delivered or enroute→delivered.
-  Every "Mark Delivered" tap in simple mode would fail with 400.
-  Fixed by: extending VALID_STOP_TRANSITIONS to allow pending/enroute→delivered directly,
-  enabling the one-tap simple-mode delivery flow.
+  BUG 4 (ROOT CAUSE of current failure — testMode not threaded):
+    test-delivery/page.tsx renders StopDetail with routeId="test-route-000" (mock/non-existent
+    in DB). StopDetail has no testMode prop and therefore DeliveryActions fires a real PATCH
+    request to /api/driver/routes/test-route-000/stops/<mockStopId>. The API returns 404 because
+    "test-route-000" does not exist in the routes table.
+    Meanwhile, ExceptionModal is correctly called with testMode={true} which bypasses the API
+    entirely — this is why "Skip" (via exception modal) works but "Mark Arrived"/"Mark Delivered"
+    (via DeliveryActions) do not.
 
 fix: |
-  1. src/app/(driver)/driver/route/[stopId]/page.tsx:
-     Changed `stop.route?.driver_id !== driver.id` to `!stop.route || stop.route.driver_id !== driver.id`
-     Ensures explicit null check rather than relying on optional chaining + inequality comparison.
+  Thread testMode through the component chain:
+  1. StopDetail.tsx: add testMode?: boolean to StopDetailProps, pass to DeliveryActions
+  2. test-delivery/page.tsx: pass testMode={true} to StopDetail
 
-  2. src/components/ui/driver/DeliveryActions.tsx:
-     Added guard: if (!routeId) { setError("Route ID missing"); return; }
-     Prevents invalid API call with empty routeId from ever reaching the network.
-
-  3. src/lib/validations/driver-api.ts:
-     Extended VALID_STOP_TRANSITIONS to include delivered in pending and enroute transitions.
-     Enables simple-mode one-tap delivery without requiring arrived step.
-
-verification: TypeScript typecheck passes, ESLint passes clean, format:check only flags pre-existing README.md.
+verification: pnpm typecheck passes clean. pnpm lint passes clean.
 
 files_changed:
-  - src/app/(driver)/driver/route/[stopId]/page.tsx
-  - src/components/ui/driver/DeliveryActions.tsx
-  - src/lib/validations/driver-api.ts
+  - src/app/(driver)/driver/route/[stopId]/page.tsx (848f5441)
+  - src/components/ui/driver/DeliveryActions.tsx (848f5441)
+  - src/lib/validations/driver-api.ts (848f5441)
+  - src/components/ui/driver/StopDetail.tsx (NEW - add testMode prop)
+  - src/app/(driver)/driver/test-delivery/page.tsx (NEW - pass testMode to StopDetail)
