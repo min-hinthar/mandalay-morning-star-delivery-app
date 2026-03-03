@@ -57,7 +57,7 @@ export async function GET() {
         placed_at,
         needs_contact,
         order_items (quantity),
-        profiles (
+        profiles!orders_user_id_fkey (
           full_name,
           email
         ),
