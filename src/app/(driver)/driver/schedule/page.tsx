@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import { createClient } from "@/lib/supabase/server";
-import { redirect } from "next/navigation";
+import { checkSimpleMode } from "@/lib/driver/simple-mode-guard";
 import { Skeleton } from "@/components/ui/skeleton/base";
 import { SchedulePageClient } from "./SchedulePageClient";
 import type { RouteStats } from "@/types/driver";
@@ -35,27 +35,19 @@ interface StopQueryResult {
 }
 
 async function getScheduleData() {
+  const { id: driverId } = await checkSimpleMode();
+
   const supabase = await createClient();
 
-  const {
-    data: { user },
-    error: authError,
-  } = await supabase.auth.getUser();
-
-  if (authError || !user) {
-    redirect("/login?next=/driver/schedule");
-  }
-
-  const { data: driver, error: driverError } = await supabase
+  const { data: driver } = await supabase
     .from("drivers")
     .select("id, availability_json")
-    .eq("user_id", user.id)
-    .eq("is_active", true)
+    .eq("id", driverId)
     .returns<DriverQueryResult[]>()
     .single();
 
-  if (driverError || !driver) {
-    redirect("/driver");
+  if (!driver) {
+    return { routes: [] as HistoryRouteData[], availability: null };
   }
 
   const todayStr = new Intl.DateTimeFormat("en-CA", {
