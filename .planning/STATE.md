@@ -6,9 +6,9 @@ status: active
 last_updated: "2026-03-03"
 progress:
   total_phases: 7
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 14
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -22,12 +22,12 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 
 ## Current Position
 
-Phase: 91 of 95 (Checkout & Payment Hardening) - IN PROGRESS
-Plan: 3/4 completed
-Status: Executing plan 91-03
-Last activity: 2026-03-03 — Checkout tips, promo, delivery instructions UI
+Phase: 91 of 95 (Checkout & Payment Hardening) - COMPLETE
+Plan: 4/4 completed
+Status: Phase 91 complete
+Last activity: 2026-03-03 — Cart price refresh, duplicate order detection, guest checkout flow
 
-Progress: [####░░░░░░] 43% (3/7 phases)
+Progress: [######░░░░] 57% (4/7 phases)
 
 ## Performance Metrics
 
@@ -55,7 +55,8 @@ Progress: [####░░░░░░] 43% (3/7 phases)
 | v2.0 91-01         | 1      | 1     | 7 min    |
 | v2.0 91-02         | 1      | 1     | 10 min   |
 | v2.0 91-03         | 1      | 1     | 20 min   |
-| **Total**          | **94** | **363** | **41 days** |
+| v2.0 91-04         | 1      | 1     | 7 min    |
+| **Total**          | **95** | **364** | **41 days** |
 
 ## Accumulated Context
 
@@ -71,6 +72,9 @@ Progress: [####░░░░░░] 43% (3/7 phases)
 - text-text-inverse used instead of text-white per Tailwind v4 design token enforcement
 - Stripe SDK v17+: coupon at promo.promotion.coupon (not promo.coupon)
 - Checkout page also passes prepTimeBufferMinutes for UI/API consistency
+- useCartStore.getState() for non-hook access inside fetch handler — safe pattern for event callbacks
+- Duplicate order check uses delivery.date from checkout store (not gate.deliveryDate) — matches actual selection
+- Dual-layer duplicate detection: useExistingOrder (client warning) + server DUPLICATE_ORDER (enforcement)
 
 ### Phase 94 Decisions
 - useState<Set<string>> for collapse state (not Radix Collapsible — overkill for toggle)
@@ -115,6 +119,6 @@ Progress: [####░░░░░░] 43% (3/7 phases)
 ## Session Continuity
 
 Last session: 2026-03-03
-Stopped at: Completed 91-03-PLAN.md
-Resume file: .planning/phases/91-checkout-payment-hardening/91-03-SUMMARY.md
-Next action: Execute 91-04-PLAN.md
+Stopped at: Completed 91-04-PLAN.md (Phase 91 complete)
+Resume file: .planning/phases/91-checkout-payment-hardening/91-04-SUMMARY.md
+Next action: Begin next phase in v2.0 milestone

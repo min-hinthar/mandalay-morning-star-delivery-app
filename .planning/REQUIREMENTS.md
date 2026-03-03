@@ -37,7 +37,7 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [x] **CHKT-06**: User can apply promo codes at checkout (Stripe coupon integration)
 - [x] **CHKT-07**: User can add tip at checkout (15%/20%/25%/custom)
 - [x] **CHKT-08**: User can add delivery instructions ("Leave at door", etc.)
-- [ ] **CHKT-09**: User can browse and build cart without signing in — (a) anonymous browsing + localStorage cart, (b) auth prompt at checkout, (c) cart transfers to user account on sign-in
+- [x] **CHKT-09**: User can browse and build cart without signing in — (a) anonymous browsing + localStorage cart, (b) auth prompt at checkout, (c) cart transfers to user account on sign-in
 - [x] **CHKT-10**: Successful checkouts logged with order ID, total_cents, user_id, payment_intent_id to Sentry breadcrumb + structured log
 
 ### Customer UX
@@ -210,7 +210,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | CHKT-06 | Phase 91 | Complete |
 | CHKT-07 | Phase 91 | Complete |
 | CHKT-08 | Phase 91 | Complete |
-| CHKT-09 | Phase 91 | Pending |
+| CHKT-09 | Phase 91 | Complete |
 | CHKT-10 | Phase 91 | Complete |
 | CUX-01 | Phase 92 | Pending |
 | CUX-02 | Phase 92 | Pending |
