@@ -1,7 +1,8 @@
 {
   "workflow": {
     "auto_advance": true,
-    "research": true
+    "research": true,
+    "_auto_chain_active": true
   },
   "model_profile": "quality"
 }
