@@ -9,18 +9,24 @@ interface CustomerShellProps {
   children: ReactNode;
   deliveryFeeCents: number;
   freeDeliveryThresholdCents: number;
+  cutoffDay: number;
+  cutoffHour: number;
 }
 
 export function CustomerShell({
   children,
   deliveryFeeCents,
   freeDeliveryThresholdCents,
+  cutoffDay,
+  cutoffHour,
 }: CustomerShellProps) {
   return (
     <DomMaxProvider>
       <DeliverySettingsSync
         deliveryFeeCents={deliveryFeeCents}
         freeDeliveryThresholdCents={freeDeliveryThresholdCents}
+        cutoffDay={cutoffDay}
+        cutoffHour={cutoffHour}
       />
       {children}
       <CartOverlays />

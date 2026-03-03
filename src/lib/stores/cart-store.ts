@@ -89,6 +89,12 @@ export const useCartStore = create<CartStore>()(
       setDeliverySettings: (fee: number, threshold: number) =>
         set({ deliveryFeeCents: fee, freeDeliveryThresholdCents: threshold }),
 
+      // Configurable cutoff settings (defaults match DB seed values)
+      cutoffDay: 5,
+      cutoffHour: 15,
+      setCutoffSettings: (day: number, hour: number) =>
+        set({ cutoffDay: day, cutoffHour: hour }),
+
       /**
        * Add item to cart with deduplication and debounce protection.
        *

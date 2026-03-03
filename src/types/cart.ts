@@ -34,6 +34,11 @@ export interface CartStore {
   freeDeliveryThresholdCents: number;
   setDeliverySettings: (fee: number, threshold: number) => void;
 
+  /** Configurable cutoff settings (populated from server on page load, NOT persisted to IndexedDB) */
+  cutoffDay: number;
+  cutoffHour: number;
+  setCutoffSettings: (day: number, hour: number) => void;
+
   addItem: (item: Omit<CartItem, "cartItemId" | "addedAt">) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   removeItem: (cartItemId: string) => void;
