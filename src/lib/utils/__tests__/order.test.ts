@@ -6,13 +6,30 @@ import {
   calculateOrderTotals,
   createStripeLineItems,
   validateCartItems,
+  type ModifierGroupWithItems,
 } from "../order";
 import {
   createMockMenuItem,
   createMockModifierOption,
   createValidatedCartItem,
 } from "@/test/factories";
-import type { ModifierOptionsRow } from "@/types/database";
+import type { ModifierGroupsRow, ModifierOptionsRow } from "@/types/database";
+
+/** Helper to create a mock modifier group */
+function createMockModifierGroup(
+  overrides?: Partial<ModifierGroupsRow>
+): ModifierGroupsRow {
+  return {
+    id: "group-uuid",
+    slug: "test-group",
+    name: "Test Group",
+    selection_type: "multiple",
+    min_select: 0,
+    max_select: 0,
+    created_at: new Date().toISOString(),
+    ...overrides,
+  };
+}
 
 // Default fee values matching old constants
 const DELIVERY_FEE = 1500;
@@ -449,5 +466,171 @@ describe("validateCartItems", () => {
     expect(result.items).toHaveLength(2); // item-1 and item-3 are valid
     expect(result.errors).toHaveLength(1);
     expect(result.errors[0].itemIndex).toBe(1); // item-2 is sold out
+  });
+
+  describe("BUG-02: modifier group constraint validation", () => {
+    const itemId = "item-1";
+    const groupId = "group-spice";
+
+    it("rejects when fewer modifiers than min_select", async () => {
+      const menuItems = new Map([
+        [itemId, createMockMenuItem({ id: itemId })],
+      ]);
+      const modifierOptions = new Map<string, ModifierOptionsRow>();
+      const modifierGroups = new Map<string, ModifierGroupWithItems>([
+        [groupId, {
+          group: createMockModifierGroup({
+            id: groupId,
+            name: "Spice Level",
+            min_select: 1,
+            max_select: 3,
+          }),
+          itemIds: [itemId],
+        }],
+      ]);
+
+      const result = await validateCartItems(
+        [{ menuItemId: itemId, quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" }],
+        menuItems,
+        modifierOptions,
+        modifierGroups
+      );
+
+      expect(result.valid).toBe(false);
+      expect(result.errors[0].code).toBe("MODIFIER_GROUP_CONSTRAINT");
+      expect(result.errors[0].message).toContain("Spice Level");
+      expect(result.errors[0].message).toContain("at least 1");
+      expect(result.errors[0].message).toContain("got 0");
+    });
+
+    it("rejects when more modifiers than max_select", async () => {
+      const menuItems = new Map([
+        [itemId, createMockMenuItem({ id: itemId })],
+      ]);
+      const mod1 = createMockModifierOption({ id: "mod-1", group_id: groupId });
+      const mod2 = createMockModifierOption({ id: "mod-2", group_id: groupId });
+      const mod3 = createMockModifierOption({ id: "mod-3", group_id: groupId });
+      const mod4 = createMockModifierOption({ id: "mod-4", group_id: groupId });
+      const modifierOptions = new Map([
+        ["mod-1", mod1], ["mod-2", mod2], ["mod-3", mod3], ["mod-4", mod4],
+      ]);
+      const modifierGroups = new Map<string, ModifierGroupWithItems>([
+        [groupId, {
+          group: createMockModifierGroup({
+            id: groupId,
+            name: "Toppings",
+            min_select: 0,
+            max_select: 3,
+          }),
+          itemIds: [itemId],
+        }],
+      ]);
+
+      const result = await validateCartItems(
+        [{
+          menuItemId: itemId,
+          quantity: 1,
+          basePriceCents: 1500,
+          modifiers: [
+            { optionId: "mod-1", priceDeltaCents: 100 },
+            { optionId: "mod-2", priceDeltaCents: 100 },
+            { optionId: "mod-3", priceDeltaCents: 100 },
+            { optionId: "mod-4", priceDeltaCents: 100 },
+          ],
+          notes: "",
+        }],
+        menuItems,
+        modifierOptions,
+        modifierGroups
+      );
+
+      expect(result.valid).toBe(false);
+      expect(result.errors[0].code).toBe("MODIFIER_GROUP_CONSTRAINT");
+      expect(result.errors[0].message).toContain("Toppings");
+      expect(result.errors[0].message).toContain("at most 3");
+      expect(result.errors[0].message).toContain("got 4");
+    });
+
+    it("passes when selections are within min/max range", async () => {
+      const menuItems = new Map([
+        [itemId, createMockMenuItem({ id: itemId })],
+      ]);
+      const mod1 = createMockModifierOption({ id: "mod-1", group_id: groupId });
+      const mod2 = createMockModifierOption({ id: "mod-2", group_id: groupId });
+      const modifierOptions = new Map([["mod-1", mod1], ["mod-2", mod2]]);
+      const modifierGroups = new Map<string, ModifierGroupWithItems>([
+        [groupId, {
+          group: createMockModifierGroup({
+            id: groupId,
+            name: "Spice Level",
+            min_select: 1,
+            max_select: 3,
+          }),
+          itemIds: [itemId],
+        }],
+      ]);
+
+      const result = await validateCartItems(
+        [{
+          menuItemId: itemId,
+          quantity: 1,
+          basePriceCents: 1500,
+          modifiers: [
+            { optionId: "mod-1", priceDeltaCents: 100 },
+            { optionId: "mod-2", priceDeltaCents: 100 },
+          ],
+          notes: "",
+        }],
+        menuItems,
+        modifierOptions,
+        modifierGroups
+      );
+
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+    });
+
+    it("passes without modifier groups (backward compatible)", async () => {
+      const menuItems = new Map([
+        [itemId, createMockMenuItem({ id: itemId })],
+      ]);
+      const modifierOptions = new Map<string, ModifierOptionsRow>();
+
+      const result = await validateCartItems(
+        [{ menuItemId: itemId, quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" }],
+        menuItems,
+        modifierOptions
+        // No modifierGroups parameter
+      );
+
+      expect(result.valid).toBe(true);
+    });
+
+    it("ignores groups not associated with the item", async () => {
+      const menuItems = new Map([
+        [itemId, createMockMenuItem({ id: itemId })],
+      ]);
+      const modifierOptions = new Map<string, ModifierOptionsRow>();
+      const modifierGroups = new Map<string, ModifierGroupWithItems>([
+        [groupId, {
+          group: createMockModifierGroup({
+            id: groupId,
+            name: "Unrelated Group",
+            min_select: 1,
+            max_select: 3,
+          }),
+          itemIds: ["other-item-id"], // Not our item
+        }],
+      ]);
+
+      const result = await validateCartItems(
+        [{ menuItemId: itemId, quantity: 1, basePriceCents: 1500, modifiers: [], notes: "" }],
+        menuItems,
+        modifierOptions,
+        modifierGroups
+      );
+
+      expect(result.valid).toBe(true);
+    });
   });
 });

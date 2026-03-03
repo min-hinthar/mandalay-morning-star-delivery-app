@@ -2,7 +2,12 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
-import { validateCartItems, calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
+import {
+  validateCartItems,
+  calculateOrderTotals,
+  createStripeLineItems,
+  type ModifierGroupWithItems,
+} from "@/lib/utils/order";
 import { isPastCutoff, getDeliveryDate } from "@/lib/utils/delivery-dates";
 import { getBusinessRules, generateTimeWindows } from "@/lib/settings";
 import { logger } from "@/lib/utils/logger";
@@ -11,6 +16,7 @@ import type { CheckoutError, CheckoutErrorCode } from "@/types/checkout";
 import type {
   AddressesRow,
   MenuItemsRow,
+  ModifierGroupsRow,
   ModifierOptionsRow,
   OrdersRow,
   OrderItemsRow,
@@ -174,8 +180,34 @@ export async function POST(request: Request) {
       (modifierOptionsData ?? []).map((option) => [option.id, option])
     );
 
-    // Validate cart items against database
-    const validation = await validateCartItems(input.items, menuItems, modifierOptions);
+    // BUG-02: Fetch modifier groups for constraint validation
+    const { data: itemModifierGroupsData } = await supabase
+      .from("item_modifier_groups")
+      .select("item_id, group_id, modifier_groups(id, slug, name, selection_type, min_select, max_select)")
+      .in("item_id", menuItemIds);
+
+    // Build modifier group lookup map
+    const modifierGroupsMap = new Map<string, ModifierGroupWithItems>();
+    if (itemModifierGroupsData) {
+      for (const row of itemModifierGroupsData) {
+        const mg = (row as Record<string, unknown>).modifier_groups as ModifierGroupsRow | null;
+        if (!mg) continue;
+        const existing = modifierGroupsMap.get(mg.id);
+        if (existing) {
+          existing.itemIds.push(row.item_id);
+        } else {
+          modifierGroupsMap.set(mg.id, { group: mg, itemIds: [row.item_id] });
+        }
+      }
+    }
+
+    // Validate cart items against database (with modifier group constraints)
+    const validation = await validateCartItems(
+      input.items,
+      menuItems,
+      modifierOptions,
+      modifierGroupsMap.size > 0 ? modifierGroupsMap : undefined
+    );
 
     if (!validation.valid) {
       const firstError = validation.errors[0];

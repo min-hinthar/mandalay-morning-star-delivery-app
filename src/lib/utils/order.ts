@@ -1,5 +1,11 @@
 import type { CheckoutItemInput } from "@/lib/validations/checkout";
-import type { MenuItemsRow, ModifierOptionsRow } from "@/types/database";
+import type { MenuItemsRow, ModifierGroupsRow, ModifierOptionsRow } from "@/types/database";
+
+/** BUG-02: Modifier group data for constraint validation */
+export interface ModifierGroupWithItems {
+  group: ModifierGroupsRow;
+  itemIds: string[];
+}
 
 /** Default fee values — match DB seeds and BUSINESS_RULES_DEFAULTS */
 const DEFAULT_DELIVERY_FEE_CENTS = 1500;
@@ -142,7 +148,8 @@ export function createStripeLineItems(
 export async function validateCartItems(
   inputItems: CheckoutItemInput[],
   menuItems: Map<string, MenuItemsRow>,
-  modifierOptions: Map<string, ModifierOptionsRow>
+  modifierOptions: Map<string, ModifierOptionsRow>,
+  modifierGroups?: Map<string, ModifierGroupWithItems>
 ): Promise<{
   valid: boolean;
   items: ValidatedCartItem[];
@@ -203,6 +210,33 @@ export async function validateCartItems(
         continue;
       }
       validModifiers.push(option);
+    }
+
+    // BUG-02 FIX: Validate modifier group min_select/max_select constraints
+    if (modifierGroups) {
+      for (const [groupId, { group, itemIds }] of modifierGroups) {
+        if (!itemIds.includes(input.menuItemId)) continue;
+
+        // Count how many selected modifiers belong to this group
+        const selectedInGroup = validModifiers.filter((mod) => mod.group_id === groupId);
+        const count = selectedInGroup.length;
+
+        if (count < group.min_select) {
+          errors.push({
+            code: "MODIFIER_GROUP_CONSTRAINT",
+            message: `"${group.name}" requires at least ${group.min_select} selection(s), got ${count}`,
+            itemIndex: i,
+          });
+        }
+
+        if (group.max_select > 0 && count > group.max_select) {
+          errors.push({
+            code: "MODIFIER_GROUP_CONSTRAINT",
+            message: `"${group.name}" allows at most ${group.max_select} selection(s), got ${count}`,
+            itemIndex: i,
+          });
+        }
+      }
     }
 
     const lineTotalCents = calculateLineTotal(
