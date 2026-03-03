@@ -17,9 +17,16 @@ ALTER TABLE orders
 -- ===========================================
 -- 2. DUPLICATE ORDER PREVENTION (CHKT-05)
 -- Unique partial index: one active order per user per Saturday
+-- Requires IMMUTABLE function since timestamptz::date is STABLE (timezone-dependent)
 -- ===========================================
+CREATE OR REPLACE FUNCTION public.delivery_date(ts TIMESTAMPTZ)
+RETURNS DATE
+LANGUAGE SQL
+IMMUTABLE
+AS $$ SELECT (ts AT TIME ZONE 'America/Los_Angeles')::date $$;
+
 CREATE UNIQUE INDEX IF NOT EXISTS idx_orders_user_delivery_date
-  ON orders (user_id, (delivery_window_start::date))
+  ON orders (user_id, delivery_date(delivery_window_start))
   WHERE status != 'cancelled';
 
 -- ===========================================
