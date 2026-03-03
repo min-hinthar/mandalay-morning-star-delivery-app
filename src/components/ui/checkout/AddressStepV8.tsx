@@ -240,7 +240,7 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
 
       {/* Responsive overlay for add/edit */}
       {isMobile ? (
-        <Drawer isOpen={isFormOpen} onClose={closeForm} position="bottom">
+        <Drawer isOpen={isFormOpen} onClose={closeForm} position="bottom" title={formTitle}>
           <div className="px-4 pb-4">
             <h3 className="font-semibold text-lg mb-4">{formTitle}</h3>
             {FormContent}

@@ -461,6 +461,7 @@ export function ItemDetailSheet({
         position="bottom"
         height="full"
         showDragHandle={true}
+        title={item?.nameEn ? `Item details for ${item.nameEn}` : "Item details"}
         className={cn("flex flex-col", wrapperClassName)}
       >
         {renderContent()}
