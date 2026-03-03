@@ -202,7 +202,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
         expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
       },
       {
-        idempotencyKey: `retry_${order.id}_${Date.now()}`,
+        idempotencyKey: `retry_${order.id}`,
       }
     );
 
