@@ -71,21 +71,21 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 
 ### Driver Simplification
 
-- [ ] **DRV-01**: Simple mode toggle — strip to essentials (name, address, phone, mark delivered)
-- [ ] **DRV-02**: Confirmation dialogs — "Mark as delivered at [address]?"
-- [ ] **DRV-03**: One-tap customer contact — phone call / text button on each stop
-- [ ] **DRV-04**: Offline instructions — "Route saved locally. Will sync when reconnected."
+- [x] **DRV-01**: Simple mode toggle — strip to essentials (name, address, phone, mark delivered)
+- [x] **DRV-02**: Confirmation dialogs — "Mark as delivered at [address]?"
+- [x] **DRV-03**: One-tap customer contact — phone call / text button on each stop
+- [x] **DRV-04**: Offline instructions — "Route saved locally. Will sync when reconnected."
 - [x] **DRV-05**: Hide by default — route optimization, exception modals, earnings dashboard
 
 ### Production Hardening
 
-- [ ] **HARD-01**: Rate limit fallback — reduce to 5 req/min, endpoint-specific limits
-- [ ] **HARD-02**: Error context — specific catch blocks, correct HTTP status codes
-- [ ] **HARD-03**: N+1 fix — join driver info in order queries
-- [ ] **HARD-04**: Admin pagination — total counts + "showing X of Y"
-- [ ] **HARD-05**: Audit missing DB indexes
-- [ ] **HARD-06**: Modifier price delta validation in checkout
-- [ ] **HARD-07**: Sentry integration review — all critical paths covered
+- [x] **HARD-01**: Rate limit fallback — reduce to 5 req/min, endpoint-specific limits
+- [x] **HARD-02**: Error context — specific catch blocks, correct HTTP status codes
+- [x] **HARD-03**: N+1 fix — join driver info in order queries
+- [x] **HARD-04**: Admin pagination — total counts + "showing X of Y"
+- [x] **HARD-05**: Audit missing DB indexes
+- [x] **HARD-06**: Modifier price delta validation in checkout
+- [x] **HARD-07**: Sentry integration review — all critical paths covered
 
 ## Future Requirements
 
@@ -177,18 +177,18 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EMAIL-04 | Phase 82 | Complete |
 | EMAIL-05 | Phase 82 | Complete |
 | EMAIL-06 | Phase 82 | Complete |
-| DRV-01 | Phase 88 | Pending |
-| DRV-02 | Phase 88 | Pending |
-| DRV-03 | Phase 88 | Pending |
-| DRV-04 | Phase 88 | Pending |
+| DRV-01 | Phase 83 | Complete |
+| DRV-02 | Phase 83 | Complete |
+| DRV-03 | Phase 83 | Complete |
+| DRV-04 | Phase 83 | Complete |
 | DRV-05 | Phase 87 | Complete |
-| HARD-01 | Phase 88 | Pending |
-| HARD-02 | Phase 88 | Pending |
-| HARD-03 | Phase 88 | Pending |
-| HARD-04 | Phase 88 | Pending |
-| HARD-05 | Phase 88 | Pending |
-| HARD-06 | Phase 88 | Pending |
-| HARD-07 | Phase 88 | Pending |
+| HARD-01 | Phase 84 | Complete |
+| HARD-02 | Phase 84 | Complete |
+| HARD-03 | Phase 84 | Complete |
+| HARD-04 | Phase 84 | Complete |
+| HARD-05 | Phase 84 | Complete |
+| HARD-06 | Phase 84 | Complete |
+| HARD-07 | Phase 84 | Complete |
 
 **Coverage:**
 - v1.9 requirements: 49 total
@@ -197,4 +197,4 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 ---
 *Requirements defined: 2026-03-01*
-*Last updated: 2026-03-02 after gap closure phases 87-88 created (GATE-03 reset to Pending, DRV/HARD reqs assigned to gap phases)*
+*Last updated: 2026-03-03 after Phase 88 verification (DRV-01-04, HARD-01-07 verified complete)*
