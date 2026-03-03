@@ -97,8 +97,6 @@ export function useCardInteractions({
   }, [item.modifierGroups]);
 
   const handleCardClick = useCallback(() => {
-    if (item.isSoldOut) return;
-
     // Haptic feedback
     if (typeof navigator !== "undefined" && "vibrate" in navigator) {
       navigator.vibrate(10);
@@ -171,8 +169,6 @@ export function useCardInteractions({
   // Mobile long-press to open detail sheet (500ms iOS standard)
   const handleTouchStart = useCallback(
     (e: React.TouchEvent) => {
-      if (item.isSoldOut) return;
-
       const touch = e.touches[0];
       if (touch) {
         touchStartPos.current = { x: touch.clientX, y: touch.clientY };

@@ -219,7 +219,7 @@ export function UnifiedMenuItemCard({
       }
       transition={springConfig}
       role="button"
-      tabIndex={item.isSoldOut ? -1 : 0}
+      tabIndex={0}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
