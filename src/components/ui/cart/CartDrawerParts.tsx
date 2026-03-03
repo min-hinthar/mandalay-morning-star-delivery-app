@@ -1,8 +1,17 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { m, AnimatePresence } from "framer-motion";
-import { ShoppingBag, X, Trash2, AlertTriangle, Expand, CalendarClock } from "lucide-react";
+import {
+  ShoppingBag,
+  X,
+  Trash2,
+  AlertTriangle,
+  Expand,
+  CalendarClock,
+  Check,
+} from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -28,6 +37,12 @@ function formatCutoffTime(cutoffDay: number, cutoffHour: number): string {
 }
 
 // ============================================
+// SYNC STATUS TYPES
+// ============================================
+
+type SyncStatus = "idle" | "saving" | "saved";
+
+// ============================================
 // CART HEADER
 // ============================================
 
@@ -40,6 +55,42 @@ interface CartHeaderProps {
 
 export function CartHeader({ itemCount, onClose, onClearClick, showClear }: CartHeaderProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  const { items } = useCart();
+  const [syncStatus, setSyncStatus] = useState<SyncStatus>("idle");
+  const isFirstRender = useRef(true);
+  const savingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const savedTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Track cart item changes for sync indicator
+  useEffect(() => {
+    // Skip first render to avoid showing "Saved" on mount
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+
+    // Clear existing timers
+    if (savingTimerRef.current) clearTimeout(savingTimerRef.current);
+    if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+
+    // Show "Saving..." briefly
+    setSyncStatus("saving");
+
+    // After 500ms, switch to "Saved"
+    savingTimerRef.current = setTimeout(() => {
+      setSyncStatus("saved");
+
+      // After 2s, hide indicator
+      savedTimerRef.current = setTimeout(() => {
+        setSyncStatus("idle");
+      }, 2000);
+    }, 500);
+
+    return () => {
+      if (savingTimerRef.current) clearTimeout(savingTimerRef.current);
+      if (savedTimerRef.current) clearTimeout(savedTimerRef.current);
+    };
+  }, [items]);
 
   return (
     <div
@@ -49,34 +100,57 @@ export function CartHeader({ itemCount, onClose, onClearClick, showClear }: Cart
         "bg-surface-secondary px-4 py-4"
       )}
     >
-      <h2
-        id="cart-drawer-title"
-        className="flex items-center gap-3 text-lg font-display font-bold text-text-primary"
-      >
-        <m.div
-          className={cn(
-            "flex h-10 w-10 items-center justify-center rounded-full",
-            "bg-amber-100 dark:bg-amber-900/30"
-          )}
+      <div className="flex items-center gap-3">
+        <h2
+          id="cart-drawer-title"
+          className="flex items-center gap-3 text-lg font-display font-bold text-text-primary"
         >
-          <ShoppingBag className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-        </m.div>
-        Your Cart
-        {itemCount > 0 && (
-          <m.span
-            key={itemCount}
-            initial={shouldAnimate ? { scale: 0, rotate: -10 } : undefined}
-            animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
-            transition={getSpring(spring.rubbery)}
+          <m.div
             className={cn(
-              "rounded-full px-2.5 py-1 text-xs font-semibold",
-              "bg-amber-500 text-text-inverse shadow-sm"
+              "flex h-10 w-10 items-center justify-center rounded-full",
+              "bg-amber-100 dark:bg-amber-900/30"
             )}
           >
-            {itemCount}
-          </m.span>
-        )}
-      </h2>
+            <ShoppingBag className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          </m.div>
+          Your Cart
+          {itemCount > 0 && (
+            <m.span
+              key={itemCount}
+              initial={shouldAnimate ? { scale: 0, rotate: -10 } : undefined}
+              animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
+              transition={getSpring(spring.rubbery)}
+              className={cn(
+                "rounded-full px-2.5 py-1 text-xs font-semibold",
+                "bg-amber-500 text-text-inverse shadow-sm"
+              )}
+            >
+              {itemCount}
+            </m.span>
+          )}
+        </h2>
+
+        {/* Sync status indicator */}
+        <AnimatePresence>
+          {syncStatus !== "idle" && (
+            <m.span
+              initial={{ opacity: 0, x: -8 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -8 }}
+              className="flex items-center gap-1 text-xs text-text-muted"
+            >
+              {syncStatus === "saving" ? (
+                "Saving..."
+              ) : (
+                <>
+                  <Check className="h-3 w-3" />
+                  Saved
+                </>
+              )}
+            </m.span>
+          )}
+        </AnimatePresence>
+      </div>
 
       <div className="flex items-center gap-2">
         {showClear && (
