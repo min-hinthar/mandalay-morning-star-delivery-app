@@ -168,7 +168,9 @@
   2. Driver can tap to call or text a customer directly from the stop view
   3. Driver can open turn-by-turn navigation to any stop address in their preferred maps app
   4. Driver must capture a photo before marking a delivery as complete (enforced, not optional)
-**Plans**: TBD
+**Plans**: 2 plans
+  - [ ] 94-01-PLAN.md — ADMIN-01: Collapsible time-window groups with per-window select-all (Wave 1)
+  - [ ] 94-02-PLAN.md — DRV-01, DRV-02, DRV-03: SMS contact, address-only nav fallback, photo proof enforcement (Wave 1)
 
 ### Phase 95: Observability, Performance, Testing & Launch Prep
 **Goal**: Production infrastructure is monitored, performant, validated by comprehensive tests, and all pre-launch infrastructure is provisioned
@@ -207,7 +209,7 @@
 | 91. Checkout & Payment Hardening | v2.0 | 0/4 | Planned | - |
 | 92. Customer UX - Discovery & Shopping | v2.0 | 0/TBD | Not started | - |
 | 93. Customer UX - Engagement & Accessibility | v2.0 | 0/TBD | Not started | - |
-| 94. Admin & Driver Enhancements | v2.0 | 0/TBD | Not started | - |
+| 94. Admin & Driver Enhancements | v2.0 | 0/2 | Planned | - |
 | 95. Observability, Performance & Testing | v2.0 | 0/TBD | Not started | - |
 
 ---
