@@ -1,0 +1,79 @@
+{
+  "generated": "2026-03-03",
+  "usage_policy": {
+    "fallback_only": true,
+    "description": "These photos are FALLBACK assets only. They must NEVER override photos already uploaded via the admin dashboard (/admin/photos). Only use for items where image_url IS NULL in the menu_items table.",
+    "upload_priority": "1) Admin-uploaded originals (Supabase bucket), 2) Google Drive linked photos, 3) Platform-extracted photos, 4) Wikimedia CC photos, 5) AI-generated illustrations"
+  },
+  "total_menu_items": 53,
+  "total_photos": 53,
+  "coverage": "100%",
+  "sources_summary": {
+    "ubereats_platform": 28,
+    "doordash_platform": 3,
+    "wikimedia_commons_cc": 9,
+    "ai_generated": 13
+  },
+  "downloaded_from_ubereats": [
+    "burmese-fried-rice",
+    "burmese-milk-tea",
+    "century-egg-salad",
+    "chicken-curry",
+    "coconut-chicken-and-rice",
+    "duck-egg-curry",
+    "everything-salad",
+    "faluda",
+    "fermented-fish-paste-ngapi",
+    "goat-curry",
+    "goat-marrow-soup",
+    "kyay-o",
+    "mee-shay",
+    "mixed-veggie-shrimp-stir-fry-rice",
+    "mohinga",
+    "nan-gyi-mont-ti",
+    "ngapi-rice-salad",
+    "ohno-khao-swe",
+    "pickled-tea-salad",
+    "pork-curry",
+    "pork-horsegram-bean-curry",
+    "pork-offals-curry",
+    "pork-skewers",
+    "rice-with-pickled-tea-salad",
+    "river-prawns-curry",
+    "roselle-with-shrimp-curry",
+    "swai-fish-curry",
+    "tomato-salad"
+  ],
+  "downloaded_from_doordash": ["beef-curry", "coconut-rice", "parata"],
+  "from_wikimedia_commons_cc": [
+    "bamboo-shoot-mushroom-soup",
+    "coffee",
+    "fish-paste-tomato-curry",
+    "grilled-aubergine-salad",
+    "hilsa-fish",
+    "pinto-beans",
+    "rice",
+    "shan-noodles",
+    "tom-yum-fried-rice-or-noodles"
+  ],
+  "ai_generated": [
+    "acacia-with-shrimp-curry",
+    "balachaung",
+    "bamboo-shoot-with-pork-soup",
+    "beef-pounded-deep-fried",
+    "boneless-catfish-curry",
+    "chicken-giblets-curry",
+    "chicken-gourd-curry",
+    "crab-masala-curry",
+    "fried-catfish-curry",
+    "fried-fish-cake-curry",
+    "mixed-veggie-soup",
+    "snakehead-innards-curry",
+    "sweet-shrimps-curry"
+  ],
+  "notes": {
+    "ai_generated_note": "13 AI-generated images are stylized food illustrations, not photographs. Recommend replacing with real photos via admin upload when available.",
+    "wikimedia_note": "9 CC-licensed images from Wikimedia Commons. Some may be approximate matches. Verify and replace via admin if needed.",
+    "platform_photos": "31 photos extracted from UberEats and DoorDash CDNs. These are the restaurant's own photos."
+  }
+}
