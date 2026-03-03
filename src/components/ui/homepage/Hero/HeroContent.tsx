@@ -132,6 +132,15 @@ export function HeroContent({
             </m.div>
           </div>
 
+          {/* Next delivery date + cutoff info */}
+          {gate.isOpen && (
+            <p className="text-base font-semibold text-hero-text">
+              Next delivery: {gate.deliveryDate.displayDate}
+              <span className="mx-2 text-hero-text/40">|</span>
+              <span className="font-medium text-hero-text/80">{deliveryScheduleText}</span>
+            </p>
+          )}
+
           {/* Countdown / closed state text near CTA */}
           {gate.isOpen ? (
             <div className="flex items-center gap-1.5 text-sm text-hero-text/70">

@@ -73,8 +73,8 @@ export function computeDeliveryGate(
 // ============================================
 
 /**
- * Hook that returns live delivery gate state, refreshed every minute.
- * Uses 60s interval — gate state doesn't need per-second resolution.
+ * Hook that returns live delivery gate state with dynamic polling.
+ * Polls every 60s normally, switches to 10s during the final 30 minutes before cutoff.
  */
 export function useDeliveryGate(cutoffDay: number, cutoffHour: number): DeliveryGateState {
   const [state, setState] = useState<DeliveryGateState>(() =>
@@ -85,11 +85,22 @@ export function useDeliveryGate(cutoffDay: number, cutoffHour: number): Delivery
     // Immediately recompute on mount or param change
     setState(computeDeliveryGate(cutoffDay, cutoffHour));
 
-    const interval = setInterval(() => {
-      setState(computeDeliveryGate(cutoffDay, cutoffHour));
-    }, 60_000);
+    let timeoutId: ReturnType<typeof setTimeout>;
 
-    return () => clearInterval(interval);
+    const tick = () => {
+      const newState = computeDeliveryGate(cutoffDay, cutoffHour);
+      setState(newState);
+      const totalMinutes =
+        newState.timeUntilCutoff.hours * 60 + newState.timeUntilCutoff.minutes;
+      // 10s polling during final 30 minutes (and not past cutoff), 60s otherwise
+      const interval =
+        totalMinutes <= 30 && !newState.timeUntilCutoff.isPastCutoff ? 10_000 : 60_000;
+      timeoutId = setTimeout(tick, interval);
+    };
+
+    timeoutId = setTimeout(tick, 60_000);
+
+    return () => clearTimeout(timeoutId);
   }, [cutoffDay, cutoffHour]);
 
   return state;
