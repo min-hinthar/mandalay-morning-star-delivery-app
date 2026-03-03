@@ -66,7 +66,7 @@ Requirements for Launch-Ready MVP. Each maps to roadmap phases.
 - [ ] **EMAIL-02**: Admin email dashboard — failed emails with one-click retry
 - [ ] **EMAIL-03**: Order detail indicator — email sent/pending/failed status
 - [ ] **EMAIL-04**: Surface Resend webhook data in admin (delivered, opened, bounced)
-- [ ] **EMAIL-05**: Fallback — 3 failures flag order for manual contact
+- [x] **EMAIL-05**: Fallback — 3 failures flag order for manual contact
 - [ ] **EMAIL-06**: Webhook audit logging — body hash + signature verification
 
 ### Driver Simplification
@@ -175,7 +175,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | EMAIL-02 | Phase 82 | Pending |
 | EMAIL-03 | Phase 82 | Pending |
 | EMAIL-04 | Phase 82 | Pending |
-| EMAIL-05 | Phase 82 | Pending |
+| EMAIL-05 | Phase 82 | Complete |
 | EMAIL-06 | Phase 82 | Pending |
 | DRV-01 | Phase 83 | Pending |
 | DRV-02 | Phase 83 | Pending |

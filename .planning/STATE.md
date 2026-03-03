@@ -2,6 +2,19 @@
 gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
+status: unknown
+last_updated: "2026-03-03T02:46:23.722Z"
+progress:
+  total_phases: 10
+  completed_phases: 9
+  total_plans: 35
+  completed_plans: 33
+---
+
+---
+gsd_state_version: 1.0
+milestone: v1.9
+milestone_name: Launch-Ready MVP
 status: in_progress
 last_updated: "2026-03-02T18:00:00Z"
 progress:
@@ -76,6 +89,8 @@ Progress: [====================================] 85/85 phases (COMPLETE)
 | Phase 84 P02 | 15 | 2 tasks | 12 files |
 | Phase 84 P03 | 20 | 2 tasks | 16 files |
 | Phase 84 P04 | 5 | 1 task | 2 files |
+| Phase 82-email-reliability P02 | 8 | 2 tasks | 2 files |
+| Phase 82-email-reliability P01 | 10 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -149,6 +164,12 @@ Progress: [====================================] 85/85 phases (COMPLETE)
 - [Phase 84]: Offset pagination with 25 default page size on all admin list endpoints
 - [Phase 84]: Sentry error tracking only (no performance tracing) -- structured logger context enrichment
 - [Phase 84]: N+1 fix via PostgREST relation join (notification_logs in single query)
+- [Phase 82-email-reliability]: needs_contact flagged after all retries exhausted (MAX_RETRIES=3)
+- [Phase 82-email-reliability]: Type casts as Record<string, unknown> for migration columns not in generated types
+- [Phase 82-email-reliability]: svix v1.86.0 HMAC webhook verification over raw body text (not JSON)
+- [Phase 82-email-reliability]: STATUS_PRIORITY map for downgrade protection (prevents delivered->sent regression)
+- [Phase 82-email-reliability]: Idempotent webhook processing via svix-id lookup in webhook_audit_logs
+- [Phase 82-email-reliability]: crypto.createHash for payload audit hashing (no additional deps)
 
 ### Pending Todos
 
