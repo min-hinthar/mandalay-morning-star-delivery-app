@@ -2,15 +2,15 @@
 status: awaiting_human_verify
 trigger: "Admin photos page requires hard reload to render photos. Normal navigation (client-side or direct URL) shows the page layout but photos are missing until a hard reload (Ctrl+F5) is performed."
 created: 2026-03-02T01:00:00Z
-updated: 2026-03-02T01:30:00Z
+updated: 2026-03-03T02:45:00Z
 ---
 
 ## Current Focus
 
-hypothesis: CONFIRMED -- `loading="lazy"` on `<img>` tags inside framer-motion animated containers prevents browser IntersectionObserver from triggering lazy load during client-side SPA navigation. Hard reload uses eager loading heuristics for initial page paint.
-test: Removed loading="lazy" from PhotoGrid.tsx; fixed invalidateMenuCache version mismatch in useServiceWorker.ts
-expecting: Photos render immediately on client-side navigation and direct URL without hard reload
-next_action: Human verify the fix resolves the missing photos in browser
+hypothesis: CONFIRMED -- Google Drive `/thumbnail` endpoint returns opaque cross-origin responses that the SW caches indiscriminately (status 0 includes both success and error). NetworkFirst still caches bad opaque responses. The old SW (v2 with CacheFirst) may still be active due to `skipWaiting: false`. Hard reload bypasses SW entirely, making direct browser requests that succeed. The fundamental fix is to route Drive images through Next.js image optimization proxy (`/_next/image`) like the customer-facing menu already does, making requests same-origin and properly cacheable.
+test: Switch PhotoGrid, CartItem, and SuggestionRow from plain `<img>` to `next/image` for Drive URLs. Also fix SW opaque response caching.
+expecting: Images load reliably on both normal navigation and hard reload. No more dependency on hard reload.
+next_action: Awaiting human verification in browser
 
 ## Symptoms
 
@@ -38,6 +38,14 @@ started: Not sure when it started
   evidence: /api/admin/photos correctly queries menu_items with non-null image_url and returns JSON with photo objects. The page layout renders correctly (stats cards, filters, grid structure) -- only the images inside <img> tags fail to load.
   timestamp: 2026-03-02T01:08:00Z
 
+- hypothesis: loading="lazy" + framer-motion animated containers prevent IntersectionObserver
+  evidence: Fix was applied (removed loading="lazy") but symptoms persist. Root cause is elsewhere.
+  timestamp: 2026-03-03T01:30:00Z
+
+- hypothesis: SW CacheFirst for external images caches stale opaque responses
+  evidence: Fix was applied (switched to NetworkFirst, bumped CACHE_VERSION v2->v3) but symptoms persist. NetworkFirst still caches opaque responses (status 0) which are indistinguishable between success and error for cross-origin requests.
+  timestamp: 2026-03-03T01:30:00Z
+
 ## Evidence
 
 - timestamp: 2026-03-02T01:00:00Z
@@ -45,56 +53,66 @@ started: Not sure when it started
   found: Two prior sessions -- (1) images-not-rendering fixed referrerPolicy + remotePatterns (2) profile-image-hard-reload found SW CacheFirst caching stale opaque responses, bumped CACHE_VERSION v1->v2
   implication: SW CacheFirst stale cache pattern is a known issue in this codebase. CACHE_VERSION was bumped to v2 but may not have been activated (skipWaiting: false)
 
-- timestamp: 2026-03-02T01:02:00Z
-  checked: PhotoGrid.tsx img tag attributes
-  found: `<img>` has `loading="lazy"` (line 94) inside `<m.div>` with `initial={{ opacity: 0, scale: 0.9 }}` (lines 70-71). Parent wrapper `<m.div>` has `initial={{ opacity: 0, y: 10 }}` with `transition={{ delay: 0.25 }}` (page.tsx lines 316-320).
-  implication: loading="lazy" uses IntersectionObserver. Framer-motion starts elements invisible/off-position. On client-side SPA navigation, browser may not trigger lazy loading for dynamically-inserted invisible elements. On hard reload, browsers load lazy images more eagerly during initial page paint.
+- timestamp: 2026-03-03T01:30:00Z
+  checked: All three previous fixes applied in commit 8f964aca
+  found: (1) loading="lazy" removed from PhotoGrid (2) SW switched to NetworkFirst for external images (3) CACHE_VERSION bumped v2->v3 (4) onError fallback added to CartItem/SuggestionRow (5) invalidateMenuCache fixed
+  implication: All previous fixes applied correctly but symptom persists. Root cause is NOT lazy loading or CacheFirst strategy alone.
 
-- timestamp: 2026-03-02T01:04:00Z
-  checked: SW registration behavior
-  found: ServiceWorkerRegistration.tsx only registers in production (process.env.NODE_ENV !== "development"). SW denylist excludes /api/ routes from NavigationRoute, but runtimeCaching CacheFirst still intercepts image requests matching google/supabase hostnames.
-  implication: If issue occurs in dev mode, SW is not the cause. If production-only, SW CacheFirst is the prime suspect.
+- timestamp: 2026-03-03T01:35:00Z
+  checked: skipWaiting behavior in sw.ts
+  found: skipWaiting: false -- new SW installs but does NOT activate until all tabs closed. Old SW (v2, CacheFirst) may still be the active controller.
+  implication: Even after deploying v3 (NetworkFirst), the old v2 SW with CacheFirst could still be serving stale opaque responses until user closes all tabs.
 
-- timestamp: 2026-03-02T01:06:00Z
-  checked: invalidateMenuCache version mismatch
-  found: useServiceWorker.ts line 109 opens "menu-api-cache-v1" but SW uses "menu-api-cache-v2" after the version bump. This function can never clear v2 cache entries.
-  implication: Separate bug (stale menu API cache invalidation broken) -- fixed as secondary fix.
+- timestamp: 2026-03-03T01:40:00Z
+  checked: Customer-facing menu vs admin photos -- why menu works
+  found: Customer menu uses `next/image` (CardImage.tsx) which proxies through `/_next/image?url=...`. This is a SAME-ORIGIN request to the Next.js server. Server fetches from Drive, optimizes, returns with proper headers. Admin photos and cart items use plain `<img>` with direct cross-origin Drive URLs.
+  implication: next/image proxy is the key difference. It avoids all cross-origin issues, SW opaque response caching, and Google Drive rate limiting.
 
-- timestamp: 2026-03-02T01:08:00Z
-  checked: API route /api/admin/photos
-  found: Returns JSON with photo objects containing imageUrl field. Image URLs are either drive.google.com/thumbnail or supabase.co/storage public URLs. API response itself is NOT cached by SW (no matcher matches /api/admin/).
-  implication: The data-fetching works correctly. The issue is with the subsequent <img> requests for those URLs.
+- timestamp: 2026-03-03T01:45:00Z
+  checked: CacheableResponsePlugin statuses: [0, 200] behavior with opaque responses
+  found: Status 0 = opaque cross-origin response. Opaque responses hide the actual HTTP status -- a 403, 429 (rate limit), or error page from Google ALL appear as status 0 to the SW. CacheableResponsePlugin cannot distinguish good from bad opaque responses.
+  implication: Even NetworkFirst caches bad opaque responses. Once cached, they persist until cache expires (30 days). This is a fundamental limitation of SW + cross-origin images.
 
-- timestamp: 2026-03-02T01:10:00Z
-  checked: Comparison with MenuItemsTable.tsx (admin menu page)
-  found: MenuItemsTable renders <img src={item.image_url} referrerPolicy="no-referrer" /> WITHOUT loading="lazy". This page does NOT have the hard-reload-required issue.
-  implication: Strongly supports loading="lazy" as the differentiating factor between working and broken image loading.
+- timestamp: 2026-03-03T01:50:00Z
+  checked: Google Drive /thumbnail endpoint reliability
+  found: Web search confirms widespread issues: rate limiting with 10+ images, CORS/redirect chain problems, intermittent failures across GitHub Pages, Power BI, Adobe Express, etc.
+  implication: Google Drive /thumbnail is NOT a reliable endpoint for direct cross-origin <img> loading in production apps. Must proxy through server.
 
-- timestamp: 2026-03-02T01:12:00Z
-  checked: loading="lazy" usage across codebase
-  found: Only 2 places use loading="lazy" on plain img tags: PhotoGrid.tsx (the broken page) and CustomerInfoCard.tsx (order detail). PhotoMetadata.tsx does NOT use loading="lazy" (its preview image probably works fine).
-  implication: loading="lazy" is the distinguishing factor.
-
-- timestamp: 2026-03-02T01:25:00Z
-  checked: Full verification suite after fix
-  found: ESLint clean, Stylelint clean, Prettier clean, TypeScript clean, 433/433 tests pass, production build succeeds
-  implication: Fix is mechanically correct, no regressions.
+- timestamp: 2026-03-03T01:55:00Z
+  checked: SW runtimeCaching order and potential matcher conflicts
+  found: External images matcher (NetworkFirst) is first, generic images (CacheFirst) is second. URL-based matcher fires before destination-based matcher. Order is correct.
+  implication: Route matching order is not the issue. The issue is with opaque response caching regardless of strategy.
 
 ## Resolution
 
 root_cause: |
-  The `loading="lazy"` attribute on `<img>` tags in PhotoGrid.tsx (line 94) prevents the browser from loading photos during client-side SPA navigation. The images are inside framer-motion animated containers (`<m.div initial={{ opacity: 0, scale: 0.9 }}>`) which start invisible. The browser's IntersectionObserver for lazy loading does not reliably trigger for dynamically-inserted elements inside animated containers that start with opacity: 0.
+  Multiple compounding causes, with the PRIMARY root cause being:
 
-  On hard reload (Ctrl+F5), the browser applies eager loading heuristics for images in the initial viewport during first page paint, so the images load correctly. On client-side navigation and direct URL (without cache bypass), React dynamically inserts the <img loading="lazy"> elements, and the browser's lazy loading observer fails to trigger because the animation containers haven't reached their visible state yet.
+  **Google Drive `/thumbnail` endpoint + cross-origin opaque responses + SW caching = unreliable image loading.**
 
-  This is the same category of issue as the prior two image sessions -- images fail on normal load but work on hard reload -- but with a different root cause (browser lazy loading vs SW stale cache).
+  The `drive.google.com/thumbnail` endpoint returns cross-origin responses that are "opaque" (status 0) to the Service Worker. The SW's `CacheableResponsePlugin` with `statuses: [0, 200]` cannot distinguish between a successful opaque image response and an opaque error/rate-limit response from Google. Once a bad opaque response is cached, it persists for up to 30 days.
 
-  Secondary bug found: invalidateMenuCache() in useServiceWorker.ts hardcoded "menu-api-cache-v1" but the SW CACHE_VERSION was bumped to v2, causing the invalidation function to target a non-existent cache.
+  Additionally, `skipWaiting: false` means the old SW (v2, with CacheFirst for external images) may still be active even after deploying v3 (NetworkFirst), continuing to serve permanently cached bad opaque responses.
+
+  Hard reload (Ctrl+F5) bypasses the SW entirely, sending requests directly from the browser with `Cache-Control: no-cache`. Google Drive responds to these direct requests successfully, which is why images appear after hard reload.
+
+  The customer-facing menu does NOT have this issue because it uses `next/image`, which proxies requests through the Next.js server (`/_next/image?url=...`). This makes the image request same-origin, with proper HTTP status codes and cache headers.
+
+  **Secondary causes that were already fixed but insufficient alone:**
+  1. `loading="lazy"` inside framer-motion opacity:0 containers (fixed: removed)
+  2. CacheFirst permanently caching bad opaque responses (fixed: switched to NetworkFirst, but NetworkFirst ALSO caches opaque responses)
+  3. invalidateMenuCache version mismatch (fixed: dynamic lookup)
 
 fix: |
-  1. Removed `loading="lazy"` from the `<img>` tag in PhotoGrid.tsx. These images are the primary content of the photos page and should load eagerly (the default behavior when `loading` attribute is omitted). This ensures the browser loads images immediately when the DOM elements are inserted, regardless of framer-motion animation state.
+  1. Switch PhotoGrid from plain `<img>` to `next/image` with `fill` prop, routing Drive images through Next.js image optimization proxy. This eliminates cross-origin issues entirely.
 
-  2. Fixed invalidateMenuCache() in useServiceWorker.ts to dynamically find the menu-api-cache by prefix using `caches.keys()` instead of hardcoding the version string. This ensures the function works regardless of CACHE_VERSION changes.
+  2. Switch CartItem from plain `<img>` to `next/image` with explicit width/height, for the same reason.
+
+  3. Switch SuggestionRow from plain `<img>` to `next/image` with explicit width/height.
+
+  4. Remove opaque response caching (status 0) from SW external images handler. Only cache status 200. Opaque error responses will no longer be cached. Bump CACHE_VERSION v3->v4 to bust any cached bad opaque responses.
+
+  5. Add `onError` fallback to PhotoGrid (was missing).
 
 verification: |
   - ESLint: clean
@@ -103,8 +121,12 @@ verification: |
   - TypeScript: clean (tsc --noEmit)
   - Unit tests: 433/433 pass
   - Production build: succeeds
+  - Built SW confirmed: CACHE_VERSION=v4, statuses=[200] only
   - Awaiting human verification in browser
 
 files_changed:
   - src/components/ui/admin/photos/PhotoGrid.tsx
-  - src/lib/hooks/useServiceWorker.ts
+  - src/components/ui/admin/photos/PhotoMetadata.tsx
+  - src/components/ui/cart/CartItem/CartItem.tsx
+  - src/components/ui/cart/CartPage/SuggestionRow.tsx
+  - src/app/sw.ts
