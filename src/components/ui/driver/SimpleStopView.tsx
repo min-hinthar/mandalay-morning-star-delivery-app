@@ -1,22 +1,18 @@
-/**
- * SimpleStopView - Single-stop focus for simple mode drivers
- *
- * Shows only: customer name, address (tap opens Maps), phone (tap calls),
- * progress counter, Mark Delivered button with confirmation, and Call for Help.
- * Auto-advances to next stop after delivery confirmation.
- */
+/** SimpleStopView - Single-stop focus for simple mode drivers with photo enforcement */
 
 "use client";
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
-import { MapPin, Phone, MessageSquare, Check, PartyPopper } from "lucide-react";
+import { MapPin, Phone, MessageSquare, Camera, Check } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 import { DeliveryConfirmDialog } from "./DeliveryConfirmDialog";
+import { PhotoCapture } from "./PhotoCapture";
+import { SimpleRouteDone } from "./SimpleRouteDone";
 import type { RouteStopStatus } from "@/types/driver";
 
 // Operator phone number — hardcoded for MVP
@@ -42,35 +38,32 @@ interface SimpleStopViewProps {
 export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
   const router = useRouter();
   const { shouldAnimate, getSpring } = useAnimationPreference();
-  const { queueStatusUpdate } = useOfflineSync();
+  const { queueStatusUpdate, queuePhoto } = useOfflineSync();
 
-  // Track local statuses for optimistic updates
   const [localStatuses, setLocalStatuses] = useState<Record<string, RouteStopStatus>>({});
+  const [hasPhoto, setHasPhoto] = useState(false);
+  const [isPhotoCaptureOpen, setIsPhotoCaptureOpen] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Cleanup timer
   useEffect(() => {
     return () => {
       if (successTimerRef.current) clearTimeout(successTimerRef.current);
     };
   }, []);
 
-  // Get effective status for a stop (local override or server)
   const getStatus = useCallback(
     (stop: SimpleStopData): RouteStopStatus => localStatuses[stop.id] ?? stop.status,
     [localStatuses]
   );
 
-  // Calculate progress
   const deliveredCount = stops.filter(
     (s) => getStatus(s) === "delivered" || getStatus(s) === "skipped"
   ).length;
   const totalCount = stops.length;
 
-  // Find current stop (first pending or enroute)
   const currentStop = stops.find((s) => {
     const st = getStatus(s);
     return st === "pending" || st === "enroute";
@@ -78,7 +71,6 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
 
   const allDone = !currentStop && totalCount > 0;
 
-  // Build address string
   const getFullAddress = (stop: SimpleStopData) => {
     const addr = stop.order.address;
     return [addr.line1, addr.line2, `${addr.city}, ${addr.state}`].filter(Boolean).join(", ");
@@ -116,11 +108,8 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
         }
       }
 
-      // Optimistic update
       setLocalStatuses((prev) => ({ ...prev, [currentStop.id]: "delivered" }));
       setShowConfirm(false);
-
-      // Show success animation
       setShowSuccess(true);
       successTimerRef.current = setTimeout(() => {
         setShowSuccess(false);
@@ -142,41 +131,45 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
     }
   }, [currentStop, isUpdating, routeId, queueStatusUpdate, router]);
 
-  // All Done screen
-  if (allDone) {
-    return (
-      <m.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="flex min-h-[60vh] flex-col items-center justify-center px-4"
-      >
-        <m.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 15, delay: 0.2 }}
-        >
-          <PartyPopper className="h-20 w-20 text-green" />
-        </m.div>
-        <h1 className="mt-6 font-display text-3xl font-bold text-text-primary">All Done!</h1>
-        <p className="mt-2 font-body text-lg text-text-secondary">
-          Great job! All deliveries complete.
-        </p>
-        <button
-          onClick={() => router.push("/driver")}
-          className={cn(
-            "mt-8 flex min-h-[56px] w-full max-w-xs items-center justify-center rounded-card-sm",
-            "bg-accent-teal font-body text-lg font-semibold text-text-inverse shadow-md",
-            "transition-all duration-fast hover:shadow-lg",
-            "active:scale-[0.98]"
-          )}
-        >
-          Go Home
-        </button>
-      </m.div>
-    );
-  }
+  useEffect(() => {
+    setHasPhoto(false);
+  }, [currentStop?.id]);
 
-  // No current stop and no stops at all
+  const handlePhotoUpload = useCallback(
+    async (blob: Blob) => {
+      if (!currentStop) return;
+      try {
+        if (!navigator.onLine) {
+          await queuePhoto(routeId, currentStop.id, blob);
+          setHasPhoto(true);
+          return;
+        }
+        const formData = new FormData();
+        formData.append("photo", blob, "delivery-photo.jpg");
+        const response = await fetch(
+          `/api/driver/routes/${routeId}/stops/${currentStop.id}/photo`,
+          { method: "POST", body: formData }
+        );
+        if (!response.ok && response.status >= 500) {
+          await queuePhoto(routeId, currentStop.id, blob);
+        } else if (!response.ok) {
+          throw new Error("Failed to upload photo");
+        }
+        setHasPhoto(true);
+      } catch (err) {
+        if (err instanceof TypeError) {
+          await queuePhoto(routeId, currentStop.id, blob);
+          setHasPhoto(true);
+          return;
+        }
+        throw err;
+      }
+    },
+    [routeId, currentStop, queuePhoto]
+  );
+
+  if (allDone) return <SimpleRouteDone />;
+
   if (!currentStop) {
     return (
       <div className="flex min-h-[60vh] flex-col items-center justify-center px-4">
@@ -295,26 +288,53 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
           </m.a>
         )}
 
-        {/* Mark Delivered - large button */}
-        <m.div
-          initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
-          animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-          transition={{ ...getSpring(spring.default), delay: 0.25 }}
-        >
-          <button
-            onClick={handleMarkDelivered}
-            className={cn(
-              "flex min-h-[72px] w-full items-center justify-center gap-3 rounded-card-sm",
-              "bg-green font-body text-xl font-semibold text-text-inverse shadow-md",
-              "transition-all duration-fast hover:bg-green/90 hover:shadow-lg",
-              "active:scale-[0.98]"
-            )}
-            data-testid="simple-mark-delivered"
+        {/* Photo / Mark Delivered - gated by photo capture */}
+        {!hasPhoto ? (
+          <m.div
+            initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+            animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+            transition={{ ...getSpring(spring.default), delay: 0.25 }}
           >
-            <Check className="h-7 w-7" />
-            <span>Mark Delivered</span>
-          </button>
-        </m.div>
+            <button
+              onClick={() => setIsPhotoCaptureOpen(true)}
+              className={cn(
+                "flex min-h-[72px] w-full items-center justify-center gap-3 rounded-card-sm",
+                "bg-primary font-body text-xl font-semibold text-text-inverse shadow-md",
+                "transition-all duration-fast hover:bg-primary-hover hover:shadow-lg",
+                "active:scale-[0.98]"
+              )}
+              data-testid="simple-take-photo"
+            >
+              <Camera className="h-7 w-7" />
+              <span>Take Photo</span>
+            </button>
+          </m.div>
+        ) : (
+          <m.div
+            initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+            animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+            transition={{ ...getSpring(spring.default), delay: 0.25 }}
+            className="space-y-2"
+          >
+            <div className="flex items-center justify-center gap-1.5 text-green">
+              <Check className="h-4 w-4" />
+              <span className="font-body text-sm font-medium">Photo Added</span>
+            </div>
+            <button
+              onClick={handleMarkDelivered}
+              className={cn(
+                "flex min-h-[72px] w-full items-center justify-center gap-3 rounded-card-sm",
+                "bg-green font-body text-xl font-semibold text-text-inverse shadow-md",
+                "transition-all duration-fast hover:bg-green/90 hover:shadow-lg",
+                "active:scale-[0.98]"
+              )}
+              data-testid="simple-mark-delivered"
+            >
+              <Check className="h-7 w-7" />
+              <span>Mark Delivered</span>
+            </button>
+          </m.div>
+        )}
 
         {/* Call for Help */}
         <m.a
@@ -341,6 +361,15 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
         onConfirm={handleConfirmDelivery}
         onCancel={() => setShowConfirm(false)}
         isLoading={isUpdating}
+      />
+
+      {/* Photo Capture */}
+      <PhotoCapture
+        isOpen={isPhotoCaptureOpen}
+        onClose={() => setIsPhotoCaptureOpen(false)}
+        onCapture={() => setIsPhotoCaptureOpen(false)}
+        onUpload={handlePhotoUpload}
+        title="Delivery Photo"
       />
 
       {/* Success Animation Overlay */}
