@@ -128,3 +128,17 @@ Tailwind v4 + Turbopack ignores `tailwind.config.ts`. Only `@theme inline {}` in
 `useRef` for element inside conditional render — effect runs before element exists, never re-runs.
 
 **Fix:** Callback ref + `useState` pattern. See: `.claude/learnings/react-patterns.md`
+
+---
+
+## PostgREST Ambiguous FK → Query Failure | Runtime | Critical
+
+**Date:** 2026-03-02 | **Files:** 8 API routes (driver + admin)
+
+Migration `030_email_reliability.sql` added `orders.contacted_by → profiles`, creating a second FK alongside `orders.user_id → profiles`. PostgREST cannot resolve un-hinted `profiles` joins when multiple FKs exist — silently fails or returns error.
+
+**Symptoms:** "Failed to load orders" in admin; 404 in driver (null join → empty routeId → bad URL).
+
+**Fix:** Add FK hint: `profiles!orders_user_id_fkey` to every query joining orders → profiles.
+
+**Prevention:** When adding a new FK to a table, grep ALL queries that join the target table and add FK hints. Check: `grep -r 'profiles' src/app/api/ --include='*.ts'`
