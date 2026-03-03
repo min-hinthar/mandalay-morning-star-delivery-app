@@ -56,12 +56,12 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [ ] **CUX-11**: User can one-tap reorder from order history
 - [ ] **CUX-12**: Rating prompt appears after delivery confirmation (needs: `ratings` table, POST API route, admin ratings view)
 - [ ] **CUX-13**: User can copy shareable order link (URL copy, not social media integration)
-- [ ] **CUX-14**: Interactive cards have visible focus rings
-- [ ] **CUX-15**: Cart items deletable via keyboard with confirmation
-- [ ] **CUX-16**: Drawer handles have descriptive aria-labels
-- [ ] **CUX-17**: Form errors linked to fields via aria-describedby
-- [ ] **CUX-18**: Status indicators use icons alongside color (not color-only)
-- [ ] **CUX-19**: 3D tilt disabled on keyboard focus
+- [x] **CUX-14**: Interactive cards have visible focus rings
+- [x] **CUX-15**: Cart items deletable via keyboard with confirmation
+- [x] **CUX-16**: Drawer handles have descriptive aria-labels
+- [x] **CUX-17**: Form errors linked to fields via aria-describedby
+- [x] **CUX-18**: Status indicators use icons alongside color (not color-only)
+- [x] **CUX-19**: 3D tilt disabled on keyboard focus
 
 ### Admin Enhancements
 
@@ -226,12 +226,12 @@ Explicitly excluded. Documented to prevent scope creep.
 | CUX-11 | Phase 93 | Pending |
 | CUX-12 | Phase 93 | Pending |
 | CUX-13 | Phase 93 | Pending |
-| CUX-14 | Phase 93 | Pending |
-| CUX-15 | Phase 93 | Pending |
-| CUX-16 | Phase 93 | Pending |
-| CUX-17 | Phase 93 | Pending |
-| CUX-18 | Phase 93 | Pending |
-| CUX-19 | Phase 93 | Pending |
+| CUX-14 | Phase 93 | Complete |
+| CUX-15 | Phase 93 | Complete |
+| CUX-16 | Phase 93 | Complete |
+| CUX-17 | Phase 93 | Complete |
+| CUX-18 | Phase 93 | Complete |
+| CUX-19 | Phase 93 | Complete |
 | ADMIN-01 | Phase 94 | Complete |
 | DRV-01 | Phase 94 | Complete |
 | DRV-02 | Phase 94 | Complete |
