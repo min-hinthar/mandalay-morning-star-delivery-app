@@ -186,9 +186,6 @@ export default function AdminMenuItemEditPage() {
     );
   }
 
-  const initialDriveUrl = item.image_url?.includes("drive.google.com") ? item.image_url : "";
-  const initialDrivePreview = item.image_url?.includes("drive.google.com") ? item.image_url : null;
-
   return (
     <div className="p-4 md:p-8 space-y-6 max-w-5xl">
       {/* Header */}
@@ -245,8 +242,6 @@ export default function AdminMenuItemEditPage() {
           nameEn={formData.name_en}
           itemId={itemId}
           updatedAt={item.updated_at}
-          initialDriveUrl={initialDriveUrl}
-          initialDrivePreview={initialDrivePreview}
           onImageChange={handleImageChange}
         />
       </div>
