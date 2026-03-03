@@ -154,6 +154,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
         position="bottom"
         height="full"
         showDragHandle={true}
+        title="Your Cart"
         className={cn("flex flex-col", className)}
       >
         <CartContent onClose={close} />

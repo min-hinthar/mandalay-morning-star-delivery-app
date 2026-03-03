@@ -11,6 +11,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { QuantitySelector } from "../QuantitySelector";
 import type { CartItem as CartItemType, CartItemValidationStatus } from "@/types/cart";
+import { toast } from "@/lib/hooks/useToastV8";
 import { triggerHaptic, getFallbackEmoji } from "./helpers";
 import { SwipeDeleteIndicator } from "./SwipeDeleteIndicator";
 import { ValidationOverlay } from "./ValidationOverlay";
@@ -96,6 +97,18 @@ export const CartItem = memo(function CartItem({
     removeItem(item.cartItemId);
   }, [item.cartItemId, removeItem]);
 
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.key === "Delete" || e.key === "Backspace") {
+        e.preventDefault();
+        triggerHaptic("medium");
+        removeItem(item.cartItemId);
+        toast({ message: `${item.nameEn} removed from cart`, type: "info" });
+      }
+    },
+    [item.cartItemId, item.nameEn, removeItem]
+  );
+
   return (
     <m.div
       ref={containerRef}
@@ -105,6 +118,10 @@ export const CartItem = memo(function CartItem({
       exit={shouldAnimate ? "exit" : undefined}
       transition={springConfig}
       className={cn("relative", className)}
+      tabIndex={0}
+      onKeyDown={handleKeyDown}
+      role="group"
+      aria-label={`${item.nameEn}, quantity ${item.quantity}`}
     >
       <AnimatePresence>
         {isDragging && <SwipeDeleteIndicator progress={swipeValue} />}
