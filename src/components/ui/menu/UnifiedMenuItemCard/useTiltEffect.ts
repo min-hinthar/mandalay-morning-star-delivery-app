@@ -42,6 +42,10 @@ export interface UseTiltEffectReturn {
   handleTiltTouchMove: (e: React.TouchEvent) => void;
   /** Reset tilt state (for touch end) */
   resetTilt: () => void;
+  /** Focus handler — disables tilt during keyboard focus */
+  handleFocus: () => void;
+  /** Blur handler — re-enables tilt after keyboard focus */
+  handleBlur: () => void;
 }
 
 // ============================================
@@ -55,6 +59,7 @@ export interface UseTiltEffectReturn {
 export function useTiltEffect({ enabled, cardRef }: UseTiltEffectOptions): UseTiltEffectReturn {
   const [isHovered, setIsHovered] = useState(false);
   const [isMobileTiltActive, setIsMobileTiltActive] = useState(false);
+  const [isKeyboardFocused, setIsKeyboardFocused] = useState(false);
 
   // Mouse position for 3D tilt (0-1 normalized)
   const mouseX = useMotionValue(0.5);
@@ -125,9 +130,20 @@ export function useTiltEffect({ enabled, cardRef }: UseTiltEffectOptions): UseTi
     }
   }, [enabled, mouseX, mouseY]);
 
+  const handleFocus = useCallback(() => {
+    setIsKeyboardFocused(true);
+    mouseX.set(0.5);
+    mouseY.set(0.5);
+  }, [mouseX, mouseY]);
+
+  const handleBlur = useCallback(() => {
+    setIsKeyboardFocused(false);
+  }, []);
+
   // Only apply willChange when hovered to reduce compositor layer count
   // willChange creates GPU layers - having it on all cards causes memory pressure
-  const tiltStyle = enabled
+  // Disable tilt when keyboard-focused so focus ring renders cleanly
+  const tiltStyle = enabled && !isKeyboardFocused
     ? {
         rotateX,
         rotateY,
@@ -152,5 +168,7 @@ export function useTiltEffect({ enabled, cardRef }: UseTiltEffectOptions): UseTi
     handleMouseLeave,
     handleTiltTouchMove,
     resetTilt,
+    handleFocus,
+    handleBlur,
   };
 }
