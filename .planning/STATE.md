@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.9
 milestone_name: Launch-Ready MVP
 status: unknown
-last_updated: "2026-03-03T02:47:06.904Z"
+last_updated: "2026-03-03T02:47:13.775Z"
 progress:
   total_phases: 10
   completed_phases: 10
@@ -174,6 +174,8 @@ Progress: [====================================] 85/85 phases (COMPLETE)
 - [Phase 82-email-reliability]: crypto.createHash for payload audit hashing (no additional deps)
 - [Phase 82-email-reliability]: 12 parallel count queries (4 statuses x 3 time ranges) for stats efficiency
 - [Phase 82-email-reliability]: EmailDetailPanel shows error guidance + webhook event timeline from metadata.resend_events
+- [Phase 82-email-reliability]: Ops API batch-fetches email statuses via single IN query (not N+1)
+- [Phase 82-email-reliability]: Green check / red X icons only (no pending icon) for minimal ops dashboard noise
 
 ### Pending Todos
 
