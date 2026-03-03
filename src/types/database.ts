@@ -629,7 +629,6 @@ export interface DriverRatingsRow {
   id: string;
   order_id: string;
   driver_id: string;
-  user_id: string;
   route_stop_id: string;
   rating: number; // 1-5
   feedback_text: string | null;
@@ -640,7 +639,6 @@ export interface DriverRatingsRow {
 export interface DriverRatingsInsert {
   order_id: string;
   driver_id: string;
-  user_id?: string;
   route_stop_id: string;
   rating: number;
   feedback_text?: string | null;
@@ -653,7 +651,6 @@ export interface DriverRatingsUpdate {
   id?: string;
   order_id?: string;
   driver_id?: string;
-  user_id?: string;
   route_stop_id?: string;
   rating?: number;
   feedback_text?: string | null;
@@ -945,13 +942,6 @@ export type Database = {
             columns: ["driver_id"];
             isOneToOne: false;
             referencedRelation: "drivers";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "driver_ratings_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
           {
