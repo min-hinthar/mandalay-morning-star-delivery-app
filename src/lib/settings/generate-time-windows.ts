@@ -3,11 +3,25 @@ import type { TimeWindow } from "@/types/delivery";
 /**
  * Generate 1-hour delivery time windows from startHour to endHour (exclusive).
  * Produces the same format as the existing TIME_WINDOWS constant.
+ *
+ * @param prepTimeBufferMinutes - If > 0, shifts the effective start hour forward
+ *   to account for meal prep time (e.g., 30 min buffer with 11 AM start -> 12 PM first window).
  */
-export function generateTimeWindows(startHour: number, endHour: number): TimeWindow[] {
+export function generateTimeWindows(
+  startHour: number,
+  endHour: number,
+  prepTimeBufferMinutes: number = 0
+): TimeWindow[] {
   const windows: TimeWindow[] = [];
 
-  for (let hour = startHour; hour < endHour; hour++) {
+  let effectiveStartHour = startHour;
+  if (prepTimeBufferMinutes > 0) {
+    const effectiveStartMinutes = startHour * 60 + prepTimeBufferMinutes;
+    effectiveStartHour = Math.ceil(effectiveStartMinutes / 60);
+    if (effectiveStartHour >= endHour) return windows;
+  }
+
+  for (let hour = effectiveStartHour; hour < endHour; hour++) {
     const nextHour = hour + 1;
     windows.push({
       start: formatTime24(hour),

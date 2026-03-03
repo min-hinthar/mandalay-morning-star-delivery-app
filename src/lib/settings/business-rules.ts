@@ -26,6 +26,8 @@ export interface BusinessRules {
    */
   maxDeliveryDurationMinutes: number;
   minimumOrderCents: number;
+  /** Minutes of prep time before first delivery window can start */
+  prepTimeBufferMinutes: number;
 }
 
 // ===========================================
@@ -42,6 +44,7 @@ export const BUSINESS_RULES_DEFAULTS: BusinessRules = {
   deliveryRadiusMiles: 40,
   maxDeliveryDurationMinutes: 60,
   minimumOrderCents: 2500,
+  prepTimeBufferMinutes: 30,
 };
 
 // ===========================================
@@ -58,6 +61,7 @@ const DB_KEY_MAP: Record<string, keyof BusinessRules> = {
   delivery_radius_miles: "deliveryRadiusMiles",
   max_delivery_duration_minutes: "maxDeliveryDurationMinutes",
   minimum_order_cents: "minimumOrderCents",
+  prep_time_buffer_minutes: "prepTimeBufferMinutes",
 };
 
 // ===========================================
