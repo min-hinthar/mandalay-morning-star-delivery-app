@@ -58,3 +58,44 @@ grep -rn 'from.*TABLE_NAME' src/app/api/ --include='*.ts' | grep 'select'
 Add FK hints to every query joining the target table.
 
 **Apply when:** Adding new FK columns or writing Supabase queries that join tables with multiple FK relationships.
+
+---
+
+## PostgreSQL IMMUTABLE Required for Index Expressions
+
+**Context:** Migration 035 created a unique partial index using `delivery_window_start::date` to prevent duplicate orders per user per Saturday. Failed with `ERROR: 42P17: functions in index expression must be marked IMMUTABLE`.
+
+**Learning:** `timestamptz::date` is STABLE (depends on `timezone` session variable), not IMMUTABLE. PostgreSQL requires IMMUTABLE functions in index expressions. Wrap in an IMMUTABLE function that pins the timezone:
+
+```sql
+CREATE OR REPLACE FUNCTION public.delivery_date(ts TIMESTAMPTZ)
+RETURNS DATE LANGUAGE SQL IMMUTABLE
+AS $$ SELECT (ts AT TIME ZONE 'America/Los_Angeles')::date $$;
+
+CREATE UNIQUE INDEX idx_orders_user_delivery_date
+  ON orders (user_id, delivery_date(delivery_window_start))
+  WHERE status != 'cancelled';
+```
+
+**Caveat:** Marking timezone conversion as IMMUTABLE is technically a lie (it pins to one timezone). Safe when the business operates in a single timezone. If timezone changes, the index must be rebuilt.
+
+**Apply when:** Creating indexes on expressions involving `timestamptz` → `date`/`time` casts, or any timezone-dependent function.
+
+---
+
+## Modifier Option Slugs: Group-Prefixed for Uniqueness
+
+**Context:** `modifier_options.slug` has a UNIQUE constraint. Multiple modifier groups can have options with the same base slug (e.g., "original" in both `goat_curry_cut` and `chicken_curry_style`).
+
+**Learning:** The seed script (`scripts/seed-menu.ts`) uses `buildOptionSlug(groupSlug, optionSlug)` → `{groupSlug}__{optionSlug}` (double underscore separator). When writing raw SQL inserts for modifier options, always prefix:
+
+```sql
+-- WRONG: will collide
+INSERT INTO modifier_options (slug) VALUES ('original');
+
+-- RIGHT: group-prefixed
+INSERT INTO modifier_options (slug) VALUES ('goat_curry_cut__original');
+INSERT INTO modifier_options (slug) VALUES ('chicken_curry_style__original');
+```
+
+**Apply when:** Writing SQL seeds or migrations that insert modifier options directly.

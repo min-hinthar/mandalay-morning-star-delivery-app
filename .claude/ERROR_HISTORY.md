@@ -55,7 +55,7 @@ Four related issues consolidated:
 4. **AddToCartButton async setState** — use `isMountedRef` guard
 
 **Universal pattern:** Track all timeouts in refs, clear on unmount. Use `isMountedRef` for async setState.
-Utilities: `useSafeTimeout`, `useSafeInterval`, `useSafeAsync` in `src/lib/hooks/useSafeEffects.ts`
+Utilities: `useSafeTimeout`, `useSafeInterval`, `useSafeAsync` in `src/lib/hooks/useSafeEffects/`
 
 ---
 
@@ -165,6 +165,16 @@ Migration 007 set `allowed_mime_types = ARRAY['image/jpeg', 'image/png']` on the
 **Fix:** Migration 034 adds `'image/webp'` to the bucket's `allowed_mime_types`.
 
 **Prevention:** When adding server-side image processing that changes output format, check the storage bucket's `allowed_mime_types` matches the output. Run: `grep -r 'allowed_mime_types' supabase/migrations/`
+
+---
+
+## IMMUTABLE Required for Index Expressions | Migration | High
+
+**Date:** 2026-03-03 | **Files:** `supabase/migrations/035_checkout_hardening.sql`
+
+`CREATE UNIQUE INDEX ... ON orders (user_id, delivery_window_start::date)` fails with `ERROR: 42P17: functions in index expression must be marked IMMUTABLE`. The `::date` cast on `timestamptz` is STABLE, not IMMUTABLE.
+
+**Fix:** Create an IMMUTABLE wrapper function that pins timezone to `America/Los_Angeles`, then use it in the index expression. See: `.claude/learnings/data-schema.md`
 
 ---
 
