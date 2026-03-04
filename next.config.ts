@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-// import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs";
 import bundleAnalyzer from "@next/bundle-analyzer";
 import { readFileSync } from "fs";
 
@@ -121,10 +121,9 @@ const nextConfig: NextConfig = {
   // Enable React strict mode for better debugging
   reactStrictMode: true,
 
-  // React Compiler — DISABLED: causes SSR hang with Turbopack in Next.js 16.
-  // Babel-based transforms produce infinite loops during server-side rendering.
-  // Re-enable after verifying SSR stability with future React Compiler updates.
-  // reactCompiler: true,
+  // React Compiler auto-memoizes all client components
+  // Eliminates unnecessary re-renders without manual useMemo/useCallback
+  reactCompiler: true,
 
   // Compress responses
   compress: true,
@@ -205,10 +204,23 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // modularizeImports removed — lucide-react already in optimizePackageImports.
-  // Duplicate webpack/Turbopack transforms conflict in Next.js 16.
+  // Modular imports for better tree-shaking
+  modularizeImports: {
+    "lucide-react": {
+      transform: "lucide-react/dist/esm/icons/{{ kebabCase member }}",
+    },
+  },
 
-  // compiler.removeConsole removed — SWC option unsupported by Turbopack.
+  // Compiler optimizations
+  compiler: {
+    // Remove console logs in production
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? {
+            exclude: ["error", "warn"],
+          }
+        : false,
+  },
 
   // Headers for CSP, security, caching, and CORS
   async headers() {
@@ -247,5 +259,22 @@ const nextConfig: NextConfig = {
   },
 };
 
-// Sentry wrapping disabled — testing SSR hang
-export default withBundleAnalyzer(nextConfig);
+// Chain configs: bundleAnalyzer -> Sentry
+export default withBundleAnalyzer(
+  withSentryConfig(nextConfig, {
+    org: "mandalay-morning-star",
+    project: "mandalay-morning-star-delivery-app",
+
+    // Auth token for source maps upload
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+
+    // Only print logs in CI
+    silent: !process.env.CI,
+
+    // Upload a larger set of source maps for prettier stack traces
+    widenClientFileUpload: true,
+
+    // Route Sentry requests through Next.js to bypass ad blockers
+    tunnelRoute: "/monitoring",
+  })
+);

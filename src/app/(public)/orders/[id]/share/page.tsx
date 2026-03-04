@@ -9,7 +9,7 @@ import { formatPrice } from "@/lib/utils/currency";
 // ============================================
 
 interface SharePageProps {
-  params: Promise<{ shareToken: string }>;
+  params: Promise<{ id: string }>;
 }
 
 interface OrderItemModifier {
@@ -62,7 +62,7 @@ function formatDeliveryDate(dateStr: string): string {
 // ============================================
 
 export default async function SharePage({ params }: SharePageProps) {
-  const { shareToken } = await params;
+  const { id: shareToken } = await params;
 
   const supabase = createServiceClient();
 
