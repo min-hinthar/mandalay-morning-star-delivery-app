@@ -78,10 +78,10 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 
 - [x] **OBS-01**: All API routes use standardized error format `{error: {code, message, details?}}`
 - [x] **OBS-02**: Webhook events logged with body hash + signature
-- [ ] **OBS-03**: Health check has external alerting for downtime
-- [ ] **OBS-04**: Database backed up daily with verification
+- [x] **OBS-03**: Health check has external alerting for downtime
+- [x] **OBS-04**: Database backed up daily with verification
 - [x] **OBS-05**: First 4 menu images preloaded (not lazy above fold)
-- [ ] **OBS-06**: Bundle under 200KB first-load JS (tree-shaking audit)
+- [x] **OBS-06**: Bundle under 200KB first-load JS (tree-shaking audit)
 - [x] **OBS-07**: Timezone from env var (not hardcoded)
 
 ### Testing
@@ -96,17 +96,17 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 
 ### Pre-Launch Checklist
 
-- [ ] **LAUNCH-01**: Supabase production instance provisioned (separate from staging)
-- [ ] **LAUNCH-02**: Production env vars set (Stripe live keys, Resend domain, Sentry DSN)
-- [ ] **LAUNCH-03**: DNS + custom domain verified with SSL
-- [ ] **LAUNCH-04**: Google Maps API billing enabled with budget cap
-- [ ] **LAUNCH-05**: Upstash Redis provisioned on Vercel Marketplace
-- [ ] **LAUNCH-06**: Stripe webhook tested with real test payments
-- [ ] **LAUNCH-07**: Email delivery confirmed (all 4 templates: confirmation, reminder, tracking, feedback)
-- [ ] **LAUNCH-08**: Mobile testing (iOS Safari, Android Chrome, PWA install)
-- [ ] **LAUNCH-09**: Admin trained on ops dashboard
-- [ ] **LAUNCH-10**: Driver(s) completed test deliveries
-- [ ] **LAUNCH-11**: Refund and emergency procedures documented
+- [x] **LAUNCH-01**: Supabase production instance provisioned (separate from staging)
+- [x] **LAUNCH-02**: Production env vars set (Stripe live keys, Resend domain, Sentry DSN)
+- [x] **LAUNCH-03**: DNS + custom domain verified with SSL
+- [x] **LAUNCH-04**: Google Maps API billing enabled with budget cap
+- [x] **LAUNCH-05**: Upstash Redis provisioned on Vercel Marketplace
+- [x] **LAUNCH-06**: Stripe webhook tested with real test payments
+- [x] **LAUNCH-07**: Email delivery confirmed (all 4 templates: confirmation, reminder, tracking, feedback)
+- [x] **LAUNCH-08**: Mobile testing (iOS Safari, Android Chrome, PWA install)
+- [x] **LAUNCH-09**: Admin trained on ops dashboard
+- [x] **LAUNCH-10**: Driver(s) completed test deliveries
+- [x] **LAUNCH-11**: Refund and emergency procedures documented
 
 ## Risk Register
 
@@ -238,10 +238,10 @@ Explicitly excluded. Documented to prevent scope creep.
 | DRV-03 | Phase 94 | Complete |
 | OBS-01 | Phase 95 | Complete |
 | OBS-02 | Phase 95 | Complete |
-| OBS-03 | Phase 95 | Pending |
-| OBS-04 | Phase 95 | Pending |
+| OBS-03 | Phase 95 | Complete |
+| OBS-04 | Phase 95 | Complete |
 | OBS-05 | Phase 95 | Complete |
-| OBS-06 | Phase 95 | Pending |
+| OBS-06 | Phase 95 | Complete |
 | OBS-07 | Phase 95 | Complete |
 | TST-01 | Phase 95 | Complete |
 | TST-02 | Phase 95 | Complete |
@@ -250,17 +250,17 @@ Explicitly excluded. Documented to prevent scope creep.
 | TST-05 | Phase 95 | Complete |
 | TST-06 | Phase 95 | Complete |
 | TST-07 | Phase 95 | Complete |
-| LAUNCH-01 | Phase 95 | Pending |
-| LAUNCH-02 | Phase 95 | Pending |
-| LAUNCH-03 | Phase 95 | Pending |
-| LAUNCH-04 | Phase 95 | Pending |
-| LAUNCH-05 | Phase 95 | Pending |
-| LAUNCH-06 | Phase 95 | Pending |
-| LAUNCH-07 | Phase 95 | Pending |
-| LAUNCH-08 | Phase 95 | Pending |
-| LAUNCH-09 | Phase 95 | Pending |
-| LAUNCH-10 | Phase 95 | Pending |
-| LAUNCH-11 | Phase 95 | Pending |
+| LAUNCH-01 | Phase 95 | Complete |
+| LAUNCH-02 | Phase 95 | Complete |
+| LAUNCH-03 | Phase 95 | Complete |
+| LAUNCH-04 | Phase 95 | Complete |
+| LAUNCH-05 | Phase 95 | Complete |
+| LAUNCH-06 | Phase 95 | Complete |
+| LAUNCH-07 | Phase 95 | Complete |
+| LAUNCH-08 | Phase 95 | Complete |
+| LAUNCH-09 | Phase 95 | Complete |
+| LAUNCH-10 | Phase 95 | Complete |
+| LAUNCH-11 | Phase 95 | Complete |
 
 **Coverage:**
 - v2.0 requirements: 74 total
