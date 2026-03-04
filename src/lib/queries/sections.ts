@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createPublicClient } from "@/lib/supabase/server";
 import type { FeaturedSection, FeaturedSectionWithItems } from "@/types/featured-sections";
 import type { MenuItem, ModifierGroup } from "@/types/menu";
 
@@ -145,7 +145,7 @@ function mapMenuItemRow(row: MenuItemRow): MenuItem {
  * Empty sections are automatically filtered out.
  */
 export async function getFeaturedSections(): Promise<FeaturedSectionWithItems[]> {
-  const supabase = await createClient();
+  const supabase = createPublicClient();
 
   // Get visible, non-deleted sections ordered by sort_order
   const { data: sections, error: sectionsError } = await supabase
