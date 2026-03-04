@@ -178,6 +178,36 @@ Migration 007 set `allowed_mime_types = ARRAY['image/jpeg', 'image/png']` on the
 
 ---
 
+## Google OAuth — No Profile Created | Auth/FK | Critical
+
+**Date:** 2026-03-04 | **Files:** `src/lib/auth/role-redirect.ts`, `src/app/auth/callback/route.ts`, `src/app/api/addresses/route.ts`, `src/app/api/checkout/session/route.ts` + 4 more
+
+`getRoleDashboard` self-healing used `supabase.auth.getUser()` on a service role client → always `null` (no session). Email was never available, profile insert silently failed. Google OAuth users had no profile row → FK violations on address save and order creation.
+
+**Fix:** New `ensureProfile()` using upsert + `admin.getUserById()` fallback. Called in auth callbacks (with email param) and belt-and-suspenders in address/checkout API routes.
+
+**Prevention:** Never use `auth.getUser()` on service clients. Use `auth.admin.getUserById()`. See: `.claude/learnings/supabase-auth.md`
+
+---
+
+## Order Stuck "Pending" After Stripe Payment | Webhook/DB | Critical
+
+**Date:** 2026-03-04 | **Files:** `src/app/api/webhooks/stripe/route.ts`, `src/app/api/webhooks/stripe/handlers.ts`, `src/app/(customer)/orders/[id]/confirmation/page.tsx`
+
+Three compounding issues:
+1. **Catch block returned 200** — Stripe treated DB errors as success, never retried
+2. **No `.select()` on update** — 0-row updates logged as success (order already confirmed or missing)
+3. **No client-side fallback** — Confirmation page showed "pending" forever when webhook delayed
+
+**Fix:**
+- Return 500 in catch block → Stripe retries
+- Add `.select("id")` to update → verify rows affected, log diagnostics
+- New `OrderStatusPoller` polls status + calls `verify-payment` fallback
+
+**Prevention:** Always return 5xx for retryable webhook errors. Always verify `.update()` row count. Always have client-side payment verification fallback.
+
+---
+
 ## API Pagination Default Breaks Bulk Operations | Logic | Moderate
 
 **Date:** 2026-03-03 | **Files:** `src/app/(admin)/admin/photos/page.tsx`, `src/app/(admin)/admin/menu/[id]/page.tsx`

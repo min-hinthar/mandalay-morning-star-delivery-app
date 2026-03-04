@@ -327,12 +327,17 @@ describe("webhook failure scenarios (TST-02)", () => {
           };
         }
         if (table === "orders") {
-          const eqChain = {
-            eq: vi.fn().mockReturnValue({ error: null }),
-          };
-          updateMock.mockReturnValue(eqChain);
+          // update().eq("id").eq("status").select("id") chain
+          const selectAfterUpdate = vi.fn().mockReturnValue({
+            data: [{ id: "order-123" }],
+            error: null,
+          });
+          const secondEq = vi.fn().mockReturnValue({ select: selectAfterUpdate });
+          const firstEq = vi.fn().mockReturnValue({ eq: secondEq });
+          updateMock.mockReturnValue({ eq: firstEq });
           return {
             update: updateMock,
+            // select() for the email fetch query
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
                 single: vi.fn().mockReturnValue({

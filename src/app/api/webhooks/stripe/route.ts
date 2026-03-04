@@ -118,7 +118,8 @@ export async function POST(request: Request) {
       eventId: event.id,
       orderId: eventObj.metadata?.order_id,
     });
-    // Return 200 to acknowledge receipt (Stripe will retry on 4xx/5xx)
+    // Return 500 for DB/service errors so Stripe retries
+    return NextResponse.json({ error: "Processing failed" }, { status: 500 });
   }
 
   return NextResponse.json({ received: true });

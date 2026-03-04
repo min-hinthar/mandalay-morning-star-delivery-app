@@ -46,8 +46,8 @@ export async function handleCheckoutSessionCompleted(
     );
   }
 
-  // Update order status to confirmed
-  const { error } = await supabase
+  // Update order status to confirmed — select("id") to verify rows affected
+  const { data: updated, error } = await supabase
     .from("orders")
     .update({
       status: "confirmed",
@@ -55,11 +55,39 @@ export async function handleCheckoutSessionCompleted(
       confirmed_at: new Date().toISOString(),
     })
     .eq("id", orderId)
-    .eq("status", "pending"); // Only update if still pending (idempotency)
+    .eq("status", "pending") // Only update if still pending (idempotency)
+    .select("id");
 
   if (error) {
     logger.exception(error, { orderId, api: "stripe-webhook", flowId: "checkout" });
     throw error;
+  }
+
+  // 0 rows updated — order doesn't exist or already processed
+  if (!updated || updated.length === 0) {
+    const { data: existing } = await supabase
+      .from("orders")
+      .select("id, status")
+      .eq("id", orderId)
+      .single();
+
+    if (!existing) {
+      logger.error("Webhook: order not found in database", {
+        orderId,
+        sessionId: session.id,
+        api: "stripe-webhook",
+        flowId: "checkout",
+      });
+    } else {
+      // Already processed (idempotent) — not an error
+      logger.info(`Order ${orderId} already ${existing.status}, skipping`, {
+        orderId,
+        currentStatus: existing.status,
+        api: "stripe-webhook",
+        flowId: "checkout",
+      });
+    }
+    return;
   }
 
   logger.info(`Order ${orderId} confirmed via webhook`, {

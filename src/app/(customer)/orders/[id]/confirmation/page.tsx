@@ -1,6 +1,7 @@
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { OrderConfirmationV8 } from "@/components/ui/orders/OrderConfirmationV8";
+import { OrderStatusPoller } from "./OrderStatusPoller";
 import type { Order, OrderItem, OrderItemModifier, OrderAddress, OrderStatus } from "@/types/order";
 
 // Define the expected shape of the query result
@@ -168,11 +169,14 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
     items,
   };
 
-  // If order is still pending and we have a session_id, the webhook hasn't processed yet
-  // Show the confirmation anyway - the webhook will update the status
+  // No session_id and still pending — not a valid confirmation view
   if (order.status === "pending" && !session_id) {
-    // Order exists but wasn't confirmed - redirect to checkout
     redirect("/checkout");
+  }
+
+  // Pending with session_id — webhook hasn't processed yet, poll for confirmation
+  if (order.status === "pending" && session_id) {
+    return <OrderStatusPoller order={order} sessionId={session_id} />;
   }
 
   return <OrderConfirmationV8 order={order} />;

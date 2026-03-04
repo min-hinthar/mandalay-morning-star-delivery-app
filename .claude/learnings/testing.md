@@ -42,3 +42,25 @@ grep -r "isValidStatusTransition\|VALID_STOP_TRANSITIONS" src/ --include="*.test
 ```
 
 **Apply when:** Changing any validation logic, status transition map, or business rule constant. The test name often says "should return false for invalid" — search for it.
+
+---
+
+## Supabase Fluent Chain Mocks Must Match Exact Query Shape
+
+**Context:** Added `.select("id")` to a `.update().eq().eq()` chain in webhook handler to verify row count. Test mocked the old chain (ending at `.eq()` → `{ error: null }`) — missing `.select()` meant `data` was undefined, handler threw, route returned 500.
+
+**Learning:** Supabase's fluent API means every chained method call needs a corresponding mock. When modifying a query (adding `.select()`, `.single()`, `.order()`, etc.), grep for tests mocking that table+operation and extend the mock chain:
+
+```typescript
+// OLD mock: update().eq().eq() → { error: null }
+// NEW mock: update().eq().eq().select() → { data: [...], error: null }
+const selectAfterUpdate = vi.fn().mockReturnValue({
+  data: [{ id: "order-123" }],
+  error: null,
+});
+const secondEq = vi.fn().mockReturnValue({ select: selectAfterUpdate });
+const firstEq = vi.fn().mockReturnValue({ eq: secondEq });
+updateMock.mockReturnValue({ eq: firstEq });
+```
+
+**Apply when:** Modifying any Supabase query that has existing test mocks. Search: `grep -r 'from("TABLE_NAME")' src/ --include="*.test.*"`
