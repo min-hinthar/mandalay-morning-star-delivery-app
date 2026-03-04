@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getDeliveryPhotoSignedUrl } from "@/lib/supabase/delivery-photos";
 import { updateRouteSchema, reorderStopsSchema } from "@/lib/validations/route";
 import { logger } from "@/lib/utils/logger";
 import type { RouteStatus } from "@/types/driver";
@@ -160,54 +161,56 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
             createdAt: route.drivers.created_at,
           }
         : null,
-      stops: route.route_stops.map((stop) => ({
-        id: stop.id,
-        stopIndex: stop.stop_index,
-        eta: stop.eta,
-        status: stop.status,
-        arrivedAt: stop.arrived_at,
-        deliveredAt: stop.delivered_at,
-        deliveryPhotoUrl: stop.delivery_photo_url,
-        deliveryNotes: stop.delivery_notes,
-        order: stop.orders
-          ? {
-              id: stop.orders.id,
-              totalCents: stop.orders.total_cents,
-              deliveryWindowStart: stop.orders.delivery_window_start,
-              deliveryWindowEnd: stop.orders.delivery_window_end,
-              specialInstructions: stop.orders.special_instructions,
-              itemCount:
-                stop.orders.order_items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0,
-              customer: stop.orders.profiles
-                ? {
-                    id: stop.orders.profiles.id,
-                    fullName: stop.orders.profiles.full_name,
-                    phone: stop.orders.profiles.phone,
-                  }
-                : null,
-              address: stop.orders.addresses
-                ? {
-                    line1: stop.orders.addresses.line_1,
-                    line2: stop.orders.addresses.line_2,
-                    city: stop.orders.addresses.city,
-                    state: stop.orders.addresses.state,
-                    postalCode: stop.orders.addresses.postal_code,
-                    lat: stop.orders.addresses.lat,
-                    lng: stop.orders.addresses.lng,
-                  }
-                : null,
-            }
-          : null,
-        exception: stop.delivery_exceptions?.[0]
-          ? {
-              id: stop.delivery_exceptions[0].id,
-              type: stop.delivery_exceptions[0].exception_type,
-              description: stop.delivery_exceptions[0].description,
-              photoUrl: stop.delivery_exceptions[0].photo_url,
-              resolved: stop.delivery_exceptions[0].resolved_at !== null,
-            }
-          : null,
-      })),
+      stops: await Promise.all(
+        route.route_stops.map(async (stop) => ({
+          id: stop.id,
+          stopIndex: stop.stop_index,
+          eta: stop.eta,
+          status: stop.status,
+          arrivedAt: stop.arrived_at,
+          deliveredAt: stop.delivered_at,
+          deliveryPhotoUrl: await getDeliveryPhotoSignedUrl(stop.delivery_photo_url),
+          deliveryNotes: stop.delivery_notes,
+          order: stop.orders
+            ? {
+                id: stop.orders.id,
+                totalCents: stop.orders.total_cents,
+                deliveryWindowStart: stop.orders.delivery_window_start,
+                deliveryWindowEnd: stop.orders.delivery_window_end,
+                specialInstructions: stop.orders.special_instructions,
+                itemCount:
+                  stop.orders.order_items?.reduce((sum, item) => sum + item.quantity, 0) ?? 0,
+                customer: stop.orders.profiles
+                  ? {
+                      id: stop.orders.profiles.id,
+                      fullName: stop.orders.profiles.full_name,
+                      phone: stop.orders.profiles.phone,
+                    }
+                  : null,
+                address: stop.orders.addresses
+                  ? {
+                      line1: stop.orders.addresses.line_1,
+                      line2: stop.orders.addresses.line_2,
+                      city: stop.orders.addresses.city,
+                      state: stop.orders.addresses.state,
+                      postalCode: stop.orders.addresses.postal_code,
+                      lat: stop.orders.addresses.lat,
+                      lng: stop.orders.addresses.lng,
+                    }
+                  : null,
+              }
+            : null,
+          exception: stop.delivery_exceptions?.[0]
+            ? {
+                id: stop.delivery_exceptions[0].id,
+                type: stop.delivery_exceptions[0].exception_type,
+                description: stop.delivery_exceptions[0].description,
+                photoUrl: stop.delivery_exceptions[0].photo_url,
+                resolved: stop.delivery_exceptions[0].resolved_at !== null,
+              }
+            : null,
+        }))
+      ),
     };
 
     return NextResponse.json(response);

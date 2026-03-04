@@ -12,6 +12,7 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { getDeliveryPhotoSignedUrl } from "@/lib/supabase/delivery-photos";
 import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import { calculateETA, calculateRemainingStops } from "@/lib/utils/eta";
@@ -232,7 +233,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
         currentStop: routeStopData.stop_index,
         status: routeStopData.status as RouteStopStatus,
         eta: routeStopData.eta,
-        deliveryPhotoUrl: routeStopData.delivery_photo_url,
+        deliveryPhotoUrl: await getDeliveryPhotoSignedUrl(routeStopData.delivery_photo_url),
       };
 
       // Get driver info if route has a driver

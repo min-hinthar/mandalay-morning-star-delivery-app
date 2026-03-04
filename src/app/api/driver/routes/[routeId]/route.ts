@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
+import { getDeliveryPhotoSignedUrl } from "@/lib/supabase/delivery-photos";
 import { logger } from "@/lib/utils/logger";
 import type { RouteStats, RouteStatus, RouteStopStatus } from "@/types/driver";
 
@@ -173,39 +174,41 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     }
 
     // Transform stops
-    const stops: StopDetailResponse[] = route.route_stops
-      .filter((stop) => stop.orders)
-      .map((stop) => ({
-        id: stop.id,
-        stopIndex: stop.stop_index,
-        status: stop.status as RouteStopStatus,
-        eta: stop.eta,
-        arrivedAt: stop.arrived_at,
-        deliveredAt: stop.delivered_at,
-        deliveryPhotoUrl: stop.delivery_photo_url,
-        deliveryNotes: stop.delivery_notes,
-        order: {
-          id: stop.orders!.id,
-          totalCents: stop.orders!.total_cents,
-          deliveryWindowStart: stop.orders!.delivery_window_start,
-          deliveryWindowEnd: stop.orders!.delivery_window_end,
-          specialInstructions: stop.orders!.special_instructions,
-          customer: {
-            id: stop.orders!.profiles?.id ?? "",
-            fullName: stop.orders!.profiles?.full_name ?? null,
-            phone: stop.orders!.profiles?.phone ?? null,
+    const stops: StopDetailResponse[] = await Promise.all(
+      route.route_stops
+        .filter((stop) => stop.orders)
+        .map(async (stop) => ({
+          id: stop.id,
+          stopIndex: stop.stop_index,
+          status: stop.status as RouteStopStatus,
+          eta: stop.eta,
+          arrivedAt: stop.arrived_at,
+          deliveredAt: stop.delivered_at,
+          deliveryPhotoUrl: await getDeliveryPhotoSignedUrl(stop.delivery_photo_url),
+          deliveryNotes: stop.delivery_notes,
+          order: {
+            id: stop.orders!.id,
+            totalCents: stop.orders!.total_cents,
+            deliveryWindowStart: stop.orders!.delivery_window_start,
+            deliveryWindowEnd: stop.orders!.delivery_window_end,
+            specialInstructions: stop.orders!.special_instructions,
+            customer: {
+              id: stop.orders!.profiles?.id ?? "",
+              fullName: stop.orders!.profiles?.full_name ?? null,
+              phone: stop.orders!.profiles?.phone ?? null,
+            },
+            address: {
+              line1: stop.orders!.addresses?.line_1 ?? "",
+              line2: stop.orders!.addresses?.line_2 ?? null,
+              city: stop.orders!.addresses?.city ?? "",
+              state: stop.orders!.addresses?.state ?? "",
+              postalCode: stop.orders!.addresses?.postal_code ?? "",
+              lat: stop.orders!.addresses?.lat ?? null,
+              lng: stop.orders!.addresses?.lng ?? null,
+            },
           },
-          address: {
-            line1: stop.orders!.addresses?.line_1 ?? "",
-            line2: stop.orders!.addresses?.line_2 ?? null,
-            city: stop.orders!.addresses?.city ?? "",
-            state: stop.orders!.addresses?.state ?? "",
-            postalCode: stop.orders!.addresses?.postal_code ?? "",
-            lat: stop.orders!.addresses?.lat ?? null,
-            lng: stop.orders!.addresses?.lng ?? null,
-          },
-        },
-      }));
+        }))
+    );
 
     return NextResponse.json({
       id: route.id,
