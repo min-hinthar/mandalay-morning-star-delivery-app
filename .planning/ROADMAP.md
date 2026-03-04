@@ -76,7 +76,7 @@
 - [x] **Phase 93: Customer UX - Engagement & Accessibility** - One-tap reorder, rating prompt, order sharing, focus rings, keyboard cart delete, drawer aria-labels, form error linking, icon+color status, 3D tilt keyboard fix (completed 2026-03-03)
 - [x] **Phase 94: Admin & Driver Enhancements** - Ops time-window grouping, driver one-tap contact, turn-by-turn nav, photo proof on delivery (completed 2026-03-03)
 - [x] **Phase 95: Observability, Performance & Testing** - Standardized errors, webhook logging, health alerting, DB backups, image preload, bundle audit, timezone from env, race condition tests, webhook tests, RLS edge cases, DST cutoff tests, refund rounding tests, Saturday dry run, load test, pre-launch checklist (completed 2026-03-04)
-- [ ] **Phase 96: Integration Wiring & Dead Code Resolution** - Order detail page tip/promo/delivery_instructions display, reorder slug fix, price drift dead code removal (gap closure from audit)
+- [x] **Phase 96: Integration Wiring & Dead Code Resolution** - Order detail page tip/promo/delivery_instructions display, reorder slug fix, price drift dead code removal (gap closure from audit) (completed 2026-03-04)
 - [ ] **Phase 97: Phase 89/90 Verification & Traceability Cleanup** - Verify Phase 89 & 90 against requirements, update REQUIREMENTS.md checkboxes, fix ROADMAP inconsistencies (gap closure from audit)
 
 ## Phase Details
@@ -216,7 +216,7 @@ Plans:
   2. useReorder.ts passes actual menu item slug (not UUID) for slug-based lookups
   3. Dead updatePricesFromServer code removed from cart-store.ts and 409 handler removed from PaymentStepV8.tsx
   4. CHKT-02 requirement downscoped — server-authoritative pricing (CHKT-01) handles price correctness; client-side auto-refresh deferred
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 96-01-PLAN.md — Wire tip/promo/discount/delivery_instructions to order detail page types and UI
 - [ ] 96-02-PLAN.md — Fix reorder slug bug and remove dead updatePricesFromServer code
@@ -257,7 +257,7 @@ Plans:
 | 93. Customer UX - Engagement & Accessibility | 3/3 | Complete    | 2026-03-03 | - |
 | 94. Admin & Driver Enhancements | 2/2 | Complete    | 2026-03-03 | - |
 | 95. Observability, Performance & Testing | 8/8 | Complete    | 2026-03-04 | - |
-| 96. Integration Wiring & Dead Code Resolution | 1/2 | In Progress|  | - |
+| 96. Integration Wiring & Dead Code Resolution | 2/2 | Complete   | 2026-03-04 | - |
 | 97. Phase 89/90 Verification & Traceability | v2.0 | 0/TBD | Not started | - |
 
 ---

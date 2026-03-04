@@ -30,7 +30,7 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 ### Checkout & Payment
 
 - [x] **CHKT-01**: Client checkout sends only item IDs + modifier selections (no prices)
-- [ ] **CHKT-02**: Cart auto-refreshes prices on 409 PRICE_CHANGED instead of error (audit: server never emits 409 — dead code; downscoped to Phase 96 cleanup)
+- [x] **CHKT-02**: Cart auto-refreshes prices on 409 PRICE_CHANGED instead of error (audit: server never emits 409 — dead code; downscoped to Phase 96 cleanup)
 - [x] **CHKT-03**: Server validates modifier item_index bounds before checkout RPC
 - [x] **CHKT-04**: Delivery time windows include configurable prep time buffer
 - [x] **CHKT-05**: User cannot place more than one order per Saturday delivery window
@@ -53,7 +53,7 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [x] **CUX-09**: Cart sync status indicator ("Saved" / "Saving...")
 - [x] **CUX-10**: Prominent "Offline Mode" banner when browsing cached menu (audit: v1.6 has animated offline banner — verify existing impl, polish if needed)
 - [x] **CUX-20**: Delivery gate poll interval reduces to 10s near cutoff (currently static 60s in `useDeliveryGate.ts`)
-- [ ] **CUX-11**: User can one-tap reorder from order history (audit: useReorder.ts passes UUID as menuItemSlug)
+- [x] **CUX-11**: User can one-tap reorder from order history (audit: useReorder.ts passes UUID as menuItemSlug)
 - [x] **CUX-12**: Rating prompt appears after delivery confirmation (needs: `ratings` table, POST API route, admin ratings view)
 - [x] **CUX-13**: User can copy shareable order link (URL copy, not social media integration)
 - [x] **CUX-14**: Interactive cards have visible focus rings
@@ -203,7 +203,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | MENU-07 | Phase 90 | Pending |
 | ADMIN-02 | Phase 90 | Pending |
 | CHKT-01 | Phase 91 | Complete |
-| CHKT-02 | Phase 96 | Pending |
+| CHKT-02 | Phase 96 | Complete |
 | CHKT-03 | Phase 91 | Complete |
 | CHKT-04 | Phase 91 | Complete |
 | CHKT-05 | Phase 91 | Complete |
@@ -223,7 +223,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | CUX-09 | Phase 92 | Complete |
 | CUX-10 | Phase 92 | Complete |
 | CUX-20 | Phase 92 | Complete |
-| CUX-11 | Phase 96 | Pending |
+| CUX-11 | Phase 96 | Complete |
 | CUX-12 | Phase 93 | Complete |
 | CUX-13 | Phase 93 | Complete |
 | CUX-14 | Phase 93 | Complete |
