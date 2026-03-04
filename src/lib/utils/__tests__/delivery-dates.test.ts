@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { TIMEZONE } from "@/types/delivery";
 import {
   getCutoffForSaturday,
@@ -22,6 +22,24 @@ const makePtDate = (value: string) => new Date(`${value}-08:00`);
 // Default cutoff values matching old constants
 const CUTOFF_DAY = 5; // Friday
 const CUTOFF_HOUR = 15; // 3 PM
+
+describe("TIMEZONE env var", () => {
+  it("defaults to America/Los_Angeles when DELIVERY_TIMEZONE is not set", async () => {
+    vi.stubEnv("DELIVERY_TIMEZONE", "");
+    vi.resetModules();
+    const mod = await import("@/types/delivery");
+    expect(mod.TIMEZONE).toBe("America/Los_Angeles");
+    vi.unstubAllEnvs();
+  });
+
+  it("reads from DELIVERY_TIMEZONE env var when set", async () => {
+    vi.stubEnv("DELIVERY_TIMEZONE", "Asia/Yangon");
+    vi.resetModules();
+    const mod = await import("@/types/delivery");
+    expect(mod.TIMEZONE).toBe("Asia/Yangon");
+    vi.unstubAllEnvs();
+  });
+});
 
 describe("delivery date utils", () => {
   describe("getNextSaturday", () => {
