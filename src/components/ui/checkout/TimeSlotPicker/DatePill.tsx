@@ -12,6 +12,9 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import type { DeliveryDate } from "@/types/delivery";
+// TIMEZONE is imported from types/delivery (env-var-backed). In client components,
+// Next.js inlines the constant at build time, so the fallback value gets baked in.
+// This is acceptable — client formatting is display-only.
 import { TIMEZONE } from "@/types/delivery";
 
 interface DatePillProps {

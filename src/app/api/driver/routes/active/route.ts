@@ -3,8 +3,7 @@ import { requireDriver } from "@/lib/auth";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import type { RouteStats, RouteStatus, RouteStopStatus } from "@/types/driver";
-
-const TIMEZONE = "America/Los_Angeles";
+import { TIMEZONE } from "@/types/delivery";
 
 function getTodayInTimezone(): string {
   const formatter = new Intl.DateTimeFormat("en-CA", {

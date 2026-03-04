@@ -2,6 +2,9 @@
 
 import { Calendar, Clock } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+// TIMEZONE is imported from types/delivery (env-var-backed). In client components,
+// Next.js inlines the constant at build time, so the fallback value gets baked in.
+// This is acceptable — client formatting is display-only.
 import { TIMEZONE, type DeliverySelection, type TimeWindow } from "@/types/delivery";
 
 interface TimeSlotDisplayProps {
