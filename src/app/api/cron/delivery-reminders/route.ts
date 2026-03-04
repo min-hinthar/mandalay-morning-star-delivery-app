@@ -62,7 +62,7 @@ export async function GET(request: Request) {
       special_instructions,
       user_id,
       assigned_driver_id,
-      profiles!inner (
+      profiles!orders_user_id_fkey!inner (
         id,
         full_name,
         email

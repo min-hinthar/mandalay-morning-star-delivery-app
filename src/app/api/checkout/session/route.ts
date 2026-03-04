@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { validatePromoCode } from "@/lib/stripe/promo";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
@@ -9,6 +9,7 @@ import { isPastCutoff, getDeliveryDate } from "@/lib/utils/delivery-dates";
 import { getBusinessRules, generateTimeWindows } from "@/lib/settings";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, checkoutLimiter } from "@/lib/rate-limit";
+import { ensureProfile } from "@/lib/auth/role-redirect";
 import type { AddressesRow, OrdersRow, OrderItemsRow, ProfilesRow } from "@/types/database";
 import { cleanupOrder } from "./helpers";
 import { errorResponse, fetchAndValidateCart, buildRpcPayload } from "./validation";
@@ -166,6 +167,41 @@ export async function POST(request: Request) {
       tipCents,
       discountCents
     );
+
+    // Ensure profile exists before order creation (orders.user_id FK -> profiles.id)
+    try {
+      await ensureProfile(createServiceClient(), user.id, user.email);
+    } catch (serviceErr) {
+      logger.warn("ensureProfile via service client failed in checkout, trying user client", {
+        api: "checkout-session",
+        flowId: "checkout",
+        userId: user.id,
+        error: serviceErr instanceof Error ? serviceErr.message : String(serviceErr),
+      });
+
+      // Fallback: use the user's own authenticated client (requires profiles_insert_own RLS policy)
+      const { error: userInsertErr } = await supabase
+        .from("profiles")
+        .upsert(
+          { id: user.id, email: user.email ?? null, role: "customer" as const },
+          { onConflict: "id", ignoreDuplicates: true }
+        );
+
+      if (userInsertErr) {
+        logger.error("Profile creation failed via both service and user clients", {
+          api: "checkout-session",
+          flowId: "checkout",
+          userId: user.id,
+          serviceError: serviceErr instanceof Error ? serviceErr.message : String(serviceErr),
+          userError: userInsertErr.message,
+        });
+        return errorResponse(
+          "PROFILE_ERROR",
+          "Unable to set up your account. Please sign out and sign in again.",
+          500
+        );
+      }
+    }
 
     // H-10 FIX: Create order, items, and modifiers atomically via RPC.
     const { rpcItems, rpcModifiers } = buildRpcPayload(validatedItems);

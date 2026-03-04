@@ -67,7 +67,7 @@ export default async function DriverLayout({ children }: { children: React.React
 
     // Wrong role — silently redirect to their own dashboard
     const serviceSupabase = createServiceClient();
-    const result = await getRoleDashboard(serviceSupabase, user.id);
+    const result = await getRoleDashboard(serviceSupabase, user.id, user.email);
     redirect(result.path);
   }
 

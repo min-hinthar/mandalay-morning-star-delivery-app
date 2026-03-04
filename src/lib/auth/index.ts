@@ -4,5 +4,5 @@ export type { AdminAuthResult, AdminAuthSuccess, AdminAuthFailure } from "./admi
 export { requireDriver } from "./driver";
 export type { DriverAuthResult, DriverAuthSuccess, DriverAuthFailure } from "./driver";
 
-export { getRoleDashboard } from "./role-redirect";
+export { getRoleDashboard, ensureProfile } from "./role-redirect";
 export type { RoleRedirectResult } from "./role-redirect";

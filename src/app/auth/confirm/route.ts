@@ -111,7 +111,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     data: { user: confirmedUser },
   } = await supabase.auth.getUser();
   const roleResult = confirmedUser
-    ? await getRoleDashboard(roleClient, confirmedUser.id)
+    ? await getRoleDashboard(roleClient, confirmedUser.id, confirmedUser.email)
     : { path: next };
 
   // For driver invites, always go to /driver/onboard

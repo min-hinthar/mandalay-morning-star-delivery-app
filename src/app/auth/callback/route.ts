@@ -138,7 +138,11 @@ export async function GET(request: Request): Promise<NextResponse> {
     // exchangeCodeForSession can be inconsistent in Route Handlers,
     // causing RLS-gated queries to return no data.
     const roleClient = createServiceClient();
-    const result = await getRoleDashboard(roleClient, sessionData.session!.user.id);
+    const result = await getRoleDashboard(
+      roleClient,
+      sessionData.session!.user.id,
+      sessionData.session!.user.email
+    );
 
     // If next is /login or / (standard login flow), resolve by role
     const isStandardLogin = next === "/login" || next === "/";
