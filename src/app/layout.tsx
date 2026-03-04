@@ -2,6 +2,8 @@ import type { Metadata, Viewport } from "next";
 import type { ReactElement, ReactNode } from "react";
 import localFont from "next/font/local";
 import "./globals.css";
+import { Providers } from "@/app/providers";
+import { ToastProvider } from "@/components/ui/ToastProvider";
 
 /**
  * Font Optimization:
@@ -72,7 +74,9 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} font-body bg-background text-foreground antialiased`}
       >
-        {children}
+        <Providers>
+          <ToastProvider>{children}</ToastProvider>
+        </Providers>
       </body>
     </html>
   );
