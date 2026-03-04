@@ -7,9 +7,7 @@ const SIGNED_URL_EXPIRY = 3600; // 1 hour
  * Extract the storage path from a full URL or return as-is if already a path.
  * Handles backward compatibility with rows that store full public URLs.
  */
-export function extractDeliveryPhotoPath(
-  pathOrUrl: string
-): string | null {
+export function extractDeliveryPhotoPath(pathOrUrl: string): string | null {
   if (!pathOrUrl.startsWith("http")) {
     return pathOrUrl;
   }
@@ -22,9 +20,7 @@ export function extractDeliveryPhotoPath(
  * Generate a time-limited signed URL for a delivery photo.
  * Returns null for null/empty input or on SDK error (photo is non-critical).
  */
-export async function getDeliveryPhotoSignedUrl(
-  pathOrUrl: string | null
-): Promise<string | null> {
+export async function getDeliveryPhotoSignedUrl(pathOrUrl: string | null): Promise<string | null> {
   if (!pathOrUrl) return null;
 
   const path = extractDeliveryPhotoPath(pathOrUrl);
