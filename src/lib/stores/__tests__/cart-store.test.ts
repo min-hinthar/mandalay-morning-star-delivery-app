@@ -130,6 +130,66 @@ describe("CartStore", () => {
     });
   });
 
+  describe("concurrent cart operations (TST-01)", () => {
+    it("rapid-fire 5 addItem calls within loop result in quantity 1 (debounce blocks duplicates)", () => {
+      const store = useCartStore.getState();
+
+      // Fire 5 adds synchronously — debounce should block all after first
+      for (let i = 0; i < 5; i++) {
+        store.addItem(baseItem);
+      }
+
+      const updated = useCartStore.getState();
+      expect(updated.items).toHaveLength(1);
+      expect(updated.items[0].quantity).toBe(1);
+    });
+
+    it("two different items added concurrently both appear in cart", () => {
+      const store = useCartStore.getState();
+
+      const item1 = { ...baseItem, menuItemId: "concurrent-1", nameEn: "Tea Leaf Salad" };
+      const item2 = { ...baseItem, menuItemId: "concurrent-2", nameEn: "Shan Noodles" };
+
+      store.addItem(item1);
+      store.addItem(item2);
+
+      const updated = useCartStore.getState();
+      expect(updated.items).toHaveLength(2);
+      expect(updated.items.map((i) => i.menuItemId)).toContain("concurrent-1");
+      expect(updated.items.map((i) => i.menuItemId)).toContain("concurrent-2");
+    });
+
+    it("addItem + removeItem in quick succession produces consistent empty state", () => {
+      const store = useCartStore.getState();
+      store.addItem(baseItem);
+
+      const afterAdd = useCartStore.getState();
+      expect(afterAdd.items).toHaveLength(1);
+
+      const cartItemId = afterAdd.items[0].cartItemId;
+      useCartStore.getState().removeItem(cartItemId);
+
+      const afterRemove = useCartStore.getState();
+      expect(afterRemove.items).toHaveLength(0);
+    });
+
+    it("debounce state is properly cleared between test runs", () => {
+      // First: add item, verify it's there
+      const store = useCartStore.getState();
+      store.addItem(baseItem);
+      expect(useCartStore.getState().items).toHaveLength(1);
+
+      // Clear cart and debounce state (simulating beforeEach)
+      useCartStore.getState().clearCart();
+      __clearDebounceState();
+
+      // After clearing, same item should be addable again
+      useCartStore.getState().addItem(baseItem);
+      expect(useCartStore.getState().items).toHaveLength(1);
+      expect(useCartStore.getState().items[0].quantity).toBe(1);
+    });
+  });
+
   describe("setDeliverySettings", () => {
     it("updates delivery fee and threshold", () => {
       const store = useCartStore.getState();
