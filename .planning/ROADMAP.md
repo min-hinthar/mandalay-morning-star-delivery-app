@@ -75,7 +75,7 @@
 - [x] **Phase 92: Customer UX - Discovery & Shopping** - Persistent search, dietary filters, sold-out sorting, modifier scroll indicator, Saturday hero, min order warning, sticky checkout footer, auto-select delivery date, cart sync status, offline banner, dynamic gate polling (completed 2026-03-03)
 - [x] **Phase 93: Customer UX - Engagement & Accessibility** - One-tap reorder, rating prompt, order sharing, focus rings, keyboard cart delete, drawer aria-labels, form error linking, icon+color status, 3D tilt keyboard fix (completed 2026-03-03)
 - [x] **Phase 94: Admin & Driver Enhancements** - Ops time-window grouping, driver one-tap contact, turn-by-turn nav, photo proof on delivery (completed 2026-03-03)
-- [ ] **Phase 95: Observability, Performance & Testing** - Standardized errors, webhook logging, health alerting, DB backups, image preload, bundle audit, timezone from env, race condition tests, webhook tests, RLS edge cases, DST cutoff tests, refund rounding tests, Saturday dry run, load test, pre-launch checklist
+- [x] **Phase 95: Observability, Performance & Testing** - Standardized errors, webhook logging, health alerting, DB backups, image preload, bundle audit, timezone from env, race condition tests, webhook tests, RLS edge cases, DST cutoff tests, refund rounding tests, Saturday dry run, load test, pre-launch checklist (completed 2026-03-04)
 - [ ] **Phase 96: Integration Wiring & Dead Code Resolution** - Order detail page tip/promo/delivery_instructions display, reorder slug fix, price drift dead code removal (gap closure from audit)
 - [ ] **Phase 97: Phase 89/90 Verification & Traceability Cleanup** - Verify Phase 89 & 90 against requirements, update REQUIREMENTS.md checkboxes, fix ROADMAP inconsistencies (gap closure from audit)
 
@@ -252,7 +252,7 @@ Plans:
 | 92. Customer UX - Discovery & Shopping | 4/4 | Complete    | 2026-03-03 | - |
 | 93. Customer UX - Engagement & Accessibility | 3/3 | Complete    | 2026-03-03 | - |
 | 94. Admin & Driver Enhancements | 2/2 | Complete    | 2026-03-03 | - |
-| 95. Observability, Performance & Testing | 7/8 | In Progress|  | - |
+| 95. Observability, Performance & Testing | 8/8 | Complete   | 2026-03-04 | - |
 | 96. Integration Wiring & Dead Code Resolution | v2.0 | 0/TBD | Not started | - |
 | 97. Phase 89/90 Verification & Traceability | v2.0 | 0/TBD | Not started | - |
 
