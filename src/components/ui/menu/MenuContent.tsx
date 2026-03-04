@@ -26,9 +26,9 @@ import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useCart } from "@/lib/hooks/useCart";
 import { useMenuFilters } from "@/lib/hooks/useMenuFilters";
 import { useCustomerOfflineSync } from "@/lib/hooks/useCustomerOfflineSync";
-import { menuCache } from "@/lib/services/customer-offline-store";
 import { cn } from "@/lib/utils/cn";
-import type { MenuItem, MenuCategory, MenuResponse } from "@/types/menu";
+import type { MenuItem, MenuCategory } from "@/types/menu";
+import { useMenuCache } from "./useMenuCache";
 import type { SelectedModifier } from "@/lib/utils/price";
 
 import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
@@ -69,8 +69,6 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
   // OFFLINE STATE
   // ============================================
   const { isOnline } = useCustomerOfflineSync();
-  const [cachedAt, setCachedAt] = useState<string | null>(null);
-  const [usingCachedData, setUsingCachedData] = useState(false);
 
   // ============================================
   // DATA FETCHING
@@ -83,56 +81,12 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
   // OFFLINE CACHING
   // ============================================
 
-  // Save menu data to cache when successfully fetched
-  useEffect(() => {
-    if (data?.data?.categories && data.data.categories.length > 0) {
-      menuCache.save(data).catch((err) => {
-        console.error("[MenuContent] Failed to cache menu:", err);
-      });
-      // Clear cached data indicator when we have fresh data
-      setUsingCachedData(false);
-      setCachedAt(null);
-    }
-  }, [data]);
-
-  // Load from cache on error (offline fallback)
-  useEffect(() => {
-    if (error && !isLoading) {
-      menuCache
-        .get()
-        .then((cached) => {
-          if (cached) {
-            setCachedAt(cached.cachedAt);
-            setUsingCachedData(true);
-          }
-        })
-        .catch((err) => {
-          console.error("[MenuContent] Failed to load cached menu:", err);
-        });
-    }
-  }, [error, isLoading]);
-
-  // Get cached categories when using offline data
-  const [cachedCategories, setCachedCategories] = useState<MenuCategory[]>([]);
-
-  useEffect(() => {
-    if (usingCachedData) {
-      menuCache
-        .get()
-        .then((cached) => {
-          if (cached?.data) {
-            const menuResponse = cached.data as MenuResponse;
-            setCachedCategories(menuResponse.data?.categories ?? []);
-          }
-        })
-        .catch((err) => {
-          console.error("[MenuContent] Failed to read cached categories:", err);
-        });
-    }
-  }, [usingCachedData]);
-
-  // Use cached categories when offline, otherwise use fresh data
-  const displayCategories = usingCachedData ? cachedCategories : categories;
+  const { displayCategories, cachedAt, usingCachedData } = useMenuCache({
+    data,
+    categories,
+    error,
+    isLoading,
+  });
 
   // ============================================
   // FILTERING

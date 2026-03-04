@@ -4,31 +4,14 @@ import { createClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { validatePromoCode } from "@/lib/stripe/promo";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
-import { validateCartItems, calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
+import { calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
 import { isPastCutoff, getDeliveryDate } from "@/lib/utils/delivery-dates";
 import { getBusinessRules, generateTimeWindows } from "@/lib/settings";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, checkoutLimiter } from "@/lib/rate-limit";
-import type { CheckoutError, CheckoutErrorCode } from "@/types/checkout";
-import type {
-  AddressesRow,
-  MenuItemsRow,
-  ModifierOptionsRow,
-  OrdersRow,
-  OrderItemsRow,
-  ProfilesRow,
-} from "@/types/database";
-import { cleanupOrder, buildModifierGroupsMap } from "./helpers";
-
-function errorResponse(
-  code: CheckoutErrorCode,
-  message: string,
-  status: number,
-  details?: unknown
-) {
-  const error: CheckoutError = { code, message, details };
-  return NextResponse.json({ error }, { status });
-}
+import type { AddressesRow, OrdersRow, OrderItemsRow, ProfilesRow } from "@/types/database";
+import { cleanupOrder } from "./helpers";
+import { errorResponse, fetchAndValidateCart, buildRpcPayload } from "./validation";
 
 export async function POST(request: Request) {
   try {
@@ -161,82 +144,23 @@ export async function POST(request: Request) {
       promoPercentOff = promoResult.percentOff;
     }
 
-    // Fetch all menu items and modifier options for validation
-    const menuItemIds = input.items.map((item) => item.menuItemId);
-    const modifierOptionIds = input.items.flatMap((item) => item.modifiers.map((m) => m.optionId));
-
-    const { data: menuItemsData, error: menuError } = await supabase
-      .from("menu_items")
-      .select("*")
-      .in("id", menuItemIds)
-      .returns<MenuItemsRow[]>();
-
-    if (menuError) {
-      return errorResponse("INTERNAL_ERROR", "Failed to fetch menu items", 500);
-    }
-
-    const { data: modifierOptionsData, error: modifierError } = await supabase
-      .from("modifier_options")
-      .select("*")
-      .in(
-        "id",
-        modifierOptionIds.length > 0 ? modifierOptionIds : ["00000000-0000-0000-0000-000000000000"]
-      )
-      .returns<ModifierOptionsRow[]>();
-
-    if (modifierError) {
-      return errorResponse("INTERNAL_ERROR", "Failed to fetch modifier options", 500);
-    }
-
-    // Create lookup maps
-    const menuItems = new Map<string, MenuItemsRow>(
-      (menuItemsData ?? []).map((item) => [item.id, item])
-    );
-    const modifierOptions = new Map<string, ModifierOptionsRow>(
-      (modifierOptionsData ?? []).map((option) => [option.id, option])
-    );
-
-    // BUG-02: Fetch modifier groups for constraint validation
-    const { data: itemModifierGroupsData } = await supabase
-      .from("item_modifier_groups")
-      .select(
-        "item_id, group_id, modifier_groups(id, slug, name, selection_type, min_select, max_select)"
-      )
-      .in("item_id", menuItemIds);
-
-    // Build modifier group lookup map
-    const modifierGroupsMap = buildModifierGroupsMap(itemModifierGroupsData);
-
-    // Validate cart items against database (with modifier group constraints)
-    const validation = await validateCartItems(
-      input.items,
-      menuItems,
-      modifierOptions,
-      modifierGroupsMap.size > 0 ? modifierGroupsMap : undefined
-    );
-
-    if (!validation.valid) {
-      const firstError = validation.errors[0];
-      return errorResponse(
-        firstError.code as CheckoutErrorCode,
-        firstError.message,
-        400,
-        validation.errors
-      );
-    }
+    // Fetch all menu items and modifier options, validate cart
+    const cartResult = await fetchAndValidateCart(supabase, input.items);
+    if (!cartResult.ok) return cartResult.response;
+    const validatedItems = cartResult.items;
 
     // CHKT-01: Server-authoritative pricing — all prices resolved from DB
     const tipCents = input.tipCents ?? 0;
 
     // For percent-off coupons, compute discount from subtotal first
     if (promoPercentOff !== null) {
-      const subtotal = validation.items.reduce((sum, item) => sum + item.lineTotalCents, 0);
+      const subtotal = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
       discountCents = Math.round((subtotal * promoPercentOff) / 100);
     }
 
     // Calculate order totals (SERVER-SIDE - never trust client)
     const totals = calculateOrderTotals(
-      validation.items,
+      validatedItems,
       rules.deliveryFeeCents,
       rules.freeDeliveryThresholdCents,
       tipCents,
@@ -244,33 +168,7 @@ export async function POST(request: Request) {
     );
 
     // H-10 FIX: Create order, items, and modifiers atomically via RPC.
-    // If any insert fails, the entire transaction rolls back — no orphaned records.
-    const rpcItems = validation.items.map((item) => ({
-      menu_item_id: item.menuItem.id,
-      name_snapshot: item.menuItem.name_en,
-      base_price_snapshot: item.menuItem.base_price_cents,
-      quantity: item.quantity,
-      line_total_cents: item.lineTotalCents,
-      special_instructions: item.notes || null,
-    }));
-
-    const rpcModifiers: Array<{
-      item_index: number;
-      modifier_option_id: string;
-      name_snapshot: string;
-      price_delta_snapshot: number;
-    }> = [];
-
-    for (let i = 0; i < validation.items.length; i++) {
-      for (const modifier of validation.items[i].modifiers) {
-        rpcModifiers.push({
-          item_index: i,
-          modifier_option_id: modifier.id,
-          name_snapshot: modifier.name,
-          price_delta_snapshot: modifier.price_delta_cents,
-        });
-      }
-    }
+    const { rpcItems, rpcModifiers } = buildRpcPayload(validatedItems);
 
     // CHKT-03: Validate modifier item_index bounds for RPC
     for (const mod of rpcModifiers) {
@@ -346,6 +244,7 @@ export async function POST(request: Request) {
 
     // C-04 FIX: Re-validate item availability RIGHT BEFORE Stripe session creation.
     // Between initial validation and here, items could be deactivated or sold out.
+    const menuItemIds = input.items.map((item) => item.menuItemId);
     const { data: freshMenuItems, error: freshMenuError } = await supabase
       .from("menu_items")
       .select("id, is_active")
@@ -371,7 +270,7 @@ export async function POST(request: Request) {
       );
 
       const unavailableIds = unavailableItems.map((i) => i.id);
-      const unavailableNames = validation.items
+      const unavailableNames = validatedItems
         .filter((vi) => unavailableIds.includes(vi.menuItem.id))
         .map((vi) => vi.menuItem.name_en);
 
@@ -384,7 +283,7 @@ export async function POST(request: Request) {
     }
 
     // Create Stripe Checkout Session
-    const lineItems = createStripeLineItems(validation.items, totals.deliveryFeeCents, tipCents);
+    const lineItems = createStripeLineItems(validatedItems, totals.deliveryFeeCents, tipCents);
 
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
