@@ -30,6 +30,10 @@ interface OrderQueryResult {
   delivery_window_end: string | null;
   special_instructions: string | null;
   stripe_payment_intent_id: string | null;
+  tip_cents: number;
+  promo_code: string | null;
+  discount_cents: number;
+  delivery_instructions: string | null;
   placed_at: string;
   confirmed_at: string | null;
   delivered_at: string | null;
@@ -163,6 +167,10 @@ export default async function OrderDetailPage({ params }: PageProps) {
     deliveryWindowEnd: orderData.delivery_window_end,
     specialInstructions: orderData.special_instructions,
     stripePaymentIntentId: orderData.stripe_payment_intent_id,
+    tipCents: orderData.tip_cents,
+    promoCode: orderData.promo_code,
+    discountCents: orderData.discount_cents,
+    deliveryInstructions: orderData.delivery_instructions,
     placedAt: orderData.placed_at,
     confirmedAt: orderData.confirmed_at,
     deliveredAt: orderData.delivered_at,
@@ -265,6 +273,11 @@ export default async function OrderDetailPage({ params }: PageProps) {
                 ) : (
                   <p className="text-sm text-muted-foreground">Address on file</p>
                 )}
+                {order.deliveryInstructions && (
+                  <p className="text-sm text-muted-foreground italic mt-2">
+                    {order.deliveryInstructions}
+                  </p>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -329,6 +342,20 @@ export default async function OrderDetailPage({ params }: PageProps) {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Tax</span>
                   <span>{formatPrice(order.taxCents)}</span>
+                </div>
+              )}
+              {order.discountCents > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">
+                    Discount{order.promoCode ? ` (${order.promoCode})` : ""}
+                  </span>
+                  <span className="text-jade">-{formatPrice(order.discountCents)}</span>
+                </div>
+              )}
+              {order.tipCents > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Tip</span>
+                  <span>{formatPrice(order.tipCents)}</span>
                 </div>
               )}
               <div className="flex justify-between font-medium text-lg pt-2 border-t">
