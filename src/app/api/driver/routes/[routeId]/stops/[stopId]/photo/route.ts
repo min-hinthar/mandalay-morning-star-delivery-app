@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
+import { getDeliveryPhotoSignedUrl } from "@/lib/supabase/delivery-photos";
 import { logger } from "@/lib/utils/logger";
 
 interface RouteParams {
@@ -111,17 +112,15 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Failed to upload photo" }, { status: 500 });
     }
 
-    // Get public URL
-    const { data: urlData } = supabase.storage.from("delivery-photos").getPublicUrl(filename);
+    // Store path (not public URL) in DB — bucket is private
+    await supabase.from("route_stops").update({ delivery_photo_url: filename }).eq("id", stopId);
 
-    const photoUrl = urlData.publicUrl;
-
-    // Update stop with photo URL
-    await supabase.from("route_stops").update({ delivery_photo_url: photoUrl }).eq("id", stopId);
+    // Generate signed URL for immediate response
+    const signedUrl = await getDeliveryPhotoSignedUrl(filename);
 
     return NextResponse.json({
       success: true,
-      photoUrl,
+      photoUrl: signedUrl,
     });
   } catch (error) {
     logger.exception(error, { api: "driver/routes/[routeId]/stops/[stopId]/photo" });
