@@ -27,6 +27,7 @@ interface ModifierRow {
 
 interface MenuItemRow {
   id: string;
+  slug: string;
   name_en: string;
   base_price_cents: number;
   is_active: boolean;
@@ -35,6 +36,7 @@ interface MenuItemRow {
 
 interface CartItem {
   menuItemId: string;
+  slug: string;
   name: string;
   quantity: number;
   priceCents: number;
@@ -137,7 +139,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
 
     const { data: menuItems, error: menuError } = await supabase
       .from("menu_items")
-      .select("id, name_en, base_price_cents, is_active, is_sold_out")
+      .select("id, slug, name_en, base_price_cents, is_active, is_sold_out")
       .in("id", menuItemIds)
       .returns<MenuItemRow[]>();
 
@@ -199,6 +201,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
 
       cartItems.push({
         menuItemId: menuItem.id,
+        slug: menuItem.slug,
         name: menuItem.name_en,
         quantity: orderItem.quantity,
         priceCents: menuItem.base_price_cents,

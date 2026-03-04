@@ -13,6 +13,7 @@ export interface Order {
 
 export interface ReorderCartItem {
   menuItemId: string;
+  slug: string;
   name: string;
   quantity: number;
   priceCents: number;

@@ -117,7 +117,7 @@ export function OrdersTab() {
       cartItems.forEach((item: ReorderCartItem) => {
         addItem({
           menuItemId: item.menuItemId,
-          menuItemSlug: item.menuItemId,
+          menuItemSlug: item.slug,
           nameEn: item.name,
           nameMy: null,
           imageUrl: null,

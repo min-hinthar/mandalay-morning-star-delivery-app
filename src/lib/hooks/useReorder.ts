@@ -8,6 +8,7 @@ import { triggerHaptic } from "@/lib/micro-interactions";
 
 interface ReorderCartItem {
   menuItemId: string;
+  slug: string;
   name: string;
   quantity: number;
   priceCents: number;
@@ -66,7 +67,7 @@ export function useReorder(): UseReorderReturn {
       for (const item of cartItems) {
         addItem({
           menuItemId: item.menuItemId,
-          menuItemSlug: item.menuItemId,
+          menuItemSlug: item.slug,
           nameEn: item.name,
           nameMy: null,
           imageUrl: null,
