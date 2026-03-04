@@ -182,6 +182,112 @@ describe("delivery date utils", () => {
     });
   });
 
+  describe("DST boundary tests (TST-04)", () => {
+    // 2026 DST transitions for America/Los_Angeles:
+    // Spring forward: March 8, 2026 at 2:00 AM (PST -> PDT, UTC-8 -> UTC-7)
+    // Fall back: November 1, 2026 at 2:00 AM (PDT -> PST, UTC-7 -> UTC-8)
+
+    describe("spring-forward (March 8, 2026)", () => {
+      // Saturday delivery: March 7, 2026
+      // Friday cutoff: March 6, 2026 at 3:00 PM PST (UTC-8)
+      // DST doesn't change until Sunday March 8 at 2 AM, so Friday is still PST
+      const springForwardSaturday = new Date("2026-03-07T08:00:00.000Z"); // March 7 midnight PST
+
+      it("cutoff calculated correctly on Friday before DST spring-forward Saturday", () => {
+        const cutoff = getCutoffForSaturday(springForwardSaturday, CUTOFF_DAY, CUTOFF_HOUR);
+        const display = new Intl.DateTimeFormat("en-US", {
+          timeZone: TIMEZONE,
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        }).format(cutoff);
+        expect(display).toContain("Fri");
+        expect(display).toContain("3:00 PM");
+        expect(display).toContain("Mar");
+        expect(display).toContain("6");
+      });
+
+      it("order placed at 2:59 PM PST Friday before spring-forward Saturday is accepted", () => {
+        // March 6, 2026 2:59 PM PST = 22:59 UTC
+        const beforeCutoff = new Date("2026-03-06T22:59:00.000Z");
+        expect(isPastCutoff(springForwardSaturday, beforeCutoff, CUTOFF_DAY, CUTOFF_HOUR)).toBe(
+          false
+        );
+      });
+
+      it("order placed at 3:00:01 PM PST Friday before spring-forward Saturday is rejected", () => {
+        // March 6, 2026 3:00:01 PM PST = 23:00:01 UTC
+        const afterCutoff = new Date("2026-03-06T23:00:01.000Z");
+        expect(isPastCutoff(springForwardSaturday, afterCutoff, CUTOFF_DAY, CUTOFF_HOUR)).toBe(
+          true
+        );
+      });
+    });
+
+    describe("fall-back (November 1, 2026)", () => {
+      // DST fall-back: November 1, 2026 (Sunday) — clocks go back at 2 AM
+      // Saturday delivery: November 7, 2026
+      // Friday cutoff: November 6, 2026 at 3:00 PM PST (UTC-8, post fall-back)
+      // Wait: Nov 1 is the fall-back. By Nov 6 Friday we are already PST (UTC-8)
+      const fallBackSaturday = new Date("2026-11-07T08:00:00.000Z"); // Nov 7 midnight PST
+
+      it("cutoff calculated correctly on Friday after DST fall-back", () => {
+        const cutoff = getCutoffForSaturday(fallBackSaturday, CUTOFF_DAY, CUTOFF_HOUR);
+        const display = new Intl.DateTimeFormat("en-US", {
+          timeZone: TIMEZONE,
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        }).format(cutoff);
+        expect(display).toContain("Fri");
+        expect(display).toContain("3:00 PM");
+        expect(display).toContain("Nov");
+        expect(display).toContain("6");
+      });
+
+      it("order placed at 2:59 PM PST Friday after fall-back is accepted", () => {
+        // November 6, 2026 2:59 PM PST = 22:59 UTC (post fall-back, UTC-8)
+        const beforeCutoff = new Date("2026-11-06T22:59:00.000Z");
+        expect(isPastCutoff(fallBackSaturday, beforeCutoff, CUTOFF_DAY, CUTOFF_HOUR)).toBe(false);
+      });
+
+      it("order placed at 3:00:01 PM PST Friday after fall-back is rejected", () => {
+        // November 6, 2026 3:00:01 PM PST = 23:00:01 UTC (post fall-back, UTC-8)
+        const afterCutoff = new Date("2026-11-06T23:00:01.000Z");
+        expect(isPastCutoff(fallBackSaturday, afterCutoff, CUTOFF_DAY, CUTOFF_HOUR)).toBe(true);
+      });
+    });
+
+    describe("safety buffer at DST boundary", () => {
+      // Test that the 10-second safety buffer works correctly at DST transitions
+      const springForwardSaturday = new Date("2026-03-07T08:00:00.000Z");
+
+      it("safety buffer (10s) rejects order 5 seconds before cutoff at DST boundary", () => {
+        const cutoff = getCutoffForSaturday(springForwardSaturday, CUTOFF_DAY, CUTOFF_HOUR);
+        // 5 seconds before cutoff — inside the 10s buffer — should be rejected
+        const fiveSecBefore = new Date(cutoff.getTime() - 5_000);
+        expect(isPastCutoff(springForwardSaturday, fiveSecBefore, CUTOFF_DAY, CUTOFF_HOUR)).toBe(
+          true
+        );
+      });
+
+      it("safety buffer (10s) accepts order 11 seconds before cutoff at DST boundary", () => {
+        const cutoff = getCutoffForSaturday(springForwardSaturday, CUTOFF_DAY, CUTOFF_HOUR);
+        // 11 seconds before cutoff — outside the 10s buffer — should be accepted
+        const elevenSecBefore = new Date(cutoff.getTime() - 11_000);
+        expect(
+          isPastCutoff(springForwardSaturday, elevenSecBefore, CUTOFF_DAY, CUTOFF_HOUR)
+        ).toBe(false);
+      });
+    });
+  });
+
   describe("parameterization", () => {
     it("getCutoffForSaturday respects custom cutoff day/hour (Thursday 12pm)", () => {
       const saturday = makePtDate("2026-01-17T00:00:00");
