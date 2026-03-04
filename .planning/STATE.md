@@ -3,6 +3,36 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Production-Grade Launch MVP
 status: active
+stopped_at: Completed 96-02-PLAN.md
+last_updated: "2026-03-04T07:59:59.036Z"
+last_activity: 2026-03-04 — Reorder slug fix and dead code removal
+progress:
+  total_phases: 9
+  completed_phases: 8
+  total_plans: 31
+  completed_plans: 31
+---
+
+---
+gsd_state_version: 1.0
+milestone: v2.0
+milestone_name: Production-Grade Launch MVP
+status: active
+stopped_at: Completed 96-02-PLAN.md
+last_updated: "2026-03-04T07:59:41.045Z"
+last_activity: 2026-03-04 — Reorder slug fix and dead code removal
+progress:
+  total_phases: 9
+  completed_phases: 8
+  total_plans: 31
+  completed_plans: 31
+---
+
+---
+gsd_state_version: 1.0
+milestone: v2.0
+milestone_name: Production-Grade Launch MVP
+status: active
 stopped_at: Completed 96-01-PLAN.md
 last_updated: "2026-03-04T07:55:46.236Z"
 last_activity: 2026-03-04 — Checkout data wiring to order detail UI
@@ -33,14 +63,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Production-Grade Launch MVP
 status: active
-stopped_at: Phase 97 context gathered
+stopped_at: Completed 96-02-PLAN.md
 last_updated: "2026-03-04T07:50:58.782Z"
 last_activity: 2026-03-04 — Launch checklist and bundle audit
 progress:
   total_phases: 9
   completed_phases: 7
   total_plans: 31
-  completed_plans: 29
+  completed_plans: 31
 ---
 
 ---
@@ -48,7 +78,7 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Production-Grade Launch MVP
 status: active
-stopped_at: Completed 95-08-PLAN.md
+stopped_at: Completed 96-02-PLAN.md
 last_updated: "2026-03-04T07:21:00Z"
 last_activity: 2026-03-04 — Launch checklist and bundle audit
 progress:
@@ -71,9 +101,9 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 ## Current Position
 
 Phase: 96 of 96 (Integration Wiring & Dead Code)
-Plan: 1/2 completed
-Status: Phase 96 In Progress
-Last activity: 2026-03-04 — Checkout data wiring to order detail UI
+Plan: 2/2 completed
+Status: Phase 96 Complete
+Last activity: 2026-03-04 — Reorder slug fix and dead code removal
 
 Progress: [██████████] 100% (30/31 plans)
 
@@ -121,6 +151,7 @@ Progress: [██████████] 100% (30/31 plans)
 | Phase 95 P08 | 12min | 3 tasks | 3 files |
 | Phase 95 P04 | 8min | 2 tasks | 10 files |
 | Phase 96 P01 | 6min | 2 tasks | 5 files |
+| Phase 96 P02 | 10min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -195,6 +226,7 @@ Progress: [██████████] 100% (30/31 plans)
 ### Phase 96 Decisions
 - New Order fields are required (not optional) since DB defaults ensure they always exist
 - Discount row renders before tip row in totals (Subtotal > Delivery > Tax > Discount > Tip > Total)
+- slug sourced from menu_items table join in reorder API (not a separate lookup)
 
 ### Phase 90 Decisions
 - Server-side sharp for WebP conversion (not client-side Canvas) — consistent output across devices
@@ -229,7 +261,7 @@ Progress: [██████████] 100% (30/31 plans)
 
 ## Session Continuity
 
-Last session: 2026-03-04T07:54:58.028Z
-Stopped at: Completed 96-01-PLAN.md
+Last session: 2026-03-04T07:59:41.040Z
+Stopped at: Completed 96-02-PLAN.md
 Resume file: None
 Next action: All v2.0 plans complete. Ready for production launch.
