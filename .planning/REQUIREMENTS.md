@@ -86,11 +86,11 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 
 ### Testing
 
-- [ ] **TST-01**: Concurrent cart addition race condition tests
+- [x] **TST-01**: Concurrent cart addition race condition tests
 - [ ] **TST-02**: Stripe webhook failure/transition tests
 - [ ] **TST-03**: RLS policy multi-user edge case tests
-- [ ] **TST-04**: Cutoff boundary tests including DST transitions
-- [ ] **TST-05**: Refund calculation rounding/ceiling tests
+- [x] **TST-04**: Cutoff boundary tests including DST transitions
+- [x] **TST-05**: Refund calculation rounding/ceiling tests
 - [ ] **TST-06**: Full Saturday dry run — 20 test orders through lifecycle (requires: test Stripe keys, test users, test addresses setup)
 - [ ] **TST-07**: Load test — 50 concurrent checkout submissions via k6 or Artillery
 
@@ -243,11 +243,11 @@ Explicitly excluded. Documented to prevent scope creep.
 | OBS-05 | Phase 95 | Pending |
 | OBS-06 | Phase 95 | Pending |
 | OBS-07 | Phase 95 | Pending |
-| TST-01 | Phase 95 | Pending |
+| TST-01 | Phase 95 | Complete |
 | TST-02 | Phase 95 | Pending |
 | TST-03 | Phase 95 | Pending |
-| TST-04 | Phase 95 | Pending |
-| TST-05 | Phase 95 | Pending |
+| TST-04 | Phase 95 | Complete |
+| TST-05 | Phase 95 | Complete |
 | TST-06 | Phase 95 | Pending |
 | TST-07 | Phase 95 | Pending |
 | LAUNCH-01 | Phase 95 | Pending |

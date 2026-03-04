@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Production-Grade Launch MVP
 status: active
-stopped_at: Phase 95 context gathered
-last_updated: "2026-03-04T06:13:46.783Z"
+stopped_at: Completed 95-05-PLAN.md
+last_updated: "2026-03-04T07:01:14.575Z"
 last_activity: 2026-03-03 — Post-purchase engagement UI (reorder, rating, share)
 progress:
-  total_phases: 7
+  total_phases: 9
   completed_phases: 6
-  total_plans: 21
-  completed_plans: 21
+  total_plans: 29
+  completed_plans: 23
 ---
 
 ---
@@ -81,6 +81,8 @@ Progress: [██████████] 100% (6/7 phases)
 | Phase 93 P01 | 9min | 2 tasks | 6 files |
 | Phase 93 P02 | 5min | 2 tasks | 7 files |
 | Phase 93 P03 | 7min | 3 tasks | 6 files |
+| Phase 95 P05 | 4min | 2 tasks | 3 files |
+| Phase 95 P01 | 4min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -130,6 +132,11 @@ Progress: [██████████] 100% (6/7 phases)
 - Offline-queued photo sets hasPhoto=true immediately (driver not blocked by connectivity)
 - Extracted SimpleRouteDone to keep SimpleStopView under 400 lines
 
+### Phase 95 Decisions
+- Refund tests use inline pure functions mirroring route handler logic rather than extracting to shared module
+- DST tests use explicit UTC dates with known offsets rather than mocking Intl.DateTimeFormat
+- Rounding drift documented as known behavior: two separate 1-unit refunds != one 2-unit refund due to Math.round
+
 ### Phase 90 Decisions
 - Server-side sharp for WebP conversion (not client-side Canvas) — consistent output across devices
 - 4:3 aspect ratio at 800x600 standardized for all menu photos
@@ -163,7 +170,7 @@ Progress: [██████████] 100% (6/7 phases)
 
 ## Session Continuity
 
-Last session: 2026-03-04T06:13:46.779Z
-Stopped at: Phase 95 context gathered
-Resume file: .planning/phases/95-observability-performance-testing-launch-prep/95-CONTEXT.md
+Last session: 2026-03-04T07:00:57.464Z
+Stopped at: Completed 95-05-PLAN.md
+Resume file: None
 Next action: Execute 93-03-PLAN.md (wave 2)
