@@ -1,4 +1,5 @@
-import { describe, expect, it, vi, beforeEach, type Mock } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
+import type { Mock } from "vitest";
 import {
   createCheckoutCompletedEvent,
   createCheckoutExpiredEvent,
@@ -37,46 +38,6 @@ vi.mock("@/lib/utils/logger", () => ({
 vi.mock("@/lib/email", () => ({
   sendEmail: vi.fn().mockResolvedValue({ id: "email-1" }),
 }));
-
-// Build a chainable Supabase mock
-function _createMockSupabaseClient() {
-  const mockSelectReturn = { data: [{ id: "claimed-1" }], error: null };
-  const mockUpdateReturn = { data: null, error: null };
-  const mockSingleReturn = { data: null, error: null };
-
-  const chain: Record<string, Mock> = {
-    from: vi.fn(),
-    select: vi.fn(),
-    upsert: vi.fn(),
-    update: vi.fn(),
-    eq: vi.fn(),
-    in: vi.fn(),
-    single: vi.fn(),
-  };
-
-  // Default chaining: every method returns the chain
-  Object.values(chain).forEach((fn) => {
-    fn.mockReturnValue(chain);
-  });
-
-  // Terminal methods return data by default
-  chain.select.mockReturnValue({ ...chain, data: mockSelectReturn.data, error: null });
-  chain.upsert.mockReturnValue(chain);
-  // When select is called after upsert, return claimed data
-  chain.select.mockImplementation(() => ({
-    ...chain,
-    data: mockSelectReturn.data,
-    error: null,
-  }));
-  chain.single.mockReturnValue(mockSingleReturn);
-
-  return {
-    chain,
-    mockSelectReturn,
-    mockUpdateReturn,
-    client: { from: chain.from },
-  };
-}
 
 // Track constructEvent mock
 const mockConstructEvent = vi.fn();
