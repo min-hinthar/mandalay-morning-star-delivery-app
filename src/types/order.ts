@@ -46,6 +46,10 @@ export interface Order {
   deliveredAt: string | null;
   createdAt: string;
   updatedAt: string;
+  tipCents: number;
+  promoCode: string | null;
+  discountCents: number;
+  deliveryInstructions: string | null;
   address?: OrderAddress | null;
   items?: OrderItem[];
 }
