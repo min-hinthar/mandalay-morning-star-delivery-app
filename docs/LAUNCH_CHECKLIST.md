@@ -21,24 +21,24 @@ Pre-launch checklist for Mandalay Morning Star Delivery App. Each item maps to a
 
 All required vars (validated by `pnpm launch:check`):
 
-| Variable | Prefix/Format | Source |
-|----------|--------------|--------|
-| `STRIPE_SECRET_KEY` | `sk_live_` | Stripe Dashboard -> Developers -> API keys |
-| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_live_` | Stripe Dashboard -> Developers -> API keys |
-| `NEXT_PUBLIC_SUPABASE_URL` | `https://` | Supabase Dashboard -> Settings -> API |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | set | Supabase Dashboard -> Settings -> API |
-| `SUPABASE_SERVICE_ROLE_KEY` | set | Supabase Dashboard -> Settings -> API |
-| `RESEND_API_KEY` | `re_` | Resend Dashboard -> API Keys |
-| `GOOGLE_MAPS_API_KEY` | set | Google Cloud Console -> Credentials |
-| `UPSTASH_REDIS_REST_URL` | `https://` | Vercel Marketplace -> Upstash Redis |
-| `UPSTASH_REDIS_REST_TOKEN` | set | Vercel Marketplace -> Upstash Redis |
-| `NEXT_PUBLIC_SENTRY_DSN` | `https://` | Sentry Dashboard -> Settings -> Client Keys |
-| `NEXT_PUBLIC_APP_URL` | `https://` | Your production domain |
+| Variable                             | Prefix/Format | Source                                      |
+| ------------------------------------ | ------------- | ------------------------------------------- |
+| `STRIPE_SECRET_KEY`                  | `sk_live_`    | Stripe Dashboard -> Developers -> API keys  |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | `pk_live_`    | Stripe Dashboard -> Developers -> API keys  |
+| `NEXT_PUBLIC_SUPABASE_URL`           | `https://`    | Supabase Dashboard -> Settings -> API       |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | set           | Supabase Dashboard -> Settings -> API       |
+| `SUPABASE_SERVICE_ROLE_KEY`          | set           | Supabase Dashboard -> Settings -> API       |
+| `RESEND_API_KEY`                     | `re_`         | Resend Dashboard -> API Keys                |
+| `GOOGLE_MAPS_API_KEY`                | set           | Google Cloud Console -> Credentials         |
+| `UPSTASH_REDIS_REST_URL`             | `https://`    | Vercel Marketplace -> Upstash Redis         |
+| `UPSTASH_REDIS_REST_TOKEN`           | set           | Vercel Marketplace -> Upstash Redis         |
+| `NEXT_PUBLIC_SENTRY_DSN`             | `https://`    | Sentry Dashboard -> Settings -> Client Keys |
+| `NEXT_PUBLIC_APP_URL`                | `https://`    | Your production domain                      |
 
 Optional:
 
-| Variable | Default | Notes |
-|----------|---------|-------|
+| Variable            | Default               | Notes                                 |
+| ------------------- | --------------------- | ------------------------------------- |
 | `DELIVERY_TIMEZONE` | `America/Los_Angeles` | Override if different timezone needed |
 
 - [ ] All required vars set in Vercel Dashboard -> Settings -> Environment Variables
@@ -195,6 +195,7 @@ Optional:
 **Emergency Procedures:**
 
 **Payment System Down (Stripe outage):**
+
 - Check [status.stripe.com](https://status.stripe.com) for known incidents
 - Temporarily disable checkout with maintenance banner
 - Monitor Sentry for payment-related errors
@@ -202,6 +203,7 @@ Optional:
 - Process any queued/failed payments manually
 
 **App Down (Vercel/Next.js outage):**
+
 - Check [vercel-status.com](https://vercel-status.com) for platform issues
 - Monitor BetterStack alerts for health endpoint failures
 - If Vercel issue: wait for platform recovery (Vercel SLA)
@@ -209,6 +211,7 @@ Optional:
 - Notify customers via backup communication channel (email/SMS)
 
 **Driver Issues:**
+
 - Driver app not loading: Clear cache, reinstall PWA, check network connection
 - Driver can't mark delivery: Admin can manually update order status in dashboard
 - Driver no-show: Reassign order to available driver via admin dashboard

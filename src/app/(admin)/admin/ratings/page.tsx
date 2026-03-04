@@ -111,7 +111,7 @@ export default async function RatingsPage({ searchParams }: RatingsPageProps) {
       submitted_at,
       orders!inner (
         id,
-        profiles (
+        profiles!orders_user_id_fkey (
           full_name
         )
       )

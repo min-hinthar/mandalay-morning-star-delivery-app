@@ -155,12 +155,15 @@ export function setup() {
   console.log(`Found ${allItems.length} menu items, using ${items.length} for test payloads`);
 
   // 3. Get a verified address for the test user
-  const addrRes = http.get(`${SUPABASE_URL}/rest/v1/addresses?user_id=eq.${userId}&is_verified=eq.true&limit=1`, {
-    headers: {
-      apikey: SUPABASE_ANON_KEY,
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const addrRes = http.get(
+    `${SUPABASE_URL}/rest/v1/addresses?user_id=eq.${userId}&is_verified=eq.true&limit=1`,
+    {
+      headers: {
+        apikey: SUPABASE_ANON_KEY,
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 
   let addressId = null;
   if (addrRes.status === 200) {
@@ -171,7 +174,9 @@ export function setup() {
   }
 
   if (!addressId) {
-    console.warn("No verified address found for test user. Checkout requests will fail at address validation.");
+    console.warn(
+      "No verified address found for test user. Checkout requests will fail at address validation."
+    );
   }
 
   const scheduledDate = getNextSaturday();
