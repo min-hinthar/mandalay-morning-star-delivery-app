@@ -77,12 +77,12 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 ### Observability
 
 - [ ] **OBS-01**: All API routes use standardized error format `{error: {code, message, details?}}`
-- [ ] **OBS-02**: Webhook events logged with body hash + signature
+- [x] **OBS-02**: Webhook events logged with body hash + signature
 - [ ] **OBS-03**: Health check has external alerting for downtime
 - [ ] **OBS-04**: Database backed up daily with verification
-- [ ] **OBS-05**: First 4 menu images preloaded (not lazy above fold)
+- [x] **OBS-05**: First 4 menu images preloaded (not lazy above fold)
 - [ ] **OBS-06**: Bundle under 200KB first-load JS (tree-shaking audit)
-- [ ] **OBS-07**: Timezone from env var (not hardcoded)
+- [x] **OBS-07**: Timezone from env var (not hardcoded)
 
 ### Testing
 
@@ -237,12 +237,12 @@ Explicitly excluded. Documented to prevent scope creep.
 | DRV-02 | Phase 94 | Complete |
 | DRV-03 | Phase 94 | Complete |
 | OBS-01 | Phase 95 | Pending |
-| OBS-02 | Phase 95 | Pending |
+| OBS-02 | Phase 95 | Complete |
 | OBS-03 | Phase 95 | Pending |
 | OBS-04 | Phase 95 | Pending |
-| OBS-05 | Phase 95 | Pending |
+| OBS-05 | Phase 95 | Complete |
 | OBS-06 | Phase 95 | Pending |
-| OBS-07 | Phase 95 | Pending |
+| OBS-07 | Phase 95 | Complete |
 | TST-01 | Phase 95 | Complete |
 | TST-02 | Phase 95 | Pending |
 | TST-03 | Phase 95 | Pending |
