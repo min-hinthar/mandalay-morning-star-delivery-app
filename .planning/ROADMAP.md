@@ -12,7 +12,7 @@
 - ✅ **v1.7 Production Deployment & Readiness** — Phases 58-66 (shipped 2026-02-16)
 - ✅ **v1.8 Post-Launch Hardening & Driver Experience** — Phases 67-76 (shipped 2026-02-26)
 - ✅ **v1.9 Launch-Ready MVP** — Phases 77-88 (shipped 2026-03-03)
-- **v2.0 Production-Grade Launch MVP** — Phases 89-97 (in progress)
+- **v2.0 Production-Grade Launch MVP** — Phases 89-98 (in progress)
 
 ## Phases
 
@@ -65,7 +65,7 @@
 
 </details>
 
-### v2.0 Production-Grade Launch MVP (Phases 89-97)
+### v2.0 Production-Grade Launch MVP (Phases 89-98)
 
 **Milestone Goal:** Battle-tested, revenue-ready Saturday delivery platform for real-money operations at 50-150 orders/Sat with 3-6 drivers and solo admin operator.
 
@@ -78,6 +78,7 @@
 - [x] **Phase 95: Observability, Performance & Testing** - Standardized errors, webhook logging, health alerting, DB backups, image preload, bundle audit, timezone from env, race condition tests, webhook tests, RLS edge cases, DST cutoff tests, refund rounding tests, Saturday dry run, load test, pre-launch checklist (completed 2026-03-04)
 - [x] **Phase 96: Integration Wiring & Dead Code Resolution** - Order detail page tip/promo/delivery_instructions display, reorder slug fix, price drift dead code removal (gap closure from audit) (completed 2026-03-04)
 - [x] **Phase 97: Phase 89/90 Verification & Traceability Cleanup** - Verify Phase 89 & 90 against requirements, update REQUIREMENTS.md checkboxes, fix ROADMAP inconsistencies (gap closure from audit) (completed 2026-03-04)
+- [ ] **Phase 98: Delivery Photo Signed URL Fix** - Fix admin viewing of driver delivery proof photos by using signed URLs for private Supabase Storage bucket (gap closure from audit)
 
 ## Phase Details
 
@@ -236,6 +237,16 @@ Plans:
 - [x] 97-01-PLAN.md — Create VERIFICATION.md for Phase 89 and Phase 90
 - [x] 97-02-PLAN.md — Update REQUIREMENTS.md checkboxes and fix ROADMAP.md formatting
 
+### Phase 98: Delivery Photo Signed URL Fix
+**Goal:** Admin can view driver delivery proof photos — replace getPublicUrl (returns 403 on private bucket) with signed URLs
+**Depends on**: Phase 94 (driver photo upload infrastructure)
+**Requirements**: DRV-03 (integration fix — requirement already satisfied, admin viewing broken)
+**Gap Closure:** Closes integration gap (driver photo → admin viewing) and broken flow (admin views delivery proof) from v2.0 audit
+**Success Criteria** (what must be TRUE):
+  1. Admin order detail page renders delivery proof photos without 403 errors
+  2. Photos served via time-limited signed URLs from private `delivery-photos` bucket
+**Plans**: 0/1
+
 ## Progress
 
 | Milestone              | Phases | Plans | Shipped    |
@@ -263,6 +274,7 @@ Plans:
 | 95. Observability, Performance & Testing | v2.0 | 8/8 | Complete | 2026-03-04 |
 | 96. Integration Wiring & Dead Code Resolution | v2.0 | 2/2 | Complete | 2026-03-04 |
 | 97. Phase 89/90 Verification & Traceability | v2.0 | Complete    | 2026-03-04 | 2026-03-04 |
+| 98. Delivery Photo Signed URL Fix | v2.0 | 0/1 | Pending | — |
 
 ---
 
