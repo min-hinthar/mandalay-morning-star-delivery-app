@@ -12,7 +12,7 @@
 - ✅ **v1.7 Production Deployment & Readiness** — Phases 58-66 (shipped 2026-02-16)
 - ✅ **v1.8 Post-Launch Hardening & Driver Experience** — Phases 67-76 (shipped 2026-02-26)
 - ✅ **v1.9 Launch-Ready MVP** — Phases 77-88 (shipped 2026-03-03)
-- **v2.0 Production-Grade Launch MVP** — Phases 89-95 (in progress)
+- **v2.0 Production-Grade Launch MVP** — Phases 89-97 (in progress)
 
 ## Phases
 
@@ -70,12 +70,14 @@
 **Milestone Goal:** Battle-tested, revenue-ready Saturday delivery platform for real-money operations at 50-150 orders/Sat with 3-6 drivers and solo admin operator.
 
 - [x] **Phase 89: Critical Bug Fixes** - Fix payment idempotency, modifier validation, cleanup rollback, type crash, refund ceiling, cart race condition, cutoff safety buffer
-- [ ] **Phase 90: Menu & Photo Pipeline** - Admin photo upload, bulk upload, auto-processing, freshness tracking, allergen dedup, inactive items, photo management grid, seed fallback photos
+- [x] **Phase 90: Menu & Photo Pipeline** - Admin photo upload, bulk upload, auto-processing, freshness tracking, allergen dedup, inactive items, photo management grid, seed fallback photos
 - [x] **Phase 91: Checkout & Payment Hardening** - Server-side pricing, price conflict auto-refresh, modifier bounds, prep time buffer, duplicate order prevention, promos, tips, delivery instructions, guest cart, checkout logging (completed 2026-03-03)
 - [x] **Phase 92: Customer UX - Discovery & Shopping** - Persistent search, dietary filters, sold-out sorting, modifier scroll indicator, Saturday hero, min order warning, sticky checkout footer, auto-select delivery date, cart sync status, offline banner, dynamic gate polling (completed 2026-03-03)
-- [x] **Phase 93: Customer UX - Engagement & Accessibility** - One-tap reorder, rating prompt, order sharing, focus rings, keyboard cart delete, drawer aria-labels, form error linking, icon+color status, 3D tilt keyboard fix (completed 2026-03-03)
+- [x] **Phase 93: Customer UX - Engagement & Accessibility** - One-tap reorder, rating prompt, order sharing, focus rings, keyboard cart delete, drawer aria-labels, form error linking, icon+color status, 3D tilt keyboard fix (completed 2026-03-03)
 - [x] **Phase 94: Admin & Driver Enhancements** - Ops time-window grouping, driver one-tap contact, turn-by-turn nav, photo proof on delivery (completed 2026-03-03)
 - [ ] **Phase 95: Observability, Performance & Testing** - Standardized errors, webhook logging, health alerting, DB backups, image preload, bundle audit, timezone from env, race condition tests, webhook tests, RLS edge cases, DST cutoff tests, refund rounding tests, Saturday dry run, load test, pre-launch checklist
+- [ ] **Phase 96: Integration Wiring & Dead Code Resolution** - Order detail page tip/promo/delivery_instructions display, reorder slug fix, price drift dead code removal (gap closure from audit)
+- [ ] **Phase 97: Phase 89/90 Verification & Traceability Cleanup** - Verify Phase 89 & 90 against requirements, update REQUIREMENTS.md checkboxes, fix ROADMAP inconsistencies (gap closure from audit)
 
 ## Phase Details
 
@@ -193,14 +195,38 @@ Plans:
   5. Full Saturday dry run completes successfully (20 test orders through entire lifecycle) and load test handles 50 concurrent checkout submissions
   6. All pre-launch infrastructure provisioned: production Supabase, Stripe live keys, Resend domain, Redis, DNS/SSL verified
   7. Admin trained on ops dashboard and driver(s) completed test deliveries
-**Plans**: 6 plans
+**Plans**: 8 plans
 Plans:
 - [ ] 95-01-PLAN.md — Timezone env var, image preload verify, webhook logging audit (Wave 1)
-- [ ] 95-02-PLAN.md — API error standardization for admin/orders, admin/sections, webhooks (Wave 1)
-- [ ] 95-03-PLAN.md — Cart race condition, DST cutoff boundary, refund rounding tests (Wave 1)
-- [ ] 95-04-PLAN.md — Stripe webhook failure tests, RLS multi-user edge case tests (Wave 1)
-- [ ] 95-05-PLAN.md — Saturday dry run script, k6 load test script (Wave 1)
-- [ ] 95-06-PLAN.md — Launch checklist, validation script, bundle audit (Wave 2)
+- [ ] 95-02-PLAN.md — API error standardization: apiError utility + admin/orders routes (Wave 1)
+- [ ] 95-03-PLAN.md — API error standardization: admin/sections + webhooks + remaining routes (Wave 1)
+- [ ] 95-04-PLAN.md — Frontend error consumers update for new error format (Wave 2)
+- [ ] 95-05-PLAN.md — Cart race condition, DST cutoff boundary, refund rounding tests (Wave 1)
+- [ ] 95-06-PLAN.md — Stripe webhook failure tests, RLS multi-user edge case tests (Wave 1)
+- [ ] 95-07-PLAN.md — Saturday dry run script, k6 load test script (Wave 1)
+- [ ] 95-08-PLAN.md — Launch checklist, validation script, bundle audit (Wave 2)
+
+### Phase 96: Integration Wiring & Dead Code Resolution
+**Goal:** All checkout data (tip, promo, delivery instructions) visible on order detail page, reorder uses correct slug, and price drift dead code is cleaned up
+**Depends on**: Phase 91, Phase 93
+**Requirements**: CHKT-02, CHKT-06, CHKT-07, CHKT-08, CUX-11
+**Gap Closure:** Closes 3 integration gaps and 3 broken flows from v2.0 audit
+**Success Criteria** (what must be TRUE):
+  1. Order detail page displays tip_cents, discount_cents, promo_code, and delivery_instructions
+  2. useReorder.ts passes actual menu item slug (not UUID) for slug-based lookups
+  3. Dead updatePricesFromServer code removed from cart-store.ts and 409 handler removed from PaymentStepV8.tsx
+  4. CHKT-02 requirement downscoped — server-authoritative pricing (CHKT-01) handles price correctness; client-side auto-refresh deferred
+
+### Phase 97: Phase 89/90 Verification & Traceability Cleanup
+**Goal:** Phase 89 and 90 formally verified against requirements, REQUIREMENTS.md and ROADMAP.md accurately reflect completion status
+**Depends on**: Phase 89, Phase 90
+**Requirements**: BUG-01, BUG-02, BUG-03, BUG-04, BUG-05, BUG-06, BUG-07, MENU-01, MENU-02, MENU-03, MENU-04, MENU-05, MENU-06, MENU-07, ADMIN-02
+**Gap Closure:** Closes 15 partial requirements (missing verification) from v2.0 audit
+**Success Criteria** (what must be TRUE):
+  1. VERIFICATION.md exists for Phase 89 with per-requirement evidence
+  2. VERIFICATION.md exists for Phase 90 with per-requirement evidence
+  3. REQUIREMENTS.md checkboxes updated for all 15 requirements (BUG-01..07, MENU-01..07, ADMIN-02)
+  4. ROADMAP.md accurately reflects all phase completion statuses
 
 ## Progress
 
@@ -226,7 +252,9 @@ Plans:
 | 92. Customer UX - Discovery & Shopping | 4/4 | Complete    | 2026-03-03 | - |
 | 93. Customer UX - Engagement & Accessibility | 3/3 | Complete    | 2026-03-03 | - |
 | 94. Admin & Driver Enhancements | 2/2 | Complete    | 2026-03-03 | - |
-| 95. Observability, Performance & Testing | v2.0 | 0/TBD | Not started | - |
+| 95. Observability, Performance & Testing | v2.0 | 0/8 | Not started | - |
+| 96. Integration Wiring & Dead Code Resolution | v2.0 | 0/TBD | Not started | - |
+| 97. Phase 89/90 Verification & Traceability | v2.0 | 0/TBD | Not started | - |
 
 ---
 
