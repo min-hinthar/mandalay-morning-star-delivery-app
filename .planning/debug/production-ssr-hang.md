@@ -1,16 +1,14 @@
 ---
-status: awaiting_human_verify
+status: resolved
 trigger: "ALL dynamic pages on Vercel return 0 bytes (never respond). Static/prerendered pages work. API routes work."
 created: 2026-03-03T00:00:00Z
-updated: 2026-03-03T00:00:00Z
+updated: 2026-03-04T00:00:00Z
+resolved: 2026-03-04T00:00:00Z
 ---
 
 ## Current Focus
 
-hypothesis: reactCompiler: true causes React Compiler (Babel) to produce SSR-incompatible code for a component added in phases 90-93, causing infinite render or never-completing stream during SSR. Secondary suspects are modularizeImports (redundant with optimizePackageImports) and compiler.removeConsole (unsupported by Turbopack).
-test: Deploy with all three configs removed, test /test-dynamic on Vercel
-expecting: Dynamic pages should start responding. If confirmed, re-add reactCompiler alone to isolate.
-next_action: AWAITING USER — deploy to Vercel and curl /test-dynamic
+RESOLVED — Route slug conflict. See Resolution section below.
 
 ## Symptoms
 
@@ -90,7 +88,12 @@ started: After deploying v2.0 milestone + database reset
 
 ## Resolution
 
-root_cause: [HYPOTHESIS] reactCompiler: true in next.config.ts causes React Compiler (Babel) to produce code that hangs during SSR rendering. The compiler transforms all component code — a component added during phases 90-93 likely triggers a compiler bug causing an infinite render loop or never-completing stream. Secondary factors: modularizeImports is redundant with optimizePackageImports, and compiler.removeConsole is unsupported by Turbopack.
-fix: Removed reactCompiler, modularizeImports, and compiler.removeConsole from next.config.ts. Build passes cleanly. Awaiting Vercel deploy verification.
-verification: Build succeeds locally. Awaiting production verification on Vercel.
-files_changed: [next.config.ts]
+root_cause: Route slug conflict — `(customer)/orders/[id]` and `(public)/orders/[shareToken]` used different dynamic segment names at the same URL path level. Next.js threw `Error: You cannot use different slug names for the same dynamic path ('id' !== 'shareToken')` at runtime, crashing the route resolver for ALL dynamic pages. This was added in Phase 93 (share feature).
+fix: Renamed `[shareToken]` → `[id]` in `src/app/(public)/orders/[id]/share/page.tsx`. Destructured as `{ id: shareToken }` to preserve semantic naming.
+verification: `pnpm build && pnpm start` locally — all dynamic pages return 200. Deployed to Vercel — /login 200 in 0.4s, /menu 200 in 0.2s, / 200 in 0.6s.
+files_changed: [src/app/(public)/orders/[id]/share/page.tsx (renamed from [shareToken])]
+lessons_learned: |
+  1. ALWAYS run `pnpm build && pnpm start` locally before remote debugging — the error was visible in terminal output
+  2. Previous debug commits broke the build (stripped providers), so changes never deployed to Vercel — wasted 12+ iterations against a stale deployment
+  3. The initial hypothesis (reactCompiler) was wrong because we never saw the actual error message
+  4. 0-byte responses on Vercel can mean runtime crash, not just "hang" — local reproduction reveals the actual error
