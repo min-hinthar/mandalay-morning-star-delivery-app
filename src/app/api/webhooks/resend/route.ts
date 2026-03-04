@@ -14,6 +14,7 @@ import { createHash } from "crypto";
 import { NextResponse } from "next/server";
 import { Webhook } from "svix";
 
+import { apiError } from "@/lib/utils/api-error";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 
@@ -98,7 +99,7 @@ export async function POST(request: Request) {
       flowId: FLOW_ID,
       api: "resend-webhook",
     });
-    return NextResponse.json({ error: "Bad request" }, { status: 400 });
+    return apiError("BAD_REQUEST", "Bad request", 400);
   }
 
   const payloadHash = hashPayload(rawBody);
@@ -148,7 +149,7 @@ export async function POST(request: Request) {
         error_message: errorMsg,
       });
 
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return apiError("UNAUTHORIZED", "Unauthorized", 401);
     }
   } else {
     logger.warn("RESEND_WEBHOOK_SECRET not configured, skipping verification", {
