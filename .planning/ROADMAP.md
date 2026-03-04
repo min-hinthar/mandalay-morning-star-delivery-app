@@ -245,7 +245,9 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Admin order detail page renders delivery proof photos without 403 errors
   2. Photos served via time-limited signed URLs from private `delivery-photos` bucket
-**Plans**: 0/1
+**Plans**: 1 plan
+Plans:
+- [ ] 98-01-PLAN.md — Signed URL helper, upload fix, and read endpoint transformation (Wave 1)
 
 ## Progress
 
