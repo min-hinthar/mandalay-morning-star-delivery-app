@@ -5,6 +5,7 @@ import { Loader2, ArrowLeft, Send, Eye } from "lucide-react";
 import { Modal, ModalHeader, ModalFooter } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/hooks/useToastV8";
+import { extractErrorMessage } from "@/lib/utils/api-error";
 import { TiptapEditor } from "./TiptapEditor";
 
 // ===========================================
@@ -83,7 +84,7 @@ export function ManualEmailDialog({
 
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to send email");
+        throw new Error(extractErrorMessage(data, "Failed to send email"));
       }
 
       toast({ message: "Email sent successfully", type: "success" });

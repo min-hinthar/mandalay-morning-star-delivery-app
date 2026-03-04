@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { toast } from "@/lib/hooks/useToastV8";
+import { extractErrorMessage } from "@/lib/utils/api-error";
 import { OpsOrderRow } from "./OpsOrderRow";
 import type { OpsOrder } from "./helpers";
 
@@ -90,7 +91,7 @@ export function OpsOrderList({
       const res = await fetch(`/api/admin/orders/${orderId}/contact`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to mark as contacted");
+        throw new Error(extractErrorMessage(data, "Failed to mark as contacted"));
       }
       toast({ message: "Order marked as contacted", type: "success" });
       onRefresh?.();

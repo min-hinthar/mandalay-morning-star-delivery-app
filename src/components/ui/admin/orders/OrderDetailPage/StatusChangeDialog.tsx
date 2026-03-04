@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/Modal";
 import { toast } from "@/lib/hooks/useToastV8";
+import { extractErrorMessage } from "@/lib/utils/api-error";
 import { STATUS_LABELS } from "@/components/ui/admin/orders/OrderDetailExpanded/config";
 import type { OrderStatus } from "@/types/database";
 
@@ -73,7 +74,7 @@ export function StatusChangeDialog({
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to update status");
+        throw new Error(extractErrorMessage(data, "Failed to update status"));
       }
 
       toast({

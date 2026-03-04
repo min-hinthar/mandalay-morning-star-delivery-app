@@ -34,6 +34,7 @@
     "test:a11y": "playwright test e2e/accessibility.spec.ts e2e/animations/v7-accessibility.spec.ts",
     "perf:check": "pnpm build && pnpm lighthouse",
     "dry-run": "tsx scripts/dry-run.ts",
+    "launch:check": "tsx scripts/launch-check.ts",
     "prepare": "husky"
   },
   "dependencies": {
