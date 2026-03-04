@@ -76,7 +76,7 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 
 ### Observability
 
-- [ ] **OBS-01**: All API routes use standardized error format `{error: {code, message, details?}}`
+- [x] **OBS-01**: All API routes use standardized error format `{error: {code, message, details?}}`
 - [x] **OBS-02**: Webhook events logged with body hash + signature
 - [ ] **OBS-03**: Health check has external alerting for downtime
 - [ ] **OBS-04**: Database backed up daily with verification
@@ -236,7 +236,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | DRV-01 | Phase 94 | Complete |
 | DRV-02 | Phase 94 | Complete |
 | DRV-03 | Phase 94 | Complete |
-| OBS-01 | Phase 95 | Pending |
+| OBS-01 | Phase 95 | Complete |
 | OBS-02 | Phase 95 | Complete |
 | OBS-03 | Phase 95 | Pending |
 | OBS-04 | Phase 95 | Pending |
