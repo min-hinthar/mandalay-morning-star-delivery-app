@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Production-Grade Launch MVP
 status: active
-stopped_at: Completed 95-02-PLAN.md
+stopped_at: Completed 95-03-PLAN.md
 last_updated: "2026-03-04T07:04:43.814Z"
-last_activity: 2026-03-04 — Saturday dry run & k6 load test scripts
+last_activity: 2026-03-04 — API error standardization (sections/webhooks/remaining)
 progress:
   total_phases: 9
   completed_phases: 6
   total_plans: 29
-  completed_plans: 25
-  percent: 86
+  completed_plans: 26
+  percent: 90
 ---
 
 ---
@@ -41,11 +41,11 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 ## Current Position
 
 Phase: 95 of 95 (Observability, Performance, Testing & Launch Prep)
-Plan: 7/8 completed
+Plan: 8/8 completed
 Status: Executing Phase 95
-Last activity: 2026-03-04 — Saturday dry run & k6 load test scripts
+Last activity: 2026-03-04 — API error standardization (sections/webhooks/remaining)
 
-Progress: [████████░░] 83% (24/29 plans)
+Progress: [█████████░] 90% (26/29 plans)
 
 ## Performance Metrics
 
@@ -86,6 +86,7 @@ Progress: [████████░░] 83% (24/29 plans)
 | Phase 95 P01 | 4min | 2 tasks | 11 files |
 | Phase 95 P07 | 6min | 2 tasks | 3 files |
 | Phase 95 P02 | 8min | 2 tasks | 10 files |
+| Phase 95 P03 | 9min | 2 tasks | 11 files |
 
 ## Accumulated Context
 
@@ -145,6 +146,9 @@ Progress: [████████░░] 83% (24/29 plans)
 - Direct DB insert for orders 2-20 to bypass one-per-Saturday duplicate constraint in dry-run
 - Accept 409 DUPLICATE_ORDER as valid processed response in k6 test (not a failure)
 - Service role key for admin operations in dry-run (bypasses RLS)
+- auth.status mapped to UNAUTHORIZED/FORBIDDEN based on status code (401/403)
+- Webhook signature errors mapped to BAD_REQUEST (400), not UNAUTHORIZED
+- Zod validation errors include details via apiError 4th parameter
 
 ### Phase 90 Decisions
 - Server-side sharp for WebP conversion (not client-side Canvas) — consistent output across devices
@@ -180,6 +184,6 @@ Progress: [████████░░] 83% (24/29 plans)
 ## Session Continuity
 
 Last session: 2026-03-04T07:04:43.810Z
-Stopped at: Completed 95-02-PLAN.md
+Stopped at: Completed 95-03-PLAN.md
 Resume file: None
-Next action: Execute 95-08-PLAN.md
+Next action: Execute next pending plan in Phase 95
