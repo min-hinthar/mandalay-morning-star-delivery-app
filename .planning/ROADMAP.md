@@ -218,8 +218,8 @@ Plans:
   4. CHKT-02 requirement downscoped — server-authoritative pricing (CHKT-01) handles price correctness; client-side auto-refresh deferred
 **Plans:** 2/2 plans complete
 Plans:
-- [ ] 96-01-PLAN.md — Wire tip/promo/discount/delivery_instructions to order detail page types and UI
-- [ ] 96-02-PLAN.md — Fix reorder slug bug and remove dead updatePricesFromServer code
+- [x] 96-01-PLAN.md — Wire tip/promo/discount/delivery_instructions to order detail page types and UI
+- [x] 96-02-PLAN.md — Fix reorder slug bug and remove dead updatePricesFromServer code
 
 ### Phase 97: Phase 89/90 Verification & Traceability Cleanup
 **Goal:** Phase 89 and 90 formally verified against requirements, REQUIREMENTS.md and ROADMAP.md accurately reflect completion status
@@ -231,6 +231,10 @@ Plans:
   2. VERIFICATION.md exists for Phase 90 with per-requirement evidence
   3. REQUIREMENTS.md checkboxes updated for all 15 requirements (BUG-01..07, MENU-01..07, ADMIN-02)
   4. ROADMAP.md accurately reflects all phase completion statuses
+**Plans:** 2 plans
+Plans:
+- [ ] 97-01-PLAN.md — Create VERIFICATION.md for Phase 89 and Phase 90
+- [ ] 97-02-PLAN.md — Update REQUIREMENTS.md checkboxes and fix ROADMAP.md formatting
 
 ## Progress
 
@@ -252,13 +256,13 @@ Plans:
 |-------|-----------|----------------|--------|-----------|
 | 89. Critical Bug Fixes | v2.0 | 4/4 | Complete | 2026-03-03 |
 | 90. Menu & Photo Pipeline | v2.0 | 4/4 | Complete | 2026-03-03 |
-| 91. Checkout & Payment Hardening | 4/4 | Complete    | 2026-03-03 | - |
-| 92. Customer UX - Discovery & Shopping | 4/4 | Complete    | 2026-03-03 | - |
-| 93. Customer UX - Engagement & Accessibility | 3/3 | Complete    | 2026-03-03 | - |
-| 94. Admin & Driver Enhancements | 2/2 | Complete    | 2026-03-03 | - |
-| 95. Observability, Performance & Testing | 8/8 | Complete    | 2026-03-04 | - |
-| 96. Integration Wiring & Dead Code Resolution | 2/2 | Complete   | 2026-03-04 | - |
-| 97. Phase 89/90 Verification & Traceability | v2.0 | 0/TBD | Not started | - |
+| 91. Checkout & Payment Hardening | v2.0 | 4/4 | Complete | 2026-03-03 |
+| 92. Customer UX - Discovery & Shopping | v2.0 | 4/4 | Complete | 2026-03-03 |
+| 93. Customer UX - Engagement & Accessibility | v2.0 | 3/3 | Complete | 2026-03-03 |
+| 94. Admin & Driver Enhancements | v2.0 | 2/2 | Complete | 2026-03-03 |
+| 95. Observability, Performance & Testing | v2.0 | 8/8 | Complete | 2026-03-04 |
+| 96. Integration Wiring & Dead Code Resolution | v2.0 | 2/2 | Complete | 2026-03-04 |
+| 97. Phase 89/90 Verification & Traceability | v2.0 | 0/2 | Not Started | - |
 
 ---
 
