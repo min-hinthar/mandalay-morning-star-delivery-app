@@ -1,14 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import type { ReactElement, ReactNode } from "react";
 import localFont from "next/font/local";
-import { Analytics } from "@vercel/analytics/react";
-import { SpeedInsights } from "@vercel/speed-insights/next";
 import "./globals.css";
-import { HeaderWrapper } from "@/components/ui/layout/HeaderWrapper";
-import { Providers } from "@/app/providers";
-import { ToastProvider } from "@/components/ui/ToastProvider";
-import { WebVitalsReporter } from "@/lib/web-vitals";
-import { OfflineIndicator, ServiceWorkerRegistration, UpdatePrompt } from "@/components/ui/offline";
 
 /**
  * Font Optimization:
@@ -79,19 +72,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${playfair.variable} font-body bg-background text-foreground antialiased`}
       >
-        <Providers>
-          <ServiceWorkerRegistration />
-          <ToastProvider>
-            <OfflineIndicator />
-            <HeaderWrapper />
-            {children}
-            <UpdatePrompt />
-          </ToastProvider>
-        </Providers>
-        {/* Web Vitals monitoring - loads async, no render blocking */}
-        <WebVitalsReporter />
-        <SpeedInsights sampleRate={50} />
-        <Analytics />
+        {children}
       </body>
     </html>
   );
