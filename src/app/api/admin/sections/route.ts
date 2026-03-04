@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 import { z } from "zod";
 import type { FeaturedSectionsRow, MenuItemsRow } from "@/types/database";
@@ -38,7 +39,7 @@ export async function GET() {
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -72,7 +73,7 @@ export async function GET() {
 
     if (error) {
       logger.exception(error, { api: "admin/sections", flowId: "fetch" });
-      return NextResponse.json({ error: "Failed to fetch sections" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to fetch sections", 500);
     }
 
     // Transform to include actual item count
@@ -108,7 +109,7 @@ export async function GET() {
     return NextResponse.json(transformed);
   } catch (error) {
     logger.exception(error, { api: "admin/sections", flowId: "fetch" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
 
@@ -116,7 +117,7 @@ export async function POST(request: Request) {
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -131,10 +132,7 @@ export async function POST(request: Request) {
     const parsed = createSectionSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid data", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+      return apiError("VALIDATION_ERROR", "Invalid data", 400, parsed.error.flatten());
     }
 
     // Generate slug from name
@@ -189,12 +187,9 @@ export async function POST(request: Request) {
     if (error) {
       logger.exception(error, { api: "admin/sections", flowId: "create" });
       if (error.code === "23505") {
-        return NextResponse.json(
-          { error: "A section with this slug already exists" },
-          { status: 409 }
-        );
+        return apiError("CONFLICT", "A section with this slug already exists", 409);
       }
-      return NextResponse.json({ error: "Failed to create section" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to create section", 500);
     }
 
     return NextResponse.json(
@@ -218,6 +213,6 @@ export async function POST(request: Request) {
     );
   } catch (error) {
     logger.exception(error, { api: "admin/sections", flowId: "create" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }

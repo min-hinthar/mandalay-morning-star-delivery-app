@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 import { z } from "zod";
 import type { MenuItemsRow } from "@/types/database";
@@ -34,7 +35,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const { id } = await params;
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -54,7 +55,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
     if (sectionError) {
       if (sectionError.code === "PGRST116") {
-        return NextResponse.json({ error: "Section not found" }, { status: 404 });
+        return apiError("NOT_FOUND", "Section not found", 404);
       }
       throw sectionError;
     }
@@ -83,7 +84,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
     if (error) {
       logger.exception(error, { api: "admin/sections/[id]/items", flowId: "fetch" });
-      return NextResponse.json({ error: "Failed to fetch items" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to fetch items", 500);
     }
 
     const transformed = items.map((item) => ({
@@ -101,7 +102,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json(transformed);
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]/items", flowId: "fetch" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
 
@@ -110,7 +111,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const { id } = await params;
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -125,10 +126,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const parsed = addItemsSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid data", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+      return apiError("VALIDATION_ERROR", "Invalid data", 400, parsed.error.flatten());
     }
 
     // Check section exists
@@ -140,7 +138,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     if (sectionError) {
       if (sectionError.code === "PGRST116") {
-        return NextResponse.json({ error: "Section not found" }, { status: 404 });
+        return apiError("NOT_FOUND", "Section not found", 404);
       }
       throw sectionError;
     }
@@ -185,7 +183,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       }));
 
     if (itemsToInsert.length === 0) {
-      return NextResponse.json({ error: "No valid items to add" }, { status: 400 });
+      return apiError("BAD_REQUEST", "No valid items to add", 400);
     }
 
     const { error: insertError } = await auth.supabase
@@ -194,7 +192,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     if (insertError) {
       logger.exception(insertError, { api: "admin/sections/[id]/items", flowId: "add" });
-      return NextResponse.json({ error: "Failed to add items" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to add items", 500);
     }
 
     // Update section updated_at
@@ -245,7 +243,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json(transformed, { status: 201 });
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]/items", flowId: "add" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
 
@@ -254,7 +252,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     const { id } = await params;
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -269,7 +267,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     const itemId = searchParams.get("itemId");
 
     if (!itemId) {
-      return NextResponse.json({ error: "itemId query parameter required" }, { status: 400 });
+      return apiError("BAD_REQUEST", "itemId query parameter required", 400);
     }
 
     const { error } = await auth.supabase
@@ -280,7 +278,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
 
     if (error) {
       logger.exception(error, { api: "admin/sections/[id]/items", flowId: "remove" });
-      return NextResponse.json({ error: "Failed to remove item" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to remove item", 500);
     }
 
     // Update section updated_at
@@ -295,7 +293,7 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]/items", flowId: "remove" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
 
@@ -304,7 +302,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { id } = await params;
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -319,10 +317,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const parsed = reorderItemsSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid data", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+      return apiError("VALIDATION_ERROR", "Invalid data", 400, parsed.error.flatten());
     }
 
     // Update sort_order for each item
@@ -348,6 +343,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     return NextResponse.json({ success: true });
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]/items", flowId: "reorder" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
