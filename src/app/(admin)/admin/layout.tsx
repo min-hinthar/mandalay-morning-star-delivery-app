@@ -33,7 +33,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   if (profileError || !profile || profile.role !== "admin") {
     // Not authorized — silently redirect to user's own dashboard (no error param)
     const serviceSupabase = createServiceClient();
-    const result = await getRoleDashboard(serviceSupabase, user.id);
+    const result = await getRoleDashboard(serviceSupabase, user.id, user.email);
     redirect(result.path);
   }
 

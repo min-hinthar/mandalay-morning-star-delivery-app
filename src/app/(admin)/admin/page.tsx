@@ -162,7 +162,7 @@ export default async function AdminDashboardPage() {
       status,
       total_cents,
       placed_at,
-      profiles (
+      profiles!orders_user_id_fkey (
         full_name,
         email
       )

@@ -1,9 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { checkCoverage } from "@/lib/services/coverage";
 import { geocodeAddress } from "@/lib/services/geocoding";
 import { addressFormSchema, type AddressFormValues } from "@/lib/validations/address";
 import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
+import { ensureProfile } from "@/lib/auth/role-redirect";
 import { transformAddress, type AddressRow } from "./transform";
 import { logger } from "@/lib/utils/logger";
 
@@ -111,6 +112,45 @@ export async function POST(request: NextRequest) {
         },
         { status: 400 }
       );
+    }
+
+    // Belt-and-suspenders: ensure profile exists before FK-dependent insert.
+    // Handles edge case where DB trigger or auth-callback self-healing missed.
+    // Strategy: service client upsert (bypasses RLS) -> user client insert (with RLS policy).
+    try {
+      await ensureProfile(createServiceClient(), user.id, user.email);
+    } catch (serviceErr) {
+      logger.warn("ensureProfile via service client failed, trying user client", {
+        api: "addresses",
+        userId: user.id,
+        error: serviceErr instanceof Error ? serviceErr.message : String(serviceErr),
+      });
+
+      // Fallback: use the user's own authenticated client (requires profiles_insert_own RLS policy)
+      const { error: userInsertErr } = await supabase
+        .from("profiles")
+        .upsert(
+          { id: user.id, email: user.email ?? null, role: "customer" as const },
+          { onConflict: "id", ignoreDuplicates: true }
+        );
+
+      if (userInsertErr) {
+        logger.error("Profile creation failed via both service and user clients", {
+          api: "addresses",
+          userId: user.id,
+          serviceError: serviceErr instanceof Error ? serviceErr.message : String(serviceErr),
+          userError: userInsertErr.message,
+        });
+        return NextResponse.json(
+          {
+            error: {
+              code: "PROFILE_ERROR",
+              message: "Unable to set up your account. Please sign out and sign in again.",
+            },
+          },
+          { status: 500 }
+        );
+      }
     }
 
     const { count } = await supabase

@@ -46,6 +46,10 @@ export function createPublicClient() {
 /**
  * Service role client for server-side operations that need to bypass RLS.
  * Use only in trusted server contexts (webhooks, cron jobs, admin APIs).
+ *
+ * Auth is configured for server-side use: no session persistence, no token
+ * refresh, no URL detection. This prevents the service client from
+ * interfering with browser-only auth mechanisms in a Node environment.
  */
 export function createServiceClient() {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -53,8 +57,13 @@ export function createServiceClient() {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
   }
   return createPublicSupabaseClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false,
+      detectSessionInUrl: false,
+    },
     global: {
-      fetch: (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(5000) }),
+      fetch: (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(8000) }),
     },
   });
 }

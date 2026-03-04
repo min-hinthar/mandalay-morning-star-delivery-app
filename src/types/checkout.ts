@@ -70,4 +70,5 @@ export type CheckoutErrorCode =
   | "RATE_LIMITED"
   | "VALIDATION_ERROR"
   | "STRIPE_ERROR"
+  | "PROFILE_ERROR"
   | "INTERNAL_ERROR";
