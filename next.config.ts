@@ -121,9 +121,10 @@ const nextConfig: NextConfig = {
   // Enable React strict mode for better debugging
   reactStrictMode: true,
 
-  // React Compiler auto-memoizes all client components
-  // Eliminates unnecessary re-renders without manual useMemo/useCallback
-  reactCompiler: true,
+  // React Compiler — DISABLED: causes SSR hang with Turbopack in Next.js 16.
+  // Babel-based transforms produce infinite loops during server-side rendering.
+  // Re-enable after verifying SSR stability with future React Compiler updates.
+  // reactCompiler: true,
 
   // Compress responses
   compress: true,
@@ -204,23 +205,10 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // Modular imports for better tree-shaking
-  modularizeImports: {
-    "lucide-react": {
-      transform: "lucide-react/dist/esm/icons/{{ kebabCase member }}",
-    },
-  },
+  // modularizeImports removed — lucide-react already in optimizePackageImports.
+  // Duplicate webpack/Turbopack transforms conflict in Next.js 16.
 
-  // Compiler optimizations
-  compiler: {
-    // Remove console logs in production
-    removeConsole:
-      process.env.NODE_ENV === "production"
-        ? {
-            exclude: ["error", "warn"],
-          }
-        : false,
-  },
+  // compiler.removeConsole removed — SWC option unsupported by Turbopack.
 
   // Headers for CSP, security, caching, and CORS
   async headers() {
