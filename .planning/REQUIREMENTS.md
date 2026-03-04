@@ -91,8 +91,8 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [ ] **TST-03**: RLS policy multi-user edge case tests
 - [x] **TST-04**: Cutoff boundary tests including DST transitions
 - [x] **TST-05**: Refund calculation rounding/ceiling tests
-- [ ] **TST-06**: Full Saturday dry run — 20 test orders through lifecycle (requires: test Stripe keys, test users, test addresses setup)
-- [ ] **TST-07**: Load test — 50 concurrent checkout submissions via k6 or Artillery
+- [x] **TST-06**: Full Saturday dry run — 20 test orders through lifecycle (requires: test Stripe keys, test users, test addresses setup)
+- [x] **TST-07**: Load test — 50 concurrent checkout submissions via k6 or Artillery
 
 ### Pre-Launch Checklist
 
@@ -248,8 +248,8 @@ Explicitly excluded. Documented to prevent scope creep.
 | TST-03 | Phase 95 | Pending |
 | TST-04 | Phase 95 | Complete |
 | TST-05 | Phase 95 | Complete |
-| TST-06 | Phase 95 | Pending |
-| TST-07 | Phase 95 | Pending |
+| TST-06 | Phase 95 | Complete |
+| TST-07 | Phase 95 | Complete |
 | LAUNCH-01 | Phase 95 | Pending |
 | LAUNCH-02 | Phase 95 | Pending |
 | LAUNCH-03 | Phase 95 | Pending |
