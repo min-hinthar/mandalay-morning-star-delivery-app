@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { stripe } from "@/lib/stripe/server";
 import { createServiceClient } from "@/lib/supabase/server";
+import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, webhookLimiter, getClientIp } from "@/lib/rate-limit";
 import type Stripe from "stripe";
@@ -29,7 +30,7 @@ export async function POST(request: Request) {
       api: "stripe-webhook",
       flowId: "webhook",
     });
-    return NextResponse.json({ error: "Webhook secret not configured" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Webhook secret not configured", 500);
   }
 
   // Get the raw body for signature verification
@@ -39,7 +40,7 @@ export async function POST(request: Request) {
 
   if (!signature) {
     logger.error("Missing Stripe signature header", { api: "stripe-webhook", flowId: "webhook" });
-    return NextResponse.json({ error: "Missing signature" }, { status: 400 });
+    return apiError("BAD_REQUEST", "Missing signature", 400);
   }
 
   let event: Stripe.Event;
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
   } catch (err) {
     logger.exception(err, { api: "stripe-webhook", flowId: "webhook" });
     const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json({ error: `Webhook Error: ${message}` }, { status: 400 });
+    return apiError("BAD_REQUEST", `Webhook Error: ${message}`, 400);
   }
 
   // Use service role client to bypass RLS (webhook has no user context)

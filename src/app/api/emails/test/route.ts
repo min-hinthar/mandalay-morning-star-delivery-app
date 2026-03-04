@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { getResendClient, EMAIL_FROM, buildEmailElement } from "@/lib/email";
 import type { EmailType } from "@/lib/email";
+import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 import {
   SAMPLE_ORDER_CONFIRMATION,
@@ -28,7 +29,7 @@ export async function POST(request: Request) {
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const body = await request.json();
@@ -39,14 +40,15 @@ export async function POST(request: Request) {
 
     // Validate input
     if (!emailType || !VALID_EMAIL_TYPES.includes(emailType as EmailType)) {
-      return NextResponse.json(
-        { error: `Invalid emailType. Valid: ${VALID_EMAIL_TYPES.join(", ")}` },
-        { status: 400 }
+      return apiError(
+        "VALIDATION_ERROR",
+        `Invalid emailType. Valid: ${VALID_EMAIL_TYPES.join(", ")}`,
+        400
       );
     }
 
     if (!recipientEmail || typeof recipientEmail !== "string" || !recipientEmail.includes("@")) {
-      return NextResponse.json({ error: "Valid recipientEmail is required" }, { status: 400 });
+      return apiError("VALIDATION_ERROR", "Valid recipientEmail is required", 400);
     }
 
     const type = emailType as EmailType;
@@ -74,7 +76,7 @@ export async function POST(request: Request) {
         emailType: type,
         error: error.message,
       });
-      return NextResponse.json({ error: error.message }, { status: 500 });
+      return apiError("INTERNAL_ERROR", error.message, 500);
     }
 
     logger.info("Test email sent", {
@@ -90,7 +92,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     logger.exception(error, { api: "emails/test" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
 

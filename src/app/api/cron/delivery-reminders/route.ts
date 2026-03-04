@@ -11,6 +11,7 @@ import { NextResponse } from "next/server";
 import { DeliveryReminder } from "@/emails/DeliveryReminder";
 import { sendEmail } from "@/lib/email/send";
 import { createServiceClient } from "@/lib/supabase/server";
+import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 
 const CRON_SECRET = process.env.CRON_SECRET;
@@ -42,7 +43,7 @@ function isAuthorized(request: Request): boolean {
 
 export async function GET(request: Request) {
   if (!isAuthorized(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError("UNAUTHORIZED", "Unauthorized", 401);
   }
 
   const supabase = createServiceClient();
@@ -85,7 +86,7 @@ export async function GET(request: Request) {
       api: "cron",
     });
     logger.exception(ordersError, { flowId: FLOW_ID, api: "cron" });
-    return NextResponse.json({ error: "Failed to query orders" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Failed to query orders", 500);
   }
 
   if (!orders || orders.length === 0) {
