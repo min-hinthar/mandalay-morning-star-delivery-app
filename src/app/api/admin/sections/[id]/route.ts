@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 import type { FeaturedSectionsRow } from "@/types/database";
 import type { SectionWithItems, SectionWithItemIds } from "./types";
@@ -12,7 +13,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const { id } = await params;
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -51,9 +52,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     if (error) {
       logger.exception(error, { api: "admin/sections/[id]", flowId: "fetch" });
       if (error.code === "PGRST116") {
-        return NextResponse.json({ error: "Section not found" }, { status: 404 });
+        return apiError("NOT_FOUND", "Section not found", 404);
       }
-      return NextResponse.json({ error: "Failed to fetch section" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to fetch section", 500);
     }
 
     return NextResponse.json({
@@ -75,7 +76,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     });
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]", flowId: "fetch" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
 
@@ -84,7 +85,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { id } = await params;
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -99,10 +100,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const parsed = updateSectionSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid data", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+      return apiError("VALIDATION_ERROR", "Invalid data", 400, parsed.error.flatten());
     }
 
     // Check if section exists
@@ -114,7 +112,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     if (existingError) {
       if (existingError.code === "PGRST116") {
-        return NextResponse.json({ error: "Section not found" }, { status: 404 });
+        return apiError("NOT_FOUND", "Section not found", 404);
       }
       throw existingError;
     }
@@ -148,13 +146,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     if (error) {
       logger.exception(error, { api: "admin/sections/[id]", flowId: "update" });
-      return NextResponse.json({ error: "Failed to update section" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to update section", 500);
     }
 
     return NextResponse.json(transformSectionResponse(section));
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]", flowId: "update" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
 
@@ -163,7 +161,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     const { id } = await params;
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -183,7 +181,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
     if (checkError) {
       if (checkError.code === "PGRST116") {
-        return NextResponse.json({ error: "Section not found" }, { status: 404 });
+        return apiError("NOT_FOUND", "Section not found", 404);
       }
       throw checkError;
     }
@@ -201,7 +199,7 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
       if (error) {
         logger.exception(error, { api: "admin/sections/[id]", flowId: "hide-predefined" });
-        return NextResponse.json({ error: "Failed to hide section" }, { status: 500 });
+        return apiError("INTERNAL_ERROR", "Failed to hide section", 500);
       }
 
       return NextResponse.json({ success: true, action: "hidden" });
@@ -219,13 +217,13 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 
     if (error) {
       logger.exception(error, { api: "admin/sections/[id]", flowId: "soft-delete" });
-      return NextResponse.json({ error: "Failed to delete section" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to delete section", 500);
     }
 
     return NextResponse.json({ success: true, action: "deleted" });
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]", flowId: "delete" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
 
@@ -234,7 +232,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const { id } = await params;
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -249,10 +247,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const parsed = actionSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid action", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+      return apiError("VALIDATION_ERROR", "Invalid action", 400, parsed.error.flatten());
     }
 
     const { action } = parsed.data;
@@ -275,9 +270,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       if (error) {
         logger.exception(error, { api: "admin/sections/[id]", flowId: "restore" });
         if (error.code === "PGRST116") {
-          return NextResponse.json({ error: "Section not found or not deleted" }, { status: 404 });
+          return apiError("NOT_FOUND", "Section not found or not deleted", 404);
         }
-        return NextResponse.json({ error: "Failed to restore section" }, { status: 500 });
+        return apiError("INTERNAL_ERROR", "Failed to restore section", 500);
       }
 
       return NextResponse.json(transformSectionResponse(section));
@@ -302,7 +297,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
       if (fetchError) {
         if (fetchError.code === "PGRST116") {
-          return NextResponse.json({ error: "Section not found" }, { status: 404 });
+          return apiError("NOT_FOUND", "Section not found", 404);
         }
         throw fetchError;
       }
@@ -356,7 +351,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
       if (createError) {
         logger.exception(createError, { api: "admin/sections/[id]", flowId: "duplicate" });
-        return NextResponse.json({ error: "Failed to duplicate section" }, { status: 500 });
+        return apiError("INTERNAL_ERROR", "Failed to duplicate section", 500);
       }
 
       // Copy items to new section
@@ -382,9 +377,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json(transformSectionResponse(newSection), { status: 201 });
     }
 
-    return NextResponse.json({ error: "Unknown action" }, { status: 400 });
+    return apiError("BAD_REQUEST", "Unknown action", 400);
   } catch (error) {
     logger.exception(error, { api: "admin/sections/[id]", flowId: "action" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
