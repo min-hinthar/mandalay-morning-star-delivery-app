@@ -193,7 +193,14 @@ Plans:
   5. Full Saturday dry run completes successfully (20 test orders through entire lifecycle) and load test handles 50 concurrent checkout submissions
   6. All pre-launch infrastructure provisioned: production Supabase, Stripe live keys, Resend domain, Redis, DNS/SSL verified
   7. Admin trained on ops dashboard and driver(s) completed test deliveries
-**Plans**: TBD
+**Plans**: 6 plans
+Plans:
+- [ ] 95-01-PLAN.md — Timezone env var, image preload verify, webhook logging audit (Wave 1)
+- [ ] 95-02-PLAN.md — API error standardization for admin/orders, admin/sections, webhooks (Wave 1)
+- [ ] 95-03-PLAN.md — Cart race condition, DST cutoff boundary, refund rounding tests (Wave 1)
+- [ ] 95-04-PLAN.md — Stripe webhook failure tests, RLS multi-user edge case tests (Wave 1)
+- [ ] 95-05-PLAN.md — Saturday dry run script, k6 load test script (Wave 1)
+- [ ] 95-06-PLAN.md — Launch checklist, validation script, bundle audit (Wave 2)
 
 ## Progress
 
