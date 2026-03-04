@@ -31,23 +31,19 @@ export async function POST(request: Request, { params }: RouteParams) {
   });
   if (rl.limited) return rl.response;
 
-  // Parse body
-  let sessionId: string;
+  // Parse body — sessionId is optional (falls back to stored session ID)
+  let sessionId: string | undefined;
   try {
     const body = await request.json();
     sessionId = body.sessionId;
   } catch {
-    return apiError("BAD_REQUEST", "Invalid request body", 400);
+    // Empty body is OK — we'll fall back to stored session ID
   }
 
-  if (!sessionId || typeof sessionId !== "string") {
-    return apiError("VALIDATION_ERROR", "sessionId is required", 422);
-  }
-
-  // Verify order ownership
+  // Verify order ownership (include stripe_checkout_session_id for fallback)
   const { data: order, error: fetchError } = await supabase
     .from("orders")
-    .select("id, status, user_id")
+    .select("id, status, user_id, stripe_checkout_session_id")
     .eq("id", orderId)
     .eq("user_id", user.id)
     .single();
@@ -61,14 +57,20 @@ export async function POST(request: Request, { params }: RouteParams) {
     return NextResponse.json({ status: order.status });
   }
 
+  // Resolve session ID: request body → stored on order
+  const resolvedSessionId = sessionId || order.stripe_checkout_session_id;
+  if (!resolvedSessionId || typeof resolvedSessionId !== "string") {
+    return apiError("VALIDATION_ERROR", "No checkout session available for verification", 422);
+  }
+
   // Verify with Stripe
   let session;
   try {
-    session = await stripe.checkout.sessions.retrieve(sessionId);
+    session = await stripe.checkout.sessions.retrieve(resolvedSessionId);
   } catch (err) {
     logger.exception(err, {
       orderId,
-      sessionId,
+      sessionId: resolvedSessionId,
       api: "verify-payment",
       flowId: "checkout",
     });
@@ -121,7 +123,7 @@ export async function POST(request: Request, { params }: RouteParams) {
 
   logger.info(`Order ${orderId} confirmed via verify-payment fallback`, {
     orderId,
-    sessionId,
+    sessionId: resolvedSessionId,
     api: "verify-payment",
     flowId: "checkout",
   });

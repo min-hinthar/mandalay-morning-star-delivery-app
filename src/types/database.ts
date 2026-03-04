@@ -311,6 +311,7 @@ export interface OrdersRow {
   delivery_window_end: string | null;
   special_instructions: string | null;
   stripe_payment_intent_id: string | null;
+  stripe_checkout_session_id: string | null;
   is_priority: boolean;
   rating_dismissed: boolean;
   share_token: string | null;
@@ -340,6 +341,7 @@ export interface OrdersInsert {
   delivery_window_end?: string | null;
   special_instructions?: string | null;
   stripe_payment_intent_id?: string | null;
+  stripe_checkout_session_id?: string | null;
   is_priority?: boolean;
   rating_dismissed?: boolean;
   share_token?: string | null;
@@ -369,6 +371,7 @@ export interface OrdersUpdate {
   delivery_window_end?: string | null;
   special_instructions?: string | null;
   stripe_payment_intent_id?: string | null;
+  stripe_checkout_session_id?: string | null;
   is_priority?: boolean;
   rating_dismissed?: boolean;
   share_token?: string | null;

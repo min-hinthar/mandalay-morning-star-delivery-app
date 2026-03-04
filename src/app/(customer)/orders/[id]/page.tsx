@@ -1,7 +1,8 @@
 import { redirect, notFound } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, MapPin, Clock, Package } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { stripe } from "@/lib/stripe/server";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -30,6 +31,7 @@ interface OrderQueryResult {
   delivery_window_end: string | null;
   special_instructions: string | null;
   stripe_payment_intent_id: string | null;
+  stripe_checkout_session_id: string | null;
   tip_cents: number;
   promo_code: string | null;
   discount_cents: number;
@@ -121,6 +123,43 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
   if (orderError || !orderData) {
     notFound();
+  }
+
+  // Self-healing: if order is pending and has a checkout session, verify with Stripe
+  if (orderData.status === "pending" && orderData.stripe_checkout_session_id) {
+    try {
+      const stripeSession = await stripe.checkout.sessions.retrieve(
+        orderData.stripe_checkout_session_id
+      );
+      if (stripeSession.payment_status === "paid") {
+        const rawPI = stripeSession.payment_intent;
+        const piId =
+          typeof rawPI === "string"
+            ? rawPI
+            : typeof rawPI === "object" && rawPI !== null
+              ? rawPI.id
+              : null;
+
+        const svc = createServiceClient();
+        const { error: healError } = await svc
+          .from("orders")
+          .update({
+            status: "confirmed" as const,
+            stripe_payment_intent_id: piId ?? `session_${stripeSession.id}`,
+            confirmed_at: new Date().toISOString(),
+          })
+          .eq("id", orderId)
+          .eq("status", "pending");
+
+        if (!healError) {
+          orderData.status = "confirmed";
+          orderData.confirmed_at = new Date().toISOString();
+          orderData.stripe_payment_intent_id = piId ?? `session_${stripeSession.id}`;
+        }
+      }
+    } catch {
+      // Stripe unavailable — render with current status, no crash
+    }
   }
 
   // Transform the data to match our Order type

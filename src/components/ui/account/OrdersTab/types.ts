@@ -33,7 +33,7 @@ export interface ReorderWarning {
 }
 
 export const STATUS_LABELS: Record<OrderStatus, string> = {
-  pending: "Pending Payment",
+  pending: "Processing",
   confirmed: "Confirmed",
   preparing: "Preparing",
   out_for_delivery: "Out for Delivery",
