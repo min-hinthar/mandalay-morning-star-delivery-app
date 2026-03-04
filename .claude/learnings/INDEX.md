@@ -11,11 +11,12 @@ Consolidated knowledge from working on this codebase. Scan this file first, then
 | Next.js          | `nextjs.md`           | Route groups not in URL; NEXT_REDIRECT uncatchable; Image aspect ratio; revalidatePath defaults to "page" (use "layout" for context/nav data); **always `next/image` for external URLs in PWAs (proxy avoids opaque response caching)** | 2026-03-03   |
 | Design Tokens    | `design-tokens.md`    | Semantic token naming; contrast ratios; CSS vars for inline styles; fallback code auditing; non-existent token → transparent                               | 2026-02-16   |
 | State Management | `state-management.md` | Single mutation owner; cart deduplication; store-level debounce                                                                                            | 2026-01-29   |
-| Supabase Auth    | `supabase-auth.md`    | generateLink vs inviteUserByEmail; RLS JWT claims; metadata staleness; NEVER use action_link; idempotent migration DROP+CREATE; initplan wrappers; storage.objects ownership | 2026-02-19   |
-| Testing          | `testing.md`          | E2E DOM removal for AnimatePresence; cmdk state binding; **stale tests after validation rule changes**                                                      | 2026-03-03   |
+| Supabase Auth    | `supabase-auth.md`    | generateLink vs inviteUserByEmail; RLS JWT claims; metadata staleness; NEVER use action_link; idempotent migration DROP+CREATE; initplan wrappers; storage.objects ownership; **service client `auth.getUser()` returns null — use `admin.getUserById()`** | 2026-03-04   |
+| Testing          | `testing.md`          | E2E DOM removal for AnimatePresence; cmdk state binding; **stale tests after validation rule changes**; **Supabase fluent chain mocks must match exact query shape** | 2026-03-04   |
 | Tooling          | `tooling.md`          | Git case rename; barrel cleanup; ESLint guards; .prettierignore non-source dirs; CI format:check + --max-warnings 0; **OneDrive + multi-terminal freeze fix**; **GH Actions permissions allowlist** | 2026-02-28   |
 | Performance      | `performance.md`      | Lazy load below-fold; IntersectionObserver pause; willChange on interaction; tree-shaking                                                                  | 2026-01-29   |
 | Data Schema      | `data-schema.md`      | Allergen single source (contains_* removed Phase 90); Fuse.js tuning for menu dataset; **PostgREST ambiguous FK hints required for multi-FK tables**; **IMMUTABLE wrapper for timestamptz index expressions**; **modifier_options slug prefixed with group slug (`__` separator)** | 2026-03-03   |
+| Stripe           | `stripe.md`           | **Webhook: never return 200 on DB errors (Stripe won't retry)**; **`.update()` needs `.select("id")` for row count**; **client-side verify-payment fallback** | 2026-03-04   |
 
 ## Usage
 
