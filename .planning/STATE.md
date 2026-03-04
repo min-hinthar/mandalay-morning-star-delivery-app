@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Production-Grade Launch MVP
 status: active
-stopped_at: Completed 95-06-PLAN.md
-last_updated: "2026-03-04T07:05:00Z"
-last_activity: 2026-03-04 — Webhook & RLS edge case tests
+stopped_at: Completed 95-04-PLAN.md
+last_updated: "2026-03-04T07:18:00Z"
+last_activity: 2026-03-04 — Frontend error consumer update
 progress:
   total_phases: 9
   completed_phases: 6
   total_plans: 29
-  completed_plans: 27
-  percent: 93
+  completed_plans: 28
+  percent: 96
 ---
 
 # Project State
@@ -28,9 +28,9 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 Phase: 95 of 95 (Observability, Performance, Testing & Launch Prep)
 Plan: 8/8 completed
 Status: Executing Phase 95
-Last activity: 2026-03-04 — Webhook & RLS edge case tests
+Last activity: 2026-03-04 — Frontend error consumer update
 
-Progress: [█████████░] 93% (27/29 plans)
+Progress: [█████████░] 96% (28/29 plans)
 
 ## Performance Metrics
 
@@ -73,6 +73,7 @@ Progress: [█████████░] 93% (27/29 plans)
 | Phase 95 P02 | 8min | 2 tasks | 10 files |
 | Phase 95 P03 | 9min | 2 tasks | 11 files |
 | Phase 95 P06 | 9min | 2 tasks | 2 files |
+| Phase 95 P04 | 8min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -138,6 +139,8 @@ Progress: [█████████░] 93% (27/29 plans)
 - Webhook tests call actual POST handler with mocked dependencies (not trivial assertion-only)
 - RLS tests mock Supabase client responses to simulate RLS filtering behavior
 - Error response format is object {code, message} due to middleware transformation
+- Frontend error consumers use extractErrorMessage(data, fallback) for backward-compatible error display
+- Other admin pages (categories, drivers, menu, etc.) still use .error || pattern -- different APIs not changed by 95-02/03
 
 ### Phase 90 Decisions
 - Server-side sharp for WebP conversion (not client-side Canvas) — consistent output across devices
@@ -172,7 +175,7 @@ Progress: [█████████░] 93% (27/29 plans)
 
 ## Session Continuity
 
-Last session: 2026-03-04T07:05:00Z
-Stopped at: Completed 95-06-PLAN.md
+Last session: 2026-03-04T07:18:00Z
+Stopped at: Completed 95-04-PLAN.md
 Resume file: None
 Next action: Execute next pending plan in Phase 95
