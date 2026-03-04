@@ -44,14 +44,6 @@ export interface CreateCheckoutSessionRequest {
   deliveryInstructions?: string;
 }
 
-export interface PriceDrift {
-  menuItemId: string;
-  itemName: string;
-  oldPriceCents: number;
-  newPriceCents: number;
-  modifierName?: string;
-}
-
 export interface CreateCheckoutSessionResponse {
   data: {
     sessionUrl: string;
@@ -74,7 +66,6 @@ export type CheckoutErrorCode =
   | "ADDRESS_INVALID"
   | "OUT_OF_COVERAGE"
   | "CUTOFF_PASSED"
-  | "PRICE_CHANGED"
   | "DUPLICATE_ORDER"
   | "RATE_LIMITED"
   | "VALIDATION_ERROR"

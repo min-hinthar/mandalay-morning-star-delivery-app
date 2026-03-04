@@ -10,8 +10,12 @@ interface OrderRow {
   subtotal_cents: number;
   delivery_fee_cents: number;
   tax_cents: number;
+  tip_cents: number;
+  promo_code: string | null;
+  discount_cents: number;
   total_cents: number;
   special_instructions: string | null;
+  delivery_instructions: string | null;
   placed_at: string;
   confirmed_at: string | null;
   delivered_at: string | null;
@@ -99,8 +103,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         subtotal_cents,
         delivery_fee_cents,
         tax_cents,
+        tip_cents,
+        promo_code,
+        discount_cents,
         total_cents,
         special_instructions,
+        delivery_instructions,
         placed_at,
         confirmed_at,
         delivered_at,
@@ -246,9 +254,12 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       subtotalCents: order.subtotal_cents,
       deliveryFeeCents: order.delivery_fee_cents,
       taxCents: order.tax_cents,
+      tipCents: order.tip_cents,
+      promoCode: order.promo_code,
+      discountCents: order.discount_cents,
       totalCents: order.total_cents,
-      discountCents: 0,
       specialInstructions: order.special_instructions,
+      deliveryInstructions: order.delivery_instructions,
       placedAt: order.placed_at,
       confirmedAt: order.confirmed_at,
       deliveredAt: order.delivered_at,
