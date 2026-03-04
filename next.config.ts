@@ -1,5 +1,5 @@
 import type { NextConfig } from "next";
-// import { withSentryConfig } from "@sentry/nextjs";
+import { withSentryConfig } from "@sentry/nextjs";
 import bundleAnalyzer from "@next/bundle-analyzer";
 import { readFileSync } from "fs";
 
@@ -121,10 +121,9 @@ const nextConfig: NextConfig = {
   // Enable React strict mode for better debugging
   reactStrictMode: true,
 
-  // React Compiler — DISABLED: Babel-based transform causes SSR hangs
-  // in Turbopack (Next.js 16 default bundler). Known to produce infinite loops
-  // during server-side rendering. Re-enable only after confirming SSR stability.
-  // reactCompiler: true,
+  // React Compiler auto-memoizes all client components
+  // Eliminates unnecessary re-renders without manual useMemo/useCallback
+  reactCompiler: true,
 
   // Compress responses
   compress: true,
@@ -205,14 +204,23 @@ const nextConfig: NextConfig = {
     },
   },
 
-  // modularizeImports — REMOVED: lucide-react is already in optimizePackageImports.
-  // Having both modularizeImports (webpack) and optimizePackageImports (Turbopack)
-  // for the same package causes conflicts in Next.js 16's default Turbopack bundler.
+  // Modular imports for better tree-shaking
+  modularizeImports: {
+    "lucide-react": {
+      transform: "lucide-react/dist/esm/icons/{{ kebabCase member }}",
+    },
+  },
 
-  // compiler.removeConsole — REMOVED: Unsupported by Turbopack.
-  // The SWC compiler options are webpack-specific and cause undefined behavior
-  // when Turbopack is the bundler. Console stripping can be handled via
-  // a custom Turbopack plugin or build-time transform if needed.
+  // Compiler optimizations
+  compiler: {
+    // Remove console logs in production
+    removeConsole:
+      process.env.NODE_ENV === "production"
+        ? {
+            exclude: ["error", "warn"],
+          }
+        : false,
+  },
 
   // Headers for CSP, security, caching, and CORS
   async headers() {
@@ -251,5 +259,22 @@ const nextConfig: NextConfig = {
   },
 };
 
-// Chain configs: bundleAnalyzer (Sentry disabled for debugging SSR hang)
-export default withBundleAnalyzer(nextConfig);
+// Chain configs: bundleAnalyzer -> Sentry
+export default withBundleAnalyzer(
+  withSentryConfig(nextConfig, {
+    org: "mandalay-morning-star",
+    project: "mandalay-morning-star-delivery-app",
+
+    // Auth token for source maps upload
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+
+    // Only print logs in CI
+    silent: !process.env.CI,
+
+    // Upload a larger set of source maps for prettier stack traces
+    widenClientFileUpload: true,
+
+    // Route Sentry requests through Next.js to bypass ad blockers
+    tunnelRoute: "/monitoring",
+  })
+);
