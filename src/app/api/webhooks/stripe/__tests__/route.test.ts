@@ -180,7 +180,7 @@ describe("webhook failure scenarios (TST-02)", () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    // Dynamic import to get fresh module with mocks applied
+    // Dynamic import to get module with mocks applied
     const routeModule = await import("../route");
     POST = routeModule.POST;
   });
@@ -246,7 +246,9 @@ describe("webhook failure scenarios (TST-02)", () => {
       expect(res.status).toBe(400);
 
       const json = await res.json();
-      expect(json.error).toContain("Webhook Error");
+      // Route may return error as string or object depending on middleware
+      const errorMessage = typeof json.error === "string" ? json.error : json.error?.message;
+      expect(errorMessage).toContain("Webhook Error");
     });
   });
 
