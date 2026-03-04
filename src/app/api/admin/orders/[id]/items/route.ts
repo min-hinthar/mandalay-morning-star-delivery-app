@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
+import { apiError } from "@/lib/utils/api-error";
 import type { Json, OrderStatus } from "@/types/database";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
@@ -52,7 +53,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -69,10 +70,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const parsed = updateItemsSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid request", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+      return apiError("VALIDATION_ERROR", "Invalid request", 400, parsed.error.flatten());
     }
 
     const { items, reason } = parsed.data;
@@ -86,15 +84,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       .single();
 
     if (orderError || !order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return apiError("NOT_FOUND", "Order not found", 404);
     }
 
     // Check if order can be edited
     if (NON_EDITABLE_STATUSES.includes(order.status)) {
-      return NextResponse.json(
-        { error: `Cannot edit items for ${order.status} order` },
-        { status: 409 }
-      );
+      return apiError("CONFLICT", `Cannot edit items for ${order.status} order`, 409);
     }
 
     // Fetch order items
@@ -109,29 +104,22 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     if (itemsError) {
       logger.exception(itemsError, { api: "admin/orders/[id]/items" });
-      return NextResponse.json({ error: "Failed to fetch order items" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to fetch order items", 500);
     }
 
     // Validate items belong to this order
     const invalidItems = orderItems?.filter((item) => item.order_id !== orderId) || [];
     if (invalidItems.length > 0) {
-      return NextResponse.json(
-        {
-          error: "Some items do not belong to this order",
-          invalidItemIds: invalidItems.map((i) => i.id),
-        },
-        { status: 400 }
-      );
+      return apiError("BAD_REQUEST", "Some items do not belong to this order", 400, {
+        invalidItemIds: invalidItems.map((i) => i.id),
+      });
     }
 
     // Check for missing items
     const foundIds = new Set(orderItems?.map((i) => i.id) || []);
     const missingIds = itemIds.filter((id) => !foundIds.has(id));
     if (missingIds.length > 0) {
-      return NextResponse.json(
-        { error: "Some items not found", missingItemIds: missingIds },
-        { status: 404 }
-      );
+      return apiError("NOT_FOUND", "Some items not found", 404, { missingItemIds: missingIds });
     }
 
     // Track changes for audit
@@ -166,7 +154,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
             api: "admin/orders/[id]/items",
             orderItemId: orderItem.id,
           });
-          return NextResponse.json({ error: "Failed to remove item" }, { status: 500 });
+          return apiError("INTERNAL_ERROR", "Failed to remove item", 500);
         }
 
         newValues[orderItem.id] = {
@@ -192,7 +180,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
             api: "admin/orders/[id]/items",
             orderItemId: orderItem.id,
           });
-          return NextResponse.json({ error: "Failed to update item" }, { status: 500 });
+          return apiError("INTERNAL_ERROR", "Failed to update item", 500);
         }
 
         newValues[orderItem.id] = {
@@ -224,7 +212,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     if (orderUpdateError) {
       logger.exception(orderUpdateError, { api: "admin/orders/[id]/items" });
-      return NextResponse.json({ error: "Failed to update order total" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to update order total", 500);
     }
 
     // Create audit log entry
@@ -274,6 +262,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/items" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }

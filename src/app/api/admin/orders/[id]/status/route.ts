@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
+import { apiError } from "@/lib/utils/api-error";
 import { sendEmail, buildEmailElement } from "@/lib/email";
 import { OrderCancellation } from "@/emails/OrderCancellation";
 import type { OrderStatus, Json } from "@/types/database";
@@ -51,7 +52,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -68,10 +69,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const parsed = updateStatusSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid status", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+      return apiError("VALIDATION_ERROR", "Invalid status", 400, parsed.error.flatten());
     }
 
     const { status: newStatus, notifyCustomer, reason } = parsed.data;
@@ -85,7 +83,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       .single();
 
     if (orderError || !order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return apiError("NOT_FOUND", "Order not found", 404);
     }
 
     const currentStatus = order.status;
@@ -93,12 +91,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     // Validate status transition
     const validNextStatuses = VALID_TRANSITIONS[currentStatus];
     if (!validNextStatuses.includes(newStatus)) {
-      return NextResponse.json(
-        {
-          error: `Invalid status transition from ${currentStatus} to ${newStatus}`,
-          allowedTransitions: validNextStatuses,
-        },
-        { status: 400 }
+      return apiError(
+        "BAD_REQUEST",
+        `Invalid status transition from ${currentStatus} to ${newStatus}`,
+        400,
+        { allowedTransitions: validNextStatuses }
       );
     }
 
@@ -124,7 +121,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/orders/[id]/status" });
-      return NextResponse.json({ error: "Failed to update order status" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to update order status", 500);
     }
 
     // Create audit log entry
@@ -176,7 +173,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/status", orderId });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
 

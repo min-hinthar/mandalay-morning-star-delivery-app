@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { refundOrderSchema } from "@/lib/validations/order";
 import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
+import { apiError } from "@/lib/utils/api-error";
 import { RefundNotification } from "@/emails/RefundNotification";
 import type { Json } from "@/types/database";
 import { checkRateLimit, refundLimiter } from "@/lib/rate-limit";
@@ -39,7 +40,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -56,10 +57,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const parsed = refundOrderSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid request", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+      return apiError("VALIDATION_ERROR", "Invalid request", 400, parsed.error.flatten());
     }
 
     const { items, refundShipping, notifyCustomer } = parsed.data;
@@ -72,7 +70,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       .single();
 
     if (orderError || !order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return apiError("NOT_FOUND", "Order not found", 404);
     }
 
     // Fetch all requested order items
@@ -85,29 +83,22 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     if (itemsError) {
       logger.exception(itemsError, { api: "admin/orders/[id]/refund" });
-      return NextResponse.json({ error: "Failed to fetch order items" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to fetch order items", 500);
     }
 
     // Validate all items belong to this order
     const invalidItems = orderItems?.filter((item) => item.order_id !== orderId) || [];
     if (invalidItems.length > 0) {
-      return NextResponse.json(
-        {
-          error: "Some items do not belong to this order",
-          invalidItemIds: invalidItems.map((i) => i.id),
-        },
-        { status: 400 }
-      );
+      return apiError("BAD_REQUEST", "Some items do not belong to this order", 400, {
+        invalidItemIds: invalidItems.map((i) => i.id),
+      });
     }
 
     // Check for missing items
     const foundIds = new Set(orderItems?.map((i) => i.id) || []);
     const missingIds = itemIds.filter((id) => !foundIds.has(id));
     if (missingIds.length > 0) {
-      return NextResponse.json(
-        { error: "Some items not found", missingItemIds: missingIds },
-        { status: 404 }
-      );
+      return apiError("NOT_FOUND", "Some items not found", 404, { missingItemIds: missingIds });
     }
 
     // BUG-05 FIX: Calculate refunds FIRST, validate ceiling, THEN apply DB updates.
@@ -127,12 +118,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
       // Validate refund quantity
       if (refundItem.quantity > remainingQuantity) {
-        return NextResponse.json(
-          {
-            error: `Cannot refund ${refundItem.quantity} of "${orderItem.name_snapshot}". Only ${remainingQuantity} remaining.`,
-            orderItemId: refundItem.orderItemId,
-          },
-          { status: 400 }
+        return apiError(
+          "BAD_REQUEST",
+          `Cannot refund ${refundItem.quantity} of "${orderItem.name_snapshot}". Only ${remainingQuantity} remaining.`,
+          400,
+          { orderItemId: refundItem.orderItemId }
         );
       }
 
@@ -163,11 +153,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     // BUG-05 FIX: Validate total refund does not exceed order total
     const orderTotal = order.total_cents ?? 0;
     if (totalRefundCents > orderTotal) {
-      return NextResponse.json(
-        {
-          error: `Refund amount ($${(totalRefundCents / 100).toFixed(2)}) exceeds order total ($${(orderTotal / 100).toFixed(2)})`,
-        },
-        { status: 400 }
+      return apiError(
+        "BAD_REQUEST",
+        `Refund amount ($${(totalRefundCents / 100).toFixed(2)}) exceeds order total ($${(orderTotal / 100).toFixed(2)})`,
+        400
       );
     }
 
@@ -183,7 +172,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           api: "admin/orders/[id]/refund",
           orderItemId: update.orderItemId,
         });
-        return NextResponse.json({ error: "Failed to update order item" }, { status: 500 });
+        return apiError("INTERNAL_ERROR", "Failed to update order item", 500);
       }
     }
 
@@ -285,6 +274,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/refund", orderId });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }

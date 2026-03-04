@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
+import { apiError } from "@/lib/utils/api-error";
 
 /**
  * POST /api/admin/orders/[id]/contact
@@ -16,7 +17,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -40,11 +41,11 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     };
 
     if (orderError || !order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return apiError("NOT_FOUND", "Order not found", 404);
     }
 
     if (!order.needs_contact) {
-      return NextResponse.json({ error: "Order is not flagged for contact" }, { status: 400 });
+      return apiError("BAD_REQUEST", "Order is not flagged for contact", 400);
     }
 
     // Clear the flag and record resolution
@@ -62,7 +63,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/orders/[id]/contact" });
-      return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to update order", 500);
     }
 
     // Log audit entry
@@ -86,6 +87,6 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/contact" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }

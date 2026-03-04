@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
+import { apiError } from "@/lib/utils/api-error";
 import type { OrderStatus, RefundStatus } from "@/types/database";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
@@ -22,7 +23,7 @@ export async function GET(request: Request) {
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -68,7 +69,7 @@ export async function GET(request: Request) {
 
     if (ordersError) {
       logger.exception(ordersError, { api: "admin/orders", flowId: "fetch" });
-      return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to fetch orders", 500);
     }
 
     const total = count ?? 0;
@@ -84,6 +85,6 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders", flowId: "fetch" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }

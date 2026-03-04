@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
+import { apiError } from "@/lib/utils/api-error";
 import type { Json, OrderStatus } from "@/types/database";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
@@ -47,7 +48,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -64,10 +65,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const parsed = assignDriverSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid request", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+      return apiError("VALIDATION_ERROR", "Invalid request", 400, parsed.error.flatten());
     }
 
     const { driverId } = parsed.data;
@@ -81,17 +79,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       .single();
 
     if (orderError || !order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return apiError("NOT_FOUND", "Order not found", 404);
     }
 
     // Check if order is in a status where driver can be assigned
     if (!ASSIGNABLE_STATUSES.includes(order.status) && driverId !== null) {
-      return NextResponse.json(
-        {
-          error: `Cannot assign driver to order with status "${order.status}"`,
-          allowedStatuses: ASSIGNABLE_STATUSES,
-        },
-        { status: 409 }
+      return apiError(
+        "CONFLICT",
+        `Cannot assign driver to order with status "${order.status}"`,
+        409,
+        { allowedStatuses: ASSIGNABLE_STATUSES }
       );
     }
 
@@ -115,11 +112,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         .single();
 
       if (driverError || !driver) {
-        return NextResponse.json({ error: "Driver not found" }, { status: 404 });
+        return apiError("NOT_FOUND", "Driver not found", 404);
       }
 
       if (!driver.is_active) {
-        return NextResponse.json({ error: "Cannot assign inactive driver" }, { status: 400 });
+        return apiError("BAD_REQUEST", "Cannot assign inactive driver", 400);
       }
 
       driverName = driver.profiles?.full_name ?? driver.profiles?.email ?? null;
@@ -158,7 +155,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/orders/[id]/driver" });
-      return NextResponse.json({ error: "Failed to update order" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to update order", 500);
     }
 
     // Create audit log entry
@@ -207,6 +204,6 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/driver" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
