@@ -3,6 +3,21 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Production-Grade Launch MVP
 status: active
+stopped_at: Completed 95-01-PLAN.md
+last_updated: "2026-03-04T07:01:46.779Z"
+last_activity: 2026-03-03 — Post-purchase engagement UI (reorder, rating, share)
+progress:
+  total_phases: 9
+  completed_phases: 6
+  total_plans: 29
+  completed_plans: 23
+---
+
+---
+gsd_state_version: 1.0
+milestone: v2.0
+milestone_name: Production-Grade Launch MVP
+status: active
 stopped_at: Completed 95-05-PLAN.md
 last_updated: "2026-03-04T07:01:14.575Z"
 last_activity: 2026-03-03 — Post-purchase engagement UI (reorder, rating, share)
@@ -136,6 +151,9 @@ Progress: [██████████] 100% (6/7 phases)
 - Refund tests use inline pure functions mirroring route handler logic rather than extracting to shared module
 - DST tests use explicit UTC dates with known offsets rather than mocking Intl.DateTimeFormat
 - Rounding drift documented as known behavior: two separate 1-unit refunds != one 2-unit refund due to Math.round
+- TIMEZONE reads from DELIVERY_TIMEZONE env var with America/Los_Angeles fallback
+- Client components get TIMEZONE inlined at build time (display-only formatting)
+- OBS-05 image preloading and OBS-02 webhook logging already complete -- verification only
 
 ### Phase 90 Decisions
 - Server-side sharp for WebP conversion (not client-side Canvas) — consistent output across devices
@@ -170,7 +188,7 @@ Progress: [██████████] 100% (6/7 phases)
 
 ## Session Continuity
 
-Last session: 2026-03-04T07:00:57.464Z
-Stopped at: Completed 95-05-PLAN.md
+Last session: 2026-03-04T07:01:46.775Z
+Stopped at: Completed 95-01-PLAN.md
 Resume file: None
 Next action: Execute 93-03-PLAN.md (wave 2)
