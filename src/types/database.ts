@@ -314,6 +314,10 @@ export interface OrdersRow {
   is_priority: boolean;
   rating_dismissed: boolean;
   share_token: string | null;
+  tip_cents: number;
+  promo_code: string | null;
+  discount_cents: number;
+  delivery_instructions: string | null;
   placed_at: string;
   confirmed_at: string | null;
   delivered_at: string | null;
@@ -339,6 +343,10 @@ export interface OrdersInsert {
   is_priority?: boolean;
   rating_dismissed?: boolean;
   share_token?: string | null;
+  tip_cents?: number;
+  promo_code?: string | null;
+  discount_cents?: number;
+  delivery_instructions?: string | null;
   placed_at?: string;
   confirmed_at?: string | null;
   delivered_at?: string | null;
@@ -364,6 +372,10 @@ export interface OrdersUpdate {
   is_priority?: boolean;
   rating_dismissed?: boolean;
   share_token?: string | null;
+  tip_cents?: number;
+  promo_code?: string | null;
+  discount_cents?: number;
+  delivery_instructions?: string | null;
   placed_at?: string;
   confirmed_at?: string | null;
   delivered_at?: string | null;

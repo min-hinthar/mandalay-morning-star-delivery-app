@@ -16,6 +16,10 @@ interface OrderQueryResult {
   delivery_window_end: string | null;
   special_instructions: string | null;
   stripe_payment_intent_id: string | null;
+  tip_cents: number;
+  promo_code: string | null;
+  discount_cents: number;
+  delivery_instructions: string | null;
   placed_at: string;
   confirmed_at: string | null;
   delivered_at: string | null;
@@ -151,6 +155,10 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
     deliveryWindowEnd: orderData.delivery_window_end,
     specialInstructions: orderData.special_instructions,
     stripePaymentIntentId: orderData.stripe_payment_intent_id,
+    tipCents: orderData.tip_cents,
+    promoCode: orderData.promo_code,
+    discountCents: orderData.discount_cents,
+    deliveryInstructions: orderData.delivery_instructions,
     placedAt: orderData.placed_at,
     confirmedAt: orderData.confirmed_at,
     deliveredAt: orderData.delivered_at,
