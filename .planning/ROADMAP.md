@@ -216,7 +216,7 @@ Plans:
   2. useReorder.ts passes actual menu item slug (not UUID) for slug-based lookups
   3. Dead updatePricesFromServer code removed from cart-store.ts and 409 handler removed from PaymentStepV8.tsx
   4. CHKT-02 requirement downscoped — server-authoritative pricing (CHKT-01) handles price correctness; client-side auto-refresh deferred
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 96-01-PLAN.md — Wire tip/promo/discount/delivery_instructions to order detail page types and UI
 - [ ] 96-02-PLAN.md — Fix reorder slug bug and remove dead updatePricesFromServer code
@@ -257,7 +257,7 @@ Plans:
 | 93. Customer UX - Engagement & Accessibility | 3/3 | Complete    | 2026-03-03 | - |
 | 94. Admin & Driver Enhancements | 2/2 | Complete    | 2026-03-03 | - |
 | 95. Observability, Performance & Testing | 8/8 | Complete    | 2026-03-04 | - |
-| 96. Integration Wiring & Dead Code Resolution | v2.0 | 0/2 | Not started | - |
+| 96. Integration Wiring & Dead Code Resolution | 1/2 | In Progress|  | - |
 | 97. Phase 89/90 Verification & Traceability | v2.0 | 0/TBD | Not started | - |
 
 ---

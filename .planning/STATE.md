@@ -3,6 +3,36 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Production-Grade Launch MVP
 status: active
+stopped_at: Completed 96-01-PLAN.md
+last_updated: "2026-03-04T07:55:46.236Z"
+last_activity: 2026-03-04 — Checkout data wiring to order detail UI
+progress:
+  total_phases: 9
+  completed_phases: 7
+  total_plans: 31
+  completed_plans: 30
+---
+
+---
+gsd_state_version: 1.0
+milestone: v2.0
+milestone_name: Production-Grade Launch MVP
+status: active
+stopped_at: Completed 96-01-PLAN.md
+last_updated: "2026-03-04T07:54:58.048Z"
+last_activity: 2026-03-04 — Checkout data wiring to order detail UI
+progress:
+  total_phases: 9
+  completed_phases: 7
+  total_plans: 31
+  completed_plans: 30
+---
+
+---
+gsd_state_version: 1.0
+milestone: v2.0
+milestone_name: Production-Grade Launch MVP
+status: active
 stopped_at: Phase 97 context gathered
 last_updated: "2026-03-04T07:50:58.782Z"
 last_activity: 2026-03-04 — Launch checklist and bundle audit
@@ -40,12 +70,12 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 
 ## Current Position
 
-Phase: 95 of 95 (Observability, Performance, Testing & Launch Prep)
-Plan: 8/8 completed
-Status: Phase 95 Complete
-Last activity: 2026-03-04 — Launch checklist and bundle audit
+Phase: 96 of 96 (Integration Wiring & Dead Code)
+Plan: 1/2 completed
+Status: Phase 96 In Progress
+Last activity: 2026-03-04 — Checkout data wiring to order detail UI
 
-Progress: [██████████] 100% (29/29 plans)
+Progress: [██████████] 100% (30/31 plans)
 
 ## Performance Metrics
 
@@ -90,6 +120,7 @@ Progress: [██████████] 100% (29/29 plans)
 | Phase 95 P06 | 9min | 2 tasks | 2 files |
 | Phase 95 P08 | 12min | 3 tasks | 3 files |
 | Phase 95 P04 | 8min | 2 tasks | 10 files |
+| Phase 96 P01 | 6min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -161,6 +192,10 @@ Progress: [██████████] 100% (29/29 plans)
 - Bundle audit uses chunk-level analysis since Next.js 16 Turbopack omits per-route first-load table
 - Service worker precache 227.2KB within 200-250KB acceptable range per user decision
 
+### Phase 96 Decisions
+- New Order fields are required (not optional) since DB defaults ensure they always exist
+- Discount row renders before tip row in totals (Subtotal > Delivery > Tax > Discount > Tip > Total)
+
 ### Phase 90 Decisions
 - Server-side sharp for WebP conversion (not client-side Canvas) — consistent output across devices
 - 4:3 aspect ratio at 800x600 standardized for all menu photos
@@ -194,7 +229,7 @@ Progress: [██████████] 100% (29/29 plans)
 
 ## Session Continuity
 
-Last session: 2026-03-04T07:50:58.777Z
-Stopped at: Phase 97 context gathered
-Resume file: .planning/phases/97-verification-traceability-cleanup/97-CONTEXT.md
+Last session: 2026-03-04T07:54:58.028Z
+Stopped at: Completed 96-01-PLAN.md
+Resume file: None
 Next action: All v2.0 plans complete. Ready for production launch.
