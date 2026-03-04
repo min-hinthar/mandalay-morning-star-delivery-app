@@ -5,6 +5,7 @@ import { m, AnimatePresence } from "framer-motion";
 import { AlertCircle, Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/hooks/useToastV8";
+import { extractErrorMessage } from "@/lib/utils/api-error";
 
 interface DraftBannerProps {
   hasUnpublishedChanges: boolean;
@@ -23,7 +24,7 @@ export function DraftBanner({ hasUnpublishedChanges, onPublishComplete }: DraftB
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to publish");
+        throw new Error(extractErrorMessage(error, "Failed to publish"));
       }
 
       toast({

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/admin/StatusBadge";
 import { toast } from "@/lib/hooks/useToastV8";
+import { extractErrorMessage } from "@/lib/utils/api-error";
 import {
   STATUS_LABELS,
   NEXT_STATUSES,
@@ -38,7 +39,7 @@ export function OrderHeaderCard({
       const res = await fetch(`/api/admin/orders/${order.id}/contact`, { method: "POST" });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to mark as contacted");
+        throw new Error(extractErrorMessage(data, "Failed to mark as contacted"));
       }
       toast({ message: "Order marked as contacted", type: "success" });
       onContactResolved?.();
@@ -74,7 +75,7 @@ export function OrderHeaderCard({
       });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to update priority");
+        throw new Error(extractErrorMessage(data, "Failed to update priority"));
       }
       onPriorityChanged(newPriority);
       toast({

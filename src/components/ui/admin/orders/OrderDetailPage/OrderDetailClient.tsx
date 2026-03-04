@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { toast } from "@/lib/hooks/useToastV8";
+import { extractErrorMessage } from "@/lib/utils/api-error";
 import type { OrderStatus } from "@/types/database";
 import type { OrderDetail } from "./types";
 import { OrderHeaderCard } from "./OrderHeaderCard";
@@ -44,7 +45,7 @@ export function OrderDetailClient() {
       }
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Failed to fetch order details");
+        throw new Error(extractErrorMessage(data, "Failed to fetch order details"));
       }
       const data: OrderDetail = await res.json();
       setOrder(data);
