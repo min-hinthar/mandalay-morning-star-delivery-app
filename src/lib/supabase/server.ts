@@ -24,6 +24,9 @@ export async function createClient() {
           }
         },
       },
+      global: {
+        fetch: (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(5000) }),
+      },
     }
   );
 }
@@ -31,7 +34,12 @@ export async function createClient() {
 export function createPublicClient() {
   return createPublicSupabaseClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      global: {
+        fetch: (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(5000) }),
+      },
+    }
   );
 }
 
@@ -44,5 +52,9 @@ export function createServiceClient() {
   if (!serviceKey) {
     throw new Error("SUPABASE_SERVICE_ROLE_KEY is not configured");
   }
-  return createPublicSupabaseClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey);
+  return createPublicSupabaseClient<Database>(process.env.NEXT_PUBLIC_SUPABASE_URL!, serviceKey, {
+    global: {
+      fetch: (url, init) => fetch(url, { ...init, signal: AbortSignal.timeout(5000) }),
+    },
+  });
 }
