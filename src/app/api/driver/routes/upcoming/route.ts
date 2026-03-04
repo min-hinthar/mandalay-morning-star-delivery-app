@@ -3,8 +3,7 @@ import { requireDriver } from "@/lib/auth";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import type { RouteStats } from "@/types/driver";
-
-const TIMEZONE = "America/Los_Angeles";
+import { TIMEZONE } from "@/types/delivery";
 
 interface RouteQueryResult {
   id: string;

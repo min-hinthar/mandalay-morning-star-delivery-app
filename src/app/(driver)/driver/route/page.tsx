@@ -5,8 +5,7 @@ import { DriverPageHeader } from "@/components/ui/driver/DriverPageHeader";
 import { Skeleton } from "@/components/ui/skeleton/base";
 import { DriverRouteSwitch } from "./DriverRouteSwitch";
 import type { RouteStats, RouteStopStatus } from "@/types/driver";
-
-const TIMEZONE = "America/Los_Angeles";
+import { TIMEZONE } from "@/types/delivery";
 
 function getTodayInTimezone(): string {
   const formatter = new Intl.DateTimeFormat("en-CA", {

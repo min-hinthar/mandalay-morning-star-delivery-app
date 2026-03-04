@@ -4,8 +4,7 @@ import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import { computeRouteEarnings, aggregateByPeriod } from "@/lib/earnings";
 import type { EarningsPeriod } from "@/lib/earnings";
-
-const TIMEZONE = "America/Los_Angeles";
+import { TIMEZONE } from "@/types/delivery";
 
 const VALID_PERIODS: EarningsPeriod[] = ["daily", "weekly", "monthly"];
 const DEFAULT_PAY_RATE_CENTS = 500;

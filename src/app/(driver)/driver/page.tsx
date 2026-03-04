@@ -4,8 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { DriverHomeSwitch } from "./DriverHomeSwitch";
 import { Skeleton } from "@/components/ui/skeleton/base";
 import type { RoutesRow, RouteStats, VehicleType, DriverBadgesRow } from "@/types/driver";
-
-const TIMEZONE = "America/Los_Angeles";
+import { TIMEZONE } from "@/types/delivery";
 
 function getDateInfo(): { todayStr: string; dayOfWeek: string; dateDisplay: string } {
   const now = new Date();

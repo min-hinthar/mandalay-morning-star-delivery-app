@@ -6,8 +6,7 @@ import { SchedulePageClient } from "./SchedulePageClient";
 import type { RouteStats } from "@/types/driver";
 import type { DriverAvailability } from "@/types/driver";
 import type { HistoryRouteData } from "@/components/ui/driver/DriverDashboard/HistorySummaryCard";
-
-const TIMEZONE = "America/Los_Angeles";
+import { TIMEZONE } from "@/types/delivery";
 
 interface DriverQueryResult {
   id: string;
