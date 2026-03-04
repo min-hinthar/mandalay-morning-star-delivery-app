@@ -9,23 +9,23 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 
 ### Bug Fixes
 
-- [ ] **BUG-01**: Fix payment retry idempotency key — remove Date.now(), use `retry_${order.id}`
-- [ ] **BUG-02**: Validate modifier group min_select/max_select constraints at checkout
-- [ ] **BUG-03**: Add checkout cleanup rollback with try/catch on each delete
-- [ ] **BUG-04**: Fix type assertion null crash on RPC checkout result
-- [ ] **BUG-05**: Add refund amount ceiling validation (cannot exceed total_cents)
-- [ ] **BUG-06**: Fix cart store debounce race condition — move tracking inside Zustand `set()` or use useDebounce on form submission (`cart-store.ts:51-73`)
-- [ ] **BUG-07**: Add cutoff time 10-second safety buffer — `isPastCutoff()` uses bare `getTime()` comparison with no margin for DB insert latency
+- [x] **BUG-01**: Fix payment retry idempotency key — remove Date.now(), use `retry_${order.id}`
+- [x] **BUG-02**: Validate modifier group min_select/max_select constraints at checkout
+- [x] **BUG-03**: Add checkout cleanup rollback with try/catch on each delete
+- [x] **BUG-04**: Fix type assertion null crash on RPC checkout result
+- [x] **BUG-05**: Add refund amount ceiling validation (cannot exceed total_cents)
+- [x] **BUG-06**: Fix cart store debounce race condition — move tracking inside Zustand `set()` or use useDebounce on form submission (`cart-store.ts:51-73`)
+- [x] **BUG-07**: Add cutoff time 10-second safety buffer — `isPastCutoff()` uses bare `getTime()` comparison with no margin for DB insert latency
 
 ### Menu & Photos
 
-- [ ] **MENU-01**: Admin can upload photos for menu items via Supabase Storage
-- [ ] **MENU-02**: Admin can bulk-upload photos via drag-drop grid matched by item slug
-- [ ] **MENU-03**: Photos auto-processed to WebP/AVIF, min 800x600, max 2MB, 4:3 crop
-- [ ] **MENU-04**: Menu items track photo freshness via image_updated_at column
-- [ ] **MENU-05**: Allergens come from single source (deduplicate tags/allergens overlap)
-- [ ] **MENU-06**: Admin can mark items inactive (for owner-verified app-only items)
-- [ ] **MENU-07**: Seed fallback photos from `data/menu-photos/` into Supabase Storage for items without admin-uploaded photos
+- [x] **MENU-01**: Admin can upload photos for menu items via Supabase Storage
+- [x] **MENU-02**: Admin can bulk-upload photos via drag-drop grid matched by item slug
+- [x] **MENU-03**: Photos auto-processed to WebP/AVIF, min 800x600, max 2MB, 4:3 crop
+- [x] **MENU-04**: Menu items track photo freshness via image_updated_at column
+- [x] **MENU-05**: Allergens come from single source (deduplicate tags/allergens overlap)
+- [x] **MENU-06**: Admin can mark items inactive (for owner-verified app-only items)
+- [x] **MENU-07**: Seed fallback photos from `data/menu-photos/` into Supabase Storage for items without admin-uploaded photos
 
 ### Checkout & Payment
 
@@ -66,7 +66,7 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 ### Admin Enhancements
 
 - [x] **ADMIN-01**: Orders grouped by delivery time window on ops dashboard
-- [ ] **ADMIN-02**: Admin menu photo management grid (upload, crop, replace)
+- [x] **ADMIN-02**: Admin menu photo management grid (upload, crop, replace)
 
 ### Driver Enhancements
 
@@ -187,21 +187,21 @@ Explicitly excluded. Documented to prevent scope creep.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUG-01 | Phase 89 | Pending |
-| BUG-02 | Phase 89 | Pending |
-| BUG-03 | Phase 89 | Pending |
-| BUG-04 | Phase 89 | Pending |
-| BUG-05 | Phase 89 | Pending |
-| BUG-06 | Phase 89 | Pending |
-| BUG-07 | Phase 89 | Pending |
-| MENU-01 | Phase 90 | Pending |
-| MENU-02 | Phase 90 | Pending |
-| MENU-03 | Phase 90 | Pending |
-| MENU-04 | Phase 90 | Pending |
-| MENU-05 | Phase 90 | Pending |
-| MENU-06 | Phase 90 | Pending |
-| MENU-07 | Phase 90 | Pending |
-| ADMIN-02 | Phase 90 | Pending |
+| BUG-01 | Phase 89 | Complete |
+| BUG-02 | Phase 89 | Complete |
+| BUG-03 | Phase 89 | Complete |
+| BUG-04 | Phase 89 | Complete |
+| BUG-05 | Phase 89 | Complete |
+| BUG-06 | Phase 89 | Complete |
+| BUG-07 | Phase 89 | Complete |
+| MENU-01 | Phase 90 | Complete |
+| MENU-02 | Phase 90 | Complete |
+| MENU-03 | Phase 90 | Complete |
+| MENU-04 | Phase 90 | Complete |
+| MENU-05 | Phase 90 | Complete |
+| MENU-06 | Phase 90 | Complete |
+| MENU-07 | Phase 90 | Complete |
+| ADMIN-02 | Phase 90 | Complete |
 | CHKT-01 | Phase 91 | Complete |
 | CHKT-02 | Phase 96 | Complete |
 | CHKT-03 | Phase 91 | Complete |
