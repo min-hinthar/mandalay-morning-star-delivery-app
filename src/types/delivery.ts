@@ -18,4 +18,4 @@ export interface DeliverySelection {
   windowEnd: string;
 }
 
-export const TIMEZONE = "America/Los_Angeles";
+export const TIMEZONE = process.env.DELIVERY_TIMEZONE || "America/Los_Angeles";
