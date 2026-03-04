@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { toast } from "@/lib/hooks/useToastV8";
+import { extractErrorMessage } from "@/lib/utils/api-error";
 import { type SectionCardSection } from "@/components/ui/admin/sections/SectionCard";
 import {
   SectionEditor,
@@ -83,7 +84,7 @@ export default function AdminSectionsPage() {
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || "Failed to save section");
+        throw new Error(extractErrorMessage(error, "Failed to save section"));
       }
 
       toast({
@@ -210,7 +211,7 @@ export default function AdminSectionsPage() {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || "Failed to add items");
+      throw new Error(extractErrorMessage(error, "Failed to add items"));
     }
 
     const updatedItems = await response.json();
@@ -229,7 +230,7 @@ export default function AdminSectionsPage() {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || "Failed to remove item");
+      throw new Error(extractErrorMessage(error, "Failed to remove item"));
     }
 
     setSections((prev) =>

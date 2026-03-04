@@ -6,6 +6,7 @@ import { Mail, ChevronDown, ChevronUp, RefreshCw, Send, Loader2, AlertCircle } f
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/lib/hooks/useToastV8";
+import { extractErrorMessage } from "@/lib/utils/api-error";
 import { cn } from "@/lib/utils/cn";
 
 // ===========================================
@@ -114,7 +115,7 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
         });
         if (!response.ok) {
           const data = await response.json().catch(() => ({}));
-          throw new Error(data.error || "Failed to resend email");
+          throw new Error(extractErrorMessage(data, "Failed to resend email"));
         }
         toast({ message: "Email resent", type: "success" });
         fetchEmails();
@@ -140,7 +141,7 @@ export function EmailHistory({ orderId }: EmailHistoryProps) {
         });
         if (!response.ok) {
           const data = await response.json().catch(() => ({}));
-          throw new Error(data.error || "Failed to send email");
+          throw new Error(extractErrorMessage(data, "Failed to send email"));
         }
         toast({ message: "Email sent", type: "success" });
         fetchEmails();

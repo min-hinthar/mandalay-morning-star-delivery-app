@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/lib/hooks/useToastV8";
+import { extractErrorMessage } from "@/lib/utils/api-error";
 import {
   type EmailLogEntry,
   type PaginationMeta,
@@ -89,7 +90,7 @@ export default function AdminEmailLogPage() {
         const response = await fetch(`/api/admin/emails/${emailId}/resend`, { method: "POST" });
         if (!response.ok) {
           const data = await response.json().catch(() => ({}));
-          throw new Error(data.error || "Failed to resend email");
+          throw new Error(extractErrorMessage(data, "Failed to resend email"));
         }
         toast({ message: "Email resent successfully", type: "success" });
         fetchEmails(pagination.page);

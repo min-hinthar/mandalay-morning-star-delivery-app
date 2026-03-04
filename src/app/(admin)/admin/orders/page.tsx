@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw, Filter } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { extractErrorMessage } from "@/lib/utils/api-error";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OrdersTable, type AdminOrder } from "@/components/ui/admin/OrdersTable";
@@ -113,7 +114,7 @@ export default function AdminOrdersPage() {
 
       if (!response.ok) {
         const err = await response.json();
-        throw new Error(err.error || "Failed to update status");
+        throw new Error(extractErrorMessage(err, "Failed to update status"));
       }
 
       setOrders((prev) =>
