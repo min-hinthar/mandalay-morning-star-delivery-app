@@ -16,9 +16,10 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 
 /** Create a mock Supabase client scoped to a specific user */
 function createMockClientForUser(userId: string, role: "authenticated" | "anon" = "authenticated") {
-  const authUser = role === "authenticated"
-    ? { id: userId, email: `${userId}@test.com`, role: "authenticated" }
-    : null;
+  const authUser =
+    role === "authenticated"
+      ? { id: userId, email: `${userId}@test.com`, role: "authenticated" }
+      : null;
 
   return {
     auth: {
@@ -34,7 +35,10 @@ function createMockClientForUser(userId: string, role: "authenticated" | "anon" 
 }
 
 /** Simulate RLS-filtered query: only returns rows matching userId */
-function mockOrdersForUser(client: ReturnType<typeof createMockClientForUser>, ownOrders: Array<{ id: string; user_id: string; status: string }>) {
+function mockOrdersForUser(
+  client: ReturnType<typeof createMockClientForUser>,
+  ownOrders: Array<{ id: string; user_id: string; status: string }>
+) {
   const selectChain = {
     eq: vi.fn().mockImplementation((_col: string, _val: string) => ({
       data: ownOrders.filter((o) => o.user_id === client._userId),
@@ -53,7 +57,10 @@ function mockOrdersForUser(client: ReturnType<typeof createMockClientForUser>, o
 }
 
 /** Simulate RLS-filtered update: only affects rows matching userId */
-function mockOrderUpdateForUser(client: ReturnType<typeof createMockClientForUser>, orders: Array<{ id: string; user_id: string }>) {
+function mockOrderUpdateForUser(
+  client: ReturnType<typeof createMockClientForUser>,
+  orders: Array<{ id: string; user_id: string }>
+) {
   client.from.mockImplementation((table: string) => {
     if (table === "orders") {
       return {
@@ -69,7 +76,9 @@ function mockOrderUpdateForUser(client: ReturnType<typeof createMockClientForUse
         })),
       };
     }
-    return { update: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ data: null, error: null }) }) };
+    return {
+      update: vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ data: null, error: null }) }),
+    };
   });
 }
 
@@ -159,7 +168,9 @@ describe("RLS policy edge cases (TST-03)", () => {
 
       const result = clientA.from("routes").select("*");
       expect(result.data).toHaveLength(2); // route-1 and route-3
-      expect(result.data.every((r: { driver_id: string }) => r.driver_id === DRIVER_A_ID)).toBe(true);
+      expect(result.data.every((r: { driver_id: string }) => r.driver_id === DRIVER_A_ID)).toBe(
+        true
+      );
     });
 
     it("driver B cannot see driver A routes", () => {
@@ -181,7 +192,9 @@ describe("RLS policy edge cases (TST-03)", () => {
 
       const result = clientB.from("routes").select("*");
       expect(result.data).toHaveLength(1); // Only route-2
-      expect(result.data.some((r: { driver_id: string }) => r.driver_id === DRIVER_A_ID)).toBe(false);
+      expect(result.data.some((r: { driver_id: string }) => r.driver_id === DRIVER_A_ID)).toBe(
+        false
+      );
     });
   });
 
@@ -233,11 +246,17 @@ describe("RLS policy edge cases (TST-03)", () => {
       });
 
       // Update User A's order
-      const resultA = adminClient.from("orders").update({ status: "preparing" }).eq("id", "order-1");
+      const resultA = adminClient
+        .from("orders")
+        .update({ status: "preparing" })
+        .eq("id", "order-1");
       expect(resultA.count).toBe(1);
 
       // Update User B's order
-      const resultB = adminClient.from("orders").update({ status: "preparing" }).eq("id", "order-3");
+      const resultB = adminClient
+        .from("orders")
+        .update({ status: "preparing" })
+        .eq("id", "order-3");
       expect(resultB.count).toBe(1);
     });
   });
@@ -308,7 +327,7 @@ describe("RLS policy edge cases (TST-03)", () => {
                   eq: vi.fn().mockReturnValue({
                     data: null,
                     error: {
-                      message: "column \"is_admin\" of relation \"profiles\" violates check constraint",
+                      message: 'column "is_admin" of relation "profiles" violates check constraint',
                       code: "23514",
                     },
                   }),
@@ -328,10 +347,7 @@ describe("RLS policy edge cases (TST-03)", () => {
       });
 
       // Attempt to escalate
-      const result = clientA
-        .from("profiles")
-        .update({ is_admin: true })
-        .eq("id", USER_A_ID);
+      const result = clientA.from("profiles").update({ is_admin: true }).eq("id", USER_A_ID);
 
       expect(result.error).toBeTruthy();
       expect(result.data).toBeNull();
@@ -366,10 +382,7 @@ describe("RLS policy edge cases (TST-03)", () => {
       });
 
       // Allowed update: full_name
-      const result = clientA
-        .from("profiles")
-        .update({ full_name: "New Name" })
-        .eq("id", USER_A_ID);
+      const result = clientA.from("profiles").update({ full_name: "New Name" }).eq("id", USER_A_ID);
 
       expect(result.error).toBeNull();
       expect(result.data).toMatchObject({ full_name: "New Name" });

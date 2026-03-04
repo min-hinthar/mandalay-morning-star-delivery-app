@@ -281,9 +281,9 @@ describe("delivery date utils", () => {
         const cutoff = getCutoffForSaturday(springForwardSaturday, CUTOFF_DAY, CUTOFF_HOUR);
         // 11 seconds before cutoff — outside the 10s buffer — should be accepted
         const elevenSecBefore = new Date(cutoff.getTime() - 11_000);
-        expect(
-          isPastCutoff(springForwardSaturday, elevenSecBefore, CUTOFF_DAY, CUTOFF_HOUR)
-        ).toBe(false);
+        expect(isPastCutoff(springForwardSaturday, elevenSecBefore, CUTOFF_DAY, CUTOFF_HOUR)).toBe(
+          false
+        );
       });
     });
   });

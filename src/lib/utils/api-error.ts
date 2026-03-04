@@ -11,12 +11,7 @@ export type ApiErrorCode =
   | "CONFLICT"
   | "BAD_REQUEST";
 
-export function apiError(
-  code: ApiErrorCode,
-  message: string,
-  status: number,
-  details?: unknown
-) {
+export function apiError(code: ApiErrorCode, message: string, status: number, details?: unknown) {
   return NextResponse.json(
     { error: { code, message, ...(details ? { details } : {}) } },
     { status }
@@ -25,10 +20,7 @@ export function apiError(
 
 /** Extract human-readable message from API error response.
  *  Handles both old flat format and new structured format for backward compat. */
-export function extractErrorMessage(
-  data: unknown,
-  fallback: string
-): string {
+export function extractErrorMessage(data: unknown, fallback: string): string {
   if (!data || typeof data !== "object") return fallback;
   const d = data as Record<string, unknown>;
   if (typeof d.error === "string") return d.error;

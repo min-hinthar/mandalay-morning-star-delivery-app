@@ -14,10 +14,7 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
-import {
-  getDeliveryPhotoSignedUrl,
-  extractDeliveryPhotoPath,
-} from "../delivery-photos";
+import { getDeliveryPhotoSignedUrl, extractDeliveryPhotoPath } from "../delivery-photos";
 
 describe("delivery-photos", () => {
   beforeEach(() => {
@@ -26,14 +23,11 @@ describe("delivery-photos", () => {
 
   describe("extractDeliveryPhotoPath", () => {
     it("returns path as-is when input is already a path", () => {
-      expect(extractDeliveryPhotoPath("routeId/orderId.jpg")).toBe(
-        "routeId/orderId.jpg"
-      );
+      expect(extractDeliveryPhotoPath("routeId/orderId.jpg")).toBe("routeId/orderId.jpg");
     });
 
     it("extracts path from full Supabase public URL", () => {
-      const url =
-        "https://xyz.supabase.co/storage/v1/object/public/delivery-photos/abc/def.jpg";
+      const url = "https://xyz.supabase.co/storage/v1/object/public/delivery-photos/abc/def.jpg";
       expect(extractDeliveryPhotoPath(url)).toBe("abc/def.jpg");
     });
 
@@ -65,10 +59,7 @@ describe("delivery-photos", () => {
       const result = await getDeliveryPhotoSignedUrl("routeId/orderId.jpg");
 
       expect(mockFrom).toHaveBeenCalledWith("delivery-photos");
-      expect(mockCreateSignedUrl).toHaveBeenCalledWith(
-        "routeId/orderId.jpg",
-        3600
-      );
+      expect(mockCreateSignedUrl).toHaveBeenCalledWith("routeId/orderId.jpg", 3600);
       expect(result).toBe("https://signed-url.example.com/photo.jpg");
     });
 
@@ -78,9 +69,7 @@ describe("delivery-photos", () => {
         error: { message: "Storage error" },
       });
 
-      const consoleSpy = vi
-        .spyOn(console, "error")
-        .mockImplementation(() => {});
+      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
 
       const result = await getDeliveryPhotoSignedUrl("routeId/orderId.jpg");
 

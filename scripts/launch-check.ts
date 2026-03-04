@@ -313,16 +313,12 @@ function printResults(results: CheckResult[]): void {
   const maxName = Math.max(...results.map((r) => r.name.length));
 
   console.log("\n=== Launch Readiness Check ===\n");
-  console.log(
-    `${"Check".padEnd(maxName)}  Status  Details`
-  );
+  console.log(`${"Check".padEnd(maxName)}  Status  Details`);
   console.log("-".repeat(maxName + 50));
 
   for (const r of results) {
     const icon = STATUS_ICONS[r.status];
-    console.log(
-      `${r.name.padEnd(maxName)}  [${icon}]  ${r.details}`
-    );
+    console.log(`${r.name.padEnd(maxName)}  [${icon}]  ${r.details}`);
   }
 
   const failCount = results.filter((r) => r.status === "FAIL").length;
@@ -331,14 +327,10 @@ function printResults(results: CheckResult[]): void {
   const skipCount = results.filter((r) => r.status === "SKIP").length;
 
   console.log("\n" + "-".repeat(maxName + 50));
-  console.log(
-    `Total: ${passCount} PASS, ${failCount} FAIL, ${warnCount} WARN, ${skipCount} SKIP`
-  );
+  console.log(`Total: ${passCount} PASS, ${failCount} FAIL, ${warnCount} WARN, ${skipCount} SKIP`);
 
   if (failCount > 0) {
-    console.log(
-      `\n${failCount} required check(s) FAILED. Fix before launching.\n`
-    );
+    console.log(`\n${failCount} required check(s) FAILED. Fix before launching.\n`);
   } else {
     console.log("\nAll required checks passed.\n");
   }

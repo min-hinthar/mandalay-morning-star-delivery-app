@@ -384,9 +384,7 @@ describe("webhook failure scenarios (TST-02)", () => {
       expect(res.status).toBe(200);
 
       // Verify update was called with status: "confirmed"
-      expect(updateMock).toHaveBeenCalledWith(
-        expect.objectContaining({ status: "confirmed" })
-      );
+      expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ status: "confirmed" }));
     });
   });
 
@@ -452,17 +450,15 @@ describe("webhook failure scenarios (TST-02)", () => {
       expect(res.status).toBe(200);
 
       // Verify update was called with status: "cancelled"
-      expect(updateMock).toHaveBeenCalledWith(
-        expect.objectContaining({ status: "cancelled" })
-      );
+      expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ status: "cancelled" }));
     });
   });
 
   describe("unknown event type", () => {
     it("returns 200 without processing for unknown event types", async () => {
-      const unknownEvent: Stripe.Event = {
+      const unknownEvent = {
         id: "evt_unknown",
-        type: "unknown.event.type" as Stripe.Event["type"],
+        type: "unknown.event.type",
         api_version: "2023-10-16",
         created: Math.floor(Date.now() / 1000),
         livemode: false,
@@ -470,9 +466,9 @@ describe("webhook failure scenarios (TST-02)", () => {
         request: { id: null, idempotency_key: null },
         object: "event",
         data: {
-          object: {} as Stripe.Event.Data["object"],
+          object: {},
         },
-      };
+      } as unknown as Stripe.Event;
 
       mockConstructEvent.mockReturnValue(unknownEvent);
 
