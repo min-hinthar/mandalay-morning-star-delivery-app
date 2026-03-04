@@ -348,6 +348,13 @@ export async function POST(request: Request) {
       idempotencyKey: `checkout_${order.id}`,
     });
 
+    // Store checkout session ID on order for self-healing payment verification
+    const serviceClient = createServiceClient();
+    await serviceClient
+      .from("orders")
+      .update({ stripe_checkout_session_id: session.id })
+      .eq("id", order.id);
+
     // CHKT-10: Checkout logging
     logger.info("Checkout session created", {
       orderId: order.id,

@@ -199,12 +199,17 @@ Three compounding issues:
 2. **No `.select()` on update** — 0-row updates logged as success (order already confirmed or missing)
 3. **No client-side fallback** — Confirmation page showed "pending" forever when webhook delayed
 
-**Fix:**
+**Fix (3 layers):**
 - Return 500 in catch block → Stripe retries
 - Add `.select("id")` to update → verify rows affected, log diagnostics
 - New `OrderStatusPoller` polls status + calls `verify-payment` fallback
 
-**Prevention:** Always return 5xx for retryable webhook errors. Always verify `.update()` row count. Always have client-side payment verification fallback.
+**Fix (layer 4 — self-healing):**
+- Store `stripe_checkout_session_id` on order at checkout
+- verify-payment falls back to stored session ID (no URL param needed)
+- Order detail page auto-verifies with Stripe on every render if pending + session ID exists
+
+**Prevention:** Always return 5xx for retryable webhook errors. Always verify `.update()` row count. Always have client-side payment verification fallback. Store payment session references on orders for recovery after navigation.
 
 ---
 

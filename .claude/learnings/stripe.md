@@ -63,3 +63,32 @@ if (!updated?.length) {
 4. Idempotent — `.eq("status", "pending")` guard prevents double-confirm
 
 **Apply when:** Any payment flow where webhooks are the primary confirmation mechanism. Always have a client-side fallback.
+
+---
+
+## Store Checkout Session ID for Self-Healing Recovery
+
+**Context:** Client-side poller only works on confirmation page (needs `session_id` URL param). If user navigates away before confirmation, order stuck pending forever with no recovery path.
+
+**Learning:** Store `stripe_checkout_session_id` on the order row immediately after `stripe.checkout.sessions.create()`. Enables three recovery layers:
+1. **verify-payment endpoint** — falls back to `order.stripe_checkout_session_id` when `sessionId` not in request body
+2. **Server-side page load** — order detail page checks Stripe on every render if status is pending + session ID exists
+3. **Manual recovery** — admins/scripts can query orders with session IDs for bulk reconciliation
+
+```typescript
+// After creating Stripe session, store ID on order
+await serviceClient
+  .from("orders")
+  .update({ stripe_checkout_session_id: session.id })
+  .eq("id", order.id);
+
+// Server-side self-healing on page load
+if (order.status === "pending" && order.stripe_checkout_session_id) {
+  const stripeSession = await stripe.checkout.sessions.retrieve(order.stripe_checkout_session_id);
+  if (stripeSession.payment_status === "paid") {
+    await svc.from("orders").update({ status: "confirmed", ... }).eq("id", orderId).eq("status", "pending");
+  }
+}
+```
+
+**Apply when:** Any checkout flow where payment confirmation depends on webhooks. Store the session/transaction reference on the order for recovery.
