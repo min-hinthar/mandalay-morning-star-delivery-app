@@ -30,13 +30,13 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 ### Checkout & Payment
 
 - [x] **CHKT-01**: Client checkout sends only item IDs + modifier selections (no prices)
-- [x] **CHKT-02**: Cart auto-refreshes prices on 409 PRICE_CHANGED instead of error
+- [ ] **CHKT-02**: Cart auto-refreshes prices on 409 PRICE_CHANGED instead of error (audit: server never emits 409 — dead code; downscoped to Phase 96 cleanup)
 - [x] **CHKT-03**: Server validates modifier item_index bounds before checkout RPC
 - [x] **CHKT-04**: Delivery time windows include configurable prep time buffer
 - [x] **CHKT-05**: User cannot place more than one order per Saturday delivery window
-- [x] **CHKT-06**: User can apply promo codes at checkout (Stripe coupon integration)
-- [x] **CHKT-07**: User can add tip at checkout (15%/20%/25%/custom)
-- [x] **CHKT-08**: User can add delivery instructions ("Leave at door", etc.)
+- [ ] **CHKT-06**: User can apply promo codes at checkout (Stripe coupon integration) (audit: promo_code not displayed on order detail page)
+- [ ] **CHKT-07**: User can add tip at checkout (15%/20%/25%/custom) (audit: tip_cents not displayed on order detail page)
+- [ ] **CHKT-08**: User can add delivery instructions ("Leave at door", etc.) (audit: delivery_instructions not rendered on order detail page)
 - [x] **CHKT-09**: User can browse and build cart without signing in — (a) anonymous browsing + localStorage cart, (b) auth prompt at checkout, (c) cart transfers to user account on sign-in
 - [x] **CHKT-10**: Successful checkouts logged with order ID, total_cents, user_id, payment_intent_id to Sentry breadcrumb + structured log
 
@@ -53,7 +53,7 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [x] **CUX-09**: Cart sync status indicator ("Saved" / "Saving...")
 - [x] **CUX-10**: Prominent "Offline Mode" banner when browsing cached menu (audit: v1.6 has animated offline banner — verify existing impl, polish if needed)
 - [x] **CUX-20**: Delivery gate poll interval reduces to 10s near cutoff (currently static 60s in `useDeliveryGate.ts`)
-- [x] **CUX-11**: User can one-tap reorder from order history
+- [ ] **CUX-11**: User can one-tap reorder from order history (audit: useReorder.ts passes UUID as menuItemSlug)
 - [x] **CUX-12**: Rating prompt appears after delivery confirmation (needs: `ratings` table, POST API route, admin ratings view)
 - [x] **CUX-13**: User can copy shareable order link (URL copy, not social media integration)
 - [x] **CUX-14**: Interactive cards have visible focus rings
@@ -203,13 +203,13 @@ Explicitly excluded. Documented to prevent scope creep.
 | MENU-07 | Phase 90 | Pending |
 | ADMIN-02 | Phase 90 | Pending |
 | CHKT-01 | Phase 91 | Complete |
-| CHKT-02 | Phase 91 | Complete |
+| CHKT-02 | Phase 96 | Pending |
 | CHKT-03 | Phase 91 | Complete |
 | CHKT-04 | Phase 91 | Complete |
 | CHKT-05 | Phase 91 | Complete |
-| CHKT-06 | Phase 91 | Complete |
-| CHKT-07 | Phase 91 | Complete |
-| CHKT-08 | Phase 91 | Complete |
+| CHKT-06 | Phase 96 | Pending |
+| CHKT-07 | Phase 96 | Pending |
+| CHKT-08 | Phase 96 | Pending |
 | CHKT-09 | Phase 91 | Complete |
 | CHKT-10 | Phase 91 | Complete |
 | CUX-01 | Phase 92 | Complete |
@@ -223,7 +223,7 @@ Explicitly excluded. Documented to prevent scope creep.
 | CUX-09 | Phase 92 | Complete |
 | CUX-10 | Phase 92 | Complete |
 | CUX-20 | Phase 92 | Complete |
-| CUX-11 | Phase 93 | Complete |
+| CUX-11 | Phase 96 | Pending |
 | CUX-12 | Phase 93 | Complete |
 | CUX-13 | Phase 93 | Complete |
 | CUX-14 | Phase 93 | Complete |
@@ -269,4 +269,4 @@ Explicitly excluded. Documented to prevent scope creep.
 
 ---
 *Requirements defined: 2026-03-03*
-*Last updated: 2026-03-03 after audit findings review*
+*Last updated: 2026-03-03 after gap closure phases 96-97 created*
