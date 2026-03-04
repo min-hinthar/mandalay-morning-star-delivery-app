@@ -34,9 +34,9 @@ Requirements for production-grade launch MVP. Each maps to roadmap phases.
 - [x] **CHKT-03**: Server validates modifier item_index bounds before checkout RPC
 - [x] **CHKT-04**: Delivery time windows include configurable prep time buffer
 - [x] **CHKT-05**: User cannot place more than one order per Saturday delivery window
-- [ ] **CHKT-06**: User can apply promo codes at checkout (Stripe coupon integration) (audit: promo_code not displayed on order detail page)
-- [ ] **CHKT-07**: User can add tip at checkout (15%/20%/25%/custom) (audit: tip_cents not displayed on order detail page)
-- [ ] **CHKT-08**: User can add delivery instructions ("Leave at door", etc.) (audit: delivery_instructions not rendered on order detail page)
+- [x] **CHKT-06**: User can apply promo codes at checkout (Stripe coupon integration) (audit: promo_code not displayed on order detail page)
+- [x] **CHKT-07**: User can add tip at checkout (15%/20%/25%/custom) (audit: tip_cents not displayed on order detail page)
+- [x] **CHKT-08**: User can add delivery instructions ("Leave at door", etc.) (audit: delivery_instructions not rendered on order detail page)
 - [x] **CHKT-09**: User can browse and build cart without signing in — (a) anonymous browsing + localStorage cart, (b) auth prompt at checkout, (c) cart transfers to user account on sign-in
 - [x] **CHKT-10**: Successful checkouts logged with order ID, total_cents, user_id, payment_intent_id to Sentry breadcrumb + structured log
 
@@ -207,9 +207,9 @@ Explicitly excluded. Documented to prevent scope creep.
 | CHKT-03 | Phase 91 | Complete |
 | CHKT-04 | Phase 91 | Complete |
 | CHKT-05 | Phase 91 | Complete |
-| CHKT-06 | Phase 96 | Pending |
-| CHKT-07 | Phase 96 | Pending |
-| CHKT-08 | Phase 96 | Pending |
+| CHKT-06 | Phase 96 | Complete |
+| CHKT-07 | Phase 96 | Complete |
+| CHKT-08 | Phase 96 | Complete |
 | CHKT-09 | Phase 91 | Complete |
 | CHKT-10 | Phase 91 | Complete |
 | CUX-01 | Phase 92 | Complete |

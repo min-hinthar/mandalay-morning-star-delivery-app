@@ -22,9 +22,7 @@ import { handleRateLimitResponse } from "@/lib/hooks/useRateLimitToast";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
-import { useCartStore } from "@/lib/stores/cart-store";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
-import { toast } from "@/lib/hooks/useToastV8";
 import type { TimeWindow } from "@/types/delivery";
 import { TimeSlotDisplay } from "./TimeSlotDisplay";
 import { TipSelector } from "./TipSelector";
@@ -138,17 +136,6 @@ export function PaymentStepV8({
       const data = await response.json();
 
       if (!response.ok) {
-        // CHKT-02: PRICE_CHANGED — refresh cart with new prices from server
-        if (response.status === 409 && data.error?.code === "PRICE_CHANGED") {
-          const { updatePricesFromServer } = useCartStore.getState();
-          updatePricesFromServer(data.error.details?.priceDrifts ?? []);
-          toast({
-            message: "Some prices were updated. Review your cart.",
-            type: "info",
-          });
-          setIsCreatingSession(false);
-          return;
-        }
         // CUTOFF_PASSED: show cutoff modal instead of generic error
         if (data.error?.code === "CUTOFF_PASSED" && onCutoffPassed) {
           setIsCreatingSession(false);
