@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
+import { apiError } from "@/lib/utils/api-error";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 interface OrderRow {
@@ -76,7 +77,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -130,10 +131,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
     if (orderError) {
       logger.exception(orderError, { api: "admin/orders/[id]/details", orderId });
-      return NextResponse.json({ error: "Failed to fetch order" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to fetch order", 500);
     }
     if (!order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return apiError("NOT_FOUND", "Order not found", 404);
     }
 
     // Fetch order items
@@ -156,7 +157,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 
     if (itemsError) {
       logger.exception(itemsError, { api: "admin/orders/[id]/details" });
-      return NextResponse.json({ error: "Failed to fetch order items" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to fetch order items", 500);
     }
 
     // Fetch audit log
@@ -278,6 +279,6 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json(response);
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/details" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }

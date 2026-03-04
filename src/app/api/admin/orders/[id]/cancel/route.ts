@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { cancelOrderSchema } from "@/lib/validations/order";
 import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
+import { apiError } from "@/lib/utils/api-error";
 import { OrderCancellation } from "@/emails/OrderCancellation";
 import type { OrderStatus, Json } from "@/types/database";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
@@ -25,7 +26,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
-      return NextResponse.json({ error: auth.error }, { status: auth.status });
+      return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
 
     const rl = await checkRateLimit({
@@ -42,10 +43,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const parsed = cancelOrderSchema.safeParse(body);
 
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid request", details: parsed.error.flatten() },
-        { status: 400 }
-      );
+      return apiError("VALIDATION_ERROR", "Invalid request", 400, parsed.error.flatten());
     }
 
     const { reason, notifyCustomer } = parsed.data;
@@ -59,17 +57,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       .single();
 
     if (orderError || !order) {
-      return NextResponse.json({ error: "Order not found" }, { status: 404 });
+      return apiError("NOT_FOUND", "Order not found", 404);
     }
 
     // Check if already cancelled
     if (order.status === "cancelled") {
-      return NextResponse.json({ error: "Order is already cancelled" }, { status: 400 });
+      return apiError("BAD_REQUEST", "Order is already cancelled", 400);
     }
 
     // Check if delivered
     if (order.status === "delivered") {
-      return NextResponse.json({ error: "Cannot cancel a delivered order" }, { status: 400 });
+      return apiError("BAD_REQUEST", "Cannot cancel a delivered order", 400);
     }
 
     const previousStatus = order.status;
@@ -86,16 +84,15 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/orders/[id]/cancel" });
-      return NextResponse.json({ error: "Failed to cancel order" }, { status: 500 });
+      return apiError("INTERNAL_ERROR", "Failed to cancel order", 500);
     }
 
     // If no rows updated, status changed between our read and write (race condition)
     if (!updatedRows || updatedRows.length === 0) {
-      return NextResponse.json(
-        {
-          error: `Order status changed to '${previousStatus}' — cannot cancel. Refresh and try again.`,
-        },
-        { status: 409 }
+      return apiError(
+        "CONFLICT",
+        `Order status changed to '${previousStatus}' — cannot cancel. Refresh and try again.`,
+        409
       );
     }
 
@@ -177,6 +174,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/cancel" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return apiError("INTERNAL_ERROR", "Internal server error", 500);
   }
 }
