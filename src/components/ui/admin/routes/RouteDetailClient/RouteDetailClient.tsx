@@ -65,7 +65,8 @@ export function RouteDetailClient() {
         try {
           const routesResponse = await fetch(`/api/admin/routes?date=${data.deliveryDate}`);
           if (routesResponse.ok) {
-            const allRoutes = await routesResponse.json();
+            const allRoutesJson = await routesResponse.json();
+            const allRoutes = allRoutesJson.data ?? allRoutesJson;
             const others = allRoutes
               .filter(
                 (r: {

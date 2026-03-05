@@ -38,14 +38,11 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "25", 10)));
+    const statusFilter = searchParams.get("status");
     const rangeStart = (page - 1) * limit;
     const rangeEnd = rangeStart + limit - 1;
 
-    const {
-      data: orders,
-      error: ordersError,
-      count,
-    } = await supabase
+    let query = supabase
       .from("orders")
       .select(
         `
@@ -63,9 +60,19 @@ export async function GET(request: Request) {
       `,
         { count: "exact" }
       )
-      .order("placed_at", { ascending: false })
-      .range(rangeStart, rangeEnd)
-      .returns<OrderRow[]>();
+      .order("placed_at", { ascending: false });
+
+    // Apply status filter if provided (comma-separated statuses)
+    if (statusFilter) {
+      const statuses = statusFilter.split(",").map((s) => s.trim()) as OrderStatus[];
+      query = query.in("status", statuses);
+    }
+
+    const {
+      data: orders,
+      error: ordersError,
+      count,
+    } = await query.range(rangeStart, rangeEnd).returns<OrderRow[]>();
 
     if (ordersError) {
       logger.exception(ordersError, { api: "admin/orders", flowId: "fetch" });
