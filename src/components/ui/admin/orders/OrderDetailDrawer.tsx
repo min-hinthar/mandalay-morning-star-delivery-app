@@ -25,15 +25,20 @@ const NEXT_STATUSES: Record<OrderStatus, { status: OrderStatus; label: string }[
   ],
   confirmed: [
     { status: "preparing", label: "Start Preparing" },
+    { status: "pending", label: "Revert to Pending" },
     { status: "cancelled", label: "Cancel" },
   ],
   preparing: [
     { status: "out_for_delivery", label: "Send Out" },
+    { status: "confirmed", label: "Revert to Confirmed" },
     { status: "cancelled", label: "Cancel" },
   ],
-  out_for_delivery: [{ status: "delivered", label: "Mark Delivered" }],
-  delivered: [],
-  cancelled: [],
+  out_for_delivery: [
+    { status: "delivered", label: "Mark Delivered" },
+    { status: "preparing", label: "Revert to Preparing" },
+  ],
+  delivered: [{ status: "out_for_delivery", label: "Revert to Out for Delivery" }],
+  cancelled: [{ status: "pending", label: "Reopen Order" }],
 };
 
 // ============================================

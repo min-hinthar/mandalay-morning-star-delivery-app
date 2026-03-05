@@ -23,14 +23,14 @@ const updateStatusSchema = z.object({
   reason: z.string().max(500).optional(),
 });
 
-// Valid status transitions
+// Valid status transitions (admin can move forward AND backward)
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   pending: ["confirmed", "cancelled"],
-  confirmed: ["preparing", "cancelled"],
-  preparing: ["out_for_delivery", "cancelled"],
-  out_for_delivery: ["delivered"],
-  delivered: [],
-  cancelled: [],
+  confirmed: ["preparing", "pending", "cancelled"],
+  preparing: ["out_for_delivery", "confirmed", "cancelled"],
+  out_for_delivery: ["delivered", "preparing"],
+  delivered: ["out_for_delivery"],
+  cancelled: ["pending"],
 };
 
 // Map status transitions to email types (null = no email template available)
