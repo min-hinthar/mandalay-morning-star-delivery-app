@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { m } from "framer-motion";
-import { format, subDays, addDays, startOfDay, parseISO } from "date-fns";
+import { format, startOfDay, parseISO, nextSaturday, previousSaturday, isSaturday } from "date-fns";
 import { RefreshCw, Plus, Filter, MapPin, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -136,17 +136,23 @@ export default function AdminRoutesPage() {
     await fetchRoutes();
   };
 
-  const goToPreviousDay = () => {
+  const goToPreviousSaturday = () => {
     const current = selectedDate ? parseISO(selectedDate) : startOfDay(new Date());
-    setSelectedDate(format(subDays(current, 1), "yyyy-MM-dd"));
+    setSelectedDate(format(previousSaturday(current), "yyyy-MM-dd"));
   };
 
-  const goToNextDay = () => {
+  const goToNextSaturday = () => {
     const current = selectedDate ? parseISO(selectedDate) : startOfDay(new Date());
-    setSelectedDate(format(addDays(current, 1), "yyyy-MM-dd"));
+    setSelectedDate(format(nextSaturday(current), "yyyy-MM-dd"));
   };
 
-  const goToToday = () => {
+  const goToThisSaturday = () => {
+    const today = new Date();
+    const target = isSaturday(today) ? today : nextSaturday(today);
+    setSelectedDate(format(target, "yyyy-MM-dd"));
+  };
+
+  const clearDateFilter = () => {
     setSelectedDate(null);
   };
 
@@ -216,7 +222,12 @@ export default function AdminRoutesPage() {
             className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
           >
             <div className="flex items-center gap-2 bg-surface-primary rounded-xl border border-accent-teal/10 p-1">
-              <Button variant="ghost" size="icon" onClick={goToPreviousDay} className="h-8 w-8">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={goToPreviousSaturday}
+                className="h-8 w-8"
+              >
                 <ChevronLeft className="h-4 w-4" />
               </Button>
               <div className="flex items-center gap-2 px-3">
@@ -225,14 +236,24 @@ export default function AdminRoutesPage() {
                   {selectedDate ? format(parseISO(selectedDate), "EEE, MMM d") : "All Dates"}
                 </span>
               </div>
-              <Button variant="ghost" size="icon" onClick={goToNextDay} className="h-8 w-8">
+              <Button variant="ghost" size="icon" onClick={goToNextSaturday} className="h-8 w-8">
                 <ChevronRight className="h-4 w-4" />
               </Button>
+              {!selectedDate && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={goToThisSaturday}
+                  className="text-xs text-accent-teal hover:text-accent-teal"
+                >
+                  This Sat
+                </Button>
+              )}
               {selectedDate && (
                 <Button
                   variant="ghost"
                   size="sm"
-                  onClick={goToToday}
+                  onClick={clearDateFilter}
                   className="text-xs text-accent-teal hover:text-accent-teal"
                 >
                   Clear

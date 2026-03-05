@@ -25,11 +25,11 @@ export interface BuilderOrder {
 
 /**
  * Returns the upcoming Saturday in YYYY-MM-DD format.
- * If today is Saturday, returns next Saturday.
+ * If today is Saturday, returns today (so admin can plan same-day deliveries).
  */
 export function getNextSaturday(): string {
   const today = new Date();
-  const target = isSaturday(today) ? nextSaturday(today) : nextSaturday(today);
+  const target = isSaturday(today) ? today : nextSaturday(today);
   return format(target, "yyyy-MM-dd");
 }
 

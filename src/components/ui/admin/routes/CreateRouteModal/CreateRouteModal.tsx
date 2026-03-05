@@ -55,7 +55,8 @@ export function CreateRouteModal({ open, onOpenChange, onSubmit }: CreateRouteMo
     try {
       const res = await fetch("/api/admin/drivers?active=true");
       if (res.ok) {
-        const data = await res.json();
+        const json = await res.json();
+        const data = json.data ?? json;
         setDrivers(
           data
             .filter((d: Driver & { availability?: unknown }) => d.isActive)
@@ -77,9 +78,10 @@ export function CreateRouteModal({ open, onOpenChange, onSubmit }: CreateRouteMo
     try {
       const res = await fetch("/api/admin/orders?status=confirmed,preparing");
       if (res.ok) {
-        const data = await res.json();
+        const json = await res.json();
+        const data = json.data ?? json;
         setOrders(
-          data
+          (Array.isArray(data) ? data : [])
             .filter((o: { status: string }) => o.status === "confirmed" || o.status === "preparing")
             .map(
               (o: {
