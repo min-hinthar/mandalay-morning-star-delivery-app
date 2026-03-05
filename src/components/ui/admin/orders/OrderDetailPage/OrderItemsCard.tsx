@@ -1,21 +1,42 @@
 "use client";
 
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
+import { Button } from "@/components/ui/button";
 import { CollapsibleCard } from "./CollapsibleCard";
 import type { OrderDetailItem } from "./types";
+import type { OrderStatus } from "@/types/database";
 
 interface OrderItemsCardProps {
   items: OrderDetailItem[];
+  onRefund?: () => void;
+  orderStatus?: OrderStatus;
 }
 
-export function OrderItemsCard({ items }: OrderItemsCardProps) {
+export function OrderItemsCard({ items, onRefund, orderStatus }: OrderItemsCardProps) {
+  const hasRefundableItems = items.some((item) => item.quantity - item.refundedQuantity > 0);
+  const showRefundButton =
+    onRefund && hasRefundableItems && orderStatus !== "cancelled" && orderStatus !== "pending";
+
   return (
     <CollapsibleCard
       title={`Items (${items.length})`}
       icon={<ShoppingBag className="h-4 w-4" />}
       defaultOpen
+      action={
+        showRefundButton ? (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onRefund}
+            className="text-xs border-status-error text-status-error hover:bg-status-error/10"
+          >
+            <RotateCcw className="h-3 w-3 mr-1" />
+            Refund
+          </Button>
+        ) : undefined
+      }
     >
       <div className="space-y-2">
         {items.map((item) => {

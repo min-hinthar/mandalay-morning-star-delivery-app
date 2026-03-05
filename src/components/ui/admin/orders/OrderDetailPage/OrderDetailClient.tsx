@@ -19,6 +19,8 @@ import { PaymentInfoCard } from "./PaymentInfoCard";
 import { StatusChangeDialog } from "./StatusChangeDialog";
 import { StatusTimelineCard } from "./StatusTimelineCard";
 import { EmailHistoryCard } from "./EmailHistoryCard";
+import { RefundDialog } from "./RefundDialog";
+import { DriverAssignDialog } from "./DriverAssignDialog";
 
 export function OrderDetailClient() {
   const params = useParams<{ id: string }>();
@@ -31,33 +33,40 @@ export function OrderDetailClient() {
   // Status change dialog state
   const [pendingStatus, setPendingStatus] = useState<OrderStatus | null>(null);
   const [statusDialogOpen, setStatusDialogOpen] = useState(false);
+  // Refund dialog state
+  const [refundDialogOpen, setRefundDialogOpen] = useState(false);
+  // Driver assign dialog state
+  const [driverDialogOpen, setDriverDialogOpen] = useState(false);
   // Highlight animation class
   const [highlightStatus, setHighlightStatus] = useState(false);
 
-  const fetchOrderDetails = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await fetch(`/api/admin/orders/${orderId}/details`);
-      if (res.status === 404) {
-        notFound();
-        return;
+  const fetchOrderDetails = useCallback(
+    async (showLoader = true) => {
+      try {
+        if (showLoader) setLoading(true);
+        setError(null);
+        const res = await fetch(`/api/admin/orders/${orderId}/details`);
+        if (res.status === 404) {
+          notFound();
+          return;
+        }
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(extractErrorMessage(data, "Failed to fetch order details"));
+        }
+        const data: OrderDetail = await res.json();
+        setOrder(data);
+      } catch (err) {
+        if (err instanceof Error && err.message === "NEXT_NOT_FOUND") {
+          throw err;
+        }
+        setError(err instanceof Error ? err.message : "Unknown error");
+      } finally {
+        if (showLoader) setLoading(false);
       }
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(extractErrorMessage(data, "Failed to fetch order details"));
-      }
-      const data: OrderDetail = await res.json();
-      setOrder(data);
-    } catch (err) {
-      if (err instanceof Error && err.message === "NEXT_NOT_FOUND") {
-        throw err;
-      }
-      setError(err instanceof Error ? err.message : "Unknown error");
-    } finally {
-      setLoading(false);
-    }
-  }, [orderId]);
+    },
+    [orderId]
+  );
 
   useEffect(() => {
     fetchOrderDetails();
@@ -70,13 +79,15 @@ export function OrderDetailClient() {
 
   const handleStatusChanged = (newStatus: OrderStatus) => {
     if (!order) return;
-    // Optimistic update
+    // Optimistic update for immediate feedback
     setOrder({ ...order, status: newStatus });
     setStatusDialogOpen(false);
     setPendingStatus(null);
     // Highlight animation
     setHighlightStatus(true);
     setTimeout(() => setHighlightStatus(false), 1000);
+    // Refetch to sync audit log, timestamps, etc. (no loading spinner)
+    fetchOrderDetails(false);
   };
 
   const handleStatusFailed = (previousStatus: OrderStatus) => {
@@ -161,6 +172,7 @@ export function OrderDetailClient() {
             if (!order) return;
             setOrder({ ...order, needsContact: false });
           }}
+          onAssignDriver={() => setDriverDialogOpen(true)}
         />
       </div>
 
@@ -168,7 +180,11 @@ export function OrderDetailClient() {
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left column: Items + Totals + Email History */}
         <div className="space-y-6">
-          <OrderItemsCard items={order.items} />
+          <OrderItemsCard
+            items={order.items}
+            onRefund={() => setRefundDialogOpen(true)}
+            orderStatus={order.status}
+          />
           <TotalsCard order={order} />
           <EmailHistoryCard
             orderId={order.id}
@@ -202,6 +218,27 @@ export function OrderDetailClient() {
           onStatusFailed={handleStatusFailed}
         />
       )}
+
+      {/* Refund Dialog */}
+      <RefundDialog
+        open={refundDialogOpen}
+        onClose={() => setRefundDialogOpen(false)}
+        orderId={order.id}
+        items={order.items}
+        deliveryFeeCents={order.deliveryFeeCents}
+        totalCents={order.totalCents}
+        onRefundComplete={() => fetchOrderDetails(false)}
+      />
+
+      {/* Driver Assignment Dialog */}
+      <DriverAssignDialog
+        open={driverDialogOpen}
+        onClose={() => setDriverDialogOpen(false)}
+        orderId={order.id}
+        currentDriverId={order.assignedDriverId}
+        currentDriverName={order.assignedDriverName}
+        onDriverChanged={() => fetchOrderDetails(false)}
+      />
     </div>
   );
 }

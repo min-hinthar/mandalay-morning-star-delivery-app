@@ -9,10 +9,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/ui/admin/StatusBadge";
 import { toast } from "@/lib/hooks/useToastV8";
 import { extractErrorMessage } from "@/lib/utils/api-error";
-import {
-  STATUS_LABELS,
-  NEXT_STATUSES,
-} from "@/components/ui/admin/orders/OrderDetailExpanded/config";
+import { NEXT_STATUSES } from "@/components/ui/admin/orders/OrderDetailExpanded/config";
 import type { OrderStatus } from "@/types/database";
 import type { OrderDetail } from "./types";
 
@@ -21,6 +18,7 @@ interface OrderHeaderCardProps {
   onStatusAction: (newStatus: OrderStatus) => void;
   onPriorityChanged: (isPriority: boolean) => void;
   onContactResolved?: () => void;
+  onAssignDriver?: () => void;
 }
 
 export function OrderHeaderCard({
@@ -28,6 +26,7 @@ export function OrderHeaderCard({
   onStatusAction,
   onPriorityChanged,
   onContactResolved,
+  onAssignDriver,
 }: OrderHeaderCardProps) {
   const [togglingPriority, setTogglingPriority] = useState(false);
   const [markingContacted, setMarkingContacted] = useState(false);
@@ -166,31 +165,46 @@ export function OrderHeaderCard({
       {/* Placed at + Driver */}
       <div className="flex flex-wrap items-center gap-4 text-xs text-text-muted">
         <span>Placed {format(parseISO(order.placedAt), "MMM d, yyyy 'at' h:mm a")}</span>
-        {order.assignedDriverName && (
-          <span>
-            Driver:{" "}
+        <span className="inline-flex items-center gap-1.5">
+          Driver:{" "}
+          {order.assignedDriverName ? (
             <span className="font-medium text-text-secondary">{order.assignedDriverName}</span>
-          </span>
-        )}
+          ) : (
+            <span className="italic">Unassigned</span>
+          )}
+          <button
+            type="button"
+            onClick={onAssignDriver}
+            className="ml-1 text-primary hover:text-primary-hover hover:underline font-medium"
+          >
+            {order.assignedDriverId ? "Reassign" : "Assign"}
+          </button>
+        </span>
       </div>
 
       {/* Status action buttons */}
       {nextStatuses.length > 0 && (
         <div className="flex flex-wrap gap-2 pt-1">
-          {nextStatuses.map(({ status, label }) => (
-            <Button
-              key={status}
-              size="sm"
-              variant={status === "cancelled" ? "outline" : "default"}
-              onClick={() => onStatusAction(status)}
-              className={cn(
-                status === "cancelled" &&
-                  "border-status-error text-status-error hover:bg-status-error/10"
-              )}
-            >
-              {STATUS_LABELS[status] ? label : label}
-            </Button>
-          ))}
+          {nextStatuses.map(({ status, label }) => {
+            const isCancel = status === "cancelled";
+            const isRevert = label.startsWith("Revert") || label === "Reopen Order";
+            return (
+              <Button
+                key={status}
+                size="sm"
+                variant={isCancel || isRevert ? "outline" : "default"}
+                onClick={() => onStatusAction(status)}
+                className={cn(
+                  isCancel && "border-status-error text-status-error hover:bg-status-error/10",
+                  isRevert &&
+                    !isCancel &&
+                    "border-secondary text-secondary-hover hover:bg-secondary-light/50"
+                )}
+              >
+                {label}
+              </Button>
+            );
+          })}
         </div>
       )}
     </div>

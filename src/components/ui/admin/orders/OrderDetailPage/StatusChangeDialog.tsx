@@ -17,6 +17,11 @@ const EMAIL_SUBJECTS: Record<string, string> = {
   "preparing->out_for_delivery": "Your order is on its way",
   "out_for_delivery->delivered": "Your order has been delivered",
   cancelled: "Your order has been cancelled",
+  "cancelled->pending": "Your order has been reopened",
+  "delivered->out_for_delivery": "Order status update",
+  "out_for_delivery->preparing": "Order status update",
+  "preparing->confirmed": "Order status update",
+  "confirmed->pending": "Order status update",
 };
 
 function getEmailSubject(currentStatus: OrderStatus, newStatus: OrderStatus): string {
