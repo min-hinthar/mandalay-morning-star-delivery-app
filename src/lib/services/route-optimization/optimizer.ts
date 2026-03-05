@@ -60,7 +60,21 @@ export async function optimizeRoute(
 }
 
 /**
- * Optimizes route using Google Routes Optimization API
+ * Optimizes route using Google Routes API (Compute Routes)
+ *
+ * Strategy: Origin = kitchen. All delivery stops are intermediates with
+ * optimizeWaypointOrder=true. Destination = kitchen (return) or a dummy
+ * waypoint (last optimized stop) depending on returnToOrigin flag.
+ *
+ * Since Google requires a destination, we use a two-pass approach when
+ * returnToOrigin=false:
+ *  1. Send all stops as intermediates with destination = last stop
+ *  2. Google optimizes intermediate order; the destination is fixed but
+ *     we remap results so the optimized last intermediate + destination
+ *     form the final ordered list.
+ *
+ * NOTE: Google Routes API treats intermediates as via-points whose order
+ * it may rearrange. The destination is always the final point.
  */
 async function optimizeWithGoogleRoutes(
   stops: RoutableStop[],
@@ -74,8 +88,8 @@ async function optimizeWithGoogleRoutes(
     throw new Error("Google Maps API key is not configured");
   }
 
-  // Add time windows if delivery windows are specified
-  const intermediates = stops.map((stop) => {
+  // Build waypoints for ALL stops (used as intermediates)
+  const allWaypoints = stops.map((stop) => {
     const waypoint: Record<string, unknown> = {
       location: {
         latLng: {
@@ -85,7 +99,6 @@ async function optimizeWithGoogleRoutes(
       },
     };
 
-    // Add time window constraint if available
     if (stop.deliveryWindowStart && stop.deliveryWindowEnd) {
       waypoint.arrivalTimeWindow = {
         startTime: new Date(stop.deliveryWindowStart).toISOString(),
@@ -96,6 +109,9 @@ async function optimizeWithGoogleRoutes(
     return waypoint;
   });
 
+  // When not returning to origin: use kitchen as both origin AND destination
+  // (round-trip), then strip the return leg. This lets Google freely optimize
+  // ALL stops as intermediates without fixing any stop as the destination.
   const requestBody = {
     origin: {
       location: {
@@ -105,24 +121,15 @@ async function optimizeWithGoogleRoutes(
         },
       },
     },
-    destination: options?.returnToOrigin
-      ? {
-          location: {
-            latLng: {
-              latitude: KITCHEN_ORIGIN.latitude,
-              longitude: KITCHEN_ORIGIN.longitude,
-            },
-          },
-        }
-      : {
-          location: {
-            latLng: {
-              latitude: stops[stops.length - 1].address.lat,
-              longitude: stops[stops.length - 1].address.lng,
-            },
-          },
+    destination: {
+      location: {
+        latLng: {
+          latitude: KITCHEN_ORIGIN.latitude,
+          longitude: KITCHEN_ORIGIN.longitude,
         },
-    intermediates: intermediates.slice(0, -1), // Exclude destination if not returning
+      },
+    },
+    intermediates: allWaypoints,
     travelMode: "DRIVE",
     routingPreference: "TRAFFIC_AWARE",
     departureTime: (options?.departureTime || new Date()).toISOString(),
@@ -137,7 +144,7 @@ async function optimizeWithGoogleRoutes(
       "Content-Type": "application/json",
       "X-Goog-Api-Key": googleApiKey,
       "X-Goog-FieldMask":
-        "routes.optimizedIntermediateWaypointIndex,routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.legs.duration,routes.legs.distanceMeters",
+        "routes.optimizedIntermediateWaypointIndex,routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.legs.duration,routes.legs.distanceMeters,routes.legs.polyline.encodedPolyline",
     },
     body: JSON.stringify(requestBody),
   });
@@ -154,23 +161,31 @@ async function optimizeWithGoogleRoutes(
     throw new Error("No route returned from Google Routes API");
   }
 
-  // Get optimized order from response
-  const optimizedOrder = route.optimizedIntermediateWaypointIndex || stops.map((_, i) => i);
+  // Get optimized order — these are indices into the intermediates (= stops) array
+  const optimizedOrder: number[] =
+    route.optimizedIntermediateWaypointIndex || stops.map((_, i) => i);
 
-  // Build ordered stops with ETAs
+  // Legs: origin→stop0, stop0→stop1, ..., stopN→destination
+  // We have (stops.length + 1) legs. The last leg is return-to-kitchen — exclude it
+  // unless returnToOrigin is true.
+  const deliveryLegs = options?.returnToOrigin
+    ? (route.legs ?? [])
+    : (route.legs ?? []).slice(0, -1);
+
+  // Build ordered stops with ETAs from leg data
   let cumulativeDuration = 0;
   const departureTime = options?.departureTime || new Date();
 
   const orderedStops = optimizedOrder.map((originalIndex: number, newIndex: number) => {
     const stop = stops[originalIndex];
-    const leg = route.legs?.[newIndex];
+    // Leg at newIndex corresponds to: previous waypoint → this stop
+    // Leg 0 = origin → first intermediate, Leg 1 = first → second, etc.
+    const leg = deliveryLegs[newIndex];
 
     const durationSeconds = leg?.duration ? parseInt(leg.duration.replace("s", "")) : 0;
     const distanceMeters = leg?.distanceMeters || 0;
 
     cumulativeDuration += durationSeconds;
-
-    // Calculate ETA
     const eta = new Date(departureTime.getTime() + cumulativeDuration * 1000);
 
     return {
@@ -182,11 +197,40 @@ async function optimizeWithGoogleRoutes(
     };
   });
 
+  // Total distance/duration: sum delivery legs only (exclude return leg)
+  const totalDistanceMeters = deliveryLegs.reduce(
+    (sum: number, leg: { distanceMeters?: number }) => sum + (leg?.distanceMeters || 0),
+    0
+  );
+  const totalDurationSeconds = deliveryLegs.reduce(
+    (sum: number, leg: { duration?: string }) =>
+      sum + (leg?.duration ? parseInt(leg.duration.replace("s", "")) : 0),
+    0
+  );
+
+  // Build driving polyline from per-leg polylines (delivery legs only)
+  // This gives us the actual road-following path from origin through all stops
+  let combinedPolyline = route.polyline?.encodedPolyline || null;
+
+  // If we have per-leg polylines and are excluding the return leg,
+  // concatenate only the delivery leg polylines for a more accurate path
+  if (!options?.returnToOrigin && deliveryLegs.length > 0) {
+    const legPolylines = deliveryLegs
+      .map((leg: { polyline?: { encodedPolyline?: string } }) => leg?.polyline?.encodedPolyline)
+      .filter(Boolean) as string[];
+
+    if (legPolylines.length > 0) {
+      // Store per-leg polylines as semicolon-separated for the client to decode
+      // The client will decode each segment and concatenate the paths
+      combinedPolyline = legPolylines.join(";");
+    }
+  }
+
   return {
     orderedStops,
-    totalDistanceMeters: route.distanceMeters || 0,
-    totalDurationSeconds: route.duration ? parseInt(route.duration.replace("s", "")) : 0,
-    optimizedPolyline: route.polyline?.encodedPolyline || null,
+    totalDistanceMeters,
+    totalDurationSeconds,
+    optimizedPolyline: combinedPolyline,
   };
 }
 
