@@ -228,18 +228,20 @@ describe("Route Optimization Service", () => {
     it("uses Google Routes API when available", async () => {
       process.env.GOOGLE_MAPS_API_KEY = "test-api-key";
 
+      // Round-trip format: origin→stop1→stop2→origin (3 legs for 2 stops)
       const googleResponse = {
         routes: [
           {
             optimizedIntermediateWaypointIndex: [1, 0],
-            distanceMeters: 35000,
-            duration: "2400s",
+            distanceMeters: 50000, // total including return
+            duration: "3600s",
             polyline: {
-              encodedPolyline: "encodedPolylineString",
+              encodedPolyline: "fullRoutePolyline",
             },
             legs: [
-              { distanceMeters: 15000, duration: "1200s" },
-              { distanceMeters: 20000, duration: "1200s" },
+              { distanceMeters: 15000, duration: "1200s", polyline: { encodedPolyline: "leg1" } },
+              { distanceMeters: 20000, duration: "1200s", polyline: { encodedPolyline: "leg2" } },
+              { distanceMeters: 15000, duration: "1200s", polyline: { encodedPolyline: "leg3" } }, // return to kitchen
             ],
           },
         ],
@@ -280,9 +282,11 @@ describe("Route Optimization Service", () => {
       const result = await optimizeRoute(stops);
 
       expect(result.orderedStops).toHaveLength(2);
-      expect(result.totalDistanceMeters).toBe(35000);
-      expect(result.totalDurationSeconds).toBe(2400);
-      expect(result.optimizedPolyline).toBe("encodedPolylineString");
+      // Totals exclude the return-to-kitchen leg
+      expect(result.totalDistanceMeters).toBe(35000); // 15000 + 20000
+      expect(result.totalDurationSeconds).toBe(2400); // 1200 + 1200
+      // Polyline is semicolon-separated per-leg (excluding return)
+      expect(result.optimizedPolyline).toBe("leg1;leg2");
     });
 
     it("falls back to nearest-neighbor when Google API fails", async () => {
@@ -333,15 +337,17 @@ describe("Route Optimization Service", () => {
     it("includes delivery windows in Google API request", async () => {
       process.env.GOOGLE_MAPS_API_KEY = "test-api-key";
 
+      // Round-trip: origin→stop1→stop2→origin (3 legs)
       const googleResponse = {
         routes: [
           {
             optimizedIntermediateWaypointIndex: [0, 1],
-            distanceMeters: 25000,
-            duration: "1800s",
+            distanceMeters: 35000,
+            duration: "2700s",
             legs: [
               { distanceMeters: 10000, duration: "900s" },
               { distanceMeters: 15000, duration: "900s" },
+              { distanceMeters: 10000, duration: "900s" }, // return leg
             ],
           },
         ],
