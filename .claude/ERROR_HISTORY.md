@@ -222,3 +222,15 @@ Admin pages fetched `/api/admin/menu` without `limit` param. API defaults to `li
 **Fix:** Added `?limit=500` to menu item fetch calls that need the full list.
 
 **Prevention:** When building features that need ALL records (slug matching, bulk operations, dropdowns), always pass an explicit high `limit` or paginate through all results. Never rely on API defaults.
+
+---
+
+## Admin API Response Wrapper Silently Breaks Array Methods | Logic | High
+
+**Date:** 2026-03-04 | **Files:** `CreateRouteModal.tsx`, `RouteDetailClient.tsx` (3 fetch calls)
+
+Admin API endpoints return `{ data: [...], pagination: {...} }` wrapper objects, not plain arrays. Components called `.filter()` / `.map()` directly on the response object. Object `.filter()` is `undefined` — no runtime error, just silently produces nothing. Orders and drivers never appeared in route creation UI.
+
+**Fix:** Unwrap `json.data` before using array methods on API responses.
+
+**Prevention:** All `/api/admin/*` endpoints return `{ data, pagination }`. Always destructure or access `.data` before array operations. Use TypeScript types for API responses to catch this at compile time.
