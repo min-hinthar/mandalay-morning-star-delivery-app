@@ -66,7 +66,6 @@ export type CheckoutErrorCode =
   | "ADDRESS_INVALID"
   | "OUT_OF_COVERAGE"
   | "CUTOFF_PASSED"
-  | "DUPLICATE_ORDER"
   | "RATE_LIMITED"
   | "VALIDATION_ERROR"
   | "STRIPE_ERROR"

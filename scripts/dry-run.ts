@@ -298,12 +298,6 @@ async function createAndProcessOrder(
     };
 
     if (!checkoutRes.ok) {
-      // DUPLICATE_ORDER is expected after first order (one per Saturday).
-      // For the dry-run to create 20 orders, we bypass via direct DB insert.
-      if (checkoutBody.error?.code === "DUPLICATE_ORDER") {
-        // Create order directly via service client
-        return await createOrderDirect(ctx, menuItems, index, scheduledDate);
-      }
       result.error = `Checkout failed: ${checkoutBody.error?.message ?? checkoutRes.statusText}`;
       return result;
     }
@@ -341,90 +335,6 @@ async function createAndProcessOrder(
     // 7. Transition: out_for_delivery -> delivered
     await transitionOrderDirect(orderId, "out_for_delivery", "delivered");
     log(`  Order ${index + 1}: ${orderId} -> delivered`);
-
-    result.success = true;
-    result.finalStatus = "delivered";
-  } catch (err) {
-    result.error = err instanceof Error ? err.message : String(err);
-  }
-
-  return result;
-}
-
-/**
- * Creates an order directly via service client to bypass duplicate-per-Saturday check.
- * Used for orders 2-20 since the API only allows one per user per Saturday.
- */
-async function createOrderDirect(
-  ctx: TestContext,
-  menuItems: MenuItemRef[],
-  index: number,
-  scheduledDate: string
-): Promise<OrderResult> {
-  const result: OrderResult = { index, orderId: null, success: false };
-
-  try {
-    const itemCount = randomInt(1, Math.min(3, menuItems.length));
-    const shuffled = [...menuItems].sort(() => Math.random() - 0.5);
-    const selectedItems = shuffled.slice(0, itemCount);
-
-    // Create order
-    const { data: order, error: orderError } = await serviceClient
-      .from("orders")
-      .insert({
-        user_id: ctx.userId,
-        address_id: ctx.addressId,
-        status: "pending",
-        subtotal_cents: 1500,
-        delivery_fee_cents: 500,
-        tax_cents: 150,
-        tip_cents: 0,
-        total_cents: 2150,
-        delivery_window_start: `${scheduledDate}T10:00:00`,
-        delivery_window_end: `${scheduledDate}T11:00:00`,
-      })
-      .select("id")
-      .single();
-
-    if (orderError || !order) {
-      result.error = `Direct order creation failed: ${orderError?.message ?? "unknown"}`;
-      return result;
-    }
-
-    result.orderId = order.id;
-
-    // Insert order items
-    for (const item of selectedItems) {
-      await serviceClient.from("order_items").insert({
-        order_id: order.id,
-        menu_item_id: item.id,
-        name_snapshot: item.name,
-        base_price_snapshot: 500,
-        quantity: randomInt(1, 3),
-        line_total_cents: 500,
-      });
-    }
-
-    // Walk through lifecycle
-    await transitionOrderDirect(order.id, "pending", "confirmed");
-    log(`  Order ${index + 1}: ${order.id} -> confirmed`);
-
-    await transitionOrderDirect(order.id, "confirmed", "preparing");
-    log(`  Order ${index + 1}: ${order.id} -> preparing`);
-
-    if (ctx.driverId) {
-      await serviceClient
-        .from("orders")
-        .update({ assigned_driver_id: ctx.driverId })
-        .eq("id", order.id);
-      log(`  Order ${index + 1}: ${order.id} -> driver assigned`);
-    }
-
-    await transitionOrderDirect(order.id, "preparing", "out_for_delivery");
-    log(`  Order ${index + 1}: ${order.id} -> out_for_delivery`);
-
-    await transitionOrderDirect(order.id, "out_for_delivery", "delivered");
-    log(`  Order ${index + 1}: ${order.id} -> delivered`);
 
     result.success = true;
     result.finalStatus = "delivered";
