@@ -14,6 +14,7 @@ import { LazyRouteMap } from "@/components/ui/maps/LazyMaps";
 import { useViewportTrigger } from "@/lib/hooks/useViewportTrigger";
 import { MapSkeleton } from "@/components/ui/maps/MapSkeleton";
 import { OptimizationModal, type StopSummary } from "../OptimizationModal";
+import { AddStopsModal } from "../AddStopsModal";
 import { toast } from "@/lib/hooks/useToastV8";
 import { RouteHeader } from "./RouteHeader";
 import { DriverInfoCard } from "./DriverInfoCard";
@@ -40,6 +41,7 @@ export function RouteDetailClient() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [optimizationModalOpen, setOptimizationModalOpen] = useState(false);
+  const [addStopsModalOpen, setAddStopsModalOpen] = useState(false);
   const [isManuallyReordered, setIsManuallyReordered] = useState(false);
 
   const stopRefs = useRef<Record<string, HTMLDivElement | null>>({});
@@ -327,6 +329,7 @@ export function RouteDetailClient() {
               isManuallyReordered={isManuallyReordered}
               onStatusChange={handleStatusChange}
               onOptimize={() => setOptimizationModalOpen(true)}
+              onAddStops={() => setAddStopsModalOpen(true)}
               onRefresh={fetchRoute}
               onBack={() => router.push("/admin/routes")}
             />
@@ -394,6 +397,16 @@ export function RouteDetailClient() {
               routeId={routeId}
               currentStops={getStopSummaries()}
               onApply={handleOptimizationApply}
+            />
+
+            <AddStopsModal
+              open={addStopsModalOpen}
+              onOpenChange={setAddStopsModalOpen}
+              routeId={routeId}
+              onStopsAdded={() => {
+                toast({ message: "Stops added to route", type: "success" });
+                fetchRoute();
+              }}
             />
           </>
         )}

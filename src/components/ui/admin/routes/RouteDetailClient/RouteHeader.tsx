@@ -2,7 +2,16 @@
 
 import { m } from "framer-motion";
 import { format, parseISO } from "date-fns";
-import { ArrowLeft, RefreshCw, Play, CheckCircle2, Clock, Zap, AlertTriangle } from "lucide-react";
+import {
+  ArrowLeft,
+  RefreshCw,
+  Play,
+  CheckCircle2,
+  Clock,
+  Zap,
+  AlertTriangle,
+  Plus,
+} from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -45,6 +54,7 @@ interface RouteHeaderProps {
   isManuallyReordered: boolean;
   onStatusChange: (status: RouteStatus) => void;
   onOptimize: () => void;
+  onAddStops: () => void;
   onRefresh: () => void;
   onBack: () => void;
 }
@@ -58,6 +68,7 @@ export function RouteHeader({
   isManuallyReordered,
   onStatusChange,
   onOptimize,
+  onAddStops,
   onRefresh,
   onBack,
 }: RouteHeaderProps) {
@@ -102,6 +113,12 @@ export function RouteHeader({
             <SelectItem value="completed">Completed</SelectItem>
           </SelectContent>
         </Select>
+
+        {route.status === "planned" && (
+          <Button variant="outline" onClick={onAddStops} leftIcon={<Plus className="h-4 w-4" />}>
+            Add Stops
+          </Button>
+        )}
 
         {route.status === "planned" && route.stops.length > 1 && (
           <Button variant="outline" onClick={onOptimize} leftIcon={<Zap className="h-4 w-4" />}>
