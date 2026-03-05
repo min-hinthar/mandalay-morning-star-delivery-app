@@ -85,30 +85,6 @@ export async function POST(request: Request) {
       );
     }
 
-    // CHKT-05: Duplicate order prevention — one non-cancelled order per user per Saturday
-    const nextDay = new Date(input.scheduledDate + "T00:00:00");
-    nextDay.setDate(nextDay.getDate() + 1);
-    const nextDayStr = nextDay.toISOString().split("T")[0];
-
-    const { data: existingOrder } = await supabase
-      .from("orders")
-      .select("id, status")
-      .eq("user_id", user.id)
-      .neq("status", "cancelled")
-      .gte("delivery_window_start", `${input.scheduledDate}T00:00:00`)
-      .lt("delivery_window_start", `${nextDayStr}T00:00:00`)
-      .limit(1)
-      .maybeSingle();
-
-    if (existingOrder) {
-      return errorResponse(
-        "DUPLICATE_ORDER",
-        "You already have an order for this Saturday. View your order or contact us to make changes.",
-        409,
-        { existingOrderId: existingOrder.id }
-      );
-    }
-
     // Validate address belongs to user and is verified (BUG-05: coverage re-validation)
     const { data: address, error: addressError } = await supabase
       .from("addresses")

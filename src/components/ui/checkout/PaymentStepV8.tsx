@@ -142,12 +142,6 @@ export function PaymentStepV8({
           onCutoffPassed();
           return;
         }
-        // DUPLICATE_ORDER: show specific error
-        if (data.error?.code === "DUPLICATE_ORDER") {
-          setError("You already have an order for this Saturday.");
-          setIsCreatingSession(false);
-          return;
-        }
         throw new Error(data.error?.message ?? "Checkout failed");
       }
 
