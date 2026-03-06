@@ -51,3 +51,23 @@ Also: `Referrer-Policy: strict-origin-when-cross-origin` blocks Google images on
 ## beforeunload Must Check Ref
 
 `beforeunload` fires on `window.location.href` set to external URL. Use `enabledRef.current` check, not state. Set ref to false before programmatic navigation (Stripe, OAuth).
+
+---
+
+## Never Internal Fetch from Server Components to Own API Routes
+
+**Context:** Tracking page used `fetch(\`${baseUrl}/api/tracking/${orderId}\`)` from a server component. Failed because: wrong env var (`NEXT_PUBLIC_SITE_URL` vs `NEXT_PUBLIC_APP_URL`), wrong cookie format (`sb-access-token` vs Supabase's actual cookie name), and `baseUrl` can't resolve to `localhost` on Vercel.
+
+**Learning:** Server components can query the database directly — they run on the server. Internal fetch to own API routes adds network hops, auth complexity (cookie forwarding), and env var fragility. Extract the API's DB logic into a shared helper and call it directly.
+
+```typescript
+// BAD: internal fetch from server component
+const res = await fetch(`${baseUrl}/api/tracking/${id}`, {
+  headers: { Cookie: `sb-access-token=${token}` },
+});
+
+// GOOD: direct DB query in server component
+const data = await fetchTrackingData(supabase, id, user.id);
+```
+
+**Apply when:** Server component needs data that an API route already provides. Extract shared logic, don't fetch yourself.

@@ -77,6 +77,7 @@ export function useLocationTracking({
   const lastUpdateTimeRef = useRef<number>(0);
   const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isTrackingRef = useRef(false);
+  const backoffMultiplierRef = useRef(1);
 
   // Send location to server
   const sendLocationUpdate = useCallback(
@@ -120,10 +121,12 @@ export function useLocationTracking({
 
         if (response.ok) {
           lastUpdateTimeRef.current = now;
+          backoffMultiplierRef.current = 1;
           setLastServerUpdate(new Date().toISOString());
         } else if (response.status === 429) {
-          // Rate limited by server - wait longer
-          lastUpdateTimeRef.current = now;
+          // Exponential backoff on rate limit (max 16x)
+          backoffMultiplierRef.current = Math.min(16, backoffMultiplierRef.current * 2);
+          lastUpdateTimeRef.current = now + effectiveInterval * (backoffMultiplierRef.current - 1);
         }
       } catch {
         // Network error - will retry on next location update

@@ -40,7 +40,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
   try {
     const { orderId } = await params;
     const url = new URL(request.url);
-    const isShared = url.searchParams.get("shared") === "true";
+    const shareToken = url.searchParams.get("token");
     const supabase = await createClient();
 
     // Check authentication
@@ -90,6 +90,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
         delivery_fee_cents,
         tax_cents,
         total_cents,
+        share_token,
         addresses (
           line_1,
           line_2,
@@ -125,8 +126,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
       );
     }
 
-    // Verify user owns this order (skip for shared tracking links)
-    if (!isShared && order.user_id !== user.id) {
+    // Verify user owns this order or has valid share token
+    const hasValidShareToken =
+      shareToken != null && order.share_token != null && shareToken === order.share_token;
+    if (!hasValidShareToken && order.user_id !== user.id) {
       return NextResponse.json(
         {
           error: {

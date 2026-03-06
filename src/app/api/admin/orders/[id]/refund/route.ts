@@ -9,20 +9,17 @@ import { RefundNotification } from "@/emails/RefundNotification";
 import type { Json } from "@/types/database";
 import { checkRateLimit, refundLimiter } from "@/lib/rate-limit";
 
-interface OrderItemRow {
-  id: string;
-  order_id: string;
-  name_snapshot: string;
-  quantity: number;
-  line_total_cents: number;
-  refunded_quantity: number | null;
-}
-
 interface RefundedItem {
   orderItemId: string;
   name: string;
   quantityRefunded: number;
   refundAmountCents: number;
+}
+
+interface RpcResult {
+  refundedItems: RefundedItem[];
+  shippingRefundCents: number;
+  totalRefundCents: number;
 }
 
 /**
@@ -62,10 +59,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     const { items, refundShipping, notifyCustomer } = parsed.data;
 
-    // Verify order exists
+    // Verify order exists (need user_id + total for email/audit)
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("id, user_id, delivery_fee_cents, total_cents")
+      .select("id, user_id, total_cents")
       .eq("id", orderId)
       .single();
 
@@ -73,124 +70,39 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return apiError("NOT_FOUND", "Order not found", 404);
     }
 
-    // Fetch all requested order items
-    const itemIds = items.map((i) => i.orderItemId);
-    const { data: orderItems, error: itemsError } = await supabase
-      .from("order_items")
-      .select("id, order_id, name_snapshot, quantity, line_total_cents, refunded_quantity")
-      .in("id", itemIds)
-      .returns<OrderItemRow[]>();
+    // Atomic refund via database function (FOR UPDATE prevents concurrent races)
+    const rpcItems = items.map((i) => ({
+      orderItemId: i.orderItemId,
+      quantity: i.quantity,
+      reason: i.reason,
+    }));
 
-    if (itemsError) {
-      logger.exception(itemsError, { api: "admin/orders/[id]/refund" });
-      return apiError("INTERNAL_ERROR", "Failed to fetch order items", 500);
-    }
+    const { data: rpcResult, error: rpcError } = await supabase.rpc("apply_item_refunds", {
+      p_order_id: orderId,
+      p_items: rpcItems,
+      p_refund_shipping: refundShipping ?? false,
+    });
 
-    // Validate all items belong to this order
-    const invalidItems = orderItems?.filter((item) => item.order_id !== orderId) || [];
-    if (invalidItems.length > 0) {
-      return apiError("BAD_REQUEST", "Some items do not belong to this order", 400, {
-        invalidItemIds: invalidItems.map((i) => i.id),
-      });
-    }
-
-    // Check for missing items
-    const foundIds = new Set(orderItems?.map((i) => i.id) || []);
-    const missingIds = itemIds.filter((id) => !foundIds.has(id));
-    if (missingIds.length > 0) {
-      return apiError("NOT_FOUND", "Some items not found", 404, { missingItemIds: missingIds });
-    }
-
-    // BUG-05 FIX: Calculate refunds FIRST, validate ceiling, THEN apply DB updates.
-    // This prevents partial DB writes when the total exceeds the order amount.
-
-    // Phase 1: Calculate refund amounts (no DB writes)
-    const refundedItems: RefundedItem[] = [];
-    let totalRefundCents = 0;
-    const pendingUpdates: Array<{ orderItemId: string; newRefundedQuantity: number }> = [];
-
-    for (const refundItem of items) {
-      const orderItem = orderItems!.find((oi) => oi.id === refundItem.orderItemId)!;
-
-      // Calculate already refunded quantity
-      const alreadyRefunded = orderItem.refunded_quantity || 0;
-      const remainingQuantity = orderItem.quantity - alreadyRefunded;
-
-      // Validate refund quantity
-      if (refundItem.quantity > remainingQuantity) {
-        return apiError(
-          "BAD_REQUEST",
-          `Cannot refund ${refundItem.quantity} of "${orderItem.name_snapshot}". Only ${remainingQuantity} remaining.`,
-          400,
-          { orderItemId: refundItem.orderItemId }
-        );
+    if (rpcError) {
+      const msg = rpcError.message;
+      // Surface validation errors from the function
+      if (msg.includes("not found") || msg.includes("does not belong")) {
+        return apiError("NOT_FOUND", msg, 404);
       }
-
-      // Calculate refund amount (proportional to quantity)
-      const unitPrice = orderItem.line_total_cents / orderItem.quantity;
-      const refundAmount = Math.round(unitPrice * refundItem.quantity);
-
-      const newRefundedQuantity = alreadyRefunded + refundItem.quantity;
-      pendingUpdates.push({ orderItemId: refundItem.orderItemId, newRefundedQuantity });
-
-      refundedItems.push({
-        orderItemId: refundItem.orderItemId,
-        name: orderItem.name_snapshot,
-        quantityRefunded: refundItem.quantity,
-        refundAmountCents: refundAmount,
-      });
-
-      totalRefundCents += refundAmount;
-    }
-
-    // Add shipping refund if requested
-    let shippingRefundCents = 0;
-    if (refundShipping && order.delivery_fee_cents > 0) {
-      shippingRefundCents = order.delivery_fee_cents;
-      totalRefundCents += shippingRefundCents;
-    }
-
-    // BUG-05 FIX: Validate total refund does not exceed order total
-    const orderTotal = order.total_cents ?? 0;
-    if (totalRefundCents > orderTotal) {
-      return apiError(
-        "BAD_REQUEST",
-        `Refund amount ($${(totalRefundCents / 100).toFixed(2)}) exceeds order total ($${(orderTotal / 100).toFixed(2)})`,
-        400
-      );
-    }
-
-    // Phase 2: Apply DB updates (ceiling validated)
-    for (const update of pendingUpdates) {
-      const { error: updateError } = await supabase
-        .from("order_items")
-        .update({ refunded_quantity: update.newRefundedQuantity })
-        .eq("id", update.orderItemId);
-
-      if (updateError) {
-        logger.exception(updateError, {
-          api: "admin/orders/[id]/refund",
-          orderItemId: update.orderItemId,
-        });
-        return apiError("INTERNAL_ERROR", "Failed to update order item", 500);
+      if (msg.includes("Cannot refund") || msg.includes("exceeds order total")) {
+        return apiError("BAD_REQUEST", msg, 400);
       }
+      logger.exception(rpcError, { api: "admin/orders/[id]/refund" });
+      return apiError("INTERNAL_ERROR", "Failed to process refund", 500);
     }
+
+    const { refundedItems, shippingRefundCents, totalRefundCents } = rpcResult as RpcResult;
 
     // Create audit log entry
     const auditReason = items[0].reason || `Refund processed for ${refundedItems.length} item(s)`;
 
-    // Prepare audit values as Json-compatible objects
-    const oldValue = {
-      items: orderItems?.map((oi) => ({
-        id: oi.id,
-        name: oi.name_snapshot,
-        quantity: oi.quantity,
-        refundedQuantity: oi.refunded_quantity || 0,
-      })),
-    };
-
     const newValue = {
-      items: refundedItems.map((ri) => ({
+      items: refundedItems.map((ri: RefundedItem) => ({
         orderItemId: ri.orderItemId,
         name: ri.name,
         quantityRefunded: ri.quantityRefunded,
@@ -205,7 +117,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       action: "refund",
       actor_id: userId,
       actor_role: "admin",
-      old_value: oldValue as Json,
+      old_value: null as Json,
       new_value: newValue as Json,
       reason: auditReason,
     });

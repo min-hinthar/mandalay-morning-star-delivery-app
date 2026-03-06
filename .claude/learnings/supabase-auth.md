@@ -58,3 +58,26 @@ Bare function calls re-evaluate per row. `(select public.is_admin())` triggers i
 - Belt-and-suspenders: call in auth callback AND in API routes
 
 **Apply when:** Any server-side code that needs user data from a service role client. Never use `auth.getUser()` — use `auth.admin.getUserById()`.
+
+---
+
+## `listUsers()` Loads ALL Users — Use Profiles Table Lookup
+
+**Context:** Driver invite route called `supabase.auth.admin.listUsers()` to find one user by email. Loads entire auth.users table into memory — O(n) on user count.
+
+**Learning:** Never use `listUsers()` to find a single user. Query the `profiles` table by email (indexed), then `getUserById()` for auth metadata if needed.
+
+```typescript
+// BAD: loads ALL users
+const { data } = await supabase.auth.admin.listUsers();
+const user = data?.users?.find(u => u.email === email);
+
+// GOOD: indexed lookup
+const { data: profile } = await supabase
+  .from("profiles").select("id").eq("email", email).single();
+const user = profile
+  ? (await supabase.auth.admin.getUserById(profile.id)).data.user
+  : null;
+```
+
+**Apply when:** Looking up a single user by email or other attribute in admin/service contexts.
