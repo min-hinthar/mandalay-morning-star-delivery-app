@@ -35,6 +35,7 @@ export interface OrderQueryResult {
   delivery_fee_cents: number;
   tax_cents: number;
   total_cents: number;
+  share_token: string | null;
   addresses: AddressData | null;
   order_items: OrderItemData[];
 }

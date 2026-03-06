@@ -136,9 +136,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if user already exists in auth system
-    const { data: userData } = await supabase.auth.admin.listUsers();
-    const existingUser = userData?.users?.find((u) => u.email?.toLowerCase() === normalizedEmail);
+    // Check if user already exists via profiles table (avoids loading all auth users)
+    const { data: userProfile } = await supabase
+      .from("profiles")
+      .select("id")
+      .eq("email", normalizedEmail)
+      .single();
+
+    const existingUser = userProfile
+      ? (await supabase.auth.admin.getUserById(userProfile.id)).data.user
+      : null;
 
     // Update user metadata if they exist (so callback can detect driver invite)
     if (existingUser) {

@@ -1,13 +1,12 @@
 import { Button, Link, Section, Text } from "@react-email/components";
 import { DeliveryBlock } from "./components/DeliveryBlock";
 import { EmailLayout } from "./components/EmailLayout";
+import { APP_URL } from "./helpers";
 import { OrderItemsTable } from "./components/OrderItemsTable";
 import { OrderStatusTracker } from "./components/OrderStatusTracker";
 import { OrderTotalsTable } from "./components/OrderTotalsTable";
 import { SuggestedItems } from "./components/SuggestedItems";
 import { SupportSection } from "./components/SupportSection";
-
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 
 const SERIF = "Georgia, 'Palatino Linotype', serif";
 const SANS =

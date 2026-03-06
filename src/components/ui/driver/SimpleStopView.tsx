@@ -15,8 +15,7 @@ import { PhotoCapture } from "./PhotoCapture";
 import { SimpleRouteDone } from "./SimpleRouteDone";
 import type { RouteStopStatus } from "@/types/driver";
 
-// Operator phone number — hardcoded for MVP
-const OPERATOR_PHONE = "+16269001234";
+const OPERATOR_PHONE = process.env.NEXT_PUBLIC_OPERATOR_PHONE || "+16269001234";
 
 interface SimpleStopData {
   id: string;

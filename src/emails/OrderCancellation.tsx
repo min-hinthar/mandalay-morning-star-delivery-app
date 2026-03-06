@@ -1,8 +1,7 @@
 import { Button, Link, Section, Text } from "@react-email/components";
 import { EmailLayout } from "./components/EmailLayout";
+import { APP_URL } from "./helpers";
 import { SupportSection } from "./components/SupportSection";
-
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 
 const SANS =
   "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
