@@ -71,3 +71,20 @@ const data = await fetchTrackingData(supabase, id, user.id);
 ```
 
 **Apply when:** Server component needs data that an API route already provides. Extract shared logic, don't fetch yourself.
+
+---
+
+## Next.js 16: `middleware.ts` → `proxy.ts`
+
+**Context:** Vercel deploy failed with `ENOENT middleware.js.nft.json`. Next.js 16 renamed the middleware convention to `proxy.ts` running on Node.js runtime (not Edge).
+
+**Learning:** Rename root `middleware.ts` → `proxy.ts` and export `proxy()` instead of `middleware()`. `config.matcher` syntax unchanged.
+
+```typescript
+// proxy.ts (root)
+export async function proxy(request: NextRequest) {
+  return updateSession(request);
+}
+```
+
+**Apply when:** Upgrading to Next.js 16+ or seeing ENOENT errors for `middleware.js.nft.json` on Vercel.
