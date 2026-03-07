@@ -56,7 +56,7 @@ export const CardContent = memo(function CardContent({
 
       {/* Burmese name - muted secondary */}
       {showBurmeseName && item.nameMy && (
-        <p className="text-xs text-text-muted mt-0.5 font-burmese line-clamp-1">{item.nameMy}</p>
+        <p className="text-lg text-text-muted mt-0.5 font-burmese line-clamp-1">{item.nameMy}</p>
       )}
 
       {/* Description - secondary typography */}
