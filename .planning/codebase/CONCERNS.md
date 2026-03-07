@@ -1,320 +1,152 @@
 # Codebase Concerns
 
-**Analysis Date:** 2026-01-30
+**Analysis Date:** 2026-03-06
 
 ## Tech Debt
 
-**Sentry Integration Disabled in Development:**
+**Duplicate Address API Routes:**
+- Issue: Two parallel address API surfaces exist — `src/app/api/addresses/` and `src/app/api/account/addresses/` — with overlapping but different implementations (196 vs 162 lines). The `addresses/` version includes geocoding and coverage check; `account/addresses/` uses a different validation schema.
+- Files: `src/app/api/addresses/route.ts`, `src/app/api/account/addresses/route.ts`, `src/app/api/addresses/[id]/route.ts`, `src/app/api/account/addresses/[id]/route.ts`
+- Impact: Two codepaths to maintain, inconsistent validation. `useAddresses` hook uses `/api/addresses`, `AddressesTab` component uses `/api/account/addresses`. Bug fixes must be applied to both.
+- Fix approach: Consolidate into one route group. The `/api/addresses` version is more complete (has geocoding, coverage). Migrate `AddressesTab` to use `useAddresses` hook, then delete `src/app/api/account/addresses/`.
 
-- Issue: Sentry client-side instrumentation causes "Maximum update depth exceeded" infinite loop blocking navigation
-- Files: `instrumentation-client.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`
-- Impact: No error tracking in development mode, can't debug client-side errors locally, production-only monitoring
-- Fix approach: Wait for @sentry/nextjs compatibility fix for Next.js 16 / React 19, monitor Sentry release notes
+**Database Types Out of Sync:**
+- Issue: `src/types/database.ts` is a manually maintained file (987 lines) that does not reflect columns added in migrations 030+. Fields like `needs_contact`, `contacted_at`, `contacted_by`, and `audit_logs` table are missing from types.
+- Files: `src/types/database.ts`, `src/app/api/admin/orders/[id]/contact/route.ts`
+- Impact: Forces `as Record<string, unknown>` and `as unknown as Promise<...>` casts throughout API routes. 9+ instances of `as unknown as` in API layer. No compile-time safety for these columns.
+- Fix approach: Run `supabase gen types typescript` to regenerate types from live schema. Set up a CI check or pre-commit hook to detect drift.
 
-**In-Memory Rate Limiting Not Production-Ready:**
+**16 Raw `<img>` Tags Bypassing `next/image`:**
+- Issue: 16 `eslint-disable @next/next/no-img-element` suppressions. Only 10 of 16 have `referrerPolicy="no-referrer"`. Per ERROR_HISTORY, raw `<img>` in a PWA causes opaque response caching issues with the service worker.
+- Files: `src/app/(admin)/admin/menu/MenuItemsTable.tsx`, `src/app/(admin)/admin/menu/[id]/MenuItemPhotoSection.tsx`, `src/components/ui/admin/photos/BulkUploadMatcher.tsx`, `src/components/ui/admin/photos/PhotoUploadZone.tsx`, `src/components/ui/admin/routes/RouteBuilder/DriverSelector.tsx`, `src/components/ui/orders/tracking/DriverCard.tsx`, `src/components/ui/orders/tracking/DeliveredScreen.tsx`
+- Impact: Missing `referrerPolicy` on 6 `<img>` tags can cause blank images on Google-hosted avatars/photos. All raw `<img>` tags risk stale opaque caching in the PWA service worker.
+- Fix approach: Replace all raw `<img>` with `next/image` (proxies same-origin, avoids opaque responses). For unavoidable cases, always add `referrerPolicy="no-referrer"`.
 
-- Issue: Rate limiter uses Map-based in-memory store, won't work across multiple server instances
-- Files: `src/lib/utils/rate-limit.ts`
-- Impact: Rate limits reset on server restart, can be bypassed with multiple requests to different instances, memory accumulation over time
-- Fix approach: Replace with Redis or Upstash for distributed state, add IP-based fallback, implement proper cleanup
+**`supabase: any` in Status Email Helper:**
+- Issue: `sendStatusEmail` function takes `supabase: any` parameter with eslint-disable.
+- Files: `src/app/api/admin/orders/[id]/status/route.ts` (line 185-186)
+- Impact: No type checking on all Supabase queries within this function. Could silently pass wrong column names.
+- Fix approach: Type the parameter as `SupabaseClient<Database>` from `@supabase/supabase-js`.
 
-**Large Component Files:**
-
-- Issue: Multiple components exceed 500+ lines, some exceed 1000 lines
-- Files: `src/components/ui/FormValidation.tsx` (1031 lines), `src/lib/motion-tokens.ts` (927 lines), `src/components/ui/homepage/HowItWorksSection.tsx` (873 lines), `src/components/ui/Modal.tsx` (719 lines), `src/lib/swipe-gestures.ts` (687 lines)
-- Impact: Harder to maintain, test, and reason about; increases cognitive load; violates project convention of <400 lines
-- Fix approach: Split into smaller modules using composition patterns (extract sub-components, hooks, utilities)
-
-**setTimeout/setInterval Cleanup Pattern Not Enforced:**
-
-- Issue: Many files recently fixed for missing timeout cleanup, but pattern not enforced at lint/build time
-- Files: Recent fixes in 15+ components (see ERROR_HISTORY.md entries from 2026-01-29 to 2026-01-30)
-- Impact: New code may introduce same mobile crash bugs, no automated detection
-- Fix approach: Create ESLint rule to detect setTimeout/setInterval without cleanup, add to CI pipeline
-
-**TypeScript `any` Usage:**
-
-- Issue: 29 instances of `any` type across 21 files
-- Files: `src/app/(customer)/checkout/page.tsx`, `src/app/(admin)/admin/menu/page.tsx`, `src/lib/webgl/gradients.ts`, `src/lib/hooks/useCart.ts`, and 17 others
-- Impact: Type safety bypassed, potential runtime errors not caught at compile time
-- Fix approach: Audit each usage, replace with proper types or `unknown` with type guards
-
-**Console Logs in Production Code:**
-
-- Issue: 30 console.log/warn/error statements across 19 files
-- Files: `src/lib/web-vitals.tsx`, `src/lib/services/route-optimization.ts`, `src/lib/services/geocoding.ts`, `src/lib/stores/cart-store.ts`, and 15 others
-- Impact: Some survive next.config.ts removeConsole filter (errors/warns excluded), leak internal state to production console
-- Fix approach: Replace with proper logger utility (`src/lib/utils/logger.ts` exists), enforce via ESLint rule
-
-**Missing Google Maps Map ID:**
-
-- Issue: AdvancedMarkerElement requires Map ID but not configured in all environments
-- Files: `src/components/ui/orders/tracking/DeliveryMap.tsx`, `src/components/ui/homepage/HowItWorksSection.tsx`, `src/components/ui/coverage/CoverageRouteMap.tsx`
-- Impact: Falls back to legacy Marker API, can't use vector maps or custom HTML markers, console warnings in production
-- Fix approach: Add NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID to .env.example, document in setup guide, add validation check
+**49 Migration Files with Mixed Naming Conventions:**
+- Issue: Migrations use two naming schemes: numbered (`001_schema.sql` through `037_checkout_session_id.sql`) and timestamped (`20260214_add_orders_is_priority.sql` through `20260305_atomic_refund.sql`). No clear boundary or reason for the switch.
+- Files: `supabase/migrations/`
+- Impact: Ordering ambiguity. Numbered migrations sort lexically before timestamped ones, but timestamped ones may have been created between numbered ones chronologically.
+- Fix approach: Adopt timestamped naming going forward. Document the transition point.
 
 ## Known Bugs
 
-**Route ID Extraction Missing:**
-
-- Symptoms: Tracking page can't extract route_id from routeStop
-- Files: `src/components/ui/orders/tracking/TrackingPageClient.tsx:51`
-- Trigger: Order tracking when routeStop doesn't contain route_id field
-- Workaround: TODO comment indicates feature not implemented yet
-
-**Dropdown Close on Item Click (Fixed but Fragile):**
-
-- Symptoms: Clicking dropdown items closes menu before action fires
-- Files: `src/components/ui/dropdown-menu.tsx`
-- Trigger: Fast click on menu items
-- Workaround: Fixed with mousedown handler and click-outside ref wrapping entire dropdown, but pattern could regress
-
-**Mobile Scroll Lock Still Has Edge Cases:**
-
-- Symptoms: Occasional crash/reload when rapidly opening/closing nested overlays
-- Files: `src/lib/hooks/useBodyScrollLock.ts`, multiple modal/drawer components
-- Trigger: Rapidly toggle nested modals (modal inside drawer, item detail inside cart)
-- Workaround: useBodyScrollLock now tracks global lock count and defers restore, but timing-sensitive
+**Yelp Link Placeholder:**
+- Symptoms: Footer contains a TODO comment for Yelp business page URL.
+- Files: `src/components/ui/homepage/SiteFooter.tsx` (line 56)
+- Trigger: User clicks Yelp link in footer.
+- Workaround: None specified in code.
 
 ## Security Considerations
 
-**Service Role Key Exposure Risk:**
+**No CSRF Protection on API Routes:**
+- Risk: No CSRF token validation detected across all 101 API route handlers. State-mutating POST/PATCH/DELETE endpoints rely solely on Supabase session cookies for authentication.
+- Files: All `src/app/api/**/route.ts` files
+- Current mitigation: Supabase auth cookies use `SameSite=Lax` by default. Rate limiting on most endpoints.
+- Recommendations: For same-origin API routes, `SameSite=Lax` is sufficient for GET-triggered CSRF. POST mutations are protected if cookies are `SameSite=Strict` or requests require a custom header. Verify cookie `SameSite` configuration. Consider adding `Origin` header validation for critical mutations (checkout, order cancel, refund).
 
-- Risk: SUPABASE_SERVICE_ROLE_KEY bypasses Row Level Security, could expose all data
-- Files: `.env.example`, server-side API routes
-- Current mitigation: Only used server-side, never in NEXT*PUBLIC* vars, documented in .env.example
-- Recommendations: Audit all usages, ensure never sent to client, consider rotating periodically
+**Debug Pages Accessible in Production:**
+- Risk: Sentry test page at `/debug/sentry` is under the `(customer)` route group with no auth gate. Anyone can trigger Sentry test errors, polluting error tracking.
+- Files: `src/app/(customer)/debug/sentry/page.tsx`
+- Current mitigation: None.
+- Recommendations: Gate behind `NODE_ENV === "development"` check or `requireAdmin()`, or remove entirely. The API route `/api/debug/sentry` (referenced but directory not found) may already be removed.
 
-**Secrets in Environment Files:**
+**Rate Limiting Gaps — 10 Unprotected Routes:**
+- Risk: 10 API routes have no rate limiting: `src/app/api/account/addresses/route.ts`, `src/app/api/account/addresses/[id]/route.ts`, `src/app/api/account/orders/[id]/cancel/route.ts`, `src/app/api/addresses/[id]/default/route.ts`, `src/app/api/checkout/validate-promo/route.ts`, `src/app/api/cron/delivery-reminders/route.ts`, `src/app/api/emails/test/route.ts`, `src/app/api/health/route.ts`, `src/app/api/orders/[id]/share-token/route.ts`, `src/app/api/webhooks/resend/route.ts`
+- Files: Listed above
+- Current mitigation: Auth-gated routes still require valid session. Cron route has `CRON_SECRET` bearer token check. Health and public menu routes are read-only.
+- Recommendations: Add rate limiting to all write endpoints (cancel, address mutations, promo validation). `emails/test` should be admin-only and rate-limited. Webhook routes should use the `webhook` rate limit tier.
 
-- Risk: .env.local contains actual secrets, could be committed accidentally
-- Files: `.env`, `.env.local` (git-ignored but present on disk)
-- Current mitigation: .gitignore excludes .env.local, .env.example shows template
-- Recommendations: Add pre-commit hook to scan for secrets, use encrypted secrets manager for team sharing
+**Non-Null Assertions on Environment Variables:**
+- Risk: 5 instances of `process.env.NEXT_PUBLIC_SUPABASE_URL!` and `process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!` with TypeScript non-null assertion. If env vars are missing, runtime crash with unhelpful error.
+- Files: `src/lib/supabase/client.ts`, `src/lib/supabase/middleware.ts`, `src/lib/supabase/server.ts`
+- Current mitigation: `createServiceClient()` properly validates `SUPABASE_SERVICE_ROLE_KEY` with a thrown error message. The public/anon clients do not.
+- Recommendations: Add validation with descriptive error messages for all env vars, or use a centralized env validation (e.g., `@t3-oss/env-nextjs` or a Zod schema at startup).
 
-**Google Maps API Key:**
-
-- Risk: GOOGLE_MAPS_API_KEY is public (exposed to client), could be scraped and abused
-- Files: `.env.example`, Google Maps components
-- Current mitigation: Should have domain restrictions in Google Cloud Console
-- Recommendations: Document API key restrictions setup, add HTTP referrer restrictions, monitor usage quotas
-
-**Stripe Webhook Secret:**
-
-- Risk: If STRIPE_WEBHOOK_SECRET leaked, attacker could forge payment events
-- Files: `.env.example`, webhook handler
-- Current mitigation: Not exposed to client, only server-side
-- Recommendations: Rotate on any suspected compromise, use Stripe CLI secret for local dev only
-
-**Dangerously Allow SVG:**
-
-- Risk: next.config.ts enables dangerouslyAllowSVG which could allow XSS via SVG files
-- Files: `next.config.ts:37`
-- Current mitigation: CSP sandbox policy applied, content-disposition attachment
-- Recommendations: Validate SVG sources, consider disabling if not needed, keep CSP strict
+**10 Public API Routes Without Auth:**
+- Risk: Routes at `src/app/api/analytics/vitals/route.ts`, `src/app/api/checkout/validate-promo/route.ts`, `src/app/api/coverage/check/route.ts`, `src/app/api/menu/route.ts`, `src/app/api/menu/search/route.ts`, `src/app/api/sections/route.ts` are intentionally public. However, `src/app/api/webhooks/resend/route.ts` and `src/app/api/webhooks/stripe/route.ts` use webhook signature verification instead of user auth.
+- Files: Listed above
+- Current mitigation: Webhook routes verify signatures. Menu/sections/coverage are read-only. Vitals is write-only telemetry.
+- Recommendations: Ensure `validate-promo` cannot be abused for promo code enumeration. Add rate limiting to `coverage/check` (calls Google Maps API, has cost implications).
 
 ## Performance Bottlenecks
 
-**Large Bundle Size from Heavy Components:**
+**No Sentry Client Config (Missing `sentry.client.config.ts`):**
+- Problem: `sentry.server.config.ts` and `sentry.edge.config.ts` exist, but `sentry.client.config.ts` is missing. Client-side errors may not be captured in Sentry.
+- Files: Root directory — `sentry.server.config.ts`, `sentry.edge.config.ts` present; `sentry.client.config.ts` absent
+- Cause: Possibly deleted or never created. The `instrumentation.ts` file may handle server-side init only.
+- Improvement path: Create `sentry.client.config.ts` with appropriate DSN, sample rates, and replay config. Verify client errors appear in Sentry dashboard.
 
-- Problem: HowItWorksSection includes Google Maps (369KB), loads synchronously even when below fold
-- Files: `src/components/ui/homepage/HowItWorksSection.tsx` (873 lines), Google Maps integration
-- Cause: No lazy loading for below-fold heavy components
-- Improvement path: Already wrapped in React.lazy() per LEARNINGS.md, verify it's applied consistently, consider IntersectionObserver for maps
-
-**Framer Motion willChange Always Applied:**
-
-- Problem: Multiple menu cards with `willChange: "transform"` create GPU memory pressure
-- Files: `src/components/ui/menu/UnifiedMenuItemCard/*.tsx`, GSAP-animated components
-- Cause: Static willChange creates compositor layers even when not animating
-- Improvement path: Apply willChange conditionally on hover/interaction only (pattern in LEARNINGS.md)
-
-**setInterval Animations Run Off-Screen:**
-
-- Problem: Animation intervals continue when elements not visible (CPU/battery waste)
-- Files: `src/components/ui/homepage/HowItWorksSection.tsx`, pulsing animations in maps
-- Cause: No visibility detection for repeating animations
-- Improvement path: Add IntersectionObserver to pause animations when off-screen (pattern in LEARNINGS.md 2026-01-29)
-
-**Multiple Overlay Implementations:**
-
-- Problem: 6 separate drawer/modal implementations (Drawer, MobileDrawer, Modal, AuthModal, ExceptionModal, Dialog)
-- Files: `src/components/ui/Drawer.tsx`, `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`, `src/components/ui/Modal.tsx`, `src/components/ui/auth/AuthModal.tsx`, driver exception modal, Radix Dialog
-- Cause: Intentional architecture per LEARNINGS.md - each serves specific use case
-- Improvement path: NOT a concern - this is correct architecture. Shared hooks (useBodyScrollLock, useSwipeToClose) prevent duplication
-
-**WebGL Fallback Code:**
-
-- Problem: WebGL gradient system has fallback CSS with potential hardcoded values
-- Files: `src/lib/webgl/gradients.ts`
-- Cause: Fallback path for unsupported browsers may not use design tokens
-- Improvement path: Audit fallback inline styles for token violations, ensure theme-aware
+**Console.log Statements in Production Code:**
+- Problem: 25+ `console.log`/`console.error`/`console.warn` calls outside the logger utility, primarily in service worker, cache, and hook code.
+- Files: `src/components/ui/menu/useMenuCache.ts`, `src/components/ui/offline/ServiceWorkerRegistration.tsx`, `src/lib/hooks/useServiceWorker.ts`, `src/lib/hooks/useUpdateBanner.ts`, `src/lib/services/cart-idb-storage.ts`, `src/lib/web-vitals.tsx`
+- Cause: Client-side code where the Sentry-integrated logger may not be appropriate (service worker context) or was overlooked.
+- Improvement path: For service worker code, keep console (no Sentry in SW). For other client code, route through logger or remove.
 
 ## Fragile Areas
 
-**AnimatePresence + Scroll Lock Cleanup Timing:**
+**PostgREST FK Hint Requirements:**
+- Files: Any query joining `orders` to `profiles` across all API routes
+- Why fragile: The `orders` table has two FKs to `profiles` (`user_id` and `contacted_by`). Every query joining these tables MUST use `profiles!orders_user_id_fkey` hint. Missing hints cause silent failures or PostgREST ambiguous FK errors. This has already caused two production bugs (ERROR_HISTORY).
+- Safe modification: Always include FK hint when joining orders to profiles. After adding any new FK to a table, grep all queries joining that table and add hints.
+- Test coverage: No automated test validates FK hints. The `src/lib/__tests__/rls-edge-cases.test.ts` tests RLS policies but not FK hint correctness.
 
-- Files: `src/lib/hooks/useBodyScrollLock.ts`, all modal/drawer components using exit animations
-- Why fragile: Scroll operations during exit animation cause iOS Safari crashes; requires precise timing with onExitComplete
-- Safe modification: Always use deferRestore option, test on actual iOS devices (not Chrome emulator), never call scrollTo during animation
-- Test coverage: No automated E2E tests for scroll lock cleanup timing
+**Service Worker Cache Versioning:**
+- Files: `src/app/sw.ts`
+- Why fragile: Cache versioning, opaque response handling, and CacheFirst vs NetworkFirst strategy have caused 4 separate production issues (ERROR_HISTORY). Each fix required bumping `CACHE_VERSION`.
+- Safe modification: Never use `CacheFirst` for cross-origin resources. Never cache opaque responses (`statuses: [200]` only). Bump `CACHE_VERSION` after any caching strategy change.
+- Test coverage: No unit tests for service worker logic.
 
-**Event Listener Accumulation Pattern:**
-
-- Files: `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`, any component with isOpen in useCallback dependencies
-- Why fragile: useCallback with state dependencies changes function reference, listeners accumulate if not defined inside useEffect
-- Safe modification: Define handlers inside useEffect with guard clause, never use useCallback for addEventListener handlers with state deps
-- Test coverage: Requires manual testing with multiple open/close cycles
-
-**Framer Motion + 3D Transform Conflicts:**
-
-- Files: `src/components/ui/menu/UnifiedMenuItemCard/*.tsx`, components with preserve-3d tilt effects
-- Why fragile: whileHover scale + 3D transforms create stacking context conflicts causing flicker
-- Safe modification: Disable scale when using 3D tilt, or disable tilt on low-end devices
-- Test coverage: Visual regression tests exist but may not catch flicker on all devices
-
-**Portal-Rendered Dropdowns:**
-
-- Files: `src/components/ui/menu/SearchAutocomplete.tsx`, components using createPortal for escape hatches
-- Why fragile: Position tracking requires manual getBoundingClientRect and scroll offset calculation
-- Safe modification: Use inline styles with CSS variables for guaranteed application, track position in useEffect
-- Test coverage: E2E tests for basic functionality, but edge cases (parent transform, iframe) not covered
-
-**Route Optimization Algorithm:**
-
-- Files: `src/lib/services/route-optimization.ts`
-- Why fragile: Complex traveling salesman approximation, could have edge cases with overlapping coordinates
-- Safe modification: Add extensive logging, test with real-world address sets, validate output manually
-- Test coverage: Limited unit tests, needs property-based testing
+**Type Casts in Webhook/Cron Handlers:**
+- Files: `src/app/api/webhooks/stripe/handlers.ts`, `src/app/api/cron/delivery-reminders/route.ts`
+- Why fragile: These critical payment/notification paths use `as unknown as` casts for Supabase join results. If the DB schema changes, TypeScript won't catch mismatches.
+- Safe modification: Regenerate database types to eliminate casts. Add runtime validation (Zod) on query results in critical paths.
+- Test coverage: Stripe webhook has tests (`src/app/api/webhooks/stripe/__tests__/route.test.ts`). Cron endpoint has no tests.
 
 ## Scaling Limits
 
-**In-Memory Cart Store:**
-
-- Current capacity: Single browser session, lost on refresh
-- Limit: Can't sync across devices, doesn't persist
-- Scaling path: Add Supabase persistence with sync, implement optimistic updates
-
-**Rate Limiter Map-Based Store:**
-
-- Current capacity: Single server instance, unbounded growth
-- Limit: Memory leak potential, resets on server restart, 5-minute cleanup interval may be too slow under load
-- Scaling path: Replace with Redis or Upstash, implement sliding window algorithm, add monitoring
-
-**Google Maps API Usage:**
-
-- Current capacity: Unknown quota, no monitoring
-- Limit: Could hit daily request limits with traffic growth
-- Scaling path: Add usage tracking, implement client-side caching, batch geocoding requests
-
-**Supabase Connection Pool:**
-
-- Current capacity: Default Supabase project limits
-- Limit: May exhaust connections under high concurrent load
-- Scaling path: Monitor connection metrics, implement connection pooling with PgBouncer, upgrade plan
-
-## Dependencies at Risk
-
-**@sentry/nextjs Compatibility:**
-
-- Risk: Currently disabled in dev due to Next.js 16 / React 19 incompatibility causing infinite loops
-- Impact: No error tracking in development, can't test Sentry integration locally
-- Migration plan: Monitor Sentry releases for Next.js 16 compatibility, re-enable when fixed, test thoroughly
-
-**Framer Motion on React 19:**
-
-- Risk: Framer Motion heavily used (200+ files), React 19 may introduce breaking changes
-- Impact: Animation system could break, core UX affected
-- Migration plan: Pin Framer Motion version, monitor release notes, test animations thoroughly on major FM updates
-
-**Google Maps API Deprecations:**
-
-- Risk: Using legacy Marker API as fallback when Map ID not provided
-- Impact: Legacy API could be deprecated, maps would break
-- Migration plan: Complete migration to AdvancedMarkerElement by adding Map IDs to all environments
-
-**TailwindCSS v4 Still New:**
-
-- Risk: v4 has different behavior than v3 (z-index, content scanning, @theme inline), may have undiscovered issues
-- Impact: Already encountered multiple issues (see ERROR_HISTORY.md z-index entries)
-- Migration plan: Monitor Tailwind issues, document workarounds, consider staying on v4 LTS when available
-
-## Missing Critical Features
-
-**No Offline Support for Menu:**
-
-- Problem: Menu data requires network, unavailable offline
-- Blocks: Can't browse menu without connection, poor mobile experience in weak signal
-- Priority: Medium - affects UX but not core checkout
-
-**No PWA Installation:**
-
-- Problem: No manifest.json or service worker for installable app
-- Blocks: Can't install to home screen, no offline capabilities
-- Priority: Medium - nice-to-have for mobile-first experience
-
-**No Real-Time Order Updates Client-Side:**
-
-- Problem: Order tracking requires manual refresh
-- Blocks: Customer doesn't see live driver location updates
-- Priority: High - core feature for delivery tracking UX
-
-**No Automated Accessibility Testing:**
-
-- Problem: No axe or other a11y tests in CI
-- Blocks: Accessibility regressions could ship unnoticed
-- Priority: Medium - have manual a11y testing but not automated
-
-**No Error Boundary Fallbacks:**
-
-- Problem: Limited error boundaries, crashes could show blank page
-- Blocks: Poor UX when components throw errors
-- Priority: High - affects recovery from runtime errors
+**In-Memory Rate Limiting Fallback:**
+- Current capacity: Rate limiter uses Upstash Redis when `UPSTASH_REDIS_REST_URL` is configured; falls back to no enforcement when Redis is unavailable.
+- Limit: Without Redis, rate limiting is effectively disabled. With Redis, standard Upstash free tier limits apply.
+- Scaling path: Ensure Redis is always configured in production. Consider edge-level rate limiting (Vercel WAF) as a secondary layer.
 
 ## Test Coverage Gaps
 
-**Mobile Crash Scenarios:**
+**99 of 101 API Routes Untested:**
+- What's not tested: Only 2 API route directories have `__tests__/` folders out of 101 total route files. Tested: `src/app/api/checkout/session/`, `src/app/api/tracking/`, `src/app/api/webhooks/stripe/`. All admin, account, driver, cron, menu, and address routes lack unit tests.
+- Files: All `src/app/api/` subdirectories without `__tests__/`
+- Risk: Regressions in auth guards, data validation, FK hints, and error handling go undetected. The FK hint bug that broke admin dashboard and cron endpoint would have been caught by tests.
+- Priority: High — Focus on: checkout flow, webhook handlers, cron jobs, and admin order management routes first.
 
-- What's not tested: Rapid open/close of overlays, setTimeout cleanup, event listener cleanup
-- Files: `src/lib/hooks/useBodyScrollLock.ts`, `src/components/ui/layout/MobileDrawer/MobileDrawer.tsx`, all modal/drawer components
-- Risk: Recent wave of mobile crash fixes (2026-01-29 to 2026-01-30) indicates fragile patterns
-- Priority: High - affects core mobile UX
+**Zero Component Tests:**
+- What's not tested: Only 2 component test files exist (`src/components/ui/admin/ops/__tests__/helpers.test.ts`, `src/components/ui/admin/ops/__tests__/useCountdown.test.ts`). 70+ UI components in `src/components/ui/` have no tests.
+- Files: `src/components/ui/`
+- Risk: UI regressions (cart, checkout, menu, tracking) are only caught by E2E tests, which are slower and more brittle.
+- Priority: Medium — E2E tests (20 spec files in `e2e/`) provide some coverage. Prioritize testing complex stateful components: `CartDrawerParts`, `ItemDetailSheet`, `CheckoutClient`, `DeliveryMap`.
 
-**Animation Exit Timing:**
+**No Tests for Service Worker:**
+- What's not tested: Service worker caching logic, cache versioning, offline behavior.
+- Files: `src/app/sw.ts`
+- Risk: Service worker bugs have caused 4 separate production incidents per ERROR_HISTORY. Each required manual investigation.
+- Priority: High — The SW is a recurring source of production issues.
 
-- What's not tested: AnimatePresence onExitComplete callbacks, scroll restore timing, iOS Safari specific behavior
-- Files: All components using AnimatePresence with scroll lock
-- Risk: Timing-sensitive code prone to regression
-- Priority: High - crashes are user-facing
+**No Tests for Cron Endpoint:**
+- What's not tested: Delivery reminder logic, deduplication, email triggering, error handling.
+- Files: `src/app/api/cron/delivery-reminders/route.ts`
+- Risk: Cron runs unattended on schedule. A silent failure (like the FK hint bug) means customers get no delivery reminders with no alert.
+- Priority: High — Critical customer-facing notification path.
 
-**Rate Limiting:**
-
-- What's not tested: Rate limiter cleanup, memory growth over time, expired entry cleanup
-- Files: `src/lib/utils/rate-limit.ts`
-- Risk: Memory leak potential in production
-- Priority: Medium - only 18 test files total in codebase
-
-**Server Actions with redirect():**
-
-- What's not tested: Server actions that call redirect() with various error handling patterns
-- Files: Components using server actions (signout, form submissions)
-- Risk: NEXT_REDIRECT swallowing documented in ERROR_HISTORY.md, could regress
-- Priority: Medium - affects auth flows
-
-**WebGL Fallback Paths:**
-
-- What's not tested: WebGL gradient system fallback code, token compliance in fallback CSS
-- Files: `src/lib/webgl/gradients.ts`
-- Risk: Fallback code may have hardcoded values that break theming
-- Priority: Low - affects unsupported browsers only
-
-**Portal Positioning Edge Cases:**
-
-- What's not tested: Dropdown positioning when parent has transforms, inside iframes, with page scroll
-- Files: `src/components/ui/menu/SearchAutocomplete.tsx`, portal-rendered components
-- Risk: Dropdowns could be mispositioned in edge cases
-- Priority: Low - basic positioning works
+**No Tests for Rate Limiting:**
+- What's not tested: Rate limit enforcement, tier configuration, IP extraction, Redis fallback behavior.
+- Files: `src/lib/rate-limit/`
+- Risk: Rate limiting could silently fail (e.g., Redis connection issue) without detection.
+- Priority: Medium — Rate limiting is defense-in-depth; auth is the primary security layer.
 
 ---
 
-_Concerns audit: 2026-01-30_
+*Concerns audit: 2026-03-06*
