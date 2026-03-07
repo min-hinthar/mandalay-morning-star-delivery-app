@@ -40,8 +40,8 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     // Preserve driver invite context through error redirect
     if (inviteId) {
-      const serviceSupabase = createServiceClient();
-      const { data: invite } = await serviceSupabase
+      const serviceClient = createServiceClient();
+      const { data: invite } = await serviceClient
         .from("driver_invites")
         .select("email")
         .eq("id", inviteId)
@@ -67,8 +67,8 @@ export async function GET(request: Request): Promise<NextResponse> {
       if (normalizedError.includes("expired") || normalizedError.includes("invalid")) {
         // Look up email from invite record (email is never in callback URL)
         if (inviteId) {
-          const serviceSupabase = createServiceClient();
-          const { data: invite } = await serviceSupabase
+          const serviceClient = createServiceClient();
+          const { data: invite } = await serviceClient
             .from("driver_invites")
             .select("email")
             .eq("id", inviteId)
@@ -84,16 +84,31 @@ export async function GET(request: Request): Promise<NextResponse> {
       return NextResponse.redirect(`${origin}/login?error=auth_callback_error`, { status: 302 });
     }
 
+    // Shared service client for profile sync, driver invite, and role lookup
+    const serviceClient = createServiceClient();
+
+    // Sync profile email (returning OAuth users bypass the DB trigger)
+    if (sessionData.session) {
+      const userEmail = sessionData.session.user.email;
+      const userId = sessionData.session.user.id;
+      if (userEmail && userId) {
+        await serviceClient
+          .from("profiles")
+          .update({ email: userEmail })
+          .eq("id", userId)
+          .is("email", null);
+      }
+    }
+
     // Handle driver invite flow
     if (inviteId && sessionData.session) {
-      const serviceSupabase = createServiceClient();
       const userEmail = sessionData.session.user.email;
       const userId = sessionData.session.user.id;
 
       logger.info("Processing driver invite", { api: "auth/callback", flowId: "auth" });
 
       // Verify invite exists and matches user email
-      const { data: invite, error: inviteError } = await serviceSupabase
+      const { data: invite, error: inviteError } = await serviceClient
         .from("driver_invites")
         .select("id, email, accepted_at")
         .eq("id", inviteId)
@@ -104,7 +119,7 @@ export async function GET(request: Request): Promise<NextResponse> {
         // Verify email matches (case-insensitive)
         if (invite.email.toLowerCase() === userEmail?.toLowerCase()) {
           // Update user metadata with driver role and invite_id
-          const { error: updateError } = await serviceSupabase.auth.admin.updateUserById(userId, {
+          const { error: updateError } = await serviceClient.auth.admin.updateUserById(userId, {
             user_metadata: {
               ...sessionData.session.user.user_metadata,
               role: "driver",
@@ -137,9 +152,8 @@ export async function GET(request: Request): Promise<NextResponse> {
     // Use service client for role lookup — SSR cookie state after
     // exchangeCodeForSession can be inconsistent in Route Handlers,
     // causing RLS-gated queries to return no data.
-    const roleClient = createServiceClient();
     const result = await getRoleDashboard(
-      roleClient,
+      serviceClient,
       sessionData.session!.user.id,
       sessionData.session!.user.email
     );

@@ -81,3 +81,25 @@ const user = profile
 ```
 
 **Apply when:** Looking up a single user by email or other attribute in admin/service contexts.
+
+---
+
+## `ON CONFLICT DO NOTHING` / `ignoreDuplicates` Won't Fill NULLs
+
+**Context:** `handle_new_user()` trigger and `ensureProfile()` both used "do nothing on conflict" — returning OAuth users had profile rows with NULL email forever. Three layers failed to sync email.
+
+**Learning:** `DO NOTHING` and `ignoreDuplicates: true` mean literally nothing happens on conflict — not even filling NULL columns. If a column might be NULL on first insert (e.g., email unavailable at signup), use `DO UPDATE SET col = EXCLUDED.col WHERE table.col IS NULL` to backfill without overwriting valid data.
+
+**Fix pattern — defense in depth:**
+```sql
+-- DB trigger: fill NULL email on conflict
+ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email
+  WHERE profiles.email IS NULL;
+```
+```typescript
+// App code: targeted update after upsert
+await supabase.from("profiles")
+  .update({ email }).eq("id", userId).is("email", null);
+```
+
+**Apply when:** Any upsert where columns may be NULL on first insert but become available later (OAuth email, display name, etc).

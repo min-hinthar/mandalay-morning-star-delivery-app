@@ -78,6 +78,15 @@ export async function ensureProfile(
     }
   }
 
+  // If profile already existed with NULL email, sync it now
+  if (resolvedEmail) {
+    await supabase
+      .from("profiles")
+      .update({ email: resolvedEmail })
+      .eq("id", userId)
+      .is("email", null);
+  }
+
   // Verify the profile actually exists now
   const { data: check } = await supabase
     .from("profiles")

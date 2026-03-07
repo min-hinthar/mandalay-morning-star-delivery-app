@@ -190,6 +190,24 @@ Migration 007 set `allowed_mime_types = ARRAY['image/jpeg', 'image/png']` on the
 
 ---
 
+## Google OAuth — profiles.email NULL | Auth/DB | High
+
+**Date:** 2026-03-07 | **Files:** `src/app/auth/callback/route.ts`, `src/lib/auth/role-redirect.ts`, `supabase/migrations/20260307_fix_handle_new_user_email.sql`
+
+Sequel to "No Profile Created" above. Profile row EXISTS but `email` column is NULL. Three compounding bugs:
+1. **DB trigger `handle_new_user()`** — `ON CONFLICT (id) DO NOTHING` means returning users never get email synced
+2. **`ensureProfile()`** — `ignoreDuplicates: true` means existing NULL emails never updated
+3. **Auth callback** — had `session.user.email` but never wrote it to profiles
+
+**Fix (3 layers):**
+- Auth callback: sync email after `exchangeCodeForSession` with `UPDATE profiles SET email WHERE email IS NULL`
+- `ensureProfile()`: add targeted email update after upsert for NULL emails
+- DB trigger: `DO NOTHING` → `DO UPDATE SET email WHERE profiles.email IS NULL`
+
+**Prevention:** When using `ON CONFLICT DO NOTHING` or `ignoreDuplicates: true`, consider whether existing rows need columns updated. "Do nothing" means literally nothing — not even filling NULLs.
+
+---
+
 ## Order Stuck "Pending" After Stripe Payment | Webhook/DB | Critical
 
 **Date:** 2026-03-04 | **Files:** `src/app/api/webhooks/stripe/route.ts`, `src/app/api/webhooks/stripe/handlers.ts`, `src/app/(customer)/orders/[id]/confirmation/page.tsx`
