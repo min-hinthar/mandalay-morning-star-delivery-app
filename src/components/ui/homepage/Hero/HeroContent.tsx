@@ -95,7 +95,7 @@ export function HeroContent({
   const greeting = greetings[timeOfDay] ?? greetings.morning;
 
   return (
-    <div className="relative flex flex-col items-center justify-start px-4 pt-24 pb-32 pb-safe md:pt-28 md:pb-32">
+    <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-40 pb-safe md:pt-24 md:pb-32">
       <div className="max-w-4xl mx-auto text-center">
         {/* Time-based greeting badge - bilingual */}
         <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1">
