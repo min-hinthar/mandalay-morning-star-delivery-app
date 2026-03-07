@@ -42,21 +42,35 @@ export function FooterCTA() {
               </span>
             </m.div>
 
-            {/* Headline */}
+            {/* EN Headline */}
             <m.h2
               variants={staggerItem}
               className="font-display text-3xl md:text-4xl lg:text-5xl text-text-inverse font-bold"
             >
               Ready to Taste <span className="text-secondary">Authentic Burma?</span>
             </m.h2>
+            {/* MY Headline */}
+            <m.p
+              variants={staggerItem}
+              className="font-body text-xl md:text-2xl text-text-inverse/70"
+            >
+              စစ်မှန်သော <span className="text-secondary/80">မြန်မာ့အရသာ</span> ခံစားဖို့
+              အဆင်သင့်ဖြစ်ပြီလား
+            </m.p>
 
-            {/* Subtext */}
+            {/* EN Subtext */}
             <m.p
               variants={staggerItem}
               className="text-lg font-body text-text-inverse/90 max-w-2xl mx-auto"
             >
-              Order by Friday 3pm and we&apos;ll deliver fresh, homemade Burmese dishes straight to
-              your door on Saturday.
+              Fresh homemade Burmese dishes delivered straight to your door
+            </m.p>
+            {/* MY Subtext */}
+            <m.p
+              variants={staggerItem}
+              className="text-base font-body text-text-inverse/70 max-w-2xl mx-auto"
+            >
+              အိမ်လုပ် မြန်မာအစားအသောက်များ သင့်အိမ်တံခါးဝအထိ ပို့ဆောင်ပေးပါသည်
             </m.p>
 
             {/* Buttons */}
@@ -71,7 +85,7 @@ export function FooterCTA() {
                 transition={spring.snappy}
                 className="px-8 py-4 bg-surface-primary text-primary font-body font-semibold rounded-pill shadow-md hover:shadow-lg transition-shadow duration-fast"
               >
-                Order Now
+                Order Now · ယခု မှာယူမည်
               </m.a>
 
               <m.a
@@ -82,7 +96,7 @@ export function FooterCTA() {
                 className="px-8 py-4 bg-transparent border-2 border-text-inverse text-text-inverse font-body font-semibold rounded-pill hover:bg-text-inverse/10 transition-colors duration-fast flex items-center justify-center gap-2"
               >
                 <Phone className="w-5 h-5" />
-                Call Us
+                Call Us · ဖုန်းဆက်ပါ
               </m.a>
             </m.div>
           </m.div>

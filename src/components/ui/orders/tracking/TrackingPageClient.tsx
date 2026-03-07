@@ -38,6 +38,7 @@ import type { OrderStatus } from "@/types/database";
 import type { VehicleType } from "@/types/driver";
 
 const STATUS_TITLES: Record<OrderStatus, string> = {
+  pending_approval: "Awaiting Approval | Morning Star",
   pending: "Order Placed | Morning Star",
   confirmed: "Confirmed | Morning Star",
   preparing: "Preparing... | Morning Star",

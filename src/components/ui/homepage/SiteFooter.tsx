@@ -53,8 +53,7 @@ const BUSINESS_LISTINGS = [
   {
     name: "Yelp",
     icon: YelpIcon,
-    // TODO: Replace with verified Yelp business page URL once confirmed
-    href: "https://www.yelp.com/search?find_desc=Mandalay+Morning+Star+Burmese+Kitchen&find_loc=Covina+CA",
+    href: "https://www.yelp.com/biz/mandalay-morning-star-covina",
   },
   {
     name: "Google Maps",
@@ -145,13 +144,15 @@ export function SiteFooter() {
               <div className="flex items-center gap-3">
                 <Clock className="w-5 h-5" />
                 <div>
-                  <p className="text-sm font-body font-medium">Saturday Delivery</p>
-                  <p className="text-sm font-body text-footer-text-muted">11:00 AM - 7:00 PM PT</p>
+                  <p className="text-sm font-body font-medium">Weekly Delivery</p>
+                  <p className="text-sm font-body text-footer-text-muted">
+                    Check schedule for details
+                  </p>
                 </div>
               </div>
               <div className="p-3 bg-footer-text/10 rounded-input">
                 <p className="text-sm font-body">
-                  <strong className="text-secondary">Order Cutoff:</strong> Friday 3:00 PM PT
+                  <strong className="text-secondary">Order Cutoff:</strong> See delivery schedule
                 </p>
               </div>
             </div>

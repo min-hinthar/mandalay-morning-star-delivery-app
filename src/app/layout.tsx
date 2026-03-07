@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     default: "Mandalay Morning Star",
     template: "%s | Mandalay Morning Star",
   },
-  description: "Authentic Burmese cuisine delivered every Saturday.",
+  description: "Authentic Burmese cuisine delivered fresh to your door.",
   applicationName: "Mandalay Morning Star",
   manifest: "/manifest.json",
   appleWebApp: {

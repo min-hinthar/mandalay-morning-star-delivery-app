@@ -51,8 +51,8 @@ describe("reassignStopSchema", () => {
   });
 });
 
-describe("createRouteSchema (existing coverage confirmation)", () => {
-  it("accepts valid Saturday delivery date", () => {
+describe("createRouteSchema (multi-day delivery)", () => {
+  it("accepts valid delivery date (Saturday)", () => {
     // 2026-03-07 is a Saturday
     const input = {
       deliveryDate: "2026-03-07",
@@ -62,10 +62,19 @@ describe("createRouteSchema (existing coverage confirmation)", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects non-Saturday delivery date", () => {
-    // 2026-03-06 is a Friday
+  it("accepts valid delivery date (Wednesday)", () => {
+    // 2026-03-04 is a Wednesday
     const input = {
-      deliveryDate: "2026-03-06",
+      deliveryDate: "2026-03-04",
+      orderIds: [VALID_UUID_1],
+    };
+    const result = createRouteSchema.safeParse(input);
+    expect(result.success).toBe(true);
+  });
+
+  it("rejects invalid date format", () => {
+    const input = {
+      deliveryDate: "not-a-date",
       orderIds: [VALID_UUID_1],
     };
     const result = createRouteSchema.safeParse(input);

@@ -32,6 +32,9 @@ interface OrderQueryResult {
   special_instructions: string | null;
   stripe_payment_intent_id: string | null;
   stripe_checkout_session_id: string | null;
+  payment_method: string;
+  cod_approved_at: string | null;
+  cod_approved_by: string | null;
   tip_cents: number;
   promo_code: string | null;
   discount_cents: number;
@@ -206,6 +209,9 @@ export default async function OrderDetailPage({ params }: PageProps) {
     deliveryWindowEnd: orderData.delivery_window_end,
     specialInstructions: orderData.special_instructions,
     stripePaymentIntentId: orderData.stripe_payment_intent_id,
+    paymentMethod: (orderData.payment_method ?? "stripe") as import("@/types/order").PaymentMethod,
+    codApprovedAt: orderData.cod_approved_at ?? null,
+    codApprovedBy: orderData.cod_approved_by ?? null,
     tipCents: orderData.tip_cents,
     promoCode: orderData.promo_code,
     discountCents: orderData.discount_cents,

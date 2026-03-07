@@ -84,7 +84,7 @@ export default async function OrdersPage() {
               When you place an order, it will appear here.
             </p>
             <p className="font-body text-xs text-text-muted mb-8">
-              We deliver every Saturday &mdash; order by Friday 3:00 PM.
+              Check our menu for delivery schedule and cutoff times.
             </p>
             <Button asChild variant="primary" size="lg" className="shadow-elevated">
               <Link href="/menu">Browse Menu</Link>

@@ -2,6 +2,7 @@ import { create } from "zustand";
 import type { CheckoutState, CheckoutStep } from "@/types/checkout";
 import type { Address } from "@/types/address";
 import type { DeliverySelection } from "@/types/delivery";
+import type { PaymentMethod } from "@/types/database";
 
 interface CheckoutStore extends CheckoutState {
   setStep: (step: CheckoutStep) => void;
@@ -16,6 +17,7 @@ interface CheckoutStore extends CheckoutState {
   applyPromo: (discountCents: number, label: string) => void;
   clearPromo: () => void;
   setDeliveryInstructions: (instructions: string) => void;
+  setPaymentMethod: (method: PaymentMethod) => void;
   reset: () => void;
 }
 
@@ -32,6 +34,7 @@ const initialState: CheckoutState = {
   discountCents: 0,
   discountLabel: "",
   deliveryInstructions: "",
+  paymentMethod: "stripe",
 };
 
 const STEP_ORDER: CheckoutStep[] = ["address", "time", "payment"];
@@ -75,6 +78,8 @@ export const useCheckoutStore = create<CheckoutStore>((set, get) => ({
     set({ promoCode: "", promoApplied: false, discountCents: 0, discountLabel: "" }),
 
   setDeliveryInstructions: (instructions) => set({ deliveryInstructions: instructions }),
+
+  setPaymentMethod: (method) => set({ paymentMethod: method }),
 
   reset: () => set(initialState),
 }));

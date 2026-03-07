@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 import { m, AnimatePresence } from "framer-motion";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -115,10 +116,11 @@ function SearchResultItem({ item, index, onSelect, query, shouldAnimate }: Searc
       {/* Thumbnail */}
       <div className="w-12 h-12 flex-shrink-0 rounded-lg overflow-hidden bg-surface-secondary">
         {item.imageUrl ? (
-          /* eslint-disable-next-line @next/next/no-img-element -- Dynamic external URL */
-          <img
+          <Image
             src={item.imageUrl}
             alt={item.nameEn}
+            width={48}
+            height={48}
             className="w-full h-full object-cover"
             referrerPolicy="no-referrer"
           />

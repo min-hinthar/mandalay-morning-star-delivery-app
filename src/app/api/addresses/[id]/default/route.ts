@@ -2,10 +2,20 @@ import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { transformAddress, type AddressRow } from "../../transform";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, customerLimiter, getClientIp } from "@/lib/rate-limit";
 
 // POST /api/addresses/[id]/default - Set as default
-export async function POST(_request: Request, { params }: { params: Promise<{ id: string }> }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const ip = getClientIp(request);
+    const rl = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: ip,
+      role: "customer",
+      route: "addresses/:id/default",
+    });
+    if (rl.limited) return rl.response;
+
     const { id } = await params;
     const supabase = await createClient();
     const {

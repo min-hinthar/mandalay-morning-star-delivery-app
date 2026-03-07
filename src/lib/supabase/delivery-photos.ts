@@ -1,4 +1,5 @@
 import { createServiceClient } from "./server";
+import { logger } from "@/lib/utils/logger";
 
 const DELIVERY_PHOTOS_BUCKET = "delivery-photos";
 const SIGNED_URL_EXPIRY = 3600; // 1 hour
@@ -33,13 +34,13 @@ export async function getDeliveryPhotoSignedUrl(pathOrUrl: string | null): Promi
       .createSignedUrl(path, SIGNED_URL_EXPIRY);
 
     if (error) {
-      console.error("[delivery-photos] Failed to create signed URL:", error.message);
+      logger.error("[delivery-photos] Failed to create signed URL", { error: error.message });
       return null;
     }
 
     return data.signedUrl;
   } catch (err) {
-    console.error("[delivery-photos] Unexpected error creating signed URL:", err);
+    logger.error("[delivery-photos] Unexpected error creating signed URL", { error: String(err) });
     return null;
   }
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { m } from "framer-motion";
 import { X, Image as ImageIcon, Clock, Info } from "lucide-react";
 import { toast } from "@/lib/hooks/useToastV8";
@@ -60,11 +61,11 @@ export function MenuItemPhotoSection({
         {imageUrl ? (
           <div className="relative">
             <div className="relative w-full aspect-[4/3] max-w-xs mx-auto rounded-card-sm overflow-hidden border border-border">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={imageUrl}
                 alt={nameEn}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
                 referrerPolicy="no-referrer"
               />
               <button

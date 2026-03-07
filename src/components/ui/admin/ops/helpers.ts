@@ -45,6 +45,7 @@ const ALL_STATUSES: OrderStatus[] = [
 ];
 
 export const BULK_TRANSITIONS: Record<OrderStatus, OrderStatus | null> = {
+  pending_approval: "confirmed",
   pending: "confirmed",
   confirmed: "preparing",
   preparing: "out_for_delivery",

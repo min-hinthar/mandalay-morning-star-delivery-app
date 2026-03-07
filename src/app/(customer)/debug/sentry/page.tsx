@@ -2,8 +2,13 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { Button } from "@/components/ui/button";
+import { notFound } from "next/navigation";
 
 export default function SentryTestPage() {
+  if (process.env.NODE_ENV !== "development") {
+    notFound();
+  }
+
   const triggerClientError = () => {
     throw new Error("Sentry test error - client side");
   };

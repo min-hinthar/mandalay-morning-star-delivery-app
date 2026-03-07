@@ -20,9 +20,9 @@ import {
   dollarsToCents,
   isDeliveryFieldChanged,
   formatHourDisplay,
-  DAY_NAMES,
   CHANGED_BORDER,
 } from "./delivery-helpers";
+import { DeliveryDaysManager } from "./DeliveryDaysManager";
 
 interface DeliverySettingsFormProps {
   settings: DeliverySettings;
@@ -197,47 +197,11 @@ export function DeliverySettingsForm({
           Schedule
         </h3>
 
-        <div className="grid gap-6 sm:grid-cols-2">
-          <div className={cn("space-y-2", changed("cutoffDay") && CHANGED_BORDER)}>
-            <Label htmlFor="cutoffDay">Order Cutoff Day</Label>
-            <select
-              id="cutoffDay"
-              value={settings.cutoffDay}
-              onChange={(e) => handleNumberChange("cutoffDay", e.target.value)}
-              className="flex h-10 w-full max-w-[200px] rounded-md border border-input bg-background px-3 py-2 text-sm"
-            >
-              {DAY_NAMES.map((label, i) => (
-                <option key={i} value={i}>
-                  {label}
-                </option>
-              ))}
-            </select>
-            <p className="text-xs text-text-muted">Day of week when order cutoff applies</p>
-          </div>
+        {/* Per-day delivery schedule manager (self-contained) */}
+        <DeliveryDaysManager />
 
-          <div className={cn("space-y-2", changed("cutoffHour") && CHANGED_BORDER)}>
-            <Label htmlFor="cutoffHour">Order Cutoff Hour</Label>
-            <div className="flex items-center gap-2">
-              <Input
-                id="cutoffHour"
-                type="number"
-                min={0}
-                max={23}
-                step={1}
-                value={settings.cutoffHour}
-                onChange={(e) => handleNumberChange("cutoffHour", e.target.value)}
-                error={errors.cutoffHour}
-                className="max-w-[100px]"
-              />
-              <span className="text-sm text-text-secondary">
-                {formatHourDisplay(settings.cutoffHour)}
-              </span>
-            </div>
-            <p className="text-xs text-text-muted">Hour (0-23) when orders cut off</p>
-          </div>
-        </div>
-
-        <div className="grid gap-6 sm:grid-cols-2">
+        {/* Delivery window hours (still global) */}
+        <div className="grid gap-6 sm:grid-cols-2 pt-4 border-t border-border-subtle">
           <div className={cn("space-y-2", changed("deliveryStartHour") && CHANGED_BORDER)}>
             <Label htmlFor="deliveryStartHour">Delivery Start Hour</Label>
             <div className="flex items-center gap-2">

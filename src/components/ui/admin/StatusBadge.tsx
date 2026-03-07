@@ -34,6 +34,7 @@ export interface StatusBadgeProps {
 // ============================================
 
 const STATUS_COLORS: Record<string, string> = {
+  pending_approval: "bg-orange-100 text-orange-800",
   pending: "bg-amber-100 text-amber-800",
   confirmed: "bg-teal-100 text-teal-800",
   preparing: "bg-purple-100 text-purple-800",
@@ -50,6 +51,7 @@ const STATUS_COLORS: Record<string, string> = {
 
 /** Statuses that receive a soft-pulse animation */
 const ACTIVE_STATUSES = new Set([
+  "pending_approval",
   "pending",
   "confirmed",
   "preparing",
@@ -65,6 +67,7 @@ const DEFAULT_COLORS = "bg-gray-100 text-gray-800";
 // ============================================
 
 const STATUS_ICONS: Record<string, LucideIcon> = {
+  pending_approval: AlertCircle,
   pending: Clock,
   confirmed: ShieldCheck,
   preparing: ChefHat,

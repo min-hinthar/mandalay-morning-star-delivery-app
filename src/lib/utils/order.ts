@@ -147,7 +147,7 @@ export function createStripeLineItems(
         unit_amount: deliveryFeeCents,
         product_data: {
           name: "Delivery Fee",
-          description: "Saturday delivery to your address",
+          description: "Delivery to your address",
         },
       },
       quantity: 1,

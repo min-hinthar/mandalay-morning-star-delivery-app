@@ -1,6 +1,7 @@
-import type { OrderStatus as DBOrderStatus } from "./database";
+import type { OrderStatus as DBOrderStatus, PaymentMethod as DBPaymentMethod } from "./database";
 
 export type OrderStatus = DBOrderStatus;
+export type PaymentMethod = DBPaymentMethod;
 
 export interface OrderItem {
   id: string;
@@ -41,6 +42,9 @@ export interface Order {
   deliveryWindowEnd: string | null;
   specialInstructions: string | null;
   stripePaymentIntentId: string | null;
+  paymentMethod: PaymentMethod;
+  codApprovedAt: string | null;
+  codApprovedBy: string | null;
   placedAt: string;
   confirmedAt: string | null;
   deliveredAt: string | null;
@@ -55,6 +59,7 @@ export interface Order {
 }
 
 export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  pending_approval: "Awaiting Approval",
   pending: "Processing",
   confirmed: "Confirmed",
   preparing: "Preparing",
@@ -64,6 +69,7 @@ export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
 };
 
 export const ORDER_STATUS_COLORS: Record<OrderStatus, string> = {
+  pending_approval: "bg-amber-100 text-amber-800",
   pending: "bg-yellow-100 text-yellow-800",
   confirmed: "bg-blue-100 text-blue-800",
   preparing: "bg-purple-100 text-purple-800",

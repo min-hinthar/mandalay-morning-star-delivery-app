@@ -7,6 +7,7 @@ import {
   type ServiceStatus,
   type StatusLevel,
 } from "@/lib/health";
+import { checkRateLimit, publicReadLimiter, getClientIp } from "@/lib/rate-limit";
 
 // ===========================================
 // GET /api/health - Two-tier health check
@@ -28,6 +29,15 @@ function worstStatus(statuses: StatusLevel[]): StatusLevel {
 }
 
 export async function GET(request: NextRequest) {
+  const ip = getClientIp(request);
+  const rl = await checkRateLimit({
+    limiter: publicReadLimiter,
+    identifier: ip,
+    role: "anon",
+    route: "health",
+  });
+  if (rl.limited) return rl.response;
+
   const deep = request.nextUrl.searchParams.get("deep") === "true";
 
   // Always run env checks

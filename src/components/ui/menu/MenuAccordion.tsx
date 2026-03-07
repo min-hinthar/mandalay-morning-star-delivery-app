@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback, useId } from "react";
+import Image from "next/image";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -252,10 +253,11 @@ function DefaultItemCard({ item }: { item: MenuItem }) {
     >
       {/* Image placeholder */}
       {item.imageUrl ? (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src={item.imageUrl}
           alt={item.nameEn}
+          width={64}
+          height={64}
           className="w-16 h-16 rounded-lg object-cover bg-[var(--color-surface-tertiary)]"
           referrerPolicy="no-referrer"
         />

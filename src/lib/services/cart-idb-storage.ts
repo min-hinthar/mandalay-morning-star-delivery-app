@@ -1,5 +1,6 @@
 import { get, set, del } from "idb-keyval";
 import type { StateStorage } from "zustand/middleware";
+import { logger } from "@/lib/utils/logger";
 
 export const cartIDBStorage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
@@ -16,7 +17,7 @@ export const cartIDBStorage: StateStorage = {
           await set(name, lsValue);
           // Clean up localStorage
           localStorage.removeItem(name);
-          console.log("[cart-idb] Migrated cart from localStorage to IndexedDB");
+          logger.info("[cart-idb] Migrated cart from localStorage to IndexedDB");
           return lsValue;
         }
       } catch {

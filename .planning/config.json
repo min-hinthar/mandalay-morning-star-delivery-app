@@ -1,8 +1,24 @@
 {
+  "model_profile": "quality",
+  "commit_docs": true,
+  "search_gitignored": false,
+  "research": true,
+  "plan_checker": true,
+  "verifier": true,
+  "nyquist_validation": true,
+  "parallelization": true,
+  "brave_search": false,
+  "model_overrides": null,
   "workflow": {
-    "auto_advance": true,
     "research": true,
-    "_auto_chain_active": true
+    "plan_check": true,
+    "verifier": true,
+    "auto_advance": false,
+    "nyquist_validation": true
   },
-  "model_profile": "quality"
+  "git": {
+    "branching_strategy": "none",
+    "phase_branch_template": "gsd/phase-{phase}-{slug}",
+    "milestone_branch_template": "gsd/{milestone}-{slug}"
+  }
 }

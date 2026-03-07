@@ -341,7 +341,12 @@ export async function handleChargeRefunded(
   // Only transition to 'cancelled' for pre-delivery states.
   // Delivered orders should NOT change status on refund (preserves delivery record).
   const isFullRefund = charge.amount_refunded === charge.amount;
-  const preDeliveryStatuses: OrderStatus[] = ["pending", "confirmed", "preparing"];
+  const preDeliveryStatuses: readonly OrderStatus[] = [
+    "pending",
+    "pending_approval",
+    "confirmed",
+    "preparing",
+  ];
   const isPreDelivery = preDeliveryStatuses.includes(order.status);
 
   if (isFullRefund && isPreDelivery) {

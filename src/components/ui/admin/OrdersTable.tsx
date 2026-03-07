@@ -27,6 +27,7 @@ export interface AdminOrder {
   itemCount: number;
   customerName: string | null;
   customerEmail: string;
+  paymentMethod: "stripe" | "cod";
 }
 
 interface OrdersTableProps {

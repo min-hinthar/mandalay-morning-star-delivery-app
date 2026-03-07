@@ -11,6 +11,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       freeDeliveryThresholdCents={rules.freeDeliveryThresholdCents}
       cutoffDay={rules.cutoffDay}
       cutoffHour={rules.cutoffHour}
+      deliveryDays={rules.deliveryDays}
     >
       {children}
     </PublicShell>

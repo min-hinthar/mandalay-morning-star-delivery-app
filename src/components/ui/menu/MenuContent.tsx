@@ -28,6 +28,7 @@ import { useMenuFilters } from "@/lib/hooks/useMenuFilters";
 import { useCustomerOfflineSync } from "@/lib/hooks/useCustomerOfflineSync";
 import { cn } from "@/lib/utils/cn";
 import type { MenuItem, MenuCategory } from "@/types/menu";
+import type { DeliveryDayConfig } from "@/types/delivery";
 import { useMenuCache } from "./useMenuCache";
 import type { SelectedModifier } from "@/lib/utils/price";
 
@@ -48,17 +49,19 @@ import { StaleBadge } from "@/components/ui/offline";
 export interface MenuContentProps {
   /** Additional className */
   className?: string;
-  /** Cutoff day of week (0=Sun..6=Sat). Defaults to Friday (5). */
+  /** @deprecated Use deliveryDays instead */
   cutoffDay?: number;
-  /** Cutoff hour (0-23). Defaults to 15 (3 PM). */
+  /** @deprecated Use deliveryDays instead */
   cutoffHour?: number;
+  /** Multi-day delivery config */
+  deliveryDays?: DeliveryDayConfig[];
 }
 
 // ============================================
 // MAIN COMPONENT
 // ============================================
 
-export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentProps) {
+export function MenuContent({ className, cutoffDay, cutoffHour, deliveryDays }: MenuContentProps) {
   // ============================================
   // ROUTING
   // ============================================
@@ -300,7 +303,11 @@ export function MenuContent({ className, cutoffDay, cutoffHour }: MenuContentPro
       />
 
       {/* Delivery Banner */}
-      <DeliveryBanner cutoffDay={cutoffDay ?? 5} cutoffHour={cutoffHour ?? 15} />
+      <DeliveryBanner
+        cutoffDay={cutoffDay ?? 5}
+        cutoffHour={cutoffHour ?? 15}
+        deliveryDays={deliveryDays}
+      />
 
       {/* Category Tabs */}
       <CategoryTabs categories={tabCategories} />

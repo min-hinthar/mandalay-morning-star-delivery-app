@@ -10,6 +10,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { ExternalLink } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
 import { StarRating } from "./StarRating";
 import { useDriverRating } from "@/lib/hooks/useDriverRating";
@@ -199,10 +200,11 @@ export function DeliveredScreen({
         {deliveryPhotoUrl && (
           <div className="w-full pt-2">
             <p className="text-sm font-medium text-charcoal-600 mb-2">Delivery Photo</p>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={deliveryPhotoUrl}
               alt="Delivery confirmation"
+              width={400}
+              height={200}
               className="w-full rounded-lg object-cover"
               style={{ maxHeight: 200 }}
               referrerPolicy="no-referrer"

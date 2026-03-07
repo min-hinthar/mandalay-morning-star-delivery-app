@@ -202,7 +202,7 @@ export function OrderTotalsTable({
             margin: "8px 0 0 0",
           }}
         >
-          Paid with {paymentMethod}
+          {paymentMethod === "cod" ? "Payment: Cash on Delivery" : `Paid with ${paymentMethod}`}
         </Text>
       )}
     </Section>

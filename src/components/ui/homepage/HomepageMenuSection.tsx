@@ -116,19 +116,35 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
             className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-pill mb-4"
           >
             <UtensilsCrossed className="w-4 h-4 text-secondary" />
-            <span className="text-sm font-body font-medium text-secondary-hover">Our Menu</span>
+            <span className="text-sm font-body font-medium text-secondary-hover">
+              Our Menu · မီနူး
+            </span>
           </m.div>
 
           <m.h2
             variants={staggerItem}
-            className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-4"
+            className="font-display text-3xl md:text-4xl lg:text-5xl font-bold text-primary mb-2"
           >
             Authentic Burmese Cuisine
           </m.h2>
+          <m.p
+            variants={staggerItem}
+            className="font-body text-xl md:text-2xl text-primary/70 mb-4"
+          >
+            စစ်မှန်သော မြန်မာ့အစားအသောက်
+          </m.p>
 
-          <m.p variants={staggerItem} className="font-body text-text-secondary max-w-2xl mx-auto">
-            Handcrafted dishes from traditional Burmese recipes, prepared fresh for Saturday
-            delivery.
+          <m.p
+            variants={staggerItem}
+            className="font-body text-text-secondary max-w-2xl mx-auto mb-1"
+          >
+            Handcrafted dishes from traditional Burmese recipes, prepared fresh for weekly delivery.
+          </m.p>
+          <m.p
+            variants={staggerItem}
+            className="font-body text-sm text-text-secondary/70 max-w-2xl mx-auto"
+          >
+            မြန်မာ့ရိုးရာ ချက်ပြုတ်နည်းများဖြင့် လက်ရာတစ်ခုချင်း ပြင်ဆင်ထားသော အစားအသောက်များ
           </m.p>
         </m.div>
 
@@ -169,7 +185,7 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
             href="/menu"
             className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-text-inverse rounded-pill font-body font-semibold hover:bg-primary-hover transition-colors duration-fast shadow-md hover:shadow-lg"
           >
-            See Full Menu
+            See Full Menu · မီနူးအပြည့်အစုံ ကြည့်မည်
             <ArrowRight className="w-5 h-5" />
           </Link>
         </m.div>
@@ -194,6 +210,9 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
             <ShoppingCart className="w-5 h-5 text-green" />
             <span className="font-body text-text-primary">
               <strong className="text-green">Free delivery</strong> on orders over $100!
+              <span className="block text-sm text-text-secondary mt-0.5">
+                $၁၀၀ အထက် မှာယူပါက အခမဲ့ပို့ဆောင်ပေးပါသည်
+              </span>
             </span>
           </div>
         </m.div>

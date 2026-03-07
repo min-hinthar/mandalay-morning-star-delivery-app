@@ -13,7 +13,11 @@ export default async function MenuPage() {
   return (
     <main className="min-h-screen bg-background pb-32">
       <Suspense fallback={<MenuSkeleton />}>
-        <MenuContent cutoffDay={rules.cutoffDay} cutoffHour={rules.cutoffHour} />
+        <MenuContent
+          cutoffDay={rules.cutoffDay}
+          cutoffHour={rules.cutoffHour}
+          deliveryDays={rules.deliveryDays}
+        />
       </Suspense>
     </main>
   );

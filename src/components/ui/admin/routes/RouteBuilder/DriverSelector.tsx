@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { Star } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { isDriverAvailable } from "@/lib/availability";
@@ -34,11 +35,13 @@ interface DriverSelectorProps {
 function DriverAvatar({ driver }: { driver: DriverApiResponse }) {
   if (driver.profileImageUrl) {
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
+      <Image
         src={driver.profileImageUrl}
         alt={driver.fullName ?? "Driver"}
+        width={40}
+        height={40}
         className="w-10 h-10 rounded-full object-cover"
+        referrerPolicy="no-referrer"
       />
     );
   }

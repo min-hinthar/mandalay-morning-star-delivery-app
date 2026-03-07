@@ -17,6 +17,9 @@ interface OrderQueryResult {
   delivery_window_end: string | null;
   special_instructions: string | null;
   stripe_payment_intent_id: string | null;
+  payment_method: string;
+  cod_approved_at: string | null;
+  cod_approved_by: string | null;
   tip_cents: number;
   promo_code: string | null;
   discount_cents: number;
@@ -156,6 +159,9 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
     deliveryWindowEnd: orderData.delivery_window_end,
     specialInstructions: orderData.special_instructions,
     stripePaymentIntentId: orderData.stripe_payment_intent_id,
+    paymentMethod: (orderData.payment_method ?? "stripe") as import("@/types/order").PaymentMethod,
+    codApprovedAt: orderData.cod_approved_at ?? null,
+    codApprovedBy: orderData.cod_approved_by ?? null,
     tipCents: orderData.tip_cents,
     promoCode: orderData.promo_code,
     discountCents: orderData.discount_cents,
@@ -168,6 +174,11 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
     address,
     items,
   };
+
+  // COD pending_approval — show confirmation with awaiting-approval messaging
+  if (order.status === "pending_approval") {
+    return <OrderConfirmationV8 order={order} />;
+  }
 
   // No session_id and still pending — not a valid confirmation view
   if (order.status === "pending" && !session_id) {

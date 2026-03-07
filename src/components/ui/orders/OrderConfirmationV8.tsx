@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { m } from "framer-motion";
-import { Clock, MapPin, Package } from "lucide-react";
+import { Clock, MapPin, Package, AlertCircle, Banknote } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -33,13 +33,16 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { trigger, Confetti: ConfettiComponent } = useConfetti();
 
-  // Clear cart and trigger confetti on mount
+  const isCOD = order.paymentMethod === "cod";
+  const isPendingApproval = order.status === "pending_approval";
+
+  // Clear cart and trigger confetti on mount (no confetti for pending COD)
   useEffect(() => {
     clearCart();
-    if (shouldAnimate) {
+    if (shouldAnimate && !isPendingApproval) {
       trigger();
     }
-  }, [clearCart, trigger, shouldAnimate]);
+  }, [clearCart, trigger, shouldAnimate, isPendingApproval]);
 
   const deliveryDate = order.deliveryWindowStart
     ? format(parseISO(order.deliveryWindowStart), "EEEE, MMMM d, yyyy")
@@ -57,16 +60,22 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
 
       <div className="min-h-screen bg-gradient-to-b from-surface-secondary to-primary/5 py-12 px-4">
         <div className="mx-auto max-w-2xl">
-          {/* Success Checkmark Animation */}
+          {/* Icon Animation */}
           <m.div
             initial={shouldAnimate ? { scale: 0, opacity: 0 } : undefined}
             animate={{ scale: 1, opacity: 1 }}
             transition={getSpring(spring.ultraBouncy)}
             className="flex justify-center mb-6"
           >
-            <div className="rounded-full bg-status-success-bg p-6 shadow-lg">
-              <SuccessCheckmark show={true} size={64} variant="default" />
-            </div>
+            {isPendingApproval ? (
+              <div className="rounded-full bg-amber-100 dark:bg-amber-900/30 p-6 shadow-lg">
+                <Banknote className="h-16 w-16 text-amber-600 dark:text-amber-400" />
+              </div>
+            ) : (
+              <div className="rounded-full bg-status-success-bg p-6 shadow-lg">
+                <SuccessCheckmark show={true} size={64} variant="default" />
+              </div>
+            )}
           </m.div>
 
           {/* Confirmation Header */}
@@ -76,10 +85,30 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             transition={{ delay: 0.3, ...getSpring(spring.default) }}
             className="text-center mb-8"
           >
-            <h1 className="text-3xl font-display text-text-primary mb-2">Order Confirmed!</h1>
-            <p className="text-text-muted">
-              Thank you for your order. We&apos;ll start preparing it for Saturday delivery.
-            </p>
+            {isPendingApproval ? (
+              <>
+                <h1 className="text-3xl font-display text-text-primary mb-2">Order Received!</h1>
+                <p className="text-text-muted">
+                  Your cash-on-delivery order has been received and is awaiting confirmation.
+                </p>
+                <div className="mt-4 mx-auto max-w-md p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
+                    <p className="text-sm text-amber-700 dark:text-amber-400">
+                      Our team will confirm your order shortly. You&apos;ll receive an email once
+                      your order is approved and scheduled for delivery.
+                    </p>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <h1 className="text-3xl font-display text-text-primary mb-2">Order Confirmed!</h1>
+                <p className="text-text-muted">
+                  Thank you for your order. We&apos;ll start preparing it for delivery.
+                </p>
+              </>
+            )}
             <p className="mt-2 text-sm text-text-muted">
               Order #{order.id.slice(0, 8).toUpperCase()}
             </p>
@@ -145,6 +174,12 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                       <span>Total</span>
                       <span className="text-text-money">{formatPrice(order.totalCents)}</span>
                     </div>
+                    {isCOD && (
+                      <div className="flex items-center gap-2 pt-2 text-sm text-emerald-700 dark:text-emerald-400">
+                        <Banknote className="h-4 w-4" />
+                        <span className="font-medium">Cash on Delivery</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>

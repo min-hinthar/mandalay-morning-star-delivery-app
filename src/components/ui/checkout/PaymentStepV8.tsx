@@ -10,19 +10,22 @@
  * - Processing state on button
  * - Smooth transitions with motion tokens
  * - Respects animation preferences
+ * - COD (Cash on Delivery) support with payment method selection
  *
  * Note: Uses Stripe Checkout Sessions (hosted page redirect), NOT embedded elements.
  */
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
-import { ArrowLeft, CreditCard, ShieldCheck, Lock, MapPin, Clock } from "lucide-react";
+import { ArrowLeft, CreditCard, ShieldCheck, Lock, MapPin, Clock, Banknote } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { handleRateLimitResponse } from "@/lib/hooks/useRateLimitToast";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
+import type { PaymentMethod } from "@/types/database";
 import type { TimeWindow } from "@/types/delivery";
 import { TimeSlotDisplay } from "./TimeSlotDisplay";
 import { TipSelector } from "./TipSelector";
@@ -59,6 +62,69 @@ export interface PaymentStepV8Props {
   timeWindows?: TimeWindow[];
   /** Called when server returns CUTOFF_PASSED error — caller shows cutoff modal */
   onCutoffPassed?: () => void;
+  /** Whether Cash on Delivery is enabled */
+  codEnabled?: boolean;
+}
+
+// ============================================
+// PAYMENT METHOD SELECTOR
+// ============================================
+
+function PaymentMethodSelector({
+  value,
+  onChange,
+  codEnabled,
+}: {
+  value: PaymentMethod;
+  onChange: (method: PaymentMethod) => void;
+  codEnabled: boolean;
+}) {
+  if (!codEnabled) return null;
+
+  return (
+    <div className="space-y-3">
+      <h3 className="font-body text-sm font-medium text-text-primary">Payment Method</h3>
+      <div className="grid grid-cols-2 gap-3">
+        <button
+          type="button"
+          onClick={() => onChange("stripe")}
+          className={cn(
+            "flex items-center gap-3 rounded-lg border-2 p-4 transition-colors text-left",
+            value === "stripe"
+              ? "border-primary bg-primary/5"
+              : "border-border hover:border-primary/40"
+          )}
+        >
+          <CreditCard className="h-5 w-5 text-primary shrink-0" />
+          <div>
+            <p className="font-body text-sm font-medium text-text-primary">Card Payment</p>
+            <p className="font-body text-xs text-text-muted">Pay securely online</p>
+          </div>
+        </button>
+        <button
+          type="button"
+          onClick={() => onChange("cod")}
+          className={cn(
+            "flex items-center gap-3 rounded-lg border-2 p-4 transition-colors text-left",
+            value === "cod"
+              ? "border-primary bg-primary/5"
+              : "border-border hover:border-primary/40"
+          )}
+        >
+          <Banknote className="h-5 w-5 text-primary shrink-0" />
+          <div>
+            <p className="font-body text-sm font-medium text-text-primary">Cash on Delivery</p>
+            <p className="font-body text-xs text-text-muted">Pay when delivered</p>
+          </div>
+        </button>
+      </div>
+      {value === "cod" && (
+        <p className="font-body text-xs text-text-muted bg-status-warning-bg border border-status-warning/20 rounded-lg p-3">
+          Your order will require confirmation from our team before being scheduled for delivery.
+        </p>
+      )}
+    </div>
+  );
 }
 
 // ============================================
@@ -71,7 +137,9 @@ export function PaymentStepV8({
   disableGuard,
   timeWindows = [],
   onCutoffPassed,
+  codEnabled = false,
 }: PaymentStepV8Props) {
+  const router = useRouter();
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -88,6 +156,8 @@ export function PaymentStepV8({
     promoApplied,
     deliveryInstructions,
     setDeliveryInstructions,
+    paymentMethod,
+    setPaymentMethod,
     prevStep: storePrevStep,
   } = useCheckoutStore();
 
@@ -96,6 +166,7 @@ export function PaymentStepV8({
     tipPercent !== null ? Math.round((itemsSubtotal * tipPercent) / 100) : customTipCents;
 
   const handleBack = onBack || storePrevStep;
+  const isCOD = paymentMethod === "cod";
 
   const handleCheckout = async () => {
     if (!address || !delivery) return;
@@ -124,6 +195,7 @@ export function PaymentStepV8({
           tipCents,
           promoCode: promoApplied ? promoCode : undefined,
           deliveryInstructions: deliveryInstructions || undefined,
+          paymentMethod,
         }),
       });
 
@@ -145,9 +217,15 @@ export function PaymentStepV8({
         throw new Error(data.error?.message ?? "Checkout failed");
       }
 
-      // Disable navigation guard before Stripe redirect to prevent "Leave page?" dialog
-      disableGuard?.();
-      window.location.href = data.data.sessionUrl;
+      if (isCOD) {
+        // COD: redirect to order confirmation page
+        disableGuard?.();
+        router.push(`/orders/${data.data.orderId}/confirmation?cod=true`);
+      } else {
+        // Stripe: redirect to Stripe checkout
+        disableGuard?.();
+        window.location.href = data.data.sessionUrl;
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
       setIsCreatingSession(false);
@@ -183,24 +261,26 @@ export function PaymentStepV8({
             transition={getSpring(spring.default)}
             className="flex flex-col items-center justify-center py-12 space-y-4"
           >
-            <BrandedSpinner size="lg" label="Preparing checkout" />
+            <BrandedSpinner size="lg" label={isCOD ? "Placing order" : "Preparing checkout"} />
             <m.p
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
               className="text-sm text-text-muted"
             >
-              Preparing secure checkout...
+              {isCOD ? "Placing your order..." : "Preparing secure checkout..."}
             </m.p>
-            <m.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="flex items-center gap-2 text-xs text-text-muted"
-            >
-              <Lock className="w-3 h-3" />
-              <span>Secured by Stripe</span>
-            </m.div>
+            {!isCOD && (
+              <m.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="flex items-center gap-2 text-xs text-text-muted"
+              >
+                <Lock className="w-3 h-3" />
+                <span>Secured by Stripe</span>
+              </m.div>
+            )}
           </m.div>
         ) : (
           <m.div
@@ -241,6 +321,15 @@ export function PaymentStepV8({
                   />
                 )}
               </div>
+            </m.div>
+
+            {/* Payment Method Selector (only shows when COD enabled) */}
+            <m.div variants={shouldAnimate ? staggerItem : undefined}>
+              <PaymentMethodSelector
+                value={paymentMethod}
+                onChange={setPaymentMethod}
+                codEnabled={codEnabled}
+              />
             </m.div>
 
             {/* Dietary Summary Card with stagger */}
@@ -322,10 +411,13 @@ export function PaymentStepV8({
                   <ShieldCheck className="h-5 w-5 text-status-success" />
                 </m.div>
                 <div>
-                  <p className="text-sm font-medium text-status-success">Secure Payment</p>
+                  <p className="text-sm font-medium text-status-success">
+                    {isCOD ? "Order Confirmation" : "Secure Payment"}
+                  </p>
                   <p className="text-xs text-status-success">
-                    You&apos;ll be redirected to Stripe&apos;s secure checkout page to complete your
-                    payment.
+                    {isCOD
+                      ? "Your order will be confirmed by our team and you\u2019ll pay cash upon delivery."
+                      : "You\u2019ll be redirected to Stripe\u2019s secure checkout page to complete your payment."}
                   </p>
                 </div>
               </div>
@@ -369,7 +461,15 @@ export function PaymentStepV8({
             disabled={isCreatingSession}
             isLoading={isCreatingSession}
             loadingText="Processing..."
-            leftIcon={!isCreatingSession ? <CreditCard className="w-5 h-5" /> : undefined}
+            leftIcon={
+              !isCreatingSession ? (
+                isCOD ? (
+                  <Banknote className="w-5 h-5" />
+                ) : (
+                  <CreditCard className="w-5 h-5" />
+                )
+              ) : undefined
+            }
           >
             Place Order
           </Button>

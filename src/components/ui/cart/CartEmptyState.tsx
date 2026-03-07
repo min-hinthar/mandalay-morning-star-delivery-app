@@ -104,7 +104,7 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
         variants={shouldAnimate ? itemVariants : undefined}
         className="mt-1 text-xs text-text-muted"
       >
-        We deliver every Saturday &mdash; order by Friday 3:00 PM.
+        Check our menu for delivery schedule and cutoff times.
       </m.p>
 
       {/* CTA Button */}

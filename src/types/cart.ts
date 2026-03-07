@@ -1,4 +1,5 @@
 import type { MenuItem } from "@/types/menu";
+import type { DeliveryDayConfig } from "@/types/delivery";
 
 export interface SelectedModifier {
   groupId: string;
@@ -38,6 +39,10 @@ export interface CartStore {
   cutoffDay: number;
   cutoffHour: number;
   setCutoffSettings: (day: number, hour: number) => void;
+
+  /** Multi-day delivery configs (populated from server on page load) */
+  deliveryDays: DeliveryDayConfig[];
+  setDeliveryDays: (days: DeliveryDayConfig[]) => void;
 
   addItem: (item: Omit<CartItem, "cartItemId" | "addedAt">) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;

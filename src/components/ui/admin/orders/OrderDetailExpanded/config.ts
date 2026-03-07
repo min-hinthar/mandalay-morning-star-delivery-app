@@ -2,6 +2,7 @@ import type { OrderStatus } from "@/types/database";
 
 export const STATUS_COLORS: Record<OrderStatus, string> = {
   pending: "bg-secondary-light text-secondary-hover",
+  pending_approval: "bg-amber-100 text-amber-700",
   confirmed: "bg-accent-teal/10 text-accent-teal",
   preparing: "bg-accent-magenta/10 text-accent-magenta",
   out_for_delivery: "bg-primary/10 text-primary",
@@ -11,6 +12,7 @@ export const STATUS_COLORS: Record<OrderStatus, string> = {
 
 export const STATUS_LABELS: Record<OrderStatus, string> = {
   pending: "Pending",
+  pending_approval: "Pending Approval",
   confirmed: "Confirmed",
   preparing: "Preparing",
   out_for_delivery: "Out for Delivery",
@@ -22,6 +24,10 @@ export const NEXT_STATUSES: Record<OrderStatus, { status: OrderStatus; label: st
   pending: [
     { status: "confirmed", label: "Confirm Order" },
     { status: "cancelled", label: "Cancel" },
+  ],
+  pending_approval: [
+    { status: "confirmed", label: "Approve COD Order" },
+    { status: "cancelled", label: "Reject / Cancel" },
   ],
   confirmed: [
     { status: "preparing", label: "Start Preparing" },
@@ -43,6 +49,7 @@ export const NEXT_STATUSES: Record<OrderStatus, { status: OrderStatus; label: st
 
 export const AUDIT_ACTION_LABELS: Record<string, string> = {
   status_change: "Status Changed",
+  cod_approved: "COD Approved",
   cancel: "Order Cancelled",
   refund: "Refund Processed",
   edit: "Order Edited",

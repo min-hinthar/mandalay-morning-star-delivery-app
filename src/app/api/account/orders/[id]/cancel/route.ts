@@ -5,6 +5,8 @@ import { cancelOrderSchema } from "@/lib/validations/account";
 import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import { OrderCancellation } from "@/emails/OrderCancellation";
+import { checkRateLimit, customerLimiter, getClientIp } from "@/lib/rate-limit";
+import { checkOrigin } from "@/lib/utils/origin-check";
 import type { OrderStatus } from "@/types/database";
 
 interface RouteParams {
@@ -12,11 +14,23 @@ interface RouteParams {
 }
 
 // Statuses that allow customer cancellation
-const CANCELLABLE_STATUSES: OrderStatus[] = ["pending", "confirmed"];
+const CANCELLABLE_STATUSES: readonly OrderStatus[] = ["pending", "pending_approval", "confirmed"];
 
 // POST /api/account/orders/[id]/cancel - Cancel order before preparation starts
 export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
+    const originError = checkOrigin(request);
+    if (originError) return originError;
+
+    const ip = getClientIp(request);
+    const rl = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: ip,
+      role: "customer",
+      route: "account/orders/:id/cancel",
+    });
+    if (rl.limited) return rl.response;
+
     const { id: orderId } = await params;
     const supabase = await createClient();
     const {

@@ -28,6 +28,7 @@ export const createCheckoutSessionSchema = z.object({
   tipCents: z.number().int().min(0).max(100_000, "Maximum tip is $1000").optional(),
   promoCode: z.string().max(50, "Promo code too long").optional(),
   deliveryInstructions: z.string().max(500, "Delivery instructions too long").optional(),
+  paymentMethod: z.enum(["stripe", "cod"]).default("stripe"),
 });
 
 export type CreateCheckoutSessionInput = z.infer<typeof createCheckoutSessionSchema>;

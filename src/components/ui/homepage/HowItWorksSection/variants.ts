@@ -40,7 +40,9 @@ export const dropdownItemVariants: Variants = {
 export interface Step {
   icon: LucideIcon;
   title: string;
+  titleMy?: string;
   description: string;
+  descriptionMy?: string;
   color: string;
   iconBg: string;
   iconBorder: string;

@@ -22,7 +22,7 @@ import { HeroContent } from "./HeroContent";
 export function Hero({
   headline = "Authentic Burmese Cuisine Delivered to Your Door",
   tagline = "Authentic Burmese delivered",
-  subheadline = "Experience the rich flavors of Myanmar with our weekly Saturday deliveries. Fresh, homemade dishes prepared with love and tradition.",
+  subheadline = "Experience the rich flavors of Myanmar with our weekly deliveries. Fresh, homemade dishes prepared with love and tradition.",
   ctaText = "Order Now",
   ctaHref = "/menu",
   className,
@@ -30,6 +30,7 @@ export function Hero({
   freeDeliveryThresholdCents,
   cutoffDay,
   cutoffHour,
+  deliveryDays,
 }: HeroProps) {
   const { shouldAnimate } = useAnimationPreference();
   const { isParallaxEnabled } = useAnimationContextSafe();
@@ -95,6 +96,7 @@ export function Hero({
       freeDeliveryThresholdCents={freeDeliveryThresholdCents}
       cutoffDay={cutoffDay}
       cutoffHour={cutoffHour}
+      deliveryDays={deliveryDays}
     />
   );
 

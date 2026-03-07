@@ -13,6 +13,7 @@ import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 const updateStatusSchema = z.object({
   status: z.enum([
     "pending",
+    "pending_approval",
     "confirmed",
     "preparing",
     "out_for_delivery",
@@ -26,6 +27,7 @@ const updateStatusSchema = z.object({
 // Valid status transitions (admin can move forward AND backward)
 const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   pending: ["confirmed", "cancelled"],
+  pending_approval: ["confirmed", "cancelled"],
   confirmed: ["preparing", "pending", "cancelled"],
   preparing: ["out_for_delivery", "confirmed", "cancelled"],
   out_for_delivery: ["delivered", "preparing"],
@@ -88,6 +90,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     const currentStatus = order.status;
 
+    // Block pending_approval→confirmed through generic status endpoint
+    // This must go through /approve-cod to set cod_approved_at/cod_approved_by
+    if (currentStatus === "pending_approval" && newStatus === "confirmed") {
+      return apiError(
+        "BAD_REQUEST",
+        "COD orders must be approved via the /approve-cod endpoint",
+        400
+      );
+    }
+
     // Validate status transition
     const validNextStatuses = VALID_TRANSITIONS[currentStatus];
     if (!validNextStatuses.includes(newStatus)) {
@@ -102,11 +114,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     // Update order status
     const updateData: {
       status: OrderStatus;
-      confirmed_at?: string;
-      delivered_at?: string;
+      confirmed_at?: string | null;
+      delivered_at?: string | null;
     } = { status: newStatus };
 
-    if (newStatus === "confirmed" && currentStatus === "pending") {
+    if (
+      newStatus === "confirmed" &&
+      (currentStatus === "pending" || currentStatus === "pending_approval")
+    ) {
       updateData.confirmed_at = new Date().toISOString();
     }
 
@@ -182,8 +197,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
  * Returns true if email was sent successfully, false otherwise.
  */
 async function sendStatusEmail(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  supabase: any,
+  supabase: Awaited<ReturnType<typeof import("@/lib/supabase/server").createClient>>,
   orderId: string,
   orderUserId: string,
   _previousStatus: OrderStatus,

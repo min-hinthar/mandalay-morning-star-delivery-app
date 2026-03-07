@@ -14,6 +14,16 @@ vi.mock("@/lib/supabase/server", () => ({
   }),
 }));
 
+const mockLoggerError = vi.fn();
+vi.mock("@/lib/utils/logger", () => ({
+  logger: {
+    error: (...args: unknown[]) => mockLoggerError(...args),
+    info: vi.fn(),
+    warn: vi.fn(),
+    debug: vi.fn(),
+  },
+}));
+
 import { getDeliveryPhotoSignedUrl, extractDeliveryPhotoPath } from "../delivery-photos";
 
 describe("delivery-photos", () => {
@@ -69,14 +79,10 @@ describe("delivery-photos", () => {
         error: { message: "Storage error" },
       });
 
-      const consoleSpy = vi.spyOn(console, "error").mockImplementation(() => {});
-
       const result = await getDeliveryPhotoSignedUrl("routeId/orderId.jpg");
 
       expect(result).toBeNull();
-      expect(consoleSpy).toHaveBeenCalled();
-
-      consoleSpy.mockRestore();
+      expect(mockLoggerError).toHaveBeenCalled();
     });
   });
 });

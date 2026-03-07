@@ -11,6 +11,7 @@ import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { Clock } from "lucide-react";
 import type { OrderStatus } from "@/types/database";
 import { STATUS_ORDER, STATUS_CONFIG } from "./constants";
 import { TimelineStep } from "./TimelineStep";
@@ -37,7 +38,7 @@ export function StatusTimeline({
   const currentIndex = STATUS_ORDER.indexOf(currentStatus);
 
   const steps = useMemo(() => {
-    if (currentStatus === "cancelled") return [];
+    if (currentStatus === "cancelled" || currentStatus === "pending_approval") return [];
 
     return STATUS_ORDER.map((status, index) => {
       const config = STATUS_CONFIG[status];
@@ -63,6 +64,31 @@ export function StatusTimeline({
     return (
       <div className={className}>
         <CancelledState />
+      </div>
+    );
+  }
+
+  if (currentStatus === "pending_approval") {
+    return (
+      <div
+        className={cn(
+          "rounded-2xl bg-surface-primary p-6 shadow-card border border-border",
+          className
+        )}
+      >
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+          <div className="flex items-center gap-3">
+            <div className="rounded-full bg-amber-100 p-2 dark:bg-amber-900/50">
+              <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+            </div>
+            <div>
+              <p className="font-semibold text-amber-800 dark:text-amber-300">Awaiting Approval</p>
+              <p className="text-sm text-amber-700/80 dark:text-amber-400/80">
+                Your order is being reviewed. You&apos;ll be notified once it&apos;s confirmed.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }

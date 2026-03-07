@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
 
 interface AvatarProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -21,17 +22,16 @@ interface AvatarImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
 }
 
 const AvatarImage = React.forwardRef<HTMLImageElement, AvatarImageProps>(
-  ({ className, src, alt, ...props }, ref) => {
+  ({ className, src, alt }, _ref) => {
     if (!src) return null;
     return (
-      // eslint-disable-next-line @next/next/no-img-element
-      <img
-        ref={ref}
+      <Image
         src={src}
         alt={alt || "Avatar"}
+        width={40}
+        height={40}
         className={cn("aspect-square h-full w-full object-cover", className)}
         referrerPolicy="no-referrer"
-        {...props}
       />
     );
   }

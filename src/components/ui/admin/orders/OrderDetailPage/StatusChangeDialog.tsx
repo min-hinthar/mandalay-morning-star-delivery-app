@@ -67,11 +67,18 @@ export function StatusChangeDialog({
       // Optimistic: notify parent immediately
       onStatusChanged(newStatus);
 
-      const res = await fetch(`/api/admin/orders/${orderId}/status`, {
-        method: "PATCH",
+      // Route COD approval through dedicated endpoint
+      const isCodApproval = currentStatus === "pending_approval" && newStatus === "confirmed";
+      const url = isCodApproval
+        ? `/api/admin/orders/${orderId}/approve-cod`
+        : `/api/admin/orders/${orderId}/status`;
+      const method = isCodApproval ? "POST" : "PATCH";
+
+      const res = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          status: newStatus,
+          ...(isCodApproval ? {} : { status: newStatus }),
           notifyCustomer,
           reason: reason.trim() || undefined,
         }),
