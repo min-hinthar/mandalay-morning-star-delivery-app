@@ -68,7 +68,7 @@ const variantConfig = {
     enableTilt: true,
     rounded: "rounded-3xl",
     roundedTop: "rounded-t-3xl",
-    padding: "p-3",
+    padding: "p-3 pb-14",
   },
   cart: {
     imageAspect: "aspect-square",

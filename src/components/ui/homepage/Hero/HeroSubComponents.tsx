@@ -35,14 +35,16 @@ interface StatItemProps {
 
 export function StatItem({ icon, label, value, subValue }: StatItemProps) {
   return (
-    <div className="flex items-center gap-3 px-4 py-2">
+    <div className="flex items-center gap-3 bg-hero-stat-bg/60 sm:backdrop-blur-md border border-hero-text/15 rounded-2xl p-4">
       {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
-      <div className="p-2 rounded-full bg-hero-stat-bg sm:backdrop-blur-sm">{icon}</div>
-      <div className="text-left">
+      <div className="p-2.5 rounded-full bg-hero-stat-bg sm:backdrop-blur-sm">{icon}</div>
+      <div className="text-left min-w-0">
         <div className="text-xs text-hero-text-muted uppercase tracking-wide">{label}</div>
-        <div className="text-sm font-semibold text-hero-text">{value}</div>
+        <div className="text-base font-bold text-hero-text leading-tight">{value}</div>
         {subValue && (
-          <span className="block text-xs text-hero-text/50 font-body mt-0.5">{subValue}</span>
+          <span className="block text-xs text-hero-text/50 font-body mt-0.5 truncate">
+            {subValue}
+          </span>
         )}
       </div>
     </div>

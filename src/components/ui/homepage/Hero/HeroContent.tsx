@@ -95,7 +95,7 @@ export function HeroContent({
   const greeting = greetings[timeOfDay] ?? greetings.morning;
 
   return (
-    <div className="relative flex flex-col items-center justify-start min-h-[100svh] min-h-[100dvh] px-4 pt-24 pb-20 pb-safe md:pt-28 md:pb-24">
+    <div className="relative flex flex-col items-center justify-start min-h-[100svh] min-h-[100dvh] px-4 pt-24 pb-32 pb-safe md:pt-28 md:pb-32">
       <div className="max-w-4xl mx-auto text-center">
         {/* Time-based greeting badge - bilingual */}
         <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1">
@@ -187,43 +187,38 @@ export function HeroContent({
           )}
         </div>
 
-        <div className="flex flex-wrap justify-center items-center gap-2 md:gap-4 p-4 rounded-2xl bg-hero-stat-bg sm:bg-hero-stat-bg/50 sm:backdrop-blur-md border border-hero-text/10 animate-fade-in-up-delay-4">
+        <div className="grid grid-cols-2 gap-3 max-w-md mx-auto md:grid-cols-4 md:max-w-3xl animate-fade-in-up-delay-4">
           <StatItem
-            icon={<ChefHat className="w-4 h-4 text-secondary" />}
+            icon={<ChefHat className="w-5 h-5 text-secondary" />}
             label="Authentic"
             value="Burmese Recipes"
             subValue="မြန်မာ့ရိုးရာ ချက်ပြုတ်နည်းများ"
           />
-          <div className="hidden md:block w-px h-10 bg-hero-text/20" />
           <StatItem
-            icon={<Clock className="w-4 h-4 text-secondary" />}
+            icon={<Clock className="w-5 h-5 text-secondary" />}
             label="Delivery"
             value={deliveryScheduleText}
             subValue={`${deliveryDaysList} တွင် ပို့ဆောင်ပေးပါသည်`}
           />
-          <div className="hidden md:block w-px h-10 bg-hero-text/20" />
           <StatItem
-            icon={<MapPin className="w-4 h-4 text-secondary" />}
+            icon={<MapPin className="w-5 h-5 text-secondary" />}
             label="Coverage"
             value="50 Mile Radius"
             subValue="မိုင် ၅၀ အကျယ်အဝန်း"
           />
           {deliveryFeeText && (
-            <>
-              <div className="hidden md:block w-px h-10 bg-hero-text/20" />
-              <StatItem
-                icon={<Truck className="w-4 h-4 text-secondary" />}
-                label="Fee"
-                value={deliveryFeeText}
-                subValue="$၁၀၀ အထက် အခမဲ့ပို့ဆောင်"
-              />
-            </>
+            <StatItem
+              icon={<Truck className="w-5 h-5 text-secondary" />}
+              label="Fee"
+              value={deliveryFeeText}
+              subValue="$၁၀၀ အထက် အခမဲ့ပို့ဆောင်"
+            />
           )}
         </div>
       </div>
 
       <m.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        className="absolute bottom-6 left-1/2 -translate-x-1/2"
         initial={shouldAnimate ? { opacity: 0 } : undefined}
         animate={shouldAnimate ? { opacity: 1 } : undefined}
         transition={{ delay: 1.5 }}
