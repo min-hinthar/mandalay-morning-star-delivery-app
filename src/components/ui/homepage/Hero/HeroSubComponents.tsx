@@ -62,7 +62,7 @@ interface GradientFallbackProps {
 
 export function GradientFallback({ children, className }: GradientFallbackProps) {
   return (
-    <div className={cn("relative w-full min-h-[100svh] min-h-[100dvh] overflow-hidden", className)}>
+    <div className={cn("relative w-full min-h-[100svh] min-h-[100dvh]", className)}>
       {/* Muted warm gradient background */}
       <div
         className="absolute inset-0 hero-gradient-transition"
@@ -96,9 +96,9 @@ export function GradientFallback({ children, className }: GradientFallbackProps)
 
       {/* Content layer */}
       <div
-        className="absolute inset-0 flex flex-col items-center justify-center"
+        className="relative flex flex-col items-center justify-center min-h-[100svh] min-h-[100dvh]"
         // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
-        style={{ zIndex: 4 }}
+        style={{ zIndex: 5 }}
       >
         {children}
       </div>
