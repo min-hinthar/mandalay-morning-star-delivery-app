@@ -25,6 +25,7 @@ export function SocialLoginButtons({ onOAuthStart, redirectTo }: SocialLoginButt
         options: {
           redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo || "/login")}`,
           queryParams: { access_type: "offline", prompt: "consent" },
+          scopes: "openid email profile",
         },
       });
 

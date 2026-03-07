@@ -1,4 +1,5 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
+import { resolveOAuthEmail } from "@/lib/auth/resolve-oauth-email";
 import { logger } from "@/lib/utils/logger";
 
 interface ProfileRow {
@@ -35,7 +36,9 @@ export async function ensureProfile(
   if (!resolvedEmail) {
     try {
       const { data } = await supabase.auth.admin.getUserById(userId);
-      resolvedEmail = data?.user?.email ?? null;
+      if (data?.user) {
+        resolvedEmail = resolveOAuthEmail(data.user);
+      }
     } catch (adminErr) {
       logger.warn("ensureProfile: admin.getUserById failed, proceeding with null email", {
         api: "role-redirect",

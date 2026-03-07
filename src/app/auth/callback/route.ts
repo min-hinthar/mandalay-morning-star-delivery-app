@@ -1,6 +1,7 @@
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { NextResponse } from "next/server";
 import { getRoleDashboard } from "@/lib/auth/role-redirect";
+import { resolveOAuthEmail } from "@/lib/auth/resolve-oauth-email";
 import { logger } from "@/lib/utils/logger";
 
 interface DriverInviteRow {
@@ -89,7 +90,7 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     // Sync profile email (returning OAuth users bypass the DB trigger)
     if (sessionData.session) {
-      const userEmail = sessionData.session.user.email;
+      const userEmail = resolveOAuthEmail(sessionData.session.user);
       const userId = sessionData.session.user.id;
       if (userEmail && userId) {
         await serviceClient
@@ -97,12 +98,20 @@ export async function GET(request: Request): Promise<NextResponse> {
           .update({ email: userEmail })
           .eq("id", userId)
           .is("email", null);
+      } else if (!userEmail) {
+        logger.warn("OAuth callback: email is NULL after all sources checked", {
+          api: "auth/callback",
+          flowId: "auth",
+          userId,
+          hasUserMetadata: !!sessionData.session.user.user_metadata?.email,
+          hasIdentities: !!sessionData.session.user.identities?.length,
+        });
       }
     }
 
     // Handle driver invite flow
     if (inviteId && sessionData.session) {
-      const userEmail = sessionData.session.user.email;
+      const userEmail = resolveOAuthEmail(sessionData.session.user);
       const userId = sessionData.session.user.id;
 
       logger.info("Processing driver invite", { api: "auth/callback", flowId: "auth" });
@@ -155,7 +164,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     const result = await getRoleDashboard(
       serviceClient,
       sessionData.session!.user.id,
-      sessionData.session!.user.email
+      resolveOAuthEmail(sessionData.session!.user)
     );
 
     // If next is /login or / (standard login flow), resolve by role
