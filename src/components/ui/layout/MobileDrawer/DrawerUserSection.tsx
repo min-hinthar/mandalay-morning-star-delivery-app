@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
@@ -44,10 +45,11 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
               transition={getSpring(spring.snappy)}
             >
               {user.avatar ? (
-                /* eslint-disable-next-line @next/next/no-img-element -- User avatar with dynamic URL */
-                <img
+                <Image
                   src={user.avatar}
                   alt={user.name || "User"}
+                  width={48}
+                  height={48}
                   className="w-full h-full object-cover"
                   referrerPolicy="no-referrer"
                   onError={(e) => {

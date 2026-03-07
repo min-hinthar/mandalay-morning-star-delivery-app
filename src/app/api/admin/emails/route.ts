@@ -125,10 +125,13 @@ export async function GET(request: Request) {
       query = query.eq("order_id", orderId);
     }
     if (type) {
-      query = query.eq("notification_type", type);
+      query = query.eq("notification_type", type as (typeof VALID_TYPES)[number]);
     }
     if (status) {
-      query = query.eq("status", status);
+      query = query.eq(
+        "status",
+        status as import("@/types/database").Database["public"]["Enums"]["notification_status"]
+      );
     }
     if (from) {
       query = query.gte("created_at", from);

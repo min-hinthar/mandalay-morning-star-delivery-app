@@ -2,6 +2,8 @@
  * Hero Types
  */
 
+import type { DeliveryDayConfig } from "@/types/delivery";
+
 export interface HeroProps {
   /** Hero headline */
   headline?: string;
@@ -19,8 +21,10 @@ export interface HeroProps {
   deliveryFeeCents?: number;
   /** Free delivery threshold in cents from business rules */
   freeDeliveryThresholdCents?: number;
-  /** Cutoff day (0=Sun..6=Sat) from business rules */
+  /** @deprecated Use deliveryDays instead */
   cutoffDay?: number;
-  /** Cutoff hour (0-23) from business rules */
+  /** @deprecated Use deliveryDays instead */
   cutoffHour?: number;
+  /** Multi-day delivery configs from business rules */
+  deliveryDays?: DeliveryDayConfig[];
 }

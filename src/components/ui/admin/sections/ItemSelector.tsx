@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import Image from "next/image";
 import { m, AnimatePresence, Reorder } from "framer-motion";
 import {
   Search,
@@ -275,10 +276,11 @@ export function ItemSelector({
 
                     {/* Image */}
                     {item.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={item.imageUrl}
                         alt={item.nameEn}
+                        width={40}
+                        height={40}
                         className="w-10 h-10 rounded object-cover shrink-0"
                         referrerPolicy="no-referrer"
                       />
@@ -356,10 +358,11 @@ export function ItemSelector({
                 <GripVertical className="h-4 w-4 text-text-muted shrink-0" />
 
                 {item.imageUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={item.imageUrl}
                     alt={item.nameEn}
+                    width={32}
+                    height={32}
                     className="w-8 h-8 rounded object-cover shrink-0"
                     referrerPolicy="no-referrer"
                   />

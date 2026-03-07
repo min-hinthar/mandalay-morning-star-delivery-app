@@ -120,7 +120,7 @@ export async function PATCH(request: NextRequest) {
 
     const { error } = await supabase
       .from("drivers")
-      .update({ availability_json: validation.data })
+      .update({ availability_json: validation.data as unknown as import("@/types/database").Json })
       .eq("id", driverId);
 
     if (error) {

@@ -12,6 +12,7 @@
  */
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Image from "next/image";
 import { User, LogOut, Package, UserCircle } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -221,10 +222,11 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
       >
         {/* Avatar image or initials fallback - use full size to respect className override */}
         {avatarUrl && !avatarError ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={avatarUrl}
             alt=""
+            width={40}
+            height={40}
             className="w-full h-full rounded-full object-cover"
             referrerPolicy="no-referrer"
             onError={() => setAvatarError(true)}

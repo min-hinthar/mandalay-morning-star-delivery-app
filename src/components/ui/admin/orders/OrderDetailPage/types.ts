@@ -46,6 +46,8 @@ export interface OrderDetail {
   deliveryWindowStart: string | null;
   deliveryWindowEnd: string | null;
   stripePaymentIntentId: string | null;
+  paymentMethod: "stripe" | "cod";
+  codApprovedAt: string | null;
   isPriority: boolean;
   assignedDriverId: string | null;
   assignedDriverName: string | null;

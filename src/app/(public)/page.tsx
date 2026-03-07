@@ -114,6 +114,7 @@ export default async function HomePage(): Promise<ReactElement> {
           freeDeliveryThresholdCents={rules.freeDeliveryThresholdCents}
           cutoffDay={rules.cutoffDay}
           cutoffHour={rules.cutoffHour}
+          deliveryDays={rules.deliveryDays}
         />
 
         {/* Settings Nudge Banner - client component (auth check, inline saves) */}

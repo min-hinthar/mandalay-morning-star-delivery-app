@@ -70,32 +70,55 @@ export function CTABanner({ id }: CTABannerProps) {
             className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/20 text-secondary rounded-pill mb-6"
           >
             <Truck className="w-4 h-4" />
-            <span className="text-sm font-body font-semibold">Free delivery over $100</span>
+            <span className="text-sm font-body font-semibold">
+              Free delivery over $100 · $၁၀၀ အထက် အခမဲ့ပို့ဆောင်
+            </span>
           </m.div>
 
-          {/* Headline */}
+          {/* EN Headline */}
           <m.h2
             initial={shouldAnimate ? { opacity: 0, y: 16 } : false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
             transition={{ delay: 0.15, duration: 0.4, ease: easing.default }}
-            className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary mb-4"
+            className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary mb-2"
           >
-            Order by Friday 3pm for <span className="text-primary">Saturday Delivery</span>
+            Fresh Burmese Cuisine, <span className="text-primary">Delivered Weekly</span>
           </m.h2>
+          {/* MY Headline */}
+          <m.p
+            initial={shouldAnimate ? { opacity: 0, y: 16 } : false}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ delay: 0.17, duration: 0.4, ease: easing.default }}
+            className="font-body text-xl md:text-2xl text-text-primary/70 mb-4"
+          >
+            လတ်ဆတ်သော မြန်မာ့အစားအသောက်{" "}
+            <span className="text-primary/80">အပတ်စဉ် ပို့ဆောင်ပေးပါသည်</span>
+          </m.p>
 
-          {/* Subtext */}
+          {/* EN Subtext */}
           <m.p
             initial={shouldAnimate ? { opacity: 0, y: 16 } : false}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.5 }}
             transition={{ delay: 0.2, duration: 0.4, ease: easing.default }}
-            className="font-body text-lg text-text-secondary max-w-xl mx-auto mb-8"
+            className="font-body text-lg text-text-secondary max-w-xl mx-auto mb-1"
           >
             Fresh homemade Burmese dishes, delivered to your door
           </m.p>
+          {/* MY Subtext */}
+          <m.p
+            initial={shouldAnimate ? { opacity: 0, y: 16 } : false}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, amount: 0.5 }}
+            transition={{ delay: 0.22, duration: 0.4, ease: easing.default }}
+            className="font-body text-base text-text-secondary/70 max-w-xl mx-auto mb-8"
+          >
+            အိမ်လုပ် မြန်မာအစားအသောက်များ သင့်အိမ်တံခါးဝအထိ ပို့ဆောင်ပေးပါသည်
+          </m.p>
 
-          {/* CTA Button */}
+          {/* CTA Buttons - bilingual */}
           <m.div
             initial={shouldAnimate ? { opacity: 0, y: 16 } : false}
             whileInView={{ opacity: 1, y: 0 }}
@@ -108,7 +131,7 @@ export function CTABanner({ id }: CTABannerProps) {
               href="/menu"
               className="inline-flex items-center justify-center px-10 py-4 bg-primary text-text-inverse font-body font-semibold text-lg rounded-pill shadow-lg hover:bg-primary-hover transition-colors duration-fast"
             >
-              Order Now
+              Order Now · ယခု မှာယူမည်
             </Link>
           </m.div>
         </m.div>

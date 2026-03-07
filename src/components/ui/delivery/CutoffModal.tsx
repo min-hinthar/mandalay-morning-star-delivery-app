@@ -41,9 +41,8 @@ export function CutoffModal({ isOpen, onClose, nextDeliveryDate }: CutoffModalPr
         </div>
 
         {/* Heading */}
-        <h2 className="text-xl font-semibold text-text-primary">
-          We&apos;re preparing this week&apos;s deliveries!
-        </h2>
+        <h2 className="text-xl font-semibold text-text-primary">Ordering is currently closed</h2>
+        <p className="text-base text-text-secondary -mt-3">မှာယူမှုကို ယာယီပိတ်ထားပါသည်</p>
 
         {/* Message */}
         <p className="text-text-secondary leading-relaxed">
@@ -51,9 +50,16 @@ export function CutoffModal({ isOpen, onClose, nextDeliveryDate }: CutoffModalPr
           <span className="font-medium text-text-primary">{nextDeliveryDate}</span>. We&apos;d love
           to see you then.
         </p>
+        <p className="text-sm text-text-muted -mt-3">
+          နောက်တစ်ကြိမ် မှာယူနိုင်သည့်ရက်မှာ{" "}
+          <span className="font-medium text-text-primary">{nextDeliveryDate}</span> ဖြစ်ပါသည်။
+        </p>
 
         {/* Reassurance */}
         <p className="text-sm text-text-muted">Your cart items are saved for next time.</p>
+        <p className="text-xs text-text-muted -mt-3">
+          သင့်ဈေးခြင်းထဲရှိ ပစ္စည်းများကို နောက်တစ်ကြိမ်အတွက် သိမ်းဆည်းထားပါသည်။
+        </p>
 
         {/* Actions */}
         <div className="flex w-full flex-col gap-3 sm:flex-row sm:justify-center">

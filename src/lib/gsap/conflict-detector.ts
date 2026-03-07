@@ -10,6 +10,8 @@
  * - They should not animate the same element simultaneously
  */
 
+import { logger } from "@/lib/utils/logger";
+
 // Only runs in development
 const isDev = process.env.NODE_ENV === "development";
 
@@ -28,12 +30,9 @@ function warnConflict(element: Element, source: "gsap" | "framer-motion") {
     ? `.${String(element.className).split(" ").slice(0, 3).join(".")}`
     : "";
 
-  console.warn(
-    `[Animation Conflict] Element <${tagName}${id}${classes}> is animated by both GSAP and ${other}.`,
-    "\nThis may cause janky animations or unexpected behavior.",
-    "\nFix: Use GSAP for scroll-linked animations, Framer Motion for state-driven animations.",
-    "\nElement:",
-    element
+  logger.warn(
+    `[Animation Conflict] Element <${tagName}${id}${classes}> is animated by both GSAP and ${other}. This may cause janky animations. Fix: Use GSAP for scroll-linked animations, Framer Motion for state-driven animations.`,
+    { element: `<${tagName}${id}${classes}>` }
   );
 }
 

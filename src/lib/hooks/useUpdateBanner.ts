@@ -9,6 +9,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { usePathname } from "next/navigation";
 import { toast } from "@/lib/hooks/useToastV8";
+import { logger } from "@/lib/utils/logger";
 
 // ============================================
 // CONSTANTS
@@ -151,7 +152,7 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
           }
         });
       } catch (error) {
-        console.error("[useUpdateBanner] Error checking for updates:", error);
+        logger.error("[useUpdateBanner] Error checking for updates", { error: String(error) });
       }
     };
 

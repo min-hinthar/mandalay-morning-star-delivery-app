@@ -95,7 +95,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       .update({
         status: "completed",
         completed_at: completedAt,
-        stats_json: stats,
+        stats_json: stats as unknown as import("@/types/database").Json,
       })
       .eq("id", routeId);
 

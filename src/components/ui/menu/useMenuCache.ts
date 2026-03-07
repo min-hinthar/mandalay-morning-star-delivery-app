@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { menuCache } from "@/lib/services/customer-offline-store";
+import { logger } from "@/lib/utils/logger";
 import type { MenuCategory, MenuResponse } from "@/types/menu";
 
 interface UseMenuCacheParams {
@@ -28,7 +29,7 @@ export function useMenuCache({ data, categories, error, isLoading }: UseMenuCach
   useEffect(() => {
     if (data?.data?.categories && data.data.categories.length > 0) {
       menuCache.save(data).catch((err) => {
-        console.error("[MenuContent] Failed to cache menu:", err);
+        logger.error("[MenuContent] Failed to cache menu", { error: String(err) });
       });
       setUsingCachedData(false);
       setCachedAt(null);
@@ -47,7 +48,7 @@ export function useMenuCache({ data, categories, error, isLoading }: UseMenuCach
           }
         })
         .catch((err) => {
-          console.error("[MenuContent] Failed to load cached menu:", err);
+          logger.error("[MenuContent] Failed to load cached menu", { error: String(err) });
         });
     }
   }, [error, isLoading]);
@@ -64,7 +65,7 @@ export function useMenuCache({ data, categories, error, isLoading }: UseMenuCach
           }
         })
         .catch((err) => {
-          console.error("[MenuContent] Failed to read cached categories:", err);
+          logger.error("[MenuContent] Failed to read cached categories", { error: String(err) });
         });
     }
   }, [usingCachedData]);

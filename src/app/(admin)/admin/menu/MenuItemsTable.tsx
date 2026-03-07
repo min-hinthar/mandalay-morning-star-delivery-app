@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { m } from "framer-motion";
 import { Edit2, Trash2, ToggleLeft, ToggleRight, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -120,10 +121,11 @@ export function MenuItemsTable({
                     <TableCell>
                       <div className="flex items-center gap-3">
                         {item.image_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <Image
                             src={item.image_url}
                             alt={item.name_en}
+                            width={40}
+                            height={40}
                             className="h-10 w-10 rounded-input object-cover"
                             referrerPolicy="no-referrer"
                           />

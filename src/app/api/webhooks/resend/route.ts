@@ -17,6 +17,7 @@ import { Webhook } from "svix";
 import { apiError } from "@/lib/utils/api-error";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, webhookLimiter } from "@/lib/rate-limit";
 
 const RESEND_WEBHOOK_SECRET = process.env.RESEND_WEBHOOK_SECRET;
 const FLOW_ID = "resend-webhook";
@@ -85,8 +86,17 @@ function getSourceIp(request: Request): string | null {
 // ===========================================
 
 export async function POST(request: Request) {
+  const ip = getSourceIp(request) ?? "unknown";
+  const rl = await checkRateLimit({
+    limiter: webhookLimiter,
+    identifier: ip,
+    role: "anon",
+    route: "webhooks/resend",
+  });
+  if (rl.limited) return rl.response;
+
   const supabase = createServiceClient();
-  const sourceIp = getSourceIp(request);
+  const sourceIp = ip;
 
   // -----------------------------------------------
   // Step 1: Read raw body (required for Svix verification)

@@ -9,6 +9,7 @@
  * - Animation preference support via useAnimationPreference hook
  * - Enhanced TimeSlotPicker (not Legacy)
  * - Smooth step transitions
+ * - Multi-day delivery support
  *
  * Phase 9 Plan 01
  */
@@ -20,10 +21,13 @@ import { cn } from "@/lib/utils/cn";
 import { staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
-import { getAvailableDeliveryDates } from "@/lib/utils/delivery-dates";
+import {
+  getAvailableDeliveryDates,
+  getAvailableDeliveryDatesMultiDay,
+} from "@/lib/utils/delivery-dates";
 import { TimeSlotPicker } from "./TimeSlotPicker";
 import { Button } from "@/components/ui/button";
-import type { DeliverySelection, TimeWindow } from "@/types/delivery";
+import type { DeliveryDayConfig, DeliverySelection, TimeWindow } from "@/types/delivery";
 
 /** Button entry animation variant */
 const buttonEntry = {
@@ -48,13 +52,21 @@ export interface TimeStepV8Props {
   onBack?: () => void;
   /** Dynamic time windows generated from configured delivery hours */
   timeWindows?: TimeWindow[];
+  /** Multi-day delivery configs; uses legacy Saturday-only when empty */
+  deliveryDays?: DeliveryDayConfig[];
 }
 
 // ============================================
 // MAIN COMPONENT
 // ============================================
 
-export function TimeStepV8({ className, onNext, onBack, timeWindows = [] }: TimeStepV8Props) {
+export function TimeStepV8({
+  className,
+  onNext,
+  onBack,
+  timeWindows = [],
+  deliveryDays = [],
+}: TimeStepV8Props) {
   const { shouldAnimate } = useAnimationPreference();
   const {
     delivery,
@@ -67,8 +79,14 @@ export function TimeStepV8({ className, onNext, onBack, timeWindows = [] }: Time
   const handleNext = onNext || storeNextStep;
   const handleBack = onBack || storePrevStep;
 
-  // Memoize available dates to prevent recalculation on every render
-  const availableDates = useMemo(() => getAvailableDeliveryDates(), []);
+  // Use multi-day dates when delivery days are configured, legacy otherwise
+  const availableDates = useMemo(
+    () =>
+      deliveryDays.length > 0
+        ? getAvailableDeliveryDatesMultiDay(new Date(), deliveryDays, 6)
+        : getAvailableDeliveryDates(),
+    [deliveryDays]
+  );
 
   // Auto-select first available delivery date when none selected
   useEffect(() => {

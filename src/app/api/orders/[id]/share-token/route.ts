@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { headers } from "next/headers";
+import { checkRateLimit, customerLimiter, getClientIp } from "@/lib/rate-limit";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -17,8 +18,17 @@ interface OrderShareTokenRow {
  * Lazily generates a share token for an order.
  * Returns existing token if already generated.
  */
-export async function POST(_request: NextRequest, { params }: RouteParams) {
+export async function POST(request: NextRequest, { params }: RouteParams) {
   try {
+    const ip = getClientIp(request);
+    const rl = await checkRateLimit({
+      limiter: customerLimiter,
+      identifier: ip,
+      role: "customer",
+      route: "orders/:id/share-token",
+    });
+    if (rl.limited) return rl.response;
+
     const resolvedParams = await params;
     const orderId = resolvedParams.id;
 

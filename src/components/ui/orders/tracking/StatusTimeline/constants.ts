@@ -18,6 +18,7 @@ export const STATUS_CONFIG: Record<
   OrderStatus,
   { label: string; icon: React.FC<{ className?: string }>; color: string }
 > = {
+  pending_approval: { label: "Awaiting Approval", icon: Clock, color: "v6-secondary" },
   pending: { label: "Order Placed", icon: Clock, color: "v6-secondary" },
   confirmed: { label: "Payment Confirmed", icon: CheckCircle, color: "v6-primary" },
   preparing: { label: "Preparing Your Food", icon: Package, color: "v6-primary" },

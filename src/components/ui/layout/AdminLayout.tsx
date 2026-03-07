@@ -2,6 +2,7 @@
 
 import { type ReactNode, useState, useCallback } from "react";
 import { m, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -149,10 +150,11 @@ export function AdminLayout({ children, user }: AdminLayoutProps) {
                 )}
               >
                 {user?.avatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={user.avatar}
                     alt={user.name}
+                    width={32}
+                    height={32}
                     className="h-full w-full rounded-full object-cover"
                     referrerPolicy="no-referrer"
                   />

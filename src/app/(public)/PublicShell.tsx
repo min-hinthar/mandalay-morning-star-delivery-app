@@ -5,6 +5,7 @@ import { CartOverlays } from "@/components/ui/cart/CartOverlays";
 import { DeliverySettingsSync } from "@/components/ui/cart/DeliverySettingsSync";
 import { OfflineBanner } from "@/components/ui/customer";
 import { SiteFooter } from "@/components/ui/homepage/SiteFooter";
+import type { DeliveryDayConfig } from "@/types/delivery";
 
 interface PublicShellProps {
   children: ReactNode;
@@ -12,6 +13,7 @@ interface PublicShellProps {
   freeDeliveryThresholdCents: number;
   cutoffDay: number;
   cutoffHour: number;
+  deliveryDays?: DeliveryDayConfig[];
 }
 
 export function PublicShell({
@@ -20,6 +22,7 @@ export function PublicShell({
   freeDeliveryThresholdCents,
   cutoffDay,
   cutoffHour,
+  deliveryDays,
 }: PublicShellProps) {
   return (
     <>
@@ -29,6 +32,7 @@ export function PublicShell({
         freeDeliveryThresholdCents={freeDeliveryThresholdCents}
         cutoffDay={cutoffDay}
         cutoffHour={cutoffHour}
+        deliveryDays={deliveryDays}
       />
       {children}
       <SiteFooter />

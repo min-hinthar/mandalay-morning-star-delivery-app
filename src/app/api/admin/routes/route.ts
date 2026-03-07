@@ -267,7 +267,7 @@ export async function POST(request: NextRequest) {
         delivery_date: deliveryDate,
         driver_id: driverId ?? null,
         status: "planned",
-        stats_json: initialStats,
+        stats_json: initialStats as unknown as import("@/types/database").Json,
       })
       .select("id, delivery_date, status")
       .returns<{ id: string; delivery_date: string; status: string }[]>()

@@ -26,9 +26,9 @@ export default function TermsPage() {
         {/* 2. Service Description */}
         <h2 className="text-xl font-display font-semibold mt-8">Service Description</h2>
         <p className="mt-3 font-body text-text-secondary leading-relaxed">
-          We operate a weekly Burmese meal subscription delivery service serving the greater Los
-          Angeles area. Our fresh, homemade Burmese dishes are prepared with care and delivered to
-          your door on Saturdays.
+          We operate a weekly Burmese meal delivery service serving the greater Los Angeles area.
+          Our fresh, homemade Burmese dishes are prepared with care and delivered to your door on
+          our scheduled delivery days.
         </p>
 
         {/* 3. Account Terms */}
@@ -42,7 +42,7 @@ export default function TermsPage() {
         {/* 4. Ordering and Payment */}
         <h2 className="text-xl font-display font-semibold mt-8">Ordering and Payment</h2>
         <ul className="mt-3 list-disc pl-6 font-body text-text-secondary leading-relaxed space-y-2">
-          <li>Orders must be placed before the weekly cutoff: Friday 3:00 PM PT.</li>
+          <li>Orders must be placed before the cutoff time for each delivery day.</li>
           <li>All prices are in USD and include applicable taxes.</li>
           <li>
             Payment processing is handled securely by Stripe. By placing an order, you authorize the
@@ -57,7 +57,7 @@ export default function TermsPage() {
         {/* 5. Delivery */}
         <h2 className="text-xl font-display font-semibold mt-8">Delivery</h2>
         <ul className="mt-3 list-disc pl-6 font-body text-text-secondary leading-relaxed space-y-2">
-          <li>Saturday delivery window: 11:00 AM &ndash; 7:00 PM PT.</li>
+          <li>Delivery windows vary by day. Check the menu for current schedule.</li>
           <li>
             We deliver to addresses within our service area (greater Los Angeles&nbsp;/ Covina
             area).

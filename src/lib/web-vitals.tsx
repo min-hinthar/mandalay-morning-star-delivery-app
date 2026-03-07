@@ -13,6 +13,7 @@
  */
 
 import type { Metric } from "web-vitals";
+import { logger } from "@/lib/utils/logger";
 
 /**
  * Performance thresholds based on Google's Core Web Vitals
@@ -60,10 +61,7 @@ function reportMetric(metric: Metric) {
 
   // Console logging in development
   if (process.env.NODE_ENV === "development") {
-    console.log(
-      `%c[Web Vitals] ${name}: ${formatValue(name, value)} (${rating})`,
-      `color: ${rating === "good" ? "#22c55e" : rating === "needs-improvement" ? "#eab308" : "#ef4444"}`
-    );
+    logger.info(`[Web Vitals] ${name}: ${formatValue(name, value)} (${rating})`);
   }
 }
 
@@ -88,10 +86,10 @@ export async function initWebVitals() {
     onTTFB(reportMetric); // Time to First Byte
 
     if (process.env.NODE_ENV === "development") {
-      console.log("[Web Vitals] Monitoring initialized");
+      logger.info("[Web Vitals] Monitoring initialized");
     }
   } catch (error) {
-    console.error("[Web Vitals] Failed to initialize:", error);
+    logger.error("[Web Vitals] Failed to initialize", { error: String(error) });
   }
 }
 

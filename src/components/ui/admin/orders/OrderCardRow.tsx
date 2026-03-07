@@ -15,6 +15,7 @@ import type { AdminOrder } from "@/components/ui/admin/OrdersTable";
 // ============================================
 
 const STATUS_TINTS: Record<string, string> = {
+  pending_approval: "bg-orange-50/50 dark:bg-orange-950/20",
   pending: "bg-amber-50/50 dark:bg-amber-950/20",
   confirmed: "bg-teal-50/50 dark:bg-teal-950/20",
   preparing: "bg-purple-50/50 dark:bg-purple-950/20",
@@ -78,9 +79,14 @@ export function OrderCardRow({ order, selected = false, onClick }: OrderCardRowP
           {formatPrice(order.totalCents)}
         </span>
 
-        {/* Status badge + refund badge */}
+        {/* Status badge + refund badge + COD badge */}
         <div className="w-[130px] flex-shrink-0 flex flex-col gap-1">
           <StatusBadge status={order.status} />
+          {order.paymentMethod === "cod" && (
+            <Badge className="text-xs w-fit bg-emerald-100 text-emerald-800 border-emerald-200">
+              COD
+            </Badge>
+          )}
           {order.refundStatus !== "none" && (
             <Badge
               className={cn(
@@ -120,6 +126,11 @@ export function OrderCardRow({ order, selected = false, onClick }: OrderCardRowP
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <StatusBadge status={order.status} />
+            {order.paymentMethod === "cod" && (
+              <Badge className="text-xs bg-emerald-100 text-emerald-800 border-emerald-200">
+                COD
+              </Badge>
+            )}
             {order.refundStatus !== "none" && (
               <Badge
                 className={cn(

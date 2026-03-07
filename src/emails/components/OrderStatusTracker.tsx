@@ -1,12 +1,20 @@
 import { Section, Text } from "@react-email/components";
 
-type OrderStep = "confirmed" | "preparing" | "out_for_delivery" | "delivered";
+type OrderStep = "received" | "confirmed" | "preparing" | "out_for_delivery" | "delivered";
 
 interface OrderStatusTrackerProps {
   currentStep: OrderStep;
 }
 
-const STEPS: { key: OrderStep; label: string }[] = [
+const CONFIRMED_STEPS: { key: OrderStep; label: string }[] = [
+  { key: "confirmed", label: "Confirmed" },
+  { key: "preparing", label: "Preparing" },
+  { key: "out_for_delivery", label: "Out for Delivery" },
+  { key: "delivered", label: "Delivered" },
+];
+
+const COD_PENDING_STEPS: { key: OrderStep; label: string }[] = [
+  { key: "received", label: "Received" },
   { key: "confirmed", label: "Confirmed" },
   { key: "preparing", label: "Preparing" },
   { key: "out_for_delivery", label: "Out for Delivery" },
@@ -69,7 +77,8 @@ const STEP_STYLES = {
 };
 
 export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
-  const currentIndex = STEPS.findIndex((s) => s.key === currentStep);
+  const steps = currentStep === "received" ? COD_PENDING_STEPS : CONFIRMED_STEPS;
+  const currentIndex = steps.findIndex((s) => s.key === currentStep);
 
   return (
     <Section style={{ padding: "24px", backgroundColor: "#FAFAFA" }}>
@@ -81,7 +90,7 @@ export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
         <tbody>
           {/* Step circles + connectors */}
           <tr>
-            {STEPS.map((step, i) => {
+            {steps.map((step, i) => {
               const state = getStepState(i, currentIndex);
               const styles = STEP_STYLES[state];
               const isCompleted = state === "completed";
@@ -93,7 +102,7 @@ export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
                     textAlign: "center" as const,
                     position: "relative" as const,
                     verticalAlign: "top",
-                    width: "25%",
+                    width: `${100 / steps.length}%`,
                     padding: "0",
                   }}
                 >
@@ -112,7 +121,7 @@ export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
                     />
                   )}
                   {/* Connector line (after circle, except last) */}
-                  {i < STEPS.length - 1 && (
+                  {i < steps.length - 1 && (
                     <div
                       style={{
                         position: "absolute" as const,
@@ -141,7 +150,7 @@ export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
           </tr>
           {/* Step labels */}
           <tr>
-            {STEPS.map((step, i) => {
+            {steps.map((step, i) => {
               const state = getStepState(i, currentIndex);
               const styles = STEP_STYLES[state];
 

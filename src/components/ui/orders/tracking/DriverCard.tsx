@@ -7,6 +7,7 @@
 
 "use client";
 
+import Image from "next/image";
 import { m } from "framer-motion";
 import { Phone, Car, Bike, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -77,10 +78,11 @@ export function DriverCard({ driver, stopProgress, onContactDriver, className }:
         {/* Driver Avatar */}
         <div className="relative">
           {driver.profileImageUrl ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
+            <Image
               src={driver.profileImageUrl}
               alt={displayName}
+              width={56}
+              height={56}
               className="h-14 w-14 rounded-full object-cover ring-2 ring-jade-100"
               referrerPolicy="no-referrer"
               onError={(e) => {

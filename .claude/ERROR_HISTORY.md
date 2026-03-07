@@ -225,6 +225,30 @@ Admin pages fetched `/api/admin/menu` without `limit` param. API defaults to `li
 
 ---
 
+## Migration Trigger Function Name Mismatch | Migration | Medium
+
+**Date:** 2026-03-07 | **File:** `supabase/migrations/20260307_multiday_delivery_cod.sql`
+
+Migration used `EXECUTE FUNCTION update_updated_at()` but the actual function in production is `update_updated_at_column()` (from migration `001_functions_triggers.sql`).
+
+**Fix:** Changed to `EXECUTE FUNCTION update_updated_at_column()`.
+
+**Prevention:** Before referencing trigger functions in new migrations, verify the exact name: `grep -r 'CREATE.*FUNCTION.*update_updated' supabase/migrations/`
+
+---
+
+## sendEmail() Missing Required Fields in Fire-and-Forget Calls | TypeScript | High
+
+**Date:** 2026-03-07 | **Files:** `src/app/api/checkout/session/route.ts`, `src/app/api/admin/orders/[id]/approve-cod/route.ts`
+
+`sendEmail()` requires `type`, `orderId`, `userId` (from `SendEmailOptions`), but COD email calls only passed `to`, `subject`, `react`. Also `item.menuItem.name` (doesn't exist) should be `.name_en`, and `m.price_delta` should be `.price_delta_cents`.
+
+**Fix:** Added missing required fields. Fixed property names to match `MenuItemsRow` and `ModifierOptionsRow` types.
+
+**Prevention:** When adding fire-and-forget `void sendEmail(...)` calls, still satisfy the full `SendEmailOptions` interface. TypeScript catches it if not cast away or voided before the error surfaces.
+
+---
+
 ## Admin API Response Wrapper Silently Breaks Array Methods | Logic | High
 
 **Date:** 2026-03-04 | **Files:** `CreateRouteModal.tsx`, `RouteDetailClient.tsx` (3 fetch calls)

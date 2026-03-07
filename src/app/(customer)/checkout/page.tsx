@@ -14,6 +14,8 @@ export default async function CheckoutPage() {
       timeWindows={timeWindows}
       cutoffDay={rules.cutoffDay}
       cutoffHour={rules.cutoffHour}
+      deliveryDays={rules.deliveryDays}
+      codEnabled={rules.codEnabled}
     />
   );
 }

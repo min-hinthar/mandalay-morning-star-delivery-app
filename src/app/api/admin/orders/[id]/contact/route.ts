@@ -52,14 +52,14 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     // needs_contact/contacted_at/contacted_by added in migration 030 — not in generated types
     const contactedAt = new Date().toISOString();
 
-    const { error: updateError } = await (supabase
+    const { error: updateError } = await supabase
       .from("orders")
       .update({
         needs_contact: false,
         contacted_at: contactedAt,
         contacted_by: auth.userId,
-      } as Record<string, unknown>)
-      .eq("id", orderId) as unknown as Promise<{ error: { message: string } | null }>);
+      })
+      .eq("id", orderId);
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/orders/[id]/contact" });
@@ -67,7 +67,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     }
 
     // Log audit entry
-    await supabase.from("audit_logs").insert({
+    await supabase.from("order_audit_log").insert({
       order_id: orderId,
       actor_id: auth.userId,
       actor_role: "admin",

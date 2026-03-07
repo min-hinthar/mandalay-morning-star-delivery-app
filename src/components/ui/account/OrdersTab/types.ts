@@ -33,6 +33,7 @@ export interface ReorderWarning {
 }
 
 export const STATUS_LABELS: Record<OrderStatus, string> = {
+  pending_approval: "Awaiting Approval",
   pending: "Processing",
   confirmed: "Confirmed",
   preparing: "Preparing",
@@ -42,6 +43,7 @@ export const STATUS_LABELS: Record<OrderStatus, string> = {
 };
 
 export const STATUS_COLORS: Record<OrderStatus, string> = {
+  pending_approval: "bg-amber-100 text-amber-800",
   pending: "bg-amber-100 text-amber-800",
   confirmed: "bg-blue-100 text-blue-800",
   preparing: "bg-blue-100 text-blue-800",

@@ -173,7 +173,12 @@ export async function PATCH(request: NextRequest) {
     const { category, settings } = validationResult.data;
 
     // Update each setting using upsert pattern
-    const updates: { key: string; value: unknown; category: string; updated_by: string }[] = [];
+    const updates: {
+      key: string;
+      value: import("@/types/database").Json;
+      category: string;
+      updated_by: string;
+    }[] = [];
 
     for (const [key, value] of Object.entries(settings)) {
       // Convert camelCase to snake_case for database

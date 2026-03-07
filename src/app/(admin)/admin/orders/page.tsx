@@ -21,6 +21,7 @@ import type { OrderStatus, RefundStatus } from "@/types/database";
 
 const STATUS_FILTERS: { value: OrderStatus | "all"; label: string }[] = [
   { value: "all", label: "All Orders" },
+  { value: "pending_approval", label: "Pending Approval" },
   { value: "pending", label: "Pending" },
   { value: "confirmed", label: "Confirmed" },
   { value: "preparing", label: "Preparing" },
@@ -40,6 +41,7 @@ interface OrderRow {
   total_cents: number;
   delivery_window_start: string | null;
   placed_at: string;
+  payment_method: string | null;
   order_items: Array<{ quantity: number }>;
   profiles: {
     full_name: string | null;
@@ -80,6 +82,7 @@ export default function AdminOrdersPage() {
         itemCount: order.order_items.reduce((sum, item) => sum + item.quantity, 0),
         customerName: order.profiles?.full_name || null,
         customerEmail: order.profiles?.email || "Unknown",
+        paymentMethod: (order.payment_method as "stripe" | "cod") ?? "stripe",
       }));
 
       setOrders(transformedOrders);

@@ -205,5 +205,8 @@ async function updateRouteStats(
       ? Math.round(((stats.delivered_stops + stats.skipped_stops) / stats.total_stops) * 100)
       : 0;
 
-  await supabase.from("routes").update({ stats_json: stats }).eq("id", routeId);
+  await supabase
+    .from("routes")
+    .update({ stats_json: stats as unknown as import("@/types/database").Json })
+    .eq("id", routeId);
 }

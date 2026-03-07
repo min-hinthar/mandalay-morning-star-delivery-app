@@ -2,12 +2,15 @@
 
 import { useEffect } from "react";
 import { useCartStore } from "@/lib/stores/cart-store";
+import type { DeliveryDayConfig } from "@/types/delivery";
 
 interface DeliverySettingsSyncProps {
   deliveryFeeCents: number;
   freeDeliveryThresholdCents: number;
   cutoffDay: number;
   cutoffHour: number;
+  /** Multi-day delivery configs from business rules */
+  deliveryDays?: DeliveryDayConfig[];
 }
 
 /**
@@ -20,11 +23,13 @@ export function DeliverySettingsSync({
   freeDeliveryThresholdCents,
   cutoffDay,
   cutoffHour,
+  deliveryDays = [],
 }: DeliverySettingsSyncProps) {
   useEffect(() => {
     useCartStore.getState().setDeliverySettings(deliveryFeeCents, freeDeliveryThresholdCents);
     useCartStore.getState().setCutoffSettings(cutoffDay, cutoffHour);
-  }, [deliveryFeeCents, freeDeliveryThresholdCents, cutoffDay, cutoffHour]);
+    useCartStore.getState().setDeliveryDays(deliveryDays);
+  }, [deliveryFeeCents, freeDeliveryThresholdCents, cutoffDay, cutoffHour, deliveryDays]);
 
   return null;
 }

@@ -8,6 +8,7 @@ import { apiError } from "@/lib/utils/api-error";
 import { RefundNotification } from "@/emails/RefundNotification";
 import type { Json } from "@/types/database";
 import { checkRateLimit, refundLimiter } from "@/lib/rate-limit";
+import { checkOrigin } from "@/lib/utils/origin-check";
 
 interface RefundedItem {
   orderItemId: string;
@@ -35,6 +36,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   const { id: orderId } = await params;
 
   try {
+    const originError = checkOrigin(request);
+    if (originError) return originError;
+
     const auth = await requireAdmin();
     if (!auth.success) {
       return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
@@ -79,7 +83,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     const { data: rpcResult, error: rpcError } = await supabase.rpc("apply_item_refunds", {
       p_order_id: orderId,
-      p_items: rpcItems,
+      p_items: rpcItems as unknown as import("@/types/database").Json,
       p_refund_shipping: refundShipping ?? false,
     });
 
@@ -96,7 +100,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return apiError("INTERNAL_ERROR", "Failed to process refund", 500);
     }
 
-    const { refundedItems, shippingRefundCents, totalRefundCents } = rpcResult as RpcResult;
+    const { refundedItems, shippingRefundCents, totalRefundCents } =
+      rpcResult as unknown as RpcResult;
 
     // Create audit log entry
     const auditReason = items[0].reason || `Refund processed for ${refundedItems.length} item(s)`;

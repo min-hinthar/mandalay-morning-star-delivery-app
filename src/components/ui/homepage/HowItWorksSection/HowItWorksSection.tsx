@@ -17,7 +17,9 @@ const steps: Step[] = [
   {
     icon: MapPin,
     title: "Check Coverage",
+    titleMy: "ပို့ဆောင်ရေး စစ်ဆေးမည်",
     description: "Enter your address to see if we deliver to you",
+    descriptionMy: "သင့်လိပ်စာထည့်သွင်း၍ ပို့ဆောင်နိုင်မှု စစ်ဆေးပါ",
     color: "text-rose-500",
     iconBg: "bg-rose-500/25",
     iconBorder: "border-rose-400/50",
@@ -26,7 +28,9 @@ const steps: Step[] = [
   {
     icon: UtensilsCrossed,
     title: "Order",
+    titleMy: "မှာယူမည်",
     description: "Browse our menu and add favorites to cart",
+    descriptionMy: "မီနူးကြည့်ပြီး ကြိုက်သည့်ပစ္စည်းများ ထည့်ပါ",
     color: "text-amber-500",
     iconBg: "bg-amber-500/25",
     iconBorder: "border-amber-400/50",
@@ -35,7 +39,9 @@ const steps: Step[] = [
   {
     icon: Truck,
     title: "Track",
+    titleMy: "ခြေရာခံမည်",
     description: "Real-time updates on your order status",
+    descriptionMy: "အော်ဒါအခြေအနေကို အချိန်နှင့်တစ်ပြေးညီ ကြည့်ရှုပါ",
     color: "text-emerald-500",
     iconBg: "bg-emerald-500/25",
     iconBorder: "border-emerald-400/50",
@@ -44,7 +50,9 @@ const steps: Step[] = [
   {
     icon: Sparkles,
     title: "Enjoy",
+    titleMy: "ခံစားလိုက်ပါ",
     description: "Fresh Burmese cuisine delivered to your door",
+    descriptionMy: "လတ်ဆတ်သော မြန်မာအစားအသောက် သင့်အိမ်တံခါးဝအထိ",
     color: "text-orange-500",
     iconBg: "bg-orange-500/25",
     iconBorder: "border-orange-400/50",
@@ -113,27 +121,45 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
             viewport={{ once: true }}
             transition={getSpring(spring.default)}
           >
-            How It Works
+            How It Works · လုပ်ငန်းစဉ်
           </m.span>
 
           <h2
             className={cn(
-              "font-display text-4xl md:text-5xl lg:text-6xl font-black mb-4 leading-tight tracking-tight",
+              "font-display text-4xl md:text-5xl lg:text-6xl font-black mb-2 leading-tight tracking-tight",
               "text-text-primary",
               "[text-shadow:0_2px_4px_rgba(0,0,0,0.4),0_4px_12px_rgba(0,0,0,0.3),0_8px_24px_rgba(0,0,0,0.2)]"
             )}
           >
             Order in 4 Simple Steps
           </h2>
+          <p
+            className={cn(
+              "font-body text-2xl md:text-3xl font-bold mb-4",
+              "text-text-primary/80",
+              "[text-shadow:0_2px_4px_rgba(0,0,0,0.3),0_4px_12px_rgba(0,0,0,0.2)]"
+            )}
+          >
+            ရိုးရှင်းသော အဆင့် ၄ ဆင့်ဖြင့် မှာယူပါ
+          </p>
 
           <p
             className={cn(
-              "font-body max-w-xl mx-auto text-lg md:text-xl font-medium",
+              "font-body max-w-xl mx-auto text-lg md:text-xl font-medium mb-1",
               "text-text-primary",
               "[text-shadow:0_1px_3px_rgba(0,0,0,0.4),0_2px_8px_rgba(0,0,0,0.3)]"
             )}
           >
             From checking delivery coverage to enjoying fresh Burmese cuisine at your door
+          </p>
+          <p
+            className={cn(
+              "font-body max-w-xl mx-auto text-base md:text-lg font-medium",
+              "text-text-primary/70",
+              "[text-shadow:0_1px_3px_rgba(0,0,0,0.3)]"
+            )}
+          >
+            ပို့ဆောင်ရေး စစ်ဆေးခြင်းမှ လတ်ဆတ်သော မြန်မာအစားအသောက် ခံစားခြင်းအထိ
           </p>
         </m.div>
 

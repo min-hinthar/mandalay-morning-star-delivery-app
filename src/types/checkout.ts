@@ -1,5 +1,6 @@
 import type { Address } from "./address";
 import type { DeliverySelection } from "./delivery";
+import type { PaymentMethod } from "./database";
 
 export type CheckoutStep = "address" | "time" | "payment";
 
@@ -25,6 +26,8 @@ export interface CheckoutState {
   discountLabel: string;
   /** Delivery instructions for the driver */
   deliveryInstructions: string;
+  /** Selected payment method */
+  paymentMethod: PaymentMethod;
 }
 
 export interface CreateCheckoutSessionRequest {
@@ -42,11 +45,14 @@ export interface CreateCheckoutSessionRequest {
   tipCents?: number;
   promoCode?: string;
   deliveryInstructions?: string;
+  /** Payment method: 'stripe' (default) or 'cod' */
+  paymentMethod?: PaymentMethod;
 }
 
 export interface CreateCheckoutSessionResponse {
   data: {
-    sessionUrl: string;
+    /** Stripe session URL (null for COD orders) */
+    sessionUrl: string | null;
     orderId: string;
   };
 }
@@ -66,6 +72,7 @@ export type CheckoutErrorCode =
   | "ADDRESS_INVALID"
   | "OUT_OF_COVERAGE"
   | "CUTOFF_PASSED"
+  | "COD_DISABLED"
   | "RATE_LIMITED"
   | "VALIDATION_ERROR"
   | "STRIPE_ERROR"

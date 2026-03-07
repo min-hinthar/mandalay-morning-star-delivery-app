@@ -30,9 +30,10 @@ interface StatItemProps {
   icon: React.ReactNode;
   label: string;
   value: string;
+  subValue?: string;
 }
 
-export function StatItem({ icon, label, value }: StatItemProps) {
+export function StatItem({ icon, label, value, subValue }: StatItemProps) {
   return (
     <div className="flex items-center gap-3 px-4 py-2">
       {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
@@ -40,6 +41,9 @@ export function StatItem({ icon, label, value }: StatItemProps) {
       <div className="text-left">
         <div className="text-xs text-hero-text-muted uppercase tracking-wide">{label}</div>
         <div className="text-sm font-semibold text-hero-text">{value}</div>
+        {subValue && (
+          <span className="block text-xs text-hero-text/50 font-body mt-0.5">{subValue}</span>
+        )}
       </div>
     </div>
   );

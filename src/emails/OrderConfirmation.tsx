@@ -61,6 +61,7 @@ export interface OrderConfirmationProps {
   deliveryInstructions?: string;
   driverName?: string;
   paymentMethod?: string;
+  isPendingApproval?: boolean;
   dietaryRestrictions?: string[];
   placedAt: string;
 }
@@ -82,16 +83,22 @@ export function OrderConfirmation({
   deliveryInstructions,
   driverName,
   paymentMethod,
+  isPendingApproval,
   dietaryRestrictions,
   placedAt,
 }: OrderConfirmationProps) {
   const shortId = orderId.slice(0, 8).toUpperCase();
   const orderUrl = `${APP_URL}/orders/${orderId}`;
+  const isCODPending = isPendingApproval && paymentMethod === "cod";
 
   return (
     <EmailLayout
       emailType="confirmation"
-      previewText={`\uD83C\uDF5C Mingalabar! Your order #${shortId} is confirmed`}
+      previewText={
+        isCODPending
+          ? `\uD83C\uDF5C Mingalabar! Your order #${shortId} has been received`
+          : `\uD83C\uDF5C Mingalabar! Your order #${shortId} is confirmed`
+      }
     >
       {/* ── Greeting ─────────────────────────────────── */}
       <Section style={{ padding: "32px 24px 0 24px" }}>
@@ -116,12 +123,43 @@ export function OrderConfirmation({
             lineHeight: "1.6",
           }}
         >
-          Thank you for your order! We&apos;re excited to prepare your delicious Burmese meal.
+          {isCODPending
+            ? "Thank you for your order! We\u2019ve received it and our team will confirm it shortly."
+            : "Thank you for your order! We\u2019re excited to prepare your delicious Burmese meal."}
         </Text>
       </Section>
 
+      {/* ── COD Pending Notice ─────────────────────────── */}
+      {isCODPending && (
+        <Section
+          style={{
+            margin: "0 24px 16px 24px",
+            padding: "12px 16px",
+            backgroundColor: "#FFFBEB",
+            borderRadius: "8px",
+            border: "1px solid #FDE68A",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: "13px",
+              fontFamily: SANS,
+              fontWeight: 700,
+              color: "#92400E",
+              margin: "0 0 4px 0",
+            }}
+          >
+            {"\u23F3"} Awaiting Confirmation
+          </Text>
+          <Text style={{ fontSize: "13px", fontFamily: SANS, color: "#78350F", margin: "0" }}>
+            Your cash-on-delivery order is being reviewed. You&apos;ll receive a confirmation email
+            once approved.
+          </Text>
+        </Section>
+      )}
+
       {/* ── Status Tracker ───────────────────────────── */}
-      <OrderStatusTracker currentStep="confirmed" />
+      <OrderStatusTracker currentStep={isCODPending ? "received" : "confirmed"} />
 
       {/* ── Order Details Box ────────────────────────── */}
       <Section

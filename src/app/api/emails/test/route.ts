@@ -5,6 +5,7 @@ import { getResendClient, EMAIL_FROM, buildEmailElement } from "@/lib/email";
 import type { EmailType } from "@/lib/email";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 import {
   SAMPLE_ORDER_CONFIRMATION,
   SAMPLE_CANCELLATION,
@@ -31,6 +32,14 @@ export async function POST(request: Request) {
     if (!auth.success) {
       return apiError(auth.status === 403 ? "FORBIDDEN" : "UNAUTHORIZED", auth.error, auth.status);
     }
+
+    const rl = await checkRateLimit({
+      limiter: adminLimiter,
+      identifier: auth.userId,
+      role: "admin",
+      route: "emails/test",
+    });
+    if (rl.limited) return rl.response;
 
     const body = await request.json();
     const { emailType, recipientEmail } = body as {

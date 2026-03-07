@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { m } from "framer-motion";
-import { format, nextSaturday, isSaturday } from "date-fns";
+import { format } from "date-fns";
 import { Loader2, Route, Calendar, Users, AlertCircle } from "lucide-react";
 import {
   Dialog,
@@ -21,9 +21,7 @@ import { OrderSelectionList } from "./OrderSelectionList";
 import type { CreateRouteData, Driver, Order, FormErrors } from "./types";
 
 function getDefaultDeliveryDate(): string {
-  const today = new Date();
-  const targetDate = isSaturday(today) ? today : nextSaturday(today);
-  return format(targetDate, "yyyy-MM-dd");
+  return format(new Date(), "yyyy-MM-dd");
 }
 
 interface CreateRouteModalProps {
@@ -117,11 +115,6 @@ export function CreateRouteModal({ open, onOpenChange, onSubmit }: CreateRouteMo
     const newErrors: FormErrors = {};
     if (!deliveryDate) {
       newErrors.deliveryDate = "Delivery date is required";
-    } else {
-      const date = new Date(deliveryDate + "T12:00:00");
-      if (date.getDay() !== 6) {
-        newErrors.deliveryDate = "Delivery date must be a Saturday";
-      }
     }
     if (selectedOrderIds.length === 0) {
       newErrors.orderIds = "At least one order is required";
@@ -232,7 +225,7 @@ export function CreateRouteModal({ open, onOpenChange, onSubmit }: CreateRouteMo
               disabled={isSubmitting}
             />
             {errors.deliveryDate && <p className="text-xs text-red-500">{errors.deliveryDate}</p>}
-            <p className="text-xs text-muted-foreground">Deliveries only occur on Saturdays</p>
+            <p className="text-xs text-muted-foreground">Select an active delivery day</p>
           </div>
 
           {/* Driver Selection */}

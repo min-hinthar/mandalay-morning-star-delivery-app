@@ -13,6 +13,7 @@ import { sendEmail } from "@/lib/email/send";
 import { createServiceClient } from "@/lib/supabase/server";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, webhookLimiter, getClientIp } from "@/lib/rate-limit";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 const STAGGER_DELAY_MS = 100;
@@ -45,6 +46,15 @@ export async function GET(request: Request) {
   if (!isAuthorized(request)) {
     return apiError("UNAUTHORIZED", "Unauthorized", 401);
   }
+
+  const ip = getClientIp(request);
+  const rl = await checkRateLimit({
+    limiter: webhookLimiter,
+    identifier: ip,
+    role: "anon",
+    route: "cron/delivery-reminders",
+  });
+  if (rl.limited) return rl.response;
 
   const supabase = createServiceClient();
   const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD

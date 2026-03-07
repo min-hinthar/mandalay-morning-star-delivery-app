@@ -123,7 +123,7 @@ export function AuthCard({ children, className }: AuthCardProps) {
                     Mandalay Morning Star
                   </p>
                   <p className="text-xs text-muted-foreground tracking-wide uppercase">
-                    Burmese kitchen &bull; Saturday delivery
+                    Burmese kitchen &bull; Weekly delivery
                   </p>
                 </div>
               </m.div>

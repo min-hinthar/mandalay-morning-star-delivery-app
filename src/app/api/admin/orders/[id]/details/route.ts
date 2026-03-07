@@ -23,6 +23,8 @@ interface OrderRow {
   delivery_window_start: string | null;
   delivery_window_end: string | null;
   stripe_payment_intent_id: string | null;
+  payment_method: string | null;
+  cod_approved_at: string | null;
   is_priority: boolean | null;
   needs_contact: boolean | null;
   user_id: string;
@@ -116,6 +118,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         delivery_window_start,
         delivery_window_end,
         stripe_payment_intent_id,
+        payment_method,
+        cod_approved_at,
         is_priority,
         needs_contact,
         user_id,
@@ -268,6 +272,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       deliveryWindowStart: order.delivery_window_start ?? null,
       deliveryWindowEnd: order.delivery_window_end ?? null,
       stripePaymentIntentId: order.stripe_payment_intent_id ?? null,
+      paymentMethod: (order.payment_method as "stripe" | "cod") ?? "stripe",
+      codApprovedAt: order.cod_approved_at ?? null,
       isPriority: order.is_priority ?? false,
       emailStatus: emailStatus as
         | "delivered"

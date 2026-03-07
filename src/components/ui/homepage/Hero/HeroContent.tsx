@@ -4,6 +4,7 @@
  * HeroContent Component
  *
  * The text/CTA overlay content for the Hero section.
+ * Bilingual EN/MY display with multi-day delivery support.
  */
 
 import Link from "next/link";
@@ -13,10 +14,12 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDynamicTheme } from "@/components/ui/theme";
-import { useDeliveryGate } from "@/lib/hooks/useDeliveryGate";
+import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
 import { DeliveryCountdown } from "@/components/ui/delivery";
 import { Button } from "@/components/ui/button";
+import { formatDeliveryDaysList } from "@/lib/utils/delivery-schedule";
 import { AnimatedHeadline, StatItem } from "./HeroSubComponents";
+import type { DeliveryDayConfig } from "@/types/delivery";
 
 /** Day names for cutoff display */
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -38,6 +41,7 @@ interface HeroContentProps {
   freeDeliveryThresholdCents?: number;
   cutoffDay?: number;
   cutoffHour?: number;
+  deliveryDays?: DeliveryDayConfig[];
 }
 
 export function HeroContent({
@@ -50,55 +54,82 @@ export function HeroContent({
   freeDeliveryThresholdCents,
   cutoffDay,
   cutoffHour,
+  deliveryDays,
 }: HeroContentProps) {
   const { shouldAnimate } = useAnimationPreference();
   const { timeOfDay } = useDynamicTheme();
-  const gate = useDeliveryGate(cutoffDay ?? 5, cutoffHour ?? 15);
+
+  // Use multi-day gate if deliveryDays available, fallback to legacy
+  const multiDayGate = useDeliveryGateMultiDay(deliveryDays ?? []);
+  const legacyGate = useDeliveryGate(cutoffDay ?? 5, cutoffHour ?? 15);
+  const gate = deliveryDays && deliveryDays.length > 0 ? multiDayGate : legacyGate;
+
+  // Dynamic delivery schedule text
+  const deliveryDaysList = deliveryDays ? formatDeliveryDaysList(deliveryDays) : "Saturday";
 
   // Dynamic CTA text based on gate state
   const dynamicCtaText = gate.isOpen ? ctaText : `Pre-Order for ${gate.deliveryDate.displayDate}`;
 
-  // Compute dynamic delivery schedule text from business rules
-  // cutoffDay is the cutoff day (e.g., 5=Friday), delivery day is next day (e.g., 6=Saturday)
-  const deliveryDayName = cutoffDay !== undefined ? DAY_NAMES[(cutoffDay + 1) % 7] : "Saturday";
+  // Compute delivery schedule text
   const deliveryScheduleText = gate.isOpen
-    ? cutoffDay !== undefined && cutoffHour !== undefined
-      ? `Order by ${DAY_NAMES[cutoffDay]} ${formatCutoffHour(cutoffHour)}`
-      : `Every ${deliveryDayName}`
-    : `Orders closed -- next ${gate.deliveryDate.displayDate}`;
+    ? deliveryDays && deliveryDays.length > 0
+      ? `Delivery on ${deliveryDaysList}`
+      : cutoffDay !== undefined && cutoffHour !== undefined
+        ? `Order by ${DAY_NAMES[cutoffDay]} ${formatCutoffHour(cutoffHour)}`
+        : "Every Saturday"
+    : `Orders closed — next ${gate.deliveryDate.displayDate}`;
+
   const deliveryFeeText =
     deliveryFeeCents !== undefined && freeDeliveryThresholdCents !== undefined
       ? `$${(deliveryFeeCents / 100).toFixed(0)} delivery, free over $${(freeDeliveryThresholdCents / 100).toFixed(0)}`
       : undefined;
 
+  // Bilingual greetings
+  const greetings: Record<string, { en: string; my: string }> = {
+    morning: { en: "Good morning!", my: "မင်္ဂလာနံနက်ခင်းပါ" },
+    afternoon: { en: "Good afternoon!", my: "မင်္ဂလာနေ့လည်ခင်းပါ" },
+    evening: { en: "Good evening!", my: "မင်္ဂလာညနေခင်းပါ" },
+    night: { en: "Late night cravings?", my: "ညဥ့နက်ကြီး ဗိုက်ဆာနေလား" },
+    dawn: { en: "Early bird?", my: "စောစောထနိုင်သူလား" },
+  };
+  const greeting = greetings[timeOfDay] ?? greetings.morning;
+
   return (
     <div className="relative flex flex-col items-center justify-start min-h-[100svh] min-h-[100dvh] px-4 pt-24 pb-20 pb-safe md:pt-28 md:pb-24">
       <div className="max-w-4xl mx-auto text-center">
-        {/* Time-based greeting badge */}
+        {/* Time-based greeting badge - bilingual */}
         <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1">
-          <span className="text-secondary">
-            {timeOfDay === "morning" && "Good morning!"}
-            {timeOfDay === "afternoon" && "Good afternoon!"}
-            {timeOfDay === "evening" && "Good evening!"}
-            {timeOfDay === "night" && "Late night cravings?"}
-            {timeOfDay === "dawn" && "Early bird?"}
-          </span>
-          <span className="text-sm text-hero-text/90 font-medium">
-            Fresh Burmese cuisine awaits
-          </span>
+          <span className="text-secondary">{greeting.en}</span>
+          <span className="text-sm text-hero-text/70 font-medium">{greeting.my}</span>
         </div>
 
+        {/* EN Headline */}
         <AnimatedHeadline
           text={headline}
-          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-4 leading-tight"
+          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-2 leading-tight"
         />
-
-        <p className="text-lg md:text-xl text-hero-text/70 font-medium mb-6 animate-fade-in-up-delay-1">
-          {tagline}
+        {/* MY Headline */}
+        <p className="font-body text-2xl md:text-3xl lg:text-4xl text-hero-text/80 mb-4 animate-fade-in-up-delay-1">
+          သင့်အိမ်တံခါးဝအထိ ပို့ဆောင်ပေးသော စစ်မှန်သည့် မြန်မာ့အစားအသောက်
         </p>
 
-        <p className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-10 font-body animate-fade-in-up-delay-2">
+        {/* EN Tagline */}
+        <p className="text-lg md:text-xl text-hero-text/70 font-medium mb-1 animate-fade-in-up-delay-1">
+          {tagline}
+        </p>
+        {/* MY Tagline */}
+        <p className="text-base md:text-lg text-hero-text/60 font-medium mb-6 animate-fade-in-up-delay-1">
+          စစ်မှန်သော မြန်မာအစားအသောက် ပို့ဆောင်ပေးပါသည်
+        </p>
+
+        {/* EN Subheadline */}
+        <p className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-2 font-body animate-fade-in-up-delay-2">
           {subheadline}
+        </p>
+        {/* MY Subheadline */}
+        <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-10 font-body animate-fade-in-up-delay-2">
+          မြန်မာ့ရသပြည့်ဝသော အစားအသောက်များကို {deliveryDaysList} တွင် လတ်ဆတ်စွာ ချက်ပြုတ်ပြီး
+          ပို့ဆောင်ပေးပါသည်
         </p>
 
         <div className="flex flex-col items-center gap-3 mb-12 animate-fade-in-up-delay-3">
@@ -148,7 +179,11 @@ export function HeroContent({
               <DeliveryCountdown cutoffDate={gate.cutoffDate} urgency={gate.urgency} />
             </div>
           ) : (
-            <p className="text-sm text-hero-text-muted">Orders open {DAY_NAMES[cutoffDay ?? 5]}</p>
+            <p className="text-sm text-hero-text-muted">
+              {deliveryDays && deliveryDays.length > 0
+                ? `Delivery on ${deliveryDaysList}`
+                : `Orders open ${DAY_NAMES[cutoffDay ?? 5]}`}
+            </p>
           )}
         </div>
 
@@ -157,18 +192,21 @@ export function HeroContent({
             icon={<ChefHat className="w-4 h-4 text-secondary" />}
             label="Authentic"
             value="Burmese Recipes"
+            subValue="မြန်မာ့ရိုးရာ ချက်ပြုတ်နည်းများ"
           />
           <div className="hidden md:block w-px h-10 bg-hero-text/20" />
           <StatItem
             icon={<Clock className="w-4 h-4 text-secondary" />}
             label="Delivery"
             value={deliveryScheduleText}
+            subValue={`${deliveryDaysList} တွင် ပို့ဆောင်ပေးပါသည်`}
           />
           <div className="hidden md:block w-px h-10 bg-hero-text/20" />
           <StatItem
             icon={<MapPin className="w-4 h-4 text-secondary" />}
             label="Coverage"
             value="50 Mile Radius"
+            subValue="မိုင် ၅၀ အကျယ်အဝန်း"
           />
           {deliveryFeeText && (
             <>
@@ -177,6 +215,7 @@ export function HeroContent({
                 icon={<Truck className="w-4 h-4 text-secondary" />}
                 label="Fee"
                 value={deliveryFeeText}
+                subValue="$၁၀၀ အထက် အခမဲ့ပို့ဆောင်"
               />
             </>
           )}
@@ -199,7 +238,7 @@ export function HeroContent({
           role="button"
           aria-label="Scroll to learn more"
         >
-          <span className="text-xs uppercase tracking-widest">Scroll</span>
+          <span className="text-xs uppercase tracking-widest">Scroll · အောက်သို့ဆင်းပါ</span>
           <ChevronDown className="w-6 h-6" />
         </m.div>
       </m.div>

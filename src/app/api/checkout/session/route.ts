@@ -5,18 +5,30 @@ import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { validatePromoCode } from "@/lib/stripe/promo";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
 import { calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
-import { isPastCutoff, getDeliveryDate } from "@/lib/utils/delivery-dates";
+import {
+  isPastCutoff,
+  getDeliveryDate,
+  isPastCutoffForDay,
+  getZonedDayOfWeek,
+} from "@/lib/utils/delivery-dates";
 import { getBusinessRules, generateTimeWindows } from "@/lib/settings";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, checkoutLimiter } from "@/lib/rate-limit";
+import { checkOrigin } from "@/lib/utils/origin-check";
 import { ensureProfile } from "@/lib/auth/role-redirect";
+import { createCODOrder } from "@/lib/services/cod-order";
+import { sendEmail } from "@/lib/email";
+import React from "react";
+import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import type { AddressesRow, OrdersRow, OrderItemsRow, ProfilesRow } from "@/types/database";
 import { cleanupOrder } from "./helpers";
 import { errorResponse, fetchAndValidateCart, buildRpcPayload } from "./validation";
 
 export async function POST(request: Request) {
   try {
-    // Parse and validate request body (structural validation only)
+    const originError = checkOrigin(request);
+    if (originError) return originError;
+
     const body = await request.json();
     const parsed = createCheckoutSessionSchema.safeParse(body);
 
@@ -25,11 +37,9 @@ export async function POST(request: Request) {
     }
 
     const input = parsed.data;
-
-    // Load business rules from DB (cached)
     const rules = await getBusinessRules();
 
-    // CHKT-04: Validate time window against dynamically generated windows (with prep buffer)
+    // Validate time window against dynamically generated windows
     const validWindows = generateTimeWindows(
       rules.deliveryStartHour,
       rules.deliveryEndHour,
@@ -42,17 +52,44 @@ export async function POST(request: Request) {
       return errorResponse("VALIDATION_ERROR", "Invalid delivery time window", 400);
     }
 
-    // BUG-05: Re-validate cutoff timing at submission
-    const scheduledSaturday = new Date(input.scheduledDate + "T12:00:00");
+    // Validate scheduled date and cutoff
+    const scheduledDate = new Date(input.scheduledDate + "T12:00:00");
     const now = new Date();
-    if (isPastCutoff(scheduledSaturday, now, rules.cutoffDay, rules.cutoffHour)) {
-      const nextDelivery = getDeliveryDate(now, rules.cutoffDay, rules.cutoffHour);
+
+    // Multi-day: find matching delivery day config (timezone-aware)
+    const scheduledDayOfWeek = getZonedDayOfWeek(scheduledDate);
+    const dayConfig = rules.deliveryDays.find(
+      (d) => d.isActive && d.dayOfWeek === scheduledDayOfWeek
+    );
+
+    if (dayConfig) {
+      // Multi-day validation
+      if (isPastCutoffForDay(scheduledDate, dayConfig, now)) {
+        return errorResponse("CUTOFF_PASSED", `Orders for ${input.scheduledDate} are closed.`, 400);
+      }
+    } else if (rules.deliveryDays.length > 0) {
+      // Multi-day is configured but scheduled day is not active
       return errorResponse(
-        "CUTOFF_PASSED",
-        `Orders for ${input.scheduledDate} are closed. Next delivery: ${nextDelivery.displayDate}.`,
-        400,
-        { nextDeliveryDate: nextDelivery.dateString }
+        "VALIDATION_ERROR",
+        `${input.scheduledDate} is not an active delivery day.`,
+        400
       );
+    } else {
+      // Legacy Saturday-only fallback
+      if (isPastCutoff(scheduledDate, now, rules.cutoffDay, rules.cutoffHour)) {
+        const nextDelivery = getDeliveryDate(now, rules.cutoffDay, rules.cutoffHour);
+        return errorResponse(
+          "CUTOFF_PASSED",
+          `Orders for ${input.scheduledDate} are closed. Next delivery: ${nextDelivery.displayDate}.`,
+          400,
+          { nextDeliveryDate: nextDelivery.dateString }
+        );
+      }
+    }
+
+    // COD validation
+    if (input.paymentMethod === "cod" && !rules.codEnabled) {
+      return errorResponse("COD_DISABLED", "Cash on Delivery is not currently available", 400);
     }
 
     // Authenticate user
@@ -66,7 +103,7 @@ export async function POST(request: Request) {
       return errorResponse("UNAUTHORIZED", "You must be logged in to checkout", 401);
     }
 
-    // Rate limit: prevent double-orders
+    // Rate limit
     const rl = await checkRateLimit({
       limiter: checkoutLimiter,
       identifier: user.id,
@@ -85,7 +122,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // Validate address belongs to user and is verified (BUG-05: coverage re-validation)
+    // Validate address
     const { data: address, error: addressError } = await supabase
       .from("addresses")
       .select("*")
@@ -106,7 +143,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // CHKT-06: Promo code validation via Stripe Promotion Codes API
+    // Promo code validation
     let discountCents = 0;
     let validatedCouponId: string | null = null;
     let promoPercentOff: number | null = null;
@@ -121,30 +158,30 @@ export async function POST(request: Request) {
       promoPercentOff = promoResult.percentOff;
     }
 
-    // Fetch all menu items and modifier options, validate cart
+    // Fetch and validate cart
     const cartResult = await fetchAndValidateCart(supabase, input.items);
     if (!cartResult.ok) return cartResult.response;
     const validatedItems = cartResult.items;
 
-    // CHKT-01: Server-authoritative pricing — all prices resolved from DB
     const tipCents = input.tipCents ?? 0;
 
-    // For percent-off coupons, compute discount from subtotal first
     if (promoPercentOff !== null) {
       const subtotal = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
       discountCents = Math.round((subtotal * promoPercentOff) / 100);
     }
 
-    // Calculate order totals (SERVER-SIDE - never trust client)
+    // Use per-day delivery fee if available
+    const deliveryFeeCents = dayConfig?.deliveryFeeCents ?? rules.deliveryFeeCents;
+
     const totals = calculateOrderTotals(
       validatedItems,
-      rules.deliveryFeeCents,
+      deliveryFeeCents,
       rules.freeDeliveryThresholdCents,
       tipCents,
       discountCents
     );
 
-    // Ensure profile exists before order creation (orders.user_id FK -> profiles.id)
+    // Ensure profile exists
     try {
       await ensureProfile(createServiceClient(), user.id, user.email);
     } catch (serviceErr) {
@@ -155,7 +192,6 @@ export async function POST(request: Request) {
         error: serviceErr instanceof Error ? serviceErr.message : String(serviceErr),
       });
 
-      // Fallback: use the user's own authenticated client (requires profiles_insert_own RLS policy)
       const { error: userInsertErr } = await supabase
         .from("profiles")
         .upsert(
@@ -179,16 +215,112 @@ export async function POST(request: Request) {
       }
     }
 
-    // H-10 FIX: Create order, items, and modifiers atomically via RPC.
+    // Build RPC payload
     const { rpcItems, rpcModifiers } = buildRpcPayload(validatedItems);
 
-    // CHKT-03: Validate modifier item_index bounds for RPC
     for (const mod of rpcModifiers) {
       if (mod.item_index < 0 || mod.item_index >= rpcItems.length) {
         return errorResponse("VALIDATION_ERROR", "Invalid modifier item index", 400);
       }
     }
 
+    // ========================================
+    // COD BRANCH
+    // ========================================
+    if (input.paymentMethod === "cod") {
+      const codResult = await createCODOrder(supabase, {
+        userId: user.id,
+        addressId: input.addressId,
+        scheduledDate: input.scheduledDate,
+        timeWindowStart: input.timeWindowStart,
+        timeWindowEnd: input.timeWindowEnd,
+        subtotalCents: totals.subtotalCents,
+        deliveryFeeCents: totals.deliveryFeeCents,
+        taxCents: totals.taxCents,
+        totalCents: totals.totalCents,
+        tipCents,
+        promoCode: input.promoCode ?? null,
+        discountCents,
+        customerNotes: input.customerNotes ?? null,
+        deliveryInstructions: input.deliveryInstructions ?? null,
+        rpcItems,
+        rpcModifiers,
+      });
+
+      if (!codResult.success) {
+        return errorResponse(codResult.code as "INTERNAL_ERROR", codResult.message, 500);
+      }
+
+      logger.info("COD checkout completed", {
+        orderId: codResult.orderId,
+        totalCents: totals.totalCents,
+        userId: user.id,
+        paymentMethod: "cod",
+        tipCents,
+        promoCode: input.promoCode ?? null,
+        discountCents,
+        itemCount: input.items.length,
+      });
+
+      // Fire-and-forget: send COD order-received email
+      const shortId = codResult.orderId.slice(0, 8).toUpperCase();
+      void sendEmail({
+        to: user.email ?? "",
+        subject: `\uD83C\uDF5C Your order #${shortId} has been received`,
+        type: "order_confirmation",
+        orderId: codResult.orderId,
+        userId: user.id,
+        idempotencyKey: `cod-received-${codResult.orderId}`,
+        react: React.createElement(OrderConfirmation, {
+          customerName: user.user_metadata?.full_name || "Valued Customer",
+          orderId: codResult.orderId,
+          items: validatedItems.map((item) => ({
+            name: item.menuItem.name_en,
+            quantity: item.quantity,
+            lineTotalCents: item.lineTotalCents,
+            modifiers: item.modifiers?.map((m) => ({
+              name: m.name,
+              priceDelta: m.price_delta_cents,
+            })),
+          })),
+          subtotalCents: totals.subtotalCents,
+          deliveryFeeCents: totals.deliveryFeeCents,
+          taxCents: totals.taxCents,
+          tipCents,
+          totalCents: totals.totalCents,
+          deliveryWindowStart: `${input.scheduledDate}T${input.timeWindowStart}:00`,
+          deliveryWindowEnd: `${input.scheduledDate}T${input.timeWindowEnd}:00`,
+          address: {
+            line1: address.line_1,
+            line2: address.line_2 ?? undefined,
+            city: address.city,
+            state: address.state,
+            postalCode: address.postal_code,
+          },
+          specialInstructions: input.customerNotes ?? undefined,
+          deliveryInstructions: input.deliveryInstructions ?? undefined,
+          paymentMethod: "cod",
+          isPendingApproval: true,
+          placedAt: new Date().toISOString(),
+        }),
+      }).catch((emailErr) => {
+        logger.error("Failed to send COD order email", {
+          orderId: codResult.orderId,
+          error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+        });
+      });
+
+      return NextResponse.json({
+        data: {
+          sessionUrl: null,
+          orderId: codResult.orderId,
+        },
+      });
+    }
+
+    // ========================================
+    // STRIPE BRANCH (existing flow)
+    // ========================================
     const { data: rpcResult, error: rpcError } = await supabase.rpc("create_order_with_items", {
       p_order: {
         user_id: user.id,
@@ -220,7 +352,6 @@ export async function POST(request: Request) {
       return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
     }
 
-    // BUG-04 FIX: Type-safe RPC result extraction (no assertion crash on unexpected shape)
     const rpcData = rpcResult as Record<string, unknown> | null;
     const orderId = typeof rpcData?.order_id === "string" ? rpcData.order_id : null;
     const orderItemIdsParsed = Array.isArray(rpcData?.order_item_ids)
@@ -254,8 +385,7 @@ export async function POST(request: Request) {
       profile?.full_name
     );
 
-    // C-04 FIX: Re-validate item availability RIGHT BEFORE Stripe session creation.
-    // Between initial validation and here, items could be deactivated or sold out.
+    // Re-validate item availability before Stripe session
     const menuItemIds = input.items.map((item) => item.menuItemId);
     const { data: freshMenuItems, error: freshMenuError } = await supabase
       .from("menu_items")
@@ -263,7 +393,6 @@ export async function POST(request: Request) {
       .in("id", menuItemIds);
 
     if (freshMenuError) {
-      // BUG-03 FIX: Independent cleanup — each delete wrapped in try/catch
       await cleanupOrder(
         supabase,
         order.id,
@@ -274,18 +403,15 @@ export async function POST(request: Request) {
 
     const unavailableItems = (freshMenuItems ?? []).filter((item) => !item.is_active);
     if (unavailableItems.length > 0) {
-      // BUG-03 FIX: Independent cleanup — each delete wrapped in try/catch
       await cleanupOrder(
         supabase,
         order.id,
         orderItems.map((oi) => oi.id)
       );
-
       const unavailableIds = unavailableItems.map((i) => i.id);
       const unavailableNames = validatedItems
         .filter((vi) => unavailableIds.includes(vi.menuItem.id))
         .map((vi) => vi.menuItem.name_en);
-
       return errorResponse(
         "ITEM_UNAVAILABLE",
         `Some items are no longer available: ${unavailableNames.join(", ")}. Please update your cart.`,
@@ -296,10 +422,8 @@ export async function POST(request: Request) {
 
     // Create Stripe Checkout Session
     const lineItems = createStripeLineItems(validatedItems, totals.deliveryFeeCents, tipCents);
-
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
-    // Build session params — add discounts if promo validated
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: stripeCustomerId,
       mode: "payment",
@@ -316,7 +440,7 @@ export async function POST(request: Request) {
       },
       success_url: `${baseUrl}/orders/${order.id}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/checkout?cancelled=true`,
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
+      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
       ...(validatedCouponId ? { discounts: [{ coupon: validatedCouponId }] } : {}),
     };
 
@@ -324,19 +448,18 @@ export async function POST(request: Request) {
       idempotencyKey: `checkout_${order.id}`,
     });
 
-    // Store checkout session ID on order for self-healing payment verification
     const serviceClient = createServiceClient();
     await serviceClient
       .from("orders")
       .update({ stripe_checkout_session_id: session.id })
       .eq("id", order.id);
 
-    // CHKT-10: Checkout logging
     logger.info("Checkout session created", {
       orderId: order.id,
       totalCents: totals.totalCents,
       userId: user.id,
       paymentIntentId: session.payment_intent ?? "pending",
+      paymentMethod: "stripe",
       tipCents,
       promoCode: input.promoCode ?? null,
       discountCents,

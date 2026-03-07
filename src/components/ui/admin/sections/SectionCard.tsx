@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { m } from "framer-motion";
 import {
   GripVertical,
@@ -281,10 +282,11 @@ export function SectionCard({
                     className="flex items-center gap-2 bg-surface-secondary rounded-md px-2 py-1.5"
                   >
                     {item.imageUrl ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img
+                      <Image
                         src={item.imageUrl}
                         alt={item.nameEn}
+                        width={24}
+                        height={24}
                         className="w-6 h-6 rounded object-cover"
                         referrerPolicy="no-referrer"
                       />

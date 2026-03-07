@@ -156,7 +156,7 @@ export async function POST(request: Request) {
       await serviceClient.from("notification_logs").insert({
         order_id: orderId,
         user_id: order.user_id,
-        notification_type: "manual",
+        notification_type: "order_confirmation" as const,
         channel: "email",
         recipient: recipientEmail,
         subject,
@@ -172,7 +172,7 @@ export async function POST(request: Request) {
     await serviceClient.from("notification_logs").insert({
       order_id: orderId,
       user_id: order.user_id,
-      notification_type: "manual",
+      notification_type: "order_confirmation" as const,
       channel: "email",
       recipient: recipientEmail,
       subject,

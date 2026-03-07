@@ -10,7 +10,7 @@ import { useNavigationGuard } from "@/lib/hooks/useNavigationGuard";
 import { toast } from "@/lib/hooks/useToastV8";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { useDeliveryGate } from "@/lib/hooks/useDeliveryGate";
+import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
 import { CartNavigationGuard } from "@/components/ui/cart/CartNavigationGuard";
 import { CutoffModal } from "@/components/ui/delivery";
 import { spring } from "@/lib/motion-tokens";
@@ -22,7 +22,7 @@ import {
   CheckoutSummary,
 } from "@/components/ui/checkout";
 import type { CheckoutStep } from "@/types/checkout";
-import type { TimeWindow } from "@/types/delivery";
+import type { DeliveryDayConfig, TimeWindow } from "@/types/delivery";
 
 /**
  * Direction-aware step transition variants with scale morph and glow
@@ -64,19 +64,31 @@ interface CheckoutClientProps {
   cutoffDay?: number;
   /** Cutoff hour (0-23). Defaults to 15 (3 PM). */
   cutoffHour?: number;
+  /** Multi-day delivery configs */
+  deliveryDays?: DeliveryDayConfig[];
+  /** Whether Cash on Delivery is enabled */
+  codEnabled?: boolean;
 }
 
 export default function CheckoutClient({
   timeWindows,
   cutoffDay = 5,
   cutoffHour = 15,
+  deliveryDays = [],
+  codEnabled = false,
 }: CheckoutClientProps) {
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const { isEmpty } = useCart();
   const { step, setStep, reset } = useCheckoutStore();
   const { shouldAnimate, getSpring } = useAnimationPreference();
-  const gate = useDeliveryGate(cutoffDay, cutoffHour);
+
+  // Use multi-day gate when delivery days are configured, legacy otherwise
+  const hasMultiDay = deliveryDays.length > 0;
+  const legacyGate = useDeliveryGate(cutoffDay, cutoffHour);
+  const multiDayGate = useDeliveryGateMultiDay(deliveryDays);
+  const gate = hasMultiDay ? multiDayGate : legacyGate;
+
   const [showCutoffModal, setShowCutoffModal] = useState(false);
 
   // Navigation guard: warn when leaving checkout with items in cart
@@ -222,6 +234,7 @@ export default function CheckoutClient({
                       onNext={goToNextStep}
                       onBack={goToPrevStep}
                       timeWindows={timeWindows}
+                      deliveryDays={deliveryDays}
                     />
                   </m.div>
                 )}
@@ -245,6 +258,7 @@ export default function CheckoutClient({
                       disableGuard={disableGuard}
                       timeWindows={timeWindows}
                       onCutoffPassed={() => setShowCutoffModal(true)}
+                      codEnabled={codEnabled}
                     />
                   </m.div>
                 )}

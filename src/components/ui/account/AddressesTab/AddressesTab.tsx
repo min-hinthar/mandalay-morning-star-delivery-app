@@ -50,7 +50,7 @@ export function AddressesTab() {
     setHasError(false);
     setIsLoading(true);
     try {
-      const response = await fetch("/api/account/addresses");
+      const response = await fetch("/api/addresses");
       const result = await response.json();
       if (!response.ok) throw new Error(result.error?.message || "Failed to fetch addresses");
       setAddresses(result.data || []);
@@ -120,10 +120,8 @@ export function AddressesTab() {
     setIsSaving(true);
     try {
       const isEditing = editingAddress !== null;
-      const url = isEditing
-        ? `/api/account/addresses/${editingAddress.id}`
-        : "/api/account/addresses";
-      const method = isEditing ? "PATCH" : "POST";
+      const url = isEditing ? `/api/addresses/${editingAddress.id}` : "/api/addresses";
+      const method = isEditing ? "PUT" : "POST";
       const response = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
@@ -166,7 +164,7 @@ export function AddressesTab() {
     if (!addressToDelete) return;
     setIsDeleting(addressToDelete.id);
     try {
-      const response = await fetch(`/api/account/addresses/${addressToDelete.id}`, {
+      const response = await fetch(`/api/addresses/${addressToDelete.id}`, {
         method: "DELETE",
       });
       const result = await response.json();

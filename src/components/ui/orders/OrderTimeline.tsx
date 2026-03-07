@@ -33,6 +33,25 @@ export function OrderTimeline({
   confirmedAt,
   deliveredAt,
 }: OrderTimelineProps) {
+  // Handle pending_approval status
+  if (currentStatus === "pending_approval") {
+    return (
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+        <div className="flex items-center gap-3">
+          <div className="rounded-full bg-amber-100 p-2 dark:bg-amber-900/50">
+            <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
+          </div>
+          <div>
+            <p className="font-medium text-amber-800 dark:text-amber-300">Awaiting Approval</p>
+            <p className="text-sm text-amber-700/80 dark:text-amber-400/80">
+              Your order is being reviewed. You&apos;ll be notified once it&apos;s confirmed.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   // Handle cancelled status separately
   if (currentStatus === "cancelled") {
     return (

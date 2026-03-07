@@ -19,6 +19,10 @@ import type { OrderStatus } from "@/types/database";
 // ============================================
 
 const NEXT_STATUSES: Record<OrderStatus, { status: OrderStatus; label: string }[]> = {
+  pending_approval: [
+    { status: "confirmed", label: "Approve & Confirm" },
+    { status: "cancelled", label: "Cancel" },
+  ],
   pending: [
     { status: "confirmed", label: "Confirm Order" },
     { status: "cancelled", label: "Cancel" },

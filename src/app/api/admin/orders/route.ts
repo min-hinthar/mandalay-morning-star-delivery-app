@@ -12,6 +12,7 @@ interface OrderRow {
   total_cents: number;
   delivery_window_start: string | null;
   placed_at: string;
+  payment_method: string | null;
   order_items: Array<{ quantity: number }>;
   profiles: {
     full_name: string | null;
@@ -52,6 +53,7 @@ export async function GET(request: Request) {
         total_cents,
         delivery_window_start,
         placed_at,
+        payment_method,
         order_items (quantity),
         profiles!orders_user_id_fkey (
           full_name,
@@ -64,7 +66,9 @@ export async function GET(request: Request) {
 
     // Apply status filter if provided (comma-separated statuses)
     if (statusFilter) {
-      const statuses = statusFilter.split(",").map((s) => s.trim()) as OrderStatus[];
+      const statuses: readonly OrderStatus[] = statusFilter
+        .split(",")
+        .map((s) => s.trim()) as OrderStatus[];
       query = query.in("status", statuses);
     }
 

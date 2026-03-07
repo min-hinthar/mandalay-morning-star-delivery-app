@@ -29,17 +29,33 @@ export function StepCard({ step, index, children }: StepCardProps) {
 
           <h3
             className={cn(
-              "font-display font-extrabold text-xl md:text-2xl mt-4 mb-2",
+              "font-display font-extrabold text-xl md:text-2xl mt-4 mb-0.5",
               step.color,
               "drop-shadow-lg"
             )}
           >
             {step.title}
           </h3>
+          {step.titleMy && (
+            <p
+              className={cn(
+                "font-body text-base md:text-lg mb-2",
+                step.color,
+                "opacity-70 drop-shadow-md"
+              )}
+            >
+              {step.titleMy}
+            </p>
+          )}
 
           <p className="font-body text-text-primary font-medium text-base md:text-lg max-w-[220px] drop-shadow-md">
             {step.description}
           </p>
+          {step.descriptionMy && (
+            <p className="font-body text-text-primary/60 text-sm max-w-[220px] drop-shadow-md mt-1">
+              {step.descriptionMy}
+            </p>
+          )}
         </div>
 
         {children}

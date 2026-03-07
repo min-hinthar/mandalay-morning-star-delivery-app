@@ -2,16 +2,21 @@
 
 import { Clock, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { useDeliveryGate } from "@/lib/hooks/useDeliveryGate";
+import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
 import { DeliveryCountdown } from "./DeliveryCountdown";
+import type { DeliveryDayConfig } from "@/types/delivery";
 
 // ============================================
 // TYPES
 // ============================================
 
 export interface DeliveryBannerProps {
-  cutoffDay: number;
-  cutoffHour: number;
+  /** @deprecated Use deliveryDays instead */
+  cutoffDay?: number;
+  /** @deprecated Use deliveryDays instead */
+  cutoffHour?: number;
+  /** Multi-day delivery config (preferred) */
+  deliveryDays?: DeliveryDayConfig[];
   className?: string;
 }
 
@@ -23,9 +28,21 @@ export interface DeliveryBannerProps {
  * Slim persistent banner for the menu page.
  * Positioned sticky below MenuHeader (top-14).
  * Open state: countdown with urgency colors. Closed state: next delivery date.
+ *
+ * Supports both legacy single-day (cutoffDay/cutoffHour) and multi-day (deliveryDays) modes.
  */
-export function DeliveryBanner({ cutoffDay, cutoffHour, className }: DeliveryBannerProps) {
-  const { isOpen, deliveryDate, cutoffDate, urgency } = useDeliveryGate(cutoffDay, cutoffHour);
+export function DeliveryBanner({
+  cutoffDay,
+  cutoffHour,
+  deliveryDays,
+  className,
+}: DeliveryBannerProps) {
+  // Use multi-day gate if deliveryDays provided, otherwise legacy
+  const multiDayGate = useDeliveryGateMultiDay(deliveryDays ?? []);
+  const legacyGate = useDeliveryGate(cutoffDay ?? 5, cutoffHour ?? 15);
+
+  const gate = deliveryDays && deliveryDays.length > 0 ? multiDayGate : legacyGate;
+  const { isOpen, deliveryDate, cutoffDate, urgency } = gate;
 
   return (
     <div

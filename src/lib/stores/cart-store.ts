@@ -5,6 +5,7 @@ import type { CartItem, CartStore, SelectedModifier } from "@/types/cart";
 import { MAX_CART_ITEMS, MAX_ITEM_QUANTITY } from "@/types/cart";
 import { cartIDBStorage } from "@/lib/services/cart-idb-storage";
 import { toast } from "@/lib/hooks/useToastV8";
+import type { DeliveryDayConfig } from "@/types/delivery";
 
 // ============================================
 // DEDUPLICATION SIGNATURE
@@ -68,6 +69,10 @@ export const useCartStore = create<CartStore>()(
       cutoffDay: 5,
       cutoffHour: 15,
       setCutoffSettings: (day: number, hour: number) => set({ cutoffDay: day, cutoffHour: hour }),
+
+      // Multi-day delivery configs
+      deliveryDays: [] as DeliveryDayConfig[],
+      setDeliveryDays: (days: DeliveryDayConfig[]) => set({ deliveryDays: days }),
 
       /**
        * Add item to cart with deduplication and debounce protection.
