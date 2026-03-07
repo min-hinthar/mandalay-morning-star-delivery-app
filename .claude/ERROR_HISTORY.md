@@ -192,19 +192,21 @@ Migration 007 set `allowed_mime_types = ARRAY['image/jpeg', 'image/png']` on the
 
 ## Google OAuth — profiles.email NULL | Auth/DB | High
 
-**Date:** 2026-03-07 | **Files:** `src/app/auth/callback/route.ts`, `src/lib/auth/role-redirect.ts`, `supabase/migrations/20260307_fix_handle_new_user_email.sql`
+**Date:** 2026-03-07 | **Files:** `src/app/auth/callback/route.ts`, `src/lib/auth/role-redirect.ts`, `src/components/ui/auth/SocialLoginButtons.tsx`, `src/lib/auth/resolve-oauth-email.ts`
 
-Sequel to "No Profile Created" above. Profile row EXISTS but `email` column is NULL. Three compounding bugs:
+Sequel to "No Profile Created" above. Profile row EXISTS but `email` column is NULL. Four compounding bugs:
 1. **DB trigger `handle_new_user()`** — `ON CONFLICT (id) DO NOTHING` means returning users never get email synced
 2. **`ensureProfile()`** — `ignoreDuplicates: true` means existing NULL emails never updated
 3. **Auth callback** — had `session.user.email` but never wrote it to profiles
+4. **`session.user.email` itself NULL** — no explicit `email` scope in OAuth call, and code only checked `user.email`, ignoring `user_metadata.email` and `identities[0].identity_data.email`
 
-**Fix (3 layers):**
+**Fix (4 layers):**
 - Auth callback: sync email after `exchangeCodeForSession` with `UPDATE profiles SET email WHERE email IS NULL`
 - `ensureProfile()`: add targeted email update after upsert for NULL emails
 - DB trigger: `DO NOTHING` → `DO UPDATE SET email WHERE profiles.email IS NULL`
+- OAuth: add `scopes: "openid email profile"` + `resolveOAuthEmail()` helper that checks `user.email` → `user_metadata.email` → `identities[0].identity_data.email`
 
-**Prevention:** When using `ON CONFLICT DO NOTHING` or `ignoreDuplicates: true`, consider whether existing rows need columns updated. "Do nothing" means literally nothing — not even filling NULLs.
+**Prevention:** Always request `email` scope explicitly. Never rely on a single email source — Google OAuth stores email in multiple locations. Use `resolveOAuthEmail()` everywhere.
 
 ---
 

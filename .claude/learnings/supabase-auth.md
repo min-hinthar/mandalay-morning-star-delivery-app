@@ -103,3 +103,38 @@ await supabase.from("profiles")
 ```
 
 **Apply when:** Any upsert where columns may be NULL on first insert but become available later (OAuth email, display name, etc).
+
+---
+
+## Google OAuth Email: Multiple Sources + Explicit Scopes
+
+**Context:** After fixing DO NOTHING and ensureProfile, `profiles.email` was STILL NULL. `session.user.email` was NULL from Supabase because (1) no explicit `email` scope in `signInWithOAuth`, and (2) code only checked `user.email`, missing `user_metadata.email` and `identities[0].identity_data.email`.
+
+**Learning:** Google OAuth stores email in 3 locations on the Supabase User object. Always check all three. Always request scopes explicitly — don't rely on Dashboard config alone.
+
+**Fix pattern — `resolveOAuthEmail()`:**
+```typescript
+import type { User } from "@supabase/supabase-js";
+
+export function resolveOAuthEmail(user: User): string | null {
+  return (
+    user.email ||
+    (user.user_metadata?.email as string) ||
+    (user.identities?.[0]?.identity_data?.email as string) ||
+    null
+  );
+}
+```
+
+**OAuth call — always include scopes:**
+```typescript
+await supabase.auth.signInWithOAuth({
+  provider: "google",
+  options: {
+    scopes: "openid email profile",
+    queryParams: { access_type: "offline", prompt: "consent" },
+  },
+});
+```
+
+**Apply when:** Any OAuth integration where you need the user's email. Use `resolveOAuthEmail()` in auth callback, `ensureProfile()`, and anywhere else email is extracted from a Supabase User object.
