@@ -86,11 +86,11 @@ export function HeroContent({
 
   // Bilingual greetings
   const greetings: Record<string, { en: string; my: string }> = {
-    morning: { en: "Good morning!", my: "မင်္ဂလာနံနက်ခင်းပါ" },
-    afternoon: { en: "Good afternoon!", my: "မင်္ဂလာနေ့လည်ခင်းပါ" },
-    evening: { en: "Good evening!", my: "မင်္ဂလာညနေခင်းပါ" },
-    night: { en: "Late night cravings?", my: "ညဥ့နက်ကြီး ဗိုက်ဆာနေလား" },
-    dawn: { en: "Early bird?", my: "စောစောထနိုင်သူလား" },
+    morning: { en: "Good morning!", my: "မင်္ဂလာပါ နံနက်ခင်းလေးပါ" },
+    afternoon: { en: "Good afternoon!", my: "နေ့လည်ခင်းလေး မင်္ဂလာပါ" },
+    evening: { en: "Good evening!", my: "ညနေခင်းလေး မင်္ဂလာပါ" },
+    night: { en: "Late night cravings?", my: "ညဥ့နက်ကြီး ဗိုက်ဆာနေပြီလား" },
+    dawn: { en: "Early bird?", my: "စောစောထတာပဲ" },
   };
   const greeting = greetings[timeOfDay] ?? greetings.morning;
 
@@ -110,7 +110,7 @@ export function HeroContent({
         />
         {/* MY Headline */}
         <p className="font-body text-2xl md:text-3xl lg:text-4xl text-hero-text/80 mb-4 animate-fade-in-up-delay-1">
-          သင့်အိမ်တံခါးဝအထိ ပို့ဆောင်ပေးသော စစ်မှန်သည့် မြန်မာ့အစားအသောက်
+          အိမ်ချက်ထမင်းဟင်း လွမ်းနေပြီလား · သင့်အိမ်ရောက်ပို့ပေးမယ်
         </p>
 
         {/* EN Tagline */}
@@ -119,7 +119,7 @@ export function HeroContent({
         </p>
         {/* MY Tagline */}
         <p className="text-base md:text-lg text-hero-text/60 font-medium mb-6 animate-fade-in-up-delay-1">
-          စစ်မှန်သော မြန်မာအစားအသောက် ပို့ဆောင်ပေးပါသည်
+          အိမ်ချက်ထမင်းဟင်းအရသာအတိုင်း ချက်ပြုတ်ပြီး ပို့ပေးပါတယ်
         </p>
 
         {/* EN Subheadline */}
@@ -128,8 +128,7 @@ export function HeroContent({
         </p>
         {/* MY Subheadline */}
         <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-10 font-body animate-fade-in-up-delay-2">
-          မြန်မာ့ရသပြည့်ဝသော အစားအသောက်များကို {deliveryDaysList} တွင် လတ်ဆတ်စွာ ချက်ပြုတ်ပြီး
-          ပို့ဆောင်ပေးပါသည်
+          {deliveryDaysList} တိုင်း လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ပြီး အိမ်ရောက်ပို့ပေးပါတယ်
         </p>
 
         <div className="flex flex-col items-center gap-3 mb-12 animate-fade-in-up-delay-3">
@@ -192,26 +191,26 @@ export function HeroContent({
             icon={<ChefHat className="w-5 h-5 text-secondary" />}
             label="Authentic"
             value="Burmese Recipes"
-            subValue="မြန်မာ့ရိုးရာ ချက်ပြုတ်နည်းများ"
+            subValue="မြန်မာ့ရိုးရာ ချက်နည်းများ"
           />
           <StatItem
             icon={<Clock className="w-5 h-5 text-secondary" />}
             label="Delivery"
             value={deliveryScheduleText}
-            subValue={`${deliveryDaysList} တွင် ပို့ဆောင်ပေးပါသည်`}
+            subValue={`${deliveryDaysList} တိုင်း ပို့ပေးပါတယ်`}
           />
           <StatItem
             icon={<MapPin className="w-5 h-5 text-secondary" />}
             label="Coverage"
             value="50 Mile Radius"
-            subValue="မိုင် ၅၀ အကျယ်အဝန်း"
+            subValue="မိုင် ၅၀ အတွင်း ပို့ပေးတယ်"
           />
           {deliveryFeeText && (
             <StatItem
               icon={<Truck className="w-5 h-5 text-secondary" />}
               label="Fee"
               value={deliveryFeeText}
-              subValue="$၁၀၀ အထက် အခမဲ့ပို့ဆောင်"
+              subValue="$၁၀၀ အထက်ဆို အခမဲ့ပို့ပေးတယ်"
             />
           )}
         </div>
@@ -233,7 +232,7 @@ export function HeroContent({
           role="button"
           aria-label="Scroll to learn more"
         >
-          <span className="text-xs uppercase tracking-widest">Scroll · အောက်သို့ဆင်းပါ</span>
+          <span className="text-xs uppercase tracking-widest">Scroll · အောက်ကိုဆင်းကြည့်ပါ</span>
           <ChevronDown className="w-6 h-6" />
         </m.div>
       </m.div>

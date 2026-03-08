@@ -71,7 +71,7 @@ export function CTABanner({ id }: CTABannerProps) {
           >
             <Truck className="w-4 h-4" />
             <span className="text-sm font-body font-semibold">
-              Free delivery over $100 · $၁၀၀ အထက် အခမဲ့ပို့ဆောင်
+              Free delivery over $100 · $၁၀၀ အထက်ဆို အခမဲ့ပို့ပေးတယ်
             </span>
           </m.div>
 
@@ -93,8 +93,8 @@ export function CTABanner({ id }: CTABannerProps) {
             transition={{ delay: 0.17, duration: 0.4, ease: easing.default }}
             className="font-body text-xl md:text-2xl text-text-primary/70 mb-4"
           >
-            လတ်ဆတ်သော မြန်မာ့အစားအသောက်{" "}
-            <span className="text-primary/80">အပတ်စဉ် ပို့ဆောင်ပေးပါသည်</span>
+            လတ်လတ်ဆတ်ဆတ် မြန်မာ့အစာ{" "}
+            <span className="text-primary/80">အပတ်တိုင်း အိမ်ရောက်ပို့ပေးတယ်</span>
           </m.p>
 
           {/* EN Subtext */}
@@ -115,7 +115,7 @@ export function CTABanner({ id }: CTABannerProps) {
             transition={{ delay: 0.22, duration: 0.4, ease: easing.default }}
             className="font-body text-base text-text-secondary/70 max-w-xl mx-auto mb-8"
           >
-            အိမ်လုပ် မြန်မာအစားအသောက်များ သင့်အိမ်တံခါးဝအထိ ပို့ဆောင်ပေးပါသည်
+            အိမ်ချက်ထမင်းဟင်းလေးတွေ သင့်အိမ်ရောက်ပို့ပေးမယ်
           </m.p>
 
           {/* CTA Buttons - bilingual */}
@@ -131,7 +131,7 @@ export function CTABanner({ id }: CTABannerProps) {
               href="/menu"
               className="inline-flex items-center justify-center px-10 py-4 bg-primary text-text-inverse font-body font-semibold text-lg rounded-pill shadow-lg hover:bg-primary-hover transition-colors duration-fast"
             >
-              Order Now · ယခု မှာယူမည်
+              Order Now · အခုပဲ မှာလိုက်မယ်
             </Link>
           </m.div>
         </m.div>
