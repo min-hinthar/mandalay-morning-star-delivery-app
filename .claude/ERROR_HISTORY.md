@@ -271,6 +271,46 @@ Migration used `EXECUTE FUNCTION update_updated_at()` but the actual function in
 
 ---
 
+## Multi-Day Delivery Dates Skip Same-Day-of-Week | Logic/Checkout | High
+
+**Date:** 2026-03-07 | **Files:** `src/lib/utils/delivery-dates.ts`, `src/components/ui/checkout/TimeSlotPicker/TimeSlotPicker.tsx`
+
+Two compounding bugs in multi-day delivery date generation:
+1. **`getAvailableDeliveryDatesMultiDay`** — when `daysUntil === 0` (same day of week, e.g. Saturday on Saturday) and past cutoff, code set `daysUntil = 7` before adding `weekOffset * 7`. Result: next Saturday landed at +14 days instead of +7. The `daysUntil = 7` line was vestigial from Saturday-only logic.
+2. **`TimeSlotPicker` week labels** — used sequential index (0, 1, 2...) for "This Week"/"Next Week" labels. Works for Saturday-only (one date per week), breaks for multi-day where multiple dates fall in same week.
+
+**Fix:** (1) Removed `if (daysUntil === 0) daysUntil = 7` — `weekOffset * 7` alone handles the offset correctly. (2) Changed week labels to use `Math.floor(diffDays / 7)` from current date.
+
+**Prevention:** When extending single-day logic to multi-day, audit ALL arithmetic that assumes "one date = one week". Test with the current day matching an active delivery day + past cutoff to catch off-by-one-week bugs.
+
+---
+
+## COD Approve Returns 400 — Dual Routing + Audit Log Bug | API/Admin | High
+
+**Date:** 2026-03-08 | **Files:** `src/app/(admin)/admin/orders/page.tsx`, `src/app/api/admin/orders/[id]/approve-cod/route.ts`
+
+Two compounding bugs prevented COD approval from ever working:
+1. **Orders list page `handleStatusChange`** — always called generic `/api/admin/orders/[id]/status` endpoint, which explicitly rejects `pending_approval → confirmed` with 400 "use /approve-cod". The `StatusChangeDialog` (detail page) had correct routing, but the list page drawer bypassed it.
+2. **`/approve-cod` audit log** — used invalid action `"cod_approved"` (not in DB CHECK constraint) and wrong columns (`new_status`/`old_status` instead of `old_value`/`new_value` JSONB).
+
+**Fix:** `handleStatusChange` now detects COD approval and routes to POST `/approve-cod`. Audit log uses valid `status_change` action and correct JSONB columns.
+
+**Prevention:** When adding specialized endpoints (like `/approve-cod`), grep ALL call sites that handle the same status transition. Admin has two UX paths (list drawer vs detail page) — both must route correctly. Always verify audit log column names against the actual table schema.
+
+---
+
+## Vercel Kills Fire-and-Forget Async Calls | Serverless/Email | Critical
+
+**Date:** 2026-03-07 | **Files:** 7 API routes (checkout, webhooks/stripe, approve-cod, cancel x2, refund, admin emails)
+
+`void sendEmail(...)` pattern: response returns immediately, Vercel terminates the serverless function before the email send completes. All order-related emails (confirmation, cancel, refund, COD approval) silently failed. Driver invite emails worked because they used `await`.
+
+**Fix:** Changed all 7 routes to `await sendEmail(...)` or wrapped in Next.js `after()` callback. COD checkout uses `after()` to avoid delaying the response.
+
+**Prevention:** On Vercel serverless, NEVER use `void asyncFn()` for side effects. Either `await` the call before responding, or use Next.js `after()` which keeps the function alive after the response is sent. `after()` is the preferred pattern when the email shouldn't block the response.
+
+---
+
 ## Admin API Response Wrapper Silently Breaks Array Methods | Logic | High
 
 **Date:** 2026-03-04 | **Files:** `CreateRouteModal.tsx`, `RouteDetailClient.tsx` (3 fetch calls)

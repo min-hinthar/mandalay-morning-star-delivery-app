@@ -1,6 +1,9 @@
-import { NextResponse } from "next/server";
+import React from "react";
+import { after, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe/server";
+import { sendEmail } from "@/lib/email";
+import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
@@ -127,6 +130,107 @@ export async function POST(request: Request, { params }: RouteParams) {
     api: "verify-payment",
     flowId: "checkout",
   });
+
+  // Send confirmation email (this endpoint may win the race vs webhook)
+  const { data: orderData } = await serviceClient
+    .from("orders")
+    .select(
+      `
+      id, user_id, subtotal_cents, delivery_fee_cents, tax_cents, total_cents,
+      delivery_window_start, delivery_window_end, special_instructions, placed_at,
+      profiles!orders_user_id_fkey ( email, full_name ),
+      addresses ( line_1, line_2, city, state, postal_code ),
+      order_items (
+        name_snapshot, quantity, line_total_cents,
+        order_item_modifiers ( name_snapshot, price_delta_snapshot )
+      )
+    `
+    )
+    .eq("id", orderId)
+    .single();
+
+  if (orderData) {
+    const profile = orderData.profiles as unknown as {
+      email: string | null;
+      full_name: string | null;
+    } | null;
+    const address = orderData.addresses as unknown as {
+      line_1: string;
+      line_2: string | null;
+      city: string;
+      state: string;
+      postal_code: string;
+    } | null;
+    const items =
+      (orderData.order_items as unknown as Array<{
+        name_snapshot: string;
+        quantity: number;
+        line_total_cents: number;
+        order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }>;
+      }>) || [];
+
+    const customerEmail = profile?.email;
+    if (customerEmail) {
+      const shortId = orderId.slice(0, 8).toUpperCase();
+      const emailOrderId = orderId;
+      const emailUserId = orderData.user_id;
+
+      after(async () => {
+        try {
+          await sendEmail({
+            to: customerEmail,
+            subject: `\uD83C\uDF5C Your order is confirmed! Order #${shortId}`,
+            react: React.createElement(OrderConfirmation, {
+              customerName: profile?.full_name || "Valued Customer",
+              orderId: emailOrderId,
+              items: items.map((item) => ({
+                name: item.name_snapshot,
+                quantity: item.quantity,
+                lineTotalCents: item.line_total_cents,
+                modifiers: item.order_item_modifiers?.map((m) => ({
+                  name: m.name_snapshot,
+                  priceDelta: m.price_delta_snapshot,
+                })),
+              })),
+              subtotalCents: orderData.subtotal_cents,
+              deliveryFeeCents: orderData.delivery_fee_cents,
+              taxCents: orderData.tax_cents,
+              totalCents: orderData.total_cents,
+              deliveryWindowStart: orderData.delivery_window_start ?? undefined,
+              deliveryWindowEnd: orderData.delivery_window_end ?? undefined,
+              address: address
+                ? {
+                    line1: address.line_1,
+                    line2: address.line_2 ?? undefined,
+                    city: address.city,
+                    state: address.state,
+                    postalCode: address.postal_code,
+                  }
+                : { line1: "Address on file", city: "", state: "", postalCode: "" },
+              specialInstructions: orderData.special_instructions ?? undefined,
+              placedAt: orderData.placed_at,
+            }),
+            type: "order_confirmation",
+            orderId: emailOrderId,
+            userId: emailUserId,
+            mandatory: true,
+            idempotencyKey: `order-confirmation-${emailOrderId}`,
+          });
+        } catch (emailErr) {
+          logger.error("Failed to send order confirmation email from verify-payment", {
+            orderId: emailOrderId,
+            error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+          });
+        }
+      });
+
+      logger.info(`Order confirmation email triggered from verify-payment for ${orderId}`, {
+        orderId,
+        api: "verify-payment",
+        flowId: "email",
+      });
+    }
+  }
 
   return NextResponse.json({ status: "confirmed" });
 }
