@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
-import { sendEmail, fetchSuggestedItemNames } from "@/lib/email";
+import { sendEmail, fetchSuggestedItems } from "@/lib/email";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import type { OrderStatus } from "@/types/database";
 
@@ -140,7 +140,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
         // Fetch real menu items for "you might also like" section
         const orderedNames = items.map((item) => item.name_snapshot);
-        const suggestedItems = await fetchSuggestedItemNames(approvedSupabase, orderedNames);
+        const suggestedItems = await fetchSuggestedItems(approvedSupabase, orderedNames);
 
         await sendEmail({
           to: profile.email,

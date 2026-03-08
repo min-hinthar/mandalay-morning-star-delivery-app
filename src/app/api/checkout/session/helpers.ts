@@ -4,7 +4,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import type { ModifierGroupWithItems, ValidatedCartItem } from "@/lib/utils/order";
 import type { ModifierGroupsRow } from "@/types/database";
 import { logger } from "@/lib/utils/logger";
-import { sendEmail, fetchSuggestedItemNames } from "@/lib/email";
+import { sendEmail, fetchSuggestedItems } from "@/lib/email";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 
 /**
@@ -79,7 +79,7 @@ export async function sendCODOrderEmail(opts: {
     // Fetch real menu items for "you might also like" section
     const serviceClient = createServiceClient();
     const orderedNames = opts.validatedItems.map((item) => item.menuItem.name_en);
-    const suggestedItems = await fetchSuggestedItemNames(serviceClient, orderedNames);
+    const suggestedItems = await fetchSuggestedItems(serviceClient, orderedNames);
 
     await sendEmail({
       to: opts.userEmail,

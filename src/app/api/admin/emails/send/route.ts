@@ -1,8 +1,8 @@
 import { after, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
-import { sendEmail, buildEmailElement, fetchSuggestedItemNames } from "@/lib/email";
-import type { EmailType } from "@/lib/email";
+import { sendEmail, buildEmailElement, fetchSuggestedItems } from "@/lib/email";
+import type { EmailType, SuggestedItem } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
@@ -178,10 +178,10 @@ export async function POST(request: Request) {
     };
 
     // Fetch real menu items for "you might also like" section (order_confirmation only)
-    let suggestedItems: string[] | undefined;
+    let suggestedItems: SuggestedItem[] | undefined;
     if (type === "order_confirmation") {
       const orderedNames = items.map((item) => item.name);
-      suggestedItems = await fetchSuggestedItemNames(supabase, orderedNames);
+      suggestedItems = await fetchSuggestedItems(supabase, orderedNames);
     }
 
     const subject = getSubjectForType(type, order.id);
