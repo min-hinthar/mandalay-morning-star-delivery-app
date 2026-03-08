@@ -477,7 +477,7 @@ export function ItemDetailSheet({
       size="lg"
       showCloseButton={false}
       className={cn("overflow-hidden p-0", wrapperClassName)}
-      contentClassName="!p-0 !pt-0"
+      contentClassName="!p-0 !pt-0 !overflow-y-hidden flex flex-col"
     >
       {renderContent()}
     </Modal>

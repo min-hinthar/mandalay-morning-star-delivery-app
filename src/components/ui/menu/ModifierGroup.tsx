@@ -2,7 +2,6 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { formatPrice } from "@/lib/utils/currency";
 import { cn } from "@/lib/utils/cn";
@@ -58,10 +57,11 @@ export function ModifierGroup({
           className="space-y-2"
         >
           {group.options.map((option) => (
-            <div
+            <label
               key={option.id}
+              htmlFor={option.id}
               className={cn(
-                "flex items-center justify-between rounded-lg border p-3",
+                "flex items-center justify-between rounded-lg border p-3 cursor-pointer",
                 selectedOptions.includes(option.id)
                   ? "border-brand-red bg-brand-red/5"
                   : "border-border hover:border-muted-foreground/50"
@@ -69,9 +69,7 @@ export function ModifierGroup({
             >
               <div className="flex items-center gap-3">
                 <RadioGroupItem value={option.id} id={option.id} />
-                <Label htmlFor={option.id} className="cursor-pointer font-normal">
-                  {option.name}
-                </Label>
+                <span className="font-normal">{option.name}</span>
               </div>
               {option.priceDeltaCents !== 0 && (
                 <span
@@ -84,7 +82,7 @@ export function ModifierGroup({
                   {formatPrice(option.priceDeltaCents)}
                 </span>
               )}
-            </div>
+            </label>
           ))}
         </RadioGroup>
       ) : (
@@ -94,14 +92,15 @@ export function ModifierGroup({
             const canSelectMore = selectedOptions.length < group.maxSelect;
 
             return (
-              <div
+              <label
                 key={option.id}
+                htmlFor={option.id}
                 className={cn(
                   "flex items-center justify-between rounded-lg border p-3",
                   isChecked
                     ? "border-brand-red bg-brand-red/5"
                     : "border-border hover:border-muted-foreground/50",
-                  !canSelectMore && !isChecked && "opacity-50"
+                  !canSelectMore && !isChecked ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
                 )}
               >
                 <div className="flex items-center gap-3">
@@ -117,15 +116,14 @@ export function ModifierGroup({
                       }
                     }}
                   />
-                  <Label
-                    htmlFor={option.id}
+                  <span
                     className={cn(
-                      "cursor-pointer font-normal",
+                      "font-normal",
                       !canSelectMore && !isChecked && "cursor-not-allowed"
                     )}
                   >
                     {option.name}
-                  </Label>
+                  </span>
                 </div>
                 {option.priceDeltaCents !== 0 && (
                   <span
@@ -138,7 +136,7 @@ export function ModifierGroup({
                     {formatPrice(option.priceDeltaCents)}
                   </span>
                 )}
-              </div>
+              </label>
             );
           })}
         </div>
