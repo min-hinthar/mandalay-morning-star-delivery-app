@@ -1,130 +1,29 @@
 /**
- * Redis singleton and named Ratelimit instances.
- * All limiters use sliding window algorithm with fail-open timeout (3s).
- * When UPSTASH_REST_REDIS_URL is not set, all limiters are null (fail open).
+ * Rate limiter exports.
+ * Redis-based limiting disabled — all limiters are null, triggering
+ * the in-memory fallback in check.ts (conservative 15 req/min per identifier).
+ *
+ * To re-enable: swap in an Upstash REST-compatible Redis instance and
+ * restore the Ratelimit constructors.
  */
-import { Ratelimit } from "@upstash/ratelimit";
-import { Redis } from "@upstash/redis";
+import type { Ratelimit } from "@upstash/ratelimit";
 
-import { RATE_LIMITS } from "./config";
-
-// Singleton Redis client -- only created when env vars are set
-const redis = process.env.UPSTASH_REST_REDIS_URL
-  ? new Redis({ url: process.env.UPSTASH_REST_REDIS_URL, token: "" })
-  : null;
-
-/** Expose singleton for health-check pings. Returns null when not configured. */
-export function getRedisClient(): Redis | null {
-  return redis;
+/** No Redis client configured. Returns null. */
+export function getRedisClient(): null {
+  return null;
 }
 
-// Shared ephemeral cache across all limiters -- reduces Redis roundtrips
-const cache = new Map();
-
-/** Timeout in ms before failing open */
-const TIMEOUT_MS = 3000;
-
-function createLimiter(prefix: string, max: number, window: string): Ratelimit | null {
-  if (!redis) return null;
-  return new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(max, window as Parameters<typeof Ratelimit.slidingWindow>[1]),
-    prefix,
-    ephemeralCache: cache,
-    timeout: TIMEOUT_MS,
-    analytics: false,
-  });
-}
-
-/** Auth sign-in: 5 req / 1 min (default) */
-export const authSignInLimiter = createLimiter(
-  "rl:auth-signin",
-  RATE_LIMITS["auth-signin"].max,
-  RATE_LIMITS["auth-signin"].window
-);
-
-/** Auth sign-up: 3 req / 1 hour (default) */
-export const authSignUpLimiter = createLimiter(
-  "rl:auth-signup",
-  RATE_LIMITS["auth-signup"].max,
-  RATE_LIMITS["auth-signup"].window
-);
-
-/** API write (checkout, order creation): 10 req / 1 min (default) */
-export const apiWriteLimiter = createLimiter(
-  "rl:api-write",
-  RATE_LIMITS["api-write"].max,
-  RATE_LIMITS["api-write"].window
-);
-
-/** Public read (menu, sections, search): 60 req / 1 min (default) */
-export const publicReadLimiter = createLimiter(
-  "rl:public-read",
-  RATE_LIMITS["public-read"].max,
-  RATE_LIMITS["public-read"].window
-);
-
-/** Driver location updates: 2 req / 1 min (default) */
-export const driverLocationLimiter = createLimiter(
-  "rl:driver-location",
-  RATE_LIMITS["driver-location"].max,
-  RATE_LIMITS["driver-location"].window
-);
-
-/** Driver actions (start/complete route, update stop): 10 req / 1 min (default) */
-export const driverActionLimiter = createLimiter(
-  "rl:driver-action",
-  RATE_LIMITS["driver-action"].max,
-  RATE_LIMITS["driver-action"].window
-);
-
-/** Customer CRUD (account, addresses, orders): 30 req / 1 min (default) */
-export const customerLimiter = createLimiter(
-  "rl:customer",
-  RATE_LIMITS["customer"].max,
-  RATE_LIMITS["customer"].window
-);
-
-/** Admin operations: 120 req / 1 min (default) */
-export const adminLimiter = createLimiter(
-  "rl:admin",
-  RATE_LIMITS["admin"].max,
-  RATE_LIMITS["admin"].window
-);
-
-/** Global per-IP fallback: 120 req / 1 min (default) */
-export const globalLimiter = createLimiter(
-  "rl:global",
-  RATE_LIMITS["global"].max,
-  RATE_LIMITS["global"].window
-);
-
-// Endpoint-specific limiters (HARD-01: Production Hardening)
-
-/** Checkout: 3 req / 1 min — prevent double-orders */
-export const checkoutLimiter = createLimiter(
-  "rl:checkout",
-  RATE_LIMITS["checkout"].max,
-  RATE_LIMITS["checkout"].window
-);
-
-/** Refund: 5 req / 1 min — protect financial operations */
-export const refundLimiter = createLimiter(
-  "rl:refund",
-  RATE_LIMITS["refund"].max,
-  RATE_LIMITS["refund"].window
-);
-
-/** Admin bulk operations: 10 req / 1 min */
-export const adminBulkLimiter = createLimiter(
-  "rl:admin-bulk",
-  RATE_LIMITS["admin-bulk"].max,
-  RATE_LIMITS["admin-bulk"].window
-);
-
-/** Webhook: 30 req / 1 min — external service callbacks */
-export const webhookLimiter = createLimiter(
-  "rl:webhook",
-  RATE_LIMITS["webhook"].max,
-  RATE_LIMITS["webhook"].window
-);
+/** All limiters are null — in-memory fallback handles rate limiting */
+export const authSignInLimiter: Ratelimit | null = null;
+export const authSignUpLimiter: Ratelimit | null = null;
+export const apiWriteLimiter: Ratelimit | null = null;
+export const publicReadLimiter: Ratelimit | null = null;
+export const driverLocationLimiter: Ratelimit | null = null;
+export const driverActionLimiter: Ratelimit | null = null;
+export const customerLimiter: Ratelimit | null = null;
+export const adminLimiter: Ratelimit | null = null;
+export const globalLimiter: Ratelimit | null = null;
+export const checkoutLimiter: Ratelimit | null = null;
+export const refundLimiter: Ratelimit | null = null;
+export const adminBulkLimiter: Ratelimit | null = null;
+export const webhookLimiter: Ratelimit | null = null;
