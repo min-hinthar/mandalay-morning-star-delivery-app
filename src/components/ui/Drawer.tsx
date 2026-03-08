@@ -49,7 +49,7 @@ export interface DrawerProps {
   position?: "left" | "right" | "bottom";
   /** Width for side drawers (ignored for bottom) */
   width?: "sm" | "md" | "lg";
-  /** Height mode for bottom sheet: "auto" or "full" (90vh) */
+  /** Height mode for bottom sheet: "auto" or "full" (95vh) */
   height?: "auto" | "full";
   /** Whether to show drag handle for bottom sheet (default: true) */
   showDragHandle?: boolean;
@@ -240,7 +240,7 @@ export function Drawer({
     if (!isBottom) return undefined;
     return {
       ...(swipeProps?.style || {}),
-      height: height === "full" ? "80vh" : "auto",
+      height: height === "full" ? "95vh" : "auto",
     };
   }, [isBottom, swipeProps?.style, height]);
 
@@ -352,7 +352,7 @@ export function Drawer({
               <div
                 className={cn(
                   "overflow-y-auto overscroll-contain",
-                  "max-h-[calc(80vh-3rem)]",
+                  "max-h-[calc(95vh-3rem)]",
                   "pb-safe"
                 )}
                 style={{ touchAction: "pan-y" }}
