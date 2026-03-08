@@ -52,6 +52,7 @@ export function Modal({
   closeOnSwipeDown = true,
   size = "md",
   className,
+  contentClassName,
   backdropClassName,
   header,
   footer,
@@ -351,7 +352,8 @@ export function Modal({
                     config.padding,
                     showCloseButton && !header && "pt-14",
                     isMobile ? "max-h-[calc(90vh-3rem)]" : "max-h-[calc(85vh-2rem)]",
-                    footer && "pb-0"
+                    footer && "pb-0",
+                    contentClassName
                   )}
                 >
                   {children}
