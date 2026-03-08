@@ -51,6 +51,7 @@ function CartContent({ onClose, showFullCartLink }: CartContentProps) {
   const updateItemPrice = useCartStore((state) => state.updateItemPrice);
   const cutoffDay = useCartStore((state) => state.cutoffDay);
   const cutoffHour = useCartStore((state) => state.cutoffHour);
+  const deliveryDays = useCartStore((state) => state.deliveryDays);
   const validation = useCartValidation();
   const {
     isOpen: isClearOpen,
@@ -121,6 +122,7 @@ function CartContent({ onClose, showFullCartLink }: CartContentProps) {
             onCheckout={handleCheckout}
             hasBlockingIssues={validation.hasBlockingIssues}
             showFullCartLink={showFullCartLink}
+            deliveryDays={deliveryDays}
             cutoffDay={cutoffDay}
             cutoffHour={cutoffHour}
           />

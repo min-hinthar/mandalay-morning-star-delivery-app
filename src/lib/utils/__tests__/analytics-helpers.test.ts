@@ -79,23 +79,25 @@ describe("Analytics Helpers", () => {
   describe("getDateRangeForPeriod", () => {
     it("should return 1 day range for day period", () => {
       const { startDate, endDate } = getDateRangeForPeriod("day");
-      const diff = endDate.getTime() - startDate.getTime();
-      const dayInMs = 24 * 60 * 60 * 1000;
-      expect(diff).toBeCloseTo(dayInMs, -3);
+      const diffHours = (endDate.getTime() - startDate.getTime()) / (60 * 60 * 1000);
+      // 23-25 hours to account for DST transitions
+      expect(diffHours).toBeGreaterThanOrEqual(23);
+      expect(diffHours).toBeLessThanOrEqual(25);
     });
 
     it("should return 7 day range for week period", () => {
       const { startDate, endDate } = getDateRangeForPeriod("week");
-      const diff = endDate.getTime() - startDate.getTime();
-      const weekInMs = 7 * 24 * 60 * 60 * 1000;
-      expect(diff).toBeCloseTo(weekInMs, -3);
+      const diffHours = (endDate.getTime() - startDate.getTime()) / (60 * 60 * 1000);
+      // 167-169 hours (7*24 ± 1) to account for DST transitions
+      expect(diffHours).toBeGreaterThanOrEqual(7 * 24 - 1);
+      expect(diffHours).toBeLessThanOrEqual(7 * 24 + 1);
     });
 
     it("should return approximately 30 day range for month period", () => {
       const { startDate, endDate } = getDateRangeForPeriod("month");
-      const diff = endDate.getTime() - startDate.getTime();
-      const monthInMs = 28 * 24 * 60 * 60 * 1000; // at least 28 days
-      expect(diff).toBeGreaterThanOrEqual(monthInMs);
+      const diffHours = (endDate.getTime() - startDate.getTime()) / (60 * 60 * 1000);
+      // At least 27 days worth of hours (accounts for short months + DST)
+      expect(diffHours).toBeGreaterThanOrEqual(27 * 24);
     });
   });
 

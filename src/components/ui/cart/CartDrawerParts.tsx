@@ -8,7 +8,8 @@ import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
-import { useDeliveryGate } from "@/lib/hooks/useDeliveryGate";
+import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
+import { getNextCutoffText } from "@/lib/utils/delivery-schedule";
 import { Button } from "@/components/ui/button";
 import { DeliveryCountdown } from "@/components/ui/delivery";
 import { CartItem } from "./CartItem";
@@ -17,16 +18,7 @@ import { CartEmptyState } from "./CartEmptyState";
 import { SuggestionRow } from "./CartPage/SuggestionRow";
 import type { CartValidationResult } from "@/types/cart";
 import type { MenuItem } from "@/types/menu";
-
-// Day name helper
-const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-function formatCutoffTime(cutoffDay: number, cutoffHour: number): string {
-  const dayName = DAY_NAMES[cutoffDay] ?? "Friday";
-  const period = cutoffHour >= 12 ? "PM" : "AM";
-  const hour12 = cutoffHour % 12 === 0 ? 12 : cutoffHour % 12;
-  return `${dayName} at ${hour12}:00 ${period}`;
-}
+import type { DeliveryDayConfig } from "@/types/delivery";
 
 // ============================================
 // SYNC STATUS TYPES
@@ -302,9 +294,11 @@ interface CartFooterProps {
   onCheckout: () => void;
   hasBlockingIssues?: boolean;
   showFullCartLink?: boolean;
-  /** Cutoff day of week (0=Sun..6=Sat). Defaults to Friday (5). */
+  /** Multi-day delivery configs from DB */
+  deliveryDays?: DeliveryDayConfig[];
+  /** @deprecated Legacy cutoff day (0=Sun..6=Sat). Use deliveryDays. */
   cutoffDay?: number;
-  /** Cutoff hour (0-23). Defaults to 15 (3 PM). */
+  /** @deprecated Legacy cutoff hour (0-23). Use deliveryDays. */
   cutoffHour?: number;
 }
 
@@ -313,14 +307,23 @@ export function CartFooter({
   onCheckout,
   hasBlockingIssues = false,
   showFullCartLink,
+  deliveryDays,
   cutoffDay = 5,
   cutoffHour = 15,
 }: CartFooterProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
-  const gate = useDeliveryGate(cutoffDay, cutoffHour);
+
+  // Use multi-day gate if deliveryDays available, fallback to legacy
+  const hasMultiDay = deliveryDays && deliveryDays.length > 0;
+  const multiDayGate = useDeliveryGateMultiDay(deliveryDays ?? []);
+  const legacyGate = useDeliveryGate(cutoffDay, cutoffHour);
+  const gate = hasMultiDay ? multiDayGate : legacyGate;
 
   const isDisabled = hasBlockingIssues || !gate.isOpen;
-  const closedText = `Checkout opens ${formatCutoffTime(cutoffDay, cutoffHour)}`;
+  const closedText =
+    hasMultiDay && gate.deliveryDayOfWeek !== undefined
+      ? getNextCutoffText(gate.deliveryDayOfWeek, deliveryDays!)
+      : `Checkout opens Friday at 3:00 PM`;
 
   return (
     <m.div
