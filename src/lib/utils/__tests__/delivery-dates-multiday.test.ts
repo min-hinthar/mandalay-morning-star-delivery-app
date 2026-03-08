@@ -260,10 +260,10 @@ describe("multi-day delivery utilities", () => {
     });
 
     it("marks cutoffPassed correctly based on current time", () => {
-      // Thursday - Wed's cutoff (3pm Wed) already passed
+      // Thursday 10am - today's Thu cutoff (Wed 3pm) already passed, so today is skipped.
+      // The first Thursday in results is NEXT Thursday, whose cutoff (next Wed 3pm) is still future.
       const thursday = makePtDate("2026-01-15T10:00:00");
       const dates = getAvailableDeliveryDatesMultiDay(thursday, MOCK_DELIVERY_DAYS, 6);
-      // Find first Thursday in results
       const thursdayDate = dates.find(
         (d) =>
           new Intl.DateTimeFormat("en-CA", {
@@ -272,8 +272,8 @@ describe("multi-day delivery utilities", () => {
           }).format(d.date) === "Thursday"
       );
       if (thursdayDate) {
-        // Thursday's cutoff (Wed 3pm) is in the past on Thu morning
-        expect(thursdayDate.cutoffPassed).toBe(true);
+        // Next Thursday's cutoff (next Wed 3pm) hasn't passed yet
+        expect(thursdayDate.cutoffPassed).toBe(false);
       }
     });
 

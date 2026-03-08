@@ -267,11 +267,10 @@ export function getAvailableDeliveryDatesMultiDay(
 
   for (let weekOffset = 0; weekOffset < 3; weekOffset++) {
     for (const day of activeDays) {
-      let daysUntil = (day.dayOfWeek - nowDayOfWeek + 7) % 7;
+      const daysUntil = (day.dayOfWeek - nowDayOfWeek + 7) % 7;
       if (daysUntil === 0 && weekOffset === 0) {
         if (!isPastCutoffForDay(now, day, now)) candidates.push({ date: now, dayConfig: day });
       } else {
-        if (daysUntil === 0) daysUntil = 7;
         const deliveryDate = addZonedDays(now, daysUntil + weekOffset * 7);
         candidates.push({ date: deliveryDate, dayConfig: day });
       }
