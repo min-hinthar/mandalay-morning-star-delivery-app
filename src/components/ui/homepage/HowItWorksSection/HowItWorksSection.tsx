@@ -17,9 +17,9 @@ const steps: Step[] = [
   {
     icon: MapPin,
     title: "Check Coverage",
-    titleMy: "ပို့ဆောင်ရေး စစ်ဆေးမည်",
+    titleMy: "ပို့နိုင်လား စစ်ကြည့်မယ်",
     description: "Enter your address to see if we deliver to you",
-    descriptionMy: "သင့်လိပ်စာထည့်သွင်း၍ ပို့ဆောင်နိုင်မှု စစ်ဆေးပါ",
+    descriptionMy: "လိပ်စာထည့်ပြီး ပို့နိုင်မလား စစ်ကြည့်ပါ",
     color: "text-rose-500",
     iconBg: "bg-rose-500/25",
     iconBorder: "border-rose-400/50",
@@ -28,9 +28,9 @@ const steps: Step[] = [
   {
     icon: UtensilsCrossed,
     title: "Order",
-    titleMy: "မှာယူမည်",
+    titleMy: "မှာမယ်",
     description: "Browse our menu and add favorites to cart",
-    descriptionMy: "မီနူးကြည့်ပြီး ကြိုက်သည့်ပစ္စည်းများ ထည့်ပါ",
+    descriptionMy: "မီနူးကြည့်ပြီး ကြိုက်တာလေးတွေ ထည့်လိုက်ပါ",
     color: "text-amber-500",
     iconBg: "bg-amber-500/25",
     iconBorder: "border-amber-400/50",
@@ -41,7 +41,7 @@ const steps: Step[] = [
     title: "Track",
     titleMy: "ခြေရာခံမည်",
     description: "Real-time updates on your order status",
-    descriptionMy: "အော်ဒါအခြေအနေကို အချိန်နှင့်တစ်ပြေးညီ ကြည့်ရှုပါ",
+    descriptionMy: "အော်ဒါ ဘယ်ရောက်နေပြီလဲ လိုက်ကြည့်ပါ",
     color: "text-emerald-500",
     iconBg: "bg-emerald-500/25",
     iconBorder: "border-emerald-400/50",
@@ -52,7 +52,7 @@ const steps: Step[] = [
     title: "Enjoy",
     titleMy: "ခံစားလိုက်ပါ",
     description: "Fresh Burmese cuisine delivered to your door",
-    descriptionMy: "လတ်ဆတ်သော မြန်မာအစားအသောက် သင့်အိမ်တံခါးဝအထိ",
+    descriptionMy: "လတ်လတ်ဆတ်ဆတ် မြန်မာ့အစာ သင့်အိမ်ရောက်ပြီ",
     color: "text-orange-500",
     iconBg: "bg-orange-500/25",
     iconBorder: "border-orange-400/50",
@@ -121,7 +121,7 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
             viewport={{ once: true }}
             transition={getSpring(spring.default)}
           >
-            How It Works · လုပ်ငန်းစဉ်
+            How It Works · ဘယ်လိုမှာမလဲ
           </m.span>
 
           <h2
@@ -140,7 +140,7 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
               "[text-shadow:0_2px_4px_rgba(0,0,0,0.3),0_4px_12px_rgba(0,0,0,0.2)]"
             )}
           >
-            ရိုးရှင်းသော အဆင့် ၄ ဆင့်ဖြင့် မှာယူပါ
+            အဆင့် ၄ ဆင့်နဲ့ လွယ်လွယ်လေး မှာလိုက်ပါ
           </p>
 
           <p
@@ -159,7 +159,7 @@ export function HowItWorksSection({ className, id = "how-it-works" }: HowItWorks
               "[text-shadow:0_1px_3px_rgba(0,0,0,0.3)]"
             )}
           >
-            ပို့ဆောင်ရေး စစ်ဆေးခြင်းမှ လတ်ဆတ်သော မြန်မာအစားအသောက် ခံစားခြင်းအထိ
+            ပို့နိုင်မလား စစ်ကြည့်ပြီး မြန်မာ့အစာလေး မှာလိုက်ပါ
           </p>
         </m.div>
 

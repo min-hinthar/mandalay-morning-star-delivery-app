@@ -54,8 +54,7 @@ export function FooterCTA() {
               variants={staggerItem}
               className="font-body text-xl md:text-2xl text-text-inverse/70"
             >
-              စစ်မှန်သော <span className="text-secondary/80">မြန်မာ့အရသာ</span> ခံစားဖို့
-              အဆင်သင့်ဖြစ်ပြီလား
+              မြန်မာ့အရသာအစစ် <span className="text-secondary/80">သတိရနေပြီလား</span>
             </m.p>
 
             {/* EN Subtext */}
@@ -70,7 +69,7 @@ export function FooterCTA() {
               variants={staggerItem}
               className="text-base font-body text-text-inverse/70 max-w-2xl mx-auto"
             >
-              အိမ်လုပ် မြန်မာအစားအသောက်များ သင့်အိမ်တံခါးဝအထိ ပို့ဆောင်ပေးပါသည်
+              အိမ်ချက်ထမင်းဟင်းလေးတွေ သင့်အိမ်ရောက်ပို့ပေးမယ်
             </m.p>
 
             {/* Buttons */}
@@ -85,7 +84,7 @@ export function FooterCTA() {
                 transition={spring.snappy}
                 className="px-8 py-4 bg-surface-primary text-primary font-body font-semibold rounded-pill shadow-md hover:shadow-lg transition-shadow duration-fast"
               >
-                Order Now · ယခု မှာယူမည်
+                Order Now · အခုပဲ မှာလိုက်မယ်
               </m.a>
 
               <m.a
@@ -96,7 +95,7 @@ export function FooterCTA() {
                 className="px-8 py-4 bg-transparent border-2 border-text-inverse text-text-inverse font-body font-semibold rounded-pill hover:bg-text-inverse/10 transition-colors duration-fast flex items-center justify-center gap-2"
               >
                 <Phone className="w-5 h-5" />
-                Call Us · ဖုန်းဆက်ပါ
+                Call Us · ဖုန်းဆက်မယ်
               </m.a>
             </m.div>
           </m.div>

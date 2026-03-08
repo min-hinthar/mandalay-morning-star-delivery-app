@@ -131,7 +131,7 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
             variants={staggerItem}
             className="font-body text-xl md:text-2xl text-primary/70 mb-4"
           >
-            စစ်မှန်သော မြန်မာ့အစားအသောက်
+            အိမ်ချက်ထမင်းဟင်း အရသာအတိုင်း
           </m.p>
 
           <m.p
@@ -144,7 +144,7 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
             variants={staggerItem}
             className="font-body text-sm text-text-secondary/70 max-w-2xl mx-auto"
           >
-            မြန်မာ့ရိုးရာ ချက်ပြုတ်နည်းများဖြင့် လက်ရာတစ်ခုချင်း ပြင်ဆင်ထားသော အစားအသောက်များ
+            မြန်မာ့ရိုးရာ ချက်နည်းအတိုင်း တစ်ပွဲချင်း ဂရုတစိုက် ချက်ပြုတ်ပေးပါတယ်
           </m.p>
         </m.div>
 
@@ -185,7 +185,7 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
             href="/menu"
             className="inline-flex items-center gap-2 px-8 py-4 bg-primary text-text-inverse rounded-pill font-body font-semibold hover:bg-primary-hover transition-colors duration-fast shadow-md hover:shadow-lg"
           >
-            See Full Menu · မီနူးအပြည့်အစုံ ကြည့်မည်
+            See Full Menu · မီနူးအပြည့်အစုံ ကြည့်မယ်
             <ArrowRight className="w-5 h-5" />
           </Link>
         </m.div>
@@ -211,7 +211,7 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
             <span className="font-body text-text-primary">
               <strong className="text-green">Free delivery</strong> on orders over $100!
               <span className="block text-sm text-text-secondary mt-0.5">
-                $၁၀၀ အထက် မှာယူပါက အခမဲ့ပို့ဆောင်ပေးပါသည်
+                $၁၀၀ အထက်ဆို အခမဲ့ပို့ပေးတယ်
               </span>
             </span>
           </div>
