@@ -271,7 +271,7 @@ export function ItemDetailSheet({
     if (!item) return null;
 
     return (
-      <div className="flex flex-col h-full">
+      <div className={cn("flex flex-col", isMobile && "h-full")}>
         {/* Hero Image */}
         <div className="relative aspect-video shrink-0 bg-zinc-100 dark:bg-zinc-800">
           {/* Close Button - uses semi-transparent overlay on image */}
@@ -314,7 +314,12 @@ export function ItemDetailSheet({
         </div>
 
         {/* Scrollable Content - touchAction inherited from Drawer content wrapper */}
-        <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4">
+        <div
+          className={cn(
+            "p-4 space-y-4",
+            isMobile ? "flex-1 overflow-y-auto overscroll-contain" : ""
+          )}
+        >
           {/* Header */}
           <div>
             <h2 className="font-display text-2xl font-bold text-text-primary">{item.nameEn}</h2>
@@ -337,7 +342,10 @@ export function ItemDetailSheet({
             <div className="relative">
               <div
                 ref={modifierContainerRef}
-                className="max-h-[50vh] overflow-y-auto overscroll-contain divide-y divide-border"
+                className={cn(
+                  "divide-y divide-border",
+                  isMobile && "max-h-[50vh] overflow-y-auto overscroll-contain"
+                )}
               >
                 {item.modifierGroups.map((group) => (
                   <ModifierGroup
@@ -477,7 +485,7 @@ export function ItemDetailSheet({
       size="lg"
       showCloseButton={false}
       className={cn("overflow-hidden p-0", wrapperClassName)}
-      contentClassName="!p-0 !pt-0 !overflow-y-hidden flex flex-col"
+      contentClassName="!p-0 !pt-0"
     >
       {renderContent()}
     </Modal>
