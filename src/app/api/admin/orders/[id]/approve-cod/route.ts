@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, fetchSuggestedItemNames } from "@/lib/email";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import type { OrderStatus } from "@/types/database";
 
@@ -138,6 +138,10 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
         const shortId = approvedOrderId.slice(0, 8).toUpperCase();
 
+        // Fetch real menu items for "you might also like" section
+        const orderedNames = items.map((item) => item.name_snapshot);
+        const suggestedItems = await fetchSuggestedItemNames(approvedSupabase, orderedNames);
+
         await sendEmail({
           to: profile.email,
           subject: `\u2705 Your order #${shortId} is confirmed!`,
@@ -177,6 +181,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
             paymentMethod: "cod",
             isPendingApproval: false,
             placedAt: fullOrder.placed_at,
+            suggestedItems,
           }),
         });
       } catch (emailErr) {

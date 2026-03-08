@@ -2,7 +2,7 @@ import React from "react";
 import { after, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe/server";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, fetchSuggestedItemNames } from "@/lib/email";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
@@ -177,6 +177,10 @@ export async function POST(request: Request, { params }: RouteParams) {
 
       after(async () => {
         try {
+          // Fetch real menu items for "you might also like" section
+          const orderedNames = items.map((item) => item.name_snapshot);
+          const suggestedItems = await fetchSuggestedItemNames(serviceClient, orderedNames);
+
           await sendEmail({
             to: customerEmail,
             subject: `\uD83C\uDF5C Your order is confirmed! Order #${shortId}`,
@@ -209,6 +213,7 @@ export async function POST(request: Request, { params }: RouteParams) {
                 : { line1: "Address on file", city: "", state: "", postalCode: "" },
               specialInstructions: orderData.special_instructions ?? undefined,
               placedAt: orderData.placed_at,
+              suggestedItems,
             }),
             type: "order_confirmation",
             orderId: emailOrderId,

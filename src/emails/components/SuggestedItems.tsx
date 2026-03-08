@@ -6,9 +6,16 @@ const SANS =
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 
-const SUGGESTED = ["Mohinga", "Tea Leaf Salad", "Samosa"];
+/** Fallback items for email previews only */
+const DEFAULT_SUGGESTIONS = ["Mohinga", "Tea Leaf Salad", "Samosa"];
 
-export function SuggestedItems() {
+export interface SuggestedItemsProps {
+  /** Item names to display — falls back to defaults for preview */
+  items?: string[];
+}
+
+export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
+  const suggestions = items && items.length > 0 ? items : DEFAULT_SUGGESTIONS;
   return (
     <Section style={{ padding: "24px 24px 0 24px" }}>
       <Hr style={{ borderColor: "#E5E7EB", margin: "0 0 20px 0" }} />
@@ -31,7 +38,7 @@ export function SuggestedItems() {
       >
         <tbody>
           <tr>
-            {SUGGESTED.map((item) => (
+            {suggestions.map((item) => (
               <td
                 key={item}
                 style={{
