@@ -80,12 +80,12 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     // Create audit log entry
     await auth.supabase.from("order_audit_log").insert({
       order_id: orderId,
-      action: "cod_approved",
+      action: "status_change",
       actor_id: auth.userId,
       actor_role: "admin",
       reason: "Cash on delivery order approved by admin",
-      new_status: "confirmed",
-      old_status: "pending_approval",
+      old_value: { status: "pending_approval" },
+      new_value: { status: "confirmed" },
     });
 
     logger.info("COD order approved", {

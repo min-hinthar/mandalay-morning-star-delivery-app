@@ -109,10 +109,20 @@ export default function AdminOrdersPage() {
 
   const handleStatusChange = async (orderId: string, newStatus: OrderStatus) => {
     try {
-      const response = await fetch(`/api/admin/orders/${orderId}/status`, {
-        method: "PATCH",
+      // Route COD approval through dedicated endpoint
+      const currentOrder = orders.find((o) => o.id === orderId);
+      const isCodApproval =
+        currentOrder?.status === "pending_approval" && newStatus === "confirmed";
+
+      const url = isCodApproval
+        ? `/api/admin/orders/${orderId}/approve-cod`
+        : `/api/admin/orders/${orderId}/status`;
+      const method = isCodApproval ? "POST" : "PATCH";
+
+      const response = await fetch(url, {
+        method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
+        body: JSON.stringify(isCodApproval ? {} : { status: newStatus }),
       });
 
       if (!response.ok) {
