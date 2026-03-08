@@ -92,3 +92,31 @@ if (order.status === "pending" && order.stripe_checkout_session_id) {
 ```
 
 **Apply when:** Any checkout flow where payment confirmation depends on webhooks. Store the session/transaction reference on the order for recovery.
+
+---
+
+## Verify-Payment Must Send Confirmation Email (Race With Webhook)
+
+**Context:** `verify-payment` confirms Stripe orders but didn't send confirmation email. Webhook fires later, sees order already confirmed, skips email. Zero emails sent.
+
+**Learning:** When multiple paths can confirm an order (webhook + verify-payment), ALL paths must handle side effects (email, notifications). Use Resend's idempotency key to prevent duplicates:
+
+```typescript
+// In verify-payment route
+after(async () => {
+  await sendEmail({
+    to: order.email,
+    subject: "Order Confirmed",
+    react: OrderConfirmationEmail({ order }),
+    headers: { "Idempotency-Key": `order-confirmation-${orderId}` },
+  });
+});
+
+// In webhook — same idempotency key
+await sendEmail({
+  // ...same key, Resend deduplicates automatically
+  headers: { "Idempotency-Key": `order-confirmation-${orderId}` },
+});
+```
+
+**Apply when:** Multiple code paths can trigger the same side effect (email, notification, analytics). Use idempotency keys at the provider level.
