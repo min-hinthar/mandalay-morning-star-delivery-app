@@ -9,7 +9,15 @@
 
 import Link from "next/link";
 import { m } from "framer-motion";
-import { ArrowRight, ChefHat, Clock, MapPin, Truck, ChevronDown } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarClock,
+  ChefHat,
+  Clock,
+  MapPin,
+  Truck,
+  ChevronDown,
+} from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -17,7 +25,7 @@ import { useDynamicTheme } from "@/components/ui/theme";
 import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
 import { DeliveryCountdown } from "@/components/ui/delivery";
 import { Button } from "@/components/ui/button";
-import { formatDeliveryDaysList } from "@/lib/utils/delivery-schedule";
+import { formatDeliveryDaysList, getNextCutoffText } from "@/lib/utils/delivery-schedule";
 import { AnimatedHeadline, StatItem } from "./HeroSubComponents";
 import type { DeliveryDayConfig } from "@/types/delivery";
 
@@ -131,7 +139,7 @@ export function HeroContent({
           {deliveryDaysList} တိုင်း လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ပြီး အိမ်ရောက်ပို့ပေးပါတယ်
         </p>
 
-        <div className="flex flex-col items-center gap-3 mb-12 animate-fade-in-up-delay-3">
+        <div className="flex flex-col items-center gap-5 mb-12 animate-fade-in-up-delay-3">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <m.div
               whileHover={shouldAnimate ? { scale: 1.05, y: -2 } : undefined}
@@ -162,28 +170,73 @@ export function HeroContent({
             </m.div>
           </div>
 
-          {/* Next delivery date + cutoff info */}
-          {gate.isOpen && (
-            <p className="text-base font-semibold text-hero-text">
-              Next delivery: {gate.deliveryDate.displayDate}
-              <span className="mx-2 text-hero-text/40">|</span>
-              <span className="font-medium text-hero-text/80">{deliveryScheduleText}</span>
-            </p>
-          )}
+          {/* Delivery Info Card */}
+          <div
+            className={cn(
+              "w-full max-w-lg rounded-2xl p-5",
+              "bg-hero-stat-bg/80 sm:backdrop-blur-md",
+              "border border-hero-text/20"
+            )}
+          >
+            {gate.isOpen ? (
+              <>
+                {/* Row 1: Next delivery date + countdown */}
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <CalendarClock className="w-5 h-5 text-secondary flex-shrink-0" />
+                    <span className="text-lg font-bold text-hero-text">
+                      {gate.deliveryDate.displayDate}
+                    </span>
+                  </div>
+                  <DeliveryCountdown
+                    cutoffDate={gate.cutoffDate}
+                    urgency={gate.urgency}
+                    className="text-sm"
+                  />
+                </div>
 
-          {/* Countdown / closed state text near CTA */}
-          {gate.isOpen ? (
-            <div className="flex items-center gap-1.5 text-sm text-hero-text/70">
-              <span>Order within</span>
-              <DeliveryCountdown cutoffDate={gate.cutoffDate} urgency={gate.urgency} />
-            </div>
-          ) : (
-            <p className="text-sm text-hero-text-muted">
-              {deliveryDays && deliveryDays.length > 0
-                ? `Delivery on ${deliveryDaysList}`
-                : `Orders open ${DAY_NAMES[cutoffDay ?? 5]}`}
-            </p>
-          )}
+                {/* Row 2: Cutoff details */}
+                <p className="text-sm text-hero-text/80 mb-3">
+                  {deliveryDays && deliveryDays.length > 0 && gate.deliveryDayOfWeek !== undefined
+                    ? getNextCutoffText(gate.deliveryDayOfWeek, deliveryDays)
+                    : deliveryScheduleText}
+                </p>
+                <p className="text-xs text-hero-text/60 mb-3">
+                  နောက်ပို့မယ့်ရက် · အချိန်မီ မှာယူလိုက်ပါ
+                </p>
+
+                {/* Row 3: Delivery schedule dots */}
+                <div className="flex items-center gap-2 pt-2 border-t border-hero-text/10">
+                  <Truck className="w-4 h-4 text-hero-text/50 flex-shrink-0" />
+                  <span className="text-sm font-medium text-hero-text/70">{deliveryDaysList}</span>
+                  <span className="text-xs text-hero-text/50">
+                    · {deliveryDaysList} တိုင်း ပို့ပေးပါတယ်
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Closed state */}
+                <div className="flex items-center gap-2 mb-3">
+                  <CalendarClock className="w-5 h-5 text-amber-500 flex-shrink-0" />
+                  <span className="text-lg font-bold text-hero-text">Orders Closed</span>
+                </div>
+                <p className="text-sm text-hero-text/80 mb-1">
+                  Next delivery: {gate.deliveryDate.displayDate}
+                </p>
+                <p className="text-xs text-hero-text/60 mb-3">
+                  အော်ဒါပိတ်ထားပါတယ် · နောက်ပို့မယ့်ရက်ကို စောင့်ပါ
+                </p>
+                <div className="flex items-center gap-2 pt-2 border-t border-hero-text/10">
+                  <Truck className="w-4 h-4 text-hero-text/50 flex-shrink-0" />
+                  <span className="text-sm font-medium text-hero-text/70">{deliveryDaysList}</span>
+                  <span className="text-xs text-hero-text/50">
+                    · {deliveryDaysList} တိုင်း ပို့ပေးပါတယ်
+                  </span>
+                </div>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="grid grid-cols-2 gap-3 max-w-md mx-auto md:grid-cols-4 md:max-w-3xl animate-fade-in-up-delay-4">
