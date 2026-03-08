@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { m } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, ArrowRight } from "lucide-react";
@@ -98,11 +99,21 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
   );
 
   return (
-    <section
-      className="py-16 md:py-24 px-4 bg-gradient-to-b from-surface-primary via-surface-secondary/30 to-surface-primary isolate"
-      id="menu"
-    >
-      <div className="max-w-7xl mx-auto">
+    <section className="relative overflow-hidden py-16 md:py-24 px-4 isolate" id="menu">
+      {/* Background Image */}
+      <Image
+        src="/images/menu-section-bg.webp"
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover object-center"
+        quality={85}
+      />
+
+      {/* Dark overlay for text readability */}
+      <div className="absolute inset-0 bg-surface-primary/85 pointer-events-none" />
+
+      <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <m.div
           variants={staggerContainer()}
