@@ -167,35 +167,8 @@ export async function checkSearchConsole(): Promise<ServiceStatus> {
 }
 
 export async function checkRedis(): Promise<ServiceStatus> {
-  const configured = Boolean(process.env.UPSTASH_REST_REDIS_URL);
-
-  if (!configured) {
-    return { status: "down", configured: false };
-  }
-
-  const start = Date.now();
-  try {
-    const { getRedisClient } = await import("@/lib/rate-limit");
-    const redis = getRedisClient();
-    if (!redis) {
-      return { status: "down", configured: true, connected: false };
-    }
-    await redis.ping();
-    return {
-      status: "healthy",
-      configured: true,
-      connected: true,
-      latency_ms: Date.now() - start,
-    };
-  } catch (err) {
-    return {
-      status: "down",
-      configured: true,
-      connected: false,
-      latency_ms: Date.now() - start,
-      error: errorMessage(err),
-    };
-  }
+  // Redis-based rate limiting intentionally disabled (using in-memory fallback).
+  return { status: "healthy", configured: false };
 }
 
 // ---- Route reachability ----

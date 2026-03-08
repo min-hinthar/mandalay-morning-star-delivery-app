@@ -82,10 +82,7 @@ const REQUIRED_VARS: Array<{
     name: "GOOGLE_MAPS_API_KEY",
     description: "Google Maps API key",
   },
-  {
-    name: "UPSTASH_REST_REDIS_URL",
-    description: "Upstash Redis REST URL",
-  },
+  // Redis disabled — using in-memory rate limiting
   {
     name: "NEXT_PUBLIC_SENTRY_DSN",
     description: "Sentry DSN for error tracking",
@@ -249,49 +246,6 @@ async function checkStripeConnectivity(): Promise<CheckResult> {
   }
 }
 
-async function checkRedisConnectivity(): Promise<CheckResult> {
-  const url = process.env.UPSTASH_REST_REDIS_URL;
-
-  if (!url) {
-    return {
-      name: "CONNECTIVITY: Upstash Redis",
-      status: "SKIP",
-      details: "UPSTASH_REST_REDIS_URL not set",
-    };
-  }
-
-  try {
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 10_000);
-
-    const res = await fetch(`${url}/ping`, {
-      signal: controller.signal,
-    });
-    clearTimeout(timeout);
-
-    if (res.ok) {
-      return {
-        name: "CONNECTIVITY: Upstash Redis",
-        status: "PASS",
-        details: "Redis PING successful",
-      };
-    }
-
-    return {
-      name: "CONNECTIVITY: Upstash Redis",
-      status: "FAIL",
-      details: `Redis returned ${res.status}: ${res.statusText}`,
-    };
-  } catch (err) {
-    const message = err instanceof Error ? err.message : String(err);
-    return {
-      name: "CONNECTIVITY: Upstash Redis",
-      status: "FAIL",
-      details: `Could not reach Redis: ${message}`,
-    };
-  }
-}
-
 // ─── Output ───────────────────────────────────────────────────
 
 function printResults(results: CheckResult[]): void {
@@ -338,12 +292,8 @@ async function main(): Promise<void> {
   results.push(...checkOptionalEnvVars());
 
   // Connectivity checks
-  const [health, stripe, redis] = await Promise.all([
-    checkHealthEndpoint(),
-    checkStripeConnectivity(),
-    checkRedisConnectivity(),
-  ]);
-  results.push(health, stripe, redis);
+  const [health, stripe] = await Promise.all([checkHealthEndpoint(), checkStripeConnectivity()]);
+  results.push(health, stripe);
 
   printResults(results);
 
