@@ -280,3 +280,15 @@ Admin API endpoints return `{ data: [...], pagination: {...} }` wrapper objects,
 **Fix:** Unwrap `json.data` before using array methods on API responses.
 
 **Prevention:** All `/api/admin/*` endpoints return `{ data, pagination }`. Always destructure or access `.data` before array operations. Use TypeScript types for API responses to catch this at compile time.
+
+---
+
+## Checkout "Invalid origin" — Env Var Origin Check | Config/Security | High
+
+**Date:** 2026-03-08 | **Files:** `src/lib/utils/origin-check.ts`, `.env.local`
+
+Origin check compared `Origin` header against `NEXT_PUBLIC_APP_URL` env var. Two compounding issues: (1) `.env.local` had malformed URL `http://https://...`, (2) Vercel preview URLs never match the configured custom domain.
+
+**Fix:** Replaced env-var-based check with Host header comparison — `new URL(origin).host === request.headers.get("host")`. Works across custom domains, preview deploys, and env var misconfig.
+
+**Prevention:** For CSRF origin validation on Vercel, always compare against the Host header, not env vars. Host header is set by the platform and always matches the actual domain being accessed.

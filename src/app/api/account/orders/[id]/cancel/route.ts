@@ -1,5 +1,5 @@
 import React from "react";
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { cancelOrderSchema } from "@/lib/validations/account";
 import { sendEmail } from "@/lib/email";
@@ -143,26 +143,41 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       .eq("order_id", orderId);
 
     if (user.email) {
-      void sendEmail({
-        to: user.email,
-        subject: "Your order has been cancelled",
-        react: React.createElement(OrderCancellation, {
-          customerName: profile?.full_name || "Valued Customer",
-          orderId,
-          items: (orderItems || []).map((item) => ({
-            name: item.name_snapshot,
-            quantity: item.quantity,
-            lineTotalCents: item.line_total_cents,
-          })),
-          totalCents: order.total_cents ?? 0,
-          cancellationReason: reason,
-          cancelledAt,
-          refundIssued: false,
-        }),
-        type: "cancellation",
-        orderId,
-        userId: user.id,
-        idempotencyKey: `cancellation-${orderId}`,
+      const custEmail = user.email;
+      const custName = profile?.full_name || "Valued Customer";
+      const custItems = (orderItems || []).map((item) => ({
+        name: item.name_snapshot,
+        quantity: item.quantity,
+        lineTotalCents: item.line_total_cents,
+      }));
+      const custTotalCents = order.total_cents ?? 0;
+      const custUserId = user.id;
+
+      after(async () => {
+        try {
+          await sendEmail({
+            to: custEmail,
+            subject: "Your order has been cancelled",
+            react: React.createElement(OrderCancellation, {
+              customerName: custName,
+              orderId,
+              items: custItems,
+              totalCents: custTotalCents,
+              cancellationReason: reason,
+              cancelledAt,
+              refundIssued: false,
+            }),
+            type: "cancellation",
+            orderId,
+            userId: custUserId,
+            idempotencyKey: `cancellation-${orderId}`,
+          });
+        } catch (emailErr) {
+          logger.error("Failed to send customer cancellation email", {
+            orderId,
+            error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+          });
+        }
       });
 
       logger.info("Cancellation email triggered", { orderId, api: "account/orders/[id]/cancel" });

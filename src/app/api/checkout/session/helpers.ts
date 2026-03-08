@@ -1,7 +1,10 @@
+import React from "react";
 import type { createClient } from "@/lib/supabase/server";
-import type { ModifierGroupWithItems } from "@/lib/utils/order";
+import type { ModifierGroupWithItems, ValidatedCartItem } from "@/lib/utils/order";
 import type { ModifierGroupsRow } from "@/types/database";
 import { logger } from "@/lib/utils/logger";
+import { sendEmail } from "@/lib/email";
+import { OrderConfirmation } from "@/emails/OrderConfirmation";
 
 /**
  * BUG-03 FIX: Independent cleanup — each delete wrapped in try/catch
@@ -51,4 +54,65 @@ export function buildModifierGroupsMap(
   }
 
   return map;
+}
+
+export async function sendCODOrderEmail(opts: {
+  orderId: string;
+  userEmail: string;
+  customerName: string;
+  validatedItems: ValidatedCartItem[];
+  subtotalCents: number;
+  deliveryFeeCents: number;
+  taxCents: number;
+  tipCents: number;
+  totalCents: number;
+  scheduledDate: string;
+  timeWindowStart: string;
+  timeWindowEnd: string;
+  address: { line1: string; line2?: string; city: string; state: string; postalCode: string };
+  customerNotes?: string;
+  deliveryInstructions?: string;
+}) {
+  const shortId = opts.orderId.slice(0, 8).toUpperCase();
+  try {
+    await sendEmail({
+      to: opts.userEmail,
+      subject: `\uD83C\uDF5C Your order #${shortId} has been received`,
+      type: "order_confirmation",
+      orderId: opts.orderId,
+      userId: opts.orderId,
+      idempotencyKey: `cod-received-${opts.orderId}`,
+      react: React.createElement(OrderConfirmation, {
+        customerName: opts.customerName,
+        orderId: opts.orderId,
+        items: opts.validatedItems.map((item) => ({
+          name: item.menuItem.name_en,
+          quantity: item.quantity,
+          lineTotalCents: item.lineTotalCents,
+          modifiers: item.modifiers?.map((m) => ({
+            name: m.name,
+            priceDelta: m.price_delta_cents,
+          })),
+        })),
+        subtotalCents: opts.subtotalCents,
+        deliveryFeeCents: opts.deliveryFeeCents,
+        taxCents: opts.taxCents,
+        tipCents: opts.tipCents,
+        totalCents: opts.totalCents,
+        deliveryWindowStart: `${opts.scheduledDate}T${opts.timeWindowStart}:00`,
+        deliveryWindowEnd: `${opts.scheduledDate}T${opts.timeWindowEnd}:00`,
+        address: opts.address,
+        specialInstructions: opts.customerNotes,
+        deliveryInstructions: opts.deliveryInstructions,
+        paymentMethod: "cod",
+        isPendingApproval: true,
+        placedAt: new Date().toISOString(),
+      }),
+    });
+  } catch (emailErr) {
+    logger.error("Failed to send COD order email", {
+      orderId: opts.orderId,
+      error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+    });
+  }
 }
