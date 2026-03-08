@@ -83,12 +83,8 @@ const REQUIRED_VARS: Array<{
     description: "Google Maps API key",
   },
   {
-    name: "UPSTASH_REDIS_REST_URL",
+    name: "UPSTASH_REST_REDIS_URL",
     description: "Upstash Redis REST URL",
-  },
-  {
-    name: "UPSTASH_REDIS_REST_TOKEN",
-    description: "Upstash Redis REST token",
   },
   {
     name: "NEXT_PUBLIC_SENTRY_DSN",
@@ -254,14 +250,13 @@ async function checkStripeConnectivity(): Promise<CheckResult> {
 }
 
 async function checkRedisConnectivity(): Promise<CheckResult> {
-  const url = process.env.UPSTASH_REDIS_REST_URL;
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  const url = process.env.UPSTASH_REST_REDIS_URL;
 
-  if (!url || !token) {
+  if (!url) {
     return {
       name: "CONNECTIVITY: Upstash Redis",
       status: "SKIP",
-      details: "UPSTASH_REDIS_REST_URL or UPSTASH_REDIS_REST_TOKEN not set",
+      details: "UPSTASH_REST_REDIS_URL not set",
     };
   }
 
@@ -270,9 +265,6 @@ async function checkRedisConnectivity(): Promise<CheckResult> {
     const timeout = setTimeout(() => controller.abort(), 10_000);
 
     const res = await fetch(`${url}/ping`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
       signal: controller.signal,
     });
     clearTimeout(timeout);
