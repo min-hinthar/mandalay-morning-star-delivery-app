@@ -208,6 +208,8 @@ Sequel to "No Profile Created" above. Profile row EXISTS but `email` column is N
 
 **Prevention:** Always request `email` scope explicitly. Never rely on a single email source — Google OAuth stores email in multiple locations. Use `resolveOAuthEmail()` everywhere.
 
+**Layer 5 — Backfill:** Code fixes that sync data "on next login" don't retroactively fix existing rows. After deploying, manually backfilled `profiles.email` from `auth.users.email` via REST API for existing NULL rows.
+
 ---
 
 ## Order Stuck "Pending" After Stripe Payment | Webhook/DB | Critical

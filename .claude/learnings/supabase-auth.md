@@ -138,3 +138,13 @@ await supabase.auth.signInWithOAuth({
 ```
 
 **Apply when:** Any OAuth integration where you need the user's email. Use `resolveOAuthEmail()` in auth callback, `ensureProfile()`, and anywhere else email is extracted from a Supabase User object.
+
+---
+
+## "On Next Login" Fixes Don't Backfill Existing Data
+
+**Context:** Deployed `resolveOAuthEmail()` fix that syncs email during OAuth callback. Profiles with NULL email were NOT fixed because those users hadn't logged in again post-deploy.
+
+**Learning:** Code that syncs/repairs data "on next action" (login, page visit, API call) only fixes rows when that action occurs. Existing bad data sits until the user triggers the flow. For critical columns, always pair the code fix with a one-time data backfill (migration, script, or manual SQL).
+
+**Apply when:** Deploying a fix for NULL/stale columns that relies on user-triggered sync. Always ask: "What about existing rows?"
