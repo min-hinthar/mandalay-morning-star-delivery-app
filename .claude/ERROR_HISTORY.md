@@ -346,3 +346,18 @@ Origin check compared `Origin` header against `NEXT_PUBLIC_APP_URL` env var. Two
 **Fix:** Replaced env-var-based check with Host header comparison — `new URL(origin).host === request.headers.get("host")`. Works across custom domains, preview deploys, and env var misconfig.
 
 **Prevention:** For CSRF origin validation on Vercel, always compare against the Host header, not env vars. Host header is set by the platform and always matches the actual domain being accessed.
+
+---
+
+## Desktop Modal Scroll Broken — Nested overflow-y-auto | Layout/UX | High
+
+**Date:** 2026-03-07 | **Files:** `src/components/ui/menu/ItemDetailSheet.tsx`, `src/components/ui/Modal/Modal.tsx`, `src/components/ui/Modal/types.ts`
+
+ItemDetailSheet in Modal on desktop: scrollbar worked but mouse wheel scroll did not. Three compounding issues across 3 fix attempts:
+1. **Double padding** — `contentClassName` only went to dialog element, not inner content wrapper. Fixed by adding `contentClassName` prop to Modal content wrapper.
+2. **Wrong fix: overflow-hidden** — First fix made wrapper `overflow-y-hidden` + `flex flex-col`, killing ALL scrolling (worse than before).
+3. **Root cause: nested scroll containers** — Inner divs had `overflow-y-auto overscroll-contain` + `h-full` (unresolvable since parent has `max-h` not `height`). Browser treated inner div as scroll container, captured wheel events, but couldn't scroll.
+
+**Fix:** On desktop, let Modal's content wrapper be the sole scroll container. Remove `h-full`, `overflow-y-auto`, `overscroll-contain` from inner elements. Keep them for mobile Drawer which has explicit height.
+
+**Prevention:** Never nest `overflow-y-auto` containers unless inner container has a definite height constraint. `h-full` doesn't resolve when parent uses `max-h` without explicit `height`. `overscroll-contain` traps events in scroll containers that can't actually scroll.

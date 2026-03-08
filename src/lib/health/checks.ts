@@ -167,7 +167,7 @@ export async function checkSearchConsole(): Promise<ServiceStatus> {
 }
 
 export async function checkRedis(): Promise<ServiceStatus> {
-  const configured = Boolean(process.env.UPSTASH_REDIS_REST_URL);
+  const configured = Boolean(process.env.UPSTASH_REST_REDIS_URL);
 
   if (!configured) {
     return { status: "down", configured: false };

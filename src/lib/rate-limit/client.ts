@@ -1,7 +1,7 @@
 /**
  * Redis singleton and named Ratelimit instances.
  * All limiters use sliding window algorithm with fail-open timeout (3s).
- * When UPSTASH_REDIS_REST_URL is not set, all limiters are null (fail open).
+ * When UPSTASH_REST_REDIS_URL is not set, all limiters are null (fail open).
  */
 import { Ratelimit } from "@upstash/ratelimit";
 import { Redis } from "@upstash/redis";
@@ -9,7 +9,9 @@ import { Redis } from "@upstash/redis";
 import { RATE_LIMITS } from "./config";
 
 // Singleton Redis client -- only created when env vars are set
-const redis = process.env.UPSTASH_REDIS_REST_URL ? Redis.fromEnv() : null;
+const redis = process.env.UPSTASH_REST_REDIS_URL
+  ? new Redis({ url: process.env.UPSTASH_REST_REDIS_URL, token: "" })
+  : null;
 
 /** Expose singleton for health-check pings. Returns null when not configured. */
 export function getRedisClient(): Redis | null {
