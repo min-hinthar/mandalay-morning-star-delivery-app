@@ -103,7 +103,7 @@ export function HeroContent({
   const greeting = greetings[timeOfDay] ?? greetings.morning;
 
   return (
-    <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-40 pb-safe md:pt-24 md:pb-32">
+    <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-56 pb-safe md:pt-24 md:pb-48">
       <div className="max-w-4xl mx-auto text-center">
         {/* Time-based greeting badge - bilingual */}
         <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1">
@@ -171,72 +171,107 @@ export function HeroContent({
           </div>
 
           {/* Delivery Info Card */}
-          <div
+          <m.div
+            initial={shouldAnimate ? { opacity: 0, y: 16, scale: 0.97 } : undefined}
+            animate={shouldAnimate ? { opacity: 1, y: 0, scale: 1 } : undefined}
+            transition={shouldAnimate ? { delay: 0.3, ...spring.snappy } : undefined}
+            whileHover={shouldAnimate ? { scale: 1.02, y: -2 } : undefined}
             className={cn(
-              "w-full max-w-lg rounded-2xl p-5",
+              "w-full max-w-lg rounded-2xl p-6",
               "bg-hero-stat-bg/80 sm:backdrop-blur-md",
-              "border border-hero-text/20"
+              "border border-hero-text/20",
+              "shadow-lg shadow-black/10",
+              "transition-shadow duration-300 hover:shadow-xl hover:shadow-black/15"
             )}
           >
             {gate.isOpen ? (
               <>
                 {/* Row 1: Next delivery date + countdown */}
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <CalendarClock className="w-5 h-5 text-secondary flex-shrink-0" />
-                    <span className="text-lg font-bold text-hero-text">
+                <div className="flex items-center justify-between mb-4">
+                  <m.div
+                    className="flex items-center gap-3"
+                    whileHover={shouldAnimate ? { x: 2 } : undefined}
+                    transition={spring.snappy}
+                  >
+                    <m.div
+                      animate={shouldAnimate ? { rotate: [0, -8, 8, 0] } : undefined}
+                      transition={{ duration: 3, repeat: Infinity, repeatDelay: 5 }}
+                    >
+                      <CalendarClock className="w-6 h-6 text-secondary flex-shrink-0" />
+                    </m.div>
+                    <span className="text-xl md:text-2xl font-bold text-hero-text">
                       {gate.deliveryDate.displayDate}
                     </span>
-                  </div>
+                  </m.div>
                   <DeliveryCountdown
                     cutoffDate={gate.cutoffDate}
                     urgency={gate.urgency}
-                    className="text-sm"
+                    className="text-base"
                   />
                 </div>
 
                 {/* Row 2: Cutoff details */}
-                <p className="text-sm text-hero-text/80 mb-3">
+                <p className="text-base text-hero-text/80 mb-2 font-medium">
                   {deliveryDays && deliveryDays.length > 0 && gate.deliveryDayOfWeek !== undefined
                     ? getNextCutoffText(gate.deliveryDayOfWeek, deliveryDays)
                     : deliveryScheduleText}
                 </p>
-                <p className="text-xs text-hero-text/60 mb-3">
+                <p className="text-sm text-hero-text/60 mb-4">
                   နောက်ပို့မယ့်ရက် · အချိန်မီ မှာယူလိုက်ပါ
                 </p>
 
-                {/* Row 3: Delivery schedule dots */}
-                <div className="flex items-center gap-2 pt-2 border-t border-hero-text/10">
-                  <Truck className="w-4 h-4 text-hero-text/50 flex-shrink-0" />
-                  <span className="text-sm font-medium text-hero-text/70">{deliveryDaysList}</span>
-                  <span className="text-xs text-hero-text/50">
+                {/* Row 3: Delivery schedule */}
+                <m.div
+                  className="flex items-center gap-3 pt-3 border-t border-hero-text/10"
+                  whileHover={shouldAnimate ? { x: 3 } : undefined}
+                  transition={spring.snappy}
+                >
+                  <m.div
+                    animate={shouldAnimate ? { x: [0, 4, 0] } : undefined}
+                    transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4 }}
+                  >
+                    <Truck className="w-5 h-5 text-secondary/70 flex-shrink-0" />
+                  </m.div>
+                  <span className="text-base font-semibold text-hero-text/80">
+                    {deliveryDaysList}
+                  </span>
+                  <span className="text-sm text-hero-text/50">
                     · {deliveryDaysList} တိုင်း ပို့ပေးပါတယ်
                   </span>
-                </div>
+                </m.div>
               </>
             ) : (
               <>
                 {/* Closed state */}
-                <div className="flex items-center gap-2 mb-3">
-                  <CalendarClock className="w-5 h-5 text-amber-500 flex-shrink-0" />
-                  <span className="text-lg font-bold text-hero-text">Orders Closed</span>
+                <div className="flex items-center gap-3 mb-4">
+                  <m.div
+                    animate={shouldAnimate ? { scale: [1, 1.15, 1] } : undefined}
+                    transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                  >
+                    <CalendarClock className="w-6 h-6 text-amber-500 flex-shrink-0" />
+                  </m.div>
+                  <span className="text-xl md:text-2xl font-bold text-hero-text">
+                    Orders Closed
+                  </span>
                 </div>
-                <p className="text-sm text-hero-text/80 mb-1">
+                <p className="text-base text-hero-text/80 mb-1 font-medium">
                   Next delivery: {gate.deliveryDate.displayDate}
                 </p>
-                <p className="text-xs text-hero-text/60 mb-3">
+                <p className="text-sm text-hero-text/60 mb-4">
                   အော်ဒါပိတ်ထားပါတယ် · နောက်ပို့မယ့်ရက်ကို စောင့်ပါ
                 </p>
-                <div className="flex items-center gap-2 pt-2 border-t border-hero-text/10">
-                  <Truck className="w-4 h-4 text-hero-text/50 flex-shrink-0" />
-                  <span className="text-sm font-medium text-hero-text/70">{deliveryDaysList}</span>
-                  <span className="text-xs text-hero-text/50">
+                <div className="flex items-center gap-3 pt-3 border-t border-hero-text/10">
+                  <Truck className="w-5 h-5 text-secondary/70 flex-shrink-0" />
+                  <span className="text-base font-semibold text-hero-text/80">
+                    {deliveryDaysList}
+                  </span>
+                  <span className="text-sm text-hero-text/50">
                     · {deliveryDaysList} တိုင်း ပို့ပေးပါတယ်
                   </span>
                 </div>
               </>
             )}
-          </div>
+          </m.div>
         </div>
 
         <div className="grid grid-cols-2 gap-3 max-w-md mx-auto md:grid-cols-4 md:max-w-3xl animate-fade-in-up-delay-4">
