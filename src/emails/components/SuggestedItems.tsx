@@ -1,4 +1,5 @@
-import { Hr, Link, Section, Text } from "@react-email/components";
+import { Img, Link, Section, Text } from "@react-email/components";
+import type { SuggestedItem } from "@/lib/email/suggestions";
 
 const SERIF = "Georgia, 'Palatino Linotype', serif";
 const SANS =
@@ -7,18 +8,20 @@ const SANS =
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 
 /** Fallback items for email previews only */
-const DEFAULT_SUGGESTIONS = ["Mohinga", "Tea Leaf Salad", "Samosa"];
+const DEFAULT_SUGGESTIONS: SuggestedItem[] = [
+  { name: "Mohinga", imageUrl: null, slug: "mohinga" },
+  { name: "Tea Leaf Salad", imageUrl: null, slug: "tea-leaf-salad" },
+  { name: "Samosa", imageUrl: null, slug: "samosa" },
+];
 
 export interface SuggestedItemsProps {
-  /** Item names to display — falls back to defaults for preview */
-  items?: string[];
+  items?: SuggestedItem[];
 }
 
 export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
   const suggestions = items && items.length > 0 ? items : DEFAULT_SUGGESTIONS;
   return (
     <Section style={{ padding: "24px 24px 0 24px" }}>
-      <Hr style={{ borderColor: "#E5E7EB", margin: "0 0 20px 0" }} />
       <Text
         style={{
           fontSize: "14px",
@@ -40,7 +43,7 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
           <tr>
             {suggestions.map((item) => (
               <td
-                key={item}
+                key={item.slug}
                 style={{
                   width: "33.33%",
                   textAlign: "center" as const,
@@ -48,20 +51,37 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
                 }}
               >
                 <Link href={`${APP_URL}/menu`} style={{ textDecoration: "none" }}>
-                  <div
-                    style={{
-                      width: "48px",
-                      height: "48px",
-                      borderRadius: "50%",
-                      backgroundColor: "#FFF9E6",
-                      margin: "0 auto 8px auto",
-                      lineHeight: "48px",
-                      textAlign: "center" as const,
-                      fontSize: "20px",
-                    }}
-                  >
-                    {"\uD83C\uDF5C"}
-                  </div>
+                  {item.imageUrl ? (
+                    <Img
+                      src={item.imageUrl}
+                      alt={item.name}
+                      width="64"
+                      height="48"
+                      style={{
+                        width: "64px",
+                        height: "48px",
+                        borderRadius: "8px",
+                        objectFit: "cover" as const,
+                        margin: "0 auto 8px auto",
+                        display: "block",
+                      }}
+                    />
+                  ) : (
+                    <div
+                      style={{
+                        width: "64px",
+                        height: "48px",
+                        borderRadius: "8px",
+                        backgroundColor: "#FFF9E6",
+                        margin: "0 auto 8px auto",
+                        lineHeight: "48px",
+                        textAlign: "center" as const,
+                        fontSize: "20px",
+                      }}
+                    >
+                      {"\uD83C\uDF5C"}
+                    </div>
+                  )}
                   <Text
                     style={{
                       fontSize: "12px",
@@ -70,7 +90,7 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
                       margin: "0",
                     }}
                   >
-                    {item}
+                    {item.name}
                   </Text>
                 </Link>
               </td>

@@ -6,6 +6,7 @@ import { OrderItemsTable } from "./components/OrderItemsTable";
 import { OrderStatusTracker } from "./components/OrderStatusTracker";
 import { OrderTotalsTable } from "./components/OrderTotalsTable";
 import { SuggestedItems } from "./components/SuggestedItems";
+import type { SuggestedItem } from "@/lib/email/suggestions";
 import { SupportSection } from "./components/SupportSection";
 
 const SERIF = "Georgia, 'Palatino Linotype', serif";
@@ -64,7 +65,7 @@ export interface OrderConfirmationProps {
   isPendingApproval?: boolean;
   dietaryRestrictions?: string[];
   placedAt: string;
-  suggestedItems?: string[];
+  suggestedItems?: SuggestedItem[];
 }
 
 // ─── Component ────────────────────────────────────────────

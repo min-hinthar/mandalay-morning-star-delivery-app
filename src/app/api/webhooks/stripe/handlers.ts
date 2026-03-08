@@ -1,7 +1,7 @@
 import React from "react";
 import { after } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
-import { sendEmail, fetchSuggestedItemNames } from "@/lib/email";
+import { sendEmail, fetchSuggestedItems } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import { RefundNotification } from "@/emails/RefundNotification";
@@ -160,7 +160,7 @@ export async function handleCheckoutSessionCompleted(
     try {
       // Fetch real menu items for "you might also like" section
       const orderedNames = items.map((item) => item.name_snapshot);
-      const suggestedItems = await fetchSuggestedItemNames(supabase, orderedNames);
+      const suggestedItems = await fetchSuggestedItems(supabase, orderedNames);
 
       await sendEmail({
         to: customerEmail,

@@ -2,7 +2,7 @@ import React from "react";
 import { after, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe/server";
-import { sendEmail, fetchSuggestedItemNames } from "@/lib/email";
+import { sendEmail, fetchSuggestedItems } from "@/lib/email";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
@@ -179,7 +179,7 @@ export async function POST(request: Request, { params }: RouteParams) {
         try {
           // Fetch real menu items for "you might also like" section
           const orderedNames = items.map((item) => item.name_snapshot);
-          const suggestedItems = await fetchSuggestedItemNames(serviceClient, orderedNames);
+          const suggestedItems = await fetchSuggestedItems(serviceClient, orderedNames);
 
           await sendEmail({
             to: customerEmail,
