@@ -7,7 +7,10 @@
  */
 
 import React from "react";
+import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
+import { spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 // ============================================
 // ANIMATED HEADLINE
@@ -34,20 +37,38 @@ interface StatItemProps {
 }
 
 export function StatItem({ icon, label, value, subValue }: StatItemProps) {
+  const { shouldAnimate } = useAnimationPreference();
+
   return (
-    <div className="flex items-center gap-3 bg-hero-stat-bg/60 sm:backdrop-blur-md border border-hero-text/15 rounded-2xl p-4">
+    <m.div
+      className={cn(
+        "flex items-center gap-3 rounded-2xl p-4",
+        "bg-hero-stat-bg/60 sm:backdrop-blur-md",
+        "border border-hero-text/15",
+        "transition-shadow duration-300 hover:shadow-lg hover:shadow-black/10"
+      )}
+      whileHover={shouldAnimate ? { scale: 1.04, y: -3 } : undefined}
+      whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
+      transition={spring.snappy}
+    >
       {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
-      <div className="p-2.5 rounded-full bg-hero-stat-bg sm:backdrop-blur-sm">{icon}</div>
+      <m.div
+        className="p-2.5 rounded-full bg-hero-stat-bg sm:backdrop-blur-sm"
+        whileHover={shouldAnimate ? { rotate: 8, scale: 1.1 } : undefined}
+        transition={spring.snappy}
+      >
+        {icon}
+      </m.div>
       <div className="text-left min-w-0">
         <div className="text-xs text-hero-text-muted uppercase tracking-wide">{label}</div>
-        <div className="text-base font-bold text-hero-text leading-tight">{value}</div>
+        <div className="text-sm md:text-base font-bold text-hero-text leading-tight">{value}</div>
         {subValue && (
           <span className="block text-xs text-hero-text/50 font-body mt-0.5 truncate">
             {subValue}
           </span>
         )}
       </div>
-    </div>
+    </m.div>
   );
 }
 
