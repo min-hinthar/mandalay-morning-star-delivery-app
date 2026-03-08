@@ -43,8 +43,12 @@ export function TimeSlotPicker({
     : null;
 
   const weekOffsets = useMemo(() => {
-    const firstDateCutoffPassed = availableDates[0]?.cutoffPassed ?? false;
-    return availableDates.map((_, index) => (firstDateCutoffPassed ? index + 1 : index));
+    const now = new Date();
+    const msPerDay = 86_400_000;
+    return availableDates.map((d) => {
+      const diffDays = Math.round((d.date.getTime() - now.getTime()) / msPerDay);
+      return Math.max(0, Math.floor(diffDays / 7));
+    });
   }, [availableDates]);
 
   const updateScrollButtons = useCallback(() => {
