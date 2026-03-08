@@ -37,11 +37,35 @@ const fullSchema = z.object({ ...criticalVars, ...importantVars });
 const TOTAL_KEYS = Object.keys({ ...criticalVars, ...importantVars });
 
 /**
+ * Build env snapshot with explicit property access.
+ * Next.js inlines `process.env.KEY` at build time, but `process.env` as an
+ * object may not enumerate all keys in Vercel serverless runtime.
+ */
+function getEnvSnapshot(): Record<string, string | undefined> {
+  return {
+    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+    RESEND_API_KEY: process.env.RESEND_API_KEY,
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
+    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
+    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
+    CRON_SECRET: process.env.CRON_SECRET,
+    GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
+    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
+    SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
+    GOOGLE_SITE_VERIFICATION: process.env.GOOGLE_SITE_VERIFICATION,
+  };
+}
+
+/**
  * Validate env var presence. Reports missing var names, never values.
  */
 export function checkEnvVars(): EnvCheckResult {
-  const fullResult = fullSchema.safeParse(process.env);
-  const criticalResult = criticalSchema.safeParse(process.env);
+  const env = getEnvSnapshot();
+  const fullResult = fullSchema.safeParse(env);
+  const criticalResult = criticalSchema.safeParse(env);
 
   const missing: string[] = [];
 
