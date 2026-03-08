@@ -13,6 +13,14 @@ const VALID_EMAIL_TYPES: EmailType[] = [
   "delivery_reminder",
 ];
 
+interface AddressRow {
+  line_1: string;
+  line_2: string | null;
+  city: string;
+  state: string;
+  postal_code: string;
+}
+
 interface OrderRow {
   id: string;
   user_id: string;
@@ -23,9 +31,9 @@ interface OrderRow {
   tip_cents: number | null;
   status: string;
   created_at: string;
-  delivery_address: Record<string, unknown> | null;
   delivery_instructions: string | null;
   special_instructions: string | null;
+  addresses: AddressRow | null;
 }
 
 interface OrderItemRow {
@@ -85,7 +93,7 @@ export async function POST(request: Request) {
     const { data: order, error: orderError } = (await supabase
       .from("orders")
       .select(
-        "id, user_id, total_cents, delivery_fee_cents, tax_cents, subtotal_cents, tip_cents, status, created_at, delivery_address, delivery_instructions, special_instructions"
+        "id, user_id, total_cents, delivery_fee_cents, tax_cents, subtotal_cents, tip_cents, status, created_at, delivery_instructions, special_instructions, addresses(line_1, line_2, city, state, postal_code)"
       )
       .eq("id", orderId)
       .single()) as {
@@ -124,13 +132,7 @@ export async function POST(request: Request) {
       lineTotalCents: item.line_total_cents,
     }));
 
-    const address = (order.delivery_address || {}) as {
-      line1?: string;
-      line2?: string;
-      city?: string;
-      state?: string;
-      postalCode?: string;
-    };
+    const address = order.addresses;
 
     // Build order data for template
     const orderData = {
@@ -143,11 +145,11 @@ export async function POST(request: Request) {
       tipCents: order.tip_cents,
       totalCents: order.total_cents,
       address: {
-        line1: address.line1 || "",
-        city: address.city || "",
-        state: address.state || "",
-        postalCode: address.postalCode || "",
-        line2: address.line2,
+        line1: address?.line_1 || "",
+        city: address?.city || "",
+        state: address?.state || "",
+        postalCode: address?.postal_code || "",
+        line2: address?.line_2 ?? undefined,
       },
       specialInstructions: order.special_instructions,
       deliveryInstructions: order.delivery_instructions,

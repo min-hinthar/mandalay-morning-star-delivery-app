@@ -21,10 +21,18 @@ const composeSchema = z.object({
 // TYPES
 // ===========================================
 
+interface AddressRow {
+  line_1: string;
+  line_2: string | null;
+  city: string;
+  state: string;
+  postal_code: string;
+}
+
 interface OrderRow {
   id: string;
   user_id: string;
-  delivery_address: Record<string, unknown> | null;
+  addresses: AddressRow | null;
 }
 
 interface OrderItemRow {
@@ -71,7 +79,7 @@ export async function POST(request: Request) {
     // Fetch order for footer context
     const { data: order, error: orderError } = (await serviceClient
       .from("orders")
-      .select("id, user_id, delivery_address")
+      .select("id, user_id, addresses(line_1, line_2, city, state, postal_code)")
       .eq("id", orderId)
       .single()) as {
       data: OrderRow | null;
@@ -93,13 +101,9 @@ export async function POST(request: Request) {
     // Build order context footer
     const items = (orderItems || []).map((i) => `${i.name_snapshot} x${i.quantity}`).join(", ");
 
-    const address = order.delivery_address as {
-      line1?: string;
-      city?: string;
-      state?: string;
-    } | null;
+    const address = order.addresses;
 
-    const deliveryLine = address?.line1 ? `${address.line1}, ${address.city || ""}` : "";
+    const deliveryLine = address?.line_1 ? `${address.line_1}, ${address.city || ""}` : "";
 
     const shortId = orderId.slice(0, 8).toUpperCase();
     const footerHtml = `

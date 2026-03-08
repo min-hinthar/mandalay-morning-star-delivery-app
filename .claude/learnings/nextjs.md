@@ -88,3 +88,32 @@ export async function proxy(request: NextRequest) {
 ```
 
 **Apply when:** Upgrading to Next.js 16+ or seeing ENOENT errors for `middleware.js.nft.json` on Vercel.
+
+---
+
+## Vercel Serverless Kills Fire-and-Forget Async
+
+**Context:** `void sendEmail(...)` in 7 API routes — emails never arrived on production. Driver invite (which used `await`) worked fine.
+
+**Learning:** Vercel terminates the serverless function immediately after the response is sent. Any `void asyncFn()` or unawaited promises get killed mid-execution. Two solutions:
+
+1. **`await` before responding** — simplest, but delays response
+2. **Next.js `after()` callback** — keeps function alive after response sent (preferred for non-blocking side effects)
+
+```typescript
+// BAD: killed before completing
+void sendEmail({ to, subject, react });
+return NextResponse.json({ ok: true });
+
+// GOOD: await before response
+await sendEmail({ to, subject, react });
+return NextResponse.json({ ok: true });
+
+// BEST: after() — doesn't delay response
+after(async () => {
+  await sendEmail({ to, subject, react });
+});
+return NextResponse.json({ ok: true });
+```
+
+**Apply when:** Any async side effect (email, logging, analytics, webhooks) in Vercel serverless API routes.

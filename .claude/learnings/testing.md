@@ -64,3 +64,25 @@ updateMock.mockReturnValue({ eq: firstEq });
 ```
 
 **Apply when:** Modifying any Supabase query that has existing test mocks. Search: `grep -r 'from("TABLE_NAME")' src/ --include="*.test.*"`
+
+---
+
+## Vacuous Tests — Guard Clauses Hide Broken Assertions
+
+**Context:** `delivery-dates-multiday.test.ts` had `if (thursdayDate) { expect(...).toBe(true) }`. With a bug in the date generator, Thursday never appeared in results (count=6), so the guard silently skipped the assertion. Test "passed" for months.
+
+**Learning:** `if (result) { expect(result.prop).toBe(x) }` is a vacuous test — it passes when the result is missing. Either assert the result exists first, or restructure:
+
+```typescript
+// BAD: vacuous — passes when thursdayDate is undefined
+if (thursdayDate) {
+  expect(thursdayDate.cutoffPassed).toBe(true);
+}
+
+// GOOD: fails if Thursday is missing
+const thursdayDate = dates.find(isThursday);
+expect(thursdayDate).toBeDefined();
+expect(thursdayDate!.cutoffPassed).toBe(true);
+```
+
+**Apply when:** Writing tests with optional/filtered results. Never wrap `expect` in an `if` guard without first asserting the guard condition.
