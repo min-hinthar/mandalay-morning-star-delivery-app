@@ -33,6 +33,7 @@ export function buildEmailElement(type: EmailType, orderData: any): React.ReactE
         paymentMethod: orderData.paymentMethod,
         dietaryRestrictions: orderData.dietaryRestrictions,
         placedAt: orderData.placedAt,
+        suggestedItems: orderData.suggestedItems,
       });
 
     case "cancellation":

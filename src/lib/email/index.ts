@@ -10,6 +10,7 @@ export {
   RETRY_BASE_DELAY_MS,
 } from "./constants";
 export { sendEmail } from "./send";
+export { fetchSuggestedItemNames } from "./suggestions";
 export {
   MANDATORY_EMAIL_TYPES,
   mapTypeToPrefKey,

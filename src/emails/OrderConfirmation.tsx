@@ -64,6 +64,7 @@ export interface OrderConfirmationProps {
   isPendingApproval?: boolean;
   dietaryRestrictions?: string[];
   placedAt: string;
+  suggestedItems?: string[];
 }
 
 // ─── Component ────────────────────────────────────────────
@@ -86,6 +87,7 @@ export function OrderConfirmation({
   isPendingApproval,
   dietaryRestrictions,
   placedAt,
+  suggestedItems,
 }: OrderConfirmationProps) {
   const shortId = orderId.slice(0, 8).toUpperCase();
   const orderUrl = `${APP_URL}/orders/${orderId}`;
@@ -314,7 +316,7 @@ export function OrderConfirmation({
       </Section>
 
       {/* ── You Might Also Like ──────────────────────── */}
-      <SuggestedItems />
+      <SuggestedItems items={suggestedItems} />
 
       {/* ── Need Help ────────────────────────────────── */}
       <SupportSection />

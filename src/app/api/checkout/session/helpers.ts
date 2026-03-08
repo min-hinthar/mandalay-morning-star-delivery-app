@@ -1,9 +1,10 @@
 import React from "react";
 import type { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import type { ModifierGroupWithItems, ValidatedCartItem } from "@/lib/utils/order";
 import type { ModifierGroupsRow } from "@/types/database";
 import { logger } from "@/lib/utils/logger";
-import { sendEmail } from "@/lib/email";
+import { sendEmail, fetchSuggestedItemNames } from "@/lib/email";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 
 /**
@@ -75,6 +76,11 @@ export async function sendCODOrderEmail(opts: {
 }) {
   const shortId = opts.orderId.slice(0, 8).toUpperCase();
   try {
+    // Fetch real menu items for "you might also like" section
+    const serviceClient = createServiceClient();
+    const orderedNames = opts.validatedItems.map((item) => item.menuItem.name_en);
+    const suggestedItems = await fetchSuggestedItemNames(serviceClient, orderedNames);
+
     await sendEmail({
       to: opts.userEmail,
       subject: `\uD83C\uDF5C Your order #${shortId} has been received`,
@@ -107,6 +113,7 @@ export async function sendCODOrderEmail(opts: {
         paymentMethod: "cod",
         isPendingApproval: true,
         placedAt: new Date().toISOString(),
+        suggestedItems,
       }),
     });
   } catch (emailErr) {
