@@ -271,6 +271,20 @@ Migration used `EXECUTE FUNCTION update_updated_at()` but the actual function in
 
 ---
 
+## Admin Email "Order Not Found" + Stripe Missing Confirmation | Email/Admin | Critical
+
+**Date:** 2026-03-07 | **Files:** `src/app/api/admin/emails/send/route.ts`, `resend/route.ts`, `compose/route.ts`, `src/app/api/orders/[id]/verify-payment/route.ts`
+
+Two compounding bugs:
+1. **Admin email endpoints** selected `delivery_address` column from `orders` — column doesn't exist (orders use `address_id` FK to `addresses` table). PostgREST error masked as "order not found" for ALL orders.
+2. **`verify-payment` race** — after Stripe checkout, client calls verify-payment which confirms order but sends no email. Stripe webhook fires later, sees order already confirmed, skips email. Result: zero confirmation emails for Stripe orders.
+
+**Fix:** (1) Replaced `delivery_address` with `addresses(...)` FK join in 3 admin email routes. (2) Added `after()` email send in verify-payment with shared idempotency key `order-confirmation-${orderId}` (prevents duplicates if webhook also fires).
+
+**Prevention:** When querying related data, always verify column names exist in the actual table schema — use FK joins for normalized data. When multiple paths can confirm an order (webhook + verify-payment), ensure ALL paths handle side effects (email) or use idempotency keys.
+
+---
+
 ## Multi-Day Delivery Dates Skip Same-Day-of-Week | Logic/Checkout | High
 
 **Date:** 2026-03-07 | **Files:** `src/lib/utils/delivery-dates.ts`, `src/components/ui/checkout/TimeSlotPicker/TimeSlotPicker.tsx`
