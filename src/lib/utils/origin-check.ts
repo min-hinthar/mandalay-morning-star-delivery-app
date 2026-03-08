@@ -2,41 +2,44 @@ import { NextResponse } from "next/server";
 
 /**
  * Validate Origin header on critical mutation endpoints.
- * Rejects requests where Origin doesn't match the app URL.
+ * Uses Host header comparison — reliable across custom domains and Vercel previews.
  * Returns null if valid, NextResponse if rejected.
  */
 export function checkOrigin(request: Request): NextResponse | null {
-  const origin = request.headers.get("origin");
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-
   // Skip in development
   if (process.env.NODE_ENV === "development") return null;
+
+  const origin = request.headers.get("origin");
 
   // No Origin header — likely server-to-server (webhooks, cron). Allow.
   if (!origin) return null;
 
-  // Build set of allowed origins
-  const allowed = new Set<string>();
-  if (appUrl) {
+  // Primary check: Origin host must match the request Host header
+  const host = request.headers.get("host") || request.headers.get("x-forwarded-host");
+  if (host) {
     try {
-      allowed.add(new URL(appUrl).origin);
+      const originHost = new URL(origin).host;
+      if (originHost === host) return null;
     } catch {
-      // Malformed APP_URL — skip rather than block all requests
+      // Malformed origin — fall through to reject
     }
   }
-  // Vercel auto-sets VERCEL_URL for preview deployments (no protocol)
+
+  // Fallback: check against configured URLs
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (appUrl) {
+    try {
+      if (new URL(appUrl).origin === origin) return null;
+    } catch {
+      // Malformed APP_URL — skip
+    }
+  }
+
   const vercelUrl = process.env.VERCEL_URL;
-  if (vercelUrl) {
-    allowed.add(`https://${vercelUrl}`);
-  }
+  if (vercelUrl && origin === `https://${vercelUrl}`) return null;
 
-  // If we have allowed origins configured, validate
-  if (allowed.size > 0 && !allowed.has(origin)) {
-    return NextResponse.json(
-      { error: { code: "FORBIDDEN", message: "Invalid origin" } },
-      { status: 403 }
-    );
-  }
-
-  return null;
+  return NextResponse.json(
+    { error: { code: "FORBIDDEN", message: "Invalid origin" } },
+    { status: 403 }
+  );
 }
