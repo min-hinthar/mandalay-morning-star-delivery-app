@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { sendEmail, buildEmailElement } from "@/lib/email";
@@ -178,14 +178,29 @@ export async function POST(request: Request) {
     const subject = getSubjectForType(type, order.id);
     const react = buildEmailElement(type, orderData);
 
-    void sendEmail({
-      to: profile.email,
-      subject,
-      react,
-      type,
-      orderId: order.id,
-      userId: order.user_id,
-      idempotencyKey: `manual-${type}-${orderId}-${Date.now()}`,
+    const manualEmailTo = profile.email;
+    const manualOrderId = order.id;
+    const manualUserId = order.user_id;
+    const manualIdempotencyKey = `manual-${type}-${orderId}-${Date.now()}`;
+
+    after(async () => {
+      try {
+        await sendEmail({
+          to: manualEmailTo,
+          subject,
+          react,
+          type,
+          orderId: manualOrderId,
+          userId: manualUserId,
+          idempotencyKey: manualIdempotencyKey,
+        });
+      } catch (emailErr) {
+        logger.error("Failed to send manual email", {
+          orderId: manualOrderId,
+          type,
+          error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+        });
+      }
     });
 
     logger.info("Manual email trigger initiated", {

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
@@ -17,11 +17,8 @@ import { checkRateLimit, checkoutLimiter } from "@/lib/rate-limit";
 import { checkOrigin } from "@/lib/utils/origin-check";
 import { ensureProfile } from "@/lib/auth/role-redirect";
 import { createCODOrder } from "@/lib/services/cod-order";
-import { sendEmail } from "@/lib/email";
-import React from "react";
-import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import type { AddressesRow, OrdersRow, OrderItemsRow, ProfilesRow } from "@/types/database";
-import { cleanupOrder } from "./helpers";
+import { cleanupOrder, sendCODOrderEmail } from "./helpers";
 import { errorResponse, fetchAndValidateCart, buildRpcPayload } from "./validation";
 
 export async function POST(request: Request) {
@@ -262,34 +259,21 @@ export async function POST(request: Request) {
         itemCount: input.items.length,
       });
 
-      // Fire-and-forget: send COD order-received email
-      const shortId = codResult.orderId.slice(0, 8).toUpperCase();
-      void sendEmail({
-        to: user.email ?? "",
-        subject: `\uD83C\uDF5C Your order #${shortId} has been received`,
-        type: "order_confirmation",
-        orderId: codResult.orderId,
-        userId: user.id,
-        idempotencyKey: `cod-received-${codResult.orderId}`,
-        react: React.createElement(OrderConfirmation, {
-          customerName: user.user_metadata?.full_name || "Valued Customer",
+      // Send COD order-received email after response (keeps serverless function alive)
+      after(() =>
+        sendCODOrderEmail({
           orderId: codResult.orderId,
-          items: validatedItems.map((item) => ({
-            name: item.menuItem.name_en,
-            quantity: item.quantity,
-            lineTotalCents: item.lineTotalCents,
-            modifiers: item.modifiers?.map((m) => ({
-              name: m.name,
-              priceDelta: m.price_delta_cents,
-            })),
-          })),
+          userEmail: user.email ?? "",
+          customerName: user.user_metadata?.full_name || "Valued Customer",
+          validatedItems,
           subtotalCents: totals.subtotalCents,
           deliveryFeeCents: totals.deliveryFeeCents,
           taxCents: totals.taxCents,
           tipCents,
           totalCents: totals.totalCents,
-          deliveryWindowStart: `${input.scheduledDate}T${input.timeWindowStart}:00`,
-          deliveryWindowEnd: `${input.scheduledDate}T${input.timeWindowEnd}:00`,
+          scheduledDate: input.scheduledDate,
+          timeWindowStart: input.timeWindowStart,
+          timeWindowEnd: input.timeWindowEnd,
           address: {
             line1: address.line_1,
             line2: address.line_2 ?? undefined,
@@ -297,18 +281,10 @@ export async function POST(request: Request) {
             state: address.state,
             postalCode: address.postal_code,
           },
-          specialInstructions: input.customerNotes ?? undefined,
+          customerNotes: input.customerNotes ?? undefined,
           deliveryInstructions: input.deliveryInstructions ?? undefined,
-          paymentMethod: "cod",
-          isPendingApproval: true,
-          placedAt: new Date().toISOString(),
-        }),
-      }).catch((emailErr) => {
-        logger.error("Failed to send COD order email", {
-          orderId: codResult.orderId,
-          error: emailErr instanceof Error ? emailErr.message : String(emailErr),
-        });
-      });
+        })
+      );
 
       return NextResponse.json({
         data: {

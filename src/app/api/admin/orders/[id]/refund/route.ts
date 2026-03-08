@@ -1,5 +1,5 @@
 import React from "react";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { refundOrderSchema } from "@/lib/validations/order";
 import { sendEmail } from "@/lib/email";
@@ -145,31 +145,48 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
       if (profile?.email) {
         const isPartialRefund = totalRefundCents < (order.total_cents ?? 0);
+        const refundEmailTo = profile.email;
+        const refundCustomerName = profile.full_name || "Valued Customer";
+        const refundOrigTotalCents = order.total_cents ?? 0;
+        const refundUserId = order.user_id;
+        const refundProcessedAt = new Date().toISOString();
+        const refundIdempotencyKey = `refund-${orderId}-${Date.now()}`;
+        const refundItemsList = refundedItems.map((ri) => ({
+          name: ri.name,
+          quantity: ri.quantityRefunded,
+          refundAmountCents: ri.refundAmountCents,
+        }));
+        const refundShippingCents = shippingRefundCents > 0 ? shippingRefundCents : undefined;
 
-        void sendEmail({
-          to: profile.email,
-          subject: `Your refund of $${(totalRefundCents / 100).toFixed(2)} has been processed`,
-          react: React.createElement(RefundNotification, {
-            customerName: profile.full_name || "Valued Customer",
-            orderId,
-            isPartialRefund,
-            refundedItems: refundedItems.map((ri) => ({
-              name: ri.name,
-              quantity: ri.quantityRefunded,
-              refundAmountCents: ri.refundAmountCents,
-            })),
-            originalTotalCents: order.total_cents ?? 0,
-            refundAmountCents: totalRefundCents,
-            shippingRefundCents: shippingRefundCents > 0 ? shippingRefundCents : undefined,
-            refundMethod: "Original payment method",
-            refundTimeline: "3-5 business days",
-            processedAt: new Date().toISOString(),
-          }),
-          type: "refund",
-          orderId,
-          userId: order.user_id,
-          mandatory: true,
-          idempotencyKey: `refund-${orderId}-${Date.now()}`,
+        after(async () => {
+          try {
+            await sendEmail({
+              to: refundEmailTo,
+              subject: `Your refund of $${(totalRefundCents / 100).toFixed(2)} has been processed`,
+              react: React.createElement(RefundNotification, {
+                customerName: refundCustomerName,
+                orderId,
+                isPartialRefund,
+                refundedItems: refundItemsList,
+                originalTotalCents: refundOrigTotalCents,
+                refundAmountCents: totalRefundCents,
+                shippingRefundCents: refundShippingCents,
+                refundMethod: "Original payment method",
+                refundTimeline: "3-5 business days",
+                processedAt: refundProcessedAt,
+              }),
+              type: "refund",
+              orderId,
+              userId: refundUserId,
+              mandatory: true,
+              idempotencyKey: refundIdempotencyKey,
+            });
+          } catch (emailErr) {
+            logger.error("Failed to send refund email", {
+              orderId,
+              error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+            });
+          }
         });
 
         logger.info("Refund email triggered", {

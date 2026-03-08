@@ -1,4 +1,5 @@
 import React from "react";
+import { after } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
@@ -154,45 +155,54 @@ export async function handleCheckoutSessionCompleted(
 
   const shortId = orderId.slice(0, 8).toUpperCase();
 
-  // Fire-and-forget: email must not block webhook response
-  void sendEmail({
-    to: customerEmail,
-    subject: `\uD83C\uDF5C Your order is confirmed! Order #${shortId}`,
-    react: React.createElement(OrderConfirmation, {
-      customerName: profile?.full_name || "Valued Customer",
-      orderId,
-      items: items.map((item) => ({
-        name: item.name_snapshot,
-        quantity: item.quantity,
-        lineTotalCents: item.line_total_cents,
-        modifiers: item.order_item_modifiers?.map((m) => ({
-          name: m.name_snapshot,
-          priceDelta: m.price_delta_snapshot,
-        })),
-      })),
-      subtotalCents: orderData.subtotal_cents,
-      deliveryFeeCents: orderData.delivery_fee_cents,
-      taxCents: orderData.tax_cents,
-      totalCents: orderData.total_cents,
-      deliveryWindowStart: orderData.delivery_window_start ?? undefined,
-      deliveryWindowEnd: orderData.delivery_window_end ?? undefined,
-      address: address
-        ? {
-            line1: address.line_1,
-            line2: address.line_2 ?? undefined,
-            city: address.city,
-            state: address.state,
-            postalCode: address.postal_code,
-          }
-        : { line1: "Address on file", city: "", state: "", postalCode: "" },
-      specialInstructions: orderData.special_instructions ?? undefined,
-      placedAt: orderData.placed_at,
-    }),
-    type: "order_confirmation",
-    orderId,
-    userId: orderData.user_id,
-    mandatory: true,
-    idempotencyKey: `order-confirmation-${orderId}`,
+  // Schedule email after response (keeps serverless function alive on Vercel)
+  after(async () => {
+    try {
+      await sendEmail({
+        to: customerEmail,
+        subject: `\uD83C\uDF5C Your order is confirmed! Order #${shortId}`,
+        react: React.createElement(OrderConfirmation, {
+          customerName: profile?.full_name || "Valued Customer",
+          orderId,
+          items: items.map((item) => ({
+            name: item.name_snapshot,
+            quantity: item.quantity,
+            lineTotalCents: item.line_total_cents,
+            modifiers: item.order_item_modifiers?.map((m) => ({
+              name: m.name_snapshot,
+              priceDelta: m.price_delta_snapshot,
+            })),
+          })),
+          subtotalCents: orderData.subtotal_cents,
+          deliveryFeeCents: orderData.delivery_fee_cents,
+          taxCents: orderData.tax_cents,
+          totalCents: orderData.total_cents,
+          deliveryWindowStart: orderData.delivery_window_start ?? undefined,
+          deliveryWindowEnd: orderData.delivery_window_end ?? undefined,
+          address: address
+            ? {
+                line1: address.line_1,
+                line2: address.line_2 ?? undefined,
+                city: address.city,
+                state: address.state,
+                postalCode: address.postal_code,
+              }
+            : { line1: "Address on file", city: "", state: "", postalCode: "" },
+          specialInstructions: orderData.special_instructions ?? undefined,
+          placedAt: orderData.placed_at,
+        }),
+        type: "order_confirmation",
+        orderId,
+        userId: orderData.user_id,
+        mandatory: true,
+        idempotencyKey: `order-confirmation-${orderId}`,
+      });
+    } catch (emailErr) {
+      logger.error("Failed to send order confirmation email", {
+        orderId,
+        error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+      });
+    }
   });
 
   logger.info(`Order confirmation email triggered for ${orderId}`, {
@@ -397,31 +407,48 @@ export async function handleChargeRefunded(
     const refundAmountCents = charge.amount_refunded;
     const isPartialRefund = charge.amount_refunded < charge.amount;
 
-    void sendEmail({
-      to: profile.email,
-      subject: `Your refund of $${(refundAmountCents / 100).toFixed(2)} has been processed`,
-      react: React.createElement(RefundNotification, {
-        customerName: profile.full_name || "Valued Customer",
-        orderId: order.id,
-        isPartialRefund,
-        refundedItems: [
-          {
-            name: isPartialRefund ? "Partial refund" : "Full order refund",
-            quantity: 1,
+    // Schedule refund email after response (keeps serverless function alive on Vercel)
+    const refundOrderId = order.id;
+    const refundUserId = order.user_id;
+    const refundChargeId = charge.id;
+    const refundEmail = profile.email;
+    const refundCustomerName = profile.full_name || "Valued Customer";
+    const refundOriginalTotalCents = order.total_cents;
+
+    after(async () => {
+      try {
+        await sendEmail({
+          to: refundEmail,
+          subject: `Your refund of $${(refundAmountCents / 100).toFixed(2)} has been processed`,
+          react: React.createElement(RefundNotification, {
+            customerName: refundCustomerName,
+            orderId: refundOrderId,
+            isPartialRefund,
+            refundedItems: [
+              {
+                name: isPartialRefund ? "Partial refund" : "Full order refund",
+                quantity: 1,
+                refundAmountCents,
+              },
+            ],
+            originalTotalCents: refundOriginalTotalCents,
             refundAmountCents,
-          },
-        ],
-        originalTotalCents: order.total_cents,
-        refundAmountCents,
-        refundMethod: "Original payment method",
-        refundTimeline: "3-5 business days",
-        processedAt: new Date().toISOString(),
-      }),
-      type: "refund",
-      orderId: order.id,
-      userId: order.user_id,
-      mandatory: true,
-      idempotencyKey: `refund-${charge.id}`,
+            refundMethod: "Original payment method",
+            refundTimeline: "3-5 business days",
+            processedAt: new Date().toISOString(),
+          }),
+          type: "refund",
+          orderId: refundOrderId,
+          userId: refundUserId,
+          mandatory: true,
+          idempotencyKey: `refund-${refundChargeId}`,
+        });
+      } catch (emailErr) {
+        logger.error("Failed to send refund email", {
+          orderId: refundOrderId,
+          error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+        });
+      }
     });
 
     logger.info(`Refund email triggered for order ${order.id}`, {

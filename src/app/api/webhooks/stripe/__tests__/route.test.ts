@@ -24,6 +24,17 @@ vi.mock("next/headers", () => ({
   }),
 }));
 
+// Mock next/server after() to execute callback immediately in tests
+vi.mock("next/server", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("next/server")>();
+  return {
+    ...mod,
+    after: (cb: () => Promise<void>) => {
+      void cb();
+    },
+  };
+});
+
 // Mock logger (no-op)
 vi.mock("@/lib/utils/logger", () => ({
   logger: {

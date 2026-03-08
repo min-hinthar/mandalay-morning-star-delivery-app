@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import React from "react";
 import { requireAdmin } from "@/lib/auth";
 import { apiError } from "@/lib/utils/api-error";
@@ -95,22 +95,24 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
       adminId: auth.userId,
     });
 
-    // Fire-and-forget: send COD-approved confirmation email
-    void (async () => {
+    // Send COD-approved confirmation email after response (keeps serverless function alive)
+    const approvedOrderId = orderId;
+    const approvedSupabase = auth.supabase;
+    after(async () => {
       try {
-        const { data: fullOrder } = await auth.supabase
+        const { data: fullOrder } = await approvedSupabase
           .from("orders")
           .select(
             `*, addresses(line_1,line_2,city,state,postal_code),
              order_items(name_snapshot,quantity,line_total_cents,
                order_item_modifiers(name_snapshot,price_delta_snapshot))`
           )
-          .eq("id", orderId)
+          .eq("id", approvedOrderId)
           .single();
 
         if (!fullOrder) return;
 
-        const { data: profile } = await auth.supabase
+        const { data: profile } = await approvedSupabase
           .from("profiles")
           .select("email, full_name")
           .eq("id", fullOrder.user_id)
@@ -134,18 +136,18 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
             order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }>;
           }>) || [];
 
-        const shortId = orderId.slice(0, 8).toUpperCase();
+        const shortId = approvedOrderId.slice(0, 8).toUpperCase();
 
         await sendEmail({
           to: profile.email,
           subject: `\u2705 Your order #${shortId} is confirmed!`,
           type: "order_confirmation",
-          orderId,
+          orderId: approvedOrderId,
           userId: fullOrder.user_id,
-          idempotencyKey: `cod-approved-${orderId}`,
+          idempotencyKey: `cod-approved-${approvedOrderId}`,
           react: React.createElement(OrderConfirmation, {
             customerName: profile.full_name || "Valued Customer",
-            orderId,
+            orderId: approvedOrderId,
             items: items.map((item) => ({
               name: item.name_snapshot,
               quantity: item.quantity,
@@ -179,11 +181,11 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
         });
       } catch (emailErr) {
         logger.error("Failed to send COD approval email", {
-          orderId,
+          orderId: approvedOrderId,
           error: emailErr instanceof Error ? emailErr.message : String(emailErr),
         });
       }
-    })();
+    });
 
     return NextResponse.json({
       data: { orderId, status: "confirmed", approvedAt: new Date().toISOString() },

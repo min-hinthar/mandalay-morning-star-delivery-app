@@ -1,5 +1,5 @@
 import React from "react";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { cancelOrderSchema } from "@/lib/validations/order";
 import { sendEmail } from "@/lib/email";
@@ -138,26 +138,42 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         .single();
 
       if (profile?.email) {
-        void sendEmail({
-          to: profile.email,
-          subject: "Your order has been cancelled",
-          react: React.createElement(OrderCancellation, {
-            customerName: profile.full_name || "Valued Customer",
-            orderId,
-            items: (orderItems || []).map((item) => ({
-              name: item.name_snapshot,
-              quantity: item.quantity,
-              lineTotalCents: item.line_total_cents,
-            })),
-            totalCents: orderData?.total_cents ?? 0,
-            cancellationReason: reason,
-            cancelledAt: new Date().toISOString(),
-            refundIssued: false,
-          }),
-          type: "cancellation",
-          orderId,
-          userId: order.user_id,
-          idempotencyKey: `cancellation-${orderId}`,
+        const cancelEmail = profile.email;
+        const cancelCustomerName = profile.full_name || "Valued Customer";
+        const cancelItems = (orderItems || []).map((item) => ({
+          name: item.name_snapshot,
+          quantity: item.quantity,
+          lineTotalCents: item.line_total_cents,
+        }));
+        const cancelTotalCents = orderData?.total_cents ?? 0;
+        const cancelUserId = order.user_id;
+        const cancelledAt = new Date().toISOString();
+
+        after(async () => {
+          try {
+            await sendEmail({
+              to: cancelEmail,
+              subject: "Your order has been cancelled",
+              react: React.createElement(OrderCancellation, {
+                customerName: cancelCustomerName,
+                orderId,
+                items: cancelItems,
+                totalCents: cancelTotalCents,
+                cancellationReason: reason,
+                cancelledAt,
+                refundIssued: false,
+              }),
+              type: "cancellation",
+              orderId,
+              userId: cancelUserId,
+              idempotencyKey: `cancellation-${orderId}`,
+            });
+          } catch (emailErr) {
+            logger.error("Failed to send cancellation email", {
+              orderId,
+              error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+            });
+          }
         });
 
         logger.info("Cancellation email triggered", { orderId, api: "admin/orders/[id]/cancel" });
