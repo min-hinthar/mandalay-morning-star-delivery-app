@@ -25,8 +25,10 @@ export interface ModalProps {
   closeOnSwipeDown?: boolean;
   /** Size variant */
   size?: "sm" | "md" | "lg" | "xl" | "full";
-  /** Additional class names for modal content */
+  /** Additional class names for modal content (dialog element) */
   className?: string;
+  /** Additional class names for the inner content wrapper (scroll container) */
+  contentClassName?: string;
   /** Additional class names for backdrop */
   backdropClassName?: string;
   /** Optional header content (replaces default) */

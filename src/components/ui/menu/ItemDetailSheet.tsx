@@ -475,8 +475,9 @@ export function ItemDetailSheet({
       onClose={handleRequestClose}
       title={item?.nameEn ?? "Item Detail"}
       size="lg"
-      showCloseButton={true}
+      showCloseButton={false}
       className={cn("overflow-hidden p-0", wrapperClassName)}
+      contentClassName="!p-0 !pt-0"
     >
       {renderContent()}
     </Modal>
