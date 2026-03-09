@@ -1,0 +1,26 @@
+-- Add Google Drive photo URLs to menu items
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1pb8D2ZpmpvwOa8scRYQOWZd6-1QL3LrX' WHERE slug = 'rice-with-pickled-tea-salad';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1b_BuORwX4FGnhpAXZLNkeKSs3SVsssCd' WHERE slug = 'fermented-fish-paste-ngapi';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1Bsf1QXLxOPVhQkbyJqphzn41CvOE2IrR' WHERE slug = 'mohinga';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1jGGflGIfZXL_T-vcSws-6ffrjEX7miiH' WHERE slug = 'chicken-curry';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1QV7kds8KyRL24I4dhJTo6mvWpNVhNfJt' WHERE slug = 'swai-fish-curry';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=14lvCLitwRZfbbCtt00HaDxyatKOleO2h' WHERE slug = 'hilsa-fish';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1wo8ZuPj_jwbSmg_-ZojvF9YU5k0CZ48_' WHERE slug = 'goat-curry';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1yI9SFop22_cQpGv7m8zhPbUXF69TxL3H' WHERE slug = 'pork-curry';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1iY68PVNFiL2c1E7_gMe4vhxGTTbm4tF7' WHERE slug = 'pork-offals-curry';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1bOgqbB1QE690MpuFEjXwR5dPKFUO1967' WHERE slug = 'duck-egg-curry';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1KFSluCQwiP_re5QpuQCMPu5qW_oPl9rk' WHERE slug = 'roselle-with-shrimp-curry';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1rmyY2lsCMzmf3b4HXvlPxaK7tbdQDIdK' WHERE slug = 'river-prawns-curry';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1Kqn5xJDYQkD9RSdG8XrqILbXnz1ExenS' WHERE slug = 'pickled-tea-salad';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1BRSXj-PcAMaS0deBhxFCDEZ84I_5umPD' WHERE slug = 'everything-salad';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1YAX1HVKsTRNZsbUca7xB8FTu51DU60Xw' WHERE slug = 'tomato-salad';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1KSuksSqhDJeyHhFv33SLQWVFBjrCSxHG' WHERE slug = 'century-egg-salad';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1QjLV_mLG2r145fay-ZFSZ64gpPddureH' WHERE slug = 'coconut-rice';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=11vmzNbrhRD1-xWdx8lLVEjyQNXvB6gsm' WHERE slug = 'parata';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1bBCbDyn64XAvaApWyCjg0leo0vFuPUTr' WHERE slug = 'mee-shay';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1D7QiwkNxCxyVTxf8fxE7pTlVw0IixjeK' WHERE slug = 'coconut-chicken-and-rice';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1YGzX8MeTid-183xvoQbrg_OEnbiXeD4-' WHERE slug = 'goat-marrow-soup';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1vQ841bE_OqAZYLBIxXH4s_7J3U-P8sIj' WHERE slug = 'ohno-khao-swe';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=1d3xpuC-o-qiGVDRVLXqnwVtbRIT1db_N' WHERE slug = 'nan-gyi-mont-ti';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=19bGwmNsLBlTTCe7o72Lj6CgGFa7MXE-I' WHERE slug = 'faluda';
+UPDATE menu_items SET image_url = 'https://drive.google.com/uc?export=view&id=17_nduiYl7pkHQ9UAVjEsfaKFqKQ_wggM' WHERE slug = 'burmese-milk-tea';
