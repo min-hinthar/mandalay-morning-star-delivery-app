@@ -20,9 +20,9 @@ import { GradientFallback } from "./HeroSubComponents";
 import { HeroContent } from "./HeroContent";
 
 export function Hero({
-  headline = "Authentic Burmese Cuisine Delivered to Your Door",
-  tagline = "Authentic Burmese delivered",
-  subheadline = "Experience the rich flavors of Myanmar with our weekly deliveries. Fresh, homemade dishes prepared with love and tradition.",
+  headline = "Authentic Burmese Cuisine Delivered Across Los Angeles",
+  tagline = "Homemade Burmese food · From Covina to your door",
+  subheadline = "Experience the rich flavors of Myanmar — serving Burmese families, students & homesick hearts across LA with fresh, homemade dishes delivered weekly.",
   ctaText = "Order Now",
   ctaHref = "/menu",
   className,

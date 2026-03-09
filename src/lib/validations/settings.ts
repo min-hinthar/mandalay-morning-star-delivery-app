@@ -50,6 +50,7 @@ export const deliverySettingsBaseSchema = z.object({
   delivery_end_hour: z.number().int().min(1).max(24), // 24 = midnight end
   max_delivery_duration_minutes: z.number().int().min(1).max(480),
   delivery_zones: z.array(deliveryZoneSchema).optional(),
+  cod_enabled: z.boolean().optional(),
 });
 
 /** Full delivery settings with cross-field validation */

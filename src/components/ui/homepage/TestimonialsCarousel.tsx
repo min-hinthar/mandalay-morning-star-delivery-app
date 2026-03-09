@@ -27,38 +27,38 @@ interface Testimonial {
 const testimonials: Testimonial[] = [
   {
     id: 1,
-    name: "Sarah M.",
-    location: "Pasadena, CA",
+    name: "Google Reviewer",
+    location: "Covina, CA",
     rating: 5,
-    text: "The Tea Leaf Salad is exactly like what I had in Yangon. So authentic!",
+    text: "It's my first time trying Burmese food and HOLY smokes it's so good. Can't get such well done, healthy, and traditional Burmese food like this anywhere else in the area.",
   },
   {
     id: 2,
-    name: "David L.",
-    location: "Arcadia, CA",
+    name: "Google Reviewer",
+    location: "San Gabriel Valley, CA",
     rating: 5,
-    text: "Finally found real Mohinga in Southern California. My grandmother would approve!",
+    text: "If you're wondering how Burmese food tastes like and want to have the most authentic experience, I recommend Mandalay Morning Star.",
   },
   {
     id: 3,
-    name: "Jennifer K.",
-    location: "Covina, CA",
+    name: "Yelp Reviewer",
+    location: "West Covina, CA",
     rating: 5,
-    text: "The Shan Noodles are incredible. Fresh, flavorful, and delivered right on time.",
+    text: "Amazing atmosphere with historic pictures from Myanmar. Run by a caring family — the food is incredible and the prices are the most reasonable you can imagine.",
   },
   {
     id: 4,
-    name: "Michael T.",
-    location: "Glendora, CA",
+    name: "Google Reviewer",
+    location: "Arcadia, CA",
     rating: 5,
-    text: "Best Burmese food delivery in the area. The samosas are always perfectly crispy.",
+    text: "The tea leaf salad bursts with flavor from crunchy peanuts and aromatic fried garlic. Generous portions and so authentic — this is the real deal.",
   },
   {
     id: 5,
-    name: "Amy W.",
-    location: "West Covina, CA",
+    name: "Yelp Reviewer",
+    location: "Pasadena, CA",
     rating: 5,
-    text: "Love the convenience of Saturday delivery. Perfect for our weekend family dinners!",
+    text: "The mohinga and coconut khao swe are outstanding. Voted #1 Burmese kitchen in LA for a reason — this is the dish you'll keep coming back for.",
   },
 ];
 
@@ -227,13 +227,13 @@ export function TestimonialsCarousel({
             className="inline-block px-4 py-2 bg-secondary/10 rounded-pill text-sm font-body font-medium text-secondary-hover mb-4"
             variants={itemVariants}
           >
-            Testimonials
+            What LA Says · သုံးသပ်ချက်များ
           </m.span>
           <h2 className="font-display text-3xl md:text-4xl font-bold text-primary mb-4">
             What Our Customers Say
           </h2>
           <p className="font-body text-text-secondary max-w-xl mx-auto">
-            Join hundreds of satisfied customers enjoying authentic Burmese cuisine
+            Loved by Burmese families and food lovers across Los Angeles
           </p>
         </m.div>
 

@@ -38,7 +38,7 @@ export function FooterCTA() {
             >
               <Heart className="w-4 h-4 text-text-inverse" />
               <span className="text-sm font-body font-medium text-text-inverse">
-                Made with Love in Covina
+                Made with Love in Covina · Delivered Across LA
               </span>
             </m.div>
 
@@ -62,14 +62,15 @@ export function FooterCTA() {
               variants={staggerItem}
               className="text-lg font-body text-text-inverse/90 max-w-2xl mx-auto"
             >
-              Fresh homemade Burmese dishes delivered straight to your door
+              Fresh homemade Burmese dishes — from our Covina kitchen to families & students across
+              Los Angeles
             </m.p>
             {/* MY Subtext */}
             <m.p
               variants={staggerItem}
               className="text-base font-body text-text-inverse/70 max-w-2xl mx-auto"
             >
-              အိမ်ချက်ထမင်းဟင်းလေးတွေ သင့်အိမ်ရောက်ပို့ပေးမယ်
+              ကိုဗီးနား မီးဖိုချောင်မှ LA တစ်ခွင် မြန်မာမိသားစုများဆီ အိမ်ရောက်ပို့ပေးမယ်
             </m.p>
 
             {/* Buttons */}

@@ -118,7 +118,7 @@ export function HeroContent({
         />
         {/* MY Headline */}
         <p className="font-body text-2xl md:text-3xl lg:text-4xl text-hero-text/80 mb-4 animate-fade-in-up-delay-1">
-          အိမ်ချက်ထမင်းဟင်း လွမ်းနေပြီလား · သင့်အိမ်ရောက်ပို့ပေးမယ်
+          အိမ်ချက်ထမင်းဟင်း လွမ်းနေပြီလား · LA တစ်ခွင် အိမ်ရောက်ပို့ပေးမယ်
         </p>
 
         {/* EN Tagline */}
@@ -290,8 +290,8 @@ export function HeroContent({
           <StatItem
             icon={<MapPin className="w-5 h-5 text-secondary" />}
             label="Coverage"
-            value="50 Mile Radius"
-            subValue="မိုင် ၅၀ အတွင်း ပို့ပေးတယ်"
+            value="Greater Los Angeles"
+            subValue="LA ပတ်ဝန်းကျင် မိုင် ၅၀ အတွင်း"
           />
           {deliveryFeeText && (
             <StatItem
