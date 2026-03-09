@@ -26,7 +26,7 @@ export default function AdminMenuPage() {
 
   const fetchItems = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin/menu");
+      const response = await fetch("/api/admin/menu?limit=100");
       if (!response.ok) throw new Error("Failed to fetch menu items");
       const json = await response.json();
       const data: MenuTableItem[] = json.data ?? json;

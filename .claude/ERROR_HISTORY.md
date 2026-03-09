@@ -361,3 +361,32 @@ ItemDetailSheet in Modal on desktop: scrollbar worked but mouse wheel scroll did
 **Fix:** On desktop, let Modal's content wrapper be the sole scroll container. Remove `h-full`, `overflow-y-auto`, `overscroll-contain` from inner elements. Keep them for mobile Drawer which has explicit height.
 
 **Prevention:** Never nest `overflow-y-auto` containers unless inner container has a definite height constraint. `h-full` doesn't resolve when parent uses `max-h` without explicit `height`. `overscroll-contain` traps events in scroll containers that can't actually scroll.
+
+---
+
+## Health Check Reports STRIPE_SECRET_KEY Missing Despite Working | Env/Build | High
+
+**Date:** 2026-03-08 | **Files:** `src/lib/health/env.ts`
+
+Health check Zod schema parsed `process.env` to validate env vars. `STRIPE_SECRET_KEY` always reported missing despite Stripe service being healthy. Three fix attempts failed:
+1. **Pass `process.env` directly** — object doesn't enumerate all keys in Vercel serverless
+2. **Explicit property access** — `process.env.STRIPE_SECRET_KEY` in snapshot builder — Next.js inlined it as `undefined` during build
+3. **Bracket notation** — `process.env['STRIPE_SECRET_KEY']` — also statically replaced by Next.js
+
+**Root cause:** Next.js replaces ALL `process.env.KEY` references at build time. The Stripe client in `server.ts` worked because the var WAS set during Vercel build. But the health check's Zod validation couldn't read it dynamically.
+
+**Fix:** Removed `STRIPE_SECRET_KEY` from Zod env schema. Stripe connectivity already validated via service health check (which uses the inlined value).
+
+**Prevention:** Don't validate server-side secrets via Zod `process.env` parsing. Validate at point of use or via service connectivity checks.
+
+---
+
+## @upstash/redis Incompatible With Standard Redis URLs | Config | High
+
+**Date:** 2026-03-08 | **Files:** `src/lib/rate-limit/client.ts`
+
+`@upstash/redis` requires HTTPS REST API URLs (`https://...`). Production Redis was a standard Redis Cloud instance with `redis://` protocol URL. `new Redis({ url })` threw `UrlError: invalid URL`.
+
+**Fix:** Disabled Redis-based rate limiting. All limiters set to `null`, triggering existing in-memory fallback (15 req/min). To re-enable: provision Upstash REST Redis or swap to `ioredis` + custom rate limiter.
+
+**Prevention:** `@upstash/redis` and `@upstash/ratelimit` only work with Upstash's proprietary REST API. Standard Redis (`redis://`, `rediss://`) requires `ioredis` or `redis` npm packages.
