@@ -71,10 +71,19 @@ export function DeliveryDaysManager({
       try {
         setIsLoading(true);
         setError(null);
-        const res = await fetch("/api/admin/delivery-days");
-        if (!res.ok) throw new Error("Failed to fetch delivery days");
-        const json = await res.json();
-        setDays(json.data?.days ?? []);
+        const [daysRes, settingsRes] = await Promise.all([
+          fetch("/api/admin/delivery-days"),
+          fetch("/api/admin/settings"),
+        ]);
+        if (!daysRes.ok) throw new Error("Failed to fetch delivery days");
+        const daysJson = await daysRes.json();
+        setDays(daysJson.data?.days ?? []);
+
+        if (settingsRes.ok) {
+          const settingsJson = await settingsRes.json();
+          const codVal = settingsJson.data?.delivery?.codEnabled;
+          if (typeof codVal === "boolean") setCodEnabled(codVal);
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Failed to load delivery days");
       } finally {
