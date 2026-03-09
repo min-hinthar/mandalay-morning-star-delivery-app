@@ -117,3 +117,15 @@ return NextResponse.json({ ok: true });
 ```
 
 **Apply when:** Any async side effect (email, logging, analytics, webhooks) in Vercel serverless API routes.
+
+---
+
+## `process.env.KEY` Inlined at Build Time — Dynamic Access Fails
+
+**Context:** Health check env validation passed `process.env` object to Zod. `STRIPE_SECRET_KEY` reported missing despite working in `server.ts`. Even bracket notation `process.env['KEY']` failed.
+
+**Learning:** Next.js replaces ALL `process.env.KEY` references (not just `NEXT_PUBLIC_`) with their literal values at build time. If a server-side env var isn't set during `next build`, it becomes `undefined` permanently in the bundle — even though it's available in the Vercel runtime. The Stripe client worked because the var WAS set during build (Vercel builds with env vars). But `process.env` as an object doesn't enumerate inlined vars, and bracket notation may also be statically replaced.
+
+**Workaround:** Don't validate server-side secrets via Zod schema parsing `process.env`. Instead, validate at the point of use (like `server.ts` does with its runtime throw) or check service connectivity directly.
+
+**Apply when:** Env var health checks, runtime config validation, or any code that iterates/parses `process.env` as an object.
