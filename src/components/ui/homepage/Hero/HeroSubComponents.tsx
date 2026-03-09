@@ -43,10 +43,9 @@ export function StatItem({ icon, label, value, subValue }: StatItemProps) {
     <m.div
       className={cn(
         "flex items-center gap-3 rounded-2xl p-4",
-        "bg-hero-stat-bg/80 sm:backdrop-blur-md",
-        "border border-hero-text/25",
-        "shadow-md shadow-black/10",
-        "transition-shadow duration-300 hover:shadow-xl hover:shadow-black/15"
+        "bg-hero-stat-bg/60 sm:backdrop-blur-md",
+        "border border-hero-text/15",
+        "transition-shadow duration-300 hover:shadow-lg hover:shadow-black/10"
       )}
       whileHover={shouldAnimate ? { scale: 1.04, y: -3 } : undefined}
       whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
@@ -54,7 +53,7 @@ export function StatItem({ icon, label, value, subValue }: StatItemProps) {
     >
       {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
       <m.div
-        className="p-2.5 rounded-full bg-secondary/15 sm:backdrop-blur-sm"
+        className="p-2.5 rounded-full bg-hero-stat-bg sm:backdrop-blur-sm"
         whileHover={shouldAnimate ? { rotate: 8, scale: 1.1 } : undefined}
         transition={spring.snappy}
       >
@@ -64,7 +63,7 @@ export function StatItem({ icon, label, value, subValue }: StatItemProps) {
         <div className="text-xs text-hero-text-muted uppercase tracking-wide">{label}</div>
         <div className="text-sm md:text-base font-bold text-hero-text leading-tight">{value}</div>
         {subValue && (
-          <span className="block text-xs text-hero-text/60 font-body mt-0.5 truncate">
+          <span className="block text-xs text-hero-text/50 font-body mt-0.5 truncate">
             {subValue}
           </span>
         )}
