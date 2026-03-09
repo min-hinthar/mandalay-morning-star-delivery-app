@@ -103,10 +103,10 @@ export function HeroContent({
   const greeting = greetings[timeOfDay] ?? greetings.morning;
 
   return (
-    <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-56 pb-safe md:pt-24 md:pb-48">
+    <div className="relative flex flex-col items-center justify-start px-4 pt-20 pb-64 pb-safe md:pt-32 md:pb-56">
       <div className="max-w-4xl mx-auto text-center">
         {/* Time-based greeting badge - bilingual */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1">
+        <div className="inline-flex items-center gap-2 px-5 py-2.5 mb-8 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1">
           <span className="text-secondary">{greeting.en}</span>
           <span className="text-sm text-hero-text/70 font-medium">{greeting.my}</span>
         </div>
@@ -114,32 +114,15 @@ export function HeroContent({
         {/* EN Headline */}
         <AnimatedHeadline
           text={headline}
-          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-2 leading-tight"
+          className="font-display text-5xl md:text-6xl lg:text-7xl xl:text-[5rem] font-extrabold text-hero-text mb-3 leading-[1.1] tracking-tight"
         />
         {/* MY Headline */}
-        <p className="font-body text-2xl md:text-3xl lg:text-4xl text-hero-text/80 mb-4 animate-fade-in-up-delay-1">
+        <p className="font-body text-2xl md:text-3xl lg:text-4xl text-secondary mb-6 animate-fade-in-up-delay-1">
           အိမ်ချက်ထမင်းဟင်း လွမ်းနေပြီလား · LA တစ်ခွင် အိမ်ရောက်ပို့ပေးမယ်
         </p>
 
-        {/* EN Tagline */}
-        <p className="text-lg md:text-xl text-hero-text/70 font-medium mb-1 animate-fade-in-up-delay-1">
-          {tagline}
-        </p>
-        {/* MY Tagline */}
-        <p className="text-base md:text-lg text-hero-text/60 font-medium mb-6 animate-fade-in-up-delay-1">
-          အိမ်ချက်ထမင်းဟင်းအရသာအတိုင်း ချက်ပြုတ်ပြီး ပို့ပေးပါတယ်
-        </p>
-
-        {/* EN Subheadline */}
-        <p className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-2 font-body animate-fade-in-up-delay-2">
-          {subheadline}
-        </p>
-        {/* MY Subheadline */}
-        <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-10 font-body animate-fade-in-up-delay-2">
-          {deliveryDaysList} တိုင်း လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ပြီး အိမ်ရောက်ပို့ပေးပါတယ်
-        </p>
-
-        <div className="flex flex-col items-center gap-5 mb-12 animate-fade-in-up-delay-3">
+        {/* CTA + Delivery Card */}
+        <div className="flex flex-col items-center gap-6 mb-10 animate-fade-in-up-delay-2">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <m.div
               whileHover={shouldAnimate ? { scale: 1.05, y: -2 } : undefined}
@@ -151,17 +134,16 @@ export function HeroContent({
                 size="lg"
                 asChild
                 className={cn(
-                  "relative overflow-hidden group px-8 py-6 text-lg rounded-full",
+                  "relative overflow-hidden group px-10 py-7 text-xl rounded-full",
                   "bg-gradient-to-r from-secondary via-secondary-hover to-secondary",
                   "hover:from-secondary-hover hover:via-secondary hover:to-secondary-hover",
-                  "shadow-lg shadow-secondary/30",
-                  "hover:shadow-xl hover:shadow-secondary/40",
-                  "hover:ring-2 hover:ring-secondary/30",
+                  "shadow-xl shadow-secondary/40 ring-2 ring-secondary/20",
+                  "hover:shadow-2xl hover:shadow-secondary/50 hover:ring-4 hover:ring-secondary/30",
                   "transition-all duration-300"
                 )}
               >
                 <Link href={ctaHref}>
-                  <span className="relative z-10 flex items-center gap-2 text-text-primary font-semibold">
+                  <span className="relative z-10 flex items-center gap-2 text-text-primary font-bold">
                     {dynamicCtaText}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
@@ -178,9 +160,9 @@ export function HeroContent({
             whileHover={shouldAnimate ? { scale: 1.02, y: -2 } : undefined}
             className={cn(
               "w-full max-w-lg rounded-2xl p-6",
-              "bg-hero-stat-bg/80 sm:backdrop-blur-md",
-              "border border-hero-text/20",
-              "shadow-lg shadow-black/10",
+              "bg-hero-stat-bg/90 sm:backdrop-blur-md",
+              "border border-hero-text/25",
+              "shadow-xl shadow-black/15",
               "transition-shadow duration-300 hover:shadow-xl hover:shadow-black/15"
             )}
           >
@@ -274,7 +256,25 @@ export function HeroContent({
           </m.div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 max-w-md mx-auto md:grid-cols-4 md:max-w-3xl animate-fade-in-up-delay-4">
+        {/* EN Tagline */}
+        <p className="text-base md:text-lg text-hero-text/60 font-medium mb-1 animate-fade-in-up-delay-3">
+          {tagline}
+        </p>
+        {/* MY Tagline */}
+        <p className="text-base md:text-lg text-hero-text/60 font-medium mb-2 animate-fade-in-up-delay-3">
+          အိမ်ချက်ထမင်းဟင်းအရသာအတိုင်း ချက်ပြုတ်ပြီး ပို့ပေးပါတယ်
+        </p>
+
+        {/* EN Subheadline */}
+        <p className="text-base md:text-lg text-hero-text/60 max-w-2xl mx-auto mb-1 font-body animate-fade-in-up-delay-3">
+          {subheadline}
+        </p>
+        {/* MY Subheadline */}
+        <p className="text-sm md:text-base text-hero-text/50 max-w-2xl mx-auto mb-10 font-body animate-fade-in-up-delay-3">
+          {deliveryDaysList} တိုင်း လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ပြီး အိမ်ရောက်ပို့ပေးပါတယ်
+        </p>
+
+        <div className="grid grid-cols-2 gap-4 max-w-md mx-auto md:grid-cols-4 md:max-w-3xl animate-fade-in-up-delay-4">
           <StatItem
             icon={<ChefHat className="w-5 h-5 text-secondary" />}
             label="Authentic"
