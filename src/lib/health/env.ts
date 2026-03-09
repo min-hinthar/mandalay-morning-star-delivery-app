@@ -37,26 +37,22 @@ const fullSchema = z.object({ ...criticalVars, ...importantVars });
 const TOTAL_KEYS = Object.keys({ ...criticalVars, ...importantVars });
 
 /**
- * Build env snapshot with explicit property access.
- * Next.js inlines `process.env.KEY` at build time, but `process.env` as an
- * object may not enumerate all keys in Vercel serverless runtime.
+ * Read env var using bracket notation to prevent Next.js static replacement.
+ * Next.js replaces `process.env.KEY` at build time — if the var isn't set
+ * during build, it becomes `undefined` in the bundle permanently.
+ * Bracket notation (`process.env[key]`) is evaluated at runtime.
  */
+function readEnv(key: string): string | undefined {
+  return process.env[key];
+}
+
+/** Build runtime env snapshot for Zod validation. */
 function getEnvSnapshot(): Record<string, string | undefined> {
-  return {
-    NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-    NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
-    STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
-    NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
-    RESEND_API_KEY: process.env.RESEND_API_KEY,
-    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
-    SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
-    STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
-    CRON_SECRET: process.env.CRON_SECRET,
-    GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
-    NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN,
-    SENTRY_AUTH_TOKEN: process.env.SENTRY_AUTH_TOKEN,
-    GOOGLE_SITE_VERIFICATION: process.env.GOOGLE_SITE_VERIFICATION,
-  };
+  const snapshot: Record<string, string | undefined> = {};
+  for (const key of TOTAL_KEYS) {
+    snapshot[key] = readEnv(key);
+  }
+  return snapshot;
 }
 
 /**
