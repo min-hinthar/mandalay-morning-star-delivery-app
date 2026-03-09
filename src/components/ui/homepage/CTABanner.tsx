@@ -83,7 +83,7 @@ export function CTABanner({ id }: CTABannerProps) {
             transition={{ delay: 0.15, duration: 0.4, ease: easing.default }}
             className="font-display text-2xl md:text-3xl lg:text-4xl font-bold text-text-primary mb-2"
           >
-            Fresh Burmese Cuisine, <span className="text-primary">Delivered Weekly</span>
+            Fresh Burmese Cuisine for LA, <span className="text-primary">Delivered Weekly</span>
           </m.h2>
           {/* MY Headline */}
           <m.p
@@ -93,8 +93,8 @@ export function CTABanner({ id }: CTABannerProps) {
             transition={{ delay: 0.17, duration: 0.4, ease: easing.default }}
             className="font-body text-xl md:text-2xl text-text-primary/70 mb-4"
           >
-            လတ်လတ်ဆတ်ဆတ် မြန်မာ့အစာ{" "}
-            <span className="text-primary/80">အပတ်တိုင်း အိမ်ရောက်ပို့ပေးတယ်</span>
+            LA မြန်မာမိသားစုများအတွက် လတ်လတ်ဆတ်ဆတ်{" "}
+            <span className="text-primary/80">အပတ်တိုင်း ပို့ပေးတယ်</span>
           </m.p>
 
           {/* EN Subtext */}
@@ -105,7 +105,7 @@ export function CTABanner({ id }: CTABannerProps) {
             transition={{ delay: 0.2, duration: 0.4, ease: easing.default }}
             className="font-body text-lg text-text-secondary max-w-xl mx-auto mb-1"
           >
-            Fresh homemade Burmese dishes, delivered to your door
+            Fresh homemade Burmese dishes for families & students across Los Angeles
           </m.p>
           {/* MY Subtext */}
           <m.p
@@ -115,7 +115,7 @@ export function CTABanner({ id }: CTABannerProps) {
             transition={{ delay: 0.22, duration: 0.4, ease: easing.default }}
             className="font-body text-base text-text-secondary/70 max-w-xl mx-auto mb-8"
           >
-            အိမ်ချက်ထမင်းဟင်းလေးတွေ သင့်အိမ်ရောက်ပို့ပေးမယ်
+            အိမ်ချက်ထမင်းဟင်းလေးတွေ LA မြန်မာမိသားစုတွေဆီ ပို့ပေးမယ်
           </m.p>
 
           {/* CTA Buttons - bilingual */}
