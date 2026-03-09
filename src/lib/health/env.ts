@@ -12,7 +12,9 @@ import type { EnvCheckResult } from "./types";
 const criticalVars = {
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
-  STRIPE_SECRET_KEY: z.string().startsWith("sk_"),
+  // STRIPE_SECRET_KEY: validated via Stripe service health check instead.
+  // Next.js inlines process.env.STRIPE_SECRET_KEY at build time, making it
+  // unavailable to runtime dynamic access (bracket notation / Object.keys).
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().startsWith("pk_"),
   RESEND_API_KEY: z.string().startsWith("re_"),
   NEXT_PUBLIC_APP_URL: z.string().url(),
