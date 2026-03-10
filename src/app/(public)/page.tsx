@@ -2,6 +2,7 @@ import type { ReactElement } from "react";
 import { Suspense, lazy } from "react";
 import { getFeaturedSections } from "@/lib/queries/sections";
 import { getBusinessRules } from "@/lib/settings";
+import { getDeliveryStats } from "@/lib/queries/delivery-stats";
 import { HomePageWrapper } from "@/components/ui/homepage/HomePageWrapper";
 import { HomepageMenuSection } from "@/components/ui/homepage/HomepageMenuSection";
 import { Hero } from "@/components/ui/homepage/Hero";
@@ -96,7 +97,7 @@ export default async function HomePage(): Promise<ReactElement> {
   // Fetch business rules and featured sections in parallel
   // Gracefully degrade if Supabase is unavailable (e.g., CI)
   let featuredSections: FeaturedSectionWithItems[] = [];
-  const rules = await getBusinessRules();
+  const [rules, deliveryStats] = await Promise.all([getBusinessRules(), getDeliveryStats()]);
   try {
     featuredSections = await getFeaturedSections();
   } catch {
@@ -115,6 +116,8 @@ export default async function HomePage(): Promise<ReactElement> {
           cutoffDay={rules.cutoffDay}
           cutoffHour={rules.cutoffHour}
           deliveryDays={rules.deliveryDays}
+          deliveriesThisMonth={deliveryStats.deliveriesThisMonth}
+          nextDeliveryDate={deliveryStats.nextDeliveryDate}
         />
 
         {/* Settings Nudge Banner - client component (auth check, inline saves) */}

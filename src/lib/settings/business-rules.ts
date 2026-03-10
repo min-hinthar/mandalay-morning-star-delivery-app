@@ -37,7 +37,7 @@ export const BUSINESS_RULES_DEFAULTS: BusinessRules = {
   freeDeliveryThresholdCents: 10000,
   deliveryStartHour: 11,
   deliveryEndHour: 19,
-  deliveryRadiusMiles: 40,
+  deliveryRadiusMiles: 50,
   maxDeliveryDurationMinutes: 60,
   minimumOrderCents: 2500,
   prepTimeBufferMinutes: 30,
