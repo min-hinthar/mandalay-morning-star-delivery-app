@@ -408,3 +408,23 @@ Two compounding bugs prevented the DeliveryMapCard from rendering on production:
 **Fix:** (1) `dynamic(() => import("./DeliveryMapCard"), { ssr: false })` (2) Add `w-full` to map wrapper div.
 
 **Prevention:** Always use `ssr: false` or `React.lazy` for `@react-google-maps/api` imports. Always add `w-full` to block-level children inside `flex items-center` containers.
+
+---
+
+## DeliveryMapCard Requires Multiple Refreshes | Race Condition | High
+
+**Date:** 2026-03-10 | **Files:** `DeliveryMapCard/DeliveryMapCard.tsx`, `DeliveryMapCard/SimulatedPins.tsx`, `Hero.tsx`
+
+Sequel to above. Map card intermittently failed to render on first page load — required 2-3 refreshes. Three compounding race conditions:
+
+1. **IntersectionObserver ref instability** — `containerRef` attached to loading spinner div (early return when `!isLoaded`), then moved to map div when `isLoaded` became true. `useEffect` with `[]` deps captured the old element — observer watched the unmounted spinner forever. `isVisible` stayed `false`, GoogleMap never rendered.
+
+2. **Marker library race** — `useJsApiLoader` reported `isLoaded` but `google.maps.marker.AdvancedMarkerElement` wasn't always ready. Kitchen marker and simulated pins silently failed to create.
+
+3. **No dynamic import loading fallback** — `dynamic(..., { ssr: false })` with no `loading` prop showed nothing while the JS chunk downloaded.
+
+**Why refreshes "fixed" it:** Browser cached Google Maps JS — `isLoaded` became true faster, IntersectionObserver had time to fire on the correct element.
+
+**Fix:** (1) Stable container ref — single `m.div` always renders, loading spinner inside (2) Default `isVisible` to `true` (above-fold component) (3) Added `isLoaded` to IntersectionObserver deps (4) Guard `google.maps.marker?.AdvancedMarkerElement` before marker creation (5) Added `loading` fallback to dynamic import.
+
+**Prevention:** Never attach the same ref to different DOM elements across conditional renders. For `useEffect`-based observers, ensure the ref target is stable. Guard Google Maps advanced APIs before use.

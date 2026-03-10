@@ -24,6 +24,24 @@ Needs `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`. Implement fallback to legacy `Marker` if
 
 ---
 
+## Google Maps: AdvancedMarkerElement Race + Tooltip Z-Index
+
+**Marker library race:** `useJsApiLoader` reports `isLoaded` but `google.maps.marker.AdvancedMarkerElement` may not be ready yet. Always guard:
+```tsx
+if (!google.maps.marker?.AdvancedMarkerElement) return;
+```
+
+**Tooltip clipping:** Each `AdvancedMarkerElement` creates its own stacking context. Child tooltips can't escape — later pins render on top of earlier pins' tooltips. Fix: set `marker.zIndex = 1000` on hover, reset on leave.
+
+```tsx
+content.addEventListener("mouseenter", () => { marker.zIndex = 1000; });
+content.addEventListener("mouseleave", () => { marker.zIndex = undefined as unknown as number; });
+```
+
+**Apply when:** Creating `AdvancedMarkerElement` with custom content/tooltips.
+
+---
+
 ## Google Maps: `@react-google-maps/api` Crashes SSR
 
 `@react-google-maps/api` accesses `window` at import time. Direct imports in `'use client'` components cause silent SSR crashes — the component and its parent tree fail to render.

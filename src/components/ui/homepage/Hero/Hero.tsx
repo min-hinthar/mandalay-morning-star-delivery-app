@@ -18,7 +18,14 @@ import { HeroContent } from "./HeroContent";
 
 const DeliveryMapCard = dynamic(
   () => import("./DeliveryMapCard").then((m) => ({ default: m.DeliveryMapCard })),
-  { ssr: false }
+  {
+    ssr: false,
+    loading: () => (
+      <div className="rounded-2xl overflow-hidden bg-hero-stat-bg/40 h-60 md:h-80 flex items-center justify-center border-2 border-white/30">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-hero-text/20 border-t-hero-text/60" />
+      </div>
+    ),
+  }
 );
 
 export function Hero({
