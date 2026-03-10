@@ -15,10 +15,15 @@ import { useAnimationContextSafe } from "@/lib/providers/animation-provider";
 import { useCanHover } from "@/lib/hooks/useResponsive";
 import { FloatingEmoji, EMOJI_CONFIG } from "../FloatingEmoji";
 import { GradientOrb, ORB_CONFIG_FAR, ORB_CONFIG_MID } from "../GradientOrb";
+import dynamic from "next/dynamic";
 import type { HeroProps } from "./types";
 import { GradientFallback } from "./HeroSubComponents";
 import { HeroContent } from "./HeroContent";
-import { DeliveryMapCard } from "./DeliveryMapCard";
+
+const DeliveryMapCard = dynamic(
+  () => import("./DeliveryMapCard").then((m) => ({ default: m.DeliveryMapCard })),
+  { ssr: false }
+);
 
 export function Hero({
   headline = "Authentic Burmese Cuisine Delivered Across Los Angeles",
