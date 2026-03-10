@@ -40,6 +40,30 @@ const ref = useCallback((node: HTMLDivElement | null) => setElement(node), []);
 
 ---
 
+## Flex `items-center` Collapses Children Without `w-full`
+
+`flex-col items-center` on a parent causes children to take intrinsic (content) width instead of stretching. A child with `max-w-5xl mx-auto px-4` but no `w-full` collapses to just its padding (32px). Add `w-full` to force full-width layout.
+
+```tsx
+// BAD — child collapses to padding width (32px)
+<div className="flex flex-col items-center">
+  <div className="px-4 max-w-5xl mx-auto">
+    <MapCard />  {/* Invisible — 32px wide */}
+  </div>
+</div>
+
+// GOOD — w-full forces full width
+<div className="flex flex-col items-center">
+  <div className="w-full px-4 max-w-5xl mx-auto">
+    <MapCard />  {/* Full width, max 64rem */}
+  </div>
+</div>
+```
+
+**Apply when:** Placing block-level content inside flex containers with `items-center` (common in hero sections, centered layouts).
+
+---
+
 ## Inline Styles with CSS Variables
 
 When className tokens don't apply (portals, stacking context), use both: `style={{ backgroundColor: "var(--color-surface-elevated)" }}` + `className="bg-surface-elevated"`.

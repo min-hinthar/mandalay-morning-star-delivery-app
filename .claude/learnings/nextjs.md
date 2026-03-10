@@ -18,9 +18,30 @@ Add `style={{ height: "auto" }}` with fixed width to preserve aspect ratio in `n
 
 ---
 
-## Google Maps AdvancedMarkerElement Requires Map ID
+## Google Maps: AdvancedMarkerElement Requires Map ID
 
 Needs `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`. Implement fallback to legacy `Marker` if unavailable.
+
+---
+
+## Google Maps: `@react-google-maps/api` Crashes SSR
+
+`@react-google-maps/api` accesses `window` at import time. Direct imports in `'use client'` components cause silent SSR crashes — the component and its parent tree fail to render.
+
+The existing `CoverageRouteMap` works because it's inside `React.lazy()` (skips SSR). New map components must also skip SSR.
+
+```tsx
+// BAD — crashes during SSR
+import { DeliveryMapCard } from "./DeliveryMapCard";
+
+// GOOD — loads client-side only
+const DeliveryMapCard = dynamic(
+  () => import("./DeliveryMapCard").then((m) => ({ default: m.DeliveryMapCard })),
+  { ssr: false }
+);
+```
+
+**Apply when:** Any component importing from `@react-google-maps/api`, `@googlemaps/js-api-loader`, or similar browser-only map libraries.
 
 ---
 
