@@ -390,3 +390,21 @@ Health check Zod schema parsed `process.env` to validate env vars. `STRIPE_SECRE
 **Fix:** Disabled Redis-based rate limiting. All limiters set to `null`, triggering existing in-memory fallback (15 req/min). To re-enable: provision Upstash REST Redis or swap to `ioredis` + custom rate limiter.
 
 **Prevention:** `@upstash/redis` and `@upstash/ratelimit` only work with Upstash's proprietary REST API. Standard Redis (`redis://`, `rediss://`) requires `ioredis` or `redis` npm packages.
+
+---
+
+## DeliveryMapCard Not Rendering on Deploy | SSR + CSS | Critical
+
+**Date:** 2026-03-10 | **Files:** `Hero.tsx`, `DeliveryMapCard/DeliveryMapCard.tsx`, `HeroSubComponents.tsx`
+
+Two compounding bugs prevented the DeliveryMapCard from rendering on production:
+
+1. **`@react-google-maps/api` SSR crash** — Direct import in Hero (`'use client'`) caused the library to access `window` during SSR. The entire Hero component tree failed silently. The existing `CoverageRouteMap` worked because it was inside `React.lazy()` which skips SSR.
+
+2. **`items-center` width collapse** — After fixing SSR with `dynamic(..., { ssr: false })`, the card rendered but at 32px width (invisible). `GradientFallback`'s content layer uses `flex-col items-center`, which shrinks children to intrinsic width. The map wrapper had `max-w-5xl mx-auto px-4` but no `w-full`, so it collapsed to just its padding.
+
+**Diagnosis tool:** Playwright script (`scripts/debug-mapcard.mjs`) inspecting DOM width, Google Maps script loading, and console errors on the deployed site.
+
+**Fix:** (1) `dynamic(() => import("./DeliveryMapCard"), { ssr: false })` (2) Add `w-full` to map wrapper div.
+
+**Prevention:** Always use `ssr: false` or `React.lazy` for `@react-google-maps/api` imports. Always add `w-full` to block-level children inside `flex items-center` containers.
