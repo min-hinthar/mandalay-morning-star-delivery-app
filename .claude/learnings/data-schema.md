@@ -99,3 +99,23 @@ INSERT INTO modifier_options (slug) VALUES ('chicken_curry_style__original');
 ```
 
 **Apply when:** Writing SQL seeds or migrations that insert modifier options directly.
+
+---
+
+## Orders: Denormalized Contact Info
+
+**Context:** `customer_phone` and `customer_name` added to `orders` table (migration `20260310`). Previously contact info only lived in `profiles` table, requiring a join. Admin/driver APIs now prefer order-level fields over profile fields.
+
+**Learning:** Order contact fields are denormalized snapshots captured at checkout time:
+- `orders.customer_phone` / `orders.customer_name` — from checkout form input
+- `profiles.phone` / `profiles.full_name` — canonical profile (may be updated later)
+
+Query pattern for display:
+```typescript
+customerName: order.customer_name ?? order.profiles?.full_name ?? null,
+customerPhone: order.customer_phone ?? order.profiles?.phone ?? null,
+```
+
+The `create_order_with_items` RPC reads these from `p_order->>'customer_phone'` / `p_order->>'customer_name'`.
+
+**Apply when:** Querying customer contact info for orders, or modifying the checkout RPC payload.
