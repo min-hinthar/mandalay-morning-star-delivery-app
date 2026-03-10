@@ -122,6 +122,9 @@ export function TimeStepV8({
           <h2 className="font-display text-lg font-semibold text-text-primary">Delivery Time</h2>
         </div>
         <p className="font-body text-sm text-text-muted">Choose your preferred delivery window</p>
+        <p className="font-body text-xs text-text-muted mt-1">
+          Time windows are preferred delivery times, not guaranteed arrival times.
+        </p>
       </m.div>
 
       {/* Time slot picker with stagger */}

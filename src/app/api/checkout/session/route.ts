@@ -18,6 +18,7 @@ import { checkOrigin } from "@/lib/utils/origin-check";
 import { ensureProfile } from "@/lib/auth/role-redirect";
 import { createCODOrder } from "@/lib/services/cod-order";
 import type { AddressesRow, OrdersRow, OrderItemsRow, ProfilesRow } from "@/types/database";
+import { toISOWithTimezone } from "@/lib/utils/delivery-timezone";
 import { cleanupOrder, sendCODOrderEmail } from "./helpers";
 import { errorResponse, fetchAndValidateCart, buildRpcPayload } from "./validation";
 
@@ -308,8 +309,8 @@ export async function POST(request: Request) {
         promo_code: input.promoCode ?? null,
         discount_cents: discountCents,
         total_cents: totals.totalCents,
-        delivery_window_start: `${input.scheduledDate}T${input.timeWindowStart}:00`,
-        delivery_window_end: `${input.scheduledDate}T${input.timeWindowEnd}:00`,
+        delivery_window_start: toISOWithTimezone(input.scheduledDate, input.timeWindowStart),
+        delivery_window_end: toISOWithTimezone(input.scheduledDate, input.timeWindowEnd),
         special_instructions: input.customerNotes ?? null,
         delivery_instructions: input.deliveryInstructions ?? null,
       },

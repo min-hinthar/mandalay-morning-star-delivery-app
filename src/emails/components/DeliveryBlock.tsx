@@ -77,11 +77,24 @@ export function DeliveryBlock({
           style={{
             fontSize: "13px",
             color: "#6B7280",
-            margin: "0 0 12px 0",
+            margin: "0 0 2px 0",
             fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
           }}
         >
           {deliveryTimeRange}
+        </Text>
+      )}
+      {deliveryTimeRange && (
+        <Text
+          style={{
+            fontSize: "11px",
+            color: "#9CA3AF",
+            margin: "0 0 12px 0",
+            fontStyle: "italic",
+            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          }}
+        >
+          This is your preferred delivery window, not a guaranteed arrival time.
         </Text>
       )}
 
