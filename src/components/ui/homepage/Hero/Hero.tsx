@@ -123,7 +123,7 @@ export function Hero({
           {heroContent}
         </m.div>
         <div
-          className="relative px-4 pb-8 max-w-5xl mx-auto"
+          className="relative w-full px-4 pb-8 max-w-5xl mx-auto"
           // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
           style={{ zIndex: 5 }}
         >
