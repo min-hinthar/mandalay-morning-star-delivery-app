@@ -18,7 +18,6 @@ import { getBusinessRules } from "@/lib/settings";
 import type { Order, OrderItem, OrderItemModifier, OrderAddress, OrderStatus } from "@/types/order";
 import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/types/order";
 
-// Define the expected shape of the query result
 interface OrderQueryResult {
   id: string;
   user_id: string;
@@ -78,7 +77,6 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
   const supabase = await createClient();
 
-  // Check authentication
   const {
     data: { user },
     error: authError,
@@ -88,7 +86,6 @@ export default async function OrderDetailPage({ params }: PageProps) {
     redirect("/login");
   }
 
-  // Fetch order with items, modifiers, and address
   const { data: orderData, error: orderError } = await supabase
     .from("orders")
     .select(
@@ -128,7 +125,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
     notFound();
   }
 
-  // Self-healing: if order is pending and has a checkout session, verify with Stripe
+  // Self-heal: verify pending Stripe orders
   if (orderData.status === "pending" && orderData.stripe_checkout_session_id) {
     try {
       const stripeSession = await stripe.checkout.sessions.retrieve(
@@ -165,9 +162,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
     }
   }
 
-  // Transform the data to match our Order type
   const addressData = orderData.addresses;
-
   const address: OrderAddress | null = addressData
     ? {
         id: addressData.id,
@@ -221,20 +216,20 @@ export default async function OrderDetailPage({ params }: PageProps) {
     deliveredAt: orderData.delivered_at,
     createdAt: orderData.created_at,
     updatedAt: orderData.updated_at,
+    customerPhone: null,
+    customerName: null,
     address,
     items,
   };
 
-  // Load DB-sourced business rules for cutoff check
   const rules = await getBusinessRules();
 
-  const deliveryDate = order.deliveryWindowStart
-    ? format(parseISO(order.deliveryWindowStart), "EEEE, MMMM d, yyyy")
-    : "Scheduled";
-
+  const ws = order.deliveryWindowStart;
+  const we = order.deliveryWindowEnd;
+  const deliveryDate = ws ? format(parseISO(ws), "EEEE, MMMM d, yyyy") : "Scheduled";
   const deliveryTime =
-    order.deliveryWindowStart && order.deliveryWindowEnd
-      ? `${format(parseISO(order.deliveryWindowStart), "h:mm a")} - ${format(parseISO(order.deliveryWindowEnd), "h:mm a")}`
+    ws && we
+      ? `${format(parseISO(ws), "h:mm a")} - ${format(parseISO(we), "h:mm a")}`
       : "Time slot selected";
 
   return (
@@ -330,14 +325,11 @@ export default async function OrderDetailPage({ params }: PageProps) {
 
         {/* Order Items */}
         <Card className="mb-6">
-          <CardHeader className="border-b">
-            <div className="flex items-center gap-2">
-              <Package className="h-5 w-5 text-charcoal" />
-              <span className="font-medium">Order Items</span>
-            </div>
+          <CardHeader className="border-b flex-row items-center gap-2">
+            <Package className="h-5 w-5 text-charcoal" />
+            <span className="font-medium">Order Items</span>
           </CardHeader>
           <CardContent className="p-6 space-y-4">
-            {/* Items List */}
             <div className="space-y-3">
               {items.map((item) => (
                 <div key={item.id} className="flex justify-between text-sm">
@@ -375,13 +367,11 @@ export default async function OrderDetailPage({ params }: PageProps) {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-muted-foreground">Delivery Fee</span>
-                <span>
-                  {order.deliveryFeeCents === 0 ? (
-                    <span className="text-jade">FREE</span>
-                  ) : (
-                    formatPrice(order.deliveryFeeCents)
-                  )}
-                </span>
+                {order.deliveryFeeCents === 0 ? (
+                  <span className="text-jade">FREE</span>
+                ) : (
+                  <span>{formatPrice(order.deliveryFeeCents)}</span>
+                )}
               </div>
               {order.taxCents > 0 && (
                 <div className="flex justify-between text-sm">

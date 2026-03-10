@@ -28,6 +28,8 @@ describe("Checkout Session Validation", () => {
         },
       ],
       customerNotes: "Ring doorbell",
+      customerPhone: "6265551234",
+      customerName: "John Doe",
     };
 
     it("accepts valid checkout body", () => {
@@ -335,10 +337,10 @@ describe("Checkout Session Validation", () => {
 
       expect(totals.subtotalCents).toBe(4000);
       expect(totals.deliveryFeeCents).toBe(1500); // Below $100 threshold
-      expect(totals.taxCents).toBe(0);
+      expect(totals.taxCents).toBe(420); // 10.5% of 4000
       expect(totals.tipCents).toBe(0);
       expect(totals.discountCents).toBe(0);
-      expect(totals.totalCents).toBe(5500);
+      expect(totals.totalCents).toBe(5920); // 4000 + 1500 + 420
     });
 
     it("waives delivery fee at $100 threshold", () => {
@@ -356,7 +358,8 @@ describe("Checkout Session Validation", () => {
 
       expect(totals.subtotalCents).toBe(10000);
       expect(totals.deliveryFeeCents).toBe(0);
-      expect(totals.totalCents).toBe(10000);
+      expect(totals.taxCents).toBe(1050); // 10.5% of 10000
+      expect(totals.totalCents).toBe(11050); // 10000 + 0 + 1050
     });
 
     it("includes tip in total", () => {
@@ -374,10 +377,11 @@ describe("Checkout Session Validation", () => {
 
       expect(totals.subtotalCents).toBe(5000);
       expect(totals.deliveryFeeCents).toBe(1500);
+      expect(totals.taxCents).toBe(525); // 10.5% of 5000
       expect(totals.tipCents).toBe(500);
       expect(totals.discountCents).toBe(0);
-      // 5000 + 1500 + 0 + 500 - 0 = 7000
-      expect(totals.totalCents).toBe(7000);
+      // 5000 + 1500 + 525 + 500 - 0 = 7525
+      expect(totals.totalCents).toBe(7525);
     });
 
     it("subtracts discount from total", () => {
@@ -394,9 +398,10 @@ describe("Checkout Session Validation", () => {
       const totals = calculateOrderTotals(items, 1500, 10000, 0, 2000);
 
       expect(totals.subtotalCents).toBe(5000);
+      expect(totals.taxCents).toBe(525); // 10.5% of 5000
       expect(totals.discountCents).toBe(2000);
-      // 5000 + 1500 + 0 + 0 - 2000 = 4500
-      expect(totals.totalCents).toBe(4500);
+      // 5000 + 1500 + 525 + 0 - 2000 = 5025
+      expect(totals.totalCents).toBe(5025);
     });
 
     it("includes tip and discount together", () => {
@@ -412,8 +417,8 @@ describe("Checkout Session Validation", () => {
 
       const totals = calculateOrderTotals(items, 1500, 10000, 500, 2000);
 
-      // 5000 + 1500 + 0 + 500 - 2000 = 5000
-      expect(totals.totalCents).toBe(5000);
+      // 5000 + 1500 + 525 + 500 - 2000 = 5525
+      expect(totals.totalCents).toBe(5525);
     });
 
     it("clamps total to 0 when discount exceeds subtotal", () => {

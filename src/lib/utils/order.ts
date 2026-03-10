@@ -7,6 +7,9 @@ export interface ModifierGroupWithItems {
   itemIds: string[];
 }
 
+/** Covina CA sales tax rate (10.5%) */
+export const COVINA_TAX_RATE = 0.105;
+
 /** Default fee values — match DB seeds and BUSINESS_RULES_DEFAULTS */
 const DEFAULT_DELIVERY_FEE_CENTS = 1500;
 const DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS = 10000;
@@ -56,13 +59,10 @@ export function calculateDeliveryFee(
 }
 
 /**
- * Calculate tax (placeholder for V1 - can be enhanced with Stripe Tax later)
- * @param subtotalCents - Subtotal in cents (will be used when tax calculation is implemented)
+ * Calculate sales tax for Covina CA (10.5%)
  */
-export function calculateTax(_subtotalCents: number): number {
-  // V1: No tax calculation, defer to V1.1
-  // When implementing, use California sales tax rate or Stripe Tax
-  return 0;
+export function calculateTax(subtotalCents: number): number {
+  return Math.round(subtotalCents * COVINA_TAX_RATE);
 }
 
 /**
@@ -109,7 +109,8 @@ export function calculateOrderTotals(
 export function createStripeLineItems(
   validatedItems: ValidatedCartItem[],
   deliveryFeeCents: number,
-  tipCents: number = 0
+  tipCents: number = 0,
+  taxCents: number = 0
 ): Array<{
   price_data: {
     currency: string;
@@ -148,6 +149,21 @@ export function createStripeLineItems(
         product_data: {
           name: "Delivery Fee",
           description: "Delivery to your address",
+        },
+      },
+      quantity: 1,
+    });
+  }
+
+  // Add tax as a line item
+  if (taxCents > 0) {
+    lineItems.push({
+      price_data: {
+        currency: "usd",
+        unit_amount: taxCents,
+        product_data: {
+          name: "Sales Tax",
+          description: "CA sales tax (10.5%)",
         },
       },
       quantity: 1,

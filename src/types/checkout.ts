@@ -28,6 +28,10 @@ export interface CheckoutState {
   deliveryInstructions: string;
   /** Selected payment method */
   paymentMethod: PaymentMethod;
+  /** Customer phone for order contact */
+  customerPhone: string;
+  /** Customer name for order contact */
+  customerName: string;
 }
 
 export interface CreateCheckoutSessionRequest {
@@ -47,6 +51,10 @@ export interface CreateCheckoutSessionRequest {
   deliveryInstructions?: string;
   /** Payment method: 'stripe' (default) or 'cod' */
   paymentMethod?: PaymentMethod;
+  /** Customer phone number */
+  customerPhone: string;
+  /** Customer name */
+  customerName: string;
 }
 
 export interface CreateCheckoutSessionResponse {

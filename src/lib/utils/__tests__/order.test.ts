@@ -111,15 +111,18 @@ describe("calculateDeliveryFee", () => {
 });
 
 describe("calculateTax", () => {
-  it("returns 0 for V1 (placeholder)", () => {
+  it("calculates 10.5% sales tax", () => {
     const result = calculateTax(10000);
-    expect(result).toBe(0);
+    expect(result).toBe(1050); // 10.5% of 10000
   });
 
-  it("returns 0 regardless of subtotal", () => {
+  it("returns 0 for zero subtotal", () => {
     expect(calculateTax(0)).toBe(0);
-    expect(calculateTax(50000)).toBe(0);
-    expect(calculateTax(100000)).toBe(0);
+  });
+
+  it("rounds to nearest cent", () => {
+    // 333 * 0.105 = 34.965 → rounds to 35
+    expect(calculateTax(333)).toBe(35);
   });
 });
 
@@ -144,14 +147,17 @@ describe("calculateOrderTotals", () => {
     const items = [createValidatedCartItem({ base_price_cents: 5000 })]; // $50
     const result = calculateOrderTotals(items, DELIVERY_FEE, FREE_THRESHOLD);
     expect(result.deliveryFeeCents).toBe(DELIVERY_FEE);
-    expect(result.totalCents).toBe(5000 + DELIVERY_FEE);
+    expect(result.taxCents).toBe(525); // 10.5% of 5000
+    // 5000 + 1500 + 525 = 7025
+    expect(result.totalCents).toBe(7025);
   });
 
   it("waives delivery fee when at or above threshold", () => {
     const items = [createValidatedCartItem({ base_price_cents: 10000 })]; // $100
     const result = calculateOrderTotals(items, DELIVERY_FEE, FREE_THRESHOLD);
     expect(result.deliveryFeeCents).toBe(0);
-    expect(result.totalCents).toBe(10000);
+    expect(result.taxCents).toBe(1050); // 10.5% of 10000
+    expect(result.totalCents).toBe(11050); // 10000 + 0 + 1050
   });
 
   it("returns correct totals object", () => {
@@ -161,10 +167,10 @@ describe("calculateOrderTotals", () => {
     expect(result).toEqual({
       subtotalCents: 3000,
       deliveryFeeCents: DELIVERY_FEE,
-      taxCents: 0,
+      taxCents: 315, // 10.5% of 3000
       tipCents: 0,
       discountCents: 0,
-      totalCents: 3000 + DELIVERY_FEE,
+      totalCents: 3000 + DELIVERY_FEE + 315,
     });
   });
 
@@ -172,6 +178,7 @@ describe("calculateOrderTotals", () => {
     const result = calculateOrderTotals([], DELIVERY_FEE, FREE_THRESHOLD);
     expect(result.subtotalCents).toBe(0);
     expect(result.deliveryFeeCents).toBe(DELIVERY_FEE);
+    expect(result.taxCents).toBe(0); // 10.5% of 0
     expect(result.totalCents).toBe(DELIVERY_FEE);
   });
 

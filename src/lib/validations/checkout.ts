@@ -29,6 +29,11 @@ export const createCheckoutSessionSchema = z.object({
   promoCode: z.string().max(50, "Promo code too long").optional(),
   deliveryInstructions: z.string().max(500, "Delivery instructions too long").optional(),
   paymentMethod: z.enum(["stripe", "cod"]).default("stripe"),
+  customerPhone: z
+    .string()
+    .transform((val) => val.replace(/\D/g, ""))
+    .pipe(z.string().min(10, "Phone must be at least 10 digits").max(15, "Phone too long")),
+  customerName: z.string().min(2, "Name must be at least 2 characters").max(100, "Name too long"),
 });
 
 export type CreateCheckoutSessionInput = z.infer<typeof createCheckoutSessionSchema>;

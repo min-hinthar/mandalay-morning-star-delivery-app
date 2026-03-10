@@ -171,6 +171,8 @@ export default async function OrderConfirmationPage({ params, searchParams }: Pa
     deliveredAt: orderData.delivered_at,
     createdAt: orderData.created_at,
     updatedAt: orderData.updated_at,
+    customerPhone: null,
+    customerName: null,
     address,
     items,
   };
