@@ -4,27 +4,37 @@ import { useState, useEffect, useRef } from "react";
 import type { SimulatedPin } from "./types";
 
 const CITY_COORDINATES = [
+  // West LA / Coast
+  { name: "Santa Monica", lat: 34.0195, lng: -118.4912 },
+  { name: "Culver City", lat: 34.0211, lng: -118.3965 },
+  { name: "Inglewood", lat: 33.9617, lng: -118.3531 },
+  { name: "Long Beach", lat: 33.7701, lng: -118.1937 },
+  { name: "Torrance", lat: 33.8358, lng: -118.3406 },
+  // Central / Downtown LA
+  { name: "Downtown LA", lat: 34.0407, lng: -118.2468 },
+  { name: "Hollywood", lat: 34.0928, lng: -118.3287 },
+  { name: "Koreatown", lat: 34.0578, lng: -118.3004 },
+  // North / Valley
+  { name: "Burbank", lat: 34.1808, lng: -118.309 },
+  { name: "Glendale", lat: 34.1425, lng: -118.2551 },
   { name: "Pasadena", lat: 34.1478, lng: -118.1445 },
-  { name: "Arcadia", lat: 34.1397, lng: -118.0353 },
-  { name: "Glendora", lat: 34.1361, lng: -117.8653 },
+  // East (existing coverage area)
   { name: "West Covina", lat: 34.0686, lng: -117.939 },
-  { name: "Diamond Bar", lat: 33.9997, lng: -117.8103 },
-  { name: "Azusa", lat: 34.1336, lng: -117.9076 },
   { name: "Pomona", lat: 34.0551, lng: -117.75 },
-  { name: "Monrovia", lat: 34.1442, lng: -117.9901 },
-  { name: "El Monte", lat: 34.0686, lng: -118.0276 },
-  { name: "Whittier", lat: 33.9792, lng: -118.0328 },
-  { name: "Rowland Heights", lat: 33.9761, lng: -117.9053 },
-  { name: "Walnut", lat: 34.0203, lng: -117.8653 },
-  { name: "San Dimas", lat: 34.1067, lng: -117.8067 },
+  { name: "Diamond Bar", lat: 33.9997, lng: -117.8103 },
   { name: "Rancho Cucamonga", lat: 34.1064, lng: -117.5931 },
+  // South / Southeast
+  { name: "Whittier", lat: 33.9792, lng: -118.0328 },
   { name: "Fullerton", lat: 33.8703, lng: -117.9253 },
+  { name: "Anaheim", lat: 33.8366, lng: -117.9143 },
+  { name: "Irvine", lat: 33.6846, lng: -117.8265 },
+  { name: "Riverside", lat: 33.9533, lng: -117.3962 },
 ] as const;
 
 const DELIVERY_DAYS = ["Mon", "Wed", "Thu", "Sat"] as const;
 
-const MAX_PINS = 15;
-const INITIAL_PINS = 10;
+const MAX_PINS = 20;
+const INITIAL_PINS = 12;
 const CYCLE_INTERVAL_MS = 7000;
 
 function createPin(index: number): SimulatedPin {

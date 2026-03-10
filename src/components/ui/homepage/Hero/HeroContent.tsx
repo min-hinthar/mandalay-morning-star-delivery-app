@@ -127,11 +127,11 @@ export function HeroContent({
           {subheadline}
         </p>
         {/* MY Subheadline */}
-        <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-10 font-body animate-fade-in-up-delay-2">
+        <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-14 font-body animate-fade-in-up-delay-2">
           {deliveryDaysList} တိုင်း လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ပြီး အိမ်ရောက်ပို့ပေးပါတယ်
         </p>
 
-        <div className="flex flex-col items-center gap-5 mb-12 animate-fade-in-up-delay-3">
+        <div className="flex flex-col items-center gap-6 mb-16 animate-fade-in-up-delay-3">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <m.div
               whileHover={shouldAnimate ? { scale: 1.05, y: -2 } : undefined}
@@ -266,7 +266,7 @@ export function HeroContent({
           </m.div>
         </div>
 
-        <div className="grid grid-cols-2 gap-3 max-w-md mx-auto md:grid-cols-4 md:max-w-3xl animate-fade-in-up-delay-4">
+        <div className="mt-2 grid grid-cols-2 gap-3 max-w-md mx-auto md:grid-cols-4 md:max-w-3xl animate-fade-in-up-delay-4">
           <StatItem
             icon={<ChefHat className="w-5 h-5 text-secondary" />}
             label="Authentic"
