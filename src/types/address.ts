@@ -74,6 +74,6 @@ export const KITCHEN_LOCATION = {
 } as const;
 
 export const COVERAGE_LIMITS = {
-  maxDistanceMiles: 40,
+  maxDistanceMiles: 50,
   maxDurationMinutes: 90,
 } as const;

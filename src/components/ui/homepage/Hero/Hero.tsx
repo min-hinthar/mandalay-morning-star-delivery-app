@@ -18,6 +18,7 @@ import { GradientOrb, ORB_CONFIG_FAR, ORB_CONFIG_MID } from "../GradientOrb";
 import type { HeroProps } from "./types";
 import { GradientFallback } from "./HeroSubComponents";
 import { HeroContent } from "./HeroContent";
+import { DeliveryMapCard } from "./DeliveryMapCard";
 
 export function Hero({
   headline = "Authentic Burmese Cuisine Delivered Across Los Angeles",
@@ -31,6 +32,8 @@ export function Hero({
   cutoffDay,
   cutoffHour,
   deliveryDays,
+  deliveriesThisMonth,
+  nextDeliveryDate,
 }: HeroProps) {
   const { shouldAnimate } = useAnimationPreference();
   const { isParallaxEnabled } = useAnimationContextSafe();
@@ -114,6 +117,16 @@ export function Hero({
         <m.div style={shouldAnimate ? { y: smoothContentY, opacity: smoothOpacity } : undefined}>
           {heroContent}
         </m.div>
+        <div
+          className="relative px-4 pb-8 max-w-5xl mx-auto"
+          // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
+          style={{ zIndex: 5 }}
+        >
+          <DeliveryMapCard
+            deliveriesThisMonth={deliveriesThisMonth ?? 0}
+            nextDeliveryDate={nextDeliveryDate ?? ""}
+          />
+        </div>
       </GradientFallback>
 
       {/* Layer 2: Background orbs (far) */}

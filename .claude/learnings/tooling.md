@@ -48,6 +48,26 @@ Resource contention from concurrent sessions through OneDrive sync. Fix: move re
 
 ---
 
+## ESLint `no-restricted-properties` Bans `cssText`
+
+`el.style.cssText = "..."` is restricted for CSP compatibility. Use individual `style.property` assignments instead. Extract style-applying helper functions for imperative DOM (e.g., Google Maps `AdvancedMarkerElement` custom content).
+
+```ts
+// Bad — triggers ESLint warning
+el.style.cssText = `width: 12px; height: 12px; border-radius: 50%;`;
+
+// Good — CSP-safe
+function applyPinStyles(el: HTMLDivElement) {
+  el.style.width = "12px";
+  el.style.height = "12px";
+  el.style.borderRadius = "50%";
+}
+```
+
+**Apply when:** Creating DOM elements imperatively (map markers, tooltips, custom overlays).
+
+---
+
 ## GitHub Actions Permissions Are Allowlists
 
 Job-level `permissions:` replaces defaults. Always include `contents: read` if using `actions/checkout`. `dorny/paths-filter@v3` needs `fetch-depth: 2`.

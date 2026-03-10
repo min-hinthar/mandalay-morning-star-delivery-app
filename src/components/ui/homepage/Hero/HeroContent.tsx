@@ -9,15 +9,7 @@
 
 import Link from "next/link";
 import { m } from "framer-motion";
-import {
-  ArrowRight,
-  CalendarClock,
-  ChefHat,
-  Clock,
-  MapPin,
-  Truck,
-  ChevronDown,
-} from "lucide-react";
+import { ArrowRight, CalendarClock, ChefHat, Clock, MapPin, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -103,7 +95,7 @@ export function HeroContent({
   const greeting = greetings[timeOfDay] ?? greetings.morning;
 
   return (
-    <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-56 pb-safe md:pt-24 md:pb-48">
+    <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-12 pb-safe md:pt-24 md:pb-16">
       <div className="max-w-4xl mx-auto text-center">
         {/* Time-based greeting badge - bilingual */}
         <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1">
@@ -303,27 +295,6 @@ export function HeroContent({
           )}
         </div>
       </div>
-
-      <m.div
-        className="absolute bottom-6 left-1/2 -translate-x-1/2"
-        initial={shouldAnimate ? { opacity: 0 } : undefined}
-        animate={shouldAnimate ? { opacity: 1 } : undefined}
-        transition={{ delay: 1.5 }}
-      >
-        <m.div
-          className="flex flex-col items-center gap-1 text-hero-text-muted cursor-pointer"
-          animate={shouldAnimate ? { y: [0, 8, 0] } : undefined}
-          transition={{ duration: 2, repeat: 5, ease: "easeInOut" }}
-          onClick={() => {
-            document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
-          }}
-          role="button"
-          aria-label="Scroll to learn more"
-        >
-          <span className="text-xs uppercase tracking-widest">Scroll · အောက်ကိုဆင်းကြည့်ပါ</span>
-          <ChevronDown className="w-6 h-6" />
-        </m.div>
-      </m.div>
     </div>
   );
 }
