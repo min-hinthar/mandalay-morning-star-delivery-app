@@ -10,9 +10,12 @@ interface PaymentInfoCardProps {
 
 function derivePaymentStatus(order: OrderDetail): string {
   if (order.status === "pending_approval") return "Awaiting Approval";
-  if (order.status === "delivered") return "Paid";
   if (order.status === "cancelled") return "Refunded";
+  if (order.status === "delivered") return "Paid";
   if (order.paymentMethod === "cod" && order.codApprovedAt) return "Approved (COD)";
+  if (order.paymentMethod === "cod") return "Pending";
+  // Stripe: confirmed/preparing/out_for_delivery with payment intent = paid
+  if (order.stripePaymentIntentId) return "Paid";
   return "Pending";
 }
 

@@ -62,23 +62,28 @@ export function CustomerInfoCard({ order }: CustomerInfoCardProps) {
           )}
         </div>
 
-        {/* Address */}
-        {order.address && (
-          <div className="flex items-start gap-2 text-sm text-text-secondary">
+        {/* Address — clickable Google Maps link */}
+        {order.address && encodedAddr && (
+          <a
+            href={`https://www.google.com/maps/search/?api=1&query=${encodedAddr}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-start gap-2 text-sm text-text-secondary hover:text-primary transition-colors"
+          >
             <MapPin className="h-4 w-4 mt-0.5 flex-shrink-0" />
-            <span>
+            <span className="underline underline-offset-2">
               {order.address.street}
               {order.address.apt && `, ${order.address.apt}`}
               <br />
               {order.address.city}, {order.address.state} {order.address.zip}
             </span>
-          </div>
+          </a>
         )}
 
-        {/* Static map */}
+        {/* Static map — kitchen origin (blue) + delivery address (red) */}
         {encodedAddr && googleMapsKey && (
           <Image
-            src={`https://maps.googleapis.com/maps/api/staticmap?center=${encodedAddr}&zoom=15&size=400x200&scale=2&markers=color:red|${encodedAddr}&key=${googleMapsKey}`}
+            src={`https://maps.googleapis.com/maps/api/staticmap?size=400x200&scale=2&markers=color:blue%7Clabel:K%7C34.0858,-117.8896&markers=color:red%7C${encodedAddr}&key=${googleMapsKey}`}
             alt="Delivery location map"
             width={800}
             height={400}

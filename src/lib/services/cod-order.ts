@@ -1,6 +1,7 @@
 import type { createClient } from "@/lib/supabase/server";
 import type { Json } from "@/types/database";
 import { logger } from "@/lib/utils/logger";
+import { toISOWithTimezone } from "@/lib/utils/delivery-timezone";
 
 type SupabaseClient = Awaited<ReturnType<typeof createClient>>;
 
@@ -57,8 +58,8 @@ export async function createCODOrder(
         promo_code: input.promoCode,
         discount_cents: input.discountCents,
         total_cents: input.totalCents,
-        delivery_window_start: `${input.scheduledDate}T${input.timeWindowStart}:00`,
-        delivery_window_end: `${input.scheduledDate}T${input.timeWindowEnd}:00`,
+        delivery_window_start: toISOWithTimezone(input.scheduledDate, input.timeWindowStart),
+        delivery_window_end: toISOWithTimezone(input.scheduledDate, input.timeWindowEnd),
         special_instructions: input.customerNotes,
         delivery_instructions: input.deliveryInstructions,
       },
