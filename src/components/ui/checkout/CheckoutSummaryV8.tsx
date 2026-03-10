@@ -13,7 +13,7 @@
  */
 
 import { m, AnimatePresence } from "framer-motion";
-import { ShoppingBag, Truck, Sparkles, Tag } from "lucide-react";
+import { ShoppingBag, Truck, Sparkles, Tag, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerItem, staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -21,6 +21,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { formatPrice } from "@/lib/utils/format";
+import { COVINA_TAX_RATE } from "@/lib/utils/order";
 
 // ============================================
 // TYPES
@@ -69,8 +70,11 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
   const tipCents =
     tipPercent !== null ? Math.round((itemsSubtotal * tipPercent) / 100) : customTipCents;
 
-  // Compute adjusted total with tip and discount
-  const adjustedTotal = estimatedTotal + tipCents - discountCents;
+  // Compute estimated tax
+  const estimatedTaxCents = Math.round(itemsSubtotal * COVINA_TAX_RATE);
+
+  // Compute adjusted total with tip, tax, and discount
+  const adjustedTotal = estimatedTotal + tipCents + estimatedTaxCents - discountCents;
 
   // Calculate progress percentage toward free delivery
   const progressPercent = Math.min(
@@ -275,6 +279,26 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           )}
         </m.div>
 
+        {/* Tax */}
+        <m.div
+          variants={shouldAnimate ? summaryRowVariants : undefined}
+          initial={shouldAnimate ? "hidden" : undefined}
+          animate={shouldAnimate ? "visible" : undefined}
+          transition={{ delay: 0.07 }}
+          className="flex justify-between text-sm text-text-muted"
+        >
+          <span className="flex items-center gap-1.5">
+            <Receipt className="h-3.5 w-3.5" />
+            Tax (10.5%)
+          </span>
+          <PriceTicker
+            value={estimatedTaxCents}
+            inCents={true}
+            size="sm"
+            className="text-text-money"
+          />
+        </m.div>
+
         {/* Tip */}
         {tipCents > 0 && (
           <m.div
@@ -325,8 +349,6 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             className="text-text-money font-bold"
           />
         </m.div>
-
-        <p className="text-xs text-text-muted text-center">Tax calculated at checkout</p>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@
  * Payment review step with enhanced loading states for Stripe checkout session
  *
  * Features:
+ * - Contact info collection (name + phone) with profile auto-fill
  * - Animated loading spinner during checkout session creation
  * - Security badge animations
  * - Processing state on button
@@ -15,7 +16,7 @@
  * Note: Uses Stripe Checkout Sessions (hosted page redirect), NOT embedded elements.
  */
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
 import { ArrowLeft, CreditCard, ShieldCheck, Lock, MapPin, Clock, Banknote } from "lucide-react";
@@ -24,12 +25,13 @@ import { handleRateLimitResponse } from "@/lib/hooks/useRateLimitToast";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
-import { useCheckoutStore } from "@/lib/stores/checkout-store";
-import type { PaymentMethod } from "@/types/database";
+import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
 import type { TimeWindow } from "@/types/delivery";
 import { TimeSlotDisplay } from "./TimeSlotDisplay";
 import { TipSelector } from "./TipSelector";
 import { PromoCodeInput } from "./PromoCodeInput";
+import { ContactInfoSection } from "./ContactInfoSection";
+import { PaymentMethodSelector } from "./PaymentMethodSelector";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -67,67 +69,6 @@ export interface PaymentStepV8Props {
 }
 
 // ============================================
-// PAYMENT METHOD SELECTOR
-// ============================================
-
-function PaymentMethodSelector({
-  value,
-  onChange,
-  codEnabled,
-}: {
-  value: PaymentMethod;
-  onChange: (method: PaymentMethod) => void;
-  codEnabled: boolean;
-}) {
-  if (!codEnabled) return null;
-
-  return (
-    <div className="space-y-3">
-      <h3 className="font-body text-sm font-medium text-text-primary">Payment Method</h3>
-      <div className="grid grid-cols-2 gap-3">
-        <button
-          type="button"
-          onClick={() => onChange("stripe")}
-          className={cn(
-            "flex items-center gap-3 rounded-lg border-2 p-4 transition-colors text-left",
-            value === "stripe"
-              ? "border-primary bg-primary/5"
-              : "border-border hover:border-primary/40"
-          )}
-        >
-          <CreditCard className="h-5 w-5 text-primary shrink-0" />
-          <div>
-            <p className="font-body text-sm font-medium text-text-primary">Card Payment</p>
-            <p className="font-body text-xs text-text-muted">Pay securely online</p>
-          </div>
-        </button>
-        <button
-          type="button"
-          onClick={() => onChange("cod")}
-          className={cn(
-            "flex items-center gap-3 rounded-lg border-2 p-4 transition-colors text-left",
-            value === "cod"
-              ? "border-primary bg-primary/5"
-              : "border-border hover:border-primary/40"
-          )}
-        >
-          <Banknote className="h-5 w-5 text-primary shrink-0" />
-          <div>
-            <p className="font-body text-sm font-medium text-text-primary">Cash on Delivery</p>
-            <p className="font-body text-xs text-text-muted">Pay when delivered</p>
-          </div>
-        </button>
-      </div>
-      {value === "cod" && (
-        <p className="font-body text-xs text-text-muted bg-status-warning-bg border border-status-warning/20 rounded-lg p-3">
-          Your order will require confirmation from our team before being scheduled for delivery.
-        </p>
-      )}
-    </div>
-  );
-}
-
-// ============================================
 // MAIN COMPONENT
 // ============================================
 
@@ -142,9 +83,11 @@ export function PaymentStepV8({
   const router = useRouter();
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const saveToProfileRef = useRef(false);
 
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { items, itemsSubtotal } = useCart();
+  const canProceed = useCanProceed();
   const {
     address,
     delivery,
@@ -158,6 +101,8 @@ export function PaymentStepV8({
     setDeliveryInstructions,
     paymentMethod,
     setPaymentMethod,
+    customerPhone,
+    customerName,
     prevStep: storePrevStep,
   } = useCheckoutStore();
 
@@ -169,7 +114,7 @@ export function PaymentStepV8({
   const isCOD = paymentMethod === "cod";
 
   const handleCheckout = async () => {
-    if (!address || !delivery) return;
+    if (!address || !delivery || !canProceed) return;
 
     setIsCreatingSession(true);
     setError(null);
@@ -196,6 +141,8 @@ export function PaymentStepV8({
           promoCode: promoApplied ? promoCode : undefined,
           deliveryInstructions: deliveryInstructions || undefined,
           paymentMethod,
+          customerPhone,
+          customerName,
         }),
       });
 
@@ -215,6 +162,20 @@ export function PaymentStepV8({
           return;
         }
         throw new Error(data.error?.message ?? "Checkout failed");
+      }
+
+      // Save contact info to profile if user opted in
+      if (saveToProfileRef.current) {
+        fetch("/api/account/profile", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            fullName: customerName,
+            phone: customerPhone,
+          }),
+        }).catch(() => {
+          // Non-fatal: order already placed
+        });
       }
 
       if (isCOD) {
@@ -291,6 +252,11 @@ export function PaymentStepV8({
             exit={shouldAnimate ? { opacity: 0 } : undefined}
             className="space-y-6"
           >
+            {/* Contact Info */}
+            <m.div variants={shouldAnimate ? staggerItem : undefined}>
+              <ContactInfoSection saveToProfileRef={saveToProfileRef} />
+            </m.div>
+
             {/* Order Summary Card with stagger */}
             <m.div
               variants={shouldAnimate ? staggerItem : undefined}
@@ -458,7 +424,7 @@ export function PaymentStepV8({
             variant="success"
             size="lg"
             onClick={handleCheckout}
-            disabled={isCreatingSession}
+            disabled={isCreatingSession || !canProceed}
             isLoading={isCreatingSession}
             loadingText="Processing..."
             leftIcon={

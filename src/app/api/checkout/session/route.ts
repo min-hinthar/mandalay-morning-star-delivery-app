@@ -241,6 +241,8 @@ export async function POST(request: Request) {
         discountCents,
         customerNotes: input.customerNotes ?? null,
         deliveryInstructions: input.deliveryInstructions ?? null,
+        customerPhone: input.customerPhone,
+        customerName: input.customerName,
         rpcItems,
         rpcModifiers,
       });
@@ -313,6 +315,8 @@ export async function POST(request: Request) {
         delivery_window_end: toISOWithTimezone(input.scheduledDate, input.timeWindowEnd),
         special_instructions: input.customerNotes ?? null,
         delivery_instructions: input.deliveryInstructions ?? null,
+        customer_phone: input.customerPhone,
+        customer_name: input.customerName,
       },
       p_items: rpcItems,
       p_modifiers: rpcModifiers.length > 0 ? rpcModifiers : [],
@@ -398,7 +402,12 @@ export async function POST(request: Request) {
     }
 
     // Create Stripe Checkout Session
-    const lineItems = createStripeLineItems(validatedItems, totals.deliveryFeeCents, tipCents);
+    const lineItems = createStripeLineItems(
+      validatedItems,
+      totals.deliveryFeeCents,
+      tipCents,
+      totals.taxCents
+    );
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
     const sessionParams: Stripe.Checkout.SessionCreateParams = {

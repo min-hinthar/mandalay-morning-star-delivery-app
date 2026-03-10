@@ -54,6 +54,8 @@ export interface Order {
   promoCode: string | null;
   discountCents: number;
   deliveryInstructions: string | null;
+  customerPhone: string | null;
+  customerName: string | null;
   address?: OrderAddress | null;
   items?: OrderItem[];
 }

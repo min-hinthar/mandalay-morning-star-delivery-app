@@ -18,6 +18,8 @@ interface CheckoutStore extends CheckoutState {
   clearPromo: () => void;
   setDeliveryInstructions: (instructions: string) => void;
   setPaymentMethod: (method: PaymentMethod) => void;
+  setCustomerPhone: (phone: string) => void;
+  setCustomerName: (name: string) => void;
   reset: () => void;
 }
 
@@ -35,6 +37,8 @@ const initialState: CheckoutState = {
   discountLabel: "",
   deliveryInstructions: "",
   paymentMethod: "stripe",
+  customerPhone: "",
+  customerName: "",
 };
 
 const STEP_ORDER: CheckoutStep[] = ["address", "time", "payment"];
@@ -81,6 +85,10 @@ export const useCheckoutStore = create<CheckoutStore>((set, get) => ({
 
   setPaymentMethod: (method) => set({ paymentMethod: method }),
 
+  setCustomerPhone: (phone) => set({ customerPhone: phone }),
+
+  setCustomerName: (name) => set({ customerName: name }),
+
   reset: () => set(initialState),
 }));
 
@@ -89,14 +97,16 @@ export const useCheckoutStore = create<CheckoutStore>((set, get) => ({
  * Use this instead of a store method to ensure React re-renders on changes.
  */
 export function useCanProceed(): boolean {
-  const { step, address, delivery } = useCheckoutStore();
+  const { step, address, delivery, customerPhone, customerName } = useCheckoutStore();
   switch (step) {
     case "address":
       return address !== null;
     case "time":
       return delivery !== null;
-    case "payment":
-      return true;
+    case "payment": {
+      const digitsOnly = customerPhone.replace(/\D/g, "");
+      return digitsOnly.length >= 10 && customerName.trim().length >= 2;
+    }
     default:
       return false;
   }

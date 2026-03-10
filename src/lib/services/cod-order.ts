@@ -20,6 +20,8 @@ export interface CODOrderInput {
   discountCents: number;
   customerNotes: string | null;
   deliveryInstructions: string | null;
+  customerPhone: string;
+  customerName: string;
   rpcItems: unknown[];
   rpcModifiers: unknown[];
 }
@@ -62,6 +64,8 @@ export async function createCODOrder(
         delivery_window_end: toISOWithTimezone(input.scheduledDate, input.timeWindowEnd),
         special_instructions: input.customerNotes,
         delivery_instructions: input.deliveryInstructions,
+        customer_phone: input.customerPhone,
+        customer_name: input.customerName,
       },
       p_items: input.rpcItems as Json,
       p_modifiers: (input.rpcModifiers.length > 0 ? input.rpcModifiers : []) as Json,

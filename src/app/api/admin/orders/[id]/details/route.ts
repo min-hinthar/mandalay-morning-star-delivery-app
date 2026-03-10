@@ -27,6 +27,8 @@ interface OrderRow {
   cod_approved_at: string | null;
   is_priority: boolean | null;
   needs_contact: boolean | null;
+  customer_phone: string | null;
+  customer_name: string | null;
   user_id: string;
   profiles: {
     full_name: string | null;
@@ -122,6 +124,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         cod_approved_at,
         is_priority,
         needs_contact,
+        customer_phone,
+        customer_name,
         user_id,
         profiles!orders_user_id_fkey (
           full_name,
@@ -234,9 +238,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     const response = {
       id: order.id,
       status: order.status,
-      customerName: order.profiles?.full_name ?? null,
+      customerName: order.customer_name ?? order.profiles?.full_name ?? null,
       customerEmail: order.profiles?.email ?? "",
-      customerPhone: order.profiles?.phone ?? null,
+      customerPhone: order.customer_phone ?? order.profiles?.phone ?? null,
       address: order.addresses
         ? {
             street: order.addresses.line_1,
