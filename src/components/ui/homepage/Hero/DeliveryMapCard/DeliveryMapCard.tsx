@@ -1,14 +1,18 @@
 "use client";
 
 import { useCallback, useState, useEffect, useRef } from "react";
+import { m } from "framer-motion";
 import { GoogleMap, useJsApiLoader, Circle } from "@react-google-maps/api";
-import { Loader2, MapPin } from "lucide-react";
+import { Loader2, MapPin, Clock } from "lucide-react";
+import Image from "next/image";
 import { cn } from "@/lib/utils/cn";
+import { spring } from "@/lib/motion-tokens";
 import { KITCHEN_LOCATION, COVERAGE_LIMITS } from "@/types/address";
 import { mapStyles, LIBRARIES, MAP_ID } from "@/components/ui/coverage/CoverageRouteMap/map-styles";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useSimulatedPins } from "./useSimulatedPins";
 import { SimulatedPinsManager } from "./SimulatedPins";
+import { StatusBar } from "./StatusBar";
 import type { DeliveryMapCardProps } from "./types";
 
 const COVERAGE_RADIUS_METERS = COVERAGE_LIMITS.maxDistanceMiles * 1609.34;
@@ -18,6 +22,7 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
   const { shouldAnimate } = useAnimationPreference();
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [fillOpacity, setFillOpacity] = useState(0.06);
   const containerRef = useRef<HTMLDivElement>(null);
   const kitchenMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const pins = useSimulatedPins();
@@ -36,6 +41,14 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
     });
     observer.observe(el);
     return () => observer.disconnect();
+  }, []);
+
+  // Pulsing coverage circle
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setFillOpacity((prev) => (prev <= 0.06 ? 0.1 : 0.04));
+    }, 1500);
+    return () => clearInterval(interval);
   }, []);
 
   // Kitchen marker (AdvancedMarkerElement)
@@ -66,7 +79,7 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
   const onLoad = useCallback((m: google.maps.Map) => setMap(m), []);
   const onUnmount = useCallback(() => setMap(null), []);
 
-  // Inject pulse keyframes
+  // Inject keyframes (pulse-ring + pin-drop)
   useEffect(() => {
     if (typeof document === "undefined") return;
     const id = "delivery-map-pulse-style";
@@ -75,8 +88,13 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
     style.id = id;
     style.textContent = `
       @keyframes pulse-ring {
-        0% { transform: scale(1); opacity: 1; }
+        0% { transform: scale(1); opacity: 0.2; }
         100% { transform: scale(2.5); opacity: 0; }
+      }
+      @keyframes pin-drop {
+        0% { transform: scale(0); }
+        70% { transform: scale(1.2); }
+        100% { transform: scale(1); }
       }
     `;
     document.head.appendChild(style);
@@ -106,78 +124,122 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
   }
 
   return (
-    <div
-      ref={containerRef}
-      className="relative rounded-2xl overflow-hidden ring-1 ring-border/30 shadow-xl"
+    <m.div
+      initial={shouldAnimate ? { opacity: 0, scale: 0.95 } : undefined}
+      whileInView={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
+      viewport={{ once: true }}
+      transition={{ ...spring.gentle, delay: 0.1 }}
+      className="relative"
     >
-      {/* Map */}
-      <div className="h-60 md:h-80">
-        {isVisible && (
-          <GoogleMap
-            mapContainerStyle={{ width: "100%", height: "100%" }}
-            center={CENTER}
-            zoom={9}
-            onLoad={onLoad}
-            onUnmount={onUnmount}
-            options={{
-              styles: mapStyles,
-              disableDefaultUI: true,
-              zoomControl: false,
-              clickableIcons: false,
-              gestureHandling: "cooperative",
-              ...(MAP_ID && { mapId: MAP_ID }),
-            }}
-          >
-            <Circle
-              center={CENTER}
-              radius={COVERAGE_RADIUS_METERS}
-              options={{
-                fillColor: "#A41034",
-                fillOpacity: 0.06,
-                strokeColor: "#A41034",
-                strokeOpacity: 0.3,
-                strokeWeight: 2,
-              }}
-            />
-            {map && <SimulatedPinsManager map={map} pins={pins} shouldAnimate={shouldAnimate} />}
-          </GoogleMap>
-        )}
-      </div>
+      {/* Ambient glow behind map */}
+      <div className="absolute -inset-2 rounded-2xl bg-gradient-to-r from-amber-400/20 via-orange-400/15 to-rose-400/20 blur-xl" />
 
-      {/* Live counter badge — top-left */}
       <div
+        ref={containerRef}
         className={cn(
-          "absolute top-3 left-3 flex items-center gap-2 px-3 py-2 rounded-xl",
-          "bg-surface-primary/90 backdrop-blur-sm shadow-md",
-          "text-xs font-semibold text-gray-800"
+          "relative rounded-2xl overflow-hidden",
+          "shadow-[0_8px_40px_rgba(0,0,0,0.2),0_16px_64px_rgba(0,0,0,0.15)]",
+          "border-2 border-white/30"
         )}
       >
-        {/* Pulsing green dot */}
-        <span className="relative flex h-2.5 w-2.5">
-          {shouldAnimate && (
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
+        {/* Map */}
+        <div className="h-60 md:h-80">
+          {isVisible && (
+            <GoogleMap
+              mapContainerStyle={{ width: "100%", height: "100%" }}
+              center={CENTER}
+              zoom={9}
+              onLoad={onLoad}
+              onUnmount={onUnmount}
+              options={{
+                styles: mapStyles,
+                disableDefaultUI: true,
+                zoomControl: false,
+                clickableIcons: false,
+                gestureHandling: "cooperative",
+                ...(MAP_ID && { mapId: MAP_ID }),
+              }}
+            >
+              <Circle
+                center={CENTER}
+                radius={COVERAGE_RADIUS_METERS}
+                options={{
+                  fillColor: "#A41034",
+                  fillOpacity,
+                  strokeColor: "#A41034",
+                  strokeOpacity: 0.3,
+                  strokeWeight: 2,
+                }}
+              />
+              {map && <SimulatedPinsManager map={map} pins={pins} shouldAnimate={shouldAnimate} />}
+            </GoogleMap>
           )}
-          <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500" />
-        </span>
-        <span>
-          {deliveriesThisMonth > 0
-            ? `${deliveriesThisMonth} deliveries this month`
-            : "Now delivering"}
-        </span>
-      </div>
-
-      {/* Next delivery badge — top-right */}
-      {nextDeliveryDate && (
-        <div
-          className={cn(
-            "absolute top-3 right-3 px-3 py-2 rounded-xl",
-            "bg-surface-primary/90 backdrop-blur-sm shadow-md",
-            "text-xs font-semibold text-gray-800"
-          )}
-        >
-          Next: {nextDeliveryDate}
         </div>
-      )}
-    </div>
+
+        {/* Gradient depth overlay */}
+        <div className="absolute inset-0 pointer-events-none bg-gradient-to-t from-black/10 via-transparent to-transparent" />
+
+        {/* Top-left badge: pulsing dot + delivery count */}
+        <m.div
+          initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
+          animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
+          transition={{ delay: 0.2 }}
+          className="absolute top-3 left-3"
+        >
+          <div
+            className={cn(
+              "px-3 py-2 rounded-xl",
+              "bg-surface-primary sm:bg-surface-primary/95 sm:backdrop-blur-md",
+              "flex items-center gap-2 text-xs font-medium",
+              "shadow-md ring-1 ring-border/30"
+            )}
+          >
+            <m.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: 5 }}
+              className="w-2.5 h-2.5 rounded-full bg-primary"
+            />
+            <span className="text-text-primary font-semibold">
+              {deliveriesThisMonth > 0 ? `${deliveriesThisMonth} deliveries` : "Now delivering"}
+            </span>
+            <span className="text-text-muted/60">&bull;</span>
+            <Clock className="w-3.5 h-3.5 text-text-muted" />
+            <span className="text-text-secondary">{COVERAGE_LIMITS.maxDurationMinutes} min</span>
+          </div>
+        </m.div>
+
+        {/* Top-right badge: kitchen logo */}
+        <m.div
+          initial={shouldAnimate ? { opacity: 0, x: 10 } : undefined}
+          animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
+          transition={{ delay: 0.3 }}
+          className="absolute top-3 right-3"
+        >
+          <div
+            className={cn(
+              "px-2 py-1.5 rounded-xl",
+              "bg-surface-primary sm:bg-surface-primary/95 sm:backdrop-blur-md",
+              "flex items-center gap-2",
+              "shadow-md ring-1 ring-border/30"
+            )}
+          >
+            <Image
+              src="/logo.png"
+              alt="Mandalay Morning Star"
+              width={28}
+              height={19}
+              className="rounded-lg"
+            />
+            <div className="pr-1">
+              <p className="text-xs font-bold text-text-primary leading-tight">Kitchen</p>
+              <p className="text-2xs text-text-muted leading-tight">Covina, CA</p>
+            </div>
+          </div>
+        </m.div>
+
+        {/* Bottom status bar */}
+        <StatusBar deliveriesThisMonth={deliveriesThisMonth} nextDeliveryDate={nextDeliveryDate} />
+      </div>
+    </m.div>
   );
 }

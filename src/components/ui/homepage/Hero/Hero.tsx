@@ -3,15 +3,11 @@
 /**
  * Hero Component
  *
- * Main hero section with parallax layers, floating emojis, and gradient orbs.
+ * Main hero section with floating emojis and gradient orbs.
  */
 
 import React, { useRef, useState, useCallback } from "react";
-import { m, useScroll, useTransform, useSpring } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { parallaxPresets } from "@/lib/motion-tokens";
-import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { useAnimationContextSafe } from "@/lib/providers/animation-provider";
 import { useCanHover } from "@/lib/hooks/useResponsive";
 import { FloatingEmoji, EMOJI_CONFIG } from "../FloatingEmoji";
 import { GradientOrb, ORB_CONFIG_FAR, ORB_CONFIG_MID } from "../GradientOrb";
@@ -40,8 +36,6 @@ export function Hero({
   deliveriesThisMonth,
   nextDeliveryDate,
 }: HeroProps) {
-  const { shouldAnimate } = useAnimationPreference();
-  const { isParallaxEnabled } = useAnimationContextSafe();
   const canHover = useCanHover();
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -65,33 +59,6 @@ export function Hero({
   const handleMouseLeave = useCallback(() => {
     setMouseOffset({ x: 0, y: 0 });
   }, []);
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start start", "end start"],
-  });
-
-  const orbsFarY = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxEnabled ? ["0%", `${parallaxPresets.far.speedFactor * 100}%`] : ["0%", "0%"]
-  );
-  const orbsMidY = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxEnabled ? ["0%", `${parallaxPresets.mid.speedFactor * 100}%`] : ["0%", "0%"]
-  );
-  const contentY = useTransform(
-    scrollYProgress,
-    [0, 1],
-    isParallaxEnabled ? ["0%", `${parallaxPresets.content.speedFactor * 15}%`] : ["0%", "0%"]
-  );
-  const opacity = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
-
-  const smoothOrbsFarY = useSpring(orbsFarY, { stiffness: 100, damping: 30 });
-  const smoothOrbsMidY = useSpring(orbsMidY, { stiffness: 100, damping: 30 });
-  const smoothContentY = useSpring(contentY, { stiffness: 100, damping: 30 });
-  const smoothOpacity = useSpring(opacity, { stiffness: 100, damping: 30 });
 
   const heroContent = (
     <HeroContent
@@ -119,9 +86,7 @@ export function Hero({
       onMouseLeave={canHover ? handleMouseLeave : undefined}
     >
       <GradientFallback>
-        <m.div style={shouldAnimate ? { y: smoothContentY, opacity: smoothOpacity } : undefined}>
-          {heroContent}
-        </m.div>
+        {heroContent}
         <div
           className="relative w-full px-4 pb-8 max-w-5xl mx-auto"
           // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
@@ -135,28 +100,28 @@ export function Hero({
       </GradientFallback>
 
       {/* Layer 2: Background orbs (far) */}
-      <m.div
+      <div
         className="absolute inset-0 pointer-events-none"
         // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
-        style={{ y: smoothOrbsFarY, zIndex: 1 }}
+        style={{ zIndex: 1 }}
         aria-hidden="true"
       >
         {ORB_CONFIG_FAR.map((orb, i) => (
           <GradientOrb key={`orb-far-${i}`} {...orb} />
         ))}
-      </m.div>
+      </div>
 
       {/* Layer 3: Mid-distance orbs */}
-      <m.div
+      <div
         className="absolute inset-0 pointer-events-none"
         // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
-        style={{ y: smoothOrbsMidY, zIndex: 2 }}
+        style={{ zIndex: 2 }}
         aria-hidden="true"
       >
         {ORB_CONFIG_MID.map((orb, i) => (
           <GradientOrb key={`orb-mid-${i}`} {...orb} />
         ))}
-      </m.div>
+      </div>
 
       {/* Layer 4: Floating emojis */}
       <div
