@@ -21,7 +21,7 @@ const CENTER = { lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng };
 export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: DeliveryMapCardProps) {
   const { shouldAnimate } = useAnimationPreference();
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(true);
   const [fillOpacity, setFillOpacity] = useState(0.06);
   const containerRef = useRef<HTMLDivElement>(null);
   const kitchenMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
@@ -32,7 +32,7 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
     libraries: LIBRARIES,
   });
 
-  // IntersectionObserver gating
+  // IntersectionObserver — pause map when scrolled out of view
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -41,7 +41,7 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
     });
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [isLoaded]);
 
   // Pulsing coverage circle
   useEffect(() => {
@@ -54,6 +54,8 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
   // Kitchen marker (AdvancedMarkerElement)
   useEffect(() => {
     if (!map || !isLoaded || !MAP_ID) return;
+    if (!google.maps.marker?.AdvancedMarkerElement) return;
+
     const content = document.createElement("div");
     content.innerHTML = `
       <div style="width: 40px; height: 40px; border-radius: 50%; background: white;
@@ -109,22 +111,9 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
     );
   }
 
-  if (!isLoaded) {
-    return (
-      <div
-        ref={containerRef}
-        className={cn(
-          "rounded-2xl overflow-hidden bg-hero-stat-bg/40",
-          "h-60 md:h-80 flex items-center justify-center"
-        )}
-      >
-        <Loader2 className="h-8 w-8 animate-spin text-hero-text/40" />
-      </div>
-    );
-  }
-
   return (
     <m.div
+      ref={containerRef}
       initial={shouldAnimate ? { opacity: 0, scale: 0.95 } : undefined}
       whileInView={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
       viewport={{ once: true }}
@@ -135,7 +124,6 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
       <div className="absolute -inset-2 rounded-2xl bg-gradient-to-r from-amber-400/20 via-orange-400/15 to-rose-400/20 blur-xl" />
 
       <div
-        ref={containerRef}
         className={cn(
           "relative rounded-2xl overflow-hidden",
           "shadow-[0_8px_40px_rgba(0,0,0,0.2),0_16px_64px_rgba(0,0,0,0.15)]",
@@ -144,7 +132,11 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
       >
         {/* Map */}
         <div className="h-60 md:h-80">
-          {isVisible && (
+          {!isLoaded ? (
+            <div className="h-full flex items-center justify-center bg-hero-stat-bg/40">
+              <Loader2 className="h-8 w-8 animate-spin text-hero-text/40" />
+            </div>
+          ) : isVisible ? (
             <GoogleMap
               mapContainerStyle={{ width: "100%", height: "100%" }}
               center={CENTER}
@@ -173,7 +165,7 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
               />
               {map && <SimulatedPinsManager map={map} pins={pins} shouldAnimate={shouldAnimate} />}
             </GoogleMap>
-          )}
+          ) : null}
         </div>
 
         {/* Gradient depth overlay */}

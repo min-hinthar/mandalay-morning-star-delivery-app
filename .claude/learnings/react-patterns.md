@@ -64,6 +64,29 @@ const ref = useCallback((node: HTMLDivElement | null) => setElement(node), []);
 
 ---
 
+## Ref Instability Across Conditional Renders (IntersectionObserver)
+
+Early-return patterns (loading → loaded) that attach the same `ref` to different DOM elements break `useEffect` with `[]` deps. The effect captures the initial element; when the component transitions, the ref moves but the effect doesn't re-run. IntersectionObserver watches the old (unmounted) element, state stays stale.
+
+```tsx
+// BAD — ref moves between elements, observer loses track
+if (!isLoaded) return <div ref={containerRef}>Loading...</div>;
+return <div ref={containerRef}><Map /></div>;
+
+// GOOD — stable wrapper always renders, content changes inside
+return (
+  <div ref={containerRef}>
+    {!isLoaded ? <Spinner /> : <Map />}
+  </div>
+);
+```
+
+Also: default `isVisible` to `true` for above-fold components, use IntersectionObserver only for pause/resume optimization.
+
+**Apply when:** Combining `useRef` + `useEffect`-based observers (IntersectionObserver, ResizeObserver, MutationObserver) with conditional rendering that swaps the ref target element.
+
+---
+
 ## Inline Styles with CSS Variables
 
 When className tokens don't apply (portals, stacking context), use both: `style={{ backgroundColor: "var(--color-surface-elevated)" }}` + `className="bg-surface-elevated"`.

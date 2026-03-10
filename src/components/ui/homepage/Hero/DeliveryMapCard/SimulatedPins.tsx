@@ -97,7 +97,7 @@ export function SimulatedPinsManager({ map, pins, shouldAnimate }: SimulatedPins
   const timeoutsRef = useRef<Set<ReturnType<typeof setTimeout>>>(new Set());
 
   useEffect(() => {
-    if (!MAP_ID) return;
+    if (!MAP_ID || !google.maps.marker?.AdvancedMarkerElement) return;
 
     const existing = markersRef.current;
     const currentIds = new Set(pins.map((p) => p.id));
@@ -117,6 +117,8 @@ export function SimulatedPinsManager({ map, pins, shouldAnimate }: SimulatedPins
       const delay = shouldAnimate ? pin.delay : 0;
       const timeout = setTimeout(() => {
         timeoutsRef.current.delete(timeout);
+        if (!google.maps.marker?.AdvancedMarkerElement) return;
+
         const content = createPinContent(pins.indexOf(pin), shouldAnimate);
 
         const tooltip = createTooltip(pin);
@@ -135,6 +137,15 @@ export function SimulatedPinsManager({ map, pins, shouldAnimate }: SimulatedPins
           content,
           title: pin.areaName,
         });
+
+        // Raise hovered pin above others so tooltip isn't clipped
+        content.addEventListener("mouseenter", () => {
+          marker.zIndex = 1000;
+        });
+        content.addEventListener("mouseleave", () => {
+          marker.zIndex = undefined as unknown as number;
+        });
+
         existing.set(pin.id, marker);
       }, delay);
 
