@@ -99,31 +99,6 @@ ComponentName/
 - **security-guidance** — warns on auth/payment/RLS code changes
 - **commit-commands** — `/commit` and `/commit-push-pr` for standardized git workflow
 
-## Workflow Skills
-
-### Anthropic Built-ins
-
-| Command | Purpose |
-|---------|---------|
-| `/batch` | Bulk changes across many files (migrations, pattern updates) |
-| `/review` | PR quality gate — correctness, security, test coverage |
-| `/security-review` | Scan branch changes for injection, auth, data exposure |
-| `/diff` | Interactive diff viewer before commits |
-| `/context` | Token budget visualization (use at 50% threshold) |
-| `/debug` | Troubleshoot Claude session issues via debug logs |
-| `/loop` | Run prompt on recurring interval (monitor deploys, poll CI) |
-
-### Plugin & Custom Skills
-
-| Command | Purpose |
-|---------|---------|
-| `/simplify` | Review changed code for reuse, quality, efficiency |
-| `/commit` | Create git commit with proper message |
-| `/retro` | Capture session learnings |
-| `/sync` | Add, commit, push changes |
-| `/frontend-design` | Create polished UI components |
-| `/mvp-prd` → `/prd-clarify` → `/prd-ux` → `/ux-prompts` | Full design pipeline |
-
 ## GSD Phase Hints
 
 - After `/gsd:execute-phase`: run `/simplify` on changed files
