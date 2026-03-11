@@ -110,6 +110,7 @@ export function buildRpcPayload(items: ValidatedCartItem[]) {
   const rpcItems = items.map((item) => ({
     menu_item_id: item.menuItem.id,
     name_snapshot: item.menuItem.name_en,
+    name_my_snapshot: item.menuItem.name_my || null,
     base_price_snapshot: item.menuItem.base_price_cents,
     quantity: item.quantity,
     line_total_cents: item.lineTotalCents,

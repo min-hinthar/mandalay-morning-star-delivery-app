@@ -137,7 +137,9 @@ export function OrderDetailClient() {
 
   // Build order summary for manual email footer
   const orderSummary = [
-    order.items.map((i) => `${i.name} x${i.quantity}`).join(", "),
+    order.items
+      .map((i) => `${i.name}${i.nameMy ? ` (${i.nameMy})` : ""} x${i.quantity}`)
+      .join(", "),
     order.address ? `Delivery: ${order.address.street}, ${order.address.city}` : null,
   ]
     .filter(Boolean)

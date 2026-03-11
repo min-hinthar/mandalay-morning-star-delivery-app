@@ -4,7 +4,8 @@ import { createServiceClient } from "@/lib/supabase/server";
 import type { ModifierGroupWithItems, ValidatedCartItem } from "@/lib/utils/order";
 import type { ModifierGroupsRow } from "@/types/database";
 import { logger } from "@/lib/utils/logger";
-import { sendEmail, fetchSuggestedItems } from "@/lib/email";
+import { sendEmail, fetchSuggestedItems, getAdminEmails } from "@/lib/email";
+import { AdminNewOrderAlert } from "@/emails/AdminNewOrderAlert";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 
 /**
@@ -59,6 +60,7 @@ export function buildModifierGroupsMap(
 
 export async function sendCODOrderEmail(opts: {
   orderId: string;
+  userId: string;
   userEmail: string;
   customerName: string;
   validatedItems: ValidatedCartItem[];
@@ -86,7 +88,7 @@ export async function sendCODOrderEmail(opts: {
       subject: `\uD83C\uDF5C Your order #${shortId} has been received`,
       type: "order_confirmation",
       orderId: opts.orderId,
-      userId: opts.orderId,
+      userId: opts.userId,
       idempotencyKey: `cod-received-${opts.orderId}`,
       react: React.createElement(OrderConfirmation, {
         customerName: opts.customerName,
@@ -116,6 +118,52 @@ export async function sendCODOrderEmail(opts: {
         suggestedItems,
       }),
     });
+    // Send admin new-order alert for COD orders
+    const admins = await getAdminEmails();
+    const STAGGER_MS = 100;
+
+    for (let i = 0; i < admins.length; i++) {
+      const admin = admins[i];
+      await sendEmail({
+        to: admin.email,
+        subject: `New COD Order #${shortId} from ${opts.customerName}`,
+        react: React.createElement(AdminNewOrderAlert, {
+          orderId: opts.orderId,
+          customerName: opts.customerName,
+          customerEmail: opts.userEmail,
+          items: opts.validatedItems.map((item) => ({
+            name: item.menuItem.name_en,
+            quantity: item.quantity,
+            lineTotalCents: item.lineTotalCents,
+            modifiers: item.modifiers?.map((m) => ({
+              name: m.name,
+              priceDelta: m.price_delta_cents,
+            })),
+          })),
+          subtotalCents: opts.subtotalCents,
+          deliveryFeeCents: opts.deliveryFeeCents,
+          taxCents: opts.taxCents,
+          tipCents: opts.tipCents,
+          totalCents: opts.totalCents,
+          deliveryWindowStart: `${opts.scheduledDate}T${opts.timeWindowStart}:00`,
+          deliveryWindowEnd: `${opts.scheduledDate}T${opts.timeWindowEnd}:00`,
+          address: opts.address,
+          specialInstructions: opts.customerNotes,
+          paymentMethod: "cod",
+          isPendingApproval: true,
+          placedAt: new Date().toISOString(),
+        }),
+        type: "admin_new_order",
+        orderId: opts.orderId,
+        userId: admin.id,
+        mandatory: true,
+        idempotencyKey: `admin-new-order-${opts.orderId}-${admin.id}`,
+      });
+
+      if (i < admins.length - 1) {
+        await new Promise((resolve) => setTimeout(resolve, STAGGER_MS));
+      }
+    }
   } catch (emailErr) {
     logger.error("Failed to send COD order email", {
       orderId: opts.orderId,

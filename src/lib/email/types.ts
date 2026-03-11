@@ -4,7 +4,8 @@ import type { NotificationPrefs } from "@/components/ui/account/SettingsTab/sett
 // EMAIL TYPES
 // ===========================================
 
-export type EmailType =
+/** Customer-facing email types — must match the DB notification_type enum. */
+export type CustomerEmailType =
   | "order_confirmation"
   | "cancellation"
   | "refund"
@@ -12,6 +13,9 @@ export type EmailType =
   | "out_for_delivery"
   | "arriving_soon"
   | "delivered";
+
+/** All email types, including admin-only types not stored in notification_logs. */
+export type EmailType = CustomerEmailType | "admin_new_order" | "admin_daily_digest";
 
 export interface SendEmailOptions {
   to: string;
@@ -38,6 +42,14 @@ export interface SendEmailResult {
 export const MANDATORY_EMAIL_TYPES: readonly EmailType[] = [
   "order_confirmation",
   "refund",
+  "admin_new_order",
+  "admin_daily_digest",
+] as const;
+
+/** Admin-only email types that are not logged to notification_logs (DB enum excludes them). */
+export const ADMIN_EMAIL_TYPES: readonly EmailType[] = [
+  "admin_new_order",
+  "admin_daily_digest",
 ] as const;
 
 // ===========================================
@@ -59,6 +71,9 @@ export function mapTypeToPrefKey(type: EmailType): keyof NotificationPrefs {
     case "out_for_delivery":
     case "arriving_soon":
     case "delivered":
+      return "order_updates";
+    case "admin_new_order":
+    case "admin_daily_digest":
       return "order_updates";
   }
 }

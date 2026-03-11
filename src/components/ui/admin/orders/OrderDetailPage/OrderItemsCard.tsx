@@ -59,6 +59,7 @@ export function OrderItemsCard({ items, onRefund, orderStatus }: OrderItemsCardP
                   >
                     {item.name}
                   </span>
+                  {item.nameMy && <span className="text-sm text-text-muted">({item.nameMy})</span>}
                   <span className="inline-flex items-center justify-center h-5 min-w-[20px] px-1.5 rounded-full bg-surface-tertiary text-xs font-semibold text-text-secondary">
                     x{item.quantity}
                   </span>

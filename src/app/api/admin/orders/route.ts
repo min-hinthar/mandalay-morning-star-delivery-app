@@ -5,6 +5,13 @@ import { apiError } from "@/lib/utils/api-error";
 import type { OrderStatus, RefundStatus } from "@/types/database";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
+interface OrderItemRow {
+  quantity: number;
+  name_snapshot: string;
+  name_my_snapshot: string | null;
+  menu_items: { name_my: string | null } | null;
+}
+
 interface OrderRow {
   id: string;
   status: OrderStatus;
@@ -13,7 +20,7 @@ interface OrderRow {
   delivery_window_start: string | null;
   placed_at: string;
   payment_method: string | null;
-  order_items: Array<{ quantity: number }>;
+  order_items: OrderItemRow[];
   profiles: {
     full_name: string | null;
     email: string;
@@ -54,7 +61,7 @@ export async function GET(request: Request) {
         delivery_window_start,
         placed_at,
         payment_method,
-        order_items (quantity),
+        order_items (quantity, name_snapshot, name_my_snapshot, menu_items(name_my)),
         profiles!orders_user_id_fkey (
           full_name,
           email
@@ -85,8 +92,17 @@ export async function GET(request: Request) {
 
     const total = count ?? 0;
 
+    const transformedOrders = (orders ?? []).map((order) => ({
+      ...order,
+      order_items: order.order_items.map((oi) => ({
+        quantity: oi.quantity,
+        name_snapshot: oi.name_snapshot,
+        name_my: oi.name_my_snapshot ?? oi.menu_items?.name_my ?? null,
+      })),
+    }));
+
     return NextResponse.json({
-      data: orders ?? [],
+      data: transformedOrders,
       pagination: {
         page,
         limit,

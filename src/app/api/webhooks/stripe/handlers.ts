@@ -1,8 +1,10 @@
+/* eslint-disable max-lines */
 import React from "react";
 import { after } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
-import { sendEmail, fetchSuggestedItems } from "@/lib/email";
+import { sendEmail, fetchSuggestedItems, getAdminEmails } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
+import { AdminNewOrderAlert } from "@/emails/AdminNewOrderAlert";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import { RefundNotification } from "@/emails/RefundNotification";
 import type Stripe from "stripe";
@@ -206,6 +208,68 @@ export async function handleCheckoutSessionCompleted(
       logger.error("Failed to send order confirmation email", {
         orderId,
         error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+      });
+    }
+  });
+
+  // Schedule admin new-order alert after response
+  after(async () => {
+    try {
+      const admins = await getAdminEmails();
+      const STAGGER_MS = 100;
+
+      for (let i = 0; i < admins.length; i++) {
+        const admin = admins[i];
+        await sendEmail({
+          to: admin.email,
+          subject: `New Order #${shortId} from ${profile?.full_name || "Customer"}`,
+          react: React.createElement(AdminNewOrderAlert, {
+            orderId,
+            customerName: profile?.full_name || "Unknown Customer",
+            customerEmail: customerEmail,
+            items: items.map((item) => ({
+              name: item.name_snapshot,
+              quantity: item.quantity,
+              lineTotalCents: item.line_total_cents,
+              modifiers: item.order_item_modifiers?.map((m) => ({
+                name: m.name_snapshot,
+                priceDelta: m.price_delta_snapshot,
+              })),
+            })),
+            subtotalCents: orderData.subtotal_cents,
+            deliveryFeeCents: orderData.delivery_fee_cents,
+            taxCents: orderData.tax_cents,
+            totalCents: orderData.total_cents,
+            deliveryWindowStart: orderData.delivery_window_start ?? undefined,
+            deliveryWindowEnd: orderData.delivery_window_end ?? undefined,
+            address: address
+              ? {
+                  line1: address.line_1,
+                  line2: address.line_2 ?? undefined,
+                  city: address.city,
+                  state: address.state,
+                  postalCode: address.postal_code,
+                }
+              : { line1: "Address on file", city: "", state: "", postalCode: "" },
+            specialInstructions: orderData.special_instructions ?? undefined,
+            paymentMethod: "stripe",
+            placedAt: orderData.placed_at,
+          }),
+          type: "admin_new_order",
+          orderId,
+          userId: admin.id,
+          mandatory: true,
+          idempotencyKey: `admin-new-order-${orderId}-${admin.id}`,
+        });
+
+        if (i < admins.length - 1) {
+          await new Promise((resolve) => setTimeout(resolve, STAGGER_MS));
+        }
+      }
+    } catch (adminEmailErr) {
+      logger.error("Failed to send admin new-order alert", {
+        orderId,
+        error: adminEmailErr instanceof Error ? adminEmailErr.message : String(adminEmailErr),
       });
     }
   });

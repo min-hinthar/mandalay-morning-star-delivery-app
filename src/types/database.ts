@@ -952,6 +952,7 @@ export type Database = {
           id: string;
           line_total_cents: number;
           menu_item_id: string | null;
+          name_my_snapshot: string | null;
           name_snapshot: string;
           order_id: string;
           quantity: number;
@@ -964,6 +965,7 @@ export type Database = {
           id?: string;
           line_total_cents: number;
           menu_item_id?: string | null;
+          name_my_snapshot?: string | null;
           name_snapshot: string;
           order_id: string;
           quantity?: number;
@@ -976,6 +978,7 @@ export type Database = {
           id?: string;
           line_total_cents?: number;
           menu_item_id?: string | null;
+          name_my_snapshot?: string | null;
           name_snapshot?: string;
           order_id?: string;
           quantity?: number;
