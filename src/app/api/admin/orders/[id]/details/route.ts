@@ -51,11 +51,13 @@ interface EmailLogRow {
 interface OrderItemRow {
   id: string;
   name_snapshot: string;
+  name_my_snapshot: string | null;
   base_price_snapshot: number;
   quantity: number;
   line_total_cents: number;
   refunded_quantity: number;
   special_instructions: string | null;
+  menu_items: { name_my: string | null } | null;
 }
 
 interface AuditLogRow {
@@ -160,11 +162,13 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         `
         id,
         name_snapshot,
+        name_my_snapshot,
         base_price_snapshot,
         quantity,
         line_total_cents,
         refunded_quantity,
-        special_instructions
+        special_instructions,
+        menu_items(name_my)
       `
       )
       .eq("order_id", orderId)
@@ -253,6 +257,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       items: (items || []).map((item) => ({
         id: item.id,
         name: item.name_snapshot,
+        nameMy: item.name_my_snapshot ?? item.menu_items?.name_my ?? null,
         quantity: item.quantity,
         basePrice: item.base_price_snapshot,
         lineTotal: item.line_total_cents,

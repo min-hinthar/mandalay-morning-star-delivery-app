@@ -428,3 +428,27 @@ Sequel to above. Map card intermittently failed to render on first page load —
 **Fix:** (1) Stable container ref — single `m.div` always renders, loading spinner inside (2) Default `isVisible` to `true` (above-fold component) (3) Added `isLoaded` to IntersectionObserver deps (4) Guard `google.maps.marker?.AdvancedMarkerElement` before marker creation (5) Added `loading` fallback to dynamic import.
 
 **Prevention:** Never attach the same ref to different DOM elements across conditional renders. For `useEffect`-based observers, ensure the ref target is stable. Guard Google Maps advanced APIs before use.
+
+---
+
+## COD Email userId = orderId | Email/Data | Medium
+
+**Date:** 2026-03-11 | **Files:** `src/app/api/checkout/session/helpers.ts`
+
+`sendCODOrderEmail` passed `userId: opts.orderId` to `sendEmail()`. The orderId was stored in `notification_logs.user_id`, corrupting audit trail. Function interface also lacked `userId` field — callers had no way to pass it.
+
+**Fix:** Added `userId` to `sendCODOrderEmail` opts interface. Changed `userId: opts.orderId` → `userId: opts.userId`. Updated caller in `route.ts` to pass `userId: user.id`.
+
+**Prevention:** When building email helper wrappers, always map `userId` explicitly from auth context. Never reuse `orderId` for a different field. TypeScript won't catch it when both are `string`.
+
+---
+
+## Admin Email Types Not in DB Enum | TypeScript/DB | High
+
+**Date:** 2026-03-11 | **Files:** `src/lib/email/types.ts`, `src/lib/email/send.ts`, `src/app/api/cron/admin-daily-digest/route.ts`
+
+Added `admin_new_order` and `admin_daily_digest` to `EmailType` union but the DB `notification_logs.notification_type` enum only covers customer types. `sendEmail()` tried to insert admin types → DB constraint violation.
+
+**Fix:** Split `CustomerEmailType` (DB-safe) from `EmailType` (all types). Added `ADMIN_EMAIL_TYPES` constant. Guard both `notification_logs` inserts in `send.ts` to skip for admin types. Cron dedupe uses `app_settings` table instead of `notification_logs`.
+
+**Prevention:** When adding new email types, check if the DB enum includes them. If not, either add a migration or guard the insert. Admin-only types that don't need user preference checks should skip `notification_logs` entirely.

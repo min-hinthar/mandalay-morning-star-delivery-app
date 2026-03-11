@@ -13,8 +13,10 @@ import {
   RETRY_BASE_DELAY_MS,
 } from "./constants";
 import {
+  ADMIN_EMAIL_TYPES,
   MANDATORY_EMAIL_TYPES,
   mapTypeToPrefKey,
+  type CustomerEmailType,
   type SendEmailOptions,
   type SendEmailResult,
 } from "./types";
@@ -158,21 +160,24 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       }
 
       // -----------------------------------------------
-      // Step 5: Success — log to notification_logs
+      // Step 5: Success — log to notification_logs (customer emails only)
       // -----------------------------------------------
       const resendId = data?.id;
-      await supabase.from("notification_logs").insert({
-        order_id: options.orderId,
-        user_id: options.userId,
-        notification_type: options.type,
-        channel: "email",
-        recipient: options.to,
-        subject: options.subject,
-        resend_id: resendId ?? null,
-        status: "sent",
-        retry_count: attempt,
-        sent_at: new Date().toISOString(),
-      });
+      const isAdminEmail = (ADMIN_EMAIL_TYPES as readonly string[]).includes(options.type);
+      if (!isAdminEmail) {
+        await supabase.from("notification_logs").insert({
+          order_id: options.orderId,
+          user_id: options.userId,
+          notification_type: options.type as CustomerEmailType,
+          channel: "email",
+          recipient: options.to,
+          subject: options.subject,
+          resend_id: resendId ?? null,
+          status: "sent",
+          retry_count: attempt,
+          sent_at: new Date().toISOString(),
+        });
+      }
 
       logger.info("Email sent successfully", {
         flowId,
@@ -195,19 +200,22 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   }
 
   // -----------------------------------------------
-  // Step 6: All retries exhausted — log failure
+  // Step 6: All retries exhausted — log failure (customer emails only)
   // -----------------------------------------------
-  await supabase.from("notification_logs").insert({
-    order_id: options.orderId,
-    user_id: options.userId,
-    notification_type: options.type,
-    channel: "email",
-    recipient: options.to,
-    subject: options.subject,
-    status: "failed",
-    retry_count: MAX_RETRY_ATTEMPTS,
-    error_message: lastError ?? "Unknown error after retries",
-  });
+  const isAdminEmailFailed = (ADMIN_EMAIL_TYPES as readonly string[]).includes(options.type);
+  if (!isAdminEmailFailed) {
+    await supabase.from("notification_logs").insert({
+      order_id: options.orderId,
+      user_id: options.userId,
+      notification_type: options.type as CustomerEmailType,
+      channel: "email",
+      recipient: options.to,
+      subject: options.subject,
+      status: "failed",
+      retry_count: MAX_RETRY_ATTEMPTS,
+      error_message: lastError ?? "Unknown error after retries",
+    });
+  }
 
   logger.error("Email send failed after all retries", {
     flowId,

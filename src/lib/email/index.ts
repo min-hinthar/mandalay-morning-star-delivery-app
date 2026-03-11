@@ -1,3 +1,4 @@
+export { getAdminEmails, type AdminRecipient } from "./admin-recipients";
 export { buildEmailElement } from "./build";
 export { getResendClient } from "./client";
 export {

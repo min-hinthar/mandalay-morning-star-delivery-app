@@ -69,10 +69,34 @@ export function OrderCardRow({ order, selected = false, onClick }: OrderCardRowP
           <p className="text-xs text-text-muted truncate">{order.customerEmail}</p>
         </div>
 
-        {/* Items count */}
-        <span className="text-sm text-text-secondary w-[60px] text-center flex-shrink-0">
-          {order.itemCount} {order.itemCount === 1 ? "item" : "items"}
-        </span>
+        {/* Items */}
+        <div
+          className="text-sm text-text-secondary w-[200px] flex-shrink-0 truncate"
+          title={
+            order.items
+              ?.map((i) => {
+                const my = i.nameMy ? ` (${i.nameMy})` : "";
+                return `${i.name}${my} x${i.quantity}`;
+              })
+              .join(", ") ?? `${order.itemCount} items`
+          }
+        >
+          {order.items?.length ? (
+            order.items.map((i, idx) => (
+              <span key={idx}>
+                {idx > 0 && ", "}
+                {i.name}
+                {i.nameMy && <span className="text-text-muted"> ({i.nameMy})</span>}
+                {" x"}
+                {i.quantity}
+              </span>
+            ))
+          ) : (
+            <span>
+              {order.itemCount} {order.itemCount === 1 ? "item" : "items"}
+            </span>
+          )}
+        </div>
 
         {/* Total */}
         <span className="font-medium text-sm text-text-primary w-[80px] text-right flex-shrink-0">
@@ -156,8 +180,22 @@ export function OrderCardRow({ order, selected = false, onClick }: OrderCardRowP
         </div>
         <div className="flex items-center justify-between text-xs text-text-muted">
           <span className="font-mono">#{order.id.slice(0, 8).toUpperCase()}</span>
-          <span>
-            {order.itemCount} {order.itemCount === 1 ? "item" : "items"}
+          <span className="truncate max-w-[180px] text-right">
+            {order.items?.length ? (
+              order.items.map((i, idx) => (
+                <span key={idx}>
+                  {idx > 0 && ", "}
+                  {i.name}
+                  {i.nameMy && ` (${i.nameMy})`}
+                  {" x"}
+                  {i.quantity}
+                </span>
+              ))
+            ) : (
+              <span>
+                {order.itemCount} {order.itemCount === 1 ? "item" : "items"}
+              </span>
+            )}
           </span>
         </div>
       </div>

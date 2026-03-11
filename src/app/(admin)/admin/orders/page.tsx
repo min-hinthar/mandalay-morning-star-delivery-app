@@ -42,7 +42,11 @@ interface OrderRow {
   delivery_window_start: string | null;
   placed_at: string;
   payment_method: string | null;
-  order_items: Array<{ quantity: number }>;
+  order_items: Array<{
+    quantity: number;
+    name_snapshot: string;
+    name_my: string | null;
+  }>;
   profiles: {
     full_name: string | null;
     email: string;
@@ -72,18 +76,26 @@ export default function AdminOrdersPage() {
       const json = await response.json();
       const data: OrderRow[] = json.data ?? json;
 
-      const transformedOrders: AdminOrder[] = data.map((order) => ({
-        id: order.id,
-        status: order.status,
-        refundStatus: order.refund_status,
-        totalCents: order.total_cents,
-        deliveryWindowStart: order.delivery_window_start,
-        placedAt: order.placed_at,
-        itemCount: order.order_items.reduce((sum, item) => sum + item.quantity, 0),
-        customerName: order.profiles?.full_name || null,
-        customerEmail: order.profiles?.email || "Unknown",
-        paymentMethod: (order.payment_method as "stripe" | "cod") ?? "stripe",
-      }));
+      const transformedOrders: AdminOrder[] = data.map((order) => {
+        const items = order.order_items.map((oi) => ({
+          name: oi.name_snapshot,
+          nameMy: oi.name_my ?? null,
+          quantity: oi.quantity,
+        }));
+        return {
+          id: order.id,
+          status: order.status,
+          refundStatus: order.refund_status,
+          totalCents: order.total_cents,
+          deliveryWindowStart: order.delivery_window_start,
+          placedAt: order.placed_at,
+          items,
+          itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+          customerName: order.profiles?.full_name || null,
+          customerEmail: order.profiles?.email || "Unknown",
+          paymentMethod: (order.payment_method as "stripe" | "cod") ?? "stripe",
+        };
+      });
 
       setOrders(transformedOrders);
     } catch {

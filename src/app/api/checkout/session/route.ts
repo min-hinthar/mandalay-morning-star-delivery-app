@@ -266,6 +266,7 @@ export async function POST(request: Request) {
       after(() =>
         sendCODOrderEmail({
           orderId: codResult.orderId,
+          userId: user.id,
           userEmail: user.email ?? "",
           customerName: user.user_metadata?.full_name || "Valued Customer",
           validatedItems,

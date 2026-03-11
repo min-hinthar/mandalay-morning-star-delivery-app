@@ -17,6 +17,12 @@ import type { OrderStatus, RefundStatus } from "@/types/database";
 // TYPES
 // ============================================
 
+export interface AdminOrderItem {
+  name: string;
+  nameMy: string | null;
+  quantity: number;
+}
+
 export interface AdminOrder {
   id: string;
   status: OrderStatus;
@@ -24,6 +30,7 @@ export interface AdminOrder {
   totalCents: number;
   deliveryWindowStart: string | null;
   placedAt: string;
+  items: AdminOrderItem[];
   itemCount: number;
   customerName: string | null;
   customerEmail: string;
@@ -201,7 +208,7 @@ export function OrdersTable({
         <span className="flex-1 text-xs font-semibold uppercase tracking-wider text-text-muted">
           Customer
         </span>
-        <span className="w-[60px] text-center text-xs font-semibold uppercase tracking-wider text-text-muted">
+        <span className="w-[200px] text-xs font-semibold uppercase tracking-wider text-text-muted">
           Items
         </span>
         <SortButton

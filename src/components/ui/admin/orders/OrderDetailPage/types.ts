@@ -3,6 +3,7 @@ import type { OrderStatus } from "@/types/database";
 export interface OrderDetailItem {
   id: string;
   name: string;
+  nameMy: string | null;
   quantity: number;
   basePrice: number;
   lineTotal: number;
