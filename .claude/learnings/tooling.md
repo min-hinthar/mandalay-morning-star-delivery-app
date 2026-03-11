@@ -71,3 +71,19 @@ function applyPinStyles(el: HTMLDivElement) {
 ## GitHub Actions Permissions Are Allowlists
 
 Job-level `permissions:` replaces defaults. Always include `contents: read` if using `actions/checkout`. `dorny/paths-filter@v3` needs `fetch-depth: 2`.
+
+---
+
+## CI Build Needs Dummy Supabase Env Vars
+
+Next.js static page generation (prerendering) calls Supabase client init, which throws if `NEXT_PUBLIC_SUPABASE_URL` is missing. CI build step needs dummy env vars:
+
+```yaml
+- name: Build Next.js
+  env:
+    NEXT_PUBLIC_SUPABASE_URL: http://localhost:54321
+    NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.placeholder
+  run: pnpm build
+```
+
+**Apply when:** Adding new pages that import Supabase client, or setting up CI for the first time.
