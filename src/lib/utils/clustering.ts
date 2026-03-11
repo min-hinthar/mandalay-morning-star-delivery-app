@@ -7,9 +7,10 @@
  */
 
 import { calculateHaversineDistance } from "@/lib/utils/eta";
+import { KITCHEN_ORIGIN } from "@/lib/services/route-optimization/types";
 
 // Kitchen location: Covina, CA
-const KITCHEN_LOCATION = { lat: 34.0858, lng: -117.8896 };
+const KITCHEN_LOCATION = { lat: KITCHEN_ORIGIN.latitude, lng: KITCHEN_ORIGIN.longitude };
 
 // Cluster radius in kilometers (~1.2 miles)
 const CLUSTER_RADIUS_KM = 2.0;

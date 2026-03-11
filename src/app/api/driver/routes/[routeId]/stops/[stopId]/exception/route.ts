@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { after } from "next/server";
 import { requireDriver } from "@/lib/auth";
+import { sendEmail, buildEmailElement } from "@/lib/email";
+import { getAdminEmails } from "@/lib/email/admin-recipients";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
+import { createClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { reportExceptionSchema } from "@/lib/validations/driver-api";
 import type { RouteStopStatus } from "@/types/driver";
@@ -19,6 +23,7 @@ interface StopQueryResult {
   id: string;
   status: string;
   route_id: string;
+  order_id: string;
 }
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
@@ -80,7 +85,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Get stop
     const { data: stop, error: stopError } = await supabase
       .from("route_stops")
-      .select("id, status, route_id")
+      .select("id, status, route_id, order_id")
       .eq("id", stopId)
       .eq("route_id", routeId)
       .returns<StopQueryResult[]>()
@@ -145,6 +150,86 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Mark the stop as skipped
     await supabase.from("route_stops").update({ status: "skipped" }).eq("id", stopId);
 
+    // Set needs_contact on the order
+    if (stop.order_id) {
+      const { error: orderUpdateError } = await supabase
+        .from("orders")
+        .update({ needs_contact: true })
+        .eq("id", stop.order_id)
+        .select("id");
+
+      if (orderUpdateError) {
+        logger.warn("Failed to set needs_contact on order", {
+          api: "driver/routes/[routeId]/stops/[stopId]/exception",
+          orderId: stop.order_id,
+          error: orderUpdateError.message,
+        });
+      }
+    }
+
+    // Audit log
+    await supabase
+      .from("order_audit_log")
+      .insert({
+        order_id: stop.order_id,
+        action: "delivery_exception",
+        actor_id: driverId,
+        actor_role: "driver",
+        old_value: null,
+        new_value: {
+          exception_type: type,
+          description: description || null,
+        } as import("@/types/database").Json,
+        reason: description || `Exception: ${type}`,
+      })
+      .then(({ error }) => {
+        if (error) {
+          logger.warn("Failed to create audit log for exception", {
+            api: "driver/routes/[routeId]/stops/[stopId]/exception",
+            error: error.message,
+          });
+        }
+      });
+
+    // Update route stats
+    await updateRouteStats(supabase, routeId);
+
+    // Send admin notification via after()
+    after(async () => {
+      try {
+        const admins = await getAdminEmails();
+        for (const admin of admins) {
+          await sendEmail({
+            to: admin.email,
+            subject: `Delivery Exception: ${type}`,
+            react: buildEmailElement("admin_new_order", {
+              customerName: admin.full_name || "Admin",
+              orderId: stop.order_id,
+              items: [],
+              subtotalCents: 0,
+              deliveryFeeCents: 0,
+              taxCents: 0,
+              tipCents: 0,
+              totalCents: 0,
+              deliveryWindowStart: null,
+              deliveryWindowEnd: null,
+              address: null,
+              specialInstructions: `DELIVERY EXCEPTION: ${type}${description ? ` - ${description}` : ""}`,
+            }),
+            type: "admin_new_order",
+            orderId: stop.order_id,
+            userId: admin.id,
+            idempotencyKey: `exception-${exception.id}-${admin.id}`,
+          });
+        }
+      } catch (emailError) {
+        logger.warn("Failed to send admin exception notification", {
+          api: "driver/routes/[routeId]/stops/[stopId]/exception",
+          error: emailError instanceof Error ? emailError.message : String(emailError),
+        });
+      }
+    });
+
     // Set next pending stop to enroute
     interface NextStopResult {
       id: string;
@@ -173,4 +258,34 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     logger.exception(error, { api: "driver/routes/[routeId]/stops/[stopId]/exception" });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
+}
+
+async function updateRouteStats(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  routeId: string
+) {
+  const { data: stops } = await supabase
+    .from("route_stops")
+    .select("status")
+    .eq("route_id", routeId);
+
+  if (!stops) return;
+
+  const stats = {
+    total_stops: stops.length,
+    pending_stops: stops.filter((s) => s.status === "pending" || s.status === "enroute").length,
+    delivered_stops: stops.filter((s) => s.status === "delivered").length,
+    skipped_stops: stops.filter((s) => s.status === "skipped").length,
+    completion_rate: 0,
+  };
+
+  stats.completion_rate =
+    stats.total_stops > 0
+      ? Math.round(((stats.delivered_stops + stats.skipped_stops) / stats.total_stops) * 100)
+      : 0;
+
+  await supabase
+    .from("routes")
+    .update({ stats_json: stats as unknown as import("@/types/database").Json })
+    .eq("id", routeId);
 }

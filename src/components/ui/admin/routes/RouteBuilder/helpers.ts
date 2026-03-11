@@ -34,6 +34,35 @@ export function getNextSaturday(): string {
 }
 
 /**
+ * Returns the next active delivery day in YYYY-MM-DD format.
+ * If today is an active delivery day, returns today.
+ * Falls back to next Saturday if activeDays is empty.
+ *
+ * @param activeDays Array of day-of-week numbers (0=Sun, 1=Mon, ..., 6=Sat)
+ */
+export function getNextDeliveryDay(activeDays: number[]): string {
+  if (activeDays.length === 0) {
+    return getNextSaturday();
+  }
+
+  const today = new Date();
+  const todayDow = today.getDay(); // 0=Sun
+
+  // Check today first, then next 7 days
+  for (let offset = 0; offset < 7; offset++) {
+    const checkDow = (todayDow + offset) % 7;
+    if (activeDays.includes(checkDow)) {
+      const target = new Date(today);
+      target.setDate(today.getDate() + offset);
+      return format(target, "yyyy-MM-dd");
+    }
+  }
+
+  // Shouldn't reach here, but fallback
+  return getNextSaturday();
+}
+
+/**
  * Format cents to "$XX.XX" string.
  */
 export function formatCurrency(cents: number): string {

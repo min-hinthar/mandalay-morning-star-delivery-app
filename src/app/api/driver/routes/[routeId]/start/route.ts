@@ -90,10 +90,42 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       await supabase.from("route_stops").update({ status: "enroute" }).eq("id", firstStop.id);
     }
 
+    // Batch-transition all route orders to out_for_delivery
+    const { data: routeStops } = await supabase
+      .from("route_stops")
+      .select("order_id")
+      .eq("route_id", routeId);
+
+    const orderIds = routeStops?.map((s) => s.order_id) ?? [];
+
+    if (orderIds.length > 0) {
+      const { data: updatedOrders, error: orderUpdateError } = await supabase
+        .from("orders")
+        .update({ status: "out_for_delivery" })
+        .in("id", orderIds)
+        .in("status", ["confirmed", "preparing"])
+        .select("id");
+
+      if (orderUpdateError) {
+        logger.warn("Failed to batch-update orders to out_for_delivery", {
+          api: "driver/routes/[routeId]/start",
+          routeId,
+          error: orderUpdateError.message,
+        });
+      } else {
+        logger.info("Orders transitioned to out_for_delivery", {
+          api: "driver/routes/[routeId]/start",
+          routeId,
+          count: updatedOrders?.length ?? 0,
+        });
+      }
+    }
+
     return NextResponse.json({
       success: true,
       startedAt,
       firstStopId: firstStop?.id ?? null,
+      ordersTransitioned: orderIds.length,
     });
   } catch (error) {
     logger.exception(error, { api: "driver/routes/[routeId]/start" });

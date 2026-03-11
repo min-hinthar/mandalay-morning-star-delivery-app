@@ -132,9 +132,31 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Failed to update stop" }, { status: 500 });
     }
 
-    // If delivered, update the order status
+    // If delivered, update the order status with optimistic lock
+    let orderUpdated = false;
     if (newStatus === "delivered") {
-      await supabase.from("orders").update({ status: "delivered" }).eq("id", stop.order_id);
+      const { data: updatedOrder, error: orderError } = await supabase
+        .from("orders")
+        .update({ status: "delivered", delivered_at: now })
+        .eq("id", stop.order_id)
+        .eq("status", "out_for_delivery")
+        .select("id");
+
+      if (orderError) {
+        logger.warn("Failed to update order status to delivered", {
+          api: "driver/routes/[routeId]/stops/[stopId]",
+          orderId: stop.order_id,
+          error: orderError.message,
+        });
+      } else {
+        orderUpdated = (updatedOrder?.length ?? 0) > 0;
+        if (!orderUpdated) {
+          logger.warn("Order status update was a no-op (possible race condition)", {
+            api: "driver/routes/[routeId]/stops/[stopId]",
+            orderId: stop.order_id,
+          });
+        }
+      }
     }
 
     // Update route stats
@@ -172,6 +194,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         arrivedAt: newStatus === "arrived" ? now : null,
         deliveredAt: newStatus === "delivered" ? now : null,
       },
+      ...(newStatus === "delivered" ? { orderUpdated } : {}),
       nextStop,
     });
   } catch (error) {

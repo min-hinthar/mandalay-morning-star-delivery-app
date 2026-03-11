@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth";
 import { createRouteSchema } from "@/lib/validations/route";
 import { logger } from "@/lib/utils/logger";
-import type { ProfileRole, ProfilesRow } from "@/types/database";
+import type { ProfilesRow } from "@/types/database";
 import type { RoutesRow, DriversRow, RouteStats } from "@/types/driver";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
-
-interface ProfileCheck {
-  role: ProfileRole;
-}
+import { optimizeRouteStops } from "@/lib/services/route-optimization";
 
 interface RouteWithDriver extends RoutesRow {
   drivers:
@@ -25,7 +22,12 @@ interface RouteWithDriver extends RoutesRow {
  */
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    const auth = await requireAdmin();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
+    }
+    const { supabase, userId } = auth;
+
     const { searchParams } = new URL(request.url);
     const date = searchParams.get("date");
     const page = Math.max(1, parseInt(searchParams.get("page") || "1", 10));
@@ -33,31 +35,9 @@ export async function GET(request: NextRequest) {
     const rangeStart = (page - 1) * limit;
     const rangeEnd = rangeStart + limit - 1;
 
-    // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    // Check admin role
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .returns<ProfileCheck[]>()
-      .single();
-
-    if (profileError || !profile || profile.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
-
     const rl = await checkRateLimit({
       limiter: adminLimiter,
-      identifier: user.id,
+      identifier: userId,
       role: "admin",
       route: "admin/routes",
     });
@@ -157,33 +137,15 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await requireAdmin();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    // Check admin role
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .returns<ProfileCheck[]>()
-      .single();
-
-    if (profileError || !profile || profile.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const { supabase, userId } = auth;
 
     const rl = await checkRateLimit({
       limiter: adminLimiter,
-      identifier: user.id,
+      identifier: userId,
       role: "admin",
       route: "admin/routes",
     });
@@ -306,13 +268,118 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to create route stops" }, { status: 500 });
     }
 
+    // Auto-optimize stop order
+    let optimized = false;
+    let totalDurationSeconds: number | undefined;
+    let totalDistanceMeters: number | undefined;
+
+    try {
+      // Fetch stops with order addresses (same pattern as optimize endpoint)
+      const { data: routeStops } = await supabase
+        .from("route_stops")
+        .select(
+          `
+          id,
+          order_id,
+          orders (
+            delivery_window_start,
+            delivery_window_end,
+            addresses (
+              lat,
+              lng,
+              line_1,
+              city,
+              state,
+              postal_code
+            )
+          )
+        `
+        )
+        .eq("route_id", newRoute.id)
+        .order("stop_index", { ascending: true })
+        .returns<
+          Array<{
+            id: string;
+            order_id: string;
+            orders: {
+              delivery_window_start: string | null;
+              delivery_window_end: string | null;
+              addresses: {
+                lat: number | null;
+                lng: number | null;
+                line_1: string;
+                city: string;
+                state: string;
+                postal_code: string;
+              } | null;
+            } | null;
+          }>
+        >();
+
+      // Only optimize if all stops have coordinates
+      const validStops = routeStops?.filter(
+        (s) => s.orders?.addresses?.lat != null && s.orders?.addresses?.lng != null
+      );
+
+      if (validStops && validStops.length === routeStops?.length && validStops.length > 1) {
+        const stopsForOptimization = validStops.map((stop) => ({
+          id: stop.id,
+          order_id: stop.order_id,
+          address: {
+            lat: stop.orders!.addresses!.lat,
+            lng: stop.orders!.addresses!.lng,
+            line_1: stop.orders!.addresses!.line_1,
+            city: stop.orders!.addresses!.city,
+            state: stop.orders!.addresses!.state,
+            postal_code: stop.orders!.addresses!.postal_code,
+          },
+          deliveryWindowStart: stop.orders?.delivery_window_start,
+          deliveryWindowEnd: stop.orders?.delivery_window_end,
+        }));
+
+        const result = await optimizeRouteStops(newRoute.id, stopsForOptimization);
+
+        // Update stop indices
+        for (let i = 0; i < result.orderedStopIds.length; i++) {
+          await supabase
+            .from("route_stops")
+            .update({ stop_index: i })
+            .eq("id", result.orderedStopIds[i]);
+        }
+
+        // Update route with polyline
+        if (result.polyline) {
+          await supabase
+            .from("routes")
+            .update({ optimized_polyline: result.polyline })
+            .eq("id", newRoute.id);
+        }
+
+        optimized = true;
+        totalDurationSeconds = result.totalDuration;
+        totalDistanceMeters = result.totalDistance;
+      }
+    } catch (optimizeError) {
+      // Don't block route creation on optimization failure
+      logger.warn("Auto-optimization failed for new route", {
+        api: "admin/routes",
+        routeId: newRoute.id,
+        error: optimizeError instanceof Error ? optimizeError.message : String(optimizeError),
+      });
+    }
+
     return NextResponse.json(
       {
         id: newRoute.id,
         deliveryDate: newRoute.delivery_date,
         status: newRoute.status,
         stopCount: orderIds.length,
-        message: "Route created successfully",
+        optimized,
+        ...(totalDurationSeconds != null ? { totalDurationSeconds } : {}),
+        ...(totalDistanceMeters != null ? { totalDistanceMeters } : {}),
+        message: optimized
+          ? "Route created and optimized successfully"
+          : "Route created successfully",
       },
       { status: 201 }
     );
