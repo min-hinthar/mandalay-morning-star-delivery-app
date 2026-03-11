@@ -102,6 +102,23 @@ INSERT INTO modifier_options (slug) VALUES ('chicken_curry_style__original');
 
 ---
 
+## Kitchen Coordinates: Single Canonical Source
+
+**Context:** Three different lat/lng coordinates hardcoded across the codebase — `clustering.ts` (0.4km off), `tracking/route.ts` (35mi off, downtown LA). Consolidated to one import.
+
+**Learning:** `KITCHEN_ORIGIN` in `src/lib/services/route-optimization/types.ts` is the single source of truth for the kitchen location (750 Terrado Plaza, Covina CA: `34.0894, -117.8897`). Always import and map to the consumer's format:
+
+```typescript
+import { KITCHEN_ORIGIN } from "@/lib/services/route-optimization/types";
+
+// For { lat, lng } consumers:
+const location = { lat: KITCHEN_ORIGIN.latitude, lng: KITCHEN_ORIGIN.longitude };
+```
+
+**Apply when:** Adding any code that references the kitchen/restaurant location (maps, clustering, tracking, ETA calculations).
+
+---
+
 ## Orders: Denormalized Contact Info
 
 **Context:** `customer_phone` and `customer_name` added to `orders` table (migration `20260310`). Previously contact info only lived in `profiles` table, requiring a join. Admin/driver APIs now prefer order-level fields over profile fields.
