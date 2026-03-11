@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import type { CheckoutState, CheckoutStep } from "@/types/checkout";
 import type { Address } from "@/types/address";
 import type { DeliverySelection } from "@/types/delivery";
@@ -43,54 +44,86 @@ const initialState: CheckoutState = {
 
 const STEP_ORDER: CheckoutStep[] = ["address", "time", "payment"];
 
-export const useCheckoutStore = create<CheckoutStore>((set, get) => ({
-  ...initialState,
+export const useCheckoutStore = create<CheckoutStore>()(
+  persist(
+    (set, get) => ({
+      ...initialState,
 
-  setStep: (step) => set({ step }),
+      setStep: (step) => set({ step }),
 
-  nextStep: () => {
-    const { step } = get();
-    const currentIndex = STEP_ORDER.indexOf(step);
-    if (currentIndex < STEP_ORDER.length - 1) {
-      set({ step: STEP_ORDER[currentIndex + 1] });
+      nextStep: () => {
+        const { step } = get();
+        const currentIndex = STEP_ORDER.indexOf(step);
+        if (currentIndex < STEP_ORDER.length - 1) {
+          set({ step: STEP_ORDER[currentIndex + 1] });
+        }
+      },
+
+      prevStep: () => {
+        const { step } = get();
+        const currentIndex = STEP_ORDER.indexOf(step);
+        if (currentIndex > 0) {
+          set({ step: STEP_ORDER[currentIndex - 1] });
+        }
+      },
+
+      setAddress: (address) => set({ address, addressId: address.id }),
+      setDelivery: (delivery) => set({ delivery }),
+      setCustomerNotes: (notes) => set({ customerNotes: notes }),
+
+      setTipPercent: (percent) => set({ tipPercent: percent }),
+
+      setCustomTipCents: (cents) =>
+        set({ customTipCents: Math.max(0, Math.min(cents, 100_000)), tipPercent: null }),
+
+      setPromoCode: (code) => set({ promoCode: code }),
+
+      applyPromo: (discountCents, label) =>
+        set({ promoApplied: true, discountCents, discountLabel: label }),
+
+      clearPromo: () =>
+        set({ promoCode: "", promoApplied: false, discountCents: 0, discountLabel: "" }),
+
+      setDeliveryInstructions: (instructions) => set({ deliveryInstructions: instructions }),
+
+      setPaymentMethod: (method) => set({ paymentMethod: method }),
+
+      setCustomerPhone: (phone) => set({ customerPhone: phone }),
+
+      setCustomerName: (name) => set({ customerName: name }),
+
+      reset: () => set(initialState),
+    }),
+    {
+      name: "checkout-store",
+      storage: createJSONStorage(() =>
+        typeof window !== "undefined"
+          ? sessionStorage
+          : {
+              getItem: () => null,
+              setItem: () => {},
+              removeItem: () => {},
+            }
+      ),
+      partialize: (state) => ({
+        addressId: state.addressId,
+        address: state.address,
+        delivery: state.delivery,
+        customerNotes: state.customerNotes,
+        tipPercent: state.tipPercent,
+        customTipCents: state.customTipCents,
+        promoCode: state.promoCode,
+        promoApplied: state.promoApplied,
+        discountCents: state.discountCents,
+        discountLabel: state.discountLabel,
+        deliveryInstructions: state.deliveryInstructions,
+        paymentMethod: state.paymentMethod,
+        customerPhone: state.customerPhone,
+        customerName: state.customerName,
+      }),
     }
-  },
-
-  prevStep: () => {
-    const { step } = get();
-    const currentIndex = STEP_ORDER.indexOf(step);
-    if (currentIndex > 0) {
-      set({ step: STEP_ORDER[currentIndex - 1] });
-    }
-  },
-
-  setAddress: (address) => set({ address, addressId: address.id }),
-  setDelivery: (delivery) => set({ delivery }),
-  setCustomerNotes: (notes) => set({ customerNotes: notes }),
-
-  setTipPercent: (percent) => set({ tipPercent: percent }),
-
-  setCustomTipCents: (cents) =>
-    set({ customTipCents: Math.max(0, Math.min(cents, 100_000)), tipPercent: null }),
-
-  setPromoCode: (code) => set({ promoCode: code }),
-
-  applyPromo: (discountCents, label) =>
-    set({ promoApplied: true, discountCents, discountLabel: label }),
-
-  clearPromo: () =>
-    set({ promoCode: "", promoApplied: false, discountCents: 0, discountLabel: "" }),
-
-  setDeliveryInstructions: (instructions) => set({ deliveryInstructions: instructions }),
-
-  setPaymentMethod: (method) => set({ paymentMethod: method }),
-
-  setCustomerPhone: (phone) => set({ customerPhone: phone }),
-
-  setCustomerName: (name) => set({ customerName: name }),
-
-  reset: () => set(initialState),
-}));
+  )
+);
 
 /**
  * Derive whether the current step can proceed based on reactive state.

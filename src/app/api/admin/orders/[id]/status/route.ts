@@ -1,5 +1,5 @@
 import React from "react";
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
@@ -129,14 +129,28 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       updateData.delivered_at = new Date().toISOString();
     }
 
-    const { error: updateError } = await supabase
+    const { data: updatedRows, error: updateError } = await supabase
       .from("orders")
       .update(updateData)
-      .eq("id", orderId);
+      .eq("id", orderId)
+      .eq("status", currentStatus)
+      .select("id");
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/orders/[id]/status" });
       return apiError("INTERNAL_ERROR", "Failed to update order status", 500);
+    }
+
+    if (!updatedRows || updatedRows.length === 0) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "CONFLICT",
+            message: "Order status was modified by another user. Please refresh and try again.",
+          },
+        },
+        { status: 409 }
+      );
     }
 
     // Create audit log entry
@@ -158,25 +172,18 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       });
     }
 
-    // Send email notification if requested
-    let emailSent = false;
+    // Send email notification asynchronously if requested
     if (notifyCustomer) {
-      try {
-        emailSent = await sendStatusEmail(
-          supabase,
-          orderId,
-          order.user_id,
-          currentStatus,
-          newStatus,
-          reason
-        );
-      } catch (emailError) {
-        // Email failure must NOT block the status update response
-        logger.exception(emailError, {
-          api: "admin/orders/[id]/status",
-          message: "Email notification failed",
-        });
-      }
+      after(async () => {
+        try {
+          await sendStatusEmail(supabase, orderId, order.user_id, currentStatus, newStatus, reason);
+        } catch (emailError) {
+          logger.exception(emailError, {
+            api: "admin/orders/[id]/status",
+            message: "Email notification failed",
+          });
+        }
+      });
     }
 
     return NextResponse.json({
@@ -184,7 +191,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       orderId,
       previousStatus: currentStatus,
       newStatus,
-      emailSent: notifyCustomer ? emailSent : false,
+      emailSent: notifyCustomer ? "queued" : false,
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/status", orderId });

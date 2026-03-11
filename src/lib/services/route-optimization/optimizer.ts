@@ -56,7 +56,7 @@ export async function optimizeRoute(
   }
 
   // Fall back to nearest-neighbor algorithm
-  return optimizeWithNearestNeighbor(stops);
+  return optimizeWithNearestNeighbor(stops, options?.departureTime);
 }
 
 /**
@@ -238,18 +238,20 @@ async function optimizeWithGoogleRoutes(
  * Simple nearest-neighbor optimization algorithm
  * Used as fallback when Google Routes API is unavailable
  */
-function optimizeWithNearestNeighbor(stops: RoutableStop[]): OptimizedRoute {
+function optimizeWithNearestNeighbor(stops: RoutableStop[], departureTime?: Date): OptimizedRoute {
   const remainingStops = [...stops];
   const orderedStops: OptimizedRoute["orderedStops"] = [];
 
   let currentLat = KITCHEN_ORIGIN.latitude;
   let currentLng = KITCHEN_ORIGIN.longitude;
   let totalDistance = 0;
+  let cumulativeSeconds = 0;
+  const startTime = departureTime ?? new Date();
 
   while (remainingStops.length > 0) {
-    // Find nearest unvisited stop
-    let nearestIndex = 0;
-    let nearestDistance = Infinity;
+    let bestIndex = 0;
+    let bestScore = Infinity;
+    let bestDistance = 0;
 
     for (let i = 0; i < remainingStops.length; i++) {
       const stop = remainingStops[i];
@@ -260,23 +262,51 @@ function optimizeWithNearestNeighbor(stops: RoutableStop[]): OptimizedRoute {
         stop.address.lng!
       );
 
-      if (distance < nearestDistance) {
-        nearestDistance = distance;
-        nearestIndex = i;
+      // Base score is distance in km
+      let score = distance;
+
+      // Time window awareness
+      if (stop.deliveryWindowEnd) {
+        const travelSeconds = estimateDrivingTime(distance);
+        const arrivalTime = new Date(
+          startTime.getTime() + (cumulativeSeconds + travelSeconds) * 1000
+        );
+        const windowEnd = new Date(stop.deliveryWindowEnd);
+
+        // Penalize if we'd arrive after the window closes
+        if (arrivalTime > windowEnd) {
+          score += 50; // Large penalty for missing window
+        } else {
+          // Urgency bonus: prioritize stops whose windows close sooner
+          const remainingMs = windowEnd.getTime() - arrivalTime.getTime();
+          const urgencyBonus = Math.max(0, 1 - remainingMs / (3600 * 1000)); // 0-1 scale within 1hr
+          score -= urgencyBonus * 2; // Slight priority for urgent windows
+        }
+      }
+
+      if (score < bestScore) {
+        bestScore = score;
+        bestIndex = i;
+        bestDistance = distance;
       }
     }
 
-    const nearestStop = remainingStops.splice(nearestIndex, 1)[0];
+    const nearestStop = remainingStops.splice(bestIndex, 1)[0];
+    const durationSeconds = estimateDrivingTime(bestDistance);
+    cumulativeSeconds += durationSeconds;
+
+    // Calculate ETA based on departure time + cumulative duration
+    const eta = new Date(startTime.getTime() + cumulativeSeconds * 1000);
 
     orderedStops.push({
       stopId: nearestStop.stopId,
       stopIndex: orderedStops.length,
-      eta: null, // Can't calculate accurate ETA without routing API
-      distanceMeters: Math.round(nearestDistance * 1000), // Convert km to meters
-      durationSeconds: estimateDrivingTime(nearestDistance),
+      eta: eta.toISOString(),
+      distanceMeters: Math.round(bestDistance * 1000),
+      durationSeconds,
     });
 
-    totalDistance += nearestDistance;
+    totalDistance += bestDistance;
     currentLat = nearestStop.address.lat!;
     currentLng = nearestStop.address.lng!;
   }

@@ -13,6 +13,7 @@ import { DriverSelector } from "./DriverSelector";
 import { RouteSummaryBar } from "./RouteSummaryBar";
 import {
   getNextSaturday,
+  getNextDeliveryDay,
   hasTimeWindowConflict,
   transformApiOrder,
   type BuilderOrder,
@@ -48,18 +49,25 @@ function RouteBuilderSkeleton() {
 // MAIN COMPONENT
 // ============================================
 
-export function RouteBuilderClient() {
+interface RouteBuilderClientProps {
+  activeDays?: number[];
+}
+
+export function RouteBuilderClient({ activeDays = [] }: RouteBuilderClientProps) {
   const router = useRouter();
 
   // Data state
   const [orders, setOrders] = useState<BuilderOrder[]>([]);
   const [drivers, setDrivers] = useState<DriverApiResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [otherDateCounts, setOtherDateCounts] = useState<Record<string, number>>({});
 
   // Selection state
   const [selectedOrderIds, setSelectedOrderIds] = useState<Set<string>>(new Set());
   const [selectedDriverId, setSelectedDriverId] = useState<string | null>(null);
-  const [deliveryDate, setDeliveryDate] = useState<string>(getNextSaturday());
+  const [deliveryDate, setDeliveryDate] = useState<string>(
+    activeDays.length > 0 ? getNextDeliveryDay(activeDays) : getNextSaturday()
+  );
 
   // Action state
   const [isCreating, setIsCreating] = useState(false);
@@ -72,7 +80,7 @@ export function RouteBuilderClient() {
     setIsLoading(true);
     try {
       const [ordersRes, driversRes] = await Promise.all([
-        fetch("/api/admin/routes/builder-orders"),
+        fetch(`/api/admin/routes/builder-orders?date=${deliveryDate}`),
         fetch("/api/admin/drivers"),
       ]);
 
@@ -87,6 +95,9 @@ export function RouteBuilderClient() {
 
       const rawOrders = rawOrdersJson.data ?? rawOrdersJson;
       const rawDrivers = rawDriversJson.data ?? rawDriversJson;
+      setOtherDateCounts(
+        (rawOrdersJson as { otherDateCounts?: Record<string, number> }).otherDateCounts ?? {}
+      );
       setOrders((rawOrders as Record<string, unknown>[]).map((o) => transformApiOrder(o)));
       setDrivers(rawDrivers as DriverApiResponse[]);
     } catch {
@@ -94,7 +105,7 @@ export function RouteBuilderClient() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [deliveryDate]);
 
   useEffect(() => {
     fetchData();
@@ -228,9 +239,17 @@ export function RouteBuilderClient() {
                 id="delivery-date"
                 type="date"
                 value={deliveryDate}
-                onChange={(e) => setDeliveryDate(e.target.value)}
+                onChange={(e) => {
+                  setDeliveryDate(e.target.value);
+                  setSelectedOrderIds(new Set());
+                }}
                 className="w-full px-3 py-2 text-sm bg-surface-primary border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-teal/30 focus:border-accent-teal/50"
               />
+              {Object.keys(otherDateCounts).length > 0 && (
+                <p className="text-xs text-text-muted mt-1">
+                  {Object.values(otherDateCounts).reduce((a, b) => a + b, 0)} orders on other dates
+                </p>
+              )}
             </div>
 
             {/* Unassigned orders panel */}
