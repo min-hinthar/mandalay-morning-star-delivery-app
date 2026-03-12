@@ -19,6 +19,8 @@ interface CoverageRouteMapProps {
   durationMinutes?: number;
   distanceMiles?: number;
   isValid?: boolean;
+  directions?: string[];
+  eligibleDays?: string[];
   className?: string;
 }
 
@@ -29,6 +31,8 @@ export function CoverageRouteMap({
   durationMinutes,
   distanceMiles,
   isValid,
+  directions,
+  eligibleDays,
   className,
 }: CoverageRouteMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
@@ -38,6 +42,7 @@ export function CoverageRouteMap({
 
   const kitchenMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
   const destinationMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
+  const labelMarkerRef = useRef<google.maps.marker.AdvancedMarkerElement | null>(null);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
@@ -109,6 +114,10 @@ export function CoverageRouteMap({
       destinationMarkerRef.current.map = null;
       destinationMarkerRef.current = null;
     }
+    if (labelMarkerRef.current) {
+      labelMarkerRef.current.map = null;
+      labelMarkerRef.current = null;
+    }
     if (!hasDestination || !destinationLat || !destinationLng) return;
 
     const color = isValid ? "#52A52E" : "#DC2626";
@@ -122,10 +131,50 @@ export function CoverageRouteMap({
       title: "Your Delivery Address",
     });
 
+    // Add info label showing eligible days + direction
+    if (
+      isValid &&
+      eligibleDays?.length &&
+      directions?.length &&
+      google.maps.marker?.AdvancedMarkerElement
+    ) {
+      const dirLabel = directions.map((d) => d.charAt(0).toUpperCase() + d.slice(1)).join(", ");
+      const daysLabel = eligibleDays.join(", ");
+
+      const label = document.createElement("div");
+      label.style.background = "rgba(255,255,255,0.95)";
+      label.style.padding = "4px 10px";
+      label.style.borderRadius = "10px";
+      label.style.fontSize = "11px";
+      label.style.whiteSpace = "nowrap";
+      label.style.boxShadow = "0 2px 8px rgba(0,0,0,0.15)";
+      label.style.border = "1px solid rgba(0,0,0,0.08)";
+      label.style.fontFamily = "system-ui, sans-serif";
+      label.style.pointerEvents = "none";
+      label.innerHTML = `<span style="font-weight:600;color:#333">${dirLabel}</span> <span style="color:#666">\u00b7 ${daysLabel}</span>`;
+
+      labelMarkerRef.current = new google.maps.marker.AdvancedMarkerElement({
+        map,
+        position: { lat: destinationLat, lng: destinationLng + 0.015 },
+        content: label,
+      });
+      labelMarkerRef.current.zIndex = 999;
+    }
+
     return () => {
       if (destinationMarkerRef.current) destinationMarkerRef.current.map = null;
+      if (labelMarkerRef.current) labelMarkerRef.current.map = null;
     };
-  }, [map, isLoaded, hasDestination, destinationLat, destinationLng, isValid]);
+  }, [
+    map,
+    isLoaded,
+    hasDestination,
+    destinationLat,
+    destinationLng,
+    isValid,
+    directions,
+    eligibleDays,
+  ]);
 
   const routePath = useMemo(() => {
     if (!encodedPolyline || !isLoaded) return [];

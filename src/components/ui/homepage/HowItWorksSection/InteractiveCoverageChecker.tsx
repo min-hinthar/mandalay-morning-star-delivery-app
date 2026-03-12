@@ -132,6 +132,8 @@ export function InteractiveCoverageChecker({ className }: InteractiveCoverageChe
               durationMinutes: coverageData.durationMinutes,
               distanceMiles: coverageData.distanceMiles,
               isValid: coverageData.isValid,
+              directions: coverageData.directions,
+              eligibleDays: coverageData.eligibleDays,
             })}
           className={cn(
             "h-72 md:h-96 lg:h-[28rem] rounded-2xl relative",

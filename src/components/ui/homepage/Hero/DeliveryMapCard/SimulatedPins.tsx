@@ -12,14 +12,22 @@ interface SimulatedPinsProps {
 
 const BRAND_COLOR = "#A41034";
 
+/** Direction → pin border color (matches CoverageResult DIRECTION_COLORS) */
+const DIRECTION_PIN_COLORS: Record<string, string> = {
+  east: "#3b82f6", // blue-500
+  west: "#a855f7", // purple-500
+  south: "#f59e0b", // amber-500
+};
+
 /** Truck SVG for even-indexed pins */
 const TRUCK_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="${BRAND_COLOR}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 18V6a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2v11a1 1 0 0 0 1 1h2"/><path d="M15 18H9"/><path d="M19 18h2a1 1 0 0 0 1-1v-3.65a1 1 0 0 0-.22-.624l-3.48-4.35A1 1 0 0 0 17.52 8H14"/><circle cx="17" cy="18" r="2"/><circle cx="7" cy="18" r="2"/></svg>`;
 
 /** Package SVG for odd-indexed pins */
 const PACKAGE_SVG = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16.5 9.4 7.55 4.24"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.29 7 12 12 20.71 7"/><line x1="12" y1="22" x2="12" y2="12"/></svg>`;
 
-function createPinContent(index: number, animate: boolean): HTMLDivElement {
+function createPinContent(index: number, animate: boolean, direction: string): HTMLDivElement {
   const isEven = index % 2 === 0;
+  const dirColor = DIRECTION_PIN_COLORS[direction] ?? BRAND_COLOR;
   const el = document.createElement("div");
 
   // Outer wrapper for hover scale
@@ -36,11 +44,11 @@ function createPinContent(index: number, animate: boolean): HTMLDivElement {
 
   if (isEven) {
     el.style.background = "white";
-    el.style.border = `2px solid ${BRAND_COLOR}`;
+    el.style.border = `2px solid ${dirColor}`;
     el.innerHTML = TRUCK_SVG;
   } else {
     el.style.background = BRAND_COLOR;
-    el.style.border = "2px solid white";
+    el.style.border = `2px solid ${dirColor}`;
     el.innerHTML = PACKAGE_SVG;
   }
 
@@ -69,7 +77,19 @@ function createPinContent(index: number, animate: boolean): HTMLDivElement {
   return el;
 }
 
+/** Direction → eligible short day names (duplicated from useSimulatedPins for tooltip display) */
+const DIRECTION_DAYS: Record<string, readonly string[]> = {
+  east: ["Mon", "Sat"],
+  west: ["Wed", "Sat"],
+  south: ["Thu", "Sat"],
+};
+
+function capitalize(s: string): string {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
 function createTooltip(pin: SimulatedPin): HTMLDivElement {
+  const eligibleDays = (DIRECTION_DAYS[pin.direction] ?? ["Sat"]).join("/");
   const tooltip = document.createElement("div");
   tooltip.style.position = "absolute";
   tooltip.style.bottom = "36px";
@@ -88,7 +108,7 @@ function createTooltip(pin: SimulatedPin): HTMLDivElement {
   tooltip.style.opacity = "0";
   tooltip.style.transition = "opacity 0.15s";
   tooltip.style.fontFamily = "system-ui, sans-serif";
-  tooltip.innerHTML = `<span style="font-weight:700">${pin.areaName}</span> <span style="color:#666;margin-left:4px">${pin.deliveryDate}</span>`;
+  tooltip.innerHTML = `<span style="font-weight:700">${pin.areaName}</span> <span style="color:#666;margin-left:4px">\u00b7 ${capitalize(pin.direction)} \u00b7 ${eligibleDays}</span>`;
   return tooltip;
 }
 
@@ -119,7 +139,7 @@ export function SimulatedPinsManager({ map, pins, shouldAnimate }: SimulatedPins
         timeoutsRef.current.delete(timeout);
         if (!google.maps.marker?.AdvancedMarkerElement) return;
 
-        const content = createPinContent(pins.indexOf(pin), shouldAnimate);
+        const content = createPinContent(pins.indexOf(pin), shouldAnimate, pin.direction);
 
         const tooltip = createTooltip(pin);
         content.appendChild(tooltip);

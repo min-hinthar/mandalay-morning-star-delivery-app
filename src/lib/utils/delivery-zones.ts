@@ -53,7 +53,7 @@ export function calculateBearing(destLat: number, destLng: number): number {
  * Check if a bearing falls within a zone's range.
  * Handles wrap-around (e.g., east: 350-80 crosses 0).
  */
-function bearingInRange(bearing: number, start: number, end: number): boolean {
+export function bearingInRange(bearing: number, start: number, end: number): boolean {
   if (start <= end) {
     return bearing >= start && bearing <= end;
   }
