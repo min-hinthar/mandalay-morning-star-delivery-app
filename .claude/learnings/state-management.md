@@ -70,3 +70,19 @@ export function __clearDebounceState(): void {
 Always export clear function for test isolation.
 
 **Apply when:** Mutation stores where UI animations or callbacks may fire multiple times.
+
+---
+
+## Settings Sync Pipeline — Full Thread Required
+
+**Context:** `DeliverySettingsSync` bridges server-fetched business rules to client-side cart store. Adding a new setting to `getBusinessRules()` and cart store is not enough — it must be threaded through the full pipeline:
+
+```
+layout.tsx (server) → Shell.tsx (client props) → DeliverySettingsSync (useEffect) → cart store setter
+```
+
+Both `(customer)/layout.tsx` and `(public)/layout.tsx` must pass the prop. The Shell interfaces (`CustomerShellProps`, `PublicShellProps`) must declare it. `DeliverySettingsSync` must accept and dispatch it.
+
+**Symptom of gap:** Store has default values that work initially but go stale if admin changes the DB setting. No error, no type error — just silently uses defaults forever.
+
+**Apply when:** Adding new fields to `getBusinessRules()` that affect client-side pricing/logic.

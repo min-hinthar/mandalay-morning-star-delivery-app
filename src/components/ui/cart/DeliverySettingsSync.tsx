@@ -11,6 +11,10 @@ interface DeliverySettingsSyncProps {
   cutoffHour: number;
   /** Multi-day delivery configs from business rules */
   deliveryDays?: DeliveryDayConfig[];
+  /** Fee for addresses beyond long-distance threshold (cents) */
+  longDistanceFeeCents?: number;
+  /** Miles threshold for long-distance fee */
+  longDistanceThresholdMiles?: number;
 }
 
 /**
@@ -24,12 +28,27 @@ export function DeliverySettingsSync({
   cutoffDay,
   cutoffHour,
   deliveryDays = [],
+  longDistanceFeeCents,
+  longDistanceThresholdMiles,
 }: DeliverySettingsSyncProps) {
   useEffect(() => {
     useCartStore.getState().setDeliverySettings(deliveryFeeCents, freeDeliveryThresholdCents);
     useCartStore.getState().setCutoffSettings(cutoffDay, cutoffHour);
     useCartStore.getState().setDeliveryDays(deliveryDays);
-  }, [deliveryFeeCents, freeDeliveryThresholdCents, cutoffDay, cutoffHour, deliveryDays]);
+    if (longDistanceFeeCents !== undefined && longDistanceThresholdMiles !== undefined) {
+      useCartStore
+        .getState()
+        .setLongDistanceSettings(longDistanceFeeCents, longDistanceThresholdMiles);
+    }
+  }, [
+    deliveryFeeCents,
+    freeDeliveryThresholdCents,
+    cutoffDay,
+    cutoffHour,
+    deliveryDays,
+    longDistanceFeeCents,
+    longDistanceThresholdMiles,
+  ]);
 
   return null;
 }

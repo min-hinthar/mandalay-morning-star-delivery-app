@@ -34,40 +34,50 @@ interface StatItemProps {
   label: string;
   value: string;
   subValue?: string;
+  index?: number;
 }
 
-export function StatItem({ icon, label, value, subValue }: StatItemProps) {
+export function StatItem({ icon, label, value, subValue, index = 0 }: StatItemProps) {
   const { shouldAnimate } = useAnimationPreference();
 
   return (
     <m.div
-      className={cn(
-        "flex items-center gap-3 rounded-2xl p-4",
-        "bg-hero-stat-bg/60 sm:backdrop-blur-md",
-        "border border-hero-text/15",
-        "transition-shadow duration-300 hover:shadow-lg hover:shadow-black/10"
-      )}
-      whileHover={shouldAnimate ? { scale: 1.04, y: -3 } : undefined}
-      whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
-      transition={spring.snappy}
+      className="relative"
+      initial={shouldAnimate ? { opacity: 0, y: 12 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+      transition={shouldAnimate ? { delay: 0.1 * index, ...spring.gentle } : undefined}
     >
-      {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
+      {/* Ambient glow */}
+      <div className="absolute inset-0 rounded-2xl bg-secondary/8 blur-xl" aria-hidden="true" />
       <m.div
-        className="p-2.5 rounded-full bg-hero-stat-bg sm:backdrop-blur-sm"
-        whileHover={shouldAnimate ? { rotate: 8, scale: 1.1 } : undefined}
+        className={cn(
+          "relative flex items-start gap-3 rounded-2xl p-4",
+          "bg-hero-stat-bg/70 sm:backdrop-blur-md",
+          "border border-hero-text/25",
+          "shadow-md shadow-black/10",
+          "transition-shadow duration-300 hover:shadow-xl hover:shadow-black/15"
+        )}
+        whileHover={shouldAnimate ? { scale: 1.04, y: -3 } : undefined}
+        whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
         transition={spring.snappy}
       >
-        {icon}
+        {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
+        <m.div
+          className="p-2.5 rounded-full bg-hero-stat-bg/80 sm:backdrop-blur-sm ring-1 ring-secondary/20"
+          whileHover={shouldAnimate ? { rotate: 8, scale: 1.1 } : undefined}
+          animate={shouldAnimate ? { scale: [1, 1.08, 1] } : undefined}
+          transition={shouldAnimate ? { duration: 3, repeat: Infinity, repeatDelay: 5 } : undefined}
+        >
+          {icon}
+        </m.div>
+        <div className="text-left">
+          <div className="text-xs text-hero-text-muted uppercase tracking-wide">{label}</div>
+          <div className="text-xs md:text-sm font-bold text-hero-text leading-tight">{value}</div>
+          {subValue && (
+            <span className="block text-xs text-hero-text/60 font-body mt-0.5">{subValue}</span>
+          )}
+        </div>
       </m.div>
-      <div className="text-left min-w-0">
-        <div className="text-xs text-hero-text-muted uppercase tracking-wide">{label}</div>
-        <div className="text-sm md:text-base font-bold text-hero-text leading-tight">{value}</div>
-        {subValue && (
-          <span className="block text-xs text-hero-text/50 font-body mt-0.5 truncate">
-            {subValue}
-          </span>
-        )}
-      </div>
     </m.div>
   );
 }

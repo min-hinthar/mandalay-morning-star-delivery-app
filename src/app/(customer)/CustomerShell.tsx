@@ -14,6 +14,8 @@ interface CustomerShellProps {
   cutoffDay: number;
   cutoffHour: number;
   deliveryDays?: DeliveryDayConfig[];
+  longDistanceFeeCents?: number;
+  longDistanceThresholdMiles?: number;
 }
 
 export function CustomerShell({
@@ -23,6 +25,8 @@ export function CustomerShell({
   cutoffDay,
   cutoffHour,
   deliveryDays,
+  longDistanceFeeCents,
+  longDistanceThresholdMiles,
 }: CustomerShellProps) {
   return (
     <DomMaxProvider>
@@ -33,6 +37,8 @@ export function CustomerShell({
         cutoffDay={cutoffDay}
         cutoffHour={cutoffHour}
         deliveryDays={deliveryDays}
+        longDistanceFeeCents={longDistanceFeeCents}
+        longDistanceThresholdMiles={longDistanceThresholdMiles}
       />
       {children}
       <CartOverlays />

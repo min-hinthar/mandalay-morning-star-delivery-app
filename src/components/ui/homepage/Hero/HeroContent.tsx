@@ -83,11 +83,23 @@ export function HeroContent({
         : "Every Saturday"
     : `Orders closed — next ${gate.deliveryDate.displayDate}`;
 
+  const deliveryFee =
+    deliveryFeeCents !== undefined ? (deliveryFeeCents / 100).toFixed(0) : undefined;
+  const freeThreshold =
+    freeDeliveryThresholdCents !== undefined
+      ? (freeDeliveryThresholdCents / 100).toFixed(0)
+      : undefined;
   const deliveryFeeText =
-    deliveryFeeCents !== undefined && freeDeliveryThresholdCents !== undefined
+    deliveryFee && freeThreshold
       ? longDistanceFeeCents
-        ? `$${(deliveryFeeCents / 100).toFixed(0)} delivery · Free over $${(freeDeliveryThresholdCents / 100).toFixed(0)} · $${(longDistanceFeeCents / 100).toFixed(0)} for ${longDistanceThresholdMiles ?? 25}+ mi`
-        : `$${(deliveryFeeCents / 100).toFixed(0)} delivery, free over $${(freeDeliveryThresholdCents / 100).toFixed(0)}`
+        ? `$${deliveryFee} · Free $${freeThreshold}+`
+        : `$${deliveryFee} · Free $${freeThreshold}+`
+      : undefined;
+  const deliveryFeeSubText =
+    deliveryFee && freeThreshold
+      ? longDistanceFeeCents
+        ? `$${(longDistanceFeeCents / 100).toFixed(0)} for ${longDistanceThresholdMiles ?? 25}+ mi · $${freeThreshold} အထက် အခမဲ့`
+        : `$${freeThreshold} အထက်ဆို အခမဲ့ပို့ပေးတယ်`
       : undefined;
 
   // Bilingual greetings
@@ -272,35 +284,35 @@ export function HeroContent({
           </m.div>
         </div>
 
-        <div className="mt-2 grid grid-cols-2 gap-3 max-w-md mx-auto md:grid-cols-4 md:max-w-3xl animate-fade-in-up-delay-4">
+        <div className="mt-2 grid grid-cols-2 gap-3 max-w-lg mx-auto md:grid-cols-4 md:max-w-3xl">
           <StatItem
             icon={<ChefHat className="w-5 h-5 text-secondary" />}
             label="Authentic"
             value="Burmese Recipes"
             subValue="မြန်မာ့ရိုးရာ ချက်နည်းများ"
+            index={0}
           />
           <StatItem
             icon={<Clock className="w-5 h-5 text-secondary" />}
             label="Delivery"
             value={deliveryScheduleText}
             subValue={`${deliveryDaysList} တိုင်း ပို့ပေးပါတယ်`}
+            index={1}
           />
           <StatItem
             icon={<MapPin className="w-5 h-5 text-secondary" />}
             label="Coverage"
             value="Greater Los Angeles"
             subValue="East/West/South routes · မိုင် ၅၀ အတွင်း"
+            index={2}
           />
           {deliveryFeeText && (
             <StatItem
               icon={<Truck className="w-5 h-5 text-secondary" />}
               label="Fee"
               value={deliveryFeeText}
-              subValue={
-                longDistanceFeeCents
-                  ? "$၁၀၀ အထက် အခမဲ့ · ၂၅ မိုင်+ $၂၀"
-                  : "$၁၀၀ အထက်ဆို အခမဲ့ပို့ပေးတယ်"
-              }
+              subValue={deliveryFeeSubText}
+              index={3}
             />
           )}
         </div>
