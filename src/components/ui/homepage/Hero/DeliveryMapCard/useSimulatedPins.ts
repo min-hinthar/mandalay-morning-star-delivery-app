@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { calculateBearing, bearingInRange, DEFAULT_ZONES } from "@/lib/utils/delivery-zones";
 import type { SimulatedPin } from "./types";
 
 const CITY_COORDINATES = [
@@ -31,21 +32,36 @@ const CITY_COORDINATES = [
   { name: "Riverside", lat: 33.9533, lng: -117.3962 },
 ] as const;
 
-const DELIVERY_DAYS = ["Mon", "Wed", "Thu", "Sat"] as const;
+/** Direction → eligible short day names */
+const DIRECTION_DAYS: Record<string, readonly string[]> = {
+  east: ["Mon", "Sat"],
+  west: ["Wed", "Sat"],
+  south: ["Thu", "Sat"],
+};
+
+/** Pre-compute direction for each city (pure math, no side effects) */
+const CITY_DATA = CITY_COORDINATES.map((city) => {
+  const bearing = calculateBearing(city.lat, city.lng);
+  const zone = DEFAULT_ZONES.find((z) => bearingInRange(bearing, z.bearingStart, z.bearingEnd));
+  const direction = zone?.direction ?? "east";
+  const days = DIRECTION_DAYS[direction] ?? ["Sat"];
+  return { ...city, direction, days };
+});
 
 const MAX_PINS = 20;
 const INITIAL_PINS = 12;
 const CYCLE_INTERVAL_MS = 7000;
 
 function createPin(index: number): SimulatedPin {
-  const city = CITY_COORDINATES[index % CITY_COORDINATES.length];
-  const day = DELIVERY_DAYS[index % DELIVERY_DAYS.length];
+  const city = CITY_DATA[index % CITY_DATA.length];
+  const day = city.days[index % city.days.length];
   return {
     id: `pin-${Date.now()}-${index}`,
     lat: city.lat,
     lng: city.lng,
     areaName: city.name,
     deliveryDate: `${day} delivery`,
+    direction: city.direction,
     delay: index * 200,
   };
 }

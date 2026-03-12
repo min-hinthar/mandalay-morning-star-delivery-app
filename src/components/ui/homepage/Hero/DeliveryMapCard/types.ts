@@ -4,6 +4,7 @@ export interface SimulatedPin {
   lng: number;
   areaName: string;
   deliveryDate: string;
+  direction: string;
   delay: number;
 }
 
