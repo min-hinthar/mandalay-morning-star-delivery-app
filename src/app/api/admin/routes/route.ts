@@ -6,6 +6,7 @@ import type { ProfilesRow } from "@/types/database";
 import type { RoutesRow, DriversRow, RouteStats } from "@/types/driver";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 import { optimizeRouteStops } from "@/lib/services/route-optimization";
+import { transformRouteForList } from "@/lib/utils/route-transformers";
 
 interface RouteWithDriver extends RoutesRow {
   drivers:
@@ -91,28 +92,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Transform to API response format
-    const data = (routes ?? []).map((route) => {
-      const stopCount = route.route_stops?.length ?? 0;
-      const deliveredCount = route.route_stops?.filter((s) => s.status === "delivered").length ?? 0;
-      const statsJson = route.stats_json as RouteStats | null;
-
-      return {
-        id: route.id,
-        deliveryDate: route.delivery_date,
-        driver: route.drivers
-          ? {
-              id: route.drivers.id,
-              fullName: route.drivers.profiles?.full_name ?? null,
-            }
-          : null,
-        status: route.status,
-        stopCount,
-        deliveredCount,
-        completionRate: stopCount > 0 ? Math.round((deliveredCount / stopCount) * 100) : 0,
-        createdAt: route.created_at,
-        estimatedDurationMinutes: statsJson?.total_duration_minutes ?? null,
-      };
-    });
+    const data = (routes ?? []).map(transformRouteForList);
 
     const total = count ?? 0;
 
@@ -272,6 +252,14 @@ export async function POST(request: NextRequest) {
     let optimized = false;
     let totalDurationSeconds: number | undefined;
     let totalDistanceMeters: number | undefined;
+    let optimizationMethod: string | undefined;
+    let timeWindowViolations: Array<{
+      stopId: string;
+      orderId: string;
+      eta: string;
+      windowEnd: string;
+      minutesLate: number;
+    }> = [];
 
     try {
       // Fetch stops with order addresses (same pattern as optimize endpoint)
@@ -339,13 +327,11 @@ export async function POST(request: NextRequest) {
 
         const result = await optimizeRouteStops(newRoute.id, stopsForOptimization);
 
-        // Update stop indices
-        for (let i = 0; i < result.orderedStopIds.length; i++) {
-          await supabase
-            .from("route_stops")
-            .update({ stop_index: i })
-            .eq("id", result.orderedStopIds[i]);
-        }
+        // Batch update stop indices via RPC
+        await supabase.rpc("batch_update_stop_indices", {
+          p_stop_ids: result.orderedStopIds,
+          p_indices: result.orderedStopIds.map((_, i) => i),
+        });
 
         // Update route with polyline
         if (result.polyline) {
@@ -358,6 +344,8 @@ export async function POST(request: NextRequest) {
         optimized = true;
         totalDurationSeconds = result.totalDuration;
         totalDistanceMeters = result.totalDistance;
+        optimizationMethod = result.method;
+        timeWindowViolations = result.timeWindowViolations;
       }
     } catch (optimizeError) {
       // Don't block route creation on optimization failure
@@ -377,9 +365,13 @@ export async function POST(request: NextRequest) {
         optimized,
         ...(totalDurationSeconds != null ? { totalDurationSeconds } : {}),
         ...(totalDistanceMeters != null ? { totalDistanceMeters } : {}),
+        ...(optimizationMethod ? { optimizationMethod } : {}),
+        ...(timeWindowViolations.length > 0 ? { timeWindowViolations } : {}),
         message: optimized
-          ? "Route created and optimized successfully"
-          : "Route created successfully",
+          ? timeWindowViolations.length > 0
+            ? `Route created and optimized with ${timeWindowViolations.length} time window warning(s)`
+            : "Route created and optimized successfully"
+          : "Route created (not optimized — missing coordinates or single stop)",
       },
       { status: 201 }
     );

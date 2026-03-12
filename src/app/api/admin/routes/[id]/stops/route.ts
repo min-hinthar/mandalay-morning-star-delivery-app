@@ -4,7 +4,7 @@ import { addStopsSchema, updateStopStatusSchema } from "@/lib/validations/route"
 import { logger } from "@/lib/utils/logger";
 import type { RouteStopStatus } from "@/types/driver";
 import type { ProfileCheck, RouteParams } from "./types";
-import { updateRouteStats } from "./helpers";
+import { updateRouteStats, reindexRouteStops } from "./helpers";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 /**
@@ -70,8 +70,15 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
-    if (route.status !== "planned") {
-      return NextResponse.json({ error: "Can only add stops to planned routes" }, { status: 400 });
+    if (route.status === "in_progress") {
+      return NextResponse.json(
+        { error: "Cannot add stops to an in-progress route" },
+        { status: 409 }
+      );
+    }
+
+    if (route.status === "completed") {
+      return NextResponse.json({ error: "Cannot add stops to a completed route" }, { status: 400 });
     }
 
     // Get current max stop_index
@@ -318,9 +325,16 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
-    if (route.status !== "planned") {
+    if (route.status === "in_progress") {
       return NextResponse.json(
-        { error: "Can only remove stops from planned routes" },
+        { error: "Cannot remove stops from an in-progress route" },
+        { status: 409 }
+      );
+    }
+
+    if (route.status === "completed") {
+      return NextResponse.json(
+        { error: "Cannot remove stops from a completed route" },
         { status: 400 }
       );
     }
@@ -337,21 +351,8 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Failed to remove stop" }, { status: 500 });
     }
 
-    // Reindex remaining stops
-    const { data: remainingStops } = await supabase
-      .from("route_stops")
-      .select("id")
-      .eq("route_id", routeId)
-      .order("stop_index", { ascending: true })
-      .returns<{ id: string }[]>();
-
-    if (remainingStops) {
-      for (let i = 0; i < remainingStops.length; i++) {
-        await supabase.from("route_stops").update({ stop_index: i }).eq("id", remainingStops[i].id);
-      }
-    }
-
-    // Update route stats
+    // Atomically reindex remaining stops and update stats
+    await reindexRouteStops(supabase, routeId);
     await updateRouteStats(supabase, routeId);
 
     return NextResponse.json({

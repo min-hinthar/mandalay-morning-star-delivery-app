@@ -4,9 +4,16 @@
  */
 
 import { logger } from "@/lib/utils/logger";
-import type { RoutableStop, OptimizedRoute, OptimizeRouteStopsInput } from "./types";
+import type {
+  RoutableStop,
+  OptimizedRoute,
+  OptimizeRouteStopsInput,
+  TimeWindowViolation,
+} from "./types";
 import { KITCHEN_COORDS } from "@/lib/constants/kitchen";
 import { validateStopsForOptimization } from "./types";
+
+const ROAD_FACTOR = 1.3;
 
 /**
  * Optimizes a route using Google Routes Optimization API
@@ -40,6 +47,8 @@ export async function optimizeRoute(
       totalDistanceMeters: 0,
       totalDurationSeconds: 0,
       optimizedPolyline: null,
+      method: "single-stop",
+      timeWindowViolations: [],
     };
   }
 
@@ -227,11 +236,15 @@ async function optimizeWithGoogleRoutes(
     }
   }
 
+  const violations = validateTimeWindows(orderedStops, stops);
+
   return {
     orderedStops,
     totalDistanceMeters,
     totalDurationSeconds,
     optimizedPolyline: combinedPolyline,
+    method: "google",
+    timeWindowViolations: violations,
   };
 }
 
@@ -266,9 +279,9 @@ function optimizeWithNearestNeighbor(stops: RoutableStop[], departureTime?: Date
       // Base score is distance in km
       let score = distance;
 
-      // Time window awareness
+      // Time window awareness (use road-corrected distance for ETA estimation)
       if (stop.deliveryWindowEnd) {
-        const travelSeconds = estimateDrivingTime(distance);
+        const travelSeconds = estimateDrivingTime(distance * ROAD_FACTOR);
         const arrivalTime = new Date(
           startTime.getTime() + (cumulativeSeconds + travelSeconds) * 1000
         );
@@ -293,7 +306,9 @@ function optimizeWithNearestNeighbor(stops: RoutableStop[], departureTime?: Date
     }
 
     const nearestStop = remainingStops.splice(bestIndex, 1)[0];
-    const durationSeconds = estimateDrivingTime(bestDistance);
+    // Apply road factor correction to Haversine distance
+    const roadDistance = bestDistance * ROAD_FACTOR;
+    const durationSeconds = estimateDrivingTime(roadDistance);
     cumulativeSeconds += durationSeconds;
 
     // Calculate ETA based on departure time + cumulative duration
@@ -303,21 +318,59 @@ function optimizeWithNearestNeighbor(stops: RoutableStop[], departureTime?: Date
       stopId: nearestStop.stopId,
       stopIndex: orderedStops.length,
       eta: eta.toISOString(),
-      distanceMeters: Math.round(bestDistance * 1000),
+      distanceMeters: Math.round(roadDistance * 1000),
       durationSeconds,
     });
 
-    totalDistance += bestDistance;
+    totalDistance += roadDistance;
     currentLat = nearestStop.address.lat!;
     currentLng = nearestStop.address.lng!;
   }
+
+  const violations = validateTimeWindows(orderedStops, stops);
 
   return {
     orderedStops,
     totalDistanceMeters: Math.round(totalDistance * 1000),
     totalDurationSeconds: orderedStops.reduce((sum, s) => sum + s.durationSeconds, 0),
     optimizedPolyline: null,
+    method: "nearest-neighbor",
+    timeWindowViolations: violations,
   };
+}
+
+/**
+ * Post-optimization validation: check each stop's ETA against delivery windows.
+ * Returns violations where ETA exceeds the delivery window end time.
+ */
+function validateTimeWindows(
+  orderedStops: OptimizedRoute["orderedStops"],
+  originalStops: RoutableStop[]
+): TimeWindowViolation[] {
+  const violations: TimeWindowViolation[] = [];
+  const stopMap = new Map(originalStops.map((s) => [s.stopId, s]));
+
+  for (const stop of orderedStops) {
+    if (!stop.eta) continue;
+    const original = stopMap.get(stop.stopId);
+    if (!original?.deliveryWindowEnd) continue;
+
+    const eta = new Date(stop.eta);
+    const windowEnd = new Date(original.deliveryWindowEnd);
+
+    if (eta > windowEnd) {
+      const minutesLate = Math.round((eta.getTime() - windowEnd.getTime()) / 60000);
+      violations.push({
+        stopId: stop.stopId,
+        orderId: original.orderId,
+        eta: stop.eta,
+        windowEnd: original.deliveryWindowEnd,
+        minutesLate,
+      });
+    }
+  }
+
+  return violations;
 }
 
 /**
@@ -369,6 +422,8 @@ export async function optimizeRouteStops(
   polyline: string | null;
   totalDuration: number;
   totalDistance: number;
+  method: OptimizedRoute["method"];
+  timeWindowViolations: TimeWindowViolation[];
 }> {
   const routableStops: RoutableStop[] = stops.map((stop) => ({
     stopId: stop.id,
@@ -395,5 +450,7 @@ export async function optimizeRouteStops(
     polyline: optimized.optimizedPolyline,
     totalDuration: optimized.totalDurationSeconds,
     totalDistance: optimized.totalDistanceMeters,
+    method: optimized.method,
+    timeWindowViolations: optimized.timeWindowViolations,
   };
 }
