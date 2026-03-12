@@ -12,7 +12,13 @@ import { Calendar, Clock, ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import type { TimeWindow, DeliveryDate, DeliverySelection } from "@/types/delivery";
+import type {
+  TimeWindow,
+  DeliveryDate,
+  DeliverySelection,
+  DeliveryDirection,
+} from "@/types/delivery";
+import { getDirectionLabel } from "@/lib/utils/delivery-zones";
 import { DatePill } from "./DatePill";
 import { TimeSlotPill } from "./TimeSlotPill";
 
@@ -23,6 +29,8 @@ export interface TimeSlotPickerProps {
   /** Dynamic time windows generated from configured delivery hours */
   timeWindows: TimeWindow[];
   className?: string;
+  /** Optional direction labels per date string */
+  dateDirectionMap?: Map<string, DeliveryDirection>;
 }
 
 export function TimeSlotPicker({
@@ -31,6 +39,7 @@ export function TimeSlotPicker({
   onSelectionChange,
   timeWindows,
   className,
+  dateDirectionMap,
 }: TimeSlotPickerProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -166,16 +175,30 @@ export function TimeSlotPicker({
               "scroll-smooth snap-x snap-mandatory"
             )}
           >
-            {availableDates.map((date, index) => (
-              <DatePill
-                key={date.dateString}
-                date={date}
-                isSelected={selectedDate === date.dateString}
-                onSelect={() => handleDateSelect(date)}
-                index={index}
-                weekOffset={weekOffsets[index]}
-              />
-            ))}
+            {availableDates.map((date, index) => {
+              const direction = dateDirectionMap?.get(date.dateString);
+              return (
+                <div key={date.dateString} className="flex flex-col items-center gap-1">
+                  <DatePill
+                    date={date}
+                    isSelected={selectedDate === date.dateString}
+                    onSelect={() => handleDateSelect(date)}
+                    index={index}
+                    weekOffset={weekOffsets[index]}
+                  />
+                  {direction && direction !== "all" && (
+                    <span className="text-2xs font-medium text-text-muted whitespace-nowrap">
+                      {getDirectionLabel(direction)}
+                    </span>
+                  )}
+                  {direction === "all" && (
+                    <span className="text-2xs font-medium text-primary/70 whitespace-nowrap">
+                      All Areas
+                    </span>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>

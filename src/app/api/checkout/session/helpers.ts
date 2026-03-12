@@ -2,7 +2,11 @@ import React from "react";
 import type { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { ModifierGroupWithItems, ValidatedCartItem } from "@/lib/utils/order";
-import type { ModifierGroupsRow } from "@/types/database";
+import type { ModifierGroupsRow, AddressesRow } from "@/types/database";
+import type { DeliveryDayConfig, DeliveryDirection } from "@/types/delivery";
+import type { DeliveryZoneConfig } from "@/types/delivery";
+import { getDirectionsForCoords } from "@/lib/utils/delivery-zones";
+import { checkCoverage } from "@/lib/services/coverage";
 import { logger } from "@/lib/utils/logger";
 import { sendEmail, fetchSuggestedItems, getAdminEmails } from "@/lib/email";
 import { AdminNewOrderAlert } from "@/emails/AdminNewOrderAlert";
@@ -75,6 +79,7 @@ export async function sendCODOrderEmail(opts: {
   address: { line1: string; line2?: string; city: string; state: string; postalCode: string };
   customerNotes?: string;
   deliveryInstructions?: string;
+  isExtendedRange?: boolean;
 }) {
   const shortId = opts.orderId.slice(0, 8).toUpperCase();
   try {
@@ -116,6 +121,7 @@ export async function sendCODOrderEmail(opts: {
         isPendingApproval: true,
         placedAt: new Date().toISOString(),
         suggestedItems,
+        isExtendedRange: opts.isExtendedRange,
       }),
     });
     // Send admin new-order alert for COD orders
@@ -152,6 +158,7 @@ export async function sendCODOrderEmail(opts: {
           paymentMethod: "cod",
           isPendingApproval: true,
           placedAt: new Date().toISOString(),
+          isExtendedRange: opts.isExtendedRange,
         }),
         type: "admin_new_order",
         orderId: opts.orderId,
@@ -170,4 +177,61 @@ export async function sendCODOrderEmail(opts: {
       error: emailErr instanceof Error ? emailErr.message : String(emailErr),
     });
   }
+}
+
+// ============================================
+// ADDRESS DISTANCE & DIRECTION VALIDATION
+// ============================================
+
+export interface AddressDistanceResult {
+  distanceMiles: number | null;
+  directionError?: string;
+}
+
+/**
+ * Lazy-fill distance_miles for legacy addresses and validate that the
+ * scheduled day's direction matches the customer's address direction.
+ */
+export async function resolveAddressDistance(
+  address: AddressesRow,
+  dayConfig: DeliveryDayConfig | undefined,
+  deliveryZones: DeliveryZoneConfig[],
+  scheduledDate: string
+): Promise<AddressDistanceResult> {
+  let distanceMiles: number | null = (address as Record<string, unknown>).distance_miles as
+    | number
+    | null;
+
+  // Lazy-fill from coverage API
+  if (distanceMiles == null && address.lat && address.lng) {
+    try {
+      const coverageResult = await checkCoverage(address.lat, address.lng);
+      if (coverageResult.isValid) {
+        distanceMiles = coverageResult.distanceMiles;
+        const serviceClient = createServiceClient();
+        await serviceClient
+          .from("addresses")
+          .update({ distance_miles: distanceMiles } as Record<string, unknown>)
+          .eq("id", address.id);
+      }
+    } catch {
+      // Non-critical — proceed without distance
+    }
+  }
+
+  // Validate direction match
+  if (dayConfig && deliveryZones.length > 0 && address.lat && address.lng) {
+    const addressDirections = getDirectionsForCoords(address.lat, address.lng, deliveryZones);
+    if (
+      dayConfig.direction !== "all" &&
+      !addressDirections.includes(dayConfig.direction as Exclude<DeliveryDirection, "all">)
+    ) {
+      return {
+        distanceMiles,
+        directionError: `Your address is not on the ${dayConfig.direction} route for ${scheduledDate}. Please choose a different delivery date.`,
+      };
+    }
+  }
+
+  return { distanceMiles };
 }

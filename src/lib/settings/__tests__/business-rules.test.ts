@@ -6,9 +6,10 @@ vi.mock("next/cache", () => ({
   unstable_cache: (fn: (...args: any[]) => any) => fn,
 }));
 
-// Mock supabase client — now fetches from app_settings AND delivery_days
+// Mock supabase client — now fetches from app_settings, delivery_days, AND delivery_zones
 const mockSettingsReturns = vi.fn();
 const mockDeliveryDaysReturns = vi.fn();
+const mockDeliveryZonesReturns = vi.fn();
 const mockFrom = vi.fn();
 
 vi.mock("@/lib/supabase/server", () => ({
@@ -50,6 +51,11 @@ function setupMocks(
         }),
       };
     }
+    if (table === "delivery_zones") {
+      return {
+        select: () => ({ returns: mockDeliveryZonesReturns }),
+      };
+    }
     return { select: () => ({ eq: () => ({ returns: vi.fn() }) }) };
   });
 
@@ -58,6 +64,7 @@ function setupMocks(
     data: deliveryDaysData,
     error: deliveryDaysError,
   });
+  mockDeliveryZonesReturns.mockResolvedValue({ data: [], error: null });
 }
 
 describe("getBusinessRules", () => {
@@ -65,7 +72,7 @@ describe("getBusinessRules", () => {
     vi.clearAllMocks();
   });
 
-  it("returns all 12 fields with correct types when DB has data", async () => {
+  it("returns all 15 fields with correct types when DB has data", async () => {
     setupMocks(
       [
         { key: "cutoff_day", value: 5 },
@@ -117,8 +124,12 @@ describe("getBusinessRules", () => {
           cutoffHour: 15,
           deliveryFeeCents: 1500,
           displayOrder: 0,
+          direction: "all",
         },
       ],
+      longDistanceFeeCents: 2000,
+      longDistanceThresholdMiles: 25,
+      deliveryZones: [],
     });
   });
 
@@ -190,7 +201,7 @@ describe("getBusinessRules", () => {
 
     const rules = await getBusinessRules();
     expect(rules.cutoffDay).toBe(5);
-    // Should have exactly 12 fields (10 numeric + codEnabled + deliveryDays)
-    expect(Object.keys(rules)).toHaveLength(12);
+    // Should have exactly 15 fields (10 numeric + codEnabled + deliveryDays + longDistanceFeeCents + longDistanceThresholdMiles + deliveryZones)
+    expect(Object.keys(rules)).toHaveLength(15);
   });
 });

@@ -108,6 +108,61 @@ describe("calculateDeliveryFee", () => {
     expect(calculateDeliveryFee(5000, 2000, 8000)).toBe(2000);
     expect(calculateDeliveryFee(9000, 2000, 8000)).toBe(0);
   });
+
+  describe("distance-tiered fees", () => {
+    it("returns long-distance fee when distance > threshold", () => {
+      // >25mi → flat $20 regardless of subtotal
+      const result = calculateDeliveryFee(15000, DELIVERY_FEE, FREE_THRESHOLD, 30);
+      expect(result).toBe(2000); // DEFAULT_LONG_DISTANCE_FEE_CENTS
+    });
+
+    it("returns long-distance fee even when subtotal exceeds free threshold", () => {
+      // >25mi, subtotal > $100 → still $20 (no free delivery)
+      const result = calculateDeliveryFee(15000, DELIVERY_FEE, FREE_THRESHOLD, 28);
+      expect(result).toBe(2000);
+    });
+
+    it("returns standard fee when distance <= threshold", () => {
+      const result = calculateDeliveryFee(5000, DELIVERY_FEE, FREE_THRESHOLD, 20);
+      expect(result).toBe(DELIVERY_FEE);
+    });
+
+    it("returns free delivery when distance <= threshold and subtotal >= free threshold", () => {
+      const result = calculateDeliveryFee(15000, DELIVERY_FEE, FREE_THRESHOLD, 20);
+      expect(result).toBe(0);
+    });
+
+    it("uses standard logic when distance is null", () => {
+      const result = calculateDeliveryFee(5000, DELIVERY_FEE, FREE_THRESHOLD, null);
+      expect(result).toBe(DELIVERY_FEE);
+    });
+
+    it("uses standard logic when distance is undefined", () => {
+      const result = calculateDeliveryFee(5000, DELIVERY_FEE, FREE_THRESHOLD);
+      expect(result).toBe(DELIVERY_FEE);
+    });
+
+    it("returns standard fee at exactly threshold distance", () => {
+      // 25mi exactly → standard (not long-distance)
+      const result = calculateDeliveryFee(5000, DELIVERY_FEE, FREE_THRESHOLD, 25);
+      expect(result).toBe(DELIVERY_FEE);
+    });
+
+    it("works with options object signature", () => {
+      const result = calculateDeliveryFee(
+        5000,
+        {
+          deliveryFeeCents: 1500,
+          freeDeliveryThresholdCents: 10000,
+          longDistanceFeeCents: 2500,
+          longDistanceThresholdMiles: 20,
+        },
+        FREE_THRESHOLD,
+        22
+      );
+      expect(result).toBe(2500);
+    });
+  });
 });
 
 describe("calculateTax", () => {

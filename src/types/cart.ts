@@ -44,6 +44,13 @@ export interface CartStore {
   deliveryDays: DeliveryDayConfig[];
   setDeliveryDays: (days: DeliveryDayConfig[]) => void;
 
+  /** Distance-based fee settings (populated from server on page load) */
+  addressDistanceMiles: number | null;
+  longDistanceFeeCents: number;
+  longDistanceThresholdMiles: number;
+  setAddressDistance: (miles: number | null) => void;
+  setLongDistanceSettings: (fee: number, threshold: number) => void;
+
   addItem: (item: Omit<CartItem, "cartItemId" | "addedAt">) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;
   removeItem: (cartItemId: string) => void;

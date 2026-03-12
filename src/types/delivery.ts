@@ -24,6 +24,8 @@ export const TIMEZONE = process.env.DELIVERY_TIMEZONE || "America/Los_Angeles";
  * Per-day delivery configuration from the `delivery_days` table.
  * Each active day has its own cutoff timing and delivery fee.
  */
+export type DeliveryDirection = "east" | "west" | "south" | "all";
+
 export interface DeliveryDayConfig {
   id: string;
   dayOfWeek: number; // 0=Sunday..6=Saturday
@@ -32,4 +34,13 @@ export interface DeliveryDayConfig {
   cutoffHour: number; // 0-23
   deliveryFeeCents: number;
   displayOrder: number;
+  direction?: DeliveryDirection;
+}
+
+export interface DeliveryZoneConfig {
+  id: string;
+  direction: Exclude<DeliveryDirection, "all">;
+  bearingStart: number;
+  bearingEnd: number;
+  referenceCities: string[];
 }

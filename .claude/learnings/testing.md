@@ -86,3 +86,37 @@ expect(thursdayDate!.cutoffPassed).toBe(true);
 ```
 
 **Apply when:** Writing tests with optional/filtered results. Never wrap `expect` in an `if` guard without first asserting the guard condition.
+
+---
+
+## Business Rules Mock: Must Handle All Promise.all Queries
+
+**Context:** `getBusinessRules()` uses `Promise.all` to fetch `app_settings`, `delivery_days`, and `delivery_zones` in parallel. Adding the `delivery_zones` query broke all business-rules tests because `mockFrom` didn't handle the new table — the 3rd promise rejected/returned undefined, causing the entire function to fall back to defaults.
+
+**Learning:** When `getBusinessRules()` gains a new parallel query (new table in the `Promise.all`), the test mock's `mockFrom` must handle the new table name:
+
+```typescript
+mockFrom.mockImplementation((table: string) => {
+  if (table === "app_settings") { ... }
+  if (table === "delivery_days") { ... }
+  if (table === "delivery_zones") {
+    return { select: () => ({ returns: mockDeliveryZonesReturns }) };
+  }
+  return { ... };
+});
+mockDeliveryZonesReturns.mockResolvedValue({ data: [], error: null });
+```
+
+Also update `toEqual` assertions and key-count assertions for the new fields.
+
+**Apply when:** Adding new data sources to `getBusinessRules()` or any function using `Promise.all` with mocked Supabase queries.
+
+---
+
+## Optional Interface Fields for Backward Compat in Tests
+
+**Context:** Making `direction: DeliveryDirection` required on `DeliveryDayConfig` broke 15+ test fixtures across `delivery-dates-multiday.test.ts` and `delivery-schedule.test.ts` that didn't include the field.
+
+**Learning:** When adding a new field to a widely-used interface, prefer `direction?: DeliveryDirection` (optional) over `direction: DeliveryDirection` (required). Map it with a default in the data layer: `direction: (row.direction || "all") as DeliveryDirection`. This avoids touching every test fixture and consumer.
+
+**Apply when:** Extending `DeliveryDayConfig` or other interfaces used in 5+ test files. Required fields force updates in every consumer and test.

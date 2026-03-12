@@ -66,6 +66,7 @@ export interface OrderConfirmationProps {
   dietaryRestrictions?: string[];
   placedAt: string;
   suggestedItems?: SuggestedItem[];
+  isExtendedRange?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────
@@ -89,6 +90,7 @@ export function OrderConfirmation({
   dietaryRestrictions,
   placedAt,
   suggestedItems,
+  isExtendedRange,
 }: OrderConfirmationProps) {
   const shortId = orderId.slice(0, 8).toUpperCase();
   const orderUrl = `${APP_URL}/orders/${orderId}`;
@@ -279,6 +281,7 @@ export function OrderConfirmation({
         tipCents={tipCents}
         totalCents={totalCents}
         paymentMethod={paymentMethod}
+        isExtendedRange={isExtendedRange}
       />
 
       {/* ── Primary CTA ──────────────────────────────── */}

@@ -19,7 +19,7 @@ import { ensureProfile } from "@/lib/auth/role-redirect";
 import { createCODOrder } from "@/lib/services/cod-order";
 import type { AddressesRow, OrdersRow, OrderItemsRow, ProfilesRow } from "@/types/database";
 import { toISOWithTimezone } from "@/lib/utils/delivery-timezone";
-import { cleanupOrder, sendCODOrderEmail } from "./helpers";
+import { cleanupOrder, sendCODOrderEmail, resolveAddressDistance } from "./helpers";
 import { errorResponse, fetchAndValidateCart, buildRpcPayload } from "./validation";
 
 export async function POST(request: Request) {
@@ -108,17 +108,7 @@ export async function POST(request: Request) {
       role: "customer",
       route: "checkout/session",
     });
-    if (rl.limited) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "RATE_LIMITED",
-            message: "Your order is being processed. Please don't submit again.",
-          },
-        },
-        { status: 429, headers: { "Retry-After": rl.response.headers.get("Retry-After") ?? "60" } }
-      );
-    }
+    if (rl.limited) return rl.response;
 
     // Validate address
     const { data: address, error: addressError } = await supabase
@@ -139,6 +129,18 @@ export async function POST(request: Request) {
         "Address has not been verified for delivery coverage",
         400
       );
+    }
+
+    // Resolve distance (lazy-fill for legacy) and validate direction match
+    const distanceResult = await resolveAddressDistance(
+      address,
+      dayConfig,
+      rules.deliveryZones,
+      input.scheduledDate
+    );
+    const addressDistanceMiles = distanceResult.distanceMiles;
+    if (distanceResult.directionError) {
+      return errorResponse("VALIDATION_ERROR", distanceResult.directionError, 400);
     }
 
     // Promo code validation
@@ -169,15 +171,19 @@ export async function POST(request: Request) {
     }
 
     // Use per-day delivery fee if available
-    const deliveryFeeCents = dayConfig?.deliveryFeeCents ?? rules.deliveryFeeCents;
+    const baseDeliveryFeeCents = dayConfig?.deliveryFeeCents ?? rules.deliveryFeeCents;
+    const isExtendedRange =
+      addressDistanceMiles != null && addressDistanceMiles > rules.longDistanceThresholdMiles;
 
-    const totals = calculateOrderTotals(
-      validatedItems,
-      deliveryFeeCents,
-      rules.freeDeliveryThresholdCents,
+    const totals = calculateOrderTotals(validatedItems, {
+      deliveryFeeCents: baseDeliveryFeeCents,
+      freeDeliveryThresholdCents: rules.freeDeliveryThresholdCents,
       tipCents,
-      discountCents
-    );
+      discountCents,
+      distanceMiles: addressDistanceMiles,
+      longDistanceFeeCents: rules.longDistanceFeeCents,
+      longDistanceThresholdMiles: rules.longDistanceThresholdMiles,
+    });
 
     // Ensure profile exists
     try {
@@ -245,22 +251,19 @@ export async function POST(request: Request) {
         customerName: input.customerName,
         rpcItems,
         rpcModifiers,
+        distanceMiles: addressDistanceMiles,
       });
 
       if (!codResult.success) {
         return errorResponse(codResult.code as "INTERNAL_ERROR", codResult.message, 500);
       }
 
-      logger.info("COD checkout completed", {
+      const logMeta = {
         orderId: codResult.orderId,
         totalCents: totals.totalCents,
         userId: user.id,
-        paymentMethod: "cod",
-        tipCents,
-        promoCode: input.promoCode ?? null,
-        discountCents,
-        itemCount: input.items.length,
-      });
+      };
+      logger.info("COD checkout completed", { ...logMeta, paymentMethod: "cod" });
 
       // Send COD order-received email after response (keeps serverless function alive)
       after(() =>
@@ -287,6 +290,7 @@ export async function POST(request: Request) {
           },
           customerNotes: input.customerNotes ?? undefined,
           deliveryInstructions: input.deliveryInstructions ?? undefined,
+          isExtendedRange,
         })
       );
 
@@ -318,6 +322,7 @@ export async function POST(request: Request) {
         delivery_instructions: input.deliveryInstructions ?? null,
         customer_phone: input.customerPhone,
         customer_name: input.customerName,
+        distance_miles: addressDistanceMiles,
       },
       p_items: rpcItems,
       p_modifiers: rpcModifiers.length > 0 ? rpcModifiers : [],
@@ -407,7 +412,8 @@ export async function POST(request: Request) {
       validatedItems,
       totals.deliveryFeeCents,
       tipCents,
-      totals.taxCents
+      totals.taxCents,
+      isExtendedRange
     );
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
@@ -445,12 +451,7 @@ export async function POST(request: Request) {
       orderId: order.id,
       totalCents: totals.totalCents,
       userId: user.id,
-      paymentIntentId: session.payment_intent ?? "pending",
       paymentMethod: "stripe",
-      tipCents,
-      promoCode: input.promoCode ?? null,
-      discountCents,
-      itemCount: input.items.length,
     });
 
     return NextResponse.json({

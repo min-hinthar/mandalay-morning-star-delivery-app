@@ -19,6 +19,7 @@ import { spring, staggerItem, staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
+import { useCartStore } from "@/lib/stores/cart-store";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { formatPrice } from "@/lib/utils/format";
 import { COVINA_TAX_RATE } from "@/lib/utils/order";
@@ -59,6 +60,11 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
     amountToFreeDelivery,
     freeDeliveryThresholdCents,
   } = useCart();
+
+  const addressDistanceMiles = useCartStore((s) => s.addressDistanceMiles);
+  const longDistanceThresholdMiles = useCartStore((s) => s.longDistanceThresholdMiles);
+  const isExtendedRange =
+    addressDistanceMiles != null && addressDistanceMiles > longDistanceThresholdMiles;
 
   const tipPercent = useCheckoutStore((s) => s.tipPercent);
   const customTipCents = useCheckoutStore((s) => s.customTipCents);
@@ -153,8 +159,34 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
 
       {/* Totals */}
       <div className="border-t border-border bg-surface-secondary/80 px-5 py-4 space-y-3">
+        {/* Extended range notice */}
+        {isExtendedRange && (
+          <m.div
+            initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+            animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+            transition={getSpring(spring.gentle)}
+            className={cn(
+              "p-3 rounded-lg",
+              "bg-blue-50 dark:bg-blue-950/30",
+              "border border-blue-200/60 dark:border-blue-800/40"
+            )}
+          >
+            <div className="flex items-center gap-2">
+              <Truck className="w-4 h-4 text-blue-500" />
+              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
+                Extended delivery: ${(estimatedDeliveryFee / 100).toFixed(2)} flat fee
+              </span>
+            </div>
+            {addressDistanceMiles != null && (
+              <p className="text-xs text-blue-600/70 dark:text-blue-400/70 mt-1 ml-6">
+                {addressDistanceMiles.toFixed(1)} mi from kitchen
+              </p>
+            )}
+          </m.div>
+        )}
+
         {/* Free delivery progress indicator */}
-        {!hasFreeDelivery && (
+        {!hasFreeDelivery && !isExtendedRange && (
           <m.div
             initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
             animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
@@ -201,7 +233,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
         )}
 
         {/* Free delivery achieved celebration */}
-        {hasFreeDelivery && (
+        {hasFreeDelivery && !isExtendedRange && (
           <m.div
             initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
             animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
@@ -257,7 +289,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
         >
           <span className="flex items-center gap-1.5">
             <Truck className="h-3.5 w-3.5" />
-            Delivery
+            {isExtendedRange ? "Extended Delivery" : "Delivery"}
           </span>
           {hasFreeDelivery ? (
             <m.span

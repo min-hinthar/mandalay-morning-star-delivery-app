@@ -13,6 +13,7 @@ export interface Address {
   isDefault: boolean;
   createdAt: string;
   updatedAt: string;
+  distanceMiles?: number | null;
 }
 
 export interface AddressFormData {

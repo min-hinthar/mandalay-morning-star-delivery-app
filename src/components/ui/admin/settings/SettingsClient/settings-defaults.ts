@@ -17,6 +17,8 @@ export const DEFAULT_SETTINGS: AllSettings = {
     deliveryEndHour: 19,
     maxDeliveryDurationMinutes: 60,
     deliveryZones: [],
+    longDistanceFeeCents: 2000,
+    longDistanceThresholdMiles: 25,
   },
   operations: {
     maxStopsPerRoute: 15,
@@ -71,6 +73,11 @@ export function mapApiResponse(data: any): AllSettings {
         data.delivery?.maxDeliveryDurationMinutes ??
         DEFAULT_SETTINGS.delivery.maxDeliveryDurationMinutes,
       deliveryZones: data.delivery?.deliveryZones ?? DEFAULT_SETTINGS.delivery.deliveryZones,
+      longDistanceFeeCents:
+        data.delivery?.longDistanceFeeCents ?? DEFAULT_SETTINGS.delivery.longDistanceFeeCents,
+      longDistanceThresholdMiles:
+        data.delivery?.longDistanceThresholdMiles ??
+        DEFAULT_SETTINGS.delivery.longDistanceThresholdMiles,
     },
     operations: {
       maxStopsPerRoute:

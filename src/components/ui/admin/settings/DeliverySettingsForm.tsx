@@ -44,6 +44,7 @@ export function DeliverySettingsForm({
     minimumOrder: centsToDollars(settings.minimumOrderCents),
     freeThreshold: centsToDollars(settings.freeDeliveryThresholdCents),
     deliveryFee: centsToDollars(settings.baseDeliveryFeeCents),
+    longDistanceFee: centsToDollars(settings.longDistanceFeeCents ?? 2000),
   });
 
   const changed = (field: keyof DeliverySettings) =>
@@ -62,7 +63,11 @@ export function DeliverySettingsForm({
 
   const handleCurrencyChange = useCallback(
     (
-      field: "minimumOrderCents" | "freeDeliveryThresholdCents" | "baseDeliveryFeeCents",
+      field:
+        | "minimumOrderCents"
+        | "freeDeliveryThresholdCents"
+        | "baseDeliveryFeeCents"
+        | "longDistanceFeeCents",
       displayKey: keyof typeof displayValues,
       value: string
     ) => {
@@ -187,6 +192,47 @@ export function DeliverySettingsForm({
               />
             </div>
             <p className="text-xs text-text-muted">Minimum order value for delivery</p>
+          </div>
+
+          <div className={cn("space-y-2", changed("longDistanceFeeCents") && CHANGED_BORDER)}>
+            <Label htmlFor="longDistanceFee">Extended Delivery Fee (&gt;25 mi)</Label>
+            <div className="relative max-w-[200px]">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
+                $
+              </span>
+              <Input
+                id="longDistanceFee"
+                type="number"
+                min={0}
+                step={0.01}
+                value={displayValues.longDistanceFee}
+                onChange={(e) =>
+                  handleCurrencyChange("longDistanceFeeCents", "longDistanceFee", e.target.value)
+                }
+                className="pl-7"
+              />
+            </div>
+            <p className="text-xs text-text-muted">
+              Flat fee for addresses beyond distance threshold
+            </p>
+          </div>
+
+          <div className={cn("space-y-2", changed("longDistanceThresholdMiles") && CHANGED_BORDER)}>
+            <Label htmlFor="longDistanceThreshold">Distance Threshold (miles)</Label>
+            <div className="max-w-[200px]">
+              <Input
+                id="longDistanceThreshold"
+                type="number"
+                min={1}
+                max={50}
+                step={1}
+                value={settings.longDistanceThresholdMiles ?? 25}
+                onChange={(e) => handleNumberChange("longDistanceThresholdMiles", e.target.value)}
+              />
+            </div>
+            <p className="text-xs text-text-muted">
+              Addresses beyond this get the extended delivery fee
+            </p>
           </div>
         </div>
       </div>

@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils/cn";
 import { spring, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
+import { useCartStore } from "@/lib/stores/cart-store";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { FreeDeliveryProgress } from "./FreeDeliveryProgress";
 
@@ -48,8 +49,12 @@ const summaryRowVariants = {
 export function CartSummary({ className }: CartSummaryProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { itemsSubtotal, estimatedDeliveryFee, estimatedTotal, amountToFreeDelivery } = useCart();
+  const addressDistanceMiles = useCartStore((s) => s.addressDistanceMiles);
+  const longDistanceThresholdMiles = useCartStore((s) => s.longDistanceThresholdMiles);
+  const isExtendedRange =
+    addressDistanceMiles != null && addressDistanceMiles > longDistanceThresholdMiles;
 
-  const hasFreeDelivery = amountToFreeDelivery === 0;
+  const hasFreeDelivery = amountToFreeDelivery === 0 && !isExtendedRange;
 
   return (
     <m.div
@@ -57,7 +62,10 @@ export function CartSummary({ className }: CartSummaryProps) {
       className={cn("space-y-3", className)}
     >
       {/* Free delivery progress indicator */}
-      <FreeDeliveryProgress amountToFreeDelivery={amountToFreeDelivery} />
+      <FreeDeliveryProgress
+        amountToFreeDelivery={amountToFreeDelivery}
+        isExtendedRange={isExtendedRange}
+      />
 
       {/* Summary rows */}
       <div className="space-y-2 text-sm">
@@ -80,7 +88,7 @@ export function CartSummary({ className }: CartSummaryProps) {
           transition={{ delay: 0.05 }}
           className="flex justify-between text-text-secondary"
         >
-          <span>Delivery Fee</span>
+          <span>{isExtendedRange ? "Extended Delivery" : "Delivery Fee"}</span>
           {hasFreeDelivery ? (
             <m.span
               initial={shouldAnimate ? { scale: 0.8, opacity: 0 } : undefined}

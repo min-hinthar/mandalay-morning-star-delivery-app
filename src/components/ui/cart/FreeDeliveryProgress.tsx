@@ -25,6 +25,8 @@ export interface FreeDeliveryProgressProps {
   amountToFreeDelivery: number;
   /** Additional className */
   className?: string;
+  /** Whether address is in extended delivery range (>25mi) */
+  isExtendedRange?: boolean;
 }
 
 // ============================================
@@ -34,9 +36,11 @@ export interface FreeDeliveryProgressProps {
 export function FreeDeliveryProgress({
   amountToFreeDelivery,
   className,
+  isExtendedRange = false,
 }: FreeDeliveryProgressProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const freeDeliveryThresholdCents = useCartStore((state) => state.freeDeliveryThresholdCents);
+  const longDistanceFeeCents = useCartStore((state) => state.longDistanceFeeCents);
 
   const progressPercent = Math.min(
     100,
@@ -44,6 +48,32 @@ export function FreeDeliveryProgress({
   );
 
   const hasFreeDelivery = amountToFreeDelivery === 0;
+
+  // Extended range: show flat fee message instead of progress
+  if (isExtendedRange) {
+    return (
+      <div className={className}>
+        <m.div
+          initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+          animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+          transition={getSpring(spring.gentle)}
+          className={cn(
+            "p-4 rounded-xl",
+            "bg-blue-50 dark:bg-blue-950/30",
+            "border border-blue-200/60 dark:border-blue-800/40",
+            "shadow-sm"
+          )}
+        >
+          <div className="flex items-center gap-2">
+            <Truck className="w-4 h-4 text-blue-500" />
+            <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+              Extended delivery: ${(longDistanceFeeCents / 100).toFixed(2)} flat fee
+            </span>
+          </div>
+        </m.div>
+      </div>
+    );
+  }
 
   return (
     <div className={className}>

@@ -27,7 +27,14 @@ import {
 } from "@/lib/utils/delivery-dates";
 import { TimeSlotPicker } from "./TimeSlotPicker";
 import { Button } from "@/components/ui/button";
-import type { DeliveryDayConfig, DeliverySelection, TimeWindow } from "@/types/delivery";
+import type {
+  DeliveryDayConfig,
+  DeliveryDirection,
+  DeliverySelection,
+  DeliveryZoneConfig,
+  TimeWindow,
+} from "@/types/delivery";
+import { getDirectionsForCoords, filterDaysByDirection } from "@/lib/utils/delivery-zones";
 
 /** Button entry animation variant */
 const buttonEntry = {
@@ -54,6 +61,8 @@ export interface TimeStepV8Props {
   timeWindows?: TimeWindow[];
   /** Multi-day delivery configs; uses legacy Saturday-only when empty */
   deliveryDays?: DeliveryDayConfig[];
+  /** Delivery zone configs for direction filtering */
+  deliveryZones?: DeliveryZoneConfig[];
 }
 
 // ============================================
@@ -66,9 +75,11 @@ export function TimeStepV8({
   onBack,
   timeWindows = [],
   deliveryDays = [],
+  deliveryZones = [],
 }: TimeStepV8Props) {
   const { shouldAnimate } = useAnimationPreference();
   const {
+    address,
     delivery,
     setDelivery,
     nextStep: storeNextStep,
@@ -79,14 +90,41 @@ export function TimeStepV8({
   const handleNext = onNext || storeNextStep;
   const handleBack = onBack || storePrevStep;
 
+  // Determine customer's delivery directions from address coordinates
+  const addressDirections = useMemo(() => {
+    if (!address?.lat || !address?.lng || deliveryZones.length === 0) return undefined;
+    return getDirectionsForCoords(address.lat, address.lng, deliveryZones);
+  }, [address?.lat, address?.lng, deliveryZones]);
+
+  // Filter delivery days by direction when available
+  const filteredDays = useMemo(() => {
+    if (!addressDirections || addressDirections.length === 0) return deliveryDays;
+    return filterDaysByDirection(addressDirections, deliveryDays);
+  }, [addressDirections, deliveryDays]);
+
   // Use multi-day dates when delivery days are configured, legacy otherwise
   const availableDates = useMemo(
     () =>
-      deliveryDays.length > 0
-        ? getAvailableDeliveryDatesMultiDay(new Date(), deliveryDays, 6)
-        : getAvailableDeliveryDates(),
-    [deliveryDays]
+      filteredDays.length > 0
+        ? getAvailableDeliveryDatesMultiDay(new Date(), filteredDays, 6)
+        : deliveryDays.length > 0
+          ? getAvailableDeliveryDatesMultiDay(new Date(), deliveryDays, 6)
+          : getAvailableDeliveryDates(),
+    [filteredDays, deliveryDays]
   );
+
+  // Build direction lookup for date pills
+  const dateDirectionMap = useMemo(() => {
+    const map = new Map<string, DeliveryDirection>();
+    for (const date of availableDates) {
+      const dayOfWeek = date.date.getUTCDay();
+      const dayConfig = filteredDays.find((d) => d.dayOfWeek === dayOfWeek);
+      if (dayConfig) {
+        map.set(date.dateString, dayConfig.direction ?? "all");
+      }
+    }
+    return map;
+  }, [availableDates, filteredDays]);
 
   // Auto-select first available delivery date when none selected
   useEffect(() => {
@@ -134,6 +172,7 @@ export function TimeStepV8({
           selectedDelivery={delivery}
           onSelectionChange={handleSelectionChange}
           timeWindows={timeWindows}
+          dateDirectionMap={dateDirectionMap}
         />
       </m.div>
 

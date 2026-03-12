@@ -44,18 +44,54 @@ export function calculateLineTotal(
   return (basePriceCents + modifierTotal) * quantity;
 }
 
+/** Default long-distance fee values */
+const DEFAULT_LONG_DISTANCE_FEE_CENTS = 2000;
+const DEFAULT_LONG_DISTANCE_THRESHOLD_MILES = 25;
+
+export interface DeliveryFeeOptions {
+  deliveryFeeCents?: number;
+  freeDeliveryThresholdCents?: number;
+  longDistanceFeeCents?: number;
+  longDistanceThresholdMiles?: number;
+}
+
 /**
- * Calculate delivery fee based on subtotal
- * @param subtotalCents - Order subtotal in cents
- * @param deliveryFeeCents - Delivery fee amount in cents
- * @param freeDeliveryThresholdCents - Subtotal threshold for free delivery
+ * Calculate delivery fee based on subtotal and distance.
+ * - If distanceMiles > threshold: flat long-distance fee (no free delivery)
+ * - Otherwise: free if subtotal >= threshold, standard fee otherwise
  */
 export function calculateDeliveryFee(
   subtotalCents: number,
-  deliveryFeeCents: number = DEFAULT_DELIVERY_FEE_CENTS,
-  freeDeliveryThresholdCents: number = DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS
+  deliveryFeeCentsOrOpts: number | DeliveryFeeOptions = DEFAULT_DELIVERY_FEE_CENTS,
+  freeDeliveryThresholdCents: number = DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS,
+  distanceMiles?: number | null
 ): number {
-  return subtotalCents >= freeDeliveryThresholdCents ? 0 : deliveryFeeCents;
+  // Support both old signature and new options object
+  let feeCents = DEFAULT_DELIVERY_FEE_CENTS;
+  let freeThreshold = freeDeliveryThresholdCents;
+  let longDistanceFee = DEFAULT_LONG_DISTANCE_FEE_CENTS;
+  let longDistanceThreshold = DEFAULT_LONG_DISTANCE_THRESHOLD_MILES;
+  const distance = distanceMiles;
+
+  if (typeof deliveryFeeCentsOrOpts === "object") {
+    feeCents = deliveryFeeCentsOrOpts.deliveryFeeCents ?? DEFAULT_DELIVERY_FEE_CENTS;
+    freeThreshold =
+      deliveryFeeCentsOrOpts.freeDeliveryThresholdCents ?? DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS;
+    longDistanceFee =
+      deliveryFeeCentsOrOpts.longDistanceFeeCents ?? DEFAULT_LONG_DISTANCE_FEE_CENTS;
+    longDistanceThreshold =
+      deliveryFeeCentsOrOpts.longDistanceThresholdMiles ?? DEFAULT_LONG_DISTANCE_THRESHOLD_MILES;
+  } else {
+    feeCents = deliveryFeeCentsOrOpts;
+  }
+
+  // Long-distance: flat fee, no free delivery
+  if (distance != null && distance > longDistanceThreshold) {
+    return longDistanceFee;
+  }
+
+  // Standard: free if subtotal >= threshold
+  return subtotalCents >= freeThreshold ? 0 : feeCents;
 }
 
 /**
@@ -65,13 +101,23 @@ export function calculateTax(subtotalCents: number): number {
   return Math.round(subtotalCents * COVINA_TAX_RATE);
 }
 
+export interface OrderTotalsOptions {
+  deliveryFeeCents?: number;
+  freeDeliveryThresholdCents?: number;
+  tipCents?: number;
+  discountCents?: number;
+  distanceMiles?: number | null;
+  longDistanceFeeCents?: number;
+  longDistanceThresholdMiles?: number;
+}
+
 /**
  * Calculate full order totals
  * totalCents = subtotal + delivery + tax + tip - discount (min 0)
  */
 export function calculateOrderTotals(
   validatedItems: ValidatedCartItem[],
-  deliveryFeeCentsParam: number = DEFAULT_DELIVERY_FEE_CENTS,
+  deliveryFeeCentsOrOpts: number | OrderTotalsOptions = DEFAULT_DELIVERY_FEE_CENTS,
   freeDeliveryThresholdCents: number = DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS,
   tipCents: number = 0,
   discountCents: number = 0
@@ -81,23 +127,42 @@ export function calculateOrderTotals(
 > {
   const subtotalCents = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
 
-  const deliveryFeeCents = calculateDeliveryFee(
-    subtotalCents,
-    deliveryFeeCentsParam,
-    freeDeliveryThresholdCents
-  );
+  let deliveryFeeCents: number;
+  let tip = tipCents;
+  let discount = discountCents;
+
+  if (typeof deliveryFeeCentsOrOpts === "object") {
+    const opts = deliveryFeeCentsOrOpts;
+    tip = opts.tipCents ?? 0;
+    discount = opts.discountCents ?? 0;
+    deliveryFeeCents = calculateDeliveryFee(
+      subtotalCents,
+      {
+        deliveryFeeCents: opts.deliveryFeeCents,
+        freeDeliveryThresholdCents: opts.freeDeliveryThresholdCents,
+        longDistanceFeeCents: opts.longDistanceFeeCents,
+        longDistanceThresholdMiles: opts.longDistanceThresholdMiles,
+      },
+      DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS,
+      opts.distanceMiles
+    );
+  } else {
+    deliveryFeeCents = calculateDeliveryFee(
+      subtotalCents,
+      deliveryFeeCentsOrOpts,
+      freeDeliveryThresholdCents
+    );
+  }
+
   const taxCents = calculateTax(subtotalCents);
-  const totalCents = Math.max(
-    0,
-    subtotalCents + deliveryFeeCents + taxCents + tipCents - discountCents
-  );
+  const totalCents = Math.max(0, subtotalCents + deliveryFeeCents + taxCents + tip - discount);
 
   return {
     subtotalCents,
     deliveryFeeCents,
     taxCents,
-    tipCents,
-    discountCents,
+    tipCents: tip,
+    discountCents: discount,
     totalCents,
   };
 }
@@ -110,7 +175,8 @@ export function createStripeLineItems(
   validatedItems: ValidatedCartItem[],
   deliveryFeeCents: number,
   tipCents: number = 0,
-  taxCents: number = 0
+  taxCents: number = 0,
+  isExtendedRange: boolean = false
 ): Array<{
   price_data: {
     currency: string;
@@ -147,8 +213,10 @@ export function createStripeLineItems(
         currency: "usd",
         unit_amount: deliveryFeeCents,
         product_data: {
-          name: "Delivery Fee",
-          description: "Delivery to your address",
+          name: isExtendedRange ? "Extended Delivery Fee" : "Delivery Fee",
+          description: isExtendedRange
+            ? "Extended range delivery (>25 mi)"
+            : "Delivery to your address",
         },
       },
       quantity: 1,
