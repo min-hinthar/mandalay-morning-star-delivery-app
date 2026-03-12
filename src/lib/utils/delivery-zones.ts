@@ -5,7 +5,7 @@
  * which delivery direction(s) the customer falls into.
  */
 
-import { KITCHEN_ORIGIN } from "@/lib/services/route-optimization/types";
+import { KITCHEN_COORDS } from "@/lib/constants/kitchen";
 import type { DeliveryDayConfig, DeliveryDirection, DeliveryZoneConfig } from "@/types/delivery";
 
 /** Default zone configs matching DB seed values */
@@ -38,9 +38,9 @@ export const DEFAULT_ZONES: DeliveryZoneConfig[] = [
  * Uses the forward azimuth formula for great-circle navigation.
  */
 export function calculateBearing(destLat: number, destLng: number): number {
-  const lat1 = (KITCHEN_ORIGIN.latitude * Math.PI) / 180;
+  const lat1 = (KITCHEN_COORDS.lat * Math.PI) / 180;
   const lat2 = (destLat * Math.PI) / 180;
-  const dLng = ((destLng - KITCHEN_ORIGIN.longitude) * Math.PI) / 180;
+  const dLng = ((destLng - KITCHEN_COORDS.lng) * Math.PI) / 180;
 
   const y = Math.sin(dLng) * Math.cos(lat2);
   const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);

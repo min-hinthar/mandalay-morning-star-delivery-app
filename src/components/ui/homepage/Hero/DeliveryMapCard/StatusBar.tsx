@@ -6,12 +6,19 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
+import { COVERAGE_LIMITS } from "@/types/address";
+
 interface StatusBarProps {
   deliveriesThisMonth: number;
   nextDeliveryDate: string;
+  deliverySchedule?: string;
 }
 
-export function StatusBar({ deliveriesThisMonth, nextDeliveryDate }: StatusBarProps) {
+export function StatusBar({
+  deliveriesThisMonth,
+  nextDeliveryDate,
+  deliverySchedule,
+}: StatusBarProps) {
   const { shouldAnimate } = useAnimationPreference();
 
   const handleScrollToCoverage = () => {
@@ -38,17 +45,19 @@ export function StatusBar({ deliveriesThisMonth, nextDeliveryDate }: StatusBarPr
           <div className="flex items-center gap-3 text-xs font-medium text-text-secondary flex-wrap">
             <span className="flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 text-primary" />
-              <span className="font-semibold text-text-primary">50 mi</span>
+              <span className="font-semibold text-text-primary">
+                {COVERAGE_LIMITS.maxDistanceMiles} mi
+              </span>
             </span>
             <span className="text-text-muted/40">&bull;</span>
             <span className="flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 text-text-muted" />
-              <span>90 min</span>
+              <span>{COVERAGE_LIMITS.maxDurationMinutes} min</span>
             </span>
             <span className="text-text-muted/40 hidden sm:inline">&bull;</span>
             <span className="hidden sm:flex items-center gap-1">
               <Calendar className="w-3.5 h-3.5 text-text-muted" />
-              <span>Mon/Wed/Thu/Sat</span>
+              <span>{deliverySchedule ?? "Mon/Wed/Thu/Sat"}</span>
             </span>
           </div>
 

@@ -15,6 +15,7 @@ import dynamic from "next/dynamic";
 import type { HeroProps } from "./types";
 import { GradientFallback } from "./HeroSubComponents";
 import { HeroContent } from "./HeroContent";
+import { formatDeliveryDaysList } from "@/lib/utils/delivery-schedule";
 
 const DeliveryMapCard = dynamic(
   () => import("./DeliveryMapCard").then((m) => ({ default: m.DeliveryMapCard })),
@@ -42,9 +43,13 @@ export function Hero({
   deliveryDays,
   deliveriesThisMonth,
   nextDeliveryDate,
+  longDistanceFeeCents,
+  longDistanceThresholdMiles,
 }: HeroProps) {
   const canHover = useCanHover();
   const containerRef = useRef<HTMLDivElement>(null);
+
+  const deliverySchedule = deliveryDays ? formatDeliveryDaysList(deliveryDays) : undefined;
 
   const [mouseOffset, setMouseOffset] = useState({ x: 0, y: 0 });
 
@@ -79,6 +84,8 @@ export function Hero({
       cutoffDay={cutoffDay}
       cutoffHour={cutoffHour}
       deliveryDays={deliveryDays}
+      longDistanceFeeCents={longDistanceFeeCents}
+      longDistanceThresholdMiles={longDistanceThresholdMiles}
     />
   );
 
@@ -102,6 +109,7 @@ export function Hero({
           <DeliveryMapCard
             deliveriesThisMonth={deliveriesThisMonth ?? 0}
             nextDeliveryDate={nextDeliveryDate ?? ""}
+            deliverySchedule={deliverySchedule}
           />
         </div>
       </GradientFallback>

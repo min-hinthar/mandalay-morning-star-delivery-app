@@ -6,6 +6,8 @@ import {
   CoverageFailureReason,
   KITCHEN_LOCATION,
 } from "@/types/address";
+import { getDirectionsForCoords, DEFAULT_ZONES } from "@/lib/utils/delivery-zones";
+import { BUSINESS_RULES_DEFAULTS } from "@/lib/settings/business-rules";
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
@@ -109,14 +111,49 @@ export async function checkCoverage(
       reason = "DURATION_EXCEEDED";
     }
 
+    const roundedMiles = Math.round(distanceMiles * 10) / 10;
+    const isValid = distanceValid && durationValid;
+
+    // Compute direction/fee info for valid addresses
+    let directions: string[] | undefined;
+    let eligibleDays: string[] | undefined;
+    let feeTier: "standard" | "extended" | undefined;
+    let estimatedFeeCents: number | undefined;
+
+    if (isValid) {
+      const DAY_NAMES: Record<string, string> = {
+        east: "Monday",
+        west: "Wednesday",
+        south: "Thursday",
+      };
+      const dirs = getDirectionsForCoords(destLat, destLng, DEFAULT_ZONES);
+      directions = dirs;
+      const days = dirs.map((d) => DAY_NAMES[d]).filter(Boolean);
+      days.push("Saturday");
+      eligibleDays = [...new Set(days)];
+
+      const threshold = BUSINESS_RULES_DEFAULTS.longDistanceThresholdMiles;
+      if (roundedMiles > threshold) {
+        feeTier = "extended";
+        estimatedFeeCents = BUSINESS_RULES_DEFAULTS.longDistanceFeeCents;
+      } else {
+        feeTier = "standard";
+        estimatedFeeCents = BUSINESS_RULES_DEFAULTS.deliveryFeeCents;
+      }
+    }
+
     return {
-      isValid: distanceValid && durationValid,
-      distanceMiles: Math.round(distanceMiles * 10) / 10,
+      isValid,
+      distanceMiles: roundedMiles,
       durationMinutes: Math.round(durationMinutes),
       reason,
       lat: destLat,
       lng: destLng,
       encodedPolyline: route.polyline?.encodedPolyline,
+      directions,
+      eligibleDays,
+      feeTier,
+      estimatedFeeCents,
     };
   } catch {
     logger.error("Coverage check error", { api: "coverage" });

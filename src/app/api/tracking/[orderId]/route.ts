@@ -32,10 +32,10 @@ import type {
   LocationUpdateData,
   CurrentStopData,
 } from "./types";
-import { KITCHEN_ORIGIN } from "@/lib/services/route-optimization/types";
+import { KITCHEN_COORDS } from "@/lib/constants/kitchen";
 
 // Restaurant location constant (Mandalay Morning Star, Covina CA)
-const RESTAURANT_LOCATION = { lat: KITCHEN_ORIGIN.latitude, lng: KITCHEN_ORIGIN.longitude };
+const RESTAURANT_LOCATION = { lat: KITCHEN_COORDS.lat, lng: KITCHEN_COORDS.lng };
 
 export async function GET(request: Request, { params }: { params: Promise<{ orderId: string }> }) {
   try {

@@ -18,7 +18,11 @@ import type { DeliveryMapCardProps } from "./types";
 const COVERAGE_RADIUS_METERS = COVERAGE_LIMITS.maxDistanceMiles * 1609.34;
 const CENTER = { lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng };
 
-export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: DeliveryMapCardProps) {
+export function DeliveryMapCard({
+  deliveriesThisMonth,
+  nextDeliveryDate,
+  deliverySchedule,
+}: DeliveryMapCardProps) {
   const { shouldAnimate } = useAnimationPreference();
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [isVisible, setIsVisible] = useState(true);
@@ -106,7 +110,10 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
     return (
       <div className="flex items-center justify-center gap-2 py-8 text-hero-text/60 text-sm">
         <MapPin className="w-4 h-4" />
-        <span>Delivering across Greater Los Angeles — 50-mile coverage from Covina</span>
+        <span>
+          Delivering across Greater Los Angeles — {COVERAGE_LIMITS.maxDistanceMiles}-mile coverage
+          from Covina
+        </span>
       </div>
     );
   }
@@ -230,7 +237,11 @@ export function DeliveryMapCard({ deliveriesThisMonth, nextDeliveryDate }: Deliv
         </m.div>
 
         {/* Bottom status bar */}
-        <StatusBar deliveriesThisMonth={deliveriesThisMonth} nextDeliveryDate={nextDeliveryDate} />
+        <StatusBar
+          deliveriesThisMonth={deliveriesThisMonth}
+          nextDeliveryDate={nextDeliveryDate}
+          deliverySchedule={deliverySchedule}
+        />
       </div>
     </m.div>
   );

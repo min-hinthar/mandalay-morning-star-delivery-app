@@ -63,16 +63,16 @@ export interface CoverageCheckResult {
   lng?: number;
   reason?: CoverageFailureReason;
   encodedPolyline?: string;
+  directions?: string[];
+  eligibleDays?: string[];
+  feeTier?: "standard" | "extended";
+  estimatedFeeCents?: number;
 }
 
 export const ADDRESS_LABELS = ["Home", "Work", "Other"] as const;
 export type AddressLabel = (typeof ADDRESS_LABELS)[number];
 
-export const KITCHEN_LOCATION = {
-  lat: 34.0858,
-  lng: -117.8896,
-  address: "750 Terrado Plaza, Suite 33, Covina, CA 91723",
-} as const;
+export { KITCHEN_COORDS as KITCHEN_LOCATION } from "@/lib/constants/kitchen";
 
 export const COVERAGE_LIMITS = {
   maxDistanceMiles: 50,

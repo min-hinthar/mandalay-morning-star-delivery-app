@@ -10,4 +10,5 @@ export interface SimulatedPin {
 export interface DeliveryMapCardProps {
   deliveriesThisMonth: number;
   nextDeliveryDate: string;
+  deliverySchedule?: string;
 }

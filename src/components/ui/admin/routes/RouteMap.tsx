@@ -5,7 +5,7 @@ import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { GoogleMap, useJsApiLoader, Polyline, Marker } from "@react-google-maps/api";
 import { Loader2, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { KITCHEN_ORIGIN } from "@/lib/services/route-optimization/types";
+import { KITCHEN_COORDS } from "@/lib/constants/kitchen";
 import type { RouteStopStatus } from "@/types/driver";
 
 const mapStyles: google.maps.MapTypeStyle[] = [
@@ -64,10 +64,7 @@ export function RouteMap({ stops, polyline, onStopClick, className }: RouteMapPr
   });
 
   // Kitchen origin for map display
-  const originPosition = useMemo(
-    () => ({ lat: KITCHEN_ORIGIN.latitude, lng: KITCHEN_ORIGIN.longitude }),
-    []
-  );
+  const originPosition = useMemo(() => ({ lat: KITCHEN_COORDS.lat, lng: KITCHEN_COORDS.lng }), []);
 
   // Calculate center based on stops
   const center = useMemo(() => {
