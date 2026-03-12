@@ -178,24 +178,31 @@ For `void` SQL returns, use `Returns: undefined`. For `jsonb`, use `Returns: Jso
 
 ---
 
-## Route Pipeline: Partial Unique Index via SQL Function
+## Route Pipeline: Cross-Table Uniqueness via Trigger (Not Partial Index)
 
-**Context:** `route_stops` needed a unique constraint on `order_id` but only for non-completed routes. Postgres partial unique indexes require `WHERE` clauses that reference the same table, but the `status` lives on `routes` (parent table).
+**Context:** `route_stops` needed to prevent an order from being in multiple active (non-completed) routes. Tried a partial unique index with a SQL function referencing the parent `routes` table — failed because PostgreSQL index predicates must be IMMUTABLE, and any function querying another table is inherently STABLE.
 
-**Learning:** Use a `STABLE` SQL function to bridge the cross-table check:
+**Learning:** Cross-table uniqueness constraints cannot use partial unique indexes. Use a `BEFORE INSERT` trigger instead:
 
 ```sql
-CREATE FUNCTION route_stop_is_active(p_route_id uuid) RETURNS boolean AS $$
-  SELECT EXISTS (SELECT 1 FROM routes WHERE id = p_route_id AND status != 'completed');
-$$ LANGUAGE sql STABLE;
-
-CREATE UNIQUE INDEX idx_route_stops_active_order
-  ON route_stops (order_id) WHERE route_stop_is_active(route_id);
+CREATE FUNCTION prevent_duplicate_active_assignment() RETURNS trigger AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM route_stops rs JOIN routes r ON r.id = rs.route_id
+    WHERE rs.order_id = NEW.order_id AND r.status != 'completed'
+      AND rs.route_id != NEW.route_id
+  ) THEN
+    RAISE EXCEPTION 'Order % is already assigned to an active route', NEW.order_id
+      USING ERRCODE = 'unique_violation';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 ```
 
 Also added: `batch_update_stop_indices` RPC (array params for bulk index updates), `reindex_route_stops` RPC (CTE-based atomic reindex), `update_route_stats` RPC (single aggregate query replacing N+1 pattern).
 
-**Apply when:** Needing cross-table constraints in partial indexes, or replacing N+1 query patterns in route stats/reindexing.
+**Apply when:** Needing cross-table uniqueness constraints, or replacing N+1 query patterns in route stats/reindexing.
 
 ---
 
