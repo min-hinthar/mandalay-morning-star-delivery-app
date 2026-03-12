@@ -2,18 +2,33 @@
 -- Addresses: double-assignment prevention, stop_index bounds, composite indexes,
 -- route completion guard, atomic reindexing, and SQL-based stats aggregation.
 
--- 1. Partial unique index: prevent order from being in multiple active routes
--- Uses a subquery approach since route_stops doesn't have route status directly
-CREATE OR REPLACE FUNCTION route_stop_is_active(p_route_id uuid)
-RETURNS boolean AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM routes WHERE id = p_route_id AND status != 'completed'
-  );
-$$ LANGUAGE sql STABLE;
+-- 1. Prevent order from being in multiple active (non-completed) routes
+-- Can't use a partial unique index here because the filter needs to reference
+-- the parent `routes` table (cross-table predicates must be immutable).
+-- Use a BEFORE INSERT trigger instead.
+CREATE OR REPLACE FUNCTION prevent_duplicate_active_assignment()
+RETURNS trigger AS $$
+BEGIN
+  IF EXISTS (
+    SELECT 1
+    FROM route_stops rs
+    JOIN routes r ON r.id = rs.route_id
+    WHERE rs.order_id = NEW.order_id
+      AND r.status != 'completed'
+      AND rs.route_id != NEW.route_id
+  ) THEN
+    RAISE EXCEPTION 'Order % is already assigned to an active route', NEW.order_id
+      USING ERRCODE = 'unique_violation';
+  END IF;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_route_stops_active_order
-  ON route_stops (order_id)
-  WHERE route_stop_is_active(route_id);
+DROP TRIGGER IF EXISTS trg_prevent_duplicate_active_assignment ON route_stops;
+CREATE TRIGGER trg_prevent_duplicate_active_assignment
+  BEFORE INSERT ON route_stops
+  FOR EACH ROW
+  EXECUTE FUNCTION prevent_duplicate_active_assignment();
 
 -- 2. Stop index bounds check
 ALTER TABLE route_stops
