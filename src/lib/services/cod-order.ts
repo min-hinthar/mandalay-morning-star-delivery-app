@@ -24,6 +24,7 @@ export interface CODOrderInput {
   customerName: string;
   rpcItems: unknown[];
   rpcModifiers: unknown[];
+  distanceMiles?: number | null;
 }
 
 export interface CODOrderResult {
@@ -66,6 +67,7 @@ export async function createCODOrder(
         delivery_instructions: input.deliveryInstructions,
         customer_phone: input.customerPhone,
         customer_name: input.customerName,
+        distance_miles: input.distanceMiles ?? null,
       },
       p_items: input.rpcItems as Json,
       p_modifiers: (input.rpcModifiers.length > 0 ? input.rpcModifiers : []) as Json,

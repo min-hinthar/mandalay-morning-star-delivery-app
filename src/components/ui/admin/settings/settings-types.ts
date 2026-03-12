@@ -55,6 +55,8 @@ export interface DeliverySettings {
   deliveryEndHour: number; // 1-24
   maxDeliveryDurationMinutes: number; // 1-480
   deliveryZones: DeliveryZone[];
+  longDistanceFeeCents: number;
+  longDistanceThresholdMiles: number;
 }
 
 export interface OperationsSettings {

@@ -1,4 +1,9 @@
-import { TIMEZONE, type DeliveryDate, type DeliveryDayConfig } from "@/types/delivery";
+import {
+  TIMEZONE,
+  type DeliveryDate,
+  type DeliveryDayConfig,
+  type DeliveryDirection,
+} from "@/types/delivery";
 
 const DEFAULT_CUTOFF_DAY = 5;
 const DEFAULT_CUTOFF_HOUR = 15;
@@ -257,9 +262,19 @@ export function getNextDeliveryDate(
 export function getAvailableDeliveryDatesMultiDay(
   now: Date = new Date(),
   deliveryDays: DeliveryDayConfig[],
-  count: number = 6
+  count: number = 6,
+  directions?: Exclude<DeliveryDirection, "all">[]
 ): DeliveryDate[] {
-  const activeDays = deliveryDays.filter((d) => d.isActive);
+  let activeDays = deliveryDays.filter((d) => d.isActive);
+
+  // Filter by direction if provided
+  if (directions && directions.length > 0) {
+    activeDays = activeDays.filter(
+      (d) =>
+        d.direction === "all" ||
+        directions.includes(d.direction as Exclude<DeliveryDirection, "all">)
+    );
+  }
   if (activeDays.length === 0) return [];
 
   const nowDayOfWeek = getZonedDayOfWeek(now);

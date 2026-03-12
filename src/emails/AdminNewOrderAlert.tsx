@@ -43,6 +43,7 @@ export interface AdminNewOrderAlertProps {
   paymentMethod?: string;
   isPendingApproval?: boolean;
   placedAt: string;
+  isExtendedRange?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────
@@ -63,6 +64,7 @@ export function AdminNewOrderAlert({
   paymentMethod,
   isPendingApproval,
   placedAt,
+  isExtendedRange,
 }: AdminNewOrderAlertProps) {
   const shortId = shortOrderId(orderId);
   const adminOrderUrl = `${APP_URL}/admin/orders/${orderId}`;
@@ -280,6 +282,7 @@ export function AdminNewOrderAlert({
         tipCents={tipCents}
         totalCents={totalCents}
         paymentMethod={paymentMethod}
+        isExtendedRange={isExtendedRange}
       />
 
       {/* ── Primary CTA ──────────────────────────────── */}

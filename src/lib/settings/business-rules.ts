@@ -1,6 +1,6 @@
 import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/server";
-import type { DeliveryDayConfig } from "@/types/delivery";
+import type { DeliveryDayConfig, DeliveryDirection, DeliveryZoneConfig } from "@/types/delivery";
 
 // ===========================================
 // TYPES
@@ -24,6 +24,12 @@ export interface BusinessRules {
   deliveryDays: DeliveryDayConfig[];
   /** Whether Cash on Delivery is enabled */
   codEnabled: boolean;
+  /** Fee for addresses >longDistanceThresholdMiles (cents) */
+  longDistanceFeeCents: number;
+  /** Miles threshold for long-distance fee */
+  longDistanceThresholdMiles: number;
+  /** Delivery zone bearing configs */
+  deliveryZones: DeliveryZoneConfig[];
 }
 
 // ===========================================
@@ -43,6 +49,9 @@ export const BUSINESS_RULES_DEFAULTS: BusinessRules = {
   prepTimeBufferMinutes: 30,
   deliveryDays: [],
   codEnabled: false,
+  longDistanceFeeCents: 2000,
+  longDistanceThresholdMiles: 25,
+  deliveryZones: [],
 };
 
 // ===========================================
@@ -61,6 +70,8 @@ const DB_KEY_MAP: Record<string, keyof BusinessRules> = {
   max_delivery_duration_minutes: "maxDeliveryDurationMinutes",
   minimum_order_cents: "minimumOrderCents",
   prep_time_buffer_minutes: "prepTimeBufferMinutes",
+  long_distance_fee_cents: "longDistanceFeeCents",
+  long_distance_threshold_miles: "longDistanceThresholdMiles",
 };
 
 // ===========================================
@@ -80,14 +91,23 @@ interface DeliveryDayRow {
   cutoff_hour: number;
   delivery_fee_cents: number;
   display_order: number;
+  direction: string;
+}
+
+interface DeliveryZoneRow {
+  id: string;
+  direction: string;
+  bearing_start: number;
+  bearing_end: number;
+  reference_cities: string[];
 }
 
 async function fetchBusinessRules(): Promise<BusinessRules> {
   try {
     const supabase = createPublicClient();
 
-    // Fetch settings and delivery days in parallel
-    const [settingsResult, deliveryDaysResult] = await Promise.all([
+    // Fetch settings, delivery days, and zones in parallel
+    const [settingsResult, deliveryDaysResult, zonesResult] = await Promise.all([
       supabase
         .from("app_settings")
         .select("key, value")
@@ -96,10 +116,15 @@ async function fetchBusinessRules(): Promise<BusinessRules> {
       supabase
         .from("delivery_days")
         .select(
-          "id, day_of_week, is_active, cutoff_day, cutoff_hour, delivery_fee_cents, display_order"
+          "id, day_of_week, is_active, cutoff_day, cutoff_hour, delivery_fee_cents, display_order, direction"
         )
         .order("display_order", { ascending: true })
         .returns<DeliveryDayRow[]>(),
+      supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .from("delivery_zones" as any)
+        .select("id, direction, bearing_start, bearing_end, reference_cities")
+        .returns<DeliveryZoneRow[]>(),
     ]);
 
     const rules: BusinessRules = { ...BUSINESS_RULES_DEFAULTS };
@@ -123,6 +148,17 @@ async function fetchBusinessRules(): Promise<BusinessRules> {
       }
     }
 
+    // Map delivery zones
+    if (zonesResult.data) {
+      rules.deliveryZones = zonesResult.data.map((row) => ({
+        id: row.id,
+        direction: row.direction as Exclude<DeliveryDirection, "all">,
+        bearingStart: row.bearing_start,
+        bearingEnd: row.bearing_end,
+        referenceCities: row.reference_cities ?? [],
+      }));
+    }
+
     // Map delivery days
     if (deliveryDaysResult.data) {
       rules.deliveryDays = deliveryDaysResult.data.map((row) => ({
@@ -133,6 +169,7 @@ async function fetchBusinessRules(): Promise<BusinessRules> {
         cutoffHour: row.cutoff_hour,
         deliveryFeeCents: row.delivery_fee_cents,
         displayOrder: row.display_order,
+        direction: (row.direction || "all") as DeliveryDirection,
       }));
 
       // Backward compat: populate legacy fields from first active day

@@ -99,7 +99,7 @@ export function DeliveryDaysManager({
   }, [initialCodEnabled]);
 
   const handleDayChange = useCallback(
-    (dayId: string, field: keyof DeliveryDayConfig, value: boolean | number) => {
+    (dayId: string, field: keyof DeliveryDayConfig, value: boolean | number | string) => {
       setDays((prev) => prev.map((d) => (d.id === dayId ? { ...d, [field]: value } : d)));
       setSuccessMsg(null);
     },
@@ -185,6 +185,7 @@ export function DeliveryDaysManager({
               <th className="px-4 py-3 text-center text-text-primary font-semibold">Active</th>
               <th className="px-4 py-3 text-left text-text-primary font-semibold">Cutoff Day</th>
               <th className="px-4 py-3 text-left text-text-primary font-semibold">Cutoff Hour</th>
+              <th className="px-4 py-3 text-left text-text-primary font-semibold">Direction</th>
               <th className="px-4 py-3 text-left text-text-primary font-semibold">Delivery Fee</th>
             </tr>
           </thead>
@@ -239,6 +240,19 @@ export function DeliveryDaysManager({
                       {formatHour(day.cutoffHour)}
                     </span>
                   </div>
+                </td>
+                <td className="px-4 py-3">
+                  <select
+                    value={day.direction || "all"}
+                    onChange={(e) => handleDayChange(day.id, "direction", e.target.value)}
+                    disabled={!day.isActive}
+                    className="px-2 py-1 border border-border rounded bg-surface-primary text-text-primary font-body text-sm disabled:opacity-50"
+                  >
+                    <option value="east">East</option>
+                    <option value="west">West</option>
+                    <option value="south">South</option>
+                    <option value="all">All</option>
+                  </select>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">

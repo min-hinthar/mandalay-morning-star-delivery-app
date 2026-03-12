@@ -14,6 +14,7 @@ interface OrderTotalsTableProps {
   tipCents?: number;
   totalCents: number;
   paymentMethod?: string;
+  isExtendedRange?: boolean;
 }
 
 export function OrderTotalsTable({
@@ -23,6 +24,7 @@ export function OrderTotalsTable({
   tipCents,
   totalCents,
   paymentMethod,
+  isExtendedRange,
 }: OrderTotalsTableProps) {
   return (
     <Section style={{ padding: "24px 24px 0 24px" }}>
@@ -73,7 +75,7 @@ export function OrderTotalsTable({
                   margin: "0",
                 }}
               >
-                Delivery Fee
+                {isExtendedRange ? "Extended Delivery Fee" : "Delivery Fee"}
               </Text>
             </td>
             <td style={{ padding: "4px 0", textAlign: "right" as const }}>

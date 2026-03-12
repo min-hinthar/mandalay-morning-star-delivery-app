@@ -74,6 +74,14 @@ export const useCartStore = create<CartStore>()(
       deliveryDays: [] as DeliveryDayConfig[],
       setDeliveryDays: (days: DeliveryDayConfig[]) => set({ deliveryDays: days }),
 
+      // Distance-aware delivery fee
+      addressDistanceMiles: null as number | null,
+      longDistanceFeeCents: 2000,
+      longDistanceThresholdMiles: 25,
+      setAddressDistance: (miles: number | null) => set({ addressDistanceMiles: miles }),
+      setLongDistanceSettings: (fee: number, threshold: number) =>
+        set({ longDistanceFeeCents: fee, longDistanceThresholdMiles: threshold }),
+
       /**
        * Add item to cart with deduplication and debounce protection.
        *
@@ -204,8 +212,20 @@ export const useCartStore = create<CartStore>()(
       },
 
       getEstimatedDeliveryFee: () => {
-        const { freeDeliveryThresholdCents, deliveryFeeCents } = get();
+        const {
+          freeDeliveryThresholdCents,
+          deliveryFeeCents,
+          addressDistanceMiles,
+          longDistanceFeeCents,
+          longDistanceThresholdMiles,
+        } = get();
         const subtotal = get().getItemsSubtotal();
+
+        // Long-distance: flat fee, no free delivery
+        if (addressDistanceMiles != null && addressDistanceMiles > longDistanceThresholdMiles) {
+          return longDistanceFeeCents;
+        }
+
         return subtotal >= freeDeliveryThresholdCents ? 0 : deliveryFeeCents;
       },
 

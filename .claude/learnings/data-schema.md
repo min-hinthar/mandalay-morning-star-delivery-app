@@ -136,3 +136,37 @@ customerPhone: order.customer_phone ?? order.profiles?.phone ?? null,
 The `create_order_with_items` RPC reads these from `p_order->>'customer_phone'` / `p_order->>'customer_name'`.
 
 **Apply when:** Querying customer contact info for orders, or modifying the checkout RPC payload.
+
+---
+
+## Delivery Zones: Bearing-Based Direction Routing
+
+**Context:** Direction-based delivery implemented (2026-03-11). Delivery days have optional `direction` column (`east`/`west`/`south`/`all`). `delivery_zones` table stores bearing ranges from kitchen origin. `distance_miles` stored on `addresses` and `orders` for fee tier calculation.
+
+**Learning:** Key schema additions:
+- `delivery_days.direction` — which compass zone that day serves (`all` = Saturday)
+- `delivery_zones` — bearing ranges per direction (e.g., East = 350°-80°), admin-editable
+- `addresses.distance_miles` / `orders.distance_miles` — cached driving distance from kitchen
+- `app_settings`: `long_distance_fee_cents` (2000), `long_distance_threshold_miles` (25)
+
+Zone logic in `src/lib/utils/delivery-zones.ts`: `calculateBearing()` → `getDirectionsForCoords()` → `filterDaysByDirection()`. Gap zones (between defined bearing ranges) match both adjacent directions.
+
+**Apply when:** Modifying delivery day logic, fee calculation, or zone configuration.
+
+---
+
+## Supabase Generated Types: New Tables Require Interim Cast
+
+**Context:** Added `delivery_zones` table via migration. Supabase generated types (`src/types/database.ts`) don't include it until `pnpm supabase gen types` is re-run. TypeScript rejects `.from("delivery_zones")`.
+
+**Learning:** When a migration adds a new table before types are regenerated, use:
+```typescript
+supabase
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  .from("delivery_zones" as any)
+  .select("...")
+  .returns<MyRowType[]>();
+```
+The `.returns<T>()` provides type safety on the output. Remember to regenerate types and remove the cast after migration is applied.
+
+**Apply when:** Adding new tables or columns via migration before regenerating Supabase types.

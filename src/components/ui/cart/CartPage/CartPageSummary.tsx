@@ -14,6 +14,7 @@ export interface CartPageSummaryProps {
   minimumShortfallCents: number;
   amountToFreeDelivery: number;
   className?: string;
+  isExtendedRange?: boolean;
 }
 
 const TAX_RATE = 0.085; // 8.5% estimated tax
@@ -33,6 +34,7 @@ export const CartPageSummary = memo(function CartPageSummary({
   minimumShortfallCents,
   amountToFreeDelivery,
   className,
+  isExtendedRange = false,
 }: CartPageSummaryProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
@@ -52,7 +54,11 @@ export const CartPageSummary = memo(function CartPageSummary({
         className
       )}
     >
-      <FreeDeliveryProgress amountToFreeDelivery={amountToFreeDelivery} className="mb-4" />
+      <FreeDeliveryProgress
+        amountToFreeDelivery={amountToFreeDelivery}
+        isExtendedRange={isExtendedRange}
+        className="mb-4"
+      />
 
       <h2 className="text-base font-display font-bold text-text-primary mb-4">Order Summary</h2>
 
@@ -76,7 +82,7 @@ export const CartPageSummary = memo(function CartPageSummary({
           transition={{ delay: 0.05 }}
           className="flex justify-between text-text-secondary"
         >
-          <span>Delivery Fee</span>
+          <span>{isExtendedRange ? "Extended Delivery" : "Delivery Fee"}</span>
           {deliveryFeeCents === 0 ? (
             <span className="text-text-money font-semibold">FREE</span>
           ) : (

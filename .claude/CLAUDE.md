@@ -85,7 +85,8 @@ ComponentName/
 - **Tailwind v4** — `@theme inline` is source of truth; `tailwind.config.ts` content is dead code
 - **62+ design tokens** enforced via ESLint (z-index, colors, spacing, shadows, blur)
 - **Serwist PWA** — service worker built separately via `scripts/build-sw.mjs`
-- **Multi-day delivery** — Mon/Wed/Thu/Sat (configurable via `delivery_days` table), per-day cutoffs, coverage 50mi/90min from Covina CA
+- **Multi-day delivery** — Mon/Wed/Thu/Sat (configurable via `delivery_days` table), per-day cutoffs, direction-based routing (East/West/South/All), coverage 50mi/90min from Covina CA
+- **Distance-tiered fees** — >25mi: flat $20 (no free delivery); ≤25mi: $15 or free if subtotal ≥$100. Zone bearings in `delivery_zones` table, fee settings in `app_settings`
 - **COD payment flow** — `pending_approval` status, admin approval via `/approve-cod` endpoint
 
 ## Learnings

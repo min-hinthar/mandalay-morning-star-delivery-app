@@ -175,6 +175,7 @@ export async function POST(request: NextRequest) {
         lng: geocode.lng,
         is_default: isFirstAddress,
         is_verified: true,
+        distance_miles: coverage.distanceMiles ?? null,
       })
       .select()
       .returns<AddressRow>()

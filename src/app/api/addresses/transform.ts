@@ -19,5 +19,6 @@ export function transformAddress(row: AddressRow): Address {
     isDefault: row.is_default,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    distanceMiles: (row as Record<string, unknown>).distance_miles as number | null,
   };
 }

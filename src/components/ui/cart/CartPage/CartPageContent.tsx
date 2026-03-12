@@ -76,6 +76,10 @@ export function CartPageContent() {
     addItem,
     removeItem,
   } = useCart();
+  const addressDistanceMiles = useCartStore((s) => s.addressDistanceMiles);
+  const longDistanceThresholdMiles = useCartStore((s) => s.longDistanceThresholdMiles);
+  const isExtendedRange =
+    addressDistanceMiles != null && addressDistanceMiles > longDistanceThresholdMiles;
   const validation = useCartValidation();
   const {
     isOpen: isClearOpen,
@@ -361,6 +365,7 @@ export function CartPageContent() {
           deliveryFeeCents={estimatedDeliveryFee}
           minimumShortfallCents={minimumShortfallCents}
           amountToFreeDelivery={amountToFreeDelivery}
+          isExtendedRange={isExtendedRange}
         />
         <CheckoutGate
           hasBlockingIssues={validation.hasBlockingIssues}
