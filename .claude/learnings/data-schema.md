@@ -159,6 +159,46 @@ Zone logic in `src/lib/utils/delivery-zones.ts`: `calculateBearing()` → `getDi
 
 ---
 
+## Supabase Generated Types: New RPC Functions Need Manual Type Entries
+
+**Context:** Added 3 SQL RPC functions (`batch_update_stop_indices`, `reindex_route_stops`, `update_route_stats`) via migration. `supabase.rpc("fn_name")` failed typecheck because `database.ts` Functions block didn't include them.
+
+**Learning:** When adding SQL functions via migration, manually add type entries to `src/types/database.ts` under the `Functions:` block (alphabetically sorted). Format:
+
+```typescript
+function_name: {
+  Args: { param_name: type };
+  Returns: return_type; // use `undefined` for void functions, `Json` for jsonb
+};
+```
+
+For `void` SQL returns, use `Returns: undefined`. For `jsonb`, use `Returns: Json`. Array params map to `type[]` (e.g., `uuid[]` → `string[]`).
+
+**Apply when:** Adding new SQL functions/RPCs before regenerating Supabase types.
+
+---
+
+## Route Pipeline: Partial Unique Index via SQL Function
+
+**Context:** `route_stops` needed a unique constraint on `order_id` but only for non-completed routes. Postgres partial unique indexes require `WHERE` clauses that reference the same table, but the `status` lives on `routes` (parent table).
+
+**Learning:** Use a `STABLE` SQL function to bridge the cross-table check:
+
+```sql
+CREATE FUNCTION route_stop_is_active(p_route_id uuid) RETURNS boolean AS $$
+  SELECT EXISTS (SELECT 1 FROM routes WHERE id = p_route_id AND status != 'completed');
+$$ LANGUAGE sql STABLE;
+
+CREATE UNIQUE INDEX idx_route_stops_active_order
+  ON route_stops (order_id) WHERE route_stop_is_active(route_id);
+```
+
+Also added: `batch_update_stop_indices` RPC (array params for bulk index updates), `reindex_route_stops` RPC (CTE-based atomic reindex), `update_route_stats` RPC (single aggregate query replacing N+1 pattern).
+
+**Apply when:** Needing cross-table constraints in partial indexes, or replacing N+1 query patterns in route stats/reindexing.
+
+---
+
 ## Supabase Generated Types: New Tables Require Interim Cast
 
 **Context:** Added `delivery_zones` table via migration. Supabase generated types (`src/types/database.ts`) don't include it until `pnpm supabase gen types` is re-run. TypeScript rejects `.from("delivery_zones")`.

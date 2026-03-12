@@ -1503,6 +1503,10 @@ export type Database = {
       _table_privs: { Args: never; Returns: unknown[] };
       _temptypes: { Args: { "": string }; Returns: string };
       _todo: { Args: never; Returns: string };
+      batch_update_stop_indices: {
+        Args: { p_stop_ids: string[]; p_indices: number[] };
+        Returns: undefined;
+      };
       calculate_driver_streak: {
         Args: { p_driver_id: string };
         Returns: number;
@@ -1947,6 +1951,10 @@ export type Database = {
               type: string;
             }[];
           };
+      reindex_route_stops: {
+        Args: { p_route_id: string };
+        Returns: undefined;
+      };
       refresh_analytics_views: { Args: never; Returns: undefined };
       runtests: { Args: never; Returns: string[] } | { Args: { "": string }; Returns: string[] };
       skip:
@@ -1962,6 +1970,10 @@ export type Database = {
       todo_start:
         | { Args: never; Returns: boolean[] }
         | { Args: { "": string }; Returns: boolean[] };
+      update_route_stats: {
+        Args: { p_route_id: string };
+        Returns: Json;
+      };
     };
     Enums: {
       delivery_exception_type:

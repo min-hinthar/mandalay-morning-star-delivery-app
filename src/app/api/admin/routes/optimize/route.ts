@@ -139,19 +139,18 @@ export async function POST(request: NextRequest) {
     // Run optimization
     const optimized = await optimizeRouteStops(routeId, stopsForOptimization);
 
-    // Update stop indices in database
-    for (let i = 0; i < optimized.orderedStopIds.length; i++) {
-      const { error: updateError } = await supabase
-        .from("route_stops")
-        .update({ stop_index: i })
-        .eq("id", optimized.orderedStopIds[i]);
+    // Batch update stop indices via RPC
+    const { error: batchError } = await supabase.rpc("batch_update_stop_indices", {
+      p_stop_ids: optimized.orderedStopIds,
+      p_indices: optimized.orderedStopIds.map((_, i) => i),
+    });
 
-      if (updateError) {
-        logger.exception(updateError, {
-          api: "admin/routes/optimize",
-          flowId: "update-stop-index",
-        });
-      }
+    if (batchError) {
+      logger.exception(batchError, {
+        api: "admin/routes/optimize",
+        flowId: "batch-update-stop-indices",
+      });
+      return NextResponse.json({ error: "Failed to update stop order" }, { status: 500 });
     }
 
     // Update route with optimization data
@@ -172,7 +171,14 @@ export async function POST(request: NextRequest) {
       totalDurationSeconds: optimized.totalDuration,
       totalDistanceMeters: optimized.totalDistance,
       polyline: optimized.polyline,
-      message: "Route optimized successfully",
+      method: optimized.method,
+      ...(optimized.timeWindowViolations.length > 0
+        ? { timeWindowViolations: optimized.timeWindowViolations }
+        : {}),
+      message:
+        optimized.timeWindowViolations.length > 0
+          ? `Route optimized with ${optimized.timeWindowViolations.length} time window warning(s)`
+          : "Route optimized successfully",
     });
   } catch (error) {
     logger.exception(error, { api: "admin/routes/optimize" });

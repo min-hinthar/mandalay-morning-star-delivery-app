@@ -19,6 +19,14 @@ export interface RoutableStop {
   deliveryWindowEnd?: string | null;
 }
 
+export interface TimeWindowViolation {
+  stopId: string;
+  orderId: string;
+  eta: string;
+  windowEnd: string;
+  minutesLate: number;
+}
+
 export interface OptimizedRoute {
   orderedStops: Array<{
     stopId: string;
@@ -30,6 +38,8 @@ export interface OptimizedRoute {
   totalDistanceMeters: number;
   totalDurationSeconds: number;
   optimizedPolyline: string | null;
+  method: "google" | "nearest-neighbor" | "single-stop";
+  timeWindowViolations: TimeWindowViolation[];
 }
 
 export interface OptimizationError {

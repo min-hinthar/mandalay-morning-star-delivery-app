@@ -228,6 +228,25 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     // Check if this is a reorder request
     const reorderResult = reorderStopsSchema.safeParse(body);
     if (reorderResult.success) {
+      // Check route status — reject reorder on in_progress routes unless override flag
+      if (!body.forceOverride) {
+        const { data: routeCheck } = await supabase
+          .from("routes")
+          .select("status")
+          .eq("id", id)
+          .single();
+
+        if (routeCheck?.status === "in_progress") {
+          return NextResponse.json(
+            {
+              error: "Cannot reorder stops on an in-progress route",
+              hint: "Set forceOverride: true to override",
+            },
+            { status: 409 }
+          );
+        }
+      }
+
       // Reorder stops
       const { stopOrder } = reorderResult.data;
 
@@ -278,6 +297,23 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       if (status === "in_progress") {
         routeUpdate.started_at = new Date().toISOString();
       } else if (status === "completed") {
+        // Validate all stops are in terminal state before completing
+        const { data: nonTerminalStops } = await supabase
+          .from("route_stops")
+          .select("id, status")
+          .eq("route_id", id)
+          .not("status", "in", '("delivered","skipped")')
+          .limit(1);
+
+        if (nonTerminalStops && nonTerminalStops.length > 0) {
+          return NextResponse.json(
+            {
+              error: "Cannot complete route: some stops are not delivered or skipped",
+            },
+            { status: 400 }
+          );
+        }
+
         routeUpdate.completed_at = new Date().toISOString();
       }
     }
