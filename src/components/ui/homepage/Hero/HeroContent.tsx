@@ -42,6 +42,8 @@ interface HeroContentProps {
   cutoffDay?: number;
   cutoffHour?: number;
   deliveryDays?: DeliveryDayConfig[];
+  longDistanceFeeCents?: number;
+  longDistanceThresholdMiles?: number;
 }
 
 export function HeroContent({
@@ -55,6 +57,8 @@ export function HeroContent({
   cutoffDay,
   cutoffHour,
   deliveryDays,
+  longDistanceFeeCents,
+  longDistanceThresholdMiles,
 }: HeroContentProps) {
   const { shouldAnimate } = useAnimationPreference();
   const { timeOfDay } = useDynamicTheme();
@@ -81,7 +85,9 @@ export function HeroContent({
 
   const deliveryFeeText =
     deliveryFeeCents !== undefined && freeDeliveryThresholdCents !== undefined
-      ? `$${(deliveryFeeCents / 100).toFixed(0)} delivery, free over $${(freeDeliveryThresholdCents / 100).toFixed(0)}`
+      ? longDistanceFeeCents
+        ? `$${(deliveryFeeCents / 100).toFixed(0)} delivery · Free over $${(freeDeliveryThresholdCents / 100).toFixed(0)} · $${(longDistanceFeeCents / 100).toFixed(0)} for ${longDistanceThresholdMiles ?? 25}+ mi`
+        : `$${(deliveryFeeCents / 100).toFixed(0)} delivery, free over $${(freeDeliveryThresholdCents / 100).toFixed(0)}`
       : undefined;
 
   // Bilingual greetings
@@ -283,14 +289,18 @@ export function HeroContent({
             icon={<MapPin className="w-5 h-5 text-secondary" />}
             label="Coverage"
             value="Greater Los Angeles"
-            subValue="LA ပတ်ဝန်းကျင် မိုင် ၅၀ အတွင်း"
+            subValue="East/West/South routes · မိုင် ၅၀ အတွင်း"
           />
           {deliveryFeeText && (
             <StatItem
               icon={<Truck className="w-5 h-5 text-secondary" />}
               label="Fee"
               value={deliveryFeeText}
-              subValue="$၁၀၀ အထက်ဆို အခမဲ့ပို့ပေးတယ်"
+              subValue={
+                longDistanceFeeCents
+                  ? "$၁၀၀ အထက် အခမဲ့ · ၂၅ မိုင်+ $၂၀"
+                  : "$၁၀၀ အထက်ဆို အခမဲ့ပို့ပေးတယ်"
+              }
             />
           )}
         </div>

@@ -7,10 +7,7 @@
  */
 
 import { calculateHaversineDistance } from "@/lib/utils/eta";
-import { KITCHEN_ORIGIN } from "@/lib/services/route-optimization/types";
-
-// Kitchen location: Covina, CA
-const KITCHEN_LOCATION = { lat: KITCHEN_ORIGIN.latitude, lng: KITCHEN_ORIGIN.longitude };
+import { KITCHEN_COORDS } from "@/lib/constants/kitchen";
 
 // Cluster radius in kilometers (~1.2 miles)
 const CLUSTER_RADIUS_KM = 2.0;
@@ -66,8 +63,8 @@ export interface RouteDurationEstimate {
  * the kitchen location, with order count suffix.
  */
 function generateClusterLabel(centroid: { lat: number; lng: number }, count: number): string {
-  const latDiff = centroid.lat - KITCHEN_LOCATION.lat;
-  const lngDiff = centroid.lng - KITCHEN_LOCATION.lng;
+  const latDiff = centroid.lat - KITCHEN_COORDS.lat;
+  const lngDiff = centroid.lng - KITCHEN_COORDS.lng;
 
   const northSouth = latDiff >= 0 ? "North" : "South";
   const eastWest = lngDiff >= 0 ? "East" : "West";

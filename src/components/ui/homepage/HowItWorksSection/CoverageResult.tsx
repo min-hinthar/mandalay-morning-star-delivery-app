@@ -1,7 +1,7 @@
 "use client";
 
 import { m, AnimatePresence } from "framer-motion";
-import { MapPin, Clock, CheckCircle, XCircle } from "lucide-react";
+import { MapPin, Clock, CheckCircle, XCircle, Navigation, Calendar, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -12,11 +12,36 @@ interface CoverageResultProps {
         isValid: boolean;
         distanceMiles?: number;
         durationMinutes?: number;
+        directions?: string[];
+        eligibleDays?: string[];
+        feeTier?: "standard" | "extended";
+        estimatedFeeCents?: number;
       }
     | null
     | undefined;
   selectedAddress: { description: string; lat: number; lng: number } | null;
   onClear: () => void;
+}
+
+const DIRECTION_COLORS: Record<string, string> = {
+  east: "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300",
+  west: "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300",
+  south: "bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300",
+};
+
+function DirectionPill({ direction }: { direction: string }) {
+  const label = `${direction.charAt(0).toUpperCase()}${direction.slice(1)} Route`;
+  return (
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold",
+        DIRECTION_COLORS[direction] ?? "bg-muted text-text-secondary"
+      )}
+    >
+      <Navigation className="w-3 h-3" />
+      {label}
+    </span>
+  );
 }
 
 export function CoverageResult({ coverageData, selectedAddress, onClear }: CoverageResultProps) {
@@ -33,7 +58,6 @@ export function CoverageResult({ coverageData, selectedAddress, onClear }: Cover
           transition={getSpring(spring.snappy)}
           className={cn(
             "mt-4 p-4 rounded-2xl",
-            "flex items-center gap-4",
             coverageData.isValid
               ? cn(
                   "bg-gradient-to-r from-emerald-50 to-emerald-100/50",
@@ -49,59 +73,98 @@ export function CoverageResult({ coverageData, selectedAddress, onClear }: Cover
                 )
           )}
         >
-          <div
-            className={cn(
-              "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0",
-              coverageData.isValid
-                ? "bg-emerald-100 dark:bg-emerald-900/50"
-                : "bg-rose-100 dark:bg-rose-900/50"
-            )}
-          >
-            {coverageData.isValid ? (
-              <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
-            ) : (
-              <XCircle className="w-6 h-6 text-rose-600 dark:text-rose-400" />
-            )}
-          </div>
-
-          <div className="flex-1 min-w-0">
-            <p
+          <div className="flex items-start gap-4">
+            <div
               className={cn(
-                "font-display font-bold text-base",
+                "w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0",
                 coverageData.isValid
-                  ? "text-emerald-700 dark:text-emerald-300"
-                  : "text-rose-700 dark:text-rose-300"
+                  ? "bg-emerald-100 dark:bg-emerald-900/50"
+                  : "bg-rose-100 dark:bg-rose-900/50"
               )}
             >
-              {coverageData.isValid ? "We deliver here!" : "Outside our area"}
-            </p>
-            <div className="flex items-center gap-3 text-sm text-text-muted mt-1">
-              {coverageData.distanceMiles !== undefined && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3.5 h-3.5" />
-                  {coverageData.distanceMiles.toFixed(1)} mi
-                </span>
-              )}
-              {coverageData.durationMinutes !== undefined && (
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3.5 h-3.5" />~{coverageData.durationMinutes} min
-                </span>
+              {coverageData.isValid ? (
+                <CheckCircle className="w-6 h-6 text-emerald-600 dark:text-emerald-400" />
+              ) : (
+                <XCircle className="w-6 h-6 text-rose-600 dark:text-rose-400" />
               )}
             </div>
-          </div>
 
-          <button
-            type="button"
-            onClick={onClear}
-            className={cn(
-              "px-3 py-1.5 rounded-lg text-sm font-medium",
-              "bg-surface-primary text-text-secondary border border-border",
-              "hover:bg-surface-secondary",
-              "transition-colors"
-            )}
-          >
-            Clear
-          </button>
+            <div className="flex-1 min-w-0">
+              <p
+                className={cn(
+                  "font-display font-bold text-base",
+                  coverageData.isValid
+                    ? "text-emerald-700 dark:text-emerald-300"
+                    : "text-rose-700 dark:text-rose-300"
+                )}
+              >
+                {coverageData.isValid ? "We deliver here!" : "Outside our area"}
+              </p>
+
+              {/* Distance & duration */}
+              <div className="flex items-center gap-3 text-sm text-text-muted mt-1">
+                {coverageData.distanceMiles !== undefined && (
+                  <span className="flex items-center gap-1">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {coverageData.distanceMiles.toFixed(1)} mi
+                  </span>
+                )}
+                {coverageData.durationMinutes !== undefined && (
+                  <span className="flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5" />~{coverageData.durationMinutes} min
+                  </span>
+                )}
+              </div>
+
+              {/* Direction, days, and fee — only for valid addresses */}
+              {coverageData.isValid && (
+                <div className="mt-3 space-y-2">
+                  {/* Direction pills */}
+                  {coverageData.directions && coverageData.directions.length > 0 && (
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Navigation className="w-3.5 h-3.5 text-text-muted" />
+                      {coverageData.directions.map((dir) => (
+                        <DirectionPill key={dir} direction={dir} />
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Eligible days */}
+                  {coverageData.eligibleDays && coverageData.eligibleDays.length > 0 && (
+                    <div className="flex items-center gap-2 text-sm text-text-secondary">
+                      <Calendar className="w-3.5 h-3.5 text-text-muted flex-shrink-0" />
+                      <span>Delivers: {coverageData.eligibleDays.join(" & ")}</span>
+                    </div>
+                  )}
+
+                  {/* Fee tier */}
+                  {coverageData.feeTier && coverageData.estimatedFeeCents !== undefined && (
+                    <div className="flex items-center gap-2 text-sm text-text-secondary">
+                      <Truck className="w-3.5 h-3.5 text-text-muted flex-shrink-0" />
+                      <span>
+                        {coverageData.feeTier === "standard"
+                          ? `$${(coverageData.estimatedFeeCents / 100).toFixed(0)} delivery · Free over $100`
+                          : `$${(coverageData.estimatedFeeCents / 100).toFixed(0)} extended delivery`}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={onClear}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-sm font-medium flex-shrink-0",
+                "bg-surface-primary text-text-secondary border border-border",
+                "hover:bg-surface-secondary",
+                "transition-colors"
+              )}
+            >
+              Clear
+            </button>
+          </div>
         </m.div>
       )}
     </AnimatePresence>

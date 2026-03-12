@@ -4,13 +4,6 @@
 
 import type { AddressesRow } from "@/types/database";
 
-// Kitchen origin coordinates
-export const KITCHEN_ORIGIN = {
-  latitude: 34.0894,
-  longitude: -117.8897,
-  address: "750 Terrado Plaza, Suite 33, Covina, CA 91723",
-};
-
 export interface RoutableStop {
   stopId: string;
   orderId: string;

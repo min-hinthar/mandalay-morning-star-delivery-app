@@ -104,18 +104,22 @@ INSERT INTO modifier_options (slug) VALUES ('chicken_curry_style__original');
 
 ## Kitchen Coordinates: Single Canonical Source
 
-**Context:** Three different lat/lng coordinates hardcoded across the codebase — `clustering.ts` (0.4km off), `tracking/route.ts` (35mi off, downtown LA). Consolidated to one import.
+**Context:** Originally three different lat/lng coordinates hardcoded across the codebase. Consolidated in 2026-03-10 to `KITCHEN_ORIGIN` in route-optimization/types.ts. Unified again in 2026-03-11 to eliminate the `KITCHEN_LOCATION` / `KITCHEN_ORIGIN` duplication (different property names: `lat/lng` vs `latitude/longitude`).
 
-**Learning:** `KITCHEN_ORIGIN` in `src/lib/services/route-optimization/types.ts` is the single source of truth for the kitchen location (750 Terrado Plaza, Covina CA: `34.0894, -117.8897`). Always import and map to the consumer's format:
+**Learning:** `KITCHEN_COORDS` in `src/lib/constants/kitchen.ts` is the single source of truth (750 Terrado Plaza, Covina CA: `34.0894, -117.8897`). Uses `{ lat, lng }` shape. Zero imports — safe for client bundles.
 
 ```typescript
-import { KITCHEN_ORIGIN } from "@/lib/services/route-optimization/types";
-
-// For { lat, lng } consumers:
-const location = { lat: KITCHEN_ORIGIN.latitude, lng: KITCHEN_ORIGIN.longitude };
+import { KITCHEN_COORDS } from "@/lib/constants/kitchen";
 ```
 
-**Apply when:** Adding any code that references the kitchen/restaurant location (maps, clustering, tracking, ETA calculations).
+Legacy re-exports exist for backward compat:
+- `KITCHEN_LOCATION` re-exported from `src/types/address.ts` (same object, aliased name)
+
+**Note:** `KITCHEN_COORDS` uses `as const`, which narrows `lat`/`lng` to literal types. When assigning to mutable variables, annotate explicitly: `let currentLat: number = KITCHEN_COORDS.lat`.
+
+**Supersedes:** Previous entry about importing `KITCHEN_ORIGIN` from `route-optimization/types.ts`.
+
+**Apply when:** Adding any code that references the kitchen/restaurant location (maps, clustering, tracking, ETA calculations, coverage checks).
 
 ---
 

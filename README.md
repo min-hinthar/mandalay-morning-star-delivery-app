@@ -1,6 +1,6 @@
 # Mandalay Morning Star
 
-A Progressive Web App for ordering authentic Burmese cuisine with Saturday-only delivery in Southern California.
+A Progressive Web App for ordering authentic Burmese cuisine with multi-day delivery across Southern California.
 
 [![Build](https://img.shields.io/badge/build-passing-brightgreen)]()
 [![Next.js](https://img.shields.io/badge/Next.js-16.1.2-black)]()
@@ -11,10 +11,10 @@ A Progressive Web App for ordering authentic Burmese cuisine with Saturday-only 
 
 ## Overview
 
-Mandalay Morning Star is a full-featured food delivery platform serving the Southern California Burmese community. Customers browse a categorized bilingual menu (English/Burmese), place orders with Stripe payment, and receive Saturday delivery within the coverage area (50 miles / 90 minutes from Covina, CA). The app includes admin dashboards, a Saturday ops command center, driver management with GPS tracking, real-time order tracking, and full offline support as a PWA.
+Mandalay Morning Star is a full-featured food delivery platform serving the Southern California Burmese community. Customers browse a bilingual menu (English/Burmese), place orders via Stripe or Cash on Delivery, and receive delivery on configurable days (Mon/Wed/Thu/Sat) with direction-based routing (East/West/South) and distance-tiered fees. The app includes admin dashboards, a delivery ops command center, driver management with GPS tracking, real-time order tracking, and full offline PWA support.
 
-**Current version:** v1.9 (Launch-Ready MVP) — in progress
-**Status:** 86 phases, 335+ plans across 10 milestones (v1.0–v1.9) — 9 milestones shipped
+**Current version:** v1.9 (Launch-Ready MVP)
+**Status:** 86 phases, 335+ plans across 10 milestones (v1.0-v1.9) — 9 milestones shipped
 
 ## Features
 
@@ -23,24 +23,34 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 - Categorized menu with search, filters, and bilingual support (47 items, 8 categories)
 - Unified menu cards with glassmorphism, 3D tilt, and shine effects
 - Cart with Zustand persistence, swipe-to-delete, fly-to-cart animations
-- Multi-step checkout: Address → Time Slot → Stripe Payment
-- Pre-checkout gate: dynamic hero CTA, cutoff countdown, Saturday-only messaging
+- Multi-step checkout: Address -> Time Slot -> Payment (Stripe or Cash on Delivery)
+- Pre-checkout delivery gate: dynamic hero CTA, cutoff countdown, multi-day scheduling
+- **Direction-based delivery routing**: East (Mon), West (Wed), South (Thu), All (Sat)
+- **Distance-tiered delivery fees**: $15 standard (free over $100), $20 flat for 25+ miles
+- **Interactive coverage checker**: enter address to see direction, eligible days, and fee tier
 - Real-time order tracking with live driver map, ETA, and polling indicators
-- Order history, feedback/ratings (1-5 stars), address management
+- Shareable order tracking links (token-based, no auth required)
+- Order history, reorder, feedback/ratings (1-5 stars), address management
+- Customer settings: dietary preferences, notification opt-outs, display preferences
 - PWA: installable, offline menu browsing, push notifications
 
 ### Admin Dashboard
 
-- Menu item CRUD with photo uploads (Supabase Storage)
-- Order management with status updates, refunds, refund status tracking
+- Menu item CRUD with photo uploads (Supabase Storage), category management
+- Order management with status updates, refunds, refund status tracking, priority flagging
+- **Cash on Delivery (COD) approval workflow**: `pending_approval` -> admin approve/reject via `/approve-cod`
 - **Saturday Ops Center**: live order counts, bulk status changes, countdown timers, driver availability
-- **Route & Driver Assignment**: visual route builder with Leaflet maps, driver selector, drag-and-drop
-- **Configurable Business Rules**: delivery fee, cutoff time, delivery hours, radius — all admin-editable, no deploy needed
-- Driver management, invite system (magic link onboarding)
-- Route creation and optimization (Google Routes API)
-- Featured sections management
+- **Route & Driver Assignment**: visual route builder with maps, driver selector, stop reassignment
+- **Direction-based delivery zones**: admin-configurable bearing ranges per direction
+- **Multi-day delivery schedule**: admin-configurable delivery days, cutoffs, and fees per day
+- **Configurable Business Rules**: delivery fee, cutoff time, delivery hours, radius, long-distance threshold — all admin-editable, no deploy needed
+- Driver management, invite system (magic link onboarding), archive/restore
+- Route creation and optimization (Google Routes API with nearest-neighbor fallback)
+- Featured sections management with draft/publish workflow
 - Analytics: driver performance, delivery metrics, customer feedback
 - Email management: delivery log, resend failures, manual triggers, kill switch, retry with failure tracking
+- Admin daily digest cron (morning + evening summaries)
+- Photo pipeline: upload, process, verify from Google Drive
 
 ### Driver Mobile Interface
 
@@ -52,27 +62,33 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 - Earnings dashboard with pay rate tracking
 - Availability scheduling and route visibility controls
 - Guided walkthrough for first-time setup
+- Exception reporting per stop (customer not home, wrong address, etc.)
+- Route start/complete lifecycle with status tracking
 
 ### Transactional Email System
 
-- 4 branded email templates: order confirmation, cancellation, refund, delivery reminder
+- 4+ branded email templates: order confirmation, cancellation, refund, delivery reminder
 - React Email + Resend for rendering and delivery
 - Stripe webhook idempotency (prevents duplicate sends on retries)
 - Customer notification preferences (opt-out per email type)
 - Admin kill switch to disable all emails instantly
 - Delivery reminder cron (morning-of with staggered sends)
+- Admin daily digest cron (morning + evening)
 - Resend webhook tracking with signature verification: delivered, opened, clicked, bounced status
 - Admin email log with search, filter, resend, retry, and manual trigger
+- Admin compose: send custom emails to customers
 - Failure tracking: flagged for manual contact after 3 failed attempts
 
 ### Security & Infrastructure
 
 - Sentry error tracking with source map uploads
 - Content Security Policy (CSP) headers
-- Distributed rate limiting (Upstash Redis) with 10 configurable tiers
+- Rate limiting with 10 configurable tiers (in-memory fallback when Redis unavailable)
 - RLS audit and hardening across all tables
 - Role-based auth redirects (customer/admin/driver)
 - CI/CD pipeline with lint, typecheck, test, and build gates
+- Husky + lint-staged pre-commit hooks
+- Health check endpoint (`/api/health`)
 
 ### Platform Capabilities
 
@@ -83,6 +99,8 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 - Service worker with CacheFirst (images) / NetworkFirst (API) strategies
 - Zero CLS, shimmer placeholders, hero preloading
 - WCAG AAA contrast compliance (38 tests)
+- React Compiler enabled — auto-memoizes client components
+- Tailwind CSS v4 with `@theme inline` as source of truth
 
 ### Performance (v1.5 + v1.7)
 
@@ -108,18 +126,21 @@ Key optimizations: CardImage to Next.js Image, LazyMotion with domMax, React Com
 | Forms           | React Hook Form + Conform + Zod            | 7.71.1 + 1.15.1 + 4.3.5 |
 | Auth & DB       | Supabase (Auth + Postgres + RLS + Storage) | 2.90.1                  |
 | Payments        | Stripe                                     | 20.1.2                  |
-| Email           | Resend + React Email                       | -                       |
+| Email           | Resend + React Email                       | 6.9.1                   |
 | Maps            | Google Maps API (@react-google-maps/api)   | 2.20.8                  |
-| Rate Limiting   | Upstash Redis (@upstash/ratelimit)         | -                       |
+| Maps (Admin)    | Leaflet + React Leaflet                    | 1.9.4                   |
+| Rich Text       | TipTap                                     | 3.19.0                  |
+| Rate Limiting   | Upstash Redis (@upstash/ratelimit)         | 2.0.8                   |
 | PWA             | Serwist (Service Worker)                   | 9.5.4                   |
-| Error Tracking  | Sentry                                     | 10.34.0                 |
-| Analytics       | Vercel Analytics                           | 1.6.1                   |
+| Error Tracking  | Sentry                                     | 10.38.0                 |
+| Analytics       | Vercel Analytics + Speed Insights          | 1.6.1                   |
+| Image Process   | Sharp                                      | 0.34.5                  |
 | Testing (Unit)  | Vitest                                     | 4.0.17                  |
 | Testing (E2E)   | Playwright                                 | 1.57.0                  |
 | Testing (A11y)  | Axe-core                                   | 4.11.0                  |
 | Component Dev   | Storybook                                  | 10.1.11                 |
 | Visual Testing  | Chromatic                                  | 5.0.0                   |
-| Performance     | Lighthouse CI                              | -                       |
+| Performance     | Lighthouse CI                              | 0.15.1                  |
 | Linting         | ESLint 9 + Stylelint 17 + Prettier 3.7     | -                       |
 | Git Hooks       | Husky + lint-staged                        | 9.1.7                   |
 | Package Manager | pnpm                                       | -                       |
@@ -127,15 +148,19 @@ Key optimizations: CardImage to Next.js Image, LazyMotion with domMax, React Com
 
 ## Business Rules
 
-| Rule             | Value                                           |
-| ---------------- | ----------------------------------------------- |
-| Delivery Day     | Saturday only, 11 AM – 7 PM PT                  |
-| Order Cutoff     | Friday 3:00 PM PT                               |
-| Delivery Fee     | $15 (free for orders $100+)                     |
-| Coverage Area    | 50 miles AND 90 minutes drive time from kitchen |
-| Kitchen Location | 750 Terrado Plaza, Suite 33, Covina, CA 91723   |
+| Rule                  | Value                                                             |
+| --------------------- | ----------------------------------------------------------------- |
+| Delivery Days         | Monday (East), Wednesday (West), Thursday (South), Saturday (All) |
+| Order Cutoff          | Per-day configurable (e.g., Friday 3 PM PT for Saturday)          |
+| Standard Delivery Fee | $15 (free for orders $100+)                                       |
+| Extended Delivery Fee | $20 flat (addresses >25 miles, no free delivery threshold)        |
+| Coverage Area         | 50 miles AND 90 minutes drive time from kitchen                   |
+| Direction Zones       | East (350-80 deg), West (230-320 deg), South (140-220 deg)        |
+| Kitchen Location      | 750 Terrado Plaza, Suite 33, Covina, CA 91723                     |
+| Payment Methods       | Stripe (card) + Cash on Delivery (admin approval required)        |
+| Minimum Order         | $25                                                               |
 
-All business rules are admin-configurable from Settings — changes take effect on the next page load without a deploy (v1.9+).
+All business rules are admin-configurable from Settings — changes take effect on the next page load without a deploy.
 
 ## Getting Started
 
@@ -147,7 +172,7 @@ All business rules are admin-configurable from Settings — changes take effect 
 - Google Maps API key (Geocoding + Routes API + Maps JavaScript API enabled)
 - Stripe account (test mode for development)
 - Resend account (for transactional emails)
-- Upstash Redis (for distributed rate limiting)
+- Upstash Redis (optional, for distributed rate limiting — falls back to in-memory)
 
 ### Installation
 
@@ -161,44 +186,61 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-### Environment Variables
+## Environment Variables
 
-Copy `.env.example` to `.env.local`:
+### Required
 
-```bash
-# Supabase
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_supabase_service_role_key
+| Variable                             | Description                                                | Where to Get                                                              |
+| ------------------------------------ | ---------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`           | Supabase project URL                                       | [Supabase Dashboard](https://app.supabase.com) > Project Settings > API   |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY`      | Supabase anonymous key                                     | Same as above                                                             |
+| `SUPABASE_SERVICE_ROLE_KEY`          | Supabase service role key (server-side only, bypasses RLS) | Same as above                                                             |
+| `GOOGLE_MAPS_API_KEY`                | Server-side Google Maps key (Geocoding + Routes APIs)      | [Google Cloud Console](https://console.cloud.google.com/apis/credentials) |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`    | Client-side Google Maps key (Maps JavaScript API)          | Same as above (can be same key with browser restriction)                  |
+| `STRIPE_SECRET_KEY`                  | Stripe secret key (`sk_test_...` or `sk_live_...`)         | [Stripe Dashboard](https://dashboard.stripe.com/apikeys)                  |
+| `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` | Stripe publishable key (`pk_test_...` or `pk_live_...`)    | Same as above                                                             |
+| `STRIPE_WEBHOOK_SECRET`              | Stripe webhook signing secret (`whsec_...`)                | Stripe Dashboard > Developers > Webhooks                                  |
+| `RESEND_API_KEY`                     | Resend API key for transactional emails (`re_...`)         | [Resend Dashboard](https://resend.com/api-keys)                           |
+| `NEXT_PUBLIC_SENTRY_DSN`             | Sentry DSN for error tracking                              | [Sentry](https://sentry.io) > Project Settings > Client Keys              |
 
-# Google Maps (enable Geocoding + Routes + Maps JavaScript APIs)
-GOOGLE_MAPS_API_KEY=your_google_maps_api_key
+### Optional
 
-# Stripe (use test keys for development)
-STRIPE_SECRET_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+| Variable                         | Description                                                    | Default                 |
+| -------------------------------- | -------------------------------------------------------------- | ----------------------- |
+| `NEXT_PUBLIC_APP_URL`            | Application URL                                                | `http://localhost:3000` |
+| `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` | Google Maps Map ID (for custom styling/AdvancedMarkerElement)  | None                    |
+| `NEXT_PUBLIC_OPERATOR_PHONE`     | Operator phone for driver "Call for Help" button               | None                    |
+| `RESEND_WEBHOOK_SECRET`          | Resend webhook signing secret (for open/click/bounce tracking) | None                    |
+| `CRON_SECRET`                    | Secret to secure `/api/cron/*` endpoints                       | None                    |
+| `SENTRY_AUTH_TOKEN`              | Sentry auth token for source map uploads (CI only)             | None                    |
+| `SENTRY_DEBUG`                   | Enable Sentry debug mode                                       | `false`                 |
+| `UPSTASH_REDIS_REST_URL`         | Upstash Redis REST URL (for distributed rate limiting)         | Falls back to in-memory |
+| `UPSTASH_REDIS_REST_TOKEN`       | Upstash Redis REST token                                       | Falls back to in-memory |
 
-# Resend (transactional emails)
-RESEND_API_KEY=re_...
-RESEND_WEBHOOK_SECRET=whsec_...   # optional, for delivery tracking
+### Rate Limiting (Optional Overrides)
 
-# Upstash Redis (rate limiting)
-UPSTASH_REDIS_REST_URL=https://...
-UPSTASH_REDIS_REST_TOKEN=AX...
+All rate limit tiers have sensible defaults. Override to tune without redeploy:
 
-# Sentry (error tracking)
-NEXT_PUBLIC_SENTRY_DSN=https://...@sentry.io/...
-SENTRY_AUTH_TOKEN=sntrys_...      # CI only, for source map uploads
-
-# Cron (delivery reminders)
-CRON_SECRET=your_cron_secret      # optional, secures /api/cron/* endpoints
-
-# App URL (defaults to localhost:3000)
-NEXT_PUBLIC_APP_URL=http://localhost:3000
-```
-
-Rate limiting tiers are configurable via `RATE_LIMIT_*` env vars — see `.env.example` for all options.
+| Variable                            | Default | Description                        |
+| ----------------------------------- | ------- | ---------------------------------- |
+| `RATE_LIMIT_AUTH_SIGNIN_MAX`        | 5       | Sign-in attempts per window        |
+| `RATE_LIMIT_AUTH_SIGNIN_WINDOW`     | `1 m`   | Sign-in rate window                |
+| `RATE_LIMIT_AUTH_SIGNUP_MAX`        | 3       | Sign-up attempts per window        |
+| `RATE_LIMIT_AUTH_SIGNUP_WINDOW`     | `1 h`   | Sign-up rate window                |
+| `RATE_LIMIT_API_WRITE_MAX`          | 10      | API write requests per window      |
+| `RATE_LIMIT_API_WRITE_WINDOW`       | `1 m`   | API write rate window              |
+| `RATE_LIMIT_PUBLIC_READ_MAX`        | 60      | Public read requests per window    |
+| `RATE_LIMIT_PUBLIC_READ_WINDOW`     | `1 m`   | Public read rate window            |
+| `RATE_LIMIT_DRIVER_LOCATION_MAX`    | 2       | Driver location updates per window |
+| `RATE_LIMIT_DRIVER_LOCATION_WINDOW` | `1 m`   | Driver location rate window        |
+| `RATE_LIMIT_DRIVER_ACTION_MAX`      | 10      | Driver actions per window          |
+| `RATE_LIMIT_DRIVER_ACTION_WINDOW`   | `1 m`   | Driver action rate window          |
+| `RATE_LIMIT_CUSTOMER_MAX`           | 30      | Customer requests per window       |
+| `RATE_LIMIT_CUSTOMER_WINDOW`        | `1 m`   | Customer rate window               |
+| `RATE_LIMIT_ADMIN_MAX`              | 120     | Admin requests per window          |
+| `RATE_LIMIT_ADMIN_WINDOW`           | `1 m`   | Admin rate window                  |
+| `RATE_LIMIT_GLOBAL_IP_MAX`          | 120     | Global per-IP requests per window  |
+| `RATE_LIMIT_GLOBAL_IP_WINDOW`       | `1 m`   | Global IP rate window              |
 
 ## Project Structure
 
@@ -206,61 +248,54 @@ Rate limiting tiers are configurable via `RATE_LIMIT_*` env vars — see `.env.e
 src/
 ├── app/                         # Next.js App Router
 │   ├── (auth)/                  # Passwordless login (magic link + OAuth)
-│   ├── (public)/                # Home, public menu, driver onboarding
+│   ├── (public)/                # Home, public menu, terms, privacy, driver onboarding
 │   ├── (customer)/              # Menu, cart, checkout, orders, tracking, account
 │   ├── (admin)/                 # Admin dashboard (menu, orders, drivers, routes, emails, ops center)
 │   ├── (driver)/                # Driver mobile (routes, stops, location, photos, earnings)
-│   ├── api/                     # 100+ API routes (see API section)
+│   ├── api/                     # 103 API route handlers
 │   ├── auth/                    # Auth callback handlers
 │   └── contexts/                # React context providers
-├── emails/                      # React Email templates + shared components
+├── emails/                      # 16 React Email templates + shared components
 │   ├── components/              # EmailLayout, BrandHeader, BrandFooter, etc.
-│   ├── OrderConfirmation.tsx    # MAIL-01
-│   ├── OrderCancellation.tsx    # MAIL-02
-│   ├── RefundNotification.tsx   # MAIL-03
-│   └── DeliveryReminder.tsx     # MAIL-04
-├── components/ui/               # 70+ React components
+│   ├── OrderConfirmation.tsx
+│   ├── OrderCancellation.tsx
+│   ├── RefundNotification.tsx
+│   └── DeliveryReminder.tsx
+├── components/ui/               # 470+ React components
 │   ├── admin/                   # Admin: orders, drivers, routes, analytics, ops center
 │   ├── auth/                    # Login/signup forms
 │   ├── cart/                    # Cart drawer, items, summary
 │   ├── checkout/                # Checkout stepper, address, time, payment
+│   ├── coverage/                # Coverage route map, checker
 │   ├── menu/                    # Menu grid, tabs, search, featured carousel
 │   ├── driver/                  # Driver mobile UI, earnings, availability
 │   ├── orders/                  # Order tracking, history, feedback
+│   ├── homepage/                # Hero, HowItWorks, testimonials, CTAs, footer
 │   ├── layout/                  # Headers, navigation, drawers, app shell
 │   ├── brand/                   # Logo, branding
+│   ├── delivery/                # Delivery countdown, banners
 │   └── theme/                   # Theme switching
 ├── lib/                         # Shared utilities
 │   ├── auth/                    # Supabase auth helpers
-│   ├── constants/               # Business rules, config
+│   ├── constants/               # Kitchen coordinates, config
 │   ├── email/                   # Email service (Resend client, sendEmail, types)
 │   ├── design-system/           # Design tokens, animations
-│   ├── hooks/                   # 30+ custom React hooks
+│   ├── hooks/                   # 56 custom React hooks
 │   ├── queries/                 # React Query definitions
-│   ├── services/                # Business logic services
+│   ├── services/                # Business logic (coverage, geocoding, route optimization)
+│   ├── settings/                # Business rules (cached, admin-configurable)
 │   ├── stores/                  # Zustand stores (cart)
 │   ├── supabase/                # Supabase client setup
-│   ├── utils/                   # Helper functions
+│   ├── utils/                   # Helper functions (delivery-zones, clustering, ETA, etc.)
 │   └── validators/              # Input validators
-├── types/                       # TypeScript type definitions (12 files)
+├── types/                       # 12 TypeScript type definition files
 └── test/                        # Test fixtures and mocks
 
 supabase/
-├── migrations/                  # 34 database migrations (000–032 + 1 dated)
-│   ├── 000_initial_schema.sql   # Tables, enums, indexes
-│   ├── 001_functions_triggers.sql
-│   ├── 002_rls_policies.sql     # Row-level security
-│   ├── 003_analytics.sql        # Materialized views
-│   ├── 004_storage.sql          # Storage buckets
-│   ├── 005_testing.sql          # pgTAP + linting
-│   ├── ...
-│   ├── 029_business_rules_settings.sql  # Admin-configurable business rules
-│   ├── 030_email_reliability.sql        # Email retry + failure tracking
-│   ├── 031_driver_simple_mode.sql       # Driver simplification
-│   └── 032_production_indexes.sql       # Performance indexes
+├── migrations/                  # 56 database migrations
 └── functions/                   # Edge functions (legacy)
 
-docs/                            # Documentation (see docs/README)
+docs/                            # Documentation
 scripts/                         # Build and utility scripts
 e2e/                             # Playwright E2E tests
 data/                            # Menu seed YAML
@@ -270,57 +305,86 @@ public/                          # Static assets (logos, icons, images)
 .github/                         # CI/CD workflows
 ```
 
-## API Routes
+## API Routes (103 endpoints)
 
-| Domain          | Endpoints                                    | Purpose                                    |
-| --------------- | -------------------------------------------- | ------------------------------------------ |
-| Menu            | `/api/menu`, `/api/menu/search`              | Menu browsing, search                      |
-| Sections        | `/api/sections`                              | Featured sections                          |
-| Addresses       | `/api/addresses[/id][/default]`              | Address CRUD, geocoding                    |
-| Checkout        | `/api/checkout/session`                      | Stripe session creation                    |
-| Coverage        | `/api/coverage/check`                        | Delivery area validation                   |
-| Orders          | `/api/orders[/id][/cancel][/rating]`         | Order CRUD, feedback                       |
-| Tracking        | `/api/tracking/[orderId]`                    | Real-time order tracking                   |
-| Webhooks        | `/api/webhooks/stripe`                       | Payment + email triggers (idempotent)      |
-| Webhooks        | `/api/webhooks/resend`                       | Email delivery status (signature-verified) |
-| Cron            | `/api/cron/delivery-reminders`               | Morning-of delivery reminder emails        |
-| Admin Menu      | `/api/admin/menu[/id][/photo]`               | Menu item management                       |
-| Admin Orders    | `/api/admin/orders[/id][/...actions]`        | Order management, refunds                  |
-| Admin Drivers   | `/api/admin/drivers[/id][/routes][/ratings]` | Driver CRUD                                |
-| Admin Routes    | `/api/admin/routes[/id][/optimize][/stops]`  | Route management                           |
-| Admin Analytics | `/api/admin/analytics/[drivers\|delivery]`   | Dashboard data                             |
-| Admin Settings  | `/api/admin/settings`                        | Business rules, app settings               |
-| Admin Ops       | `/api/admin/ops/*`                           | Ops center data, bulk operations           |
-| Driver          | `/api/driver/[me\|routes\|location]`         | Driver operations                          |
-| Admin Emails    | `/api/admin/emails[/id][/resend][/send]`     | Email log, resend, retry, manual trigger   |
-| Test Email      | `/api/emails/test`                           | Send test emails from admin settings       |
-| Account         | `/api/account/[profile\|orders\|addresses]`  | Customer account                           |
+| Domain           | Endpoints                                                        | Purpose                                          |
+| ---------------- | ---------------------------------------------------------------- | ------------------------------------------------ |
+| Menu             | `/api/menu`, `/api/menu/search`                                  | Menu browsing, search                            |
+| Sections         | `/api/sections`                                                  | Featured sections                                |
+| Addresses        | `/api/addresses[/id][/default]`                                  | Address CRUD, geocoding, default selection       |
+| Checkout         | `/api/checkout/session`, `/validate-promo`                       | Stripe session creation, promo validation        |
+| Coverage         | `/api/coverage/check`                                            | Delivery area validation with direction/fee info |
+| Orders           | `/api/orders/[id]/[cancel\|rating\|notes\|status]`               | Order management, feedback, share tokens         |
+| Orders           | `/api/orders/[id]/[retry-payment\|verify-payment]`               | Payment retry and verification                   |
+| Orders           | `/api/orders/[id]/share-token`                                   | Shareable tracking links                         |
+| Tracking         | `/api/tracking/[orderId]`                                        | Real-time order tracking (auth or share token)   |
+| Health           | `/api/health`                                                    | Service health check                             |
+| Analytics        | `/api/analytics/vitals`                                          | Web Vitals reporting                             |
+| Webhooks         | `/api/webhooks/stripe`                                           | Payment + email triggers (idempotent)            |
+| Webhooks         | `/api/webhooks/resend`                                           | Email delivery status (signature-verified)       |
+| Cron             | `/api/cron/delivery-reminders`                                   | Morning-of delivery reminder emails              |
+| Cron             | `/api/cron/admin-daily-digest`                                   | Admin morning/evening digest emails              |
+| Account          | `/api/account/[profile\|settings]`                               | Customer profile and preferences                 |
+| Account          | `/api/account/orders/[id]/[cancel\|reorder]`                     | Customer order actions                           |
+| Admin Menu       | `/api/admin/menu[/id][/photo]`                                   | Menu item management with photos                 |
+| Admin Categories | `/api/admin/categories[/id]`                                     | Category CRUD                                    |
+| Admin Orders     | `/api/admin/orders[/id]/[status\|cancel\|refund]`                | Order management                                 |
+| Admin Orders     | `/api/admin/orders/[id]/[approve-cod\|priority]`                 | COD approval, priority flagging                  |
+| Admin Orders     | `/api/admin/orders/[id]/[contact\|details\|items]`               | Order details, contact info, line items          |
+| Admin Orders     | `/api/admin/orders/[id]/driver`                                  | Driver assignment per order                      |
+| Admin Drivers    | `/api/admin/drivers[/id][/routes][/ratings]`                     | Driver CRUD, route history, ratings              |
+| Admin Drivers    | `/api/admin/drivers/[id]/[archive\|resend-invite]`               | Archive/restore, re-invite                       |
+| Admin Drivers    | `/api/admin/drivers/invite[s]`                                   | Driver invite system                             |
+| Admin Routes     | `/api/admin/routes[/id]`                                         | Route CRUD                                       |
+| Admin Routes     | `/api/admin/routes/[id]/stops[/stopId][/reassign]`               | Stop management, reassignment                    |
+| Admin Routes     | `/api/admin/routes/[id]/exceptions/[exceptionId]`                | Exception management                             |
+| Admin Routes     | `/api/admin/routes/[optimize\|builder-orders]`                   | Route optimization, order selection              |
+| Admin Sections   | `/api/admin/sections[/id][/items]`                               | Featured section management                      |
+| Admin Sections   | `/api/admin/sections/[publish\|reorder]`                         | Publish/reorder workflow                         |
+| Admin Sections   | `/api/admin/sections/most-popular/suggest`                       | Auto-suggest popular items                       |
+| Admin Analytics  | `/api/admin/analytics/[delivery\|drivers]`                       | Dashboard analytics                              |
+| Admin Settings   | `/api/admin/settings[/restore]`                                  | Business rules, app settings, restore defaults   |
+| Admin Profile    | `/api/admin/profile[/notifications\|stats]`                      | Admin profile, notification prefs                |
+| Admin Delivery   | `/api/admin/delivery-days`, `/delivery-zones`                    | Multi-day schedule and zone config               |
+| Admin Emails     | `/api/admin/emails[/id][/resend]`                                | Email log, resend                                |
+| Admin Emails     | `/api/admin/emails/[send\|compose\|stats]`                       | Send, compose, delivery stats                    |
+| Admin Photos     | `/api/admin/photos[/id][/process][/verify-drive]`                | Photo pipeline management                        |
+| Driver           | `/api/driver/[me\|location\|availability\|earnings]`             | Driver profile, GPS, scheduling                  |
+| Driver           | `/api/driver/[onboard\|profile][/photo]`                         | Onboarding, profile photo                        |
+| Driver Routes    | `/api/driver/routes/[active\|upcoming\|history]`                 | Route lists                                      |
+| Driver Routes    | `/api/driver/routes/[routeId]/[start\|complete]`                 | Route lifecycle                                  |
+| Driver Routes    | `/api/driver/routes/[routeId]/stops/[stopId]`                    | Stop updates                                     |
+| Driver Routes    | `/api/driver/routes/[routeId]/stops/[stopId]/[photo\|exception]` | Delivery proof, exceptions                       |
+| Test Email       | `/api/emails/test`                                               | Send test emails from admin settings             |
 
 ## Database
 
-34 migrations with Row-Level Security on all tables:
+56 migrations with Row-Level Security on all tables:
 
-| Table                    | Purpose                                                    |
-| ------------------------ | ---------------------------------------------------------- |
-| `profiles`               | User profiles (customer/admin/driver roles)                |
-| `addresses`              | Customer delivery addresses (geocoded)                     |
-| `menu_categories`        | Menu categories with sort order                            |
-| `menu_items`             | Menu items with modifiers, pricing                         |
-| `orders` / `order_items` | Orders and line items                                      |
-| `drivers`                | Driver profiles, vehicle info                              |
-| `routes` / `route_stops` | Delivery routes and stops                                  |
-| `route_exceptions`       | Route-level exception tracking                             |
-| `delivery_photos`        | Proof of delivery photos                                   |
-| `delivery_exceptions`    | Delivery issue tracking                                    |
-| `driver_ratings`         | Customer feedback (1-5 stars)                              |
-| `driver_pay_rate`        | Driver compensation rates                                  |
-| `driver_availability`    | Driver scheduling and availability                         |
-| `notification_logs`      | Email notification tracking (status, delivery events)      |
-| `webhook_events`         | Stripe webhook idempotency (prevents duplicate processing) |
-| `customer_settings`      | Dietary, notification, display preferences                 |
-| `app_settings`           | Admin-configurable settings (email kill switch, etc.)      |
-| `business_rules`         | Configurable delivery fee, cutoff, hours, radius           |
-| `featured_sections`      | Dynamic homepage sections                                  |
+| Table                    | Purpose                                                     |
+| ------------------------ | ----------------------------------------------------------- |
+| `profiles`               | User profiles (customer/admin/driver roles)                 |
+| `addresses`              | Customer delivery addresses (geocoded, with distance)       |
+| `menu_categories`        | Menu categories with sort order                             |
+| `menu_items`             | Menu items with modifiers, pricing, Burmese names           |
+| `orders` / `order_items` | Orders and line items (COD + Stripe, priority flag)         |
+| `drivers`                | Driver profiles, vehicle info                               |
+| `driver_invites`         | Magic link driver onboarding                                |
+| `routes` / `route_stops` | Delivery routes and stops                                   |
+| `route_exceptions`       | Route-level exception tracking                              |
+| `delivery_photos`        | Proof of delivery photos                                    |
+| `delivery_exceptions`    | Delivery issue tracking                                     |
+| `driver_ratings`         | Customer feedback (1-5 stars)                               |
+| `driver_pay_rate`        | Driver compensation rates                                   |
+| `driver_availability`    | Driver scheduling and availability                          |
+| `delivery_days`          | Multi-day delivery schedule (day, cutoff, fee, direction)   |
+| `delivery_zones`         | Direction-based zone configs (bearing ranges, ref cities)   |
+| `notification_logs`      | Email notification tracking (status, delivery events)       |
+| `webhook_events`         | Stripe webhook idempotency (prevents duplicate processing)  |
+| `customer_settings`      | Dietary, notification, display preferences                  |
+| `app_settings`           | Admin-configurable settings (email kill switch, fees, etc.) |
+| `featured_sections`      | Dynamic homepage sections with draft/publish                |
+| `order_audit_log`        | Order status change audit trail                             |
 
 **Security:** RLS enabled on all tables, `is_admin()` / `is_driver()` / `get_my_driver_id()` SECURITY DEFINER functions, all FK columns indexed. Full RLS audit completed in v1.8.
 
@@ -335,7 +399,7 @@ public/                          # Static assets (logos, icons, images)
 | `pnpm lint:css`        | Run Stylelint                               |
 | `pnpm typecheck`       | TypeScript type checking                    |
 | `pnpm format:check`    | Prettier format check                       |
-| `pnpm test`            | Unit tests (Vitest)                         |
+| `pnpm test`            | Unit tests (Vitest, 634 tests)              |
 | `pnpm test:ci`         | CI tests (bail on first failure)            |
 | `pnpm test:e2e`        | E2E tests (Playwright)                      |
 | `pnpm test:a11y`       | Accessibility tests                         |
@@ -343,11 +407,14 @@ public/                          # Static assets (logos, icons, images)
 | `pnpm audit:tokens`    | Design token audit                          |
 | `pnpm storybook`       | Storybook dev server (port 6006)            |
 | `pnpm build-storybook` | Build static Storybook                      |
+| `pnpm chromatic`       | Visual regression testing                   |
 | `pnpm analyze`         | Bundle analysis                             |
 | `pnpm lighthouse`      | Lighthouse CI audit                         |
 | `pnpm seed:menu`       | Seed menu data from YAML                    |
 | `pnpm verify:menu`     | Verify menu data integrity                  |
 | `pnpm rls:test`        | Test RLS policy isolation                   |
+| `pnpm launch:check`    | Pre-launch readiness check                  |
+| `pnpm dry-run`         | Dry run validation                          |
 
 **Verification command (run before committing):**
 
@@ -367,8 +434,7 @@ pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test &
 | v1.5     | Performance & Repo Health         | 40-47  | 34    | 2026-02-07  |
 | v1.6     | Production Polish                 | 48-57  | 47    | 2026-02-13  |
 | v1.7     | Production Deployment & Readiness | 58-66  | 32    | 2026-02-16  |
-| v1.8     | Post-Launch Hardening             | 67-74  | 23    | 2026-02-19  |
-| v1.8     | Gap Closure                       | 75-76  | 2     | 2026-02-26  |
+| v1.8     | Post-Launch Hardening             | 67-76  | 25    | 2026-02-26  |
 | **v1.9** | **Launch-Ready MVP**              | 77-86  | 23+   | In Progress |
 
 ## Deployment
@@ -376,8 +442,8 @@ pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test &
 ### Vercel
 
 1. Import repo at [vercel.com/new](https://vercel.com/new), select `main` branch
-2. Set all environment variables from `.env.example`
-3. Configure build command: `pnpm build` (auto-detected)
+2. Set all required environment variables (see table above)
+3. Build command: `pnpm build` (auto-detected)
 4. Configure Supabase auth callback: `https://your-app.vercel.app/auth/callback`
 5. Push to `main` — Vercel auto-deploys
 
@@ -394,19 +460,22 @@ supabase link --project-ref your-project-ref
 supabase db push
 ```
 
-34 migrations will be applied (000–032 + 1 dated migration). Key migrations:
+56 migrations will be applied. Key migrations:
 
-| Migration | Purpose                                                                  |
-| --------- | ------------------------------------------------------------------------ |
-| 000-005   | Core schema, functions, RLS, analytics, storage, testing                 |
-| 006-008   | Menu seed, photos, featured sections                                     |
-| 010-020   | App settings, audit log, driver invites, customer settings, email system |
-| 021-024   | Driver gamification, RLS hardening, admin contact, driver photos         |
-| 025-026   | Driver pay rate, driver availability                                     |
-| 027-028   | Atomic order creation, refund status                                     |
-| 029       | Configurable business rules                                              |
-| 030       | Email reliability (retry, failure tracking)                              |
-| 031-032   | Driver simple mode, production indexes                                   |
+| Migration         | Purpose                                                                                  |
+| ----------------- | ---------------------------------------------------------------------------------------- |
+| 000-005           | Core schema, functions, RLS, analytics, storage, testing, indexes                        |
+| 006-008           | Menu seed, photos, featured sections                                                     |
+| 010-020           | App settings, audit log, driver invites, customer settings, email system                 |
+| 021-026           | Driver gamification, RLS hardening, admin contact, driver photos, pay rate, availability |
+| 027-028           | Atomic order creation, refund status                                                     |
+| 029-032           | Configurable business rules, email reliability, driver simple mode, production indexes   |
+| 033-037           | Photo pipeline, checkout hardening, rating/share tokens, session tracking                |
+| 20260214          | Order priority flagging                                                                  |
+| 20260302-20260305 | Driver defaults, index cleanup, profile policies, atomic refund                          |
+| 20260307          | Multi-day delivery + Cash on Delivery support                                            |
+| 20260308-20260311 | Launch reset, menu photo URLs, order contact info, Burmese item names                    |
+| 20260312          | Delivery direction zones (bearing-based routing)                                         |
 
 ### Stripe Webhook
 
@@ -425,10 +494,14 @@ Required events:
 Enable these APIs in [Google Cloud Console](https://console.cloud.google.com/apis/library):
 
 - **Geocoding API** — address validation and lat/lng lookup
-- **Routes API** — delivery route optimization and duration estimates
-- **Maps JavaScript API** — interactive maps in admin route builder and driver views
+- **Routes API** — delivery route optimization and duration/distance estimates
+- **Maps JavaScript API** — interactive maps (coverage checker, delivery map, route builder, driver views)
+- **Places API** — address autocomplete in checkout
 
-Restrict the API key to your production domain in API credentials.
+Create two API keys:
+
+1. **Server-side** (`GOOGLE_MAPS_API_KEY`): restrict to Geocoding + Routes APIs, server IP restriction
+2. **Client-side** (`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`): restrict to Maps JavaScript + Places APIs, HTTP referrer restriction to your domain
 
 ### Resend Setup
 
@@ -442,49 +515,71 @@ Restrict the API key to your production domain in API credentials.
    - Resend Dashboard > Webhooks > Add Webhook
    - URL: `https://your-app.vercel.app/api/webhooks/resend`
    - Events: `email.delivered`, `email.opened`, `email.clicked`, `email.bounced`, `email.complained`
-   - Copy signing secret → set `RESEND_WEBHOOK_SECRET` in Vercel
+   - Copy signing secret -> set `RESEND_WEBHOOK_SECRET` in Vercel
 
-### Upstash Redis Setup
+### Upstash Redis Setup (Optional)
+
+Rate limiting works with in-memory fallback (15 req/min per identifier) when Redis is unavailable. For distributed rate limiting:
 
 1. Provision via Vercel Dashboard > Storage > Create Database > Upstash Redis
-2. Env vars (`UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`) are auto-populated when provisioned through Vercel Marketplace
-3. Rate limiting tiers are configurable via `RATE_LIMIT_*` env vars (see `.env.example`)
+2. **Important:** Must be Upstash REST Redis (not standard Redis). The app uses `@upstash/redis` which requires the HTTPS REST API.
+3. Env vars (`UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`) are auto-populated when provisioned through Vercel Marketplace
 
-### Delivery Reminder Cron
+### Cron Jobs
 
-Configure in `vercel.json`:
+Configured in `vercel.json`:
 
 ```json
 {
   "crons": [
     {
       "path": "/api/cron/delivery-reminders",
-      "schedule": "0 16 * * 5"
+      "schedule": "0 15 * * *"
+    },
+    {
+      "path": "/api/cron/admin-daily-digest?period=morning",
+      "schedule": "0 14 * * *"
+    },
+    {
+      "path": "/api/cron/admin-daily-digest?period=evening",
+      "schedule": "0 6 * * *"
     }
   ]
 }
 ```
 
-Runs every Friday at 4 PM UTC (8 AM PT) — morning of Saturday delivery. Set `CRON_SECRET` in Vercel env vars.
+| Cron                 | Schedule (UTC) | Local (PT) | Purpose                             |
+| -------------------- | -------------- | ---------- | ----------------------------------- |
+| Delivery reminders   | Daily 3 PM UTC | 7 AM PT    | Morning-of delivery reminder emails |
+| Admin morning digest | Daily 2 PM UTC | 6 AM PT    | Morning order summary for admin     |
+| Admin evening digest | Daily 6 AM UTC | 10 PM PT   | Evening wrap-up for admin           |
+
+Set `CRON_SECRET` in Vercel env vars to secure these endpoints.
 
 ### Production Checklist
 
-- [ ] All environment variables set in Vercel (see `.env.example`)
+- [ ] All required environment variables set in Vercel
 - [ ] `NEXT_PUBLIC_APP_URL` matches production domain
-- [ ] Supabase callback URL configured
-- [ ] All 34 Supabase migrations applied (`supabase db push`)
+- [ ] `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` set (client-side maps)
+- [ ] `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` set (optional, for custom map styling)
+- [ ] Supabase auth callback URL configured (`https://your-domain/auth/callback`)
+- [ ] All 56 Supabase migrations applied (`supabase db push`)
 - [ ] Stripe using LIVE keys (not test keys)
 - [ ] Stripe webhook endpoint verified with all required events
-- [ ] Google Maps API key restricted to production domain
-- [ ] Google Maps APIs enabled: Geocoding, Routes, Maps JavaScript
+- [ ] Google Maps API keys restricted to production domain
+- [ ] Google Maps APIs enabled: Geocoding, Routes, Maps JavaScript, Places
 - [ ] Resend domain verified (`mandalaymorningstar.com`)
 - [ ] `RESEND_API_KEY` set in Vercel
 - [ ] Resend webhook configured (optional, for open/click tracking)
-- [ ] Upstash Redis provisioned and connected
-- [ ] `CRON_SECRET` set and cron job configured in `vercel.json`
+- [ ] Upstash Redis provisioned (optional, falls back to in-memory)
+- [ ] `CRON_SECRET` set and cron jobs configured in `vercel.json`
 - [ ] Sentry DSN configured (`NEXT_PUBLIC_SENTRY_DSN`)
 - [ ] Sentry auth token set in CI (`SENTRY_AUTH_TOKEN`) for source map uploads
 - [ ] Business rules configured in Admin > Settings
+- [ ] Delivery days configured in Admin > Delivery Days
+- [ ] Delivery zones configured in Admin > Delivery Zones
+- [ ] At least one admin user created (set role in `profiles` table)
+- [ ] Menu items seeded (`pnpm seed:menu`) or created via admin
 - [ ] Custom domain configured (optional)
 
 ## Documentation
@@ -518,7 +613,7 @@ Runs every Friday at 4 PM UTC (8 AM PT) — morning of Saturday delivery. Set `C
 pnpm lint && pnpm typecheck && pnpm build
 ```
 
-Common: missing env vars, TypeScript errors, ESLint violations
+Common causes: missing env vars, TypeScript errors, ESLint violations
 
 ### Stripe Webhook Issues
 
@@ -544,9 +639,22 @@ Common: missing env vars, TypeScript errors, ESLint violations
 
 ### Rate Limiting
 
-1. Verify Upstash Redis connection: check `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
-2. Rate limit tiers can be tuned via `RATE_LIMIT_*` env vars without redeploy
-3. Check Upstash dashboard for rate limit metrics
+1. If using Upstash: verify `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`
+2. If not using Upstash: in-memory fallback is active (15 req/min per identifier) — works but not distributed across serverless instances
+3. Rate limit tiers can be tuned via `RATE_LIMIT_*` env vars without redeploy
+
+### Coverage Check Not Working
+
+1. Verify `GOOGLE_MAPS_API_KEY` is set (server-side)
+2. Ensure Geocoding API and Routes API are enabled in Google Cloud Console
+3. Check API key restrictions — server key must allow these APIs
+
+### Maps Not Rendering
+
+1. Verify `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` is set (client-side)
+2. Ensure Maps JavaScript API is enabled
+3. Check API key HTTP referrer restrictions match your domain
+4. Optional: set `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` for AdvancedMarkerElement support
 
 ## Contributing
 

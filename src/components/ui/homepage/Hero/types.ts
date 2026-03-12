@@ -31,4 +31,8 @@ export interface HeroProps {
   deliveriesThisMonth?: number;
   /** Next upcoming delivery date display string */
   nextDeliveryDate?: string;
+  /** Fee for addresses beyond long-distance threshold (cents) */
+  longDistanceFeeCents?: number;
+  /** Miles threshold for long-distance fee */
+  longDistanceThresholdMiles?: number;
 }

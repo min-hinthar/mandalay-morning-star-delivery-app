@@ -250,8 +250,8 @@ describe("coverage limits validation", () => {
   });
 
   it("confirms kitchen location is in Covina, CA", () => {
-    expect(KITCHEN_LOCATION.lat).toBeCloseTo(34.0858, 3);
-    expect(KITCHEN_LOCATION.lng).toBeCloseTo(-117.8896, 3);
+    expect(KITCHEN_LOCATION.lat).toBeCloseTo(34.0894, 3);
+    expect(KITCHEN_LOCATION.lng).toBeCloseTo(-117.8897, 3);
     expect(KITCHEN_LOCATION.address).toContain("Covina");
   });
 });

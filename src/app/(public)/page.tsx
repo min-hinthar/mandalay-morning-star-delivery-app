@@ -116,6 +116,8 @@ export default async function HomePage(): Promise<ReactElement> {
           cutoffDay={rules.cutoffDay}
           cutoffHour={rules.cutoffHour}
           deliveryDays={rules.deliveryDays}
+          longDistanceFeeCents={rules.longDistanceFeeCents}
+          longDistanceThresholdMiles={rules.longDistanceThresholdMiles}
           deliveriesThisMonth={deliveryStats.deliveriesThisMonth}
           nextDeliveryDate={deliveryStats.nextDeliveryDate}
         />

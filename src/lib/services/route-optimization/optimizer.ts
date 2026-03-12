@@ -5,7 +5,8 @@
 
 import { logger } from "@/lib/utils/logger";
 import type { RoutableStop, OptimizedRoute, OptimizeRouteStopsInput } from "./types";
-import { KITCHEN_ORIGIN, validateStopsForOptimization } from "./types";
+import { KITCHEN_COORDS } from "@/lib/constants/kitchen";
+import { validateStopsForOptimization } from "./types";
 
 /**
  * Optimizes a route using Google Routes Optimization API
@@ -116,16 +117,16 @@ async function optimizeWithGoogleRoutes(
     origin: {
       location: {
         latLng: {
-          latitude: KITCHEN_ORIGIN.latitude,
-          longitude: KITCHEN_ORIGIN.longitude,
+          latitude: KITCHEN_COORDS.lat,
+          longitude: KITCHEN_COORDS.lng,
         },
       },
     },
     destination: {
       location: {
         latLng: {
-          latitude: KITCHEN_ORIGIN.latitude,
-          longitude: KITCHEN_ORIGIN.longitude,
+          latitude: KITCHEN_COORDS.lat,
+          longitude: KITCHEN_COORDS.lng,
         },
       },
     },
@@ -242,8 +243,8 @@ function optimizeWithNearestNeighbor(stops: RoutableStop[], departureTime?: Date
   const remainingStops = [...stops];
   const orderedStops: OptimizedRoute["orderedStops"] = [];
 
-  let currentLat = KITCHEN_ORIGIN.latitude;
-  let currentLng = KITCHEN_ORIGIN.longitude;
+  let currentLat: number = KITCHEN_COORDS.lat;
+  let currentLng: number = KITCHEN_COORDS.lng;
   let totalDistance = 0;
   let cumulativeSeconds = 0;
   const startTime = departureTime ?? new Date();
