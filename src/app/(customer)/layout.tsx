@@ -25,6 +25,8 @@ export default async function CustomerLayout({ children }: { children: ReactNode
       cutoffDay={rules.cutoffDay}
       cutoffHour={rules.cutoffHour}
       deliveryDays={rules.deliveryDays}
+      longDistanceFeeCents={rules.longDistanceFeeCents}
+      longDistanceThresholdMiles={rules.longDistanceThresholdMiles}
     >
       {children}
     </CustomerShell>

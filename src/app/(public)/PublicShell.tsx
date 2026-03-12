@@ -14,6 +14,8 @@ interface PublicShellProps {
   cutoffDay: number;
   cutoffHour: number;
   deliveryDays?: DeliveryDayConfig[];
+  longDistanceFeeCents?: number;
+  longDistanceThresholdMiles?: number;
 }
 
 export function PublicShell({
@@ -23,6 +25,8 @@ export function PublicShell({
   cutoffDay,
   cutoffHour,
   deliveryDays,
+  longDistanceFeeCents,
+  longDistanceThresholdMiles,
 }: PublicShellProps) {
   return (
     <>
@@ -33,6 +37,8 @@ export function PublicShell({
         cutoffDay={cutoffDay}
         cutoffHour={cutoffHour}
         deliveryDays={deliveryDays}
+        longDistanceFeeCents={longDistanceFeeCents}
+        longDistanceThresholdMiles={longDistanceThresholdMiles}
       />
       {children}
       <SiteFooter />
