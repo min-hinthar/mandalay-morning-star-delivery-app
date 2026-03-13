@@ -285,14 +285,28 @@ export function RouteMap({ stops, polyline, onStopClick, className }: RouteMapPr
           ...(MAP_ID && { mapId: MAP_ID }),
         }}
       >
-        {/* Route polyline */}
+        {/* Route polyline with directional arrows */}
         {routePath.length > 0 && (
           <Polyline
             path={routePath}
             options={{
-              strokeColor: SAFFRON, // Saffron
+              strokeColor: SAFFRON,
               strokeOpacity: 0.8,
               strokeWeight: 4,
+              icons: [
+                {
+                  icon: {
+                    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+                    scale: 3,
+                    fillColor: SAFFRON,
+                    fillOpacity: 1,
+                    strokeColor: "#fff",
+                    strokeWeight: 1,
+                  },
+                  offset: "50px",
+                  repeat: "100px",
+                },
+              ],
             }}
           />
         )}

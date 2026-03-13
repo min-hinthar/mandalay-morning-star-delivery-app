@@ -9,7 +9,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
-import { Loader2, Zap, ArrowRight, Clock, Route, MoveVertical } from "lucide-react";
+import { Loader2, Zap, ArrowRight, Route, MoveVertical } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -33,10 +33,7 @@ interface OptimizationModalProps {
   onOpenChange: (open: boolean) => void;
   routeId: string;
   currentStops: StopSummary[];
-  onApply: (
-    optimizedStops: StopSummary[],
-    savings: { durationSeconds: number; distanceMeters: number }
-  ) => void;
+  onApply: () => void;
 }
 
 interface OptimizationResult {
@@ -59,10 +56,6 @@ export function OptimizationModal({
   const [error, setError] = useState<string | null>(null);
   const [optimizedStops, setOptimizedStops] = useState<StopSummary[] | null>(null);
   const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(null);
-
-  // Calculate original route metrics (estimated from stop order)
-  const originalDurationEstimate = currentStops.length * 10 * 60; // 10 min per stop estimate
-  const originalDistanceEstimate = currentStops.length * 2 * 1609; // 2 miles per stop estimate
 
   const fetchOptimization = useCallback(async () => {
     if (!routeId || currentStops.length < 2) return;
@@ -116,22 +109,8 @@ export function OptimizationModal({
     }
   }, [open, fetchOptimization]);
 
-  const handleApply = () => {
-    if (!optimizedStops || !optimizationResult) return;
-
-    // Calculate savings
-    const savings = {
-      durationSeconds: Math.max(
-        0,
-        originalDurationEstimate - optimizationResult.totalDurationSeconds
-      ),
-      distanceMeters: Math.max(
-        0,
-        originalDistanceEstimate - optimizationResult.totalDistanceMeters
-      ),
-    };
-
-    onApply(optimizedStops, savings);
+  const handleDone = () => {
+    onApply();
   };
 
   // Check which stops moved
@@ -157,14 +136,6 @@ export function OptimizationModal({
     return `${miles.toFixed(1)} mi`;
   };
 
-  // Calculate savings
-  const durationSaving = optimizationResult
-    ? Math.max(0, originalDurationEstimate - optimizationResult.totalDurationSeconds)
-    : 0;
-  const distanceSaving = optimizationResult
-    ? Math.max(0, originalDistanceEstimate - optimizationResult.totalDistanceMeters)
-    : 0;
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[700px] max-h-[90vh] overflow-y-auto bg-gradient-to-br from-surface-secondary to-surface-tertiary border-border-v5">
@@ -176,7 +147,7 @@ export function OptimizationModal({
             Optimize Route
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Compare current stop order with optimized order based on traffic and distance.
+            Optimization has been applied. Review the new stop order below.
           </DialogDescription>
         </DialogHeader>
 
@@ -204,25 +175,6 @@ export function OptimizationModal({
           {/* Comparison view */}
           {!isLoading && !error && optimizedStops && (
             <>
-              {/* Savings summary */}
-              {(durationSaving > 0 || distanceSaving > 0) && (
-                <m.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="flex items-center justify-center gap-4 p-4 rounded-lg bg-status-success-bg border border-status-success/30 mb-6"
-                >
-                  <div className="flex items-center gap-2 text-status-success font-medium">
-                    <Clock className="h-4 w-4" />
-                    <span>Saves {formatDuration(durationSaving)}</span>
-                  </div>
-                  <span className="text-status-success/50">/</span>
-                  <div className="flex items-center gap-2 text-status-success font-medium">
-                    <Route className="h-4 w-4" />
-                    <span>{formatDistance(distanceSaving)}</span>
-                  </div>
-                </m.div>
-              )}
-
               {/* Side-by-side comparison */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {/* Current Order */}
@@ -349,7 +301,7 @@ export function OptimizationModal({
           </Button>
           <Button
             type="button"
-            onClick={handleApply}
+            onClick={handleDone}
             disabled={isLoading || !!error || !optimizedStops}
             className="bg-gradient-to-r from-interactive-primary to-accent-tertiary hover:opacity-90 text-text-inverse shadow-md"
           >
@@ -361,7 +313,7 @@ export function OptimizationModal({
             ) : (
               <>
                 <Zap className="mr-2 h-4 w-4" />
-                Apply Optimization
+                Done
               </>
             )}
           </Button>

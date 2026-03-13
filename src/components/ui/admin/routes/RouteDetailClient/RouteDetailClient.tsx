@@ -240,21 +240,12 @@ export function RouteDetailClient() {
     }
   };
 
-  const handleOptimizationApply = async (
-    _optimizedStops: StopSummary[],
-    savings: { durationSeconds: number; distanceMeters: number }
-  ) => {
+  const handleOptimizationApply = async () => {
     if (!route) return;
     setOptimizationModalOpen(false);
     await fetchRoute();
     setIsManuallyReordered(false);
-
-    const minutes = Math.round(savings.durationSeconds / 60);
-    const miles = (savings.distanceMeters / 1609.34).toFixed(1);
-    toast({
-      message: `Saved ${minutes} min / ${miles} mi`,
-      type: "success",
-    });
+    toast({ message: "Route optimized", type: "success" });
   };
 
   const getStopSummaries = (): StopSummary[] => {
