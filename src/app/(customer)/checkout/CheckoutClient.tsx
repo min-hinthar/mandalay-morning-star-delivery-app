@@ -195,7 +195,7 @@ export default function CheckoutClient({
           className="mb-6 sm:mb-8"
         />
 
-        <div className="grid gap-6 lg:gap-8 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 lg:gap-8 lg:grid-cols-3">
           {/* Main content - order form with animated transitions */}
           <div className="lg:col-span-2">
             <div className="rounded-lg border border-border bg-surface-primary p-4 sm:p-6 shadow-colorful overflow-hidden">
