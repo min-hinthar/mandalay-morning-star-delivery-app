@@ -36,6 +36,24 @@ Swipe-to-close unreliable on mobile. Always provide: close button (X), backdrop 
 
 ---
 
+## Responsive Negative Margin Must Match Parent Padding at All Breakpoints
+
+**Context:** `TimeSlotPicker` used `px-6 -mx-6` for full-bleed horizontal scroll, but parent card had `p-4 sm:p-6`. On mobile, `-mx-6` (24px) exceeded `p-4` (16px) by 8px per side. Parent's `overflow-hidden` clipped the overflow, hiding edge date pills.
+
+**Learning:** When using negative margin to extend a child beyond parent padding (common for full-bleed scroll areas), the negative margin must be responsive-aware and match the parent padding at every breakpoint.
+
+```tsx
+// BAD — assumes parent always has p-6
+"px-6 -mx-6"
+
+// GOOD — matches parent's p-4 (mobile) and sm:p-6 (desktop)
+"px-4 -mx-4 sm:px-6 sm:-mx-6"
+```
+
+**Apply when:** Full-bleed scroll containers inside cards/containers with responsive padding. Related: "items-center width collapse" in `react-patterns.md`.
+
+---
+
 ## Defensive Framer Motion Drag Handlers
 
 `PanInfo` may have undefined `offset`/`velocity` on rapid/interrupted gestures. Always null-check: `if (!info?.offset || !info?.velocity) return;`
