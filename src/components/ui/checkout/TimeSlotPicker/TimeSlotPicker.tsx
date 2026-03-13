@@ -171,7 +171,7 @@ export function TimeSlotPicker({
             ref={scrollContainerRef}
             className={cn(
               "flex gap-3 overflow-x-auto scrollbar-hide",
-              "px-6 py-6 -mx-6",
+              "px-4 py-6 -mx-4 sm:px-6 sm:-mx-6",
               "scroll-smooth snap-x snap-mandatory"
             )}
           >
