@@ -148,20 +148,35 @@ async function optimizeWithGoogleRoutes(
     units: "IMPERIAL",
   };
 
-  const response = await fetch("https://routes.googleapis.com/directions/v2:computeRoutes", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "X-Goog-Api-Key": googleApiKey,
-      "X-Goog-FieldMask":
-        "routes.optimizedIntermediateWaypointIndex,routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.legs.duration,routes.legs.distanceMeters,routes.legs.polyline.encodedPolyline",
-    },
-    body: JSON.stringify(requestBody),
-  });
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15_000);
+
+  let response: Response;
+  try {
+    response = await fetch("https://routes.googleapis.com/directions/v2:computeRoutes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Goog-Api-Key": googleApiKey,
+        "X-Goog-FieldMask":
+          "routes.optimizedIntermediateWaypointIndex,routes.duration,routes.distanceMeters,routes.polyline.encodedPolyline,routes.legs.duration,routes.legs.distanceMeters,routes.legs.polyline.encodedPolyline",
+      },
+      body: JSON.stringify(requestBody),
+      signal: controller.signal,
+    });
+  } finally {
+    clearTimeout(timeout);
+  }
 
   if (!response.ok) {
-    const error = await response.json();
-    throw new Error(`Google Routes API error: ${error.error?.message || response.statusText}`);
+    const errorBody = await response.json().catch(() => null);
+    logger.warn("Google Routes API returned error", {
+      api: "route-optimization",
+      status: response.status,
+      stopCount: stops.length,
+      message: errorBody?.error?.message || response.statusText,
+    });
+    throw new Error(`Google Routes API error: ${errorBody?.error?.message || response.statusText}`);
   }
 
   const data = await response.json();
@@ -174,6 +189,18 @@ async function optimizeWithGoogleRoutes(
   // Get optimized order — these are indices into the intermediates (= stops) array
   const optimizedOrder: number[] =
     route.optimizedIntermediateWaypointIndex || stops.map((_, i) => i);
+
+  // Guard: optimized order must match stop count
+  if (optimizedOrder.length !== stops.length) {
+    logger.warn("Google Routes returned mismatched waypoint count", {
+      api: "route-optimization",
+      expected: stops.length,
+      received: optimizedOrder.length,
+    });
+    throw new Error(
+      `Google Routes returned ${optimizedOrder.length} waypoints but expected ${stops.length}`
+    );
+  }
 
   // Legs: origin→stop0, stop0→stop1, ..., stopN→destination
   // We have (stops.length + 1) legs. The last leg is return-to-kitchen — exclude it
@@ -190,7 +217,9 @@ async function optimizeWithGoogleRoutes(
     const stop = stops[originalIndex];
     // Leg at newIndex corresponds to: previous waypoint → this stop
     // Leg 0 = origin → first intermediate, Leg 1 = first → second, etc.
-    const leg = deliveryLegs[newIndex];
+    const leg = deliveryLegs[newIndex] as
+      | { duration?: string; distanceMeters?: number; polyline?: { encodedPolyline?: string } }
+      | undefined;
 
     const durationSeconds = leg?.duration ? parseInt(leg.duration.replace("s", "")) : 0;
     const distanceMeters = leg?.distanceMeters || 0;
