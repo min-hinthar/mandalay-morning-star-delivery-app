@@ -107,7 +107,7 @@ export async function POST(request: NextRequest) {
 
     // Validate all stops have addresses with coordinates
     const stopsWithMissingCoords = stops.filter(
-      (s) => !s.orders?.addresses?.lat || !s.orders?.addresses?.lng
+      (s) => s.orders?.addresses?.lat == null || s.orders?.addresses?.lng == null
     );
 
     if (stopsWithMissingCoords.length > 0) {
@@ -137,7 +137,25 @@ export async function POST(request: NextRequest) {
     }));
 
     // Run optimization
-    const optimized = await optimizeRouteStops(routeId, stopsForOptimization);
+    let optimized;
+    try {
+      optimized = await optimizeRouteStops(routeId, stopsForOptimization);
+    } catch (err) {
+      logger.exception(err, {
+        api: "admin/routes/optimize",
+        flowId: "optimize",
+        routeId,
+        stopCount: stops.length,
+      });
+      return NextResponse.json(
+        {
+          error: "Optimization failed",
+          code: "OPTIMIZE_FAILED",
+          detail: err instanceof Error ? err.message : "Unknown",
+        },
+        { status: 500 }
+      );
+    }
 
     // Batch update stop indices via RPC
     const { error: batchError } = await supabase.rpc("batch_update_stop_indices", {

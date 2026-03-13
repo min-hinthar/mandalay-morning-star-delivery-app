@@ -464,3 +464,17 @@ Added `admin_new_order` and `admin_daily_digest` to `EmailType` union but the DB
 **Fix:** `getUTCDay()` → `getZonedDayOfWeek(date.date)` (already imported from `delivery-dates`).
 
 **Prevention:** Never use `getUTCDay()` / `getUTCHours()` for business logic in this codebase. Always use `getZonedDayOfWeek()` from `delivery-dates.ts` which pins to `America/Los_Angeles`. Grep for `getUTCDay` periodically: `grep -r 'getUTCDay\|getUTCHours' src/ --include='*.ts' --include='*.tsx'`
+
+---
+
+## Route Optimize 500 — Falsy Coordinate Check + Unguarded API Parsing | API/Logic | High
+
+**Date:** 2026-03-13 | **Files:** `src/app/api/admin/routes/optimize/route.ts`, `src/lib/services/route-optimization/optimizer.ts`
+
+Two compounding bugs in the optimize endpoint:
+1. **`!lat` falsy check** — `!s.orders?.addresses?.lat` treats `lat=0` as missing (since `!0 === true`). Any address at the equator or prime meridian flagged as "missing coordinates".
+2. **Unguarded Google Routes response** — No length check on `optimizedIntermediateWaypointIndex` vs stop count. No fetch timeout. No typed leg access guard for out-of-bounds index. Optimizer exceptions propagated as generic 500 with `error.message` exposed to client.
+
+**Fix:** (1) Changed `!lat` → `lat == null`. (2) Added length mismatch guard, 15s AbortController timeout, typed leg access, diagnostic logging. (3) Wrapped `optimizeRouteStops()` call in try/catch with structured error response.
+
+**Prevention:** Never use `!value` to check for null/undefined on numbers — `!0` is `true`. Use `value == null` or `value === null || value === undefined`. For external API responses, always guard array lengths match expectations before indexing.
