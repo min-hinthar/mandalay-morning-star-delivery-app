@@ -14,6 +14,8 @@ export interface Address {
   createdAt: string;
   updatedAt: string;
   distanceMiles?: number | null;
+  directions?: string[];
+  feeTier?: "standard" | "extended";
 }
 
 export interface AddressFormData {

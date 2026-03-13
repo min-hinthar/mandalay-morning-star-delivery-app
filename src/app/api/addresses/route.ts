@@ -42,7 +42,7 @@ export async function GET() {
     if (error) throw error;
 
     return NextResponse.json({
-      data: (addresses ?? []).map(transformAddress),
+      data: (addresses ?? []).map((row) => transformAddress(row)),
       meta: { count: addresses?.length ?? 0 },
     });
   } catch (error) {

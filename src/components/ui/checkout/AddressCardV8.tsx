@@ -12,12 +12,21 @@
  * Phase 6 Plan 03
  */
 
+import { useMemo } from "react";
 import { m } from "framer-motion";
 import { MapPin, Check, Pencil, Trash2, Star } from "lucide-react";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
+import { getDirectionsForCoords, getDirectionLabel } from "@/lib/utils/delivery-zones";
 import type { Address } from "@/types/address";
+import type { DeliveryZoneConfig } from "@/types/delivery";
+
+const DIRECTION_BADGE_COLORS: Record<string, string> = {
+  east: "bg-blue-100 text-blue-700",
+  west: "bg-purple-100 text-purple-700",
+  south: "bg-amber-100 text-amber-700",
+};
 
 interface AddressCardV8Props {
   address: Address;
@@ -25,6 +34,7 @@ interface AddressCardV8Props {
   onSelect: () => void;
   onEdit?: () => void;
   onDelete?: () => void;
+  deliveryZones?: DeliveryZoneConfig[];
 }
 
 export function AddressCardV8({
@@ -33,8 +43,20 @@ export function AddressCardV8({
   onSelect,
   onEdit,
   onDelete,
+  deliveryZones,
 }: AddressCardV8Props) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
+
+  const directionInfo = useMemo(() => {
+    if (!address.lat || !address.lng || !deliveryZones?.length) return null;
+    const dirs = getDirectionsForCoords(address.lat, address.lng, deliveryZones);
+    if (dirs.length === 0) return null;
+    const primary = dirs[0];
+    return {
+      label: getDirectionLabel(primary as Exclude<typeof primary, "all">),
+      colorClass: DIRECTION_BADGE_COLORS[primary] ?? "bg-primary/10 text-primary",
+    };
+  }, [address.lat, address.lng, deliveryZones]);
 
   return (
     <m.button
@@ -91,12 +113,35 @@ export function AddressCardV8({
                 Default
               </span>
             )}
+            {directionInfo && (
+              <span
+                className={cn(
+                  "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium",
+                  directionInfo.colorClass
+                )}
+              >
+                {directionInfo.label}
+              </span>
+            )}
           </div>
           <p className="text-sm text-text-muted truncate">{address.line1}</p>
           {address.line2 && <p className="text-sm text-text-muted truncate">{address.line2}</p>}
           <p className="text-sm text-text-muted">
             {address.city}, {address.state} {address.postalCode}
           </p>
+          {/* Distance & fee tier */}
+          {address.distanceMiles != null && (
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-2xs text-text-muted">
+                {address.distanceMiles.toFixed(1)} mi
+              </span>
+              {address.distanceMiles > 25 && (
+                <span className="text-2xs px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-medium">
+                  Extended delivery
+                </span>
+              )}
+            </div>
+          )}
         </div>
       </div>
 

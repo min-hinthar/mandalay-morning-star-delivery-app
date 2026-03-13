@@ -38,6 +38,13 @@ export type { TipSelectorProps } from "./TipSelector";
 export { PromoCodeInput } from "./PromoCodeInput";
 export type { PromoCodeInputProps } from "./PromoCodeInput";
 
+// Error & info cards
+export { CoverageErrorCard } from "./CoverageErrorCard";
+export { DeliveryZoneInfoCard } from "./DeliveryZoneInfoCard";
+export { CheckoutErrorBanner } from "./CheckoutErrorBanner";
+export type { CheckoutErrorData } from "./CheckoutErrorBanner";
+export { OrderSummaryCard } from "./OrderSummaryCard";
+
 // Payment success
 export { PaymentSuccess } from "./PaymentSuccess";
 export type { PaymentSuccessProps } from "./PaymentSuccess";

@@ -5,7 +5,11 @@ import type { ModifierGroupWithItems, ValidatedCartItem } from "@/lib/utils/orde
 import type { ModifierGroupsRow, AddressesRow } from "@/types/database";
 import type { DeliveryDayConfig, DeliveryDirection } from "@/types/delivery";
 import type { DeliveryZoneConfig } from "@/types/delivery";
-import { getDirectionsForCoords } from "@/lib/utils/delivery-zones";
+import {
+  getDirectionsForCoords,
+  getDirectionLabel,
+  filterDaysByDirection,
+} from "@/lib/utils/delivery-zones";
 import { checkCoverage } from "@/lib/services/coverage";
 import { logger } from "@/lib/utils/logger";
 import { sendEmail, fetchSuggestedItems, getAdminEmails } from "@/lib/email";
@@ -183,9 +187,17 @@ export async function sendCODOrderEmail(opts: {
 // ADDRESS DISTANCE & DIRECTION VALIDATION
 // ============================================
 
+export interface DirectionMismatchDetails {
+  customerDirections: string[];
+  customerRouteLabel: string;
+  selectedDayDirection: string;
+  eligibleDayNames: string[];
+}
+
 export interface AddressDistanceResult {
   distanceMiles: number | null;
   directionError?: string;
+  directionDetails?: DirectionMismatchDetails;
 }
 
 /**
@@ -196,7 +208,8 @@ export async function resolveAddressDistance(
   address: AddressesRow,
   dayConfig: DeliveryDayConfig | undefined,
   deliveryZones: DeliveryZoneConfig[],
-  scheduledDate: string
+  scheduledDate: string,
+  deliveryDays: DeliveryDayConfig[] = []
 ): Promise<AddressDistanceResult> {
   let distanceMiles: number | null = (address as Record<string, unknown>).distance_miles as
     | number
@@ -226,9 +239,39 @@ export async function resolveAddressDistance(
       dayConfig.direction !== "all" &&
       !addressDirections.includes(dayConfig.direction as Exclude<DeliveryDirection, "all">)
     ) {
+      // Build structured details for actionable error display
+      const eligibleDaysForAddress = filterDaysByDirection(addressDirections, deliveryDays);
+      const dayNames = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+      const eligibleDayNames = eligibleDaysForAddress
+        .filter((d) => d.isActive)
+        .map((d) => dayNames[d.dayOfWeek]);
+
+      const customerRouteLabel =
+        addressDirections.length === 1
+          ? getDirectionLabel(addressDirections[0] as Exclude<DeliveryDirection, "all">)
+          : addressDirections
+              .map((d) => getDirectionLabel(d as Exclude<DeliveryDirection, "all">))
+              .join(" / ");
+
+      const directionDetails: DirectionMismatchDetails = {
+        customerDirections: addressDirections,
+        customerRouteLabel,
+        selectedDayDirection: dayConfig.direction ?? "all",
+        eligibleDayNames,
+      };
+
       return {
         distanceMiles,
         directionError: `Your address is not on the ${dayConfig.direction} route for ${scheduledDate}. Please choose a different delivery date.`,
+        directionDetails,
       };
     }
   }

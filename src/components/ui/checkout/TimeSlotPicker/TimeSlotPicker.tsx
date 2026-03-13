@@ -186,12 +186,17 @@ export function TimeSlotPicker({
                     index={index}
                     weekOffset={weekOffsets[index]}
                   />
-                  {direction && direction !== "all" && (
+                  {date.cutoffPassed && (
+                    <span className="text-2xs font-medium text-destructive/60 whitespace-nowrap">
+                      Cutoff passed
+                    </span>
+                  )}
+                  {!date.cutoffPassed && direction && direction !== "all" && (
                     <span className="text-2xs font-medium text-text-muted whitespace-nowrap">
                       {getDirectionLabel(direction)}
                     </span>
                   )}
-                  {direction === "all" && (
+                  {!date.cutoffPassed && direction === "all" && (
                     <span className="text-2xs font-medium text-primary/70 whitespace-nowrap">
                       All Areas
                     </span>
