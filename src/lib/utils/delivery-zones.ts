@@ -6,7 +6,11 @@
  */
 
 import { KITCHEN_COORDS } from "@/lib/constants/kitchen";
+import { calculateHaversineDistance } from "@/lib/utils/eta";
 import type { DeliveryDayConfig, DeliveryDirection, DeliveryZoneConfig } from "@/types/delivery";
+
+/** 15 miles in km — nearby addresses skip direction filtering */
+const NEARBY_RADIUS_KM = 24.14;
 
 /** Default zone configs matching DB seed values */
 export const DEFAULT_ZONES: DeliveryZoneConfig[] = [
@@ -70,6 +74,10 @@ export function getDirectionsForCoords(
   lng: number,
   zones: DeliveryZoneConfig[]
 ): Exclude<DeliveryDirection, "all">[] {
+  // Nearby addresses see all delivery days — direction filtering only matters for distant routes
+  const distanceKm = calculateHaversineDistance(KITCHEN_COORDS.lat, KITCHEN_COORDS.lng, lat, lng);
+  if (distanceKm <= NEARBY_RADIUS_KM) return [];
+
   const bearing = calculateBearing(lat, lng);
   const matched: Exclude<DeliveryDirection, "all">[] = [];
 

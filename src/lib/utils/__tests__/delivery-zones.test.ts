@@ -33,9 +33,15 @@ describe("calculateBearing", () => {
 });
 
 describe("getDirectionsForCoords", () => {
-  it("returns 'east' for Pomona", () => {
-    // Pomona: 34.0551, -117.7523
+  it("returns [] for nearby Pomona (~8mi, within 15mi threshold)", () => {
+    // Pomona: 34.0551, -117.7523 — ~8mi from kitchen, skips direction filtering
     const result = getDirectionsForCoords(34.0551, -117.7523, DEFAULT_ZONES);
+    expect(result).toEqual([]);
+  });
+
+  it("returns 'east' for far San Bernardino (~37mi, beyond 15mi threshold)", () => {
+    // San Bernardino: 34.1083, -117.2898
+    const result = getDirectionsForCoords(34.1083, -117.2898, DEFAULT_ZONES);
     expect(result).toContain("east");
   });
 
@@ -51,10 +57,15 @@ describe("getDirectionsForCoords", () => {
     expect(result).toContain("south");
   });
 
-  it("returns multiple directions for boundary areas", () => {
-    // A point in a gap zone should return 2 adjacent directions
-    // Whittier is between east and south (roughly bearing 120-140)
+  it("returns [] for nearby Whittier (~11mi, within 15mi threshold)", () => {
+    // Whittier: 33.9792, -118.0328 — ~11mi from kitchen, skips direction filtering
     const result = getDirectionsForCoords(33.9792, -118.0328, DEFAULT_ZONES);
+    expect(result).toEqual([]);
+  });
+
+  it("returns multiple directions for far boundary areas", () => {
+    // Corona: 33.8753, -117.5664 — ~30mi, in gap between east and south zones
+    const result = getDirectionsForCoords(33.8753, -117.5664, DEFAULT_ZONES);
     expect(result.length).toBeGreaterThanOrEqual(2);
   });
 });
