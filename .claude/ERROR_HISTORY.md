@@ -478,3 +478,27 @@ Two compounding bugs in the optimize endpoint:
 **Fix:** (1) Changed `!lat` → `lat == null`. (2) Added length mismatch guard, 15s AbortController timeout, typed leg access, diagnostic logging. (3) Wrapped `optimizeRouteStops()` call in try/catch with structured error response.
 
 **Prevention:** Never use `!value` to check for null/undefined on numbers — `!0` is `true`. Use `value == null` or `value === null || value === undefined`. For external API responses, always guard array lengths match expectations before indexing.
+
+---
+
+## RouteMap Crash — `google is not defined` in useMemo | Runtime | Critical
+
+**Date:** 2026-03-13 | **Files:** `src/components/ui/admin/routes/RouteMap/RouteMap.tsx`
+
+`polylineOptions` useMemo referenced `google.maps.SymbolPath.FORWARD_CLOSED_ARROW` unconditionally. Hooks run before early-return guards (`if (!isLoaded) return <Loading />`), so the memo executed before `useJsApiLoader` loaded Google Maps. The entire route detail page crashed via error boundary.
+
+**Fix:** Added `if (!isLoaded) return null` guard inside the useMemo. Updated Polyline render to handle null options.
+
+**Prevention:** Any `useMemo`/`useCallback`/`useEffect` referencing `google.maps.*` must guard with `if (!isLoaded)` inside the hook body. Hooks always run — they can't be "skipped" by early returns below them. See: `.claude/learnings/nextjs.md`
+
+---
+
+## Route Optimize "Failed to update stop order" — UNIQUE Constraint Blocks Batch Reorder | DB/RPC | High
+
+**Date:** 2026-03-13 | **Files:** `src/app/api/admin/routes/optimize/route.ts`, `supabase/migrations/20260313_fix_stop_index_unique_deferrable.sql`
+
+`UNIQUE(route_id, stop_index)` on `route_stops` blocked the `batch_update_stop_indices` RPC. PostgreSQL checks unique constraints per-row during UPDATE. When swapping indices (e.g., stop A: 0→2, stop C: 2→0), intermediate states violate the constraint. Optimization succeeded but the DB update always failed with a unique violation.
+
+**Fix:** Migration makes the constraint `DEFERRABLE INITIALLY IMMEDIATE` and the RPC defers it before the batch update.
+
+**Prevention:** When batch-updating columns involved in unique constraints (sortable lists, reorderable items), the constraint must be `DEFERRABLE`. See: `.claude/learnings/data-schema.md`
