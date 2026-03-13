@@ -147,7 +147,11 @@ export function OptimizationModal({
             Optimize Route
           </DialogTitle>
           <DialogDescription className="text-muted-foreground">
-            Optimization has been applied. Review the new stop order below.
+            {isLoading
+              ? "Calculating the optimal stop order..."
+              : error
+                ? "Optimization encountered an error."
+                : "Optimization has been applied. Review the new stop order below."}
           </DialogDescription>
         </DialogHeader>
 
