@@ -206,6 +206,29 @@ Also added: `batch_update_stop_indices` RPC (array params for bulk index updates
 
 ---
 
+## UNIQUE Constraints Block Batch Reorder — Use DEFERRABLE
+
+**Context:** `route_stops` has `UNIQUE(route_id, stop_index)`. The `batch_update_stop_indices` RPC swaps indices (e.g., stop A: 0→2, stop C: 2→0) in a single UPDATE. PostgreSQL checks unique constraints per-row during UPDATE, so intermediate states violate uniqueness.
+
+**Learning:** When a unique constraint covers a column that gets batch-reordered, make it `DEFERRABLE INITIALLY IMMEDIATE`. Then defer it in the RPC:
+
+```sql
+ALTER TABLE route_stops
+  ADD CONSTRAINT route_stops_route_id_stop_index_key
+  UNIQUE (route_id, stop_index)
+  DEFERRABLE INITIALLY IMMEDIATE;
+
+-- In the RPC:
+SET CONSTRAINTS route_stops_route_id_stop_index_key DEFERRED;
+UPDATE route_stops rs SET stop_index = data.new_index ...
+```
+
+`INITIALLY IMMEDIATE` means normal inserts/updates still check instantly. Only the RPC explicitly defers when doing batch swaps.
+
+**Apply when:** Batch-updating columns involved in unique constraints (sortable lists, reorderable items, index swaps).
+
+---
+
 ## Supabase Generated Types: New Tables Require Interim Cast
 
 **Context:** Added `delivery_zones` table via migration. Supabase generated types (`src/types/database.ts`) don't include it until `pnpm supabase gen types` is re-run. TypeScript rejects `.from("delivery_zones")`.

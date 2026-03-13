@@ -24,12 +24,22 @@ Needs `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID`. Implement fallback to legacy `Marker` if
 
 ---
 
-## Google Maps: AdvancedMarkerElement Race + Tooltip Z-Index
+## Google Maps: API Access Before Load (useMemo / useEffect Race)
+
+**useMemo race:** `useMemo` hooks run before early-return guards like `if (!isLoaded) return <Loading />`. Any memo referencing `google.maps.*` (e.g. `SymbolPath.FORWARD_CLOSED_ARROW`) crashes with `ReferenceError: google is not defined`. Always guard inside the memo:
+```tsx
+const options = useMemo(() => {
+  if (!isLoaded) return null; // google not available yet
+  return { icon: { path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW } };
+}, [isLoaded]);
+```
 
 **Marker library race:** `useJsApiLoader` reports `isLoaded` but `google.maps.marker.AdvancedMarkerElement` may not be ready yet. Always guard:
 ```tsx
 if (!google.maps.marker?.AdvancedMarkerElement) return;
 ```
+
+**Apply when:** Any `useMemo`, `useCallback`, or `useEffect` that references `google.maps.*` in a component using `useJsApiLoader`.
 
 **Tooltip clipping:** Each `AdvancedMarkerElement` creates its own stacking context. Child tooltips can't escape — later pins render on top of earlier pins' tooltips. Fix: set `marker.zIndex = 1000` on hover, reset on leave.
 
