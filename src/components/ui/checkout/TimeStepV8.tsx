@@ -24,6 +24,7 @@ import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
 import {
   getAvailableDeliveryDates,
   getAvailableDeliveryDatesMultiDay,
+  getZonedDayOfWeek,
 } from "@/lib/utils/delivery-dates";
 import { TimeSlotPicker } from "./TimeSlotPicker";
 import { DeliveryZoneInfoCard } from "./DeliveryZoneInfoCard";
@@ -118,7 +119,7 @@ export function TimeStepV8({
   const dateDirectionMap = useMemo(() => {
     const map = new Map<string, DeliveryDirection>();
     for (const date of availableDates) {
-      const dayOfWeek = date.date.getUTCDay();
+      const dayOfWeek = getZonedDayOfWeek(date.date);
       const dayConfig = filteredDays.find((d) => d.dayOfWeek === dayOfWeek);
       if (dayConfig) {
         map.set(date.dateString, dayConfig.direction ?? "all");
