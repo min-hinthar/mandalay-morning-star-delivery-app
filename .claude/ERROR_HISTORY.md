@@ -452,3 +452,15 @@ Added `admin_new_order` and `admin_daily_digest` to `EmailType` union but the DB
 **Fix:** Split `CustomerEmailType` (DB-safe) from `EmailType` (all types). Added `ADMIN_EMAIL_TYPES` constant. Guard both `notification_logs` inserts in `send.ts` to skip for admin types. Cron dedupe uses `app_settings` table instead of `notification_logs`.
 
 **Prevention:** When adding new email types, check if the DB enum includes them. If not, either add a migration or guard the insert. Admin-only types that don't need user preference checks should skip `notification_logs` entirely.
+
+---
+
+## getUTCDay() Wrong Day in LA Timezone | Logic/Checkout | Medium
+
+**Date:** 2026-03-12 | **Files:** `src/components/ui/checkout/TimeStepV8.tsx`
+
+`dateDirectionMap` used `date.date.getUTCDay()` to look up day-of-week config. Around midnight UTC (4-5 PM Pacific), UTC day differs from LA day — wrong `dayConfig` matched, producing incorrect or missing direction labels on date pills.
+
+**Fix:** `getUTCDay()` → `getZonedDayOfWeek(date.date)` (already imported from `delivery-dates`).
+
+**Prevention:** Never use `getUTCDay()` / `getUTCHours()` for business logic in this codebase. Always use `getZonedDayOfWeek()` from `delivery-dates.ts` which pins to `America/Los_Angeles`. Grep for `getUTCDay` periodically: `grep -r 'getUTCDay\|getUTCHours' src/ --include='*.ts' --include='*.tsx'`
