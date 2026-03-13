@@ -20,7 +20,12 @@ import { createCODOrder } from "@/lib/services/cod-order";
 import type { AddressesRow, OrdersRow, OrderItemsRow, ProfilesRow } from "@/types/database";
 import { toISOWithTimezone } from "@/lib/utils/delivery-timezone";
 import { cleanupOrder, sendCODOrderEmail, resolveAddressDistance } from "./helpers";
-import { errorResponse, fetchAndValidateCart, buildRpcPayload } from "./validation";
+import {
+  errorResponse,
+  fetchAndValidateCart,
+  buildRpcPayload,
+  revalidateItemAvailability,
+} from "./validation";
 
 export async function POST(request: Request) {
   try {
@@ -30,14 +35,11 @@ export async function POST(request: Request) {
     const body = await request.json();
     const parsed = createCheckoutSessionSchema.safeParse(body);
 
-    if (!parsed.success) {
+    if (!parsed.success)
       return errorResponse("VALIDATION_ERROR", "Invalid request data", 400, parsed.error.issues);
-    }
-
     const input = parsed.data;
     const rules = await getBusinessRules();
 
-    // Validate time window against dynamically generated windows
     const validWindows = generateTimeWindows(
       rules.deliveryStartHour,
       rules.deliveryEndHour,
@@ -46,34 +48,27 @@ export async function POST(request: Request) {
     const isValidWindow = validWindows.some(
       (tw) => tw.start === input.timeWindowStart && tw.end === input.timeWindowEnd
     );
-    if (!isValidWindow) {
+    if (!isValidWindow)
       return errorResponse("VALIDATION_ERROR", "Invalid delivery time window", 400);
-    }
-
-    // Validate scheduled date and cutoff
     const scheduledDate = new Date(input.scheduledDate + "T12:00:00");
     const now = new Date();
 
-    // Multi-day: find matching delivery day config (timezone-aware)
     const scheduledDayOfWeek = getZonedDayOfWeek(scheduledDate);
     const dayConfig = rules.deliveryDays.find(
       (d) => d.isActive && d.dayOfWeek === scheduledDayOfWeek
     );
 
     if (dayConfig) {
-      // Multi-day validation
       if (isPastCutoffForDay(scheduledDate, dayConfig, now)) {
         return errorResponse("CUTOFF_PASSED", `Orders for ${input.scheduledDate} are closed.`, 400);
       }
     } else if (rules.deliveryDays.length > 0) {
-      // Multi-day is configured but scheduled day is not active
       return errorResponse(
         "VALIDATION_ERROR",
         `${input.scheduledDate} is not an active delivery day.`,
         400
       );
     } else {
-      // Legacy Saturday-only fallback
       if (isPastCutoff(scheduledDate, now, rules.cutoffDay, rules.cutoffHour)) {
         const nextDelivery = getDeliveryDate(now, rules.cutoffDay, rules.cutoffHour);
         return errorResponse(
@@ -85,23 +80,19 @@ export async function POST(request: Request) {
       }
     }
 
-    // COD validation
     if (input.paymentMethod === "cod" && !rules.codEnabled) {
       return errorResponse("COD_DISABLED", "Cash on Delivery is not currently available", 400);
     }
 
-    // Authenticate user
     const supabase = await createClient();
     const {
       data: { user },
       error: authError,
     } = await supabase.auth.getUser();
 
-    if (authError || !user) {
+    if (authError || !user)
       return errorResponse("UNAUTHORIZED", "You must be logged in to checkout", 401);
-    }
 
-    // Rate limit
     const rl = await checkRateLimit({
       limiter: checkoutLimiter,
       identifier: user.id,
@@ -110,7 +101,6 @@ export async function POST(request: Request) {
     });
     if (rl.limited) return rl.response;
 
-    // Validate address
     const { data: address, error: addressError } = await supabase
       .from("addresses")
       .select("*")
@@ -119,31 +109,28 @@ export async function POST(request: Request) {
       .returns<AddressesRow[]>()
       .single();
 
-    if (addressError || !address) {
+    if (addressError || !address)
       return errorResponse("ADDRESS_INVALID", "Address not found or not yours", 400);
-    }
+    if (!address.is_verified)
+      return errorResponse("OUT_OF_COVERAGE", "Address not verified for delivery", 400);
 
-    if (!address.is_verified) {
-      return errorResponse(
-        "OUT_OF_COVERAGE",
-        "Address has not been verified for delivery coverage",
-        400
-      );
-    }
-
-    // Resolve distance (lazy-fill for legacy) and validate direction match
     const distanceResult = await resolveAddressDistance(
       address,
       dayConfig,
       rules.deliveryZones,
-      input.scheduledDate
+      input.scheduledDate,
+      rules.deliveryDays
     );
     const addressDistanceMiles = distanceResult.distanceMiles;
     if (distanceResult.directionError) {
-      return errorResponse("VALIDATION_ERROR", distanceResult.directionError, 400);
+      return errorResponse(
+        "VALIDATION_ERROR",
+        distanceResult.directionError,
+        400,
+        distanceResult.directionDetails
+      );
     }
 
-    // Promo code validation
     let discountCents = 0;
     let validatedCouponId: string | null = null;
     let promoPercentOff: number | null = null;
@@ -158,19 +145,15 @@ export async function POST(request: Request) {
       promoPercentOff = promoResult.percentOff;
     }
 
-    // Fetch and validate cart
     const cartResult = await fetchAndValidateCart(supabase, input.items);
     if (!cartResult.ok) return cartResult.response;
     const validatedItems = cartResult.items;
-
     const tipCents = input.tipCents ?? 0;
-
     if (promoPercentOff !== null) {
       const subtotal = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
       discountCents = Math.round((subtotal * promoPercentOff) / 100);
     }
 
-    // Use per-day delivery fee if available
     const baseDeliveryFeeCents = dayConfig?.deliveryFeeCents ?? rules.deliveryFeeCents;
     const isExtendedRange =
       addressDistanceMiles != null && addressDistanceMiles > rules.longDistanceThresholdMiles;
@@ -185,31 +168,20 @@ export async function POST(request: Request) {
       longDistanceThresholdMiles: rules.longDistanceThresholdMiles,
     });
 
-    // Ensure profile exists
     try {
       await ensureProfile(createServiceClient(), user.id, user.email);
-    } catch (serviceErr) {
-      logger.warn("ensureProfile via service client failed in checkout, trying user client", {
-        api: "checkout-session",
-        flowId: "checkout",
-        userId: user.id,
-        error: serviceErr instanceof Error ? serviceErr.message : String(serviceErr),
-      });
-
+    } catch {
       const { error: userInsertErr } = await supabase
         .from("profiles")
         .upsert(
           { id: user.id, email: user.email ?? null, role: "customer" as const },
           { onConflict: "id", ignoreDuplicates: true }
         );
-
       if (userInsertErr) {
-        logger.error("Profile creation failed via both service and user clients", {
+        logger.error("Profile creation failed", {
           api: "checkout-session",
-          flowId: "checkout",
           userId: user.id,
-          serviceError: serviceErr instanceof Error ? serviceErr.message : String(serviceErr),
-          userError: userInsertErr.message,
+          error: userInsertErr.message,
         });
         return errorResponse(
           "PROFILE_ERROR",
@@ -219,18 +191,11 @@ export async function POST(request: Request) {
       }
     }
 
-    // Build RPC payload
     const { rpcItems, rpcModifiers } = buildRpcPayload(validatedItems);
-
     for (const mod of rpcModifiers) {
-      if (mod.item_index < 0 || mod.item_index >= rpcItems.length) {
+      if (mod.item_index < 0 || mod.item_index >= rpcItems.length)
         return errorResponse("VALIDATION_ERROR", "Invalid modifier item index", 400);
-      }
     }
-
-    // ========================================
-    // COD BRANCH
-    // ========================================
     if (input.paymentMethod === "cod") {
       const codResult = await createCODOrder(supabase, {
         userId: user.id,
@@ -254,18 +219,14 @@ export async function POST(request: Request) {
         distanceMiles: addressDistanceMiles,
       });
 
-      if (!codResult.success) {
+      if (!codResult.success)
         return errorResponse(codResult.code as "INTERNAL_ERROR", codResult.message, 500);
-      }
-
-      const logMeta = {
+      logger.info("COD checkout completed", {
         orderId: codResult.orderId,
         totalCents: totals.totalCents,
         userId: user.id,
-      };
-      logger.info("COD checkout completed", { ...logMeta, paymentMethod: "cod" });
+      });
 
-      // Send COD order-received email after response (keeps serverless function alive)
       after(() =>
         sendCODOrderEmail({
           orderId: codResult.orderId,
@@ -302,9 +263,6 @@ export async function POST(request: Request) {
       });
     }
 
-    // ========================================
-    // STRIPE BRANCH (existing flow)
-    // ========================================
     const { data: rpcResult, error: rpcError } = await supabase.rpc("create_order_with_items", {
       p_order: {
         user_id: user.id,
@@ -329,36 +287,25 @@ export async function POST(request: Request) {
     });
 
     if (rpcError || !rpcResult) {
-      logger.exception(rpcError, {
-        userId: user.id,
-        api: "checkout-session",
-        flowId: "checkout",
-        itemCount: input.items.length,
-        totalCents: totals.totalCents,
-      });
+      logger.exception(rpcError, { userId: user.id, api: "checkout-session", flowId: "checkout" });
       return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
     }
-
     const rpcData = rpcResult as Record<string, unknown> | null;
     const orderId = typeof rpcData?.order_id === "string" ? rpcData.order_id : null;
     const orderItemIdsParsed = Array.isArray(rpcData?.order_item_ids)
       ? (rpcData.order_item_ids as string[])
       : null;
-
     if (!orderId || !orderItemIdsParsed) {
-      logger.exception(new Error("RPC create_order_with_items returned unexpected shape"), {
+      logger.exception(new Error("RPC returned unexpected shape"), {
         userId: user.id,
         api: "checkout-session",
-        flowId: "checkout",
         rpcResult: JSON.stringify(rpcResult),
       });
       return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
     }
-
     const order = { id: orderId } as OrdersRow;
     const orderItems = orderItemIdsParsed.map((id) => ({ id })) as OrderItemsRow[];
 
-    // Get or create Stripe customer
     const { data: profile } = await supabase
       .from("profiles")
       .select("full_name")
@@ -372,42 +319,25 @@ export async function POST(request: Request) {
       profile?.full_name
     );
 
-    // Re-validate item availability before Stripe session
     const menuItemIds = input.items.map((item) => item.menuItemId);
-    const { data: freshMenuItems, error: freshMenuError } = await supabase
-      .from("menu_items")
-      .select("id, is_active")
-      .in("id", menuItemIds);
-
-    if (freshMenuError) {
+    const revalidation = await revalidateItemAvailability(supabase, menuItemIds, validatedItems);
+    if (!revalidation.ok) {
       await cleanupOrder(
         supabase,
         order.id,
         orderItems.map((oi) => oi.id)
       );
-      return errorResponse("INTERNAL_ERROR", "Failed to re-validate menu items", 500);
+      if ("unavailableNames" in revalidation) {
+        return errorResponse(
+          "ITEM_UNAVAILABLE",
+          `Some items are no longer available: ${revalidation.unavailableNames!.join(", ")}. Please update your cart.`,
+          400,
+          { unavailableItems: revalidation.unavailableIds }
+        );
+      }
+      return errorResponse("INTERNAL_ERROR", revalidation.error!, 500);
     }
 
-    const unavailableItems = (freshMenuItems ?? []).filter((item) => !item.is_active);
-    if (unavailableItems.length > 0) {
-      await cleanupOrder(
-        supabase,
-        order.id,
-        orderItems.map((oi) => oi.id)
-      );
-      const unavailableIds = unavailableItems.map((i) => i.id);
-      const unavailableNames = validatedItems
-        .filter((vi) => unavailableIds.includes(vi.menuItem.id))
-        .map((vi) => vi.menuItem.name_en);
-      return errorResponse(
-        "ITEM_UNAVAILABLE",
-        `Some items are no longer available: ${unavailableNames.join(", ")}. Please update your cart.`,
-        400,
-        { unavailableItems: unavailableIds }
-      );
-    }
-
-    // Create Stripe Checkout Session
     const lineItems = createStripeLineItems(
       validatedItems,
       totals.deliveryFeeCents,
@@ -451,7 +381,6 @@ export async function POST(request: Request) {
       orderId: order.id,
       totalCents: totals.totalCents,
       userId: user.id,
-      paymentMethod: "stripe",
     });
 
     return NextResponse.json({
@@ -461,15 +390,10 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
-    logger.exception(error, {
-      api: "checkout-session",
-      flowId: "checkout",
-    });
-
+    logger.exception(error, { api: "checkout-session", flowId: "checkout" });
     if (error instanceof Error && error.message.includes("Stripe")) {
       return errorResponse("STRIPE_ERROR", "Payment service error", 500);
     }
-
     return errorResponse("INTERNAL_ERROR", "An unexpected error occurred", 500);
   }
 }

@@ -22,7 +22,7 @@ import {
   CheckoutSummary,
 } from "@/components/ui/checkout";
 import type { CheckoutStep } from "@/types/checkout";
-import type { DeliveryDayConfig, TimeWindow } from "@/types/delivery";
+import type { DeliveryDayConfig, DeliveryZoneConfig, TimeWindow } from "@/types/delivery";
 
 /**
  * Direction-aware step transition variants with scale morph and glow
@@ -66,6 +66,8 @@ interface CheckoutClientProps {
   cutoffHour?: number;
   /** Multi-day delivery configs */
   deliveryDays?: DeliveryDayConfig[];
+  /** Delivery zone configs for direction display */
+  deliveryZones?: DeliveryZoneConfig[];
   /** Whether Cash on Delivery is enabled */
   codEnabled?: boolean;
 }
@@ -75,6 +77,7 @@ export default function CheckoutClient({
   cutoffDay = 5,
   cutoffHour = 15,
   deliveryDays = [],
+  deliveryZones = [],
   codEnabled = false,
 }: CheckoutClientProps) {
   const router = useRouter();
@@ -212,7 +215,7 @@ export default function CheckoutClient({
                       boxShadow: { duration: 0.3 },
                     }}
                   >
-                    <AddressStep onNext={goToNextStep} />
+                    <AddressStep onNext={goToNextStep} deliveryZones={deliveryZones} />
                   </m.div>
                 )}
                 {step === "time" && (
@@ -235,6 +238,7 @@ export default function CheckoutClient({
                       onBack={goToPrevStep}
                       timeWindows={timeWindows}
                       deliveryDays={deliveryDays}
+                      deliveryZones={deliveryZones}
                     />
                   </m.div>
                 )}

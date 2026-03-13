@@ -29,9 +29,11 @@ import { Modal } from "@/components/ui/Modal";
 import { Drawer } from "@/components/ui/Drawer";
 import { AddressCardV8 } from "./AddressCardV8";
 import { AddressFormV8 } from "./AddressFormV8";
+import { CoverageErrorCard } from "./CoverageErrorCard";
 import { Button } from "@/components/ui/button";
 import { staggerContainer, staggerItem, spring } from "@/lib/motion-tokens";
 import type { Address } from "@/types/address";
+import type { DeliveryZoneConfig } from "@/types/delivery";
 import type { AddressFormValues } from "@/lib/validations/address";
 
 /** Button entry animation variant */
@@ -48,13 +50,20 @@ type FormMode = "add" | "edit";
 
 interface AddressStepV8Props {
   onNext?: () => void;
+  deliveryZones?: DeliveryZoneConfig[];
 }
 
-export function AddressStepV8({ onNext }: AddressStepV8Props) {
+interface StructuredFormError {
+  message: string;
+  code?: string;
+  details?: unknown;
+}
+
+export function AddressStepV8({ onNext, deliveryZones }: AddressStepV8Props) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [formMode, setFormMode] = useState<FormMode>("add");
   const [editingAddress, setEditingAddress] = useState<Address | null>(null);
-  const [formError, setFormError] = useState<string | undefined>();
+  const [formError, setFormError] = useState<StructuredFormError | undefined>();
 
   const { data, isLoading } = useAddresses();
   const createAddress = useCreateAddress();
@@ -113,8 +122,12 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
       }
       closeForm();
     } catch (error: unknown) {
-      const err = error as { error?: { message?: string } };
-      setFormError(err?.error?.message ?? "Failed to save address");
+      const err = error as { error?: { message?: string; code?: string; details?: unknown } };
+      setFormError({
+        message: err?.error?.message ?? "Failed to save address",
+        code: err?.error?.code,
+        details: err?.error?.details,
+      });
     }
   };
 
@@ -149,7 +162,7 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
       onSubmit={handleSubmit}
       onCancel={closeForm}
       isLoading={isSaving}
-      error={formError}
+      error={formError?.message}
     />
   );
 
@@ -203,6 +216,7 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
                 onSelect={() => handleSelectAddress(addr)}
                 onEdit={() => openEditModal(addr)}
                 onDelete={() => handleDelete(addr.id)}
+                deliveryZones={deliveryZones}
               />
             </m.div>
           ))}
@@ -227,6 +241,23 @@ export function AddressStepV8({ onNext }: AddressStepV8Props) {
           Add New Address
         </Button>
       </m.div>
+
+      {/* Coverage error from form submission */}
+      {formError?.code === "OUT_OF_COVERAGE" && !isFormOpen && (
+        <m.div variants={shouldAnimate ? staggerItem : undefined}>
+          <CoverageErrorCard coverage={(formError.details as Record<string, unknown>) ?? {}} />
+        </m.div>
+      )}
+
+      {formError?.code === "GEOCODE_FAILED" && !isFormOpen && (
+        <m.div variants={shouldAnimate ? staggerItem : undefined}>
+          <div className="rounded-xl border border-status-error/20 bg-status-error-bg p-4">
+            <p className="text-sm text-status-error">
+              We couldn&apos;t find this address. Please check the street address and try again.
+            </p>
+          </div>
+        </m.div>
+      )}
 
       {/* Continue button with scale entry */}
       <m.div

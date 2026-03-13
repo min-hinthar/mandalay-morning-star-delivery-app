@@ -1,25 +1,9 @@
 "use client";
 
-/**
- * PaymentStepV8 Component
- * Payment review step with enhanced loading states for Stripe checkout session
- *
- * Features:
- * - Contact info collection (name + phone) with profile auto-fill
- * - Animated loading spinner during checkout session creation
- * - Security badge animations
- * - Processing state on button
- * - Smooth transitions with motion tokens
- * - Respects animation preferences
- * - COD (Cash on Delivery) support with payment method selection
- *
- * Note: Uses Stripe Checkout Sessions (hosted page redirect), NOT embedded elements.
- */
-
 import { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
-import { ArrowLeft, CreditCard, ShieldCheck, Lock, MapPin, Clock, Banknote } from "lucide-react";
+import { ArrowLeft, CreditCard, ShieldCheck, Lock, Banknote } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { handleRateLimitResponse } from "@/lib/hooks/useRateLimitToast";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
@@ -27,19 +11,18 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
 import type { TimeWindow } from "@/types/delivery";
-import { TimeSlotDisplay } from "./TimeSlotDisplay";
 import { TipSelector } from "./TipSelector";
 import { PromoCodeInput } from "./PromoCodeInput";
 import { ContactInfoSection } from "./ContactInfoSection";
 import { PaymentMethodSelector } from "./PaymentMethodSelector";
+import { OrderSummaryCard } from "./OrderSummaryCard";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { BrandedSpinner } from "@/components/ui/branded-spinner";
-import { ErrorShake } from "@/components/ui/error-shake";
 import { DietarySummaryCard } from "./DietarySummaryCard";
+import { CheckoutErrorBanner, type CheckoutErrorData } from "./CheckoutErrorBanner";
 
-/** Button entry animation variant */
 const buttonEntry = {
   hidden: { opacity: 0, scale: 0.9 },
   visible: {
@@ -49,28 +32,14 @@ const buttonEntry = {
   },
 };
 
-// ============================================
-// TYPES
-// ============================================
-
 export interface PaymentStepV8Props {
-  /** Additional className */
   className?: string;
-  /** Custom back step handler */
   onBack?: () => void;
-  /** Disable navigation guard before external redirect */
   disableGuard?: () => void;
-  /** Dynamic time windows for display labels */
   timeWindows?: TimeWindow[];
-  /** Called when server returns CUTOFF_PASSED error — caller shows cutoff modal */
   onCutoffPassed?: () => void;
-  /** Whether Cash on Delivery is enabled */
   codEnabled?: boolean;
 }
-
-// ============================================
-// MAIN COMPONENT
-// ============================================
 
 export function PaymentStepV8({
   className,
@@ -82,7 +51,7 @@ export function PaymentStepV8({
 }: PaymentStepV8Props) {
   const router = useRouter();
   const [isCreatingSession, setIsCreatingSession] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<CheckoutErrorData | null>(null);
   const saveToProfileRef = useRef(false);
 
   const { shouldAnimate, getSpring } = useAnimationPreference();
@@ -91,6 +60,7 @@ export function PaymentStepV8({
   const {
     address,
     delivery,
+    setDelivery,
     customerNotes,
     setCustomerNotes,
     tipPercent,
@@ -104,9 +74,9 @@ export function PaymentStepV8({
     customerPhone,
     customerName,
     prevStep: storePrevStep,
+    setStep,
   } = useCheckoutStore();
 
-  // Calculate tip cents from store state
   const tipCents =
     tipPercent !== null ? Math.round((itemsSubtotal * tipPercent) / 100) : customTipCents;
 
@@ -146,7 +116,6 @@ export function PaymentStepV8({
         }),
       });
 
-      // Handle 429 rate limit with reassuring checkout-specific message
       if (handleRateLimitResponse(response, { isOrderPlacement: true })) {
         setIsCreatingSession(false);
         return;
@@ -155,16 +124,20 @@ export function PaymentStepV8({
       const data = await response.json();
 
       if (!response.ok) {
-        // CUTOFF_PASSED: show cutoff modal instead of generic error
         if (data.error?.code === "CUTOFF_PASSED" && onCutoffPassed) {
           setIsCreatingSession(false);
           onCutoffPassed();
           return;
         }
-        throw new Error(data.error?.message ?? "Checkout failed");
+        setError({
+          code: data.error?.code ?? "INTERNAL_ERROR",
+          message: data.error?.message ?? "Checkout failed",
+          details: data.error?.details,
+        });
+        setIsCreatingSession(false);
+        return;
       }
 
-      // Save contact info to profile if user opted in
       if (saveToProfileRef.current) {
         fetch("/api/account/profile", {
           method: "PATCH",
@@ -173,22 +146,20 @@ export function PaymentStepV8({
             fullName: customerName,
             phone: customerPhone,
           }),
-        }).catch(() => {
-          // Non-fatal: order already placed
-        });
+        }).catch(() => {});
       }
 
+      disableGuard?.();
       if (isCOD) {
-        // COD: redirect to order confirmation page
-        disableGuard?.();
         router.push(`/orders/${data.data.orderId}/confirmation?cod=true`);
       } else {
-        // Stripe: redirect to Stripe checkout
-        disableGuard?.();
         window.location.href = data.data.sessionUrl;
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError({
+        code: "INTERNAL_ERROR",
+        message: err instanceof Error ? err.message : "An error occurred",
+      });
       setIsCreatingSession(false);
     }
   };
@@ -200,7 +171,6 @@ export function PaymentStepV8({
       initial={shouldAnimate ? "hidden" : undefined}
       animate={shouldAnimate ? "visible" : undefined}
     >
-      {/* Header with stagger */}
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
         <div className="flex items-center gap-2 mb-1">
           <CreditCard className="h-5 w-5 text-primary" />
@@ -211,7 +181,6 @@ export function PaymentStepV8({
         </p>
       </m.div>
 
-      {/* Creating Session Loading State - uses BrandedSpinner */}
       <AnimatePresence mode="wait">
         {isCreatingSession ? (
           <m.div
@@ -252,44 +221,18 @@ export function PaymentStepV8({
             exit={shouldAnimate ? { opacity: 0 } : undefined}
             className="space-y-6"
           >
-            {/* Contact Info */}
             <m.div variants={shouldAnimate ? staggerItem : undefined}>
               <ContactInfoSection saveToProfileRef={saveToProfileRef} />
             </m.div>
 
-            {/* Order Summary Card with stagger */}
-            <m.div
-              variants={shouldAnimate ? staggerItem : undefined}
-              className="space-y-4 rounded-lg bg-surface-secondary p-5 border border-border"
-            >
-              {/* Address */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <MapPin className="h-4 w-4 text-primary" />
-                  <h3 className="font-body text-sm font-medium text-text-muted">
-                    Delivery Address
-                  </h3>
-                </div>
-                <p className="font-body text-text-primary text-left">{address?.formattedAddress}</p>
-              </div>
-
-              {/* Time */}
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Clock className="h-4 w-4 text-primary" />
-                  <h3 className="font-body text-sm font-medium text-text-muted">Delivery Time</h3>
-                </div>
-                {delivery && (
-                  <TimeSlotDisplay
-                    selection={delivery}
-                    timeWindows={timeWindows}
-                    className="mt-1 bg-primary/10 rounded-lg p-3 justify-center"
-                  />
-                )}
-              </div>
+            <m.div variants={shouldAnimate ? staggerItem : undefined}>
+              <OrderSummaryCard
+                formattedAddress={address?.formattedAddress}
+                delivery={delivery}
+                timeWindows={timeWindows}
+              />
             </m.div>
 
-            {/* Payment Method Selector (only shows when COD enabled) */}
             <m.div variants={shouldAnimate ? staggerItem : undefined}>
               <PaymentMethodSelector
                 value={paymentMethod}
@@ -298,12 +241,10 @@ export function PaymentStepV8({
               />
             </m.div>
 
-            {/* Dietary Summary Card with stagger */}
             <m.div variants={shouldAnimate ? staggerItem : undefined}>
               <DietarySummaryCard />
             </m.div>
 
-            {/* Notes Input with stagger */}
             <m.div variants={shouldAnimate ? staggerItem : undefined} className="space-y-2">
               <Label
                 htmlFor="customerNotes"
@@ -325,7 +266,6 @@ export function PaymentStepV8({
               </p>
             </m.div>
 
-            {/* Delivery Instructions */}
             <m.div variants={shouldAnimate ? staggerItem : undefined} className="space-y-2">
               <Label
                 htmlFor="deliveryInstructions"
@@ -344,17 +284,14 @@ export function PaymentStepV8({
               />
             </m.div>
 
-            {/* Tip Selector */}
             <m.div variants={shouldAnimate ? staggerItem : undefined}>
               <TipSelector subtotalCents={itemsSubtotal} />
             </m.div>
 
-            {/* Promo Code */}
             <m.div variants={shouldAnimate ? staggerItem : undefined}>
               <PromoCodeInput />
             </m.div>
 
-            {/* Security Badge with stagger */}
             <m.div
               variants={shouldAnimate ? staggerItem : undefined}
               className="p-4 rounded-lg bg-status-success-bg border border-status-success/20"
@@ -389,27 +326,31 @@ export function PaymentStepV8({
               </div>
             </m.div>
 
-            {/* Error State with ErrorShake */}
             <AnimatePresence>
               {error && (
-                <ErrorShake shake={!!error}>
-                  <m.div
-                    initial={{ opacity: 0, scale: 0.95, y: -10 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                    transition={getSpring(spring.default)}
-                    className="rounded-lg bg-status-error-bg border border-status-error/20 p-4"
-                  >
-                    <p className="text-sm text-status-error">{error}</p>
-                  </m.div>
-                </ErrorShake>
+                <CheckoutErrorBanner
+                  error={error}
+                  onChangeAddress={() => setStep("address")}
+                  onChangeDate={(date) => {
+                    if (date) {
+                      const tw = timeWindows[0];
+                      setDelivery({
+                        date,
+                        windowStart: tw?.start ?? "10:00",
+                        windowEnd: tw?.end ?? "12:00",
+                      });
+                    }
+                    setStep("time");
+                  }}
+                  onUpdateCart={() => router.push("/cart")}
+                  onRetry={handleCheckout}
+                />
               )}
             </AnimatePresence>
           </m.div>
         )}
       </AnimatePresence>
 
-      {/* Navigation with button entry animation */}
       {!isCreatingSession && (
         <m.div
           variants={shouldAnimate ? buttonEntry : undefined}

@@ -103,9 +103,35 @@ export async function fetchAndValidateCart(supabase: SupabaseClient, items: Cart
 }
 
 /**
- * Build RPC payload arrays for create_order_with_items.
- * H-10 FIX: Atomic order + items + modifiers creation.
+ * Re-check item availability right before Stripe session creation.
+ * Returns unavailable item IDs/names if any are deactivated.
  */
+export async function revalidateItemAvailability(
+  supabase: SupabaseClient,
+  menuItemIds: string[],
+  validatedItems: ValidatedCartItem[]
+) {
+  const { data: freshMenuItems, error } = await supabase
+    .from("menu_items")
+    .select("id, is_active")
+    .in("id", menuItemIds);
+
+  if (error) {
+    return { ok: false as const, error: "Failed to re-validate menu items" };
+  }
+
+  const unavailable = (freshMenuItems ?? []).filter((item) => !item.is_active);
+  if (unavailable.length > 0) {
+    const unavailableIds = unavailable.map((i) => i.id);
+    const unavailableNames = validatedItems
+      .filter((vi) => unavailableIds.includes(vi.menuItem.id))
+      .map((vi) => vi.menuItem.name_en);
+    return { ok: false as const, unavailableIds, unavailableNames };
+  }
+
+  return { ok: true as const };
+}
+
 export function buildRpcPayload(items: ValidatedCartItem[]) {
   const rpcItems = items.map((item) => ({
     menu_item_id: item.menuItem.id,

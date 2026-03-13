@@ -120,3 +120,16 @@ Also update `toEqual` assertions and key-count assertions for the new fields.
 **Learning:** When adding a new field to a widely-used interface, prefer `direction?: DeliveryDirection` (optional) over `direction: DeliveryDirection` (required). Map it with a default in the data layer: `direction: (row.direction || "all") as DeliveryDirection`. This avoids touching every test fixture and consumer.
 
 **Apply when:** Extending `DeliveryDayConfig` or other interfaces used in 5+ test files. Required fields force updates in every consumer and test.
+
+---
+
+## Bearing-Based Direction Tests Need Real Coordinates
+
+**Context:** Tests for `resolveAddressDistance` used coordinates labeled "east" but the bearing from kitchen (Covina, CA) was actually north-northwest. Tests failed because `getDirectionsForCoords` returned wrong directions. Also, boundary coordinates can match multiple zones (e.g. east + south).
+
+**Learning:** When testing delivery zone direction logic:
+1. Use `DEFAULT_ZONES` from `delivery-zones.ts` rather than custom zone configs — avoids mismatched bearing ranges
+2. Pick coordinates that clearly fall inside one zone (e.g. San Bernardino for east ~60°, not Azusa which is nearly due north)
+3. Account for multi-direction matches at zone boundaries — don't assert "exactly one direction"
+
+**Apply when:** Writing tests involving `getDirectionsForCoords`, `resolveAddressDistance`, or any bearing-based zone matching.

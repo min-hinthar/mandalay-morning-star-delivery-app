@@ -26,6 +26,7 @@ import {
   getAvailableDeliveryDatesMultiDay,
 } from "@/lib/utils/delivery-dates";
 import { TimeSlotPicker } from "./TimeSlotPicker";
+import { DeliveryZoneInfoCard } from "./DeliveryZoneInfoCard";
 import { Button } from "@/components/ui/button";
 import type {
   DeliveryDayConfig,
@@ -164,6 +165,17 @@ export function TimeStepV8({
           Time windows are preferred delivery times, not guaranteed arrival times.
         </p>
       </m.div>
+
+      {/* Delivery zone info card */}
+      {address?.lat && address?.lng && deliveryZones.length > 0 && (
+        <m.div variants={shouldAnimate ? staggerItem : undefined}>
+          <DeliveryZoneInfoCard
+            address={address}
+            deliveryZones={deliveryZones}
+            deliveryDays={filteredDays.length > 0 ? filteredDays : deliveryDays}
+          />
+        </m.div>
+      )}
 
       {/* Time slot picker with stagger */}
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
