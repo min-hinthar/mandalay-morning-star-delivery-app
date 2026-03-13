@@ -131,5 +131,6 @@ Also update `toEqual` assertions and key-count assertions for the new fields.
 1. Use `DEFAULT_ZONES` from `delivery-zones.ts` rather than custom zone configs — avoids mismatched bearing ranges
 2. Pick coordinates that clearly fall inside one zone (e.g. San Bernardino for east ~60°, not Azusa which is nearly due north)
 3. Account for multi-direction matches at zone boundaries — don't assert "exactly one direction"
+4. **Nearby radius (15mi / 24.14km):** `getDirectionsForCoords()` returns `[]` for addresses within 15mi of kitchen. Pomona (~8mi), Azusa (~2mi), Whittier (~11mi) all return `[]`. Use far cities for direction assertions: San Bernardino (~37mi east), Corona (~30mi boundary)
 
 **Apply when:** Writing tests involving `getDirectionsForCoords`, `resolveAddressDistance`, or any bearing-based zone matching.

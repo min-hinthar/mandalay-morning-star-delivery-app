@@ -155,6 +155,8 @@ The `create_order_with_items` RPC reads these from `p_order->>'customer_phone'` 
 
 Zone logic in `src/lib/utils/delivery-zones.ts`: `calculateBearing()` → `getDirectionsForCoords()` → `filterDaysByDirection()`. Gap zones (between defined bearing ranges) match both adjacent directions.
 
+**Nearby radius bypass (2026-03-13):** Addresses within 15mi (`NEARBY_RADIUS_KM = 24.14`) of kitchen skip direction filtering entirely — `getDirectionsForCoords()` returns `[]`. Both consumers handle `[]` correctly: `TimeStepV8` shows all 4 days, `DeliveryZoneInfoCard` hides (no misleading "Route: East"). Direction filtering only applies to distant addresses where route logistics matter.
+
 **Apply when:** Modifying delivery day logic, fee calculation, or zone configuration.
 
 ---

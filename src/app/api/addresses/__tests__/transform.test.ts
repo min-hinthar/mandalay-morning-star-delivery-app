@@ -43,10 +43,18 @@ describe("transformAddress", () => {
     expect(result.isDefault).toBe(true);
   });
 
-  it("populates directions when deliveryZones provided", () => {
-    const result = transformAddress(BASE_ROW as never, TEST_ZONES);
+  it("populates directions when deliveryZones provided (far address)", () => {
+    // San Bernardino: ~37mi east, beyond 15mi nearby threshold
+    const farRow = { ...BASE_ROW, lat: 34.1083, lng: -117.2898 };
+    const result = transformAddress(farRow as never, TEST_ZONES);
     expect(result.directions).toBeDefined();
     expect(result.directions!.length).toBeGreaterThan(0);
+  });
+
+  it("returns empty directions for nearby address (within 15mi)", () => {
+    // Azusa: ~2mi from kitchen, skips direction filtering
+    const result = transformAddress(BASE_ROW as never, TEST_ZONES);
+    expect(result.directions).toEqual([]);
   });
 
   it("does not include eligibleDays (removed field)", () => {
