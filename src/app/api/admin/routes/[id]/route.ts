@@ -249,23 +249,63 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
       // Reorder stops
       const { stopOrder } = reorderResult.data;
+      const submittedIds = stopOrder.map((s) => s.stopId);
 
-      for (const stop of stopOrder) {
-        const { error: updateError } = await supabase
-          .from("route_stops")
-          .update({ stop_index: stop.stopIndex })
-          .eq("id", stop.stopId)
-          .eq("route_id", id);
+      // Security: verify all submitted stopIds belong to this route
+      const { data: routeStops, error: verifyError } = await supabase
+        .from("route_stops")
+        .select("id")
+        .eq("route_id", id)
+        .in("id", submittedIds);
 
-        if (updateError) {
-          logger.exception(updateError, {
-            api: "admin/routes/[id]",
-            flowId: "reorder-stops",
-            routeId: id,
-          });
-          return NextResponse.json({ error: "Failed to reorder stops" }, { status: 500 });
-        }
+      if (verifyError) {
+        logger.exception(verifyError, {
+          api: "admin/routes/[id]",
+          flowId: "reorder-verify",
+          routeId: id,
+        });
+        return NextResponse.json(
+          { error: "Failed to verify stop ownership", code: "VERIFY_FAILED" },
+          { status: 500 }
+        );
       }
+
+      if (!routeStops || routeStops.length !== submittedIds.length) {
+        return NextResponse.json(
+          {
+            error: "Some stop IDs do not belong to this route",
+            code: "STOP_ROUTE_MISMATCH",
+            detail: `Expected ${submittedIds.length} stops, found ${routeStops?.length ?? 0} in route`,
+          },
+          { status: 400 }
+        );
+      }
+
+      // Atomic batch update via RPC
+      const { error: batchError } = await supabase.rpc("batch_update_stop_indices", {
+        p_stop_ids: stopOrder.map((s) => s.stopId),
+        p_indices: stopOrder.map((s) => s.stopIndex),
+      });
+
+      if (batchError) {
+        logger.exception(batchError, {
+          api: "admin/routes/[id]",
+          flowId: "reorder-stops",
+          routeId: id,
+          stopCount: stopOrder.length,
+        });
+        return NextResponse.json(
+          {
+            error: "Failed to reorder stops",
+            code: "BATCH_UPDATE_FAILED",
+            detail: batchError.message,
+          },
+          { status: 500 }
+        );
+      }
+
+      // Clear stale polyline after manual reorder
+      await supabase.from("routes").update({ optimized_polyline: null }).eq("id", id);
 
       return NextResponse.json({
         id,

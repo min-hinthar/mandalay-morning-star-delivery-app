@@ -149,11 +149,20 @@ export async function POST(request: NextRequest) {
       logger.exception(batchError, {
         api: "admin/routes/optimize",
         flowId: "batch-update-stop-indices",
+        stopCount: stops.length,
       });
-      return NextResponse.json({ error: "Failed to update stop order" }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: "Failed to update stop order",
+          code: "BATCH_UPDATE_FAILED",
+          detail: batchError.message,
+        },
+        { status: 500 }
+      );
     }
 
     // Update route with optimization data
+    let polylineWarning: string | undefined;
     const { error: routeUpdateError } = await supabase
       .from("routes")
       .update({
@@ -163,6 +172,7 @@ export async function POST(request: NextRequest) {
 
     if (routeUpdateError) {
       logger.exception(routeUpdateError, { api: "admin/routes/optimize", flowId: "update-route" });
+      polylineWarning = "Stop order updated but polyline failed to save";
     }
 
     return NextResponse.json({
@@ -172,6 +182,7 @@ export async function POST(request: NextRequest) {
       totalDistanceMeters: optimized.totalDistance,
       polyline: optimized.polyline,
       method: optimized.method,
+      ...(polylineWarning ? { warning: polylineWarning } : {}),
       ...(optimized.timeWindowViolations.length > 0
         ? { timeWindowViolations: optimized.timeWindowViolations }
         : {}),
