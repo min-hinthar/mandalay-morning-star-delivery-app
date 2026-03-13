@@ -173,30 +173,29 @@ export function RouteMap({ stops, polyline, onStopClick, className }: RouteMapPr
   const onUnmount = useCallback(() => setMap(null), []);
 
   // Polyline style: solid for optimized, dashed for estimated
+  // Guard: google.maps.SymbolPath not available until isLoaded
   const polylineOptions = useMemo(() => {
+    if (!isLoaded) return null;
+
     const base = {
       strokeColor: SAFFRON,
       strokeWeight: 4,
+    };
+
+    const arrowIcon = {
+      path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+      scale: 3,
+      fillColor: SAFFRON,
+      fillOpacity: isOptimized ? 1 : 0.7,
+      strokeColor: "#fff",
+      strokeWeight: 1,
     };
 
     if (isOptimized) {
       return {
         ...base,
         strokeOpacity: 0.8,
-        icons: [
-          {
-            icon: {
-              path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-              scale: 3,
-              fillColor: SAFFRON,
-              fillOpacity: 1,
-              strokeColor: "#fff",
-              strokeWeight: 1,
-            },
-            offset: "50px",
-            repeat: "100px",
-          },
-        ],
+        icons: [{ icon: arrowIcon, offset: "50px", repeat: "100px" }],
       };
     }
 
@@ -210,21 +209,10 @@ export function RouteMap({ stops, polyline, onStopClick, className }: RouteMapPr
           offset: "0",
           repeat: "12px",
         },
-        {
-          icon: {
-            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-            scale: 3,
-            fillColor: SAFFRON,
-            fillOpacity: 0.7,
-            strokeColor: "#fff",
-            strokeWeight: 1,
-          },
-          offset: "50px",
-          repeat: "100px",
-        },
+        { icon: arrowIcon, offset: "50px", repeat: "100px" },
       ],
     };
-  }, [isOptimized, isLoaded]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [isOptimized, isLoaded]);
 
   if (!isLoaded) {
     return (
@@ -291,7 +279,9 @@ export function RouteMap({ stops, polyline, onStopClick, className }: RouteMapPr
           ...(MAP_ID && { mapId: MAP_ID }),
         }}
       >
-        {routePath.length > 0 && <Polyline path={routePath} options={polylineOptions} />}
+        {routePath.length > 0 && polylineOptions && (
+          <Polyline path={routePath} options={polylineOptions} />
+        )}
 
         <Marker
           position={originPosition}
