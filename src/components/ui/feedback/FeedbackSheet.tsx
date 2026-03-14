@@ -24,7 +24,7 @@ export function FeedbackSheet() {
 
   if (isMobile) {
     return (
-      <Drawer isOpen={isOpen} onClose={close} position="bottom" height="full">
+      <Drawer isOpen={isOpen} onClose={close} position="bottom" height="auto">
         {formContent}
       </Drawer>
     );
