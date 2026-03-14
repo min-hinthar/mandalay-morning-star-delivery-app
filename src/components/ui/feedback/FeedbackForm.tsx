@@ -72,7 +72,7 @@ interface FeedbackFormProps {
 export function FeedbackForm({ onClose, prefillOrderId, prefillCategory }: FeedbackFormProps) {
   const { shouldAnimate } = useAnimationPreference();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [_screenshot, setScreenshot] = useState<File | null>(null);
+  const [screenshot, setScreenshot] = useState<File | null>(null);
   const [screenshotPreview, setScreenshotPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -145,11 +145,19 @@ export function FeedbackForm({ onClose, prefillOrderId, prefillCategory }: Feedb
         contactEmail: !isAuthenticated ? values.contactEmail : undefined,
       };
 
-      const res = await fetch("/api/feedback", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
+      let res: Response;
+      if (screenshot) {
+        const formData = new FormData();
+        formData.append("data", JSON.stringify(payload));
+        formData.append("screenshot", screenshot);
+        res = await fetch("/api/feedback", { method: "POST", body: formData });
+      } else {
+        res = await fetch("/api/feedback", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+      }
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({ error: "Failed to submit" }));

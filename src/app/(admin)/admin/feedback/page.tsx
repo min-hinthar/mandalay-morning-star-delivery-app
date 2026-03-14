@@ -105,7 +105,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
     .select(
       `
       *,
-      profiles!customer_feedback_user_id_fkey (
+      profiles (
         full_name,
         email
       )
