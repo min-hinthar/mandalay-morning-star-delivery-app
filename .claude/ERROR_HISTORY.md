@@ -493,6 +493,20 @@ Two compounding bugs in the optimize endpoint:
 
 ---
 
+## CREATE TYPE Already Exists — No IF NOT EXISTS for Enums | Migration | Medium
+
+**Date:** 2026-03-14 | **Files:** `supabase/migrations/20260314_customer_feedback.sql`
+
+`CREATE TYPE feedback_category AS ENUM (...)` failed with `ERROR: 42710: type "feedback_category" already exists` when re-applying the migration to a database where the enum already existed (partial apply or re-run).
+
+**Root cause:** PostgreSQL `CREATE TYPE` has no `IF NOT EXISTS` clause, unlike `CREATE TABLE` and `CREATE INDEX`.
+
+**Fix:** Wrap in `DO/EXCEPTION` block: `DO $$ BEGIN CREATE TYPE ... EXCEPTION WHEN duplicate_object THEN NULL; END $$;`
+
+**Prevention:** Always use `DO/EXCEPTION` pattern for `CREATE TYPE` in migrations. See: `.claude/learnings/data-schema.md`
+
+---
+
 ## Route Optimize "Failed to update stop order" — UNIQUE Constraint Blocks Batch Reorder | DB/RPC | High
 
 **Date:** 2026-03-13 | **Files:** `src/app/api/admin/routes/optimize/route.ts`, `supabase/migrations/20260313_fix_stop_index_unique_deferrable.sql`

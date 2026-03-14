@@ -1,5 +1,10 @@
 import type { OrderStatus } from "@/types/database";
 
+export interface OrderDetailItemModifier {
+  name: string;
+  priceDelta: number;
+}
+
 export interface OrderDetailItem {
   id: string;
   name: string;
@@ -9,6 +14,7 @@ export interface OrderDetailItem {
   lineTotal: number;
   refundedQuantity: number;
   specialInstructions: string | null;
+  modifiers: OrderDetailItemModifier[];
 }
 
 export interface OrderDetailAddress {

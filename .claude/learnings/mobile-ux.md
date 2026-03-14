@@ -57,3 +57,21 @@ Swipe-to-close unreliable on mobile. Always provide: close button (X), backdrop 
 ## Defensive Framer Motion Drag Handlers
 
 `PanInfo` may have undefined `offset`/`velocity` on rapid/interrupted gestures. Always null-check: `if (!info?.offset || !info?.velocity) return;`
+
+---
+
+## Drawer `height="full"` Blocks Swipe-to-Close
+
+**Context:** `FeedbackSheet` used `<Drawer height="full">`. The Drawer's swipe-to-close gesture (`useSwipeToClose`) was blocked — only the X button worked.
+
+**Learning:** `height="full"` creates a content wrapper with `overflow-y-auto` + `touchAction: "pan-y"` that fills the viewport. This wrapper captures all touch events, preventing them from reaching the panel-level drag handle / swipe gesture handler. `height="auto"` sizes the Drawer to its content height, keeping the drag handle accessible and swipe-to-close functional.
+
+```tsx
+// BAD — swipe-to-close blocked (content wrapper captures touch)
+<Drawer isOpen={isOpen} onClose={close} position="bottom" height="full">
+
+// GOOD — swipe-to-close works (content doesn't fill viewport)
+<Drawer isOpen={isOpen} onClose={close} position="bottom" height="auto">
+```
+
+**Apply when:** Using bottom Drawer with `useSwipeToClose`. Prefer `height="auto"` unless content genuinely needs full viewport scrolling (in which case, ensure drag handle is still reachable).

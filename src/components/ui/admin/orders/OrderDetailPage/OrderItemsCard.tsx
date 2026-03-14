@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingBag, RotateCcw } from "lucide-react";
+import { ShoppingBag, RotateCcw, StickyNote } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
 import { Button } from "@/components/ui/button";
@@ -50,7 +50,7 @@ export function OrderItemsCard({ items, onRefund, orderStatus }: OrderItemsCardP
               )}
             >
               <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span
                     className={cn(
                       "text-sm font-medium text-text-primary",
@@ -67,8 +67,24 @@ export function OrderItemsCard({ items, onRefund, orderStatus }: OrderItemsCardP
                     <span className="text-xs font-medium text-status-error">(Refunded)</span>
                   )}
                 </div>
+                {item.modifiers.length > 0 && (
+                  <div className="mt-1 flex flex-wrap gap-x-2 gap-y-0.5">
+                    {item.modifiers.map((mod, i) => (
+                      <span key={i} className="text-xs text-text-secondary">
+                        <span className="text-text-muted mr-0.5">+</span>
+                        {mod.name}
+                        {mod.priceDelta > 0 && (
+                          <span className="text-text-muted ml-0.5">
+                            ({formatPrice(mod.priceDelta)})
+                          </span>
+                        )}
+                      </span>
+                    ))}
+                  </div>
+                )}
                 {item.specialInstructions && (
-                  <p className="text-xs text-text-muted mt-0.5 italic">
+                  <p className="text-xs text-accent-orange mt-1 flex items-start gap-1">
+                    <StickyNote className="h-3 w-3 mt-0.5 flex-shrink-0" />
                     {item.specialInstructions}
                   </p>
                 )}
