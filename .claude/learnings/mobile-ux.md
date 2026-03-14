@@ -60,18 +60,36 @@ Swipe-to-close unreliable on mobile. Always provide: close button (X), backdrop 
 
 ---
 
-## Drawer `height="full"` Blocks Swipe-to-Close
+## Drawer Swipe-to-Close: Two-Layer Fix
 
-**Context:** `FeedbackSheet` used `<Drawer height="full">`. The Drawer's swipe-to-close gesture (`useSwipeToClose`) was blocked — only the X button worked.
+**Context:** FeedbackSheet swipe-to-close required two separate fixes across sessions.
 
-**Learning:** `height="full"` creates a content wrapper with `overflow-y-auto` + `touchAction: "pan-y"` that fills the viewport. This wrapper captures all touch events, preventing them from reaching the panel-level drag handle / swipe gesture handler. `height="auto"` sizes the Drawer to its content height, keeping the drag handle accessible and swipe-to-close functional.
+**Layer 1 — `height="full"` blocks swipe:** `height="full"` fills the viewport with `overflow-y-auto` + `touchAction: "pan-y"`, capturing all touch events. Fix: use `height="auto"`.
+
+**Layer 2 — content wrapper still blocks swipe when not scrollable:** Even with `height="auto"`, the content wrapper has `touchAction: "pan-y"` which tells the browser to handle vertical touches as scroll — framer-motion drag never fires. Fix: use ResizeObserver to detect when content doesn't overflow, then remove `touchAction: "pan-y"` (inherits parent's `"pan-x"` → swipe-to-close works from anywhere). Also enlarge drag handle padding (`pb-2` → `pb-4`) to meet 44px touch target.
 
 ```tsx
-// BAD — swipe-to-close blocked (content wrapper captures touch)
-<Drawer isOpen={isOpen} onClose={close} position="bottom" height="full">
-
-// GOOD — swipe-to-close works (content doesn't fill viewport)
-<Drawer isOpen={isOpen} onClose={close} position="bottom" height="auto">
+// Content wrapper: conditionally set touchAction
+style={{ touchAction: contentScrollable ? "pan-y" : undefined }}
 ```
 
-**Apply when:** Using bottom Drawer with `useSwipeToClose`. Prefer `height="auto"` unless content genuinely needs full viewport scrolling (in which case, ensure drag handle is still reachable).
+**Apply when:** Bottom sheet with swipe-to-close. Always check both layers.
+
+---
+
+## Safe Area Inset: Position Not Padding
+
+**Context:** FeedbackFAB had `pb-[env(safe-area-inset-bottom)]` which pushed the icon off-center (34px padding inside a 56px button). During iOS scroll (browser chrome hide/show), the off-center icon made repositioning visually jarring.
+
+**Learning:** `env(safe-area-inset-bottom)` on fixed-position elements should be applied to the `bottom` position, not as internal padding. Padding changes the content layout; position just moves the whole element.
+
+```tsx
+// BAD — icon pushed to top of button
+className="pb-[env(safe-area-inset-bottom,0px)]"
+style={{ bottom: 24 }}
+
+// GOOD — icon stays centered, button sits above safe area
+style={{ bottom: `calc(24px + env(safe-area-inset-bottom, 0px))` }}
+```
+
+**Apply when:** Fixed-position buttons/FABs on iOS with safe area insets.
