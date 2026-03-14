@@ -2,12 +2,19 @@
 -- Customer Feedback System
 -- ============================================
 
--- Enums
-CREATE TYPE feedback_category AS ENUM ('bug_report', 'order_issue', 'suggestion', 'general');
-CREATE TYPE feedback_status AS ENUM ('new', 'in_review', 'resolved', 'dismissed');
+-- Enums (idempotent)
+DO $$ BEGIN
+  CREATE TYPE feedback_category AS ENUM ('bug_report', 'order_issue', 'suggestion', 'general');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+
+DO $$ BEGIN
+  CREATE TYPE feedback_status AS ENUM ('new', 'in_review', 'resolved', 'dismissed');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
 
 -- Table
-CREATE TABLE customer_feedback (
+CREATE TABLE IF NOT EXISTS customer_feedback (
   id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id         uuid REFERENCES auth.users(id) ON DELETE SET NULL,
   contact_email   text,
@@ -28,10 +35,10 @@ CREATE TABLE customer_feedback (
 );
 
 -- Indexes
-CREATE INDEX idx_customer_feedback_user_id ON customer_feedback(user_id);
-CREATE INDEX idx_customer_feedback_status ON customer_feedback(status);
-CREATE INDEX idx_customer_feedback_created_at ON customer_feedback(created_at DESC);
-CREATE INDEX idx_customer_feedback_category ON customer_feedback(category);
+CREATE INDEX IF NOT EXISTS idx_customer_feedback_user_id ON customer_feedback(user_id);
+CREATE INDEX IF NOT EXISTS idx_customer_feedback_status ON customer_feedback(status);
+CREATE INDEX IF NOT EXISTS idx_customer_feedback_created_at ON customer_feedback(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_customer_feedback_category ON customer_feedback(category);
 
 -- Updated_at trigger (reuse existing function)
 DROP TRIGGER IF EXISTS customer_feedback_updated_at ON customer_feedback;
