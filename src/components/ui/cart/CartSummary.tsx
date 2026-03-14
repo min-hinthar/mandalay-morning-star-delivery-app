@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils/cn";
 import { spring, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
+import { COVINA_TAX_RATE } from "@/lib/utils/order";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { FreeDeliveryProgress } from "./FreeDeliveryProgress";
@@ -55,6 +56,7 @@ export function CartSummary({ className }: CartSummaryProps) {
     addressDistanceMiles != null && addressDistanceMiles > longDistanceThresholdMiles;
 
   const hasFreeDelivery = amountToFreeDelivery === 0 && !isExtendedRange;
+  const estimatedTaxCents = Math.round(itemsSubtotal * COVINA_TAX_RATE);
 
   return (
     <m.div
@@ -103,6 +105,18 @@ export function CartSummary({ className }: CartSummaryProps) {
           )}
         </m.div>
 
+        {/* Estimated Tax */}
+        <m.div
+          variants={shouldAnimate ? summaryRowVariants : undefined}
+          initial={shouldAnimate ? "hidden" : undefined}
+          animate={shouldAnimate ? "visible" : undefined}
+          transition={{ delay: 0.1 }}
+          className="flex justify-between text-text-secondary"
+        >
+          <span>Est. Tax</span>
+          <PriceTicker value={estimatedTaxCents} inCents={true} className="text-text-money" />
+        </m.div>
+
         {/* Divider */}
         <div className="h-px bg-border my-2" />
 
@@ -111,12 +125,12 @@ export function CartSummary({ className }: CartSummaryProps) {
           variants={shouldAnimate ? summaryRowVariants : undefined}
           initial={shouldAnimate ? "hidden" : undefined}
           animate={shouldAnimate ? "visible" : undefined}
-          transition={{ delay: 0.1 }}
+          transition={{ delay: 0.15 }}
           className="flex justify-between items-center font-semibold text-base"
         >
           <span className="text-text-primary">Estimated Total</span>
           <PriceTicker
-            value={estimatedTotal}
+            value={estimatedTotal + estimatedTaxCents}
             inCents={true}
             size="lg"
             className="text-text-money font-bold"
