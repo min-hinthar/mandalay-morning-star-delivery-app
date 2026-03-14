@@ -112,15 +112,14 @@ export function FeedbackFAB() {
       transition={spring.snappyButton}
       style={{
         right: currentRight,
-        bottom: currentBottom,
+        bottom: `calc(${currentBottom}px + env(safe-area-inset-bottom, 0px))`,
       }}
       className={cn(
         "fixed z-30 shadow-lg",
         "flex h-14 w-14 items-center justify-center",
         "rounded-full bg-primary text-text-inverse",
         "hover:bg-primary/90 transition-colors duration-fast",
-        "touch-none select-none cursor-grab active:cursor-grabbing",
-        "pb-[env(safe-area-inset-bottom,0px)]"
+        "touch-none select-none cursor-grab active:cursor-grabbing"
       )}
       aria-label="Send feedback"
     >

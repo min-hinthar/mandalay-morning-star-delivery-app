@@ -26,7 +26,7 @@
  * </Drawer>
  */
 
-import { useEffect, useRef, useMemo, useCallback, type ReactNode } from "react";
+import { useEffect, useRef, useState, useMemo, useCallback, type ReactNode } from "react";
 import { m, AnimatePresence, useReducedMotion } from "framer-motion";
 import { Portal } from "./Portal";
 import { useRouteChangeClose, useBodyScrollLock } from "@/lib/hooks";
@@ -127,9 +127,23 @@ export function Drawer({
   className,
 }: DrawerProps) {
   const drawerRef = useRef<HTMLDivElement>(null);
+  const contentRef = useRef<HTMLDivElement>(null);
   const lastActiveElementRef = useRef<HTMLElement | null>(null);
+  const [contentScrollable, setContentScrollable] = useState(false);
   const prefersReducedMotion = useReducedMotion();
   const isBottom = position === "bottom";
+
+  // Check if bottom sheet content is scrollable
+  useEffect(() => {
+    if (!isBottom || !isOpen) return;
+    const el = contentRef.current;
+    if (!el) return;
+    const check = () => setContentScrollable(el.scrollHeight > el.clientHeight + 1);
+    check();
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [isBottom, isOpen]);
 
   // Route change closes drawer
   useRouteChangeClose(isOpen, onClose);
@@ -331,7 +345,7 @@ export function Drawer({
             {isBottom && showDragHandle && (
               <div
                 className={cn(
-                  "flex justify-center pt-3 pb-2",
+                  "flex justify-center pt-3 pb-4",
                   "cursor-grab active:cursor-grabbing",
                   "select-none touch-none"
                 )}
@@ -350,12 +364,13 @@ export function Drawer({
             {/* Content wrapper for bottom sheet scroll behavior */}
             {isBottom ? (
               <div
+                ref={contentRef}
                 className={cn(
                   "overflow-y-auto overscroll-contain",
                   "max-h-[calc(95vh-3rem)]",
                   "pb-safe"
                 )}
-                style={{ touchAction: "pan-y" }}
+                style={{ touchAction: contentScrollable ? "pan-y" : undefined }}
               >
                 {children}
               </div>
