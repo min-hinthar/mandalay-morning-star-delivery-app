@@ -1,243 +1,226 @@
 # Architecture
 
-**Analysis Date:** 2026-03-06
+**Analysis Date:** 2026-03-14
 
 ## Pattern Overview
 
-**Overall:** Next.js App Router with role-based route groups, server-first rendering, and Supabase as the data layer
+**Overall:** Next.js 16 App Router with role-based route groups, server-first rendering, and a layered separation between UI components, business logic services, and data access via Supabase.
 
 **Key Characteristics:**
-- Server Components fetch data; Client Components handle interactivity
-- Route groups segment by user role: `(admin)`, `(customer)`, `(driver)`, `(public)`, `(auth)`
-- API routes in `src/app/api/` serve as the backend; no separate backend service
-- Supabase handles auth, database (Postgres), storage, and RLS enforcement
-- Stripe handles payments via Checkout Sessions + webhook reconciliation
-- Zustand stores for client-side state; TanStack Query for server-state caching
-- Zod schemas validate all API input; server-authoritative pricing
+- Server Components by default; `'use client'` only for interactive UI
+- Role-gated route groups: `(admin)`, `(customer)`, `(driver)`, `(public)`, `(auth)`
+- API routes co-located under `src/app/api/` mirroring domain resources
+- Zustand stores for client-side state (cart, checkout, driver); TanStack React Query for server cache
+- Supabase as the sole database with RLS enforcing row-level security; service client bypasses RLS for server-only operations
+- Zod schemas for request validation; structured error responses via `apiError()`
+- Sentry for error tracking and structured logging via `logger`
 
 ## Layers
 
-**Presentation (Pages & Components):**
-- Purpose: Render UI, handle user interactions
-- Location: `src/app/` (pages), `src/components/ui/` (components)
-- Contains: Server Components (pages, layouts), Client Components (interactive UI)
-- Depends on: Hooks, Stores, API routes (via fetch), Queries
+**Presentation Layer (Pages + Components):**
+- Purpose: Server-rendered pages and client-interactive components
+- Location: `src/app/` (pages), `src/components/ui/` (70+ reusable components)
+- Contains: Server Components (page.tsx), Client Components (with `'use client'`), error boundaries (error.tsx), loading states (loading.tsx)
+- Depends on: Hooks, Stores, Lib utilities, Supabase server client
 - Used by: End users via browser
 
 **API Layer (Route Handlers):**
-- Purpose: RESTful endpoints for all data mutations and authenticated reads
+- Purpose: RESTful API endpoints for data mutations, webhooks, cron jobs
 - Location: `src/app/api/`
-- Contains: Next.js Route Handlers (`route.ts`) with Zod validation
-- Depends on: Supabase clients, Stripe SDK, auth guards, rate limiting, validations
-- Used by: Client Components (via fetch/TanStack Query), Stripe webhooks, external services
+- Contains: Route handlers (`route.ts`), co-located validation schemas, helper functions
+- Depends on: Auth guards (`src/lib/auth/`), Validations (`src/lib/validations/`), Services (`src/lib/services/`), Supabase clients
+- Used by: Client components via fetch, webhooks (Stripe, Resend), cron jobs (Vercel)
 
-**Auth Guards:**
-- Purpose: Protect routes and API endpoints by role
-- Location: `src/lib/auth/`
-- Contains: `requireAdmin()` (`src/lib/auth/admin.ts`), `requireDriver()` (`src/lib/auth/driver.ts`), `ensureProfile()` and `getRoleDashboard()` (`src/lib/auth/role-redirect.ts`)
-- Depends on: Supabase server client
-- Used by: API routes, Server Component layouts
+**Auth Layer:**
+- Purpose: Authentication, authorization, and role-based access control
+- Location: `src/lib/auth/` (guards), `src/lib/supabase/middleware.ts` (session refresh), `src/app/auth/` (callback routes)
+- Contains: `requireAdmin()`, `requireDriver()` guard functions, `getRoleDashboard()` role resolver, `ensureProfile()` self-healing profile creation
+- Depends on: Supabase Auth, profiles table
+- Used by: API routes, layout guards, auth callback
 
-**Middleware (Session Refresh + Route Gating):**
-- Purpose: Refresh Supabase auth cookies on every request; redirect unauthenticated users from protected routes
-- Location: `proxy.ts` (root), `src/lib/supabase/middleware.ts`
-- Contains: `updateSession()` — creates Supabase server client, calls `getUser()`, gates `/admin` and `/driver`
-- Depends on: Supabase SSR client
-- Used by: Next.js middleware system (named `proxy.ts` for Next.js 16 compatibility)
+**Business Logic Layer:**
+- Purpose: Domain logic for delivery scheduling, coverage checking, order calculations, route optimization
+- Location: `src/lib/services/`, `src/lib/settings/`, `src/lib/utils/`
+- Contains: Coverage service, COD order service, geocoding, route optimization, delivery date/zone calculations, business rules
+- Depends on: Supabase, Google Maps API, Stripe
+- Used by: API routes, Server Components
 
-**Data Access (Supabase Clients):**
-- Purpose: Typed Supabase client creation for browser, server, and service contexts
+**State Management Layer:**
+- Purpose: Client-side state for cart, checkout flow, and driver session
+- Location: `src/lib/stores/` (Zustand), `src/lib/hooks/` (30+ custom hooks)
+- Contains: `cart-store.ts` (persisted to IndexedDB), `checkout-store.ts` (sessionStorage), `driver-store.ts` (localStorage), `cart-animation-store.ts`
+- Depends on: Zustand, zustand/middleware (persist)
+- Used by: Client components
+
+**Data Access Layer:**
+- Purpose: Supabase client creation with typed Database interface
 - Location: `src/lib/supabase/`
-- Contains:
-  - `client.ts` — browser client (anon key, cookie-based auth)
-  - `server.ts` — server client (cookie-based), public client (no auth), service client (bypasses RLS)
-  - `actions.ts` — server actions
-  - `storage.ts`, `delivery-photos.ts`, `driver-storage.ts` — Supabase Storage wrappers
+- Contains: `server.ts` (SSR cookie-based client, public client, service role client), `client.ts` (browser client), `middleware.ts` (session refresh), `storage.ts` / `driver-storage.ts` / `delivery-photos.ts` (Storage bucket access)
 - Depends on: `@supabase/ssr`, `@supabase/supabase-js`, `src/types/database.ts`
-- Used by: API routes, Server Components, auth guards
+- Used by: All layers that need data
 
 **Validation Layer:**
-- Purpose: Zod schemas for API request/response validation
+- Purpose: Request/input validation with Zod schemas
 - Location: `src/lib/validations/`
-- Contains: Per-domain schemas — `checkout.ts`, `order.ts`, `address.ts`, `driver.ts`, `route.ts`, `tracking.ts`, `analytics.ts`, `account.ts`, `customer-settings.ts`, `settings.ts`
+- Contains: Schema files per domain: `checkout.ts`, `address.ts`, `driver.ts`, `route.ts`, `settings.ts`, `order.ts`, `account.ts`, `analytics.ts`, `tracking.ts`, `customer-settings.ts`, `driver-api.ts`
 - Depends on: Zod
-- Used by: API route handlers (`.safeParse()`)
+- Used by: API routes
 
-**State Management (Client):**
-- Purpose: Client-side state for cart, checkout, driver workflows
-- Location: `src/lib/stores/`
-- Contains:
-  - `cart-store.ts` — cart items, delivery settings, cutoff config (persisted to IndexedDB via `cart-idb-storage.ts`)
-  - `checkout-store.ts` — checkout flow state
-  - `driver-store.ts` — driver dashboard state
-  - `cart-animation-store.ts` — cart animation coordination
-- Depends on: Zustand, zustand/middleware (persist)
-- Used by: Client Components via hooks
-
-**Hooks Layer:**
-- Purpose: Reusable client-side logic (40+ hooks)
-- Location: `src/lib/hooks/`
-- Contains: Auth (`useAuth`), data fetching (`useMenu`, `useCart`, `useAddresses`), UI (`useScrollSpy`, `useBodyScrollLock`, `useMediaQuery`), domain logic (`useDeliveryGate`, `useCoverageCheck`, `useLocationTracking`)
-- Depends on: Stores, TanStack Query, Supabase client
-- Used by: Client Components
-
-**Business Rules:**
-- Purpose: Centralized configurable business logic (delivery fees, cutoffs, time windows)
-- Location: `src/lib/settings/`
-- Contains: `business-rules.ts` (cached fetch from `app_settings` table), `generate-time-windows.ts`
-- Depends on: Supabase public client, `unstable_cache`
-- Used by: Layouts, API routes, Server Components
-
-**Services:**
-- Purpose: Complex business operations that span multiple concerns
-- Location: `src/lib/services/`
-- Contains:
-  - `route-optimization/` — delivery route optimization with Google Maps integration
-  - `offline-store/` — IndexedDB-based offline sync (db, stores, sync, retry)
-  - `cart-idb-storage.ts` — IndexedDB adapter for cart persistence
-  - `customer-offline-store.ts` — customer-side offline support
-  - `geocoding.ts` — address geocoding
-  - `coverage.ts` — delivery coverage calculation
-- Depends on: Supabase, Google Maps APIs
-- Used by: API routes, hooks, stores
-
-**Email:**
-- Purpose: Transactional email templates and sending
-- Location: `src/emails/` (React Email templates), `src/lib/email/` (sending infrastructure)
-- Contains: `OrderConfirmation.tsx`, `DeliveryReminder.tsx`, `DriverInvite.tsx`, `OrderCancellation.tsx`, `RefundNotification.tsx`
-- Depends on: React Email, Resend
-- Used by: API routes, webhooks
-
-**Rate Limiting:**
-- Purpose: Distributed rate limiting for all API routes
-- Location: `src/lib/rate-limit/`
-- Contains: Per-tier limiters (checkout, webhook, admin, driver, customer, public), `checkRateLimit()`, IP extraction
-- Depends on: `@upstash/ratelimit`, `@upstash/redis`
-- Used by: All API route handlers
-
-**Types:**
-- Purpose: TypeScript type definitions for database, domain models, cart
-- Location: `src/types/`
-- Contains: `database.ts` (Supabase-generated types with manual Row exports), `cart.ts`, `checkout.ts`, `delivery.ts`, `driver.ts`, `featured-sections.ts`, `layout.ts`, `menu.ts`, `order.ts`, `tracking.ts`, `analytics.ts`, `address.ts`
-- Used by: Everything
+**Email Layer:**
+- Purpose: Transactional email composition and sending
+- Location: `src/lib/email/` (sending infrastructure), `src/emails/` (React Email templates)
+- Contains: `send.ts` (Resend client with retry), template components (OrderConfirmation, DeliveryReminder, DriverInvite, AdminDailyDigest, etc.)
+- Depends on: Resend, React Email, `@react-email/render`
+- Used by: API routes, cron jobs, webhook handlers
 
 ## Data Flow
 
 **Customer Order Flow:**
 
-1. Customer browses menu (`/menu` — Server Component fetches via Supabase public client)
-2. Adds items to cart (Zustand store persisted to IndexedDB)
-3. Proceeds to checkout (`/checkout` — customer layout auth-gated)
-4. Frontend POSTs to `src/app/api/checkout/session/route.ts`
-5. API validates (Zod schema + business rules + address + promo + cart items from DB)
-6. API creates order atomically via Supabase RPC `create_order_with_items`
-7. API creates Stripe Checkout Session with order metadata
-8. Customer redirected to Stripe Checkout
-9. Stripe webhook (`src/app/api/webhooks/stripe/route.ts`) fires `checkout.session.completed`
-10. Webhook handler updates order status, sends confirmation email via Resend
-
-**Driver Delivery Flow:**
-
-1. Admin creates delivery routes via `src/app/api/admin/routes/`
-2. Route optimization service (`src/lib/services/route-optimization/`) orders stops
-3. Driver views assigned route (`/driver/route`)
-4. Driver updates stop status via `src/app/api/driver/routes/[routeId]/stops/[stopId]/route.ts`
-5. Driver uploads delivery photos via `src/app/api/driver/routes/[routeId]/stops/[stopId]/photo/route.ts`
-6. Location tracked via `src/app/api/driver/location/route.ts`
-7. Customers see real-time tracking via `src/app/api/tracking/[orderId]/route.ts`
+1. Customer browses menu (Server Component fetches `menu_items` + `featured_sections` from Supabase)
+2. Customer adds items to cart (Zustand `cart-store` persisted to IndexedDB via `cart-idb-storage`)
+3. Customer enters checkout (Server Component passes business rules; client Zustand `checkout-store` tracks step progression: address -> time -> payment)
+4. Address validated via `POST /api/coverage/check` (Google Routes API for distance/duration, bearing-based zone matching)
+5. Checkout submitted via `POST /api/checkout/session`:
+   - Zod validates request body
+   - Rate limited per user
+   - Cart items re-validated against DB (price/availability)
+   - Cutoff time checked per delivery day config
+   - For Stripe: order created via `create_order_with_items` RPC, Stripe Checkout Session created, user redirected
+   - For COD: order created with `pending_approval` status, admin notified via email
+6. Stripe webhook (`POST /api/webhooks/stripe`) processes `checkout.session.completed` -- updates order status to `confirmed`, sends confirmation email
+7. Admin assigns order to delivery route; driver receives assignment
 
 **Auth Flow:**
 
-1. User clicks login → Google OAuth via Supabase Auth
-2. Callback hits `src/app/auth/callback/route.ts`
-3. Exchanges code for session, checks driver invite flow
-4. `getRoleDashboard()` determines redirect by role (admin/driver/customer)
-5. Every request: `proxy.ts` → `updateSession()` refreshes session cookies
-6. Protected layouts (`(admin)/admin/layout.tsx`, `(customer)/layout.tsx`) verify role server-side
+1. User visits protected route -> middleware refreshes Supabase session cookies
+2. If unauthenticated: middleware redirects `/admin` and `/driver` to `/login?next=...`
+3. Login page offers: Magic link (OTP via email) or Google OAuth
+4. Auth callback (`GET /auth/callback`):
+   - Exchanges code for session
+   - Handles driver invite flow (invite_id param)
+   - Calls `ensureProfile()` to guarantee profile row exists
+   - Calls `getRoleDashboard()` to determine redirect target based on role
+   - admin -> `/admin`, driver -> `/driver` (or `/driver/onboard` / `/driver/deactivated`), customer -> `/menu`
+5. Layout guards provide second layer of protection:
+   - `(admin)/admin/layout.tsx`: checks profile.role === 'admin', redirects if not
+   - `(driver)/driver/layout.tsx`: checks driver record existence and is_active status
+   - `(customer)/layout.tsx`: requires authenticated user (any role)
 
 **State Management:**
-- Server state: TanStack Query with 5-minute stale time, no refetch on window focus
-- Client state: Zustand stores (cart persisted to IndexedDB, checkout ephemeral)
-- Server caching: `unstable_cache` for business rules (300s TTL, tag-based revalidation)
+
+- **Cart:** Zustand store with IndexedDB persistence (`cart-idb-storage.ts`). Offline support: items flagged `pendingSync`, cleared when online event fires. Business rules (delivery fee, cutoffs, delivery days) injected from server via layout props.
+- **Checkout:** Zustand store with sessionStorage persistence. Multi-step wizard: address -> time -> payment. Tracks address, delivery selection, tip, promo, payment method, customer info.
+- **Driver:** Zustand store with localStorage persistence. Tracks current route, stop index, GPS location, online status.
+- **Server Cache:** TanStack React Query with 5-minute staleTime, refetchOnWindowFocus disabled. Provider at `src/lib/providers/query-provider.tsx`.
+
+**Admin Operations Flow:**
+
+1. Admin dashboard (`(admin)/admin/page.tsx`) is a Server Component -- fetches KPIs, recent orders, popular items directly from Supabase
+2. Admin API routes (`/api/admin/*`) protected by `requireAdmin()` auth guard
+3. Route builder: admin creates delivery routes, adds stops (orders), optimizes via `/api/admin/routes/optimize`
+4. Order management: status transitions, driver assignment, COD approval, refunds via dedicated API endpoints
+5. Settings management: business rules stored in `app_settings` table, cached 5 minutes via `unstable_cache`
 
 ## Key Abstractions
 
-**Auth Guards (`requireAdmin`, `requireDriver`):**
-- Purpose: Discriminated union result pattern for API route auth
-- Examples: `src/lib/auth/admin.ts`, `src/lib/auth/driver.ts`
-- Pattern: Returns `{ success: true, supabase, userId }` or `{ success: false, error, status }` — callers check `.success` before proceeding
+**Supabase Client Variants:**
+- Purpose: Different auth contexts for different execution environments
+- Examples: `src/lib/supabase/server.ts` (`createClient`, `createPublicClient`, `createServiceClient`), `src/lib/supabase/client.ts` (`createClient`)
+- Pattern: `createClient()` - SSR with cookies (for page/API route auth context); `createPublicClient()` - no cookies, anon key only (for cached data fetching); `createServiceClient()` - service role key, bypasses RLS (for webhooks, cron, admin operations that need cross-user access)
 
-**API Error Responses:**
-- Purpose: Consistent error shape across all API routes
-- Examples: `src/lib/utils/api-error.ts`
-- Pattern: `{ error: { code: ApiErrorCode, message: string, details?: unknown } }` with typed error codes
-
-**Supabase Client Trio:**
-- Purpose: Context-appropriate database access
-- Examples: `src/lib/supabase/server.ts`
-- Pattern: `createClient()` for authenticated server requests (cookie-based), `createPublicClient()` for unauthenticated reads, `createServiceClient()` for RLS bypass (webhooks, admin operations)
+**Auth Guards:**
+- Purpose: Protect API routes by role with consistent error responses
+- Examples: `src/lib/auth/admin.ts` (`requireAdmin`), `src/lib/auth/driver.ts` (`requireDriver`)
+- Pattern: Returns discriminated union `{ success: true, supabase, userId }` or `{ success: false, error, status }`. Callers destructure and return early on failure.
 
 **Business Rules:**
-- Purpose: Database-configurable business parameters with safe defaults
+- Purpose: Centralized, DB-driven configuration for delivery logic
 - Examples: `src/lib/settings/business-rules.ts`
-- Pattern: Fetch from `app_settings` table, map DB keys to TypeScript interface, fallback to `BUSINESS_RULES_DEFAULTS` on error. Cached 300s via `unstable_cache`.
+- Pattern: `getBusinessRules()` fetches from `app_settings`, `delivery_days`, `delivery_zones` tables in parallel. Cached 5 minutes via `unstable_cache` with `"business-rules"` tag. Returns typed `BusinessRules` object with defaults fallback.
 
 **Rate Limiting:**
-- Purpose: Per-role, per-route rate limiting with fail-open
-- Examples: `src/lib/rate-limit/`
-- Pattern: `checkRateLimit({ limiter, identifier, role, route })` returns `{ limited: boolean, response? }`. Each API route picks appropriate limiter tier.
+- Purpose: Per-route, per-role rate limiting
+- Examples: `src/lib/rate-limit/` (index, config, check, client, identifiers)
+- Pattern: Pre-configured limiters per endpoint type (checkoutLimiter, webhookLimiter, publicReadLimiter, etc.). `checkRateLimit()` returns `{ limited: boolean, response? }`. Currently in-memory fallback (Redis disabled).
+
+**Structured Errors:**
+- Purpose: Consistent API error format across all routes
+- Examples: `src/lib/utils/api-error.ts`
+- Pattern: `apiError(code, message, status, details?)` returns `NextResponse.json({ error: { code, message, details } }, { status })`. Error codes are typed: `UNAUTHORIZED`, `FORBIDDEN`, `NOT_FOUND`, `VALIDATION_ERROR`, `RATE_LIMITED`, `INTERNAL_ERROR`, `STRIPE_ERROR`, `CONFLICT`, `BAD_REQUEST`.
+
+**Structured Logger:**
+- Purpose: Sentry-integrated logging with context
+- Examples: `src/lib/utils/logger.ts`
+- Pattern: `logger.info/warn/error(message, context)` adds Sentry breadcrumbs; warn/error also capture as Sentry messages. `logger.exception(error, context)` captures exceptions. Context includes `userId`, `flowId`, `orderId`, `api` tags.
 
 ## Entry Points
 
-**Root Layout:**
-- Location: `src/app/layout.tsx`
+**Root Layout (`src/app/layout.tsx`):**
 - Triggers: Every page render
-- Responsibilities: Font loading, Providers wrapper (Theme → Query → LazyMotion → Animation), Header, Toast, ServiceWorker, offline indicators, Vercel Analytics/SpeedInsights
+- Responsibilities: Font loading (Inter + Playfair Display), global CSS, provider tree (ThemeProvider -> DynamicThemeProvider -> QueryProvider -> LazyMotion -> AnimationProvider), ServiceWorkerRegistration, ToastProvider, OfflineIndicator, HeaderWrapper, UpdatePrompt, WebVitalsReporter, Vercel Analytics + SpeedInsights
 
-**Middleware (proxy.ts):**
-- Location: `proxy.ts` (project root)
-- Triggers: Every non-static request
-- Responsibilities: Supabase session refresh, unauthenticated user gating for `/admin` and `/driver`
+**Route Group Layouts:**
+- `src/app/(admin)/admin/layout.tsx`: Auth check, admin role verification, AdminNav sidebar, DomMaxProvider
+- `src/app/(customer)/layout.tsx`: Auth check, business rules fetch, CustomerShell with delivery settings
+- `src/app/(driver)/driver/layout.tsx`: Auth check, driver record/status verification, DriverNav bottom bar, DriverAvatarProvider, SimpleModeProvider, DriverShell, DomMaxProvider
+- `src/app/(public)/layout.tsx`: No auth, business rules fetch, PublicShell with delivery settings
+- `src/app/(auth)/layout.tsx`: No auth, DomMaxProvider wrapper only
 
-**Auth Callback:**
-- Location: `src/app/auth/callback/route.ts`
-- Triggers: OAuth redirect from Supabase/Google
-- Responsibilities: Code exchange, driver invite processing, role-based redirect
+**Auth Callback (`src/app/auth/callback/route.ts`):**
+- Triggers: OAuth redirect, magic link click
+- Responsibilities: Code exchange, session creation, profile sync, driver invite processing, role-based redirect
 
-**Stripe Webhook:**
-- Location: `src/app/api/webhooks/stripe/route.ts`
-- Triggers: Stripe events (checkout.session.completed, payment_intent.payment_failed, charge.refunded, checkout.session.expired)
-- Responsibilities: Idempotent event processing, order status updates, email notifications
+**Auth Confirm (`src/app/auth/confirm/route.ts`):**
+- Triggers: Email confirmation links
+- Responsibilities: Token verification, session creation
 
-**Resend Webhook:**
-- Location: `src/app/api/webhooks/resend/route.ts`
-- Triggers: Email delivery status updates
-- Responsibilities: Email delivery tracking
+**Stripe Webhook (`src/app/api/webhooks/stripe/route.ts`):**
+- Triggers: Stripe events (checkout.session.completed, expired, payment_failed, charge.refunded)
+- Responsibilities: Signature verification, idempotent processing via `webhook_events` table, order status updates, email notifications
+
+**Resend Webhook (`src/app/api/webhooks/resend/route.ts`):**
+- Triggers: Email delivery events from Resend
+- Responsibilities: Webhook signature verification, delivery status logging
+
+**Cron Jobs:**
+- `src/app/api/cron/delivery-reminders/route.ts`: Daily 8:00 AM PT, sends delivery day reminders
+- `src/app/api/cron/admin-daily-digest/route.ts`: Twice daily (morning + evening), admin order summary email
+- Configured in `vercel.json`
+
+**Instrumentation (`instrumentation.ts`):**
+- Triggers: Server/edge runtime startup
+- Responsibilities: Sentry SDK initialization for Node.js and Edge runtimes
 
 ## Error Handling
 
-**Strategy:** Structured error responses with typed codes; Sentry for observability
+**Strategy:** Layered error boundaries + structured API errors + Sentry integration
 
 **Patterns:**
-- API routes return `{ error: { code, message, details? } }` via `apiError()` or `errorResponse()` helpers
-- Auth failures return discriminated unions (not exceptions)
-- Supabase errors checked via `if (error)` pattern on every query
-- Stripe webhook uses idempotent event processing (INSERT ON CONFLICT DO NOTHING)
-- Try-catch at API route boundaries with `logger.exception()` for Sentry capture
-- Graceful degradation: business rules fall back to defaults, featured sections degrade to empty
+- **Page-level error boundaries:** Every route segment has an `error.tsx` (34 files). All delegate to `<RouteError>` component at `src/components/ui/RouteError.tsx` with context-specific messaging.
+- **Not-found pages:** Custom `not-found.tsx` at root, admin, admin orders, and driver levels.
+- **Loading states:** Every route segment has a `loading.tsx` (33 files) for Suspense boundaries.
+- **API error responses:** `apiError(code, message, status)` returns typed JSON. Checkout route uses `errorResponse()` with additional error codes (`ITEM_UNAVAILABLE`, `CUTOFF_PASSED`, `OUT_OF_COVERAGE`, `COD_DISABLED`).
+- **Try/catch + logger:** API routes wrap handlers in try/catch, call `logger.exception()` for Sentry capture, return 500 with generic message.
+- **Webhook idempotency:** Stripe webhook uses `webhook_events` table with UNIQUE constraint to prevent duplicate processing.
+- **Self-healing profiles:** `ensureProfile()` auto-creates missing profile rows with retry logic and unique constraint handling.
 
 ## Cross-Cutting Concerns
 
-**Logging:** `src/lib/utils/logger.ts` — structured logger wrapping Sentry. Use `logger.info/warn/error/exception()` with context objects containing `userId`, `flowId`, `api`, `orderId`.
+**Logging:** Sentry-integrated structured logger (`src/lib/utils/logger.ts`). All warn/error messages captured as Sentry events. Console output in development only. Context tags: `flowId`, `api`, `userId`, `orderId`.
 
-**Validation:** Zod schemas in `src/lib/validations/` for all API inputs. Pattern: `schema.safeParse(body)` at top of route handler, return 400 on failure.
+**Validation:** Zod schemas in `src/lib/validations/` for all API request bodies. Schema + `safeParse()` at top of route handlers. Business rules validation (cutoffs, coverage) performed after schema validation.
 
-**Authentication:** Three-tier: (1) Middleware refreshes session + gates routes, (2) Layouts verify role server-side, (3) API routes use `requireAdmin()`/`requireDriver()` guards. No client-side role checks for security.
+**Authentication:** Two-layer auth: (1) Supabase middleware refreshes session cookies on every request and redirects unauthenticated users from `/admin` and `/driver` to `/login`. (2) Layout guards verify role via DB query and redirect unauthorized users to their correct dashboard.
 
-**Rate Limiting:** Every API route calls `checkRateLimit()` with role-appropriate limiter. Uses Upstash Redis sliding window. Fails open on Redis timeout.
+**Rate Limiting:** In-memory sliding window rate limiting (Redis disabled). Pre-configured limiters per endpoint category. Applied at top of API route handlers via `checkRateLimit()`. Server Actions use `checkServerActionRateLimit()`.
 
-**Caching:** Server-side via `unstable_cache` (business rules: 300s, tag `business-rules`). Client-side via TanStack Query (5min stale time). Cart persisted to IndexedDB.
+**Security Headers:** CSP, HSTS, X-Content-Type-Options, X-Frame-Options, Referrer-Policy, Permissions-Policy configured in `next.config.ts`. CSP violations reported to Sentry.
+
+**Caching:** `unstable_cache` for business rules (5-minute TTL). TanStack React Query for client-side server state (5-minute staleTime). Static asset caching (fonts, icons: 1-year immutable). Next.js image optimization with 30-day cache TTL.
+
+**PWA/Offline:** Service worker built separately via `scripts/build-sw.mjs` (Serwist). Registration via `src/lib/hooks/useServiceWorker.ts`. Offline indicator, update prompt, and customer offline sync store for cart persistence.
 
 ---
 
-*Architecture analysis: 2026-03-06*
+*Architecture analysis: 2026-03-14*
