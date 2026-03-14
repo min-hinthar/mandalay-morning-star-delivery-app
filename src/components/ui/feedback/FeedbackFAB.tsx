@@ -6,7 +6,7 @@ import { MessageSquarePlus } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
-import { useCart } from "@/lib/hooks/useCart";
+import { useCartStore } from "@/lib/stores/cart-store";
 import { useFeedbackStore } from "./feedback-store";
 
 /** Drag distance (px) before treating gesture as drag instead of click */
@@ -21,8 +21,9 @@ const DRAG_THRESHOLD = 8;
 export function FeedbackFAB() {
   const { isOpen, open } = useFeedbackStore();
   const isCartDrawerOpen = useCartDrawer((s) => s.isOpen);
-  const { itemCount } = useCart();
-  const hasCartItems = itemCount > 0;
+  // Subscribe directly to store — avoids useCart() useMemo indirection
+  // which doesn't re-render reliably after async IDB hydration
+  const hasCartItems = useCartStore((s) => s.items.length > 0);
 
   const constraintsRef = useRef<HTMLDivElement>(null);
   const isDragging = useRef(false);
