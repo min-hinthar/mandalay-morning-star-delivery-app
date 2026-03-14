@@ -17,7 +17,7 @@ export interface CartPageSummaryProps {
   isExtendedRange?: boolean;
 }
 
-const TAX_RATE = 0.085; // 8.5% estimated tax
+import { COVINA_TAX_RATE } from "@/lib/utils/order";
 
 const summaryRowVariants = {
   hidden: { opacity: 0, x: -10 },
@@ -38,7 +38,7 @@ export const CartPageSummary = memo(function CartPageSummary({
 }: CartPageSummaryProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
-  const estimatedTaxCents = Math.round(subtotalCents * TAX_RATE);
+  const estimatedTaxCents = Math.round(subtotalCents * COVINA_TAX_RATE);
   const totalCents = subtotalCents + deliveryFeeCents + estimatedTaxCents;
 
   return (
