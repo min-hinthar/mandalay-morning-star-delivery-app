@@ -1,152 +1,292 @@
 # Codebase Concerns
 
-**Analysis Date:** 2026-03-06
+**Analysis Date:** 2026-03-14
 
 ## Tech Debt
 
-**Duplicate Address API Routes:**
-- Issue: Two parallel address API surfaces exist — `src/app/api/addresses/` and `src/app/api/account/addresses/` — with overlapping but different implementations (196 vs 162 lines). The `addresses/` version includes geocoding and coverage check; `account/addresses/` uses a different validation schema.
-- Files: `src/app/api/addresses/route.ts`, `src/app/api/account/addresses/route.ts`, `src/app/api/addresses/[id]/route.ts`, `src/app/api/account/addresses/[id]/route.ts`
-- Impact: Two codepaths to maintain, inconsistent validation. `useAddresses` hook uses `/api/addresses`, `AddressesTab` component uses `/api/account/addresses`. Bug fixes must be applied to both.
-- Fix approach: Consolidate into one route group. The `/api/addresses` version is more complete (has geocoding, coverage). Migrate `AddressesTab` to use `useAddresses` hook, then delete `src/app/api/account/addresses/`.
+**Deprecated Single-Day Delivery API Still Active:**
+- Issue: Legacy Saturday-only delivery fields (`cutoffDay`, `cutoffHour`, `deliveryFeeCents`) remain in `BusinessRules` interface and are populated via backward-compat shim from first active multi-day config. ~10 component prop interfaces still accept deprecated `cutoffDay`/`cutoffHour` props.
+- Files:
+  - `src/lib/settings/business-rules.ts` (lines 10-15, 175-181 backward compat shim)
+  - `src/lib/hooks/useDeliveryGate.ts` (lines 63-84 deprecated `computeDeliveryGate`, line 158 deprecated `useDeliveryGate`)
+  - `src/components/ui/cart/CartDrawerParts.tsx` (lines 299-301 deprecated props)
+  - `src/components/ui/delivery/DeliveryBanner.tsx` (lines 14-16 deprecated props)
+  - `src/components/ui/menu/MenuContent.tsx` (lines 52-54 deprecated props)
+  - `src/components/ui/homepage/Hero/types.ts` (lines 24-26 deprecated props)
+  - `src/lib/utils/delivery-dates.ts` (line 111 `getNextSaturday` still exported)
+- Impact: Confusing dual API. New code might use deprecated path and get wrong results for non-Saturday delivery days.
+- Fix approach: Remove all deprecated props/functions. Ensure all consumers use `deliveryDays[]` array config. Delete `getNextSaturday`, `getCutoffForSaturday`, `computeDeliveryGate`, `useDeliveryGate` (non-multi-day versions).
 
-**Database Types Out of Sync:**
-- Issue: `src/types/database.ts` is a manually maintained file (987 lines) that does not reflect columns added in migrations 030+. Fields like `needs_contact`, `contacted_at`, `contacted_by`, and `audit_logs` table are missing from types.
-- Files: `src/types/database.ts`, `src/app/api/admin/orders/[id]/contact/route.ts`
-- Impact: Forces `as Record<string, unknown>` and `as unknown as Promise<...>` casts throughout API routes. 9+ instances of `as unknown as` in API layer. No compile-time safety for these columns.
-- Fix approach: Run `supabase gen types typescript` to regenerate types from live schema. Set up a CI check or pre-commit hook to detect drift.
+**`as any` Type Casts for New Tables Not in Generated Types:**
+- Issue: `customer_feedback` and `delivery_zones` tables are not in `src/types/database.ts` (Supabase-generated types). All queries use `.from("table_name" as any)` with manual `eslint-disable` comments. This bypasses all Supabase type checking.
+- Files:
+  - `src/lib/settings/business-rules.ts:125` (`delivery_zones as any`)
+  - `src/app/(admin)/admin/feedback/page.tsx:104` (`customer_feedback as any`)
+  - `src/app/api/admin/delivery-zones/route.ts:59,68,103` (3 casts)
+  - `src/app/api/admin/feedback/route.ts:45`
+  - `src/app/api/admin/feedback/[id]/route.ts:75`
+  - `src/app/api/feedback/route.ts:112,159,249` (3 casts)
+- Impact: No type safety on query shapes, column names, or return types. Errors only caught at runtime. 10 instances across 6 files.
+- Fix approach: Regenerate `database.ts` via `supabase gen types typescript`. Once tables appear in types, remove all `as any` casts and eslint-disable comments.
 
-**16 Raw `<img>` Tags Bypassing `next/image`:**
-- Issue: 16 `eslint-disable @next/next/no-img-element` suppressions. Only 10 of 16 have `referrerPolicy="no-referrer"`. Per ERROR_HISTORY, raw `<img>` in a PWA causes opaque response caching issues with the service worker.
-- Files: `src/app/(admin)/admin/menu/MenuItemsTable.tsx`, `src/app/(admin)/admin/menu/[id]/MenuItemPhotoSection.tsx`, `src/components/ui/admin/photos/BulkUploadMatcher.tsx`, `src/components/ui/admin/photos/PhotoUploadZone.tsx`, `src/components/ui/admin/routes/RouteBuilder/DriverSelector.tsx`, `src/components/ui/orders/tracking/DriverCard.tsx`, `src/components/ui/orders/tracking/DeliveredScreen.tsx`
-- Impact: Missing `referrerPolicy` on 6 `<img>` tags can cause blank images on Google-hosted avatars/photos. All raw `<img>` tags risk stale opaque caching in the PWA service worker.
-- Fix approach: Replace all raw `<img>` with `next/image` (proxies same-origin, avoids opaque responses). For unavoidable cases, always add `referrerPolicy="no-referrer"`.
+**Dead `tailwind.config.ts` File (489 lines):**
+- Issue: Tailwind v4 uses `@theme inline` in `globals.css` as sole source of truth. The 489-line `tailwind.config.ts` is dead code -- its content sections, theme extensions, and plugin configs have no effect.
+- Files: `tailwind.config.ts` (root)
+- Impact: Misleading for developers. Changes to this file have no effect. Wastes cognitive load.
+- Fix approach: Reduce to minimal config or delete entirely. Keep only if Storybook or tooling requires it.
 
-**`supabase: any` in Status Email Helper:**
-- Issue: `sendStatusEmail` function takes `supabase: any` parameter with eslint-disable.
-- Files: `src/app/api/admin/orders/[id]/status/route.ts` (line 185-186)
-- Impact: No type checking on all Supabase queries within this function. Could silently pass wrong column names.
-- Fix approach: Type the parameter as `SupabaseClient<Database>` from `@supabase/supabase-js`.
+**Deprecated `setIsAnimating` in Cart Animation Store:**
+- Issue: Legacy `setIsAnimating` method kept for backward compatibility alongside new `incrementFlying`/`decrementFlying` counter pattern. Both mutation paths exist.
+- Files: `src/lib/stores/cart-animation-store.ts` (lines 26-27, 54-55)
+- Impact: Low risk -- clearly marked deprecated. Risk of inconsistent state if both APIs used simultaneously.
+- Fix approach: Grep for `setIsAnimating` usage. If none, remove the method.
 
-**49 Migration Files with Mixed Naming Conventions:**
-- Issue: Migrations use two naming schemes: numbered (`001_schema.sql` through `037_checkout_session_id.sql`) and timestamped (`20260214_add_orders_is_priority.sql` through `20260305_atomic_refund.sql`). No clear boundary or reason for the switch.
-- Files: `supabase/migrations/`
-- Impact: Ordering ambiguity. Numbered migrations sort lexically before timestamped ones, but timestamped ones may have been created between numbered ones chronologically.
-- Fix approach: Adopt timestamped naming going forward. Document the transition point.
+**Deprecated `isSyncing` in Offline Sync Hook:**
+- Issue: `isSyncing: boolean` kept alongside `syncState: SyncState` for backward compat.
+- Files: `src/lib/hooks/useOfflineSync.ts` (line 36)
+- Impact: Minimal -- clearly deprecated.
+- Fix approach: Search for `isSyncing` consumers and migrate to `syncState`.
+
+**Deprecated `uploadMenuPhoto` Storage Function:**
+- Issue: Client-side upload function deprecated in favor of server-side WebP processing via `uploadMenuPhotoViaServer`.
+- Files: `src/lib/supabase/storage.ts:158`
+- Impact: Dead code. New code might use it instead of the server route.
+- Fix approach: Remove the deprecated function after confirming no active callers.
+
+**Deprecated `BottomSheet` Component:**
+- Issue: `BottomSheet` export from `Drawer.tsx` is deprecated in favor of `Drawer` with `position="bottom"`.
+- Files: `src/components/ui/Drawer.tsx:395`
+- Impact: Dead code alias.
+- Fix approach: Find callers, migrate to `Drawer position="bottom"`, remove export.
+
+**Dual Map Library Dependencies:**
+- Issue: Both `@react-google-maps/api` (Google Maps) and `react-leaflet`/`leaflet` are installed and used. Google Maps is used in 12 files (customer tracking, admin routes, homepage). Leaflet is used in 1 file only: `RouteBuilderMap`.
+- Files:
+  - `src/components/ui/admin/routes/RouteBuilderMap/RouteBuilderMap.tsx` (Leaflet)
+  - 12 files using `@react-google-maps/api`
+- Impact: Bundle bloat from shipping two map SDKs. Leaflet CSS imported directly. Inconsistent map UX across admin pages.
+- Fix approach: Migrate `RouteBuilderMap` to Google Maps API. Remove `leaflet`, `react-leaflet`, `@types/leaflet` dependencies.
+
+**DynamicThemeProvider Disabled Features:**
+- Issue: `defaultDynamicEnabled` and `weatherApiUrl` props are marked `@deprecated` -- dynamic theming and weather API integration were disabled for performance.
+- Files: `src/components/ui/theme/DynamicThemeProvider.tsx` (lines 155-158)
+- Impact: Dead code paths. Adds complexity to the theme system.
+- Fix approach: Remove deprecated props and related code. Strip weather-related logic.
 
 ## Known Bugs
 
-**Yelp Link Placeholder:**
-- Symptoms: Footer contains a TODO comment for Yelp business page URL.
-- Files: `src/components/ui/homepage/SiteFooter.tsx` (line 56)
-- Trigger: User clicks Yelp link in footer.
-- Workaround: None specified in code.
+**`getUTCDay()` Used Directly in Business Logic (Timezone Bug Risk):**
+- Symptoms: Three files use `getUTCDay()` directly instead of the timezone-safe `getZonedDayOfWeek()`. This was already fixed once in `TimeStepV8.tsx` (see ERROR_HISTORY). The remaining usage in `availability.ts` and `earnings/compute.ts` works safely because inputs are ISO date strings parsed at noon UTC, not live `Date` objects. However, this is fragile -- any refactor passing a real Date would reintroduce the bug.
+- Files:
+  - `src/lib/availability.ts:67` -- safe (uses `"T12:00:00Z"` anchor)
+  - `src/lib/earnings/compute.ts:96` -- safe (uses `"T12:00:00Z"` anchor)
+  - `src/lib/utils/delivery-dates.ts:108,114,210` -- safe (internal to zoned utility)
+- Trigger: Pass a raw `new Date()` instead of an ISO date string to these functions.
+- Workaround: Current code is safe due to noon UTC anchoring. Add JSDoc comments clarifying this constraint.
+
+**`getUTCHours()` in Cron Daily Digest (DST Edge Case):**
+- Symptoms: `detectPeriod()` uses `new Date().getUTCHours()` to classify morning vs evening. The comment says "14:00 UTC = 6 AM PT" -- but this is only true during PST. During PDT (Mar-Nov), 14:00 UTC = 7 AM PT. The morning/evening classification shifts by 1 hour during DST transitions.
+- Files: `src/app/api/cron/admin-daily-digest/route.ts:84-86`
+- Trigger: DST transition weeks, the digest may be classified as wrong period.
+- Workaround: Impact is cosmetic (wrong label on digest email). Fix with `date-fns-tz` or the existing `getZonedParts` utility.
+
+**Cron Dedupe Keys Never Cleaned Up:**
+- Symptoms: Each daily digest run inserts a `cron_digest_sent_admin-digest-YYYY-MM-DD-{period}` row into `app_settings`. These rows accumulate indefinitely (2 per day = ~730 per year).
+- Files: `src/app/api/cron/admin-daily-digest/route.ts:122,258`
+- Trigger: Time -- table grows linearly.
+- Workaround: Manual cleanup query or add TTL/cleanup job.
 
 ## Security Considerations
 
-**No CSRF Protection on API Routes:**
-- Risk: No CSRF token validation detected across all 101 API route handlers. State-mutating POST/PATCH/DELETE endpoints rely solely on Supabase session cookies for authentication.
-- Files: All `src/app/api/**/route.ts` files
-- Current mitigation: Supabase auth cookies use `SameSite=Lax` by default. Rate limiting on most endpoints.
-- Recommendations: For same-origin API routes, `SameSite=Lax` is sufficient for GET-triggered CSRF. POST mutations are protected if cookies are `SameSite=Strict` or requests require a custom header. Verify cookie `SameSite` configuration. Consider adding `Origin` header validation for critical mutations (checkout, order cancel, refund).
+**Admin Feedback Routes Missing Rate Limiting:**
+- Risk: Admin feedback endpoints (`GET /api/admin/feedback`, `PATCH /api/admin/feedback/[id]`) have auth checks but no `checkRateLimit()` calls. An authenticated admin (or compromised admin token) can make unlimited requests.
+- Files:
+  - `src/app/api/admin/feedback/route.ts` (no rate limit import)
+  - `src/app/api/admin/feedback/[id]/route.ts` (no rate limit import)
+- Current mitigation: Admin auth check required. In-memory fallback rate limiting only applies to routes that call `checkRateLimit()`.
+- Recommendations: Add `checkRateLimit({ limiter: adminLimiter, ... })` to both routes. Follow the pattern from `src/app/api/admin/settings/route.ts`.
 
-**Debug Pages Accessible in Production:**
-- Risk: Sentry test page at `/debug/sentry` is under the `(customer)` route group with no auth gate. Anyone can trigger Sentry test errors, polluting error tracking.
+**Admin Feedback Routes Not Using `requireAdmin()` Helper:**
+- Risk: These routes implement manual auth checking (duplicate `supabase.auth.getUser()` + profile role query) instead of using the centralized `requireAdmin()` helper from `src/lib/auth/admin.ts`. Manual implementations may diverge from security fixes applied to the helper.
+- Files:
+  - `src/app/api/admin/feedback/route.ts:14-35`
+  - `src/app/api/admin/feedback/[id]/route.ts:31-52`
+- Current mitigation: The manual implementation is functionally equivalent.
+- Recommendations: Replace with `requireAdmin()` for consistency and single-point-of-fix.
+
+**Redis Rate Limiting Fully Disabled:**
+- Risk: All 13 rate limiters in `src/lib/rate-limit/client.ts` are `null`. The in-memory fallback (`src/lib/rate-limit/check.ts`) uses a single `Map` per serverless instance -- shared across all routes, reset on cold starts, not distributed across instances. Under multi-instance deployment, each instance has independent counters. A determined attacker could spread requests across instances to bypass limits.
+- Files:
+  - `src/lib/rate-limit/client.ts` (all limiters null)
+  - `src/lib/rate-limit/check.ts:14-39` (in-memory fallback)
+- Current mitigation: Conservative 15 req/min fallback per identifier per instance. Vercel's edge rate limiting may provide some protection.
+- Recommendations: Provision an Upstash REST Redis instance, or replace `@upstash/redis` with `ioredis` + custom sliding window limiter compatible with standard Redis.
+
+**CSRF Origin Check Only on 3 Mutation Endpoints:**
+- Risk: `checkOrigin()` is only called in checkout session, customer cancel, and admin refund routes. Other mutation endpoints (address CRUD, settings updates, order status changes, driver updates) lack CSRF protection.
+- Files with protection:
+  - `src/app/api/checkout/session/route.ts`
+  - `src/app/api/account/orders/[id]/cancel/route.ts`
+  - `src/app/api/admin/orders/[id]/refund/route.ts`
+- Files without:
+  - All other mutation routes in `src/app/api/` (50+ routes)
+- Current mitigation: Supabase auth tokens provide user-scoped access. Same-site cookie policy provides some browser-level CSRF protection.
+- Recommendations: Either add `checkOrigin()` to all state-changing routes or implement CSRF protection via middleware for all non-GET API routes.
+
+**50 API Routes Without Input Validation (Zod):**
+- Risk: Of 106 API route files, 50 do not use Zod schema validation on request bodies or query params. Some accept `request.json()` without any validation (6 mutation routes confirmed).
+- Files (mutation routes without validation):
+  - `src/app/api/admin/photos/route.ts`
+  - `src/app/api/driver/availability/route.ts`
+  - `src/app/api/orders/[id]/notes/route.ts`
+  - `src/app/api/orders/[id]/verify-payment/route.ts`
+  - `src/app/api/emails/test/route.ts`
+  - `src/app/api/analytics/vitals/route.ts`
+- Current mitigation: Some routes only accept specific fields via destructuring. Admin routes are auth-gated.
+- Recommendations: Add Zod schemas to all routes accepting JSON bodies. Priority: customer-facing mutation routes.
+
+**Sentry Debug Page Accessible in Production (Conditional):**
+- Risk: `src/app/(customer)/debug/sentry/page.tsx` calls `notFound()` when `NODE_ENV !== "development"`, which is correct. But the page component still ships in the production bundle. The `notFound()` is a client-side check -- the route and React component are bundled and deployed.
 - Files: `src/app/(customer)/debug/sentry/page.tsx`
-- Current mitigation: None.
-- Recommendations: Gate behind `NODE_ENV === "development"` check or `requireAdmin()`, or remove entirely. The API route `/api/debug/sentry` (referenced but directory not found) may already be removed.
-
-**Rate Limiting Gaps — 10 Unprotected Routes:**
-- Risk: 10 API routes have no rate limiting: `src/app/api/account/addresses/route.ts`, `src/app/api/account/addresses/[id]/route.ts`, `src/app/api/account/orders/[id]/cancel/route.ts`, `src/app/api/addresses/[id]/default/route.ts`, `src/app/api/checkout/validate-promo/route.ts`, `src/app/api/cron/delivery-reminders/route.ts`, `src/app/api/emails/test/route.ts`, `src/app/api/health/route.ts`, `src/app/api/orders/[id]/share-token/route.ts`, `src/app/api/webhooks/resend/route.ts`
-- Files: Listed above
-- Current mitigation: Auth-gated routes still require valid session. Cron route has `CRON_SECRET` bearer token check. Health and public menu routes are read-only.
-- Recommendations: Add rate limiting to all write endpoints (cancel, address mutations, promo validation). `emails/test` should be admin-only and rate-limited. Webhook routes should use the `webhook` rate limit tier.
-
-**Non-Null Assertions on Environment Variables:**
-- Risk: 5 instances of `process.env.NEXT_PUBLIC_SUPABASE_URL!` and `process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!` with TypeScript non-null assertion. If env vars are missing, runtime crash with unhelpful error.
-- Files: `src/lib/supabase/client.ts`, `src/lib/supabase/middleware.ts`, `src/lib/supabase/server.ts`
-- Current mitigation: `createServiceClient()` properly validates `SUPABASE_SERVICE_ROLE_KEY` with a thrown error message. The public/anon clients do not.
-- Recommendations: Add validation with descriptive error messages for all env vars, or use a centralized env validation (e.g., `@t3-oss/env-nextjs` or a Zod schema at startup).
-
-**10 Public API Routes Without Auth:**
-- Risk: Routes at `src/app/api/analytics/vitals/route.ts`, `src/app/api/checkout/validate-promo/route.ts`, `src/app/api/coverage/check/route.ts`, `src/app/api/menu/route.ts`, `src/app/api/menu/search/route.ts`, `src/app/api/sections/route.ts` are intentionally public. However, `src/app/api/webhooks/resend/route.ts` and `src/app/api/webhooks/stripe/route.ts` use webhook signature verification instead of user auth.
-- Files: Listed above
-- Current mitigation: Webhook routes verify signatures. Menu/sections/coverage are read-only. Vitals is write-only telemetry.
-- Recommendations: Ensure `validate-promo` cannot be abused for promo code enumeration. Add rate limiting to `coverage/check` (calls Google Maps API, has cost implications).
+- Current mitigation: `notFound()` call blocks rendering.
+- Recommendations: Move to a route that isn't included in production builds, or add server-side redirect in a `page.tsx` wrapper.
 
 ## Performance Bottlenecks
 
-**No Sentry Client Config (Missing `sentry.client.config.ts`):**
-- Problem: `sentry.server.config.ts` and `sentry.edge.config.ts` exist, but `sentry.client.config.ts` is missing. Client-side errors may not be captured in Sentry.
-- Files: Root directory — `sentry.server.config.ts`, `sentry.edge.config.ts` present; `sentry.client.config.ts` absent
-- Cause: Possibly deleted or never created. The `instrumentation.ts` file may handle server-side init only.
-- Improvement path: Create `sentry.client.config.ts` with appropriate DSN, sample rates, and replay config. Verify client errors appear in Sentry dashboard.
+**In-Memory Rate Limit Map Never Bounded:**
+- Problem: `inMemoryBuckets` Map grows unbounded between 5-minute cleanup intervals. High-traffic routes accumulate entries for every unique identifier.
+- Files: `src/lib/rate-limit/check.ts:14-38`
+- Cause: Cleanup runs every 5 minutes by timestamp but does not cap total entries. Under sustained traffic with diverse IPs, map could grow large.
+- Improvement path: Add a max-size check (e.g., evict oldest if >10k entries) or use LRU cache.
 
-**Console.log Statements in Production Code:**
-- Problem: 25+ `console.log`/`console.error`/`console.warn` calls outside the logger utility, primarily in service worker, cache, and hook code.
-- Files: `src/components/ui/menu/useMenuCache.ts`, `src/components/ui/offline/ServiceWorkerRegistration.tsx`, `src/lib/hooks/useServiceWorker.ts`, `src/lib/hooks/useUpdateBanner.ts`, `src/lib/services/cart-idb-storage.ts`, `src/lib/web-vitals.tsx`
-- Cause: Client-side code where the Sentry-integrated logger may not be appropriate (service worker context) or was overlooked.
-- Improvement path: For service worker code, keep console (no Sentry in SW). For other client code, route through logger or remove.
+**`toLocaleDateString()` / `toLocaleString()` in Server-Side Code:**
+- Problem: `toLocaleDateString("en-US", { timeZone: ... })` is used in cron routes and server-side code without explicit timezone, relying on server locale which may differ between environments.
+- Files:
+  - `src/app/api/cron/admin-daily-digest/route.ts:60,74` (no timezone specified)
+  - `src/app/api/driver/earnings/route.ts:16` (timezone parsing via `toLocaleString`)
+- Cause: Locale-dependent date formatting on server. Different Node.js environments may have different ICU data.
+- Improvement path: Use `date-fns` or explicit Intl formatters with timezone pinned to `America/Los_Angeles`.
+
+**WebGL Gradient Module Loaded Unconditionally:**
+- Problem: `src/lib/webgl/gradients.ts` exports a gradient animation system with time-of-day awareness. If imported in a server component path, it bloats the bundle.
+- Files: `src/lib/webgl/gradients.ts`
+- Cause: The module imports `getAnimationPreference` from hooks at module level.
+- Improvement path: Ensure this module is only dynamically imported in client components that need it.
 
 ## Fragile Areas
 
-**PostgREST FK Hint Requirements:**
-- Files: Any query joining `orders` to `profiles` across all API routes
-- Why fragile: The `orders` table has two FKs to `profiles` (`user_id` and `contacted_by`). Every query joining these tables MUST use `profiles!orders_user_id_fkey` hint. Missing hints cause silent failures or PostgREST ambiguous FK errors. This has already caused two production bugs (ERROR_HISTORY).
-- Safe modification: Always include FK hint when joining orders to profiles. After adding any new FK to a table, grep all queries joining that table and add hints.
-- Test coverage: No automated test validates FK hints. The `src/lib/__tests__/rls-edge-cases.test.ts` tests RLS policies but not FK hint correctness.
+**Stripe Webhook Handler (529 lines, max-lines disabled):**
+- Files: `src/app/api/webhooks/stripe/handlers.ts`
+- Why fragile: At 529 lines with an eslint-disable for max-lines, this is the largest non-type source file. Handles `checkout.session.completed`, `checkout.session.expired`, payment failures, and refunds. Multiple email sends with try/catch blocks. Complex order state transitions with audit logging.
+- Safe modification: Each handler function is relatively self-contained. Add new webhook event types as new functions. Always preserve the `return 500 on DB error` pattern (returning 200 on error prevents Stripe retries -- documented in ERROR_HISTORY).
+- Test coverage: Tests exist at `src/app/api/webhooks/stripe/__tests__/route.test.ts` (609 lines). Coverage is moderate.
 
-**Service Worker Cache Versioning:**
-- Files: `src/app/sw.ts`
-- Why fragile: Cache versioning, opaque response handling, and CacheFirst vs NetworkFirst strategy have caused 4 separate production issues (ERROR_HISTORY). Each fix required bumping `CACHE_VERSION`.
-- Safe modification: Never use `CacheFirst` for cross-origin resources. Never cache opaque responses (`statuses: [200]` only). Bump `CACHE_VERSION` after any caching strategy change.
-- Test coverage: No unit tests for service worker logic.
+**Delivery Date Calculation System:**
+- Files:
+  - `src/lib/utils/delivery-dates.ts` (core logic)
+  - `src/lib/hooks/useDeliveryGate.ts` (both deprecated + multi-day versions)
+  - `src/components/ui/checkout/TimeSlotPicker/TimeSlotPicker.tsx`
+  - `src/lib/utils/delivery-zones.ts` (direction routing)
+- Why fragile: Multi-day delivery with direction-based routing, per-day cutoffs, and timezone-aware date math. Previous bugs include off-by-one-week errors (ERROR_HISTORY), `getUTCDay()` vs zoned day mismatches. The deprecated single-day path coexists with the multi-day path.
+- Safe modification: Always use `getZonedDayOfWeek()` and `getZonedParts()` for date math. Never use raw `getUTCDay()`. Test with the current day matching an active delivery day + past cutoff.
+- Test coverage: 3 test files covering dates, multi-day, and schedule formatting (494, 450, and more lines).
 
-**Type Casts in Webhook/Cron Handlers:**
-- Files: `src/app/api/webhooks/stripe/handlers.ts`, `src/app/api/cron/delivery-reminders/route.ts`
-- Why fragile: These critical payment/notification paths use `as unknown as` casts for Supabase join results. If the DB schema changes, TypeScript won't catch mismatches.
-- Safe modification: Regenerate database types to eliminate casts. Add runtime validation (Zod) on query results in critical paths.
-- Test coverage: Stripe webhook has tests (`src/app/api/webhooks/stripe/__tests__/route.test.ts`). Cron endpoint has no tests.
+**Google Maps Integration Across 12 Files:**
+- Files: 12 files across `src/components/ui/` using `@react-google-maps/api`
+- Why fragile: `useJsApiLoader` must complete before any `google.maps.*` access. Hooks run before early returns, so useMemo/useCallback referencing `google.maps.*` crash if not guarded. Documented crash in ERROR_HISTORY (`RouteMap` useMemo crash, `DeliveryMapCard` race conditions).
+- Safe modification: Always add `if (!isLoaded) return null` inside hooks that reference `google.maps.*`. Always use `dynamic(..., { ssr: false })` for components importing `@react-google-maps/api`. Always use callback refs (not `useRef`) for elements that change across conditional renders.
+- Test coverage: No unit tests for map components. E2E coverage only.
+
+**OAuth Email Resolution Chain:**
+- Files:
+  - `src/app/auth/callback/route.ts`
+  - `src/lib/auth/role-redirect.ts` (`ensureProfile`)
+  - `src/lib/auth/resolve-oauth-email.ts`
+  - DB trigger `handle_new_user()`
+- Why fragile: Google OAuth email appears in 3+ locations (`user.email`, `user_metadata.email`, `identities[0].identity_data.email`). Four separate layers attempt to sync email to profiles table. Two bugs in this chain are documented in ERROR_HISTORY.
+- Safe modification: Always use `resolveOAuthEmail()` helper. Never rely on a single email source. Any changes to profile creation must test Google OAuth flow end-to-end.
+- Test coverage: No unit tests for OAuth callback. Manual E2E testing only.
 
 ## Scaling Limits
 
-**In-Memory Rate Limiting Fallback:**
-- Current capacity: Rate limiter uses Upstash Redis when `UPSTASH_REDIS_REST_URL` is configured; falls back to no enforcement when Redis is unavailable.
-- Limit: Without Redis, rate limiting is effectively disabled. With Redis, standard Upstash free tier limits apply.
-- Scaling path: Ensure Redis is always configured in production. Consider edge-level rate limiting (Vercel WAF) as a secondary layer.
+**In-Memory Rate Limiting (Serverless):**
+- Current capacity: 15 req/min per identifier per serverless instance.
+- Limit: Each Vercel function instance has its own Map. Auto-scaling creates new instances with empty maps. Coordinated attacks across instances bypass limits.
+- Scaling path: Provision Upstash REST Redis or swap to `ioredis` with standard Redis.
+
+**Admin Menu API Pagination Default (25 items):**
+- Current capacity: Works for current menu (~53 items with explicit `?limit=500`).
+- Limit: If menu grows beyond 500 items, bulk operations will silently miss items. The default `limit=25` has already caused bugs (ERROR_HISTORY).
+- Scaling path: Implement cursor-based pagination or auto-paginate in client helpers that need full lists.
+
+**Cron Dedupe via `app_settings` Table:**
+- Current capacity: ~730 rows/year (2 digest entries per day).
+- Limit: No cleanup mechanism. Table grows indefinitely. Not a hard scaling limit but unnecessary bloat.
+- Scaling path: Add cleanup cron or use TTL-based dedupe (e.g., check `placed_at > now() - interval '12 hours'` instead of insert/check pattern).
+
+## Dependencies at Risk
+
+**`@upstash/redis` + `@upstash/ratelimit` (Unused but Installed):**
+- Risk: These packages are in `package.json` but completely disabled. They add to install time and dependency surface. The `@upstash/redis` package requires Upstash REST API -- standard Redis URLs are incompatible.
+- Impact: Bundle includes type imports only. No runtime impact since all limiters are `null`.
+- Migration plan: Either provision Upstash REST Redis, or remove both packages and use `ioredis` + custom sliding window implementation.
+
+**`gsap` (License Concerns):**
+- Risk: GSAP has a custom license (not MIT/Apache). The standard npm package is free for general use but has restrictions on certain business uses. Used in 7 files for scroll animations and fly-to-cart.
+- Impact: License compliance depends on use case.
+- Migration plan: Evaluate if Framer Motion (already a dependency) can replace GSAP usage. GSAP is used for `ScrollTrigger`, `Flip`, and custom timelines.
+
+**`eslint-config-next@15.5.9` with Next.js 16:**
+- Risk: ESLint config is pinned to Next.js 15.x while the app runs Next.js 16. Potential rule mismatches or missing new rules.
+- Impact: Linting may miss Next.js 16-specific patterns.
+- Migration plan: Update to `eslint-config-next@16.x` when available.
+
+## Missing Critical Features
+
+**No Automated Cleanup for Cron Dedupe Rows:**
+- Problem: `app_settings` table accumulates `cron_digest_sent_*` rows with no expiry.
+- Blocks: Nothing critical -- just data hygiene.
+
+**No E2E Tests for Payment Flows:**
+- Problem: Stripe checkout, COD approval, verify-payment, and refund flows have unit tests but no E2E coverage. These are the most critical user paths and have had the most bugs (5 entries in ERROR_HISTORY).
+- Blocks: Confidence in deploying payment-related changes.
+
+**No Integration Tests for OAuth Flow:**
+- Problem: Google OAuth email resolution chain has had 2 critical bugs. No automated tests cover the callback -> profile creation -> email sync pipeline.
+- Blocks: Safe iteration on auth flow changes.
 
 ## Test Coverage Gaps
 
-**99 of 101 API Routes Untested:**
-- What's not tested: Only 2 API route directories have `__tests__/` folders out of 101 total route files. Tested: `src/app/api/checkout/session/`, `src/app/api/tracking/`, `src/app/api/webhooks/stripe/`. All admin, account, driver, cron, menu, and address routes lack unit tests.
-- Files: All `src/app/api/` subdirectories without `__tests__/`
-- Risk: Regressions in auth guards, data validation, FK hints, and error handling go undetected. The FK hint bug that broke admin dashboard and cron endpoint would have been caught by tests.
-- Priority: High — Focus on: checkout flow, webhook handlers, cron jobs, and admin order management routes first.
+**API Routes (106 routes, 5 test files):**
+- What's not tested: Of 106 API route files, only 5 have co-located `__tests__` directories. Coverage is concentrated on checkout, webhooks, tracking, and addresses. Zero test coverage for: admin settings, admin feedback, admin drivers, admin emails, admin orders, admin routes, admin analytics, driver routes, cron jobs, coverage check, menu search.
+- Files: All routes under `src/app/api/admin/`, `src/app/api/driver/`, `src/app/api/cron/`
+- Risk: Admin and driver APIs have had multiple bugs (FK hints, audit log columns, pagination defaults -- all in ERROR_HISTORY). Changes to these routes are deployed with no automated verification.
+- Priority: High -- admin order management and driver routes handle money and deliveries.
 
-**Zero Component Tests:**
-- What's not tested: Only 2 component test files exist (`src/components/ui/admin/ops/__tests__/helpers.test.ts`, `src/components/ui/admin/ops/__tests__/useCountdown.test.ts`). 70+ UI components in `src/components/ui/` have no tests.
-- Files: `src/components/ui/`
-- Risk: UI regressions (cart, checkout, menu, tracking) are only caught by E2E tests, which are slower and more brittle.
-- Priority: Medium — E2E tests (20 spec files in `e2e/`) provide some coverage. Prioritize testing complex stateful components: `CartDrawerParts`, `ItemDetailSheet`, `CheckoutClient`, `DeliveryMap`.
+**UI Components (70+ components, 0 unit test files):**
+- What's not tested: No React component unit tests. Components are only tested via E2E (Playwright). Storybook exists but no visual regression testing is integrated.
+- Files: All files under `src/components/ui/`
+- Risk: Component behavior changes (conditional rendering, event handlers, animation states) are only caught by manual testing or E2E.
+- Priority: Medium -- E2E provides some coverage, and React Compiler reduces memoization bugs.
 
-**No Tests for Service Worker:**
-- What's not tested: Service worker caching logic, cache versioning, offline behavior.
-- Files: `src/app/sw.ts`
-- Risk: Service worker bugs have caused 4 separate production incidents per ERROR_HISTORY. Each required manual investigation.
-- Priority: High — The SW is a recurring source of production issues.
+**Driver Offline Sync Pipeline:**
+- What's not tested: The `useOfflineSync` hook, `offline-store` service, and retry logic have no integration tests. These handle offline status updates, photo uploads, and location tracking for drivers in the field.
+- Files:
+  - `src/lib/hooks/useOfflineSync.ts`
+  - `src/lib/services/offline-store/` (multiple files)
+  - `src/lib/services/offline-store/retry.ts`
+- Risk: Offline sync failures could lose delivery status updates or photos. Drivers operate in areas with poor connectivity.
+- Priority: High -- data loss risk for core delivery operations.
 
-**No Tests for Cron Endpoint:**
-- What's not tested: Delivery reminder logic, deduplication, email triggering, error handling.
-- Files: `src/app/api/cron/delivery-reminders/route.ts`
-- Risk: Cron runs unattended on schedule. A silent failure (like the FK hint bug) means customers get no delivery reminders with no alert.
-- Priority: High — Critical customer-facing notification path.
-
-**No Tests for Rate Limiting:**
-- What's not tested: Rate limit enforcement, tier configuration, IP extraction, Redis fallback behavior.
-- Files: `src/lib/rate-limit/`
-- Risk: Rate limiting could silently fail (e.g., Redis connection issue) without detection.
-- Priority: Medium — Rate limiting is defense-in-depth; auth is the primary security layer.
+**Email Send Pipeline:**
+- What's not tested: `src/lib/email/send.ts` (the central email dispatch function) has no dedicated tests. Email delivery failures have caused 4+ bugs documented in ERROR_HISTORY.
+- Files:
+  - `src/lib/email/send.ts`
+  - `src/lib/email/build.ts`
+  - `src/lib/email/admin-recipients.ts`
+- Risk: Email failures are silent (logged but no user feedback). Idempotency key logic and notification_logs interaction are untested.
+- Priority: Medium -- emails are important but not data-critical.
 
 ---
 
-*Concerns audit: 2026-03-06*
+*Concerns audit: 2026-03-14*

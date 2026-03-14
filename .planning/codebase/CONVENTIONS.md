@@ -1,205 +1,400 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-03-06
+**Analysis Date:** 2026-03-14
 
 ## Naming Patterns
 
 **Files:**
-- UI primitives (shadcn-based): `kebab-case.tsx` (e.g., `alert-dialog.tsx`, `scroll-area.tsx`)
-- Custom UI components: `PascalCase.tsx` (e.g., `EmptyState.tsx`, `FloatingLabelInput.tsx`, `Backdrop.tsx`)
-- Hooks: `camelCase.ts` prefixed with `use` (e.g., `useDeliveryGate.ts`, `useCart.ts`)
-- Utilities: `camelCase.ts` (e.g., `cn.ts`, `logger.ts`)
+- UI primitives: `kebab-case.tsx` (e.g., `button.tsx`, `alert-dialog.tsx`, `scroll-area.tsx`)
+- Custom components: `PascalCase.tsx` (e.g., `AnimatedLink.tsx`, `Backdrop.tsx`, `EmptyState.tsx`)
+- Hooks: `camelCase.ts` prefixed with `use` (e.g., `useAuth.ts`, `useDeliveryGate.ts`)
 - Stores: `kebab-case.ts` suffixed with `-store` (e.g., `cart-store.ts`, `driver-store.ts`)
+- Utils: `kebab-case.ts` (e.g., `api-error.ts`, `delivery-dates.ts`)
 - Validations: `kebab-case.ts` matching domain (e.g., `checkout.ts`, `driver-api.ts`)
-- API routes: `route.ts` (Next.js App Router convention)
-- Test files: `*.test.ts` or `*.test.tsx` inside `__tests__/` subdirectory
+- Types: `kebab-case.ts` matching domain (e.g., `cart.ts`, `delivery.ts`, `database.ts`)
+- Tests: `*.test.ts` or `*.test.tsx` in `__tests__/` subdirectory
 
 **Functions:**
-- Use `camelCase` for all functions: `computeDeliveryGate`, `calculateItemPrice`, `createItemSignature`
-- Factory functions: prefix with `create` (e.g., `createMockStripeClient`, `createMockMenuItem`)
-- Boolean helpers: prefix with `is`, `has`, `should` (e.g., `isOpen`, `shouldAnimate`)
-- API route handlers: export named `GET`, `POST`, `PUT`, `PATCH`, `DELETE` (Next.js convention)
+- `camelCase` for all functions and methods
+- Hooks: `use` prefix (e.g., `useAuth`, `useMenu`, `useDeliveryGateMultiDay`)
+- Factory functions: `create` prefix (e.g., `createMockMenuItem`, `createMockStripeClient`)
+- Compute functions: `compute` prefix for pure derivation (e.g., `computeDeliveryGate`)
+- Boolean getters: `is` prefix (e.g., `isPastCutoff`, `isValidStatusTransition`)
 
 **Variables:**
-- Use `camelCase` for all variables
-- Constants: `SCREAMING_SNAKE_CASE` for module-level constants (e.g., `MAX_ITEM_QUANTITY`, `DEBOUNCE_MS`, `DELIVERY_FEE`)
-- Database row types use `snake_case` fields; app-layer types use `camelCase` fields
+- `camelCase` for all variables
+- Constants: `UPPER_SNAKE_CASE` for module-level constants (e.g., `MAX_CART_ITEMS`, `DEBOUNCE_MS`, `DELIVERY_FEE`)
+- Private store internals: `_` prefix (e.g., `_hasHydrated`, `_setHasHydrated`)
+- Test export helpers: `__` double underscore prefix (e.g., `__clearDebounceState`)
 
-**Types:**
-- Use `PascalCase` for all types and interfaces
-- Suffix row types with `Row` (e.g., `MenuItemRow`, `ModifierOptionRow`)
-- Database-generated types: `MenuItemsRow`, `ModifierOptionsRow` (from `@/types/database`)
-- Domain types: `MenuItem`, `CartItem`, `DeliveryGateState`
-- Input types: `CreateCheckoutSessionInput`, `ReassignStopInput`
-- Zod schemas: `camelCase` suffixed with `Schema` (e.g., `createCheckoutSessionSchema`, `reassignStopSchema`)
+**Types & Interfaces:**
+- `PascalCase` for types and interfaces
+- Suffixed by role: `Row` for DB rows (`MenuItemsRow`), `Props` for components (`ButtonProps`), `Store` for Zustand (`CartStore`), `Schema` for Zod (`checkoutItemSchema`)
+- Zod schemas: `camelCase` ending in `Schema` (e.g., `createCheckoutSessionSchema`, `addressFormSchema`)
+- Inferred Zod types: `PascalCase` ending in `Input` or `Values` (e.g., `CreateCheckoutSessionInput`, `AddressFormValues`)
 
 ## Code Style
 
 **Formatting:**
-- Prettier with config at `.prettierrc`
-- Double quotes (not single quotes)
-- Semicolons: always
+- Prettier with config in `.prettierrc`
+- Double quotes (`"singleQuote": false`)
+- Semicolons always (`"semi": true`)
 - Print width: 100 characters
 - Trailing commas: `es5`
-- Run: `pnpm format:check`
 
 **Linting:**
-- ESLint 9 flat config at `eslint.config.mjs`
+- ESLint flat config in `eslint.config.mjs`
 - Extends: `next/core-web-vitals`, `next/typescript`, `prettier`
-- `import-x/no-cycle` enforced (max depth 10) to prevent circular dependencies
-- `max-lines` warning at 400 lines (skip blank lines and comments)
-- Underscore-prefixed unused vars allowed: `_error`, `_request`
-- CSS linting: Stylelint with `stylelint-config-standard`
-- Run: `pnpm lint && pnpm lint:css`
+- Stylelint for CSS in `.stylelintrc.json` (extends `stylelint-config-standard`)
+- `import-x/no-cycle` enabled (max depth 10) to prevent circular imports
+- `max-lines: 400` (warning) on all `src/**/*.ts{x}` except types, tests, stories
+- Underscore-prefixed unused vars allowed: `argsIgnorePattern: "^_"`
+
+**Pre-commit:**
+- Husky + lint-staged
+- On commit: `eslint --max-warnings=0 --no-warn-ignored` on staged `.ts/.tsx` files
+- On commit: `stylelint` on staged `.css` files
 
 **TypeScript:**
-- Strict mode enabled in `tsconfig.json`
-- `noUnusedLocals` and `noUnusedParameters` enforced
+- Strict mode enabled (`"strict": true`)
+- `noUnusedLocals` and `noUnusedParameters` enabled
 - Path alias: `@/*` maps to `./src/*`
-- Target: ES2017
+- Target: ES2017, JSX: react-jsx
 
-**File Size:**
-- Max 400 lines per file (ESLint warning, not error)
-- Exempt: `src/types/**`, test files, Storybook stories
-- When splitting, use subfolder with barrel `index.tsx` re-exporting all
+## Design Token Enforcement
+
+62+ design tokens enforced via ESLint `no-restricted-syntax` rules in `eslint.config.mjs`:
+
+**Colors:** Use semantic tokens, never hardcoded hex or `text-white`/`bg-black`:
+- `text-white` -> `text-text-inverse` or `text-hero-text`
+- `bg-white` -> `bg-surface-primary`
+- `bg-black` -> `bg-surface-inverse`
+- `bg-[#xxx]` / `text-[#xxx]` -> use design token equivalents
+
+**Typography:** Use Tailwind scale, never arbitrary pixel values:
+- `text-[14px]` -> `text-sm`
+- Inline `fontSize: "14px"` -> Tailwind class
+
+**Spacing:** Use Tailwind scale, never arbitrary values:
+- `m-[8px]`, `p-[16px]`, `gap-[12px]` -> `m-2`, `p-4`, `gap-3`
+
+**Shadows & Blur:** Use CSS variables or Tailwind utilities:
+- `boxShadow: "0 2px..."` -> `var(--shadow-*)` or `shadow-*`
+- `backdropFilter: "blur(8px)"` -> `var(--blur-*)` or `backdrop-blur-*`
+
+**Duration:** Use token classes:
+- `duration-[200ms]` -> `duration-normal`
+- Allowed tokens: `duration-instant(0ms)`, `duration-fast(150ms)`, `duration-normal(220ms)`, `duration-slow(350ms)`, `duration-slower(500ms)`
+
+**z-index:** Use standard Tailwind numeric classes:
+- `z-0` (base), `z-10` (dropdown), `z-20` (sticky), `z-30` (fixed)
+- `z-40` (modal-backdrop), `z-50` (modal), `z-[60]` (popover), `z-[70]` (tooltip)
+
+**CSP:** Use individual `style.property` assignments, never `cssText`.
 
 ## Import Organization
 
-**Order:**
-1. React / React DOM
-2. Third-party packages (`next/server`, `zustand`, `zod`, `framer-motion`, etc.)
-3. Internal absolute imports using `@/` alias (`@/lib/`, `@/components/`, `@/types/`)
-4. Relative imports (co-located files)
+**Order (enforced by convention, not auto-sorted):**
+1. React / Next.js framework imports
+2. Third-party libraries (`framer-motion`, `zod`, `zustand`, etc.)
+3. Internal absolute imports with `@/` alias, grouped by:
+   - `@/components/ui/...` (UI components)
+   - `@/lib/...` (utilities, hooks, stores, services)
+   - `@/types/...` (type definitions)
+4. Relative imports (co-located files like `./helpers`, `./transform`)
 
 **Path Aliases:**
-- `@/*` -> `./src/*` (the only alias)
+- `@/*` -> `./src/*` (the only alias; use it for all non-relative imports)
 
-**Restricted Imports (ESLint enforced):**
-- Consolidated directories are blocked with error-level rules
-- All components must import from `@/components/ui/*` (not old `@/components/menu/*`, `@/components/admin/*`, etc.)
-- Contexts: import from `@/app/contexts` (not `@/contexts`)
-- Design system: import from `@/lib/design-system` (not `@/design-system`)
+**Barrel Exports:**
+- `src/components/ui/index.ts` is the main UI barrel -- import primitives from `@/components/ui`
+- Each UI subdirectory has its own `index.ts` barrel (e.g., `@/components/ui/checkout`, `@/components/ui/admin`)
+- `src/lib/hooks/index.ts` barrel for hooks
 
-## Error Handling
+**Consolidation Guards:**
+ESLint `no-restricted-imports` prevents importing from deprecated locations. All components live under `@/components/ui/`. Never import from:
+- `@/components/menu/*` -> use `@/components/ui/menu`
+- `@/components/admin/*` -> use `@/components/ui/admin`
+- `@/components/checkout/*` -> use `@/components/ui/checkout`
+- `@/components/driver/*` -> use `@/components/ui/driver`
+- `@/contexts/*` -> use `@/app/contexts`
+- See full list in `eslint.config.mjs` lines 44-151
 
-**API Routes:**
-- Wrap entire handler in `try/catch`
-- Return structured error responses: `{ error: { code: string, message: string } }`
-- Use HTTP status codes correctly: 400, 401, 403, 404, 500
-- Error codes are `SCREAMING_SNAKE_CASE`: `"UNAUTHORIZED"`, `"NOT_FOUND"`, `"INTERNAL_ERROR"`, `"FORBIDDEN"`
-- Log exceptions via `logger.exception(error, context)` in catch blocks
-- Example pattern from `src/app/api/menu/route.ts`:
-  ```typescript
+## Component Patterns
+
+**UI Primitives (shadcn/ui style):**
+Use `cva` (class-variance-authority) for variant-based styling. Pattern:
+
+```typescript
+// src/components/ui/button.tsx
+"use client";
+
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils/cn";
+
+const buttonVariants = cva(
+  "base-classes...",
+  {
+    variants: {
+      variant: { primary: "...", secondary: "...", ghost: "..." },
+      size: { sm: "...", md: "...", lg: "..." },
+    },
+    defaultVariants: { variant: "default", size: "default" },
+  }
+);
+
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof buttonVariants> {
+  asChild?: boolean;
+  isLoading?: boolean;
+}
+
+const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ className, variant, size, ...props }, ref) => (
+    <button
+      className={cn(buttonVariants({ variant, size, className }))}
+      ref={ref}
+      {...props}
+    />
+  )
+);
+Button.displayName = "Button";
+
+export { Button, buttonVariants };
+```
+
+Key rules:
+- Always use `React.forwardRef` for primitives
+- Always set `displayName`
+- Always accept `className` prop and merge with `cn()`
+- Use `"use client"` directive for any component using hooks, events, or Framer Motion
+- Export both the component and its variants function
+- Export the Props interface
+
+**Animated Components:**
+Use Framer Motion `m` (lazy motion) component for animations. Import motion tokens from `@/lib/design-system/tokens/motion`.
+
+```typescript
+import { m, type HTMLMotionProps } from "framer-motion";
+import { spring, hover } from "@/lib/motion-tokens";
+
+const motionProps = shouldAnimate ? {
+  whileHover: hover.buttonPress.whileHover,
+  whileTap: hover.buttonPress.whileTap,
+  transition: spring.snappyButton,
+} : {};
+```
+
+- Respect `useAnimationPreference()` hook -- skip motion when user prefers reduced motion
+- React Compiler is enabled -- do NOT manually use `useMemo`, `useCallback`, or `React.memo`
+
+**Component Subfolder Pattern:**
+When a component exceeds 400 lines, split into subfolder:
+
+```
+ComponentName/
+  index.tsx          # Barrel re-exports only
+  SubComponent.tsx   # PascalCase
+  useHook.ts         # camelCase with use prefix
+  helpers.ts         # camelCase
+```
+
+- Every extracted file using hooks/events needs `'use client'`
+- Barrel `index.tsx` must re-export ALL original exports
+- Example: `src/components/ui/checkout/index.ts`, `src/components/ui/Modal/index.tsx`
+
+## Zustand Store Patterns
+
+**Store definition:**
+```typescript
+// src/lib/stores/cart-store.ts
+import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+
+export const useCartStore = create<CartStore>()(
+  persist(
+    (set, get) => ({
+      // State
+      items: [],
+      // Derived getters
+      getItemsSubtotal: () => { /* ... */ },
+      // Actions
+      addItem: (item) => set((state) => ({ items: [...state.items, item] })),
+      clearCart: () => set({ items: [] }),
+    }),
+    {
+      name: "mms-cart",
+      storage: createJSONStorage(() => cartIDBStorage),
+      partialize: (state) => ({ items: state.items }),
+    }
+  )
+);
+```
+
+- Define the store interface separately in `src/types/` (e.g., `CartStore` in `src/types/cart.ts`)
+- Use `persist` middleware with `createJSONStorage` for IndexedDB or localStorage
+- Use `partialize` to persist only serializable data
+- Export test helpers prefixed with `__` for resetting internal state (e.g., `__clearDebounceState`)
+
+## TanStack React Query Patterns
+
+**Data fetching hooks:**
+```typescript
+// src/lib/hooks/useMenu.ts
+import { useQuery } from "@tanstack/react-query";
+
+export function useMenu() {
+  return useQuery<MenuResponse>({
+    queryKey: ["menu"],
+    queryFn: async () => {
+      const res = await fetch("/api/menu");
+      if (!res.ok) throw new Error("Failed to fetch menu");
+      return res.json() as Promise<MenuResponse>;
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+}
+```
+
+- Always type the `useQuery<T>` generic
+- Use hierarchical `queryKey` arrays: `["menu"]`, `["menu", "search", query]`
+- Fetch via internal API routes (`/api/...`), not direct Supabase client calls
+- Use `enabled` option for conditional queries
+
+## Validation Patterns (Zod)
+
+**Schema definition:**
+```typescript
+// src/lib/validations/checkout.ts
+import { z } from "zod";
+
+export const createCheckoutSessionSchema = z.object({
+  addressId: z.string().uuid("Invalid address ID"),
+  items: z.array(checkoutItemSchema).min(1).max(50),
+  tipCents: z.number().int().min(0).max(100_000).optional(),
+  paymentMethod: z.enum(["stripe", "cod"]).default("stripe"),
+  customerPhone: z.string()
+    .transform((val) => val.replace(/\D/g, ""))
+    .pipe(z.string().min(10).max(15)),
+});
+
+export type CreateCheckoutSessionInput = z.infer<typeof createCheckoutSessionSchema>;
+```
+
+- One schema file per domain in `src/lib/validations/`
+- Always export inferred types alongside schemas
+- Use `.safeParse()` in API routes, never `.parse()` (to control error responses)
+- Include user-friendly error messages in validators
+
+## API Route Patterns
+
+**Standard API route structure:**
+```typescript
+// src/app/api/addresses/route.ts
+import { NextRequest, NextResponse } from "next/server";
+import { createClient } from "@/lib/supabase/server";
+import { logger } from "@/lib/utils/logger";
+import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
+
+export async function GET() {
   try {
-    // ... handler logic
+    // 1. Auth check
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return NextResponse.json(
+      { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
+      { status: 401 }
+    );
+
+    // 2. Rate limiting
+    const rl = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "addresses" });
+    if (rl.limited) return rl.response;
+
+    // 3. Business logic
+    const { data, error } = await supabase.from("addresses").select("*")...;
+    if (error) throw error;
+
+    // 4. Success response
+    return NextResponse.json({ data, meta: { count: data.length } });
   } catch (error) {
-    logger.exception(error, { api: "menu" });
+    // 5. Error handling
+    logger.exception(error, { api: "addresses" });
     return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Failed to fetch menu" } },
+      { error: { code: "INTERNAL_ERROR", message: "Failed to fetch addresses" } },
       { status: 500 }
     );
   }
-  ```
+}
+```
 
-**Auth Checks:**
-- Check `supabase.auth.getUser()` at top of protected routes
-- Return 401 with `UNAUTHORIZED` code if no user
-- Return 403 with `FORBIDDEN` code for role mismatch
+Key patterns:
+- Always wrap in try/catch
+- Auth check first, then rate limit, then validation, then business logic
+- Use structured error format: `{ error: { code: ApiErrorCode, message: string, details?: unknown } }`
+- Error codes: `UNAUTHORIZED`, `FORBIDDEN`, `VALIDATION_ERROR`, `NOT_FOUND`, `RATE_LIMITED`, `INTERNAL_ERROR`, `STRIPE_ERROR`, `CONFLICT`, `BAD_REQUEST`
+- Use `apiError()` helper from `@/lib/utils/api-error.ts` for consistent error responses
+- Zod validation: `schema.safeParse(body)` -> return 400 with `result.error.issues` on failure
+- Use `logger.exception()` for caught errors (sends to Sentry)
+- Success responses: `{ data: T, meta?: { count, coverage, etc. } }`
 
-**Rate Limiting:**
-- Call `checkRateLimit()` early in route handler
-- Return `rl.response` directly if `rl.limited` is true
-- Different limiters: `publicReadLimiter`, `apiWriteLimiter`, `webhookLimiter`
+## Error Handling
 
-**Zod Validation:**
-- Use `.safeParse()` and check `result.success`
-- Return 400 with validation errors if parsing fails
+**Server-side (API routes):**
+- Wrap all route handlers in try/catch
+- Use `logger.exception(error, context)` for Sentry + console logging
+- Return structured `{ error: { code, message } }` JSON responses
+- Use `apiError()` utility for common error responses
 
-## Logging
+**Client-side:**
+- Use `try/catch` with toast notifications for user-facing errors
+- Non-fatal fetch failures: log and continue (e.g., profile auto-fill)
+- Use `catch { /* Non-fatal */ }` pattern for optional features
 
-**Framework:** Custom structured logger at `src/lib/utils/logger.ts` wrapping Sentry
+**Logging:**
+- Framework: `@/lib/utils/logger.ts` wrapping `@sentry/nextjs`
+- Levels: `debug`, `info`, `warn`, `error`, `exception`
+- Always include context: `{ api, userId, orderId, flowId }`
+- In development: outputs to console with `[LEVEL]` prefix
+- In production: adds Sentry breadcrumbs, captures messages for warn/error
 
-**Patterns:**
-- Use `logger.info()`, `logger.warn()`, `logger.error()`, `logger.debug()`
-- Use `logger.exception(error, context)` for caught exceptions (sends to Sentry)
-- Always include context object: `{ orderId, userId, api: "route-name" }`
-- Never use raw `console.log` in production code (exception: dev-only warnings in components)
+```typescript
+logger.error("Failed to update order", { orderId, userId, flowId: "checkout" });
+logger.exception(error, { api: "stripe-webhook" });
+```
 
 ## Comments
 
 **When to Comment:**
-- Section dividers using `// ===...===` bars for major code sections
-- JSDoc on exported functions and complex interfaces
-- Inline comments for business logic rationale
-- Bug fix references: `// BUG-06 fix`, `// TST-01`, `// CHKT-01`
-- Phase references in ESLint rules: `// Phase 26`, `// Phase 33`, etc.
+- Section headers using `// ============...` separator blocks in long files
+- JSDoc on exported functions with `@example` where non-obvious
+- `@deprecated` annotations with migration path
+- Bug fix references: `// BUG-06 FIX: ...` with explanation of root cause
+- Business logic notes: `// CHKT-01: No client-sent prices...`
+- eslint-disable with reason: `// eslint-disable-next-line react-hooks/exhaustive-deps`
 
 **JSDoc/TSDoc:**
-- Use `/** */` on exported functions, especially hooks and utilities
-- Include `@example` blocks where helpful (see `src/lib/utils/logger.ts`)
-- Component props get `/** description */` inline on each property
+- Used on exported functions in libraries and utilities
+- Not required on React components (Props interface serves as documentation)
+- Include `@example` for non-obvious APIs (e.g., motion tokens, logger)
 
-## Function Design
+## `cn()` Utility
 
-**Size:** Functions should be focused and small. Extract helpers for complex logic. Max file size 400 lines forces function decomposition.
+Use `cn()` from `@/lib/utils/cn` for all Tailwind class merging:
+```typescript
+import { cn } from "@/lib/utils/cn";
+// Combines clsx + tailwind-merge
+cn("base-class", conditional && "extra", className)
+```
 
-**Parameters:**
-- Use typed objects for 3+ parameters
-- API route params: `{ params }: RouteParams` with `RouteParams` having `params: Promise<{ id: string }>`
-- Optional parameters use `?` or have defaults
+## Money Handling
 
-**Return Values:**
-- API routes return `NextResponse.json()`
-- Hooks return typed state objects
-- Pure functions exported separately from hooks for testability (e.g., `computeDeliveryGate` is pure, `useDeliveryGate` is the hook wrapper)
-
-## Module Design
-
-**Exports:**
-- Named exports preferred over default exports
-- Components: `export { Button, buttonVariants }`
-- Hooks: `export function useDeliveryGate()` + `export function computeDeliveryGate()`
-- Types: `export type` / `export interface` alongside implementation
-
-**Barrel Files:**
-- Hooks barrel: `src/lib/hooks/index.ts`
-- Component subfolders use `index.tsx` barrel
-- Not all directories have barrels; many modules are imported directly
-
-## Component Patterns
-
-**UI Components:**
-- Use `cva` (class-variance-authority) for variant styling: `src/components/ui/button.tsx`
-- Use `cn()` from `@/lib/utils/cn` for className merging (clsx + tailwind-merge)
-- Use `React.forwardRef` for interactive primitives
-- Set `displayName` on forwarded ref components
-- Client components must have `"use client"` directive at top
-- React Compiler is enabled -- do NOT use manual `useMemo`, `useCallback`, `React.memo`
-
-**Design Token Enforcement (ESLint):**
-- No hardcoded hex colors in Tailwind classes (use semantic tokens: `bg-primary`, `text-text-inverse`)
-- No `text-white`/`text-black`/`bg-white`/`bg-black` (use `text-text-inverse`, `text-text-primary`, `bg-surface-primary`, `bg-surface-inverse`)
-- No arbitrary pixel values in spacing/padding/margin/gap (use Tailwind scale)
-- No hardcoded `fontSize`, `fontWeight`, `boxShadow`, `transitionDuration` in style objects
-- No `duration-[Nms]` (use `duration-fast`, `duration-normal`, `duration-slow`, `duration-slower`)
-- No `cssText` assignments (CSP compatibility)
-- z-index: use standard Tailwind classes `z-0` through `z-50`, or `z-[60]`/`z-[70]`/etc., or tokens from `@/lib/design-system/tokens/z-index`
-
-**Tailwind v4:**
-- `@theme inline` in CSS is the source of truth for design tokens
-- `tailwind.config.ts` content is dead code (kept for reference only)
-
-**Data Mapping:**
-- Database rows use `snake_case` (e.g., `base_price_cents`, `is_sold_out`)
-- Application types use `camelCase` (e.g., `basePriceCents`, `isSoldOut`)
-- Map explicitly at the API boundary in route handlers
-
-**Zustand Stores:**
-- Create with `create()` from zustand
-- Use `persist` middleware with `createJSONStorage` for client persistence
-- Export store hook and any test helpers (e.g., `__clearDebounceState`)
-- Access state in tests: `useCartStore.getState()`
+- All monetary values stored and computed in **cents** (integer)
+- Variable naming: suffixed with `Cents` (e.g., `basePriceCents`, `deliveryFeeCents`, `totalCents`)
+- Display formatting: `formatPrice(cents)` from `@/lib/utils/format.ts`
+- Never use floating-point for money calculations
 
 ---
 
-*Convention analysis: 2026-03-06*
+*Convention analysis: 2026-03-14*
