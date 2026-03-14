@@ -125,7 +125,7 @@ function main() {
     .map(([topic, file]) => `- ${topic}: .claude/learnings/${file}`)
     .join("\n");
 
-  const context = `Recent changes and last session touch these learning areas. Scan relevant files before debugging:\n${topicList}\n\nFull index: .claude/learnings/INDEX.md`;
+  const context = `Recent work touches: ${[...matchedTopics.keys()].join(', ')}. Top gotchas inlined in CLAUDE.md. Deep-dive files if needed:\n${topicList}`;
 
   // Output as additionalContext
   console.log(JSON.stringify({ additionalContext: context }));

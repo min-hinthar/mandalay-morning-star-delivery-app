@@ -89,10 +89,29 @@ ComponentName/
 - **Distance-tiered fees** — >25mi: flat $20 (no free delivery); ≤25mi: $15 or free if subtotal ≥$100. Zone bearings in `delivery_zones` table, fee settings in `app_settings`
 - **COD payment flow** — `pending_approval` status, admin approval via `/approve-cod` endpoint
 
+## Gotchas (from learnings)
+
+- `void asyncFn()` killed on Vercel — use `await` or `after()` for fire-and-forget
+- Service client `auth.getUser()` returns null — use `auth.admin.getUserById()`
+- `!value` falsy check on numbers treats 0 as missing — use `value == null`
+- `getUTCDay()` wrong in LA timezone — use `getZonedDayOfWeek()` helper
+- `@react-google-maps/api` crashes SSR — always `ssr: false` dynamic import
+- `google.maps.*` in useMemo runs before API loads — guard with `if (!isLoaded) return null`
+- PostgREST FK hints: only needed for multiple FKs to same table; wrong hints break single-FK joins
+- `DO NOTHING` / `ignoreDuplicates` won't fill NULL cols — use `DO UPDATE WHERE col IS NULL`
+- `.update()` returns no row count — chain `.select("id")` to verify affected rows
+- Webhook handlers: return 500 on DB errors for retry; never swallow into 200
+- `loading="lazy"` + animated containers (opacity 0) = images never load
+- Nested `overflow-y-auto` without explicit height — wheel events blocked
+- `useRef` on conditional render targets breaks observers — use stable wrapper element
+- Event listeners belong inside `useEffect`, not via `useCallback` with state deps
+- `process.env.KEY` inlined at build — can't validate dynamically at runtime
+
 ## Learnings
 
-- `.claude/learnings/INDEX.md` - scan first, links all 13 topic files
-- `.claude/ERROR_HISTORY.md` - past bugs, root causes, fixes
+- Top gotchas inlined above — covers most recurring bugs
+- Deep dives: `.claude/learnings/{topic}.md` (13 topic files)
+- `.claude/learnings/INDEX.md` for full topic index
 
 ## Plugins
 
