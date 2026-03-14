@@ -5,6 +5,7 @@ import { CartOverlays } from "@/components/ui/cart/CartOverlays";
 import { DeliverySettingsSync } from "@/components/ui/cart/DeliverySettingsSync";
 import { OfflineBanner } from "@/components/ui/customer";
 import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
+import { FeedbackFAB, FeedbackSheet } from "@/components/ui/feedback";
 import type { DeliveryDayConfig } from "@/types/delivery";
 
 interface CustomerShellProps {
@@ -42,6 +43,8 @@ export function CustomerShell({
       />
       {children}
       <CartOverlays />
+      <FeedbackFAB />
+      <FeedbackSheet />
     </DomMaxProvider>
   );
 }

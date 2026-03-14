@@ -11,20 +11,22 @@
 import { useCallback, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { m } from "framer-motion";
-import { User, Package, Settings } from "lucide-react";
+import { User, Package, Settings, MessageSquare } from "lucide-react";
 import { Tabs } from "@/components/ui/Tabs";
 import { ProfileTab } from "./ProfileTab";
 import { OrdersTab } from "./OrdersTab";
 import { SettingsTab } from "./SettingsTab";
+import { FeedbackTab } from "./FeedbackTab";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
-type AccountTab = "profile" | "orders" | "settings";
+type AccountTab = "profile" | "orders" | "feedback" | "settings";
 
-const VALID_TABS: AccountTab[] = ["profile", "orders", "settings"];
+const VALID_TABS: AccountTab[] = ["profile", "orders", "feedback", "settings"];
 
 const TABS = [
   { id: "profile" as const, label: "Profile", icon: <User className="h-4 w-4" /> },
   { id: "orders" as const, label: "Orders", icon: <Package className="h-4 w-4" /> },
+  { id: "feedback" as const, label: "Feedback", icon: <MessageSquare className="h-4 w-4" /> },
   { id: "settings" as const, label: "Settings", icon: <Settings className="h-4 w-4" /> },
 ];
 
@@ -85,6 +87,7 @@ function AccountClientInner() {
         >
           {activeTab === "profile" && <ProfileTab />}
           {activeTab === "orders" && <OrdersTab />}
+          {activeTab === "feedback" && <FeedbackTab />}
           {activeTab === "settings" && <SettingsTab initialSection={section} />}
         </m.div>
       </div>

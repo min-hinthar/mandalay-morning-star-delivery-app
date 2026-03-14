@@ -15,6 +15,7 @@ import {
 import { easing } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { KITCHEN_LOCATION } from "@/types/address";
+import { useFeedbackStore } from "@/components/ui/feedback/feedback-store";
 
 /**
  * Column variants for staggered footer reveals.
@@ -87,6 +88,7 @@ const BUSINESS_LISTINGS = [
  */
 export function SiteFooter() {
   const { shouldAnimate } = useAnimationPreference();
+  const openFeedback = useFeedbackStore((s) => s.open);
 
   return (
     <footer className="py-12 px-4 bg-footer-bg">
@@ -211,6 +213,15 @@ export function SiteFooter() {
                 >
                   Terms of Service
                 </Link>
+              </li>
+              <li>
+                <button
+                  type="button"
+                  onClick={() => openFeedback()}
+                  className="text-sm font-body hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
+                >
+                  Send Feedback
+                </button>
               </li>
             </ul>
           </m.div>
