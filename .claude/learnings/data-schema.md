@@ -44,7 +44,6 @@ Config: `src/lib/search/search-config.ts`
 |-------------|--------|---------|
 | `orders` | `profiles` | `profiles!orders_user_id_fkey` |
 | `orders` | `addresses` | `addresses!orders_address_id_fkey` |
-| `customer_feedback` | `profiles` | `profiles!customer_feedback_user_id_fkey` |
 
 **Affected routes (all fixed 2026-03-02):**
 - `api/admin/orders`, `api/admin/orders/[id]/details`, `api/admin/ops/orders`
@@ -52,11 +51,13 @@ Config: `src/lib/search/search-config.ts`
 - `api/admin/drivers/[id]/ratings`
 - `(driver)/driver/route/page.tsx`, `(driver)/driver/route/[stopId]/page.tsx`
 
+**Caveat:** FK hints are only needed when the source table has **multiple FKs to the same target**. `customer_feedback` has only ONE FK (`user_id → auth.users`), so `profiles` joins work without a hint — PostgREST infers the through-join via `auth.users` automatically. A wrong hint (`profiles!customer_feedback_user_id_fkey`) actually breaks the query because the FK targets `auth.users`, not `profiles`.
+
 **Prevention:** When adding a new FK to any table, run:
 ```bash
 grep -rn 'from.*TABLE_NAME' src/app/api/ --include='*.ts' | grep 'select'
 ```
-Add FK hints to every query joining the target table.
+Add FK hints to every query joining the target table. But don't add hints when there's only one FK path — it can cause the opposite problem.
 
 **Apply when:** Adding new FK columns or writing Supabase queries that join tables with multiple FK relationships.
 

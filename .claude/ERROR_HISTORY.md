@@ -156,6 +156,20 @@ Migration `030_email_reliability.sql` added `orders.contacted_by → profiles`, 
 
 ---
 
+## PostgREST Wrong FK Hint Breaks Single-FK Join | Runtime | High
+
+**Date:** 2026-03-14 | **Files:** `src/app/(admin)/admin/feedback/page.tsx`, `src/app/api/admin/feedback/route.ts`
+
+`customer_feedback.user_id` → `auth.users(id)` (single FK). Query used `profiles!customer_feedback_user_id_fkey (...)` — PostgREST couldn't resolve because the FK targets `auth.users`, not `profiles`. Admin feedback page showed "Failed to load feedback".
+
+**Root cause:** FK hint was copied from the `orders` pattern (which has 2 FKs to profiles and genuinely needs hints). `customer_feedback` has only 1 FK, so the hint is unnecessary and actively harmful.
+
+**Fix:** Removed FK hint → `profiles (full_name, email)`. PostgREST infers the through-join automatically.
+
+**Prevention:** Only add FK hints when a table has **multiple** FKs to the same target. Single-FK tables work without hints. Adding a wrong hint is worse than no hint.
+
+---
+
 ## Storage Bucket Mime Type vs Processing Output | Migration/Config | Critical
 
 **Date:** 2026-03-03 | **Files:** `supabase/migrations/007_menu_photos_storage.sql`, `src/app/api/admin/photos/process/route.ts`

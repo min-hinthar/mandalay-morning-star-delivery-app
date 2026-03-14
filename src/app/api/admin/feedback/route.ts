@@ -46,7 +46,7 @@ export async function GET(request: NextRequest) {
       .select(
         `
         *,
-        profiles!customer_feedback_user_id_fkey (
+        profiles (
           full_name,
           email
         )

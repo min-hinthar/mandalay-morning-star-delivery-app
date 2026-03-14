@@ -32,14 +32,47 @@ export async function POST(request: NextRequest) {
     });
     if (rl.limited) return rl.response;
 
-    // Parse body
-    const body = await request.json();
+    // Parse body — supports JSON or multipart/form-data (with screenshot)
+    const contentType = request.headers.get("content-type") ?? "";
+    let body: unknown;
+    let screenshotFile: File | null = null;
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      const dataField = formData.get("data");
+      if (typeof dataField !== "string") {
+        return NextResponse.json({ error: "Missing data field" }, { status: 400 });
+      }
+      body = JSON.parse(dataField);
+      const file = formData.get("screenshot");
+      if (file instanceof File) {
+        screenshotFile = file;
+      }
+    } else {
+      body = await request.json();
+    }
+
     const parsed = createFeedbackSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Validation failed", details: parsed.error.flatten().fieldErrors },
         { status: 400 }
       );
+    }
+
+    // Validate screenshot file if provided
+    const ALLOWED_MIME_TYPES = ["image/jpeg", "image/png", "image/webp"];
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+    if (screenshotFile) {
+      if (!ALLOWED_MIME_TYPES.includes(screenshotFile.type)) {
+        return NextResponse.json(
+          { error: "Screenshot must be JPEG, PNG, or WebP" },
+          { status: 400 }
+        );
+      }
+      if (screenshotFile.size > MAX_FILE_SIZE) {
+        return NextResponse.json({ error: "Screenshot must be under 5MB" }, { status: 400 });
+      }
     }
 
     const { category, subject, message, orderId, pageUrl, userAgent, sentryEventId, contactEmail } =
@@ -70,11 +103,7 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Screenshot handling placeholder (upload handled via FormData in future)
-    const screenshotUrl: string | null = null;
-    const screenshotPath: string | null = null;
-
-    // Insert feedback
+    // Insert feedback (screenshot uploaded after to get feedbackId for path)
     const service = createServiceClient();
     const resolvedEmail = user?.email ?? contactEmail ?? null;
 
@@ -91,8 +120,8 @@ export async function POST(request: NextRequest) {
         page_url: pageUrl ?? null,
         user_agent: userAgent ?? null,
         sentry_event_id: sentryEventId ?? null,
-        screenshot_url: screenshotUrl,
-        screenshot_path: screenshotPath,
+        screenshot_url: null,
+        screenshot_path: null,
         status: "new",
       } as Record<string, unknown>)
       .select("id")
@@ -104,6 +133,37 @@ export async function POST(request: NextRequest) {
     }
 
     const feedbackId = (feedback as unknown as Record<string, unknown>).id as string;
+
+    // Upload screenshot to storage if provided
+    let screenshotUrl: string | null = null;
+    if (screenshotFile) {
+      const buffer = Buffer.from(await screenshotFile.arrayBuffer());
+      const storagePath = `${feedbackId}/${screenshotFile.name}`;
+
+      const { error: uploadError } = await service.storage
+        .from("feedback-attachments")
+        .upload(storagePath, buffer, { contentType: screenshotFile.type });
+
+      if (uploadError) {
+        logger.error("Failed to upload screenshot", { error: uploadError.message, feedbackId });
+      } else {
+        const {
+          data: { publicUrl },
+        } = service.storage.from("feedback-attachments").getPublicUrl(storagePath);
+
+        screenshotUrl = publicUrl;
+
+        // Update feedback row with screenshot URL + path
+        await service
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          .from("customer_feedback" as any)
+          .update({
+            screenshot_url: publicUrl,
+            screenshot_path: storagePath,
+          } as Record<string, unknown>)
+          .eq("id", feedbackId);
+      }
+    }
 
     // Send emails asynchronously
     after(async () => {
