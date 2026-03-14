@@ -9,6 +9,7 @@ import {
   ClipboardList,
   FolderTree,
   BarChart3,
+  MessageSquare,
   Settings,
   ChevronLeft,
   Menu,
@@ -74,6 +75,11 @@ const navItems = [
     label: "Analytics",
     href: "/admin/analytics",
     icon: BarChart3,
+  },
+  {
+    label: "Feedback",
+    href: "/admin/feedback",
+    icon: MessageSquare,
   },
   {
     label: "Settings",

@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { FooterLink } from "@/components/ui/AnimatedLink";
+import { useFeedbackStore } from "@/components/ui/feedback/feedback-store";
 
 // ============================================
 // TYPES
@@ -30,6 +31,7 @@ const defaultLinks = [
 
 export function DrawerFooter({ className }: DrawerFooterProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  const openFeedback = useFeedbackStore((s) => s.open);
 
   return (
     <m.div
@@ -45,6 +47,13 @@ export function DrawerFooter({ className }: DrawerFooterProps) {
             {link.label}
           </FooterLink>
         ))}
+        <button
+          type="button"
+          onClick={() => openFeedback()}
+          className="text-xs text-text-muted hover:text-text-secondary transition-colors"
+        >
+          Help & Feedback
+        </button>
       </div>
 
       {/* Copyright */}

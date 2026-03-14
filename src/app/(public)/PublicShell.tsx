@@ -5,6 +5,7 @@ import { CartOverlays } from "@/components/ui/cart/CartOverlays";
 import { DeliverySettingsSync } from "@/components/ui/cart/DeliverySettingsSync";
 import { OfflineBanner } from "@/components/ui/customer";
 import { SiteFooter } from "@/components/ui/homepage/SiteFooter";
+import { FeedbackFAB, FeedbackSheet } from "@/components/ui/feedback";
 import type { DeliveryDayConfig } from "@/types/delivery";
 
 interface PublicShellProps {
@@ -43,6 +44,8 @@ export function PublicShell({
       {children}
       <SiteFooter />
       <CartOverlays />
+      <FeedbackFAB />
+      <FeedbackSheet />
     </>
   );
 }
