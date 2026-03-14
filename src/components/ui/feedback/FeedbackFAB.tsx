@@ -59,10 +59,7 @@ export function FeedbackFAB() {
           isDragging.current = false;
         }}
         onDrag={() => {
-          if (
-            Math.abs(x.get()) > DRAG_THRESHOLD ||
-            Math.abs(y.get()) > DRAG_THRESHOLD
-          ) {
+          if (Math.abs(x.get()) > DRAG_THRESHOLD || Math.abs(y.get()) > DRAG_THRESHOLD) {
             isDragging.current = true;
           }
         }}
