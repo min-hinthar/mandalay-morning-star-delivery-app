@@ -88,8 +88,9 @@ export function FeedbackFAB() {
       const ds = dragState.current;
       dragState.current = null;
       if (!ds?.moved) {
-        // Was a tap, not drag — open the sheet
-        open();
+        // Defer open so the trailing click event fires (and dissipates)
+        // before the sheet backdrop renders — prevents instant close
+        requestAnimationFrame(() => open());
       }
     },
     [open]
