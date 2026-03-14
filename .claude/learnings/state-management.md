@@ -86,3 +86,23 @@ Both `(customer)/layout.tsx` and `(public)/layout.tsx` must pass the prop. The S
 **Symptom of gap:** Store has default values that work initially but go stale if admin changes the DB setting. No error, no type error — just silently uses defaults forever.
 
 **Apply when:** Adding new fields to `getBusinessRules()` that affect client-side pricing/logic.
+
+---
+
+## Zustand + IDB Persist: `getState()` in useMemo Doesn't Re-render After Hydration
+
+**Context:** `FeedbackFAB` used `useCart()` hook (which wraps `useCartStore.getState()` in `useMemo`) to check if cart has items. FAB stayed at `bottom-6` even when cart had items because `getState()` read the pre-hydration empty state and `useMemo` never re-triggered after IndexedDB async hydration completed.
+
+**Learning:** `useCartStore.getState()` inside `useMemo` captures a snapshot — it's not reactive. After async hydration (IDB via `idb-keyval`), the store updates but `useMemo` doesn't re-run because no reactive dependency changed. Use a direct Zustand selector instead:
+
+```tsx
+// BAD — not reactive after async IDB hydration
+const { itemCount } = useCart(); // uses useMemo + getState()
+
+// GOOD — selector subscribes to store, re-renders on change
+const hasCartItems = useCartStore((s) => s.items.length > 0);
+```
+
+**Note:** `CartBar` works because it uses a `mounted` state guard (`useState(false)` + `useEffect(() => setMounted(true))`) that delays rendering until after hydration — a different workaround for the same underlying issue.
+
+**Apply when:** Reading from Zustand stores with async persistence (IDB, AsyncStorage) in components that need to react to hydration.

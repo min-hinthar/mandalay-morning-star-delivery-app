@@ -48,6 +48,11 @@ interface EmailLogRow {
   status: string;
 }
 
+interface OrderItemModifierRow {
+  name_snapshot: string;
+  price_delta_snapshot: number;
+}
+
 interface OrderItemRow {
   id: string;
   name_snapshot: string;
@@ -58,6 +63,7 @@ interface OrderItemRow {
   refunded_quantity: number;
   special_instructions: string | null;
   menu_items: { name_my: string | null } | null;
+  order_item_modifiers: OrderItemModifierRow[];
 }
 
 interface AuditLogRow {
@@ -168,8 +174,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         line_total_cents,
         refunded_quantity,
         special_instructions,
-        menu_items(name_my)
-      `
+        menu_items(name_my),
+        order_item_modifiers(name_snapshot, price_delta_snapshot)
+`
       )
       .eq("order_id", orderId)
       .order("created_at", { ascending: true })
@@ -263,6 +270,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         lineTotal: item.line_total_cents,
         refundedQuantity: item.refunded_quantity || 0,
         specialInstructions: item.special_instructions,
+        modifiers: (item.order_item_modifiers || []).map((mod) => ({
+          name: mod.name_snapshot,
+          priceDelta: mod.price_delta_snapshot,
+        })),
       })),
       subtotalCents: order.subtotal_cents,
       deliveryFeeCents: order.delivery_fee_cents,

@@ -87,6 +87,38 @@ Also: default `isVisible` to `true` for above-fold components, use IntersectionO
 
 ---
 
+## Framer Motion `drag` Unreliable with CSS `fixed` — Use Pointer Events
+
+**Context:** `FeedbackFAB` used framer-motion `drag` prop on a `position: fixed` element. Drag was unreliable on both mobile and desktop — element would jump, get stuck, or not respond.
+
+**Learning:** Framer Motion's `drag` prop + `dragConstraints` doesn't work reliably with CSS `position: fixed`. The constraint calculations assume the element is in normal flow. For draggable fixed-position elements (FABs, floating panels), use native pointer events with `setPointerCapture`:
+
+```tsx
+const handlePointerDown = (e: React.PointerEvent) => {
+  e.currentTarget.setPointerCapture(e.pointerId); // Captures even outside element
+  dragState.current = { active: true, startX: e.clientX, startY: e.clientY, ... };
+};
+const handlePointerMove = (e: React.PointerEvent) => {
+  // Calculate new right/bottom from delta, clamp to viewport
+  setPos({ right: clampedRight, bottom: clampedBottom });
+};
+const handlePointerUp = (e: React.PointerEvent) => {
+  e.currentTarget.releasePointerCapture(e.pointerId);
+  if (!dragState.current?.moved) open(); // Tap vs drag via threshold
+};
+```
+
+Key details:
+- `setPointerCapture` ensures drag continues even if pointer leaves element
+- Tap vs drag detected via movement threshold (6px)
+- Position stored as `{ right, bottom }` for fixed elements (not `left, top`)
+- Clamp to viewport with `EDGE_PAD` margin
+- Add `touch-none select-none cursor-grab active:cursor-grabbing` classes
+
+**Apply when:** Making `position: fixed` elements draggable. Framer Motion `drag` works fine for in-flow elements.
+
+---
+
 ## Inline Styles with CSS Variables
 
 When className tokens don't apply (portals, stacking context), use both: `style={{ backgroundColor: "var(--color-surface-elevated)" }}` + `className="bg-surface-elevated"`.

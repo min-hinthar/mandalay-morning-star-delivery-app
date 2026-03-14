@@ -44,6 +44,7 @@ Config: `src/lib/search/search-config.ts`
 |-------------|--------|---------|
 | `orders` | `profiles` | `profiles!orders_user_id_fkey` |
 | `orders` | `addresses` | `addresses!orders_address_id_fkey` |
+| `customer_feedback` | `profiles` | `profiles!customer_feedback_user_id_fkey` |
 
 **Affected routes (all fixed 2026-03-02):**
 - `api/admin/orders`, `api/admin/orders/[id]/details`, `api/admin/ops/orders`
@@ -228,6 +229,25 @@ UPDATE route_stops rs SET stop_index = data.new_index ...
 `INITIALLY IMMEDIATE` means normal inserts/updates still check instantly. Only the RPC explicitly defers when doing batch swaps.
 
 **Apply when:** Batch-updating columns involved in unique constraints (sortable lists, reorderable items, index swaps).
+
+---
+
+## Idempotent PostgreSQL Enum Creation
+
+**Context:** Migration `20260314_customer_feedback.sql` used `CREATE TYPE feedback_category AS ENUM (...)`. Applying to a database where the type already existed failed with `ERROR: 42710: type "feedback_category" already exists`.
+
+**Learning:** PostgreSQL `CREATE TYPE` has no `IF NOT EXISTS` clause. Use `DO/EXCEPTION` block for idempotent enum creation:
+
+```sql
+DO $$ BEGIN
+  CREATE TYPE feedback_category AS ENUM ('bug_report', 'order_issue', 'suggestion', 'general');
+EXCEPTION WHEN duplicate_object THEN NULL;
+END $$;
+```
+
+Also pair with `CREATE TABLE IF NOT EXISTS` and `CREATE INDEX IF NOT EXISTS` for full idempotency.
+
+**Apply when:** Writing migrations that create custom enum types, especially for tables that may be partially applied or re-run.
 
 ---
 
