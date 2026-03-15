@@ -49,7 +49,7 @@ export function useSplitRoute({ onSuccess }: UseSplitRouteOptions) {
         setIsSplitting(false);
       }
     },
-    [onSuccess],
+    [onSuccess]
   );
 
   return { splitRoute, isSplitting };

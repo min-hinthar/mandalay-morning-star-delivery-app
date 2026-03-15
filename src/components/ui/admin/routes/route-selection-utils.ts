@@ -3,10 +3,7 @@ import type { StopDetail, RouteStatus } from "@/types/driver";
 /**
  * Toggle a stop ID in the selection set (immutable).
  */
-export function toggleStopSelection(
-  selectedIds: Set<string>,
-  stopId: string,
-): Set<string> {
+export function toggleStopSelection(selectedIds: Set<string>, stopId: string): Set<string> {
   const next = new Set(selectedIds);
   if (next.has(stopId)) {
     next.delete(stopId);
@@ -20,10 +17,7 @@ export function toggleStopSelection(
  * Select all selectable stops based on route status.
  * For in_progress routes, only pending stops are selectable.
  */
-export function selectAllStops(
-  stops: StopDetail[],
-  routeStatus: RouteStatus,
-): Set<string> {
+export function selectAllStops(stops: StopDetail[], routeStatus: RouteStatus): Set<string> {
   return new Set(getSelectableStops(stops, routeStatus));
 }
 
@@ -41,7 +35,7 @@ export function deselectAllStops(): Set<string> {
  */
 export function validateSplitSelection(
   selectedIds: Set<string>,
-  totalStopCount: number,
+  totalStopCount: number
 ): { valid: boolean; error?: string } {
   if (selectedIds.size === 0) {
     return { valid: false, error: "Select at least one stop" };
@@ -57,10 +51,7 @@ export function validateSplitSelection(
  * For in_progress routes, only pending stops are selectable.
  * For all other statuses, all stops are selectable.
  */
-export function getSelectableStops(
-  stops: StopDetail[],
-  routeStatus: RouteStatus,
-): string[] {
+export function getSelectableStops(stops: StopDetail[], routeStatus: RouteStatus): string[] {
   if (routeStatus === "in_progress") {
     return stops.filter((s) => s.status === "pending").map((s) => s.id);
   }

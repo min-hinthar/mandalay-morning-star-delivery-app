@@ -12,14 +12,11 @@ export function useMergeRoutes({ onSuccess }: UseMergeRoutesOptions) {
     async (destinationRouteId: string, sourceRouteId: string) => {
       setIsMerging(true);
       try {
-        const response = await fetch(
-          `/api/admin/routes/${destinationRouteId}/merge`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ sourceRouteId }),
-          },
-        );
+        const response = await fetch(`/api/admin/routes/${destinationRouteId}/merge`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sourceRouteId }),
+        });
 
         if (!response.ok) {
           const data = await response.json();
@@ -32,8 +29,7 @@ export function useMergeRoutes({ onSuccess }: UseMergeRoutesOptions) {
 
         const data = await response.json();
         toast({
-          message:
-            "Routes merged successfully. Route may need reordering.",
+          message: "Routes merged successfully. Route may need reordering.",
           type: "success",
         });
         onSuccess(data.totalStops);
@@ -43,7 +39,7 @@ export function useMergeRoutes({ onSuccess }: UseMergeRoutesOptions) {
         setIsMerging(false);
       }
     },
-    [onSuccess],
+    [onSuccess]
   );
 
   return { mergeRoutes, isMerging };
