@@ -115,11 +115,13 @@ Plans:
   3. Admin can select stops from an overloaded route and split them into a new route with driver assignment
   4. Admin can merge two light routes into one route
   5. Admin can reassign a different driver to an in-progress route
-**Plans**: TBD
+**Plans**: 4 plans
 
 Plans:
-- [ ] 100-01: TBD
-- [ ] 100-02: TBD
+- [ ] 100-01-PLAN.md — Install @dnd-kit, extract RouteStopCard subfolder, build DragReorderList, Actions dropdown shell
+- [ ] 100-02-PLAN.md — Supabase migration (split_route/merge_routes RPCs), API endpoints, Zod schemas
+- [ ] 100-03-PLAN.md — Drag reorder wiring, mobile move buttons, driver reassignment with confirmation
+- [ ] 100-04-PLAN.md — Split route flow, merge route flow, selection mode, modals
 
 ### Phase 101: Driver Experience
 **Goal**: Drivers can accept routes, execute deliveries through a complete stop-by-stop flow, and all driver pages show real working data
@@ -173,7 +175,7 @@ Phases execute in numeric order: 99 -> 100 -> 101 -> 102
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 99. Foundation Fixes | 3/3 | Complete    | 2026-03-15 | - |
-| 100. Admin Route Editing | v2.1 | 0/TBD | Not started | - |
+| 100. Admin Route Editing | v2.1 | 0/4 | Not started | - |
 | 101. Driver Experience | v2.1 | 0/TBD | Not started | - |
 | 102. Admin Mobile UX | v2.1 | 0/TBD | Not started | - |
 
