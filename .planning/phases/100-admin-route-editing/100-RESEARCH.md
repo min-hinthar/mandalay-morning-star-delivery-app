@@ -724,12 +724,65 @@ $$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
 ### Tertiary (LOW confidence)
 - None
 
+## Cross-Phase Learnings Audit (2026-03-15)
+
+Verified against 14 learnings files, 3 retrospectives, and actual codebase state.
+
+### Critical Findings
+
+**1. RouteDetailClient.tsx is ALREADY 407 lines (over 400-line ESLint limit)**
+- Research Pitfall 7 flags RouteStopCard (317 lines) but misses RouteDetailClient
+- Adding reorder state, selection mode, split/merge modals will push it to ~600+ lines
+- **Plan MUST extract RouteDetailClient BEFORE adding features** — split into:
+  - `RouteDetailClient.tsx` (orchestrator: data fetch, state, renders children)
+  - `RouteActionsMenu.tsx` (three-dot dropdown)
+  - `SplitRouteModal.tsx` (split flow)
+  - `MergeRouteModal.tsx` (merge flow)
+- Mutation hooks (useReorderStops, useSplitRoute, etc.) further reduce file size
+
+**2. routes/[id]/route.ts is 437 lines (over limit)**
+- New split/merge endpoints correctly planned as SEPARATE route files (POST)
+- Existing PATCH handler must NOT grow — no modifications to route.ts itself
+
+**3. Vercel fire-and-forget (from nextjs.md learning)**
+- API route handlers for split/merge MUST `await` Supabase RPC calls
+- Never use `void rpc()` or fire-and-forget in API handlers
+- Client-side fetch().then() pattern (for reorder) is fine — only applies to API routes
+
+**4. Supabase mock chain matching (from testing.md learning)**
+- New mutation hooks will need test mocks matching exact fluent chain
+- `supabase.rpc("split_route", { ... })` needs mock for `.rpc()` returning `{ data, error }`
+- Simpler than `.from().update().eq().select()` chains but still must match
+
+**5. Barrel exports require 'use client' on extracted files (from CLAUDE.md)**
+- Every file extracted from RouteStopCard/ and RouteDetailClient/ that uses hooks/events needs `'use client'` directive
+- Barrel `index.tsx` must re-export ALL original exports
+
+### Confirmed Safe (no issues)
+
+| Claim | Verification |
+|-------|-------------|
+| @dnd-kit React 19 compatible | peer dep `react >= 16.8.0` — verified npm |
+| prevent_duplicate_active_assignment INSERT only | Verified in migration SQL line 29 |
+| batch_update_stop_indices uses DEFERRED | Verified in 20260313 migration |
+| reindex_route_stops exists | Verified in 20260312 migration + database.ts |
+| update_route_stats exists | Verified in 20260312 migration + database.ts |
+| route_stops_route_id_stop_index_key constraint name | Verified in 20260313 migration |
+| isManuallyReordered is client-only state | Verified useState in RouteDetailClient line 45 |
+| forceOverride check rejects in_progress | Verified in route.ts lines 231-248 |
+| Radix DropdownMenu available via shadcn/ui | Verified at src/components/ui/dropdown-menu.tsx |
+| framer-motion uses `m.` prefix | Verified in RouteStopCard.tsx |
+| No existing route mutation hooks | Verified — direct fetch calls only |
+| StopsList sorts by stopIndex | Verified sort at line 35 |
+
 ## Metadata
 
 **Confidence breakdown:**
 - Standard stack: HIGH -- verified npm registry peer deps, React 19 compatible
 - Architecture: HIGH -- patterns derived from official docs + existing codebase analysis
 - Pitfalls: HIGH -- trigger behavior verified from actual migration SQL, DragOverlay patterns from official docs
+- Cross-phase audit: HIGH -- all 14 learnings files checked, 3 critical additions made
 
 **Research date:** 2026-03-15
+**Cross-phase audit:** 2026-03-15
 **Valid until:** 2026-04-15 (stable libraries, unlikely to change)
