@@ -81,7 +81,7 @@
 - Integer phases (99, 100, 101, 102): Planned v2.1 milestone work
 - Decimal phases (100.1, 100.2): Urgent insertions if needed (marked with INSERTED)
 
-- [ ] **Phase 99: Foundation Fixes** - Auth redirect bug fix, order detail completeness, delivery notes, manual tracking display
+- [x] **Phase 99: Foundation Fixes** - Auth redirect bug fix, order detail completeness, delivery notes, manual tracking display (completed 2026-03-15)
 - [ ] **Phase 100: Admin Route Editing** - Drag-reorder stops, split/merge routes, driver reassignment with @dnd-kit
 - [ ] **Phase 101: Driver Experience** - Route acceptance, page audit, stop reordering in advanced mode
 - [ ] **Phase 102: Admin Mobile UX** - Sidebar to drawer, tables to cards, touch targets, route progress widget
@@ -172,7 +172,7 @@ Phases execute in numeric order: 99 -> 100 -> 101 -> 102
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 99. Foundation Fixes | 1/3 | In Progress|  | - |
+| 99. Foundation Fixes | 3/3 | Complete   | 2026-03-15 | - |
 | 100. Admin Route Editing | v2.1 | 0/TBD | Not started | - |
 | 101. Driver Experience | v2.1 | 0/TBD | Not started | - |
 | 102. Admin Mobile UX | v2.1 | 0/TBD | Not started | - |
