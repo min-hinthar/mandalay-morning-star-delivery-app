@@ -66,16 +66,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v2.1 Route Operations & Admin Mobile — Phase 99 Foundation Fixes
+**Current focus:** v2.1 Route Operations & Admin Mobile — Phase 100 Admin Route Editing
 
 ## Current Position
 
-Phase: 99 of 102 (Foundation Fixes) — 1 of 4 in milestone
-Plan: 2 of 3 complete
-Status: Executing phase 99
-Last activity: 2026-03-15 — Completed 99-02 Order Detail Panel
+Phase: 100 of 102 (Admin Route Editing) — 2 of 4 in milestone
+Plan: 1 of 4 complete
+Status: Executing phase 100
+Last activity: 2026-03-15 — Completed 100-01 Infrastructure Components
 
-Progress: [██████░░░░] 67%
+Progress: [███░░░░░░░] 25%
 
 ## Performance Metrics
 
@@ -94,6 +94,7 @@ Progress: [██████░░░░] 67%
 | **Total** | **98** | **384** | **32 days** |
 | Phase 99 P01 | 14min | 2 tasks | 4 files |
 | Phase 99 P03 | 15min | 2 tasks | 5 files |
+| Phase 100 P01 | 13min | 2 tasks | 14 files |
 
 ## Accumulated Context
 
@@ -120,6 +121,12 @@ Progress: [██████░░░░] 67%
 - Upstash Redis provisioning needed before production rate limiting is active
 - Migrations 027-035 must be applied before deploying v2.0 features
 
+### Decisions (Phase 100)
+
+- UPDATE route_id (not DELETE+INSERT) to avoid prevent_duplicate_active_assignment trigger
+- User-scoped supabase client for RPC calls since SECURITY DEFINER handles permissions
+- Conditional RPC param inclusion for optional p_new_driver_id (TypeScript optional vs null)
+
 ### Decisions (Phase 99)
 
 - Error catch returns /login?error=role_lookup_failed instead of bare /
@@ -130,7 +137,7 @@ Progress: [██████░░░░] 67%
 
 ## Session Continuity
 
-Last session: 2026-03-15T06:53:59.757Z
-Stopped at: Phase 100 context gathered
-Resume file: .planning/phases/100-admin-route-editing/100-CONTEXT.md
-Next action: Execute 99-03-PLAN.md
+Last session: 2026-03-15T07:40:00Z
+Stopped at: Completed 100-02-PLAN.md
+Resume file: .planning/phases/100-admin-route-editing/100-02-SUMMARY.md
+Next action: Execute 100-03-PLAN.md
