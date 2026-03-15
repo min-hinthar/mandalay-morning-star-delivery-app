@@ -99,23 +99,24 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 ### Active
 
-<!-- v2.0 Production-Grade Launch MVP -->
+<!-- v2.1 Route Operations & Admin Mobile -->
 
-- [ ] Critical bug fixes (payment idempotency, cart race condition, modifier validation, cutoff precision, cleanup rollback)
-- [ ] Menu photo upload pipeline (Supabase Storage, admin bulk upload, quality standards)
-- [ ] Checkout hardening (tips, promo codes, guest checkout, duplicate prevention, delivery instructions)
-- [ ] Customer UX overhaul (search, filters, reorder, accessibility, Saturday schedule hero)
-- [ ] Admin ops center (bulk status, route creation, settings form, email dashboard, photo management)
-- [ ] Driver experience v2 (simple mode default, photo proof, offline, nav links, confirmation dialogs)
-- [ ] Configurable business rules (all operational params admin-editable from app_settings)
-- [ ] Production hardening (security, performance, testing, observability, launch prep)
+- [ ] Admin route editing (reorder/add/remove stops, reassign drivers, split/merge routes)
+- [ ] Route optimization (auto-sort by proximity + manual drag-reorder)
+- [ ] Driver route flow (accept → navigate → arrived → delivered → next, stop reordering)
+- [ ] Manual delivery tracking (driver status + location updates per stop, no live GPS)
+- [ ] Photo proof delivery (optional, visible to admin + customer + email updates)
+- [ ] Admin mobile UX (all admin pages usable from phone during Saturday ops)
+- [ ] Order detail completeness (items/modifiers/instructions, contact, address, payment, tip, notes)
+- [ ] Auth routing fix (admin/driver land on dashboard after login/OAuth, not homepage)
+- [ ] Driver page audit (end-to-end fix of all driver pages, replace placeholders with working features)
 
 ### Out of Scope
 
 - Real-time GPS map for customers — text status updates suffice at 20-50 orders
 - Driver gamification/badges — family drivers don't need this
 - Advanced analytics dashboards — simple counts + revenue enough
-- Route optimization algorithm — manual assignment fine at 2-4 drivers
+- Route optimization algorithm — NOW IN SCOPE for v2.1 (auto-sort by proximity + manual reorder)
 - Push notifications via service worker — email + text covers it
 - Customer loyalty/referral system — get first 50 regulars first
 - Multi-admin role system — solo operator for now
@@ -125,21 +126,22 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - Multi-restaurant marketplace — not part of Morning Star scope
 - Docker/Kubernetes — Vercel is serverless; containerization adds zero value
 
-## Current Milestone: v2.0 Production-Grade Launch MVP
+## Current Milestone: v2.1 Route Operations & Admin Mobile
 
-**Goal:** Battle-tested, revenue-ready Saturday delivery platform for real-money operations at 50–150 orders/Sat with 3–6 drivers and solo admin operator.
+**Goal:** Full route lifecycle management — admins and drivers can plan, edit, optimize, and execute delivery routes entirely from their phones on Saturday.
 
 **Target features:**
-- Critical bug fixes (5 CRITICAL + 7 HIGH severity)
-- Menu sync & photo pipeline (53 items, 22 still need photos)
-- Checkout & payment hardening (tips, promos, guest checkout)
-- Customer UX overhaul (search, filters, reorder, accessibility)
-- Admin operations center (bulk ops, route creation, settings)
-- Driver experience v2 (simple mode, photo proof, offline)
-- Configurable business rules (all params admin-editable)
-- Production hardening (security, performance, testing, dry run)
+- Admin route editing (reorder/add/remove stops, reassign, split/merge)
+- Route optimization (auto-sort by proximity + manual drag-reorder)
+- Driver route execution (accept → arrived → delivered → next stop)
+- Manual delivery tracking (status + location per stop, no live GPS)
+- Optional photo proof (visible to admin, customer, and in emails)
+- Admin mobile UX (all pages phone-friendly for Saturday kitchen ops)
+- Order detail completeness (full items, contact, payment, notes on one screen)
+- Auth routing fix (admin/driver → dashboard on login)
+- Driver page audit (fix all broken/placeholder features end-to-end)
 
-## Last Milestone: v1.9 Launch-Ready MVP (SHIPPED 2026-03-03)
+## Last Milestone: v2.0 Production-Grade Launch MVP (SHIPPED 2026-03-04)
 
 **Delivered:** Production-ready for real Saturday operations — solo operator triaging 20-50 orders with family/friend drivers. All 49 requirements satisfied across 12 phases.
 
@@ -249,4 +251,4 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 ---
 
-_Last updated: 2026-03-03 after v2.0 milestone initialization_
+_Last updated: 2026-03-14 after v2.1 milestone initialization_

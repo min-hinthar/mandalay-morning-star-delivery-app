@@ -1,221 +1,58 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Production-Grade Launch MVP
-status: audited
-stopped_at: Milestone audit complete (tech_debt)
-last_updated: "2026-03-04T19:00:00Z"
-last_activity: 2026-03-04 — Milestone audit; fixed admin ratings PostgREST join, formatting cleanup
-progress:
-  total_phases: 10
-  completed_phases: 10
-  total_plans: 34
-  completed_plans: 34
----
-
----
-gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Production-Grade Launch MVP
+milestone: v2.1
+milestone_name: Route Operations & Admin Mobile
 status: active
-stopped_at: Phase 98 context gathered
-last_updated: "2026-03-04T09:50:26.891Z"
-last_activity: 2026-03-04 — REQUIREMENTS.md verified, ROADMAP.md formatting fixed
+stopped_at: Defining requirements
+last_updated: "2026-03-14T00:00:00Z"
+last_activity: 2026-03-14 — Milestone v2.1 started
 progress:
-  total_phases: 10
-  completed_phases: 10
-  total_plans: 34
-  completed_plans: 34
----
-
----
-gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Production-Grade Launch MVP
-status: active
-stopped_at: Completed 97-01-PLAN.md
-last_updated: "2026-03-04T08:18:50.680Z"
-last_activity: 2026-03-04 — Retroactive verification for Phase 89 and 90
-progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 33
-  completed_plans: 33
-  percent: 100
----
-
----
-gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Production-Grade Launch MVP
-status: active
-stopped_at: Completed 97-01-PLAN.md
-last_updated: "2026-03-04T08:14:03.256Z"
-last_activity: 2026-03-04 — Retroactive verification for Phase 89 and 90
-progress:
-  [██████████] 100%
-  completed_phases: 8
-  total_plans: 33
-  completed_plans: 32
----
-
----
-gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Production-Grade Launch MVP
-status: active
-stopped_at: Completed 96-02-PLAN.md
-last_updated: "2026-03-04T08:13:30.753Z"
-last_activity: 2026-03-04 — Reorder slug fix and dead code removal
-progress:
-  total_phases: 9
-  completed_phases: 8
-  total_plans: 33
-  completed_plans: 32
----
-
----
-gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Production-Grade Launch MVP
-status: active
-stopped_at: Completed 96-02-PLAN.md
-last_updated: "2026-03-04T07:59:41.045Z"
-last_activity: 2026-03-04 — Reorder slug fix and dead code removal
-progress:
-  total_phases: 9
-  completed_phases: 8
-  total_plans: 31
-  completed_plans: 31
----
-
----
-gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Production-Grade Launch MVP
-status: active
-stopped_at: Completed 96-01-PLAN.md
-last_updated: "2026-03-04T07:55:46.236Z"
-last_activity: 2026-03-04 — Checkout data wiring to order detail UI
-progress:
-  total_phases: 9
-  completed_phases: 7
-  total_plans: 31
-  completed_plans: 30
----
-
----
-gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Production-Grade Launch MVP
-status: active
-stopped_at: Completed 96-01-PLAN.md
-last_updated: "2026-03-04T07:54:58.048Z"
-last_activity: 2026-03-04 — Checkout data wiring to order detail UI
-progress:
-  total_phases: 9
-  completed_phases: 7
-  total_plans: 31
-  completed_plans: 30
----
-
----
-gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Production-Grade Launch MVP
-status: active
-stopped_at: Completed 96-02-PLAN.md
-last_updated: "2026-03-04T07:50:58.782Z"
-last_activity: 2026-03-04 — Launch checklist and bundle audit
-progress:
-  total_phases: 9
-  completed_phases: 7
-  total_plans: 31
-  completed_plans: 31
----
-
----
-gsd_state_version: 1.0
-milestone: v2.0
-milestone_name: Production-Grade Launch MVP
-status: active
-stopped_at: Completed 96-02-PLAN.md
-last_updated: "2026-03-04T07:21:00Z"
-last_activity: 2026-03-04 — Launch checklist and bundle audit
-progress:
-  total_phases: 9
-  completed_phases: 9
-  total_plans: 29
-  completed_plans: 29
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-03)
+See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v2.0 Production-Grade Launch MVP — Phase 97 in progress
+**Current focus:** v2.1 Route Operations & Admin Mobile
 
 ## Current Position
 
-Phase: 97 of 97 (Verification & Traceability Cleanup)
-Plan: 2/2 completed
-Status: Phase 97 Complete -- v2.0 Milestone Complete
-Last activity: 2026-03-04 — REQUIREMENTS.md verified, ROADMAP.md formatting fixed
-
-Progress: [██████████] 100% (33/33 plans)
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-14 — Milestone v2.1 started
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 361 (across v1.0-v2.0)
+- Total plans completed: 366 (across v1.0-v2.0)
 - Average duration: ~15 min
 - Total execution time: ~88 hours
 
 **By Milestone:**
 
-| Milestone          | Phases | Plans | Duration |
-| ------------------ | ------ | ----- | -------- |
-| v1.0               | 8      | 32    | 2 days   |
-| v1.1               | 6      | 21    | 1 day    |
-| v1.2               | 9      | 29    | 4 days   |
-| v1.3               | 10     | 53    | 2 days   |
-| v1.4               | 8      | 39    | 6 days   |
-| v1.5               | 8      | 34    | 3 days   |
-| v1.6               | 10     | 47    | 6 days   |
-| v1.7               | 9      | 32    | 3 days   |
-| v1.8               | 10     | 25    | 10 days  |
-| v1.9               | 12     | 38    | 3 days   |
-| v2.0 (in progress) | 3      | 10    | 1 day    |
-| v2.0 91-01         | 1      | 1     | 7 min    |
-| v2.0 91-02         | 1      | 1     | 10 min   |
-| v2.0 91-03         | 1      | 1     | 20 min   |
-| v2.0 91-04         | 1      | 1     | 7 min    |
-| v2.0 92-02         | 1      | 1     | 8 min    |
-| v2.0 92-04         | 1      | 1     | 9 min    |
-| **Total**          | **95** | **366** | **41 days** |
-| Phase 92 P01 | 15min | 2 tasks | 4 files |
-| Phase 92 P03 | 16min | 2 tasks | 6 files |
-| Phase 93 P01 | 9min | 2 tasks | 6 files |
-| Phase 93 P02 | 5min | 2 tasks | 7 files |
-| Phase 93 P03 | 7min | 3 tasks | 6 files |
-| Phase 95 P05 | 4min | 2 tasks | 3 files |
-| Phase 95 P01 | 4min | 2 tasks | 11 files |
-| Phase 95 P07 | 6min | 2 tasks | 3 files |
-| Phase 95 P02 | 8min | 2 tasks | 10 files |
-| Phase 95 P03 | 9min | 2 tasks | 11 files |
-| Phase 95 P06 | 9min | 2 tasks | 2 files |
-| Phase 95 P08 | 12min | 3 tasks | 3 files |
-| Phase 95 P04 | 8min | 2 tasks | 10 files |
-| Phase 96 P01 | 6min | 2 tasks | 5 files |
-| Phase 96 P02 | 10min | 2 tasks | 4 files |
-| Phase 97 P01 | 4min | 2 tasks | 2 files |
-| Phase 97 P02 | 2min | 2 tasks | 1 files |
-| Phase 98 P01 | 9min | 2 tasks | 7 files |
+| Milestone | Phases | Plans | Duration |
+| --------- | ------ | ----- | -------- |
+| v1.0      | 8      | 32    | 2 days   |
+| v1.1      | 6      | 21    | 1 day    |
+| v1.2      | 9      | 29    | 4 days   |
+| v1.3      | 10     | 53    | 2 days   |
+| v1.4      | 8      | 39    | 6 days   |
+| v1.5      | 8      | 34    | 3 days   |
+| v1.6      | 10     | 47    | 6 days   |
+| v1.7      | 9      | 32    | 3 days   |
+| v1.8      | 10     | 25    | 10 days  |
+| v1.9      | 12     | 38    | 3 days   |
+| v2.0      | 10     | 34    | 2 days   |
+| **Total** | **100**| **384**| **43 days** |
 
 ## Accumulated Context
 
