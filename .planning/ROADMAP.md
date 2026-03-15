@@ -175,7 +175,7 @@ Phases execute in numeric order: 99 -> 100 -> 101 -> 102
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 99. Foundation Fixes | 3/3 | Complete    | 2026-03-15 | - |
-| 100. Admin Route Editing | v2.1 | 0/4 | Not started | - |
+| 100. Admin Route Editing | 2/4 | In Progress|  | - |
 | 101. Driver Experience | v2.1 | 0/TBD | Not started | - |
 | 102. Admin Mobile UX | v2.1 | 0/TBD | Not started | - |
 

@@ -20,8 +20,8 @@ Requirements for Route Operations & Admin Mobile milestone. Each maps to roadmap
 
 - [ ] **ROUTE-01**: Admin can drag-reorder stops on desktop (DnD via @dnd-kit)
 - [ ] **ROUTE-02**: Admin can reorder stops on mobile via move-up/move-down buttons
-- [ ] **ROUTE-03**: Admin can split an overloaded route into two routes (select stops → new route)
-- [ ] **ROUTE-04**: Admin can merge two light routes into one
+- [x] **ROUTE-03**: Admin can split an overloaded route into two routes (select stops → new route)
+- [x] **ROUTE-04**: Admin can merge two light routes into one
 - [ ] **ROUTE-05**: Admin can reassign driver on an in-progress route
 
 ### Driver Experience
@@ -85,8 +85,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FOUND-06 | Phase 99 | Complete |
 | ROUTE-01 | Phase 100 | Pending |
 | ROUTE-02 | Phase 100 | Pending |
-| ROUTE-03 | Phase 100 | Pending |
-| ROUTE-04 | Phase 100 | Pending |
+| ROUTE-03 | Phase 100 | Complete |
+| ROUTE-04 | Phase 100 | Complete |
 | ROUTE-05 | Phase 100 | Pending |
 | DRV-01 | Phase 101 | Pending |
 | DRV-02 | Phase 101 | Pending |
