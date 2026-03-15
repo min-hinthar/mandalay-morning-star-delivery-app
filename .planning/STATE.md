@@ -3,11 +3,42 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Route Operations & Admin Mobile
 status: active
+stopped_at: Completed 99-01-PLAN.md
+last_updated: "2026-03-15T02:25:38.845Z"
+last_activity: 2026-03-15 — Completed 99-02 Order Detail Panel
+progress:
+  total_phases: 4
+  completed_phases: 1
+  total_plans: 3
+  completed_plans: 3
+---
+
+---
+gsd_state_version: 1.0
+milestone: v2.1
+milestone_name: Route Operations & Admin Mobile
+status: active
+stopped_at: Completed 99-02-PLAN.md
+last_updated: "2026-03-15T02:24:50.824Z"
+last_activity: 2026-03-15 — Completed 99-02 Order Detail Panel
+progress:
+  total_phases: 4
+  completed_phases: 0
+  total_plans: 3
+  completed_plans: 2
+  percent: 97
+---
+
+---
+gsd_state_version: 1.0
+milestone: v2.1
+milestone_name: Route Operations & Admin Mobile
+status: active
 stopped_at: Phase 99 context gathered
 last_updated: "2026-03-15T01:27:58.500Z"
 last_activity: 2026-03-14 — Roadmap created for v2.1
 progress:
-  total_phases: 4
+  [██████████] 97%
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -61,6 +92,7 @@ Progress: [██████░░░░] 67%
 | v1.0-v1.9 | 88     | 350   | 30 days  |
 | v2.0      | 10     | 34    | 2 days   |
 | **Total** | **98** | **384** | **32 days** |
+| Phase 99 P01 | 14min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -89,13 +121,15 @@ Progress: [██████░░░░] 67%
 
 ### Decisions (Phase 99)
 
+- Error catch returns /login?error=role_lookup_failed instead of bare /
+- Unknown role guard exits early before deep-link authorization checks
 - Separate route_stops query instead of JOIN for null-safe delivery info
 - Re-exported DeliveryInfo type from OrderDetailPage/types.ts for single source of truth
 - Logic-level unit tests since project lacks React Testing Library
 
 ## Session Continuity
 
-Last session: 2026-03-15T02:18:51Z
-Stopped at: Completed 99-02-PLAN.md
-Resume file: .planning/phases/99/99-02-SUMMARY.md
+Last session: 2026-03-15T02:25:38.842Z
+Stopped at: Completed 99-01-PLAN.md
+Resume file: None
 Next action: Execute 99-03-PLAN.md
