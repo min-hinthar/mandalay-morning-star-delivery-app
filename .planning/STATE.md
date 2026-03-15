@@ -71,11 +71,11 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 ## Current Position
 
 Phase: 100 of 102 (Admin Route Editing) — 2 of 4 in milestone
-Plan: 3 of 4 complete
-Status: Executing phase 100
-Last activity: 2026-03-15 — Completed 100-03 Drag Reorder & Driver Reassignment
+Plan: 4 of 4 complete
+Status: Phase 100 complete
+Last activity: 2026-03-15 — Completed 100-04 Split & Merge Route UI
 
-Progress: [███████░░░] 75%
+Progress: [██████████] 100%
 
 ## Performance Metrics
 
@@ -97,6 +97,7 @@ Progress: [███████░░░] 75%
 | Phase 100 P01 | 13min | 2 tasks | 14 files |
 | Phase 100 P02 | 8min | 2 tasks | 6 files |
 | Phase 100 P03 | 13min | 2 tasks | 12 files |
+| Phase 100 P04 | 12min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -131,6 +132,9 @@ Progress: [███████░░░] 75%
 - SortableItem refactored to render-function children for handle-only drag activation
 - useReassignDriver hook in RouteDetailClient, confirmation state passed down to DriverInfoCard
 - Extracted RouteDetailSkeleton to keep RouteDetailClient under 400-line limit
+- Extracted useStopMutations from RouteDetailClient (462 -> 373 lines) for split/merge UI additions
+- Inline checkbox selection mode renders simplified card layout per locked user decision
+- Reused ConfirmDialog from admin/settings for delete confirmation
 
 ### Decisions (Phase 99)
 
@@ -142,7 +146,7 @@ Progress: [███████░░░] 75%
 
 ## Session Continuity
 
-Last session: 2026-03-15T08:03:43Z
-Stopped at: Completed 100-03-PLAN.md
-Resume file: .planning/phases/100-admin-route-editing/100-03-SUMMARY.md
-Next action: Execute 100-04-PLAN.md
+Last session: 2026-03-15T08:19:49Z
+Stopped at: Completed 100-04-PLAN.md
+Resume file: .planning/phases/100-admin-route-editing/100-04-SUMMARY.md
+Next action: Phase 100 complete. Proceed to phase 101.
