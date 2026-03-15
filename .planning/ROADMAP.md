@@ -118,7 +118,7 @@ Plans:
 **Plans**: 4 plans
 
 Plans:
-- [ ] 100-01-PLAN.md — Install @dnd-kit, extract RouteStopCard subfolder, build DragReorderList, Actions dropdown shell
+- [x] 100-01-PLAN.md — Install @dnd-kit, extract RouteStopCard subfolder, build DragReorderList, Actions dropdown shell
 - [ ] 100-02-PLAN.md — Supabase migration (split_route/merge_routes RPCs), API endpoints, Zod schemas
 - [ ] 100-03-PLAN.md — Drag reorder wiring, mobile move buttons, driver reassignment with confirmation
 - [ ] 100-04-PLAN.md — Split route flow, merge route flow, selection mode, modals
