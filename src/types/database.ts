@@ -1974,6 +1974,21 @@ export type Database = {
         Args: { p_route_id: string };
         Returns: Json;
       };
+      split_route: {
+        Args: {
+          p_source_route_id: string;
+          p_stop_ids: string[];
+          p_new_driver_id?: string;
+        };
+        Returns: string;
+      };
+      merge_routes: {
+        Args: {
+          p_destination_route_id: string;
+          p_source_route_id: string;
+        };
+        Returns: number;
+      };
     };
     Enums: {
       delivery_exception_type:

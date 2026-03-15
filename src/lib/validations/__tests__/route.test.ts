@@ -4,7 +4,15 @@
  */
 
 import { describe, it, expect } from "vitest";
-import { reassignStopSchema, createRouteSchema, type ReassignStopInput } from "../route";
+import {
+  reassignStopSchema,
+  createRouteSchema,
+  splitRouteSchema,
+  mergeRouteSchema,
+  type ReassignStopInput,
+  type SplitRouteInput,
+  type MergeRouteInput,
+} from "../route";
 
 const VALID_UUID_1 = "550e8400-e29b-41d4-a716-446655440000";
 const VALID_UUID_2 = "6ba7b810-9dad-11d1-80b4-00c04fd430c8";
@@ -98,5 +106,82 @@ describe("createRouteSchema (multi-day delivery)", () => {
     };
     const result = createRouteSchema.safeParse(input);
     expect(result.success).toBe(true);
+  });
+});
+
+describe("splitRouteSchema", () => {
+  it("accepts valid stopIds array with UUIDs", () => {
+    const input = { stopIds: [VALID_UUID_1, VALID_UUID_2] };
+    const result = splitRouteSchema.safeParse(input);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      const data: SplitRouteInput = result.data;
+      expect(data.stopIds).toEqual([VALID_UUID_1, VALID_UUID_2]);
+    }
+  });
+
+  it("rejects empty stopIds array", () => {
+    const input = { stopIds: [] };
+    const result = splitRouteSchema.safeParse(input);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("At least one stop");
+    }
+  });
+
+  it("rejects non-UUID stopIds", () => {
+    const input = { stopIds: ["not-a-uuid"] };
+    const result = splitRouteSchema.safeParse(input);
+    expect(result.success).toBe(false);
+  });
+
+  it("accepts missing driverId (optional)", () => {
+    const input = { stopIds: [VALID_UUID_1] };
+    const result = splitRouteSchema.safeParse(input);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.driverId).toBeUndefined();
+    }
+  });
+
+  it("accepts valid driverId UUID", () => {
+    const input = { stopIds: [VALID_UUID_1], driverId: VALID_UUID_2 };
+    const result = splitRouteSchema.safeParse(input);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      expect(result.data.driverId).toBe(VALID_UUID_2);
+    }
+  });
+
+  it("rejects non-UUID driverId", () => {
+    const input = { stopIds: [VALID_UUID_1], driverId: "bad" };
+    const result = splitRouteSchema.safeParse(input);
+    expect(result.success).toBe(false);
+  });
+});
+
+describe("mergeRouteSchema", () => {
+  it("accepts valid sourceRouteId UUID", () => {
+    const input = { sourceRouteId: VALID_UUID_1 };
+    const result = mergeRouteSchema.safeParse(input);
+    expect(result.success).toBe(true);
+    if (result.success) {
+      const data: MergeRouteInput = result.data;
+      expect(data.sourceRouteId).toBe(VALID_UUID_1);
+    }
+  });
+
+  it("rejects missing sourceRouteId", () => {
+    const result = mergeRouteSchema.safeParse({});
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects non-UUID sourceRouteId", () => {
+    const input = { sourceRouteId: "not-a-uuid" };
+    const result = mergeRouteSchema.safeParse(input);
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toContain("Invalid route ID");
+    }
   });
 });
