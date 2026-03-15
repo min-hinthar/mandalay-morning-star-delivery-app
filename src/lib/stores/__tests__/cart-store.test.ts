@@ -4,6 +4,8 @@ import { MAX_ITEM_QUANTITY } from "@/types/cart";
 // Use literal values matching defaults (same as DB seed values)
 const DELIVERY_FEE = 1500;
 const FREE_DELIVERY_THRESHOLD = 10000;
+const LONG_DISTANCE_FEE = 2000;
+const LONG_DISTANCE_THRESHOLD = 25;
 
 const baseItem = {
   menuItemId: "item-1",
@@ -24,6 +26,7 @@ describe("CartStore", () => {
     __clearDebounceState(); // Reset debounce tracking between tests
     // Initialize delivery settings to match defaults
     useCartStore.getState().setDeliverySettings(DELIVERY_FEE, FREE_DELIVERY_THRESHOLD);
+    useCartStore.getState().setAddressDistance(null);
   });
 
   describe("addItem", () => {
@@ -86,6 +89,37 @@ describe("CartStore", () => {
       });
 
       expect(store.getEstimatedDeliveryFee()).toBe(0);
+    });
+
+    it("returns long-distance fee when distance > threshold (even if subtotal qualifies for free)", () => {
+      const store = useCartStore.getState();
+      store.addItem({ ...baseItem, basePriceCents: FREE_DELIVERY_THRESHOLD });
+      store.setAddressDistance(LONG_DISTANCE_THRESHOLD + 5);
+
+      expect(store.getEstimatedDeliveryFee()).toBe(LONG_DISTANCE_FEE);
+    });
+
+    it("returns standard fee when distance <= threshold and subtotal < free threshold", () => {
+      const store = useCartStore.getState();
+      store.addItem({ ...baseItem, basePriceCents: FREE_DELIVERY_THRESHOLD - 1 });
+      store.setAddressDistance(LONG_DISTANCE_THRESHOLD - 5);
+
+      expect(store.getEstimatedDeliveryFee()).toBe(DELIVERY_FEE);
+    });
+
+    it("returns zero (free) when distance is null and subtotal >= free threshold", () => {
+      const store = useCartStore.getState();
+      store.addItem({ ...baseItem, basePriceCents: FREE_DELIVERY_THRESHOLD });
+
+      expect(store.getEstimatedDeliveryFee()).toBe(0);
+    });
+
+    it("returns long-distance fee when distance > threshold and subtotal < free threshold", () => {
+      const store = useCartStore.getState();
+      store.addItem({ ...baseItem, basePriceCents: FREE_DELIVERY_THRESHOLD - 1 });
+      store.setAddressDistance(LONG_DISTANCE_THRESHOLD + 10);
+
+      expect(store.getEstimatedDeliveryFee()).toBe(LONG_DISTANCE_FEE);
     });
   });
 

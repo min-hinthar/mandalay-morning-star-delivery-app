@@ -24,6 +24,26 @@ const AddButton = ({ onAdd }) => {
 
 **Apply when:** Action buttons with callbacks, especially for mutations (cart, favorites, forms).
 
+### Cross-Store Variant
+
+When store A's setter produces data that store B needs for computed values, sync inside store A's setter — not at the callsite. Otherwise every callsite must remember to sync, and missing one creates dead code.
+
+```tsx
+// BAD — caller must remember to sync
+checkoutStore.setAddress(addr);
+cartStore.setAddressDistance(addr.distanceMiles); // forgotten → permanently null
+
+// GOOD — sync inside setter, all callers covered
+setAddress: (address) => {
+  set({ address, addressId: address.id });
+  useCartStore.getState().setAddressDistance(address.distanceMiles ?? null);
+},
+```
+
+**Symptom:** Store B field stays at default forever. Computed values using that field are dead code. Server calculates correctly but client preview is wrong.
+
+**Apply when:** One store sets data that another store's computed values depend on.
+
 ---
 
 ## Cart Item Deduplication by Signature
