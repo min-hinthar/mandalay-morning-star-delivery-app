@@ -6,11 +6,13 @@ interface UseReassignDriverOptions {
   routeId: string;
   routeStatus: RouteStatus;
   currentDriverName: string | null;
+  onSuccess?: () => void;
 }
 
 export function useReassignDriver({
   routeId,
   routeStatus,
+  onSuccess,
 }: UseReassignDriverOptions) {
   const [isReassigning, setIsReassigning] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -32,6 +34,7 @@ export function useReassignDriver({
         }
 
         toast({ message: "Driver reassigned successfully", type: "success" });
+        onSuccess?.();
       } catch {
         toast({ message: "Failed to reassign driver", type: "error" });
       } finally {
@@ -40,7 +43,7 @@ export function useReassignDriver({
         setPendingDriverId(null);
       }
     },
-    [routeId],
+    [routeId, onSuccess],
   );
 
   const reassignDriver = useCallback(
