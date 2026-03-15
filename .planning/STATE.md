@@ -3,11 +3,11 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Route Operations & Admin Mobile
 status: active
-stopped_at: Defining requirements
+stopped_at: Roadmap created
 last_updated: "2026-03-14T00:00:00Z"
-last_activity: 2026-03-14 — Milestone v2.1 started
+last_activity: 2026-03-14 — Roadmap created for v2.1 (4 phases, 18 requirements)
 progress:
-  total_phases: 0
+  total_phases: 4
   completed_phases: 0
   total_plans: 0
   completed_plans: 0
@@ -20,162 +20,61 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v2.1 Route Operations & Admin Mobile
+**Current focus:** v2.1 Route Operations & Admin Mobile — Phase 99 Foundation Fixes
 
 ## Current Position
 
-Phase: Not started (defining requirements)
+Phase: 99 of 102 (Foundation Fixes) — 1 of 4 in milestone
 Plan: —
-Status: Defining requirements
-Last activity: 2026-03-14 — Milestone v2.1 started
+Status: Ready to plan
+Last activity: 2026-03-14 — Roadmap created for v2.1
+
+Progress: [░░░░░░░░░░] 0%
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 366 (across v1.0-v2.0)
+- Total plans completed: 384 (across v1.0-v2.0)
 - Average duration: ~15 min
-- Total execution time: ~88 hours
+- Total execution time: ~96 hours
 
 **By Milestone:**
 
 | Milestone | Phases | Plans | Duration |
 | --------- | ------ | ----- | -------- |
-| v1.0      | 8      | 32    | 2 days   |
-| v1.1      | 6      | 21    | 1 day    |
-| v1.2      | 9      | 29    | 4 days   |
-| v1.3      | 10     | 53    | 2 days   |
-| v1.4      | 8      | 39    | 6 days   |
-| v1.5      | 8      | 34    | 3 days   |
-| v1.6      | 10     | 47    | 6 days   |
-| v1.7      | 9      | 32    | 3 days   |
-| v1.8      | 10     | 25    | 10 days  |
-| v1.9      | 12     | 38    | 3 days   |
+| v1.0-v1.9 | 88     | 350   | 30 days  |
 | v2.0      | 10     | 34    | 2 days   |
-| **Total** | **100**| **384**| **43 days** |
+| **Total** | **98** | **384** | **32 days** |
 
 ## Accumulated Context
 
-### Phase 91 Decisions
-- Migration numbered 035 (033/034 taken by photo pipeline)
-- Removed BUG-08 client-side price drift detection; 91-02 implements server-side approach
-- Server-authoritative pricing: Zod schema strips basePriceCents/priceDeltaCents from client input
-- totalCents clamped to Math.max(0) to prevent negative totals from large discounts
-- Tip represented as Stripe line item; discounts via Stripe discounts param
-- Extracted validatePromoCode to src/lib/stripe/promo.ts; cleanupOrder to helpers.ts
-- Tip computed in UI from subtotal (reactive to cart changes), not stored as tipCents
-- Custom tip clamped to $0-$1000 matching Zod schema
-- text-text-inverse used instead of text-white per Tailwind v4 design token enforcement
-- Stripe SDK v17+: coupon at promo.promotion.coupon (not promo.coupon)
-- Checkout page also passes prepTimeBufferMinutes for UI/API consistency
-- useCartStore.getState() for non-hook access inside fetch handler — safe pattern for event callbacks
-- Duplicate order check uses delivery.date from checkout store (not gate.deliveryDate) — matches actual selection
-- Dual-layer duplicate detection: useExistingOrder (client warning) + server DUPLICATE_ORDER (enforcement)
+### Key Research Findings (v2.1)
 
-### Phase 92 Decisions
-- setTimeout chain replaces setInterval for dynamic 10s/60s polling based on cutoff proximity
-- Hero delivery date text placed between CTA and countdown for visual hierarchy
-- Auto-select only fires when delivery is null -- preserves user manual selection
-- max-h-[50vh] constrains modifier container to trigger overflow on items with many modifier groups
-- 4px threshold for isAtBottom handles sub-pixel rounding across browsers
-- from-surface-primary token for gradient ensures dark mode compatibility (#fff light / #000 dark)
-
-### Phase 93 Decisions
-- Service role client for share page reads (bypasses RLS for anonymous access)
-- crypto.randomUUID() for share token generation (standard, no extra dependency)
-- status-warning token for star fill color (matches existing rating patterns)
-- profiles!driver_ratings_user_id_fkey join for customer name in admin ratings
-- STATUS_ICONS uses same icons as StatusStepper for visual consistency across admin and customer UX
-- Tilt disabled via isKeyboardFocused state for full 3D transform reset during keyboard navigation
-- Form error audit (CUX-17): ModifierGroup uses Radix primitives with built-in a11y, no per-field errors to link
-- OrderShareButton as thin wrapper instead of modifying existing ShareButton (different URL generation pattern)
-- useReorder hook uses useCartStore.getState() for non-hook cart access in async callback
-- RatingBanner dual-check: rating API (hasRating) + Supabase client (rating_dismissed) before showing
-- AlertDialog from shadcn/ui for cart replacement confirmation (consistent with PendingOrderActions)
-
-### Phase 94 Decisions
-- useState<Set<string>> for collapse state (not Radix Collapsible — overkill for toggle)
-- Top-level Select All excludes collapsed windows for consistent UX
-- Native sms: URI for driver SMS — no backend SMS service for MVP
-- NavigationButton lat/lng made optional; falls back to encodeURIComponent(address)
-- Photo enforcement is client-side only — no server-side gate on PATCH endpoint (offline sync safety)
-- Offline-queued photo sets hasPhoto=true immediately (driver not blocked by connectivity)
-- Extracted SimpleRouteDone to keep SimpleStopView under 400 lines
-
-### Phase 95 Decisions
-- Refund tests use inline pure functions mirroring route handler logic rather than extracting to shared module
-- DST tests use explicit UTC dates with known offsets rather than mocking Intl.DateTimeFormat
-- Rounding drift documented as known behavior: two separate 1-unit refunds != one 2-unit refund due to Math.round
-- TIMEZONE reads from DELIVERY_TIMEZONE env var with America/Los_Angeles fallback
-- Client components get TIMEZONE inlined at build time (display-only formatting)
-- OBS-05 image preloading and OBS-02 webhook logging already complete -- verification only
-- Direct DB insert for orders 2-20 to bypass one-per-Saturday duplicate constraint in dry-run
-- Accept 409 DUPLICATE_ORDER as valid processed response in k6 test (not a failure)
-- Service role key for admin operations in dry-run (bypasses RLS)
-- auth.status mapped to UNAUTHORIZED/FORBIDDEN based on status code (401/403)
-- Webhook signature errors mapped to BAD_REQUEST (400), not UNAUTHORIZED
-- Zod validation errors include details via apiError 4th parameter
-- Webhook tests call actual POST handler with mocked dependencies (not trivial assertion-only)
-- RLS tests mock Supabase client responses to simulate RLS filtering behavior
-- Error response format is object {code, message} due to middleware transformation
-- Frontend error consumers use extractErrorMessage(data, fallback) for backward-compatible error display
-- Other admin pages (categories, drivers, menu, etc.) still use .error || pattern -- different APIs not changed by 95-02/03
-- Inline env parser over dotenv dependency for launch-check script
-- Bundle audit uses chunk-level analysis since Next.js 16 Turbopack omits per-route first-load table
-- Service worker precache 227.2KB within 200-250KB acceptable range per user decision
-
-### Phase 96 Decisions
-- New Order fields are required (not optional) since DB defaults ensure they always exist
-- Discount row renders before tip row in totals (Subtotal > Delivery > Tax > Discount > Tip > Total)
-- slug sourced from menu_items table join in reorder API (not a separate lookup)
-
-### Phase 90 Decisions
-- Server-side sharp for WebP conversion (not client-side Canvas) — consistent output across devices
-- 4:3 aspect ratio at 800x600 standardized for all menu photos
-- Removed Google Drive URL from photo management — Supabase Storage is sole source
-- Slug-based photo matching: filename minus extension = menu item slug
-- Allergen dedup: removed redundant contains_* tags, canonical allergens_enum is single source
-- Bulk upload threshold: >1 files triggers BulkUploadMatcher modal
-- Photo seed only updates image_url when null or contains "fallback"
-
-### Phase 97 Decisions
-- MENU-03 marked VERIFIED: WebP only (no AVIF) meets optimization intent
-- MENU-06 marked VERIFIED: pre-existing is_active filtering confirmed, no Phase 90 changes needed
-- MENU-07 marked VERIFIED for code existence; production seeding is deployment step
-- All verification line numbers verified against current source code, not copied from stale summaries
-
-### Phase 89 Decisions
-- Idempotency key uses only order ID (no attempt counter) — Stripe handles concurrent retries
-- cleanupOrder is module-level function for reuse across checkout route
-- RPC result validated with typeof/Array.isArray guards (no Zod, lightweight)
-- modifierGroups parameter is optional for backward compatibility
-- Refund uses calculate-then-apply pattern (no DB writes before ceiling validation)
-- Debounce moved inside Zustand set() for atomicity; standalone function removed
-- 10-second safety buffer only affects isPastCutoff, not UI countdown
-
-### Phase 98 Decisions
-- Removed server-only import from delivery-photos.ts (API routes inherently server-only; guard blocked vitest)
-- Service role client for signed URL generation (bypasses RLS for cross-role photo access)
-- Upload endpoint stores filename path in DB, not public URL; signed URL generated at read time
-- Backward-compatible extractDeliveryPhotoPath handles both old full URLs and new path-only values
-- 1-hour signed URL expiry (3600s) balances security with UX
+- Auth redirects exist but have runtime bug — audit-first, E2E tests before fix
+- Driver pages have full code but show empty/stub content — data wiring issue
+- Route optimization, photo proof, location tracking already exist — extend, don't rebuild
+- Only new dependency: @dnd-kit/core + @dnd-kit/sortable (~15KB gzipped)
+- Admin mobile is CSS/layout only — no feature logic changes
+- batch_update_stop_indices RPC and deferrable UNIQUE constraint already exist
+- Split/merge route API endpoints are genuinely missing — must create
 
 ### Pending Todos (Human Actions)
 
 - Apply migrations 027-035 to production Supabase
-- Configure RESEND_WEBHOOK_SECRET env var for svix webhook verification
-- Provision Upstash Redis on Vercel Marketplace for production rate limiting
-- Create Sentry alert rule "Rate Limit Spike" in Sentry Dashboard
-- Verify timezone for customer gate: Asia/Yangon vs America/Los_Angeles
+- Configure RESEND_WEBHOOK_SECRET env var
+- Provision Upstash Redis on Vercel Marketplace
+- Create Sentry alert rule "Rate Limit Spike"
+- Verify timezone: Asia/Yangon vs America/Los_Angeles
 
 ### Blockers/Concerns
 
-- Upstash Redis provisioning needed via Vercel Marketplace before rate limiting is active in production
+- Upstash Redis provisioning needed before production rate limiting is active
 - Migrations 027-035 must be applied before deploying v2.0 features
 
 ## Session Continuity
 
-Last session: 2026-03-04T09:51:15.671Z
-Stopped at: Completed 98-01-PLAN.md
+Last session: 2026-03-14
+Stopped at: Roadmap created for v2.1 milestone
 Resume file: None
-Next action: All v2.0 plans complete. Ready for production launch.
+Next action: `/gsd:plan-phase 99`
