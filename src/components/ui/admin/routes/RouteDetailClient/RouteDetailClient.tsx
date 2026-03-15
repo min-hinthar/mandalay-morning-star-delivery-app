@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { m } from "framer-motion";
+import { Scissors } from "lucide-react";
 import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
 import { RouteDetailSkeleton, RouteErrorState } from "./RouteDetailSkeleton";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
@@ -16,12 +17,19 @@ import { AddStopsModal } from "../AddStopsModal";
 import { toast } from "@/lib/hooks/useToastV8";
 import { useReorderStops } from "@/lib/hooks/useReorderStops";
 import { useReassignDriver } from "@/lib/hooks/useReassignDriver";
+import { useRouteActions } from "@/lib/hooks/useRouteActions";
+import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/admin/settings/ConfirmDialog";
+import { SplitRouteModal } from "./SplitRouteModal";
+import { MergeRouteModal } from "./MergeRouteModal";
 import { RouteHeader } from "./RouteHeader";
 import { DriverInfoCard } from "./DriverInfoCard";
 import { RouteTimeline } from "./RouteTimeline";
 import { TimeComparison } from "./TimeComparison";
 import { ExceptionAlert } from "./ExceptionAlert";
-import type { RouteDetailResponse, DriverOption, RouteStatus, RouteStopStatus } from "./types";
+import { useStopMutations } from "./useStopMutations";
+import { validateSplitSelection } from "../route-selection-utils";
+import type { RouteDetailResponse, DriverOption } from "./types";
 import type { StopDetail } from "@/types/driver";
 
 interface AvailableRoute {
@@ -50,10 +58,7 @@ export function RouteDetailClient() {
   const { ref: mapRef, triggered: mapTriggered } = useViewportTrigger();
 
   const handleStopClick = useCallback((stopId: string) => {
-    stopRefs.current[stopId]?.scrollIntoView({
-      behavior: "smooth",
-      block: "center",
-    });
+    stopRefs.current[stopId]?.scrollIntoView({ behavior: "smooth", block: "center" });
   }, []);
 
   const fetchRoute = useCallback(async () => {
@@ -70,14 +75,25 @@ export function RouteDetailClient() {
           if (res.ok) {
             const json = await res.json();
             const all = json.data ?? json;
-            type RouteRow = { id: string; status: string; stopCount: number; driver: { fullName: string | null } | null };
+            type RouteRow = {
+              id: string;
+              status: string;
+              stopCount: number;
+              driver: { fullName: string | null } | null;
+            };
             setAvailableRoutes(
               all
                 .filter((r: RouteRow) => r.id !== routeId && r.status === "planned")
-                .map((r: RouteRow) => ({ id: r.id, driverName: r.driver?.fullName ?? null, stopCount: r.stopCount })),
+                .map((r: RouteRow) => ({
+                  id: r.id,
+                  driverName: r.driver?.fullName ?? null,
+                  stopCount: r.stopCount,
+                }))
             );
           }
-        } catch { /* non-critical */ }
+        } catch {
+          /* non-critical */
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load route");
@@ -90,7 +106,9 @@ export function RouteDetailClient() {
       if (!res.ok) return;
       const json = await res.json();
       setDrivers((json.data ?? json).filter((d: DriverOption) => d.isActive));
-    } catch { /* non-critical */ }
+    } catch {
+      /* non-critical */
+    }
   }, []);
 
   useEffect(() => {
@@ -102,104 +120,15 @@ export function RouteDetailClient() {
     loadData();
   }, [fetchRoute, fetchDrivers]);
 
-  const handleStatusChange = async (newStatus: RouteStatus) => {
-    if (!route || isUpdating) return;
-    setIsUpdating(true);
-    const previousStatus = route.status;
-    setRoute({ ...route, status: newStatus });
+  const routeActions = useRouteActions({
+    routeId,
+    onSplitSuccess: fetchRoute,
+    onMergeSuccess: fetchRoute,
+    onDeleteSuccess: () => router.push("/admin/routes"),
+  });
 
-    try {
-      const response = await fetch(`/api/admin/routes/${routeId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (!response.ok) throw new Error("Failed to update status");
-      await fetchRoute();
-    } catch {
-      setRoute({ ...route, status: previousStatus });
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleStopStatusChange = async (stopId: string, newStatus: RouteStopStatus) => {
-    if (!route || isUpdating) return;
-    setIsUpdating(true);
-    const previousStops = [...route.stops];
-    setRoute({
-      ...route,
-      stops: route.stops.map((s) => (s.id === stopId ? { ...s, status: newStatus } : s)),
-    });
-
-    try {
-      const response = await fetch(`/api/admin/routes/${routeId}/stops/${stopId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-      if (!response.ok) throw new Error("Failed to update stop status");
-      await fetchRoute();
-    } catch {
-      setRoute({ ...route, stops: previousStops });
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleRemoveStop = async (stopId: string) => {
-    if (!route || isUpdating) return;
-    setIsUpdating(true);
-    const previousStops = [...route.stops];
-    setRoute({ ...route, stops: route.stops.filter((s) => s.id !== stopId) });
-
-    try {
-      const response = await fetch(`/api/admin/routes/${routeId}/stops/${stopId}`, {
-        method: "DELETE",
-      });
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to remove stop");
-      }
-      await fetchRoute();
-    } catch (err) {
-      setRoute({ ...route, stops: previousStops });
-      toast({
-        message: err instanceof Error ? err.message : "Failed to remove stop",
-        type: "error",
-      });
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleReassign = async (stopId: string, targetRouteId: string) => {
-    if (!route || isUpdating) return;
-    setIsUpdating(true);
-
-    try {
-      const response = await fetch(`/api/admin/routes/${routeId}/stops/reassign`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stopId, targetRouteId }),
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to reassign stop");
-      }
-
-      toast({ message: "Order reassigned", type: "success" });
-      await fetchRoute();
-    } catch (err) {
-      toast({
-        message: err instanceof Error ? err.message : "Failed to reassign stop",
-        type: "error",
-      });
-    } finally {
-      setIsUpdating(false);
-    }
-  };
+  const { handleStatusChange, handleStopStatusChange, handleRemoveStop, handleReassign } =
+    useStopMutations({ routeId, route, isUpdating, setIsUpdating, setRoute, fetchRoute });
 
   const reorderStops = useReorderStops({
     routeId,
@@ -226,7 +155,7 @@ export function RouteDetailClient() {
       setLocalStops(updated);
       reorderStops.handleReorder(updated);
     },
-    [reorderStops],
+    [reorderStops]
   );
 
   const handleMoveStop = useCallback(
@@ -239,7 +168,7 @@ export function RouteDetailClient() {
       [swapped[idx], swapped[target]] = [swapped[target], swapped[idx]];
       handleReorder(swapped);
     },
-    [localStops, handleReorder],
+    [localStops, handleReorder]
   );
 
   const handleOptimizationApply = async () => {
@@ -264,6 +193,10 @@ export function RouteDetailClient() {
       }));
   };
 
+  const pendingStopCount = localStops.filter((s) => s.status === "pending").length;
+  const hasSameDatePlannedRoutes = availableRoutes.length > 0;
+  const splitValidation = validateSplitSelection(routeActions.selectedStopIds, localStops.length);
+  const selectedStopsForModal = localStops.filter((s) => routeActions.selectedStopIds.has(s.id));
   const routeName = route ? `Route #${routeId.slice(0, 8)}` : "Route Details";
 
   if (!isLoading && (error || !route)) {
@@ -294,17 +227,15 @@ export function RouteDetailClient() {
               onAddStops={() => setAddStopsModalOpen(true)}
               onRefresh={fetchRoute}
               onBack={() => router.push("/admin/routes")}
-              pendingStopCount={localStops.filter((s) => s.status === "pending").length}
-              hasSameDatePlannedRoutes={false}
-              onSplit={() => {}}
-              onMerge={() => {}}
-              onDelete={() => {}}
+              pendingStopCount={pendingStopCount}
+              hasSameDatePlannedRoutes={hasSameDatePlannedRoutes}
+              onSplit={routeActions.enterSelectionMode}
+              onMerge={routeActions.openMerge}
+              onDelete={routeActions.openDelete}
             />
 
             <ExceptionAlert stops={route.stops} />
-
             <RouteStatsBar route={route} />
-
             <TimeComparison route={route} />
 
             <DriverInfoCard
@@ -359,6 +290,62 @@ export function RouteDetailClient() {
               onReorder={handleReorder}
               onMoveStop={handleMoveStop}
               disabled={route.status === "completed"}
+              selectionMode={routeActions.selectionMode}
+              selectedStopIds={routeActions.selectedStopIds}
+              onToggleSelect={routeActions.toggleStopSelect}
+              onSelectionChange={routeActions.updateSelection}
+            />
+
+            {routeActions.selectionMode && (
+              <div className="fixed bottom-0 left-0 right-0 bg-surface-primary border-t border-border p-4 shadow-lg z-40">
+                <div className="max-w-6xl mx-auto flex items-center justify-between">
+                  <span className="text-sm text-text-secondary">
+                    {routeActions.selectedStopIds.size} stop
+                    {routeActions.selectedStopIds.size !== 1 ? "s" : ""} selected
+                  </span>
+                  <div className="flex items-center gap-3">
+                    <Button variant="outline" onClick={routeActions.exitSelectionMode}>
+                      Cancel
+                    </Button>
+                    <Button
+                      onClick={() => routeActions.confirmSplit(localStops.length)}
+                      disabled={!splitValidation.valid}
+                      leftIcon={<Scissors className="h-4 w-4" />}
+                    >
+                      Split {routeActions.selectedStopIds.size} Stop
+                      {routeActions.selectedStopIds.size !== 1 ? "s" : ""}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            <SplitRouteModal
+              open={routeActions.showSplitModal}
+              onOpenChange={routeActions.setShowSplitModal}
+              selectedStops={selectedStopsForModal}
+              routeId={routeId}
+              drivers={drivers}
+              onSuccess={routeActions.onSplitComplete}
+            />
+
+            <MergeRouteModal
+              open={routeActions.showMergeModal}
+              onOpenChange={routeActions.setShowMergeModal}
+              routeId={routeId}
+              availableRoutes={availableRoutes.map((r) => ({ ...r, status: "planned" }))}
+              onSuccess={routeActions.onMergeComplete}
+              onOptimize={() => setOptimizationModalOpen(true)}
+            />
+
+            <ConfirmDialog
+              open={routeActions.showDeleteConfirm}
+              title="Delete Route"
+              description={`Delete route with ${localStops.length} stop${localStops.length !== 1 ? "s" : ""}? Stops will be unassigned.`}
+              confirmLabel="Delete"
+              onConfirm={routeActions.confirmDelete}
+              onCancel={routeActions.cancelDelete}
+              isLoading={routeActions.isDeleting}
             />
 
             <OptimizationModal
