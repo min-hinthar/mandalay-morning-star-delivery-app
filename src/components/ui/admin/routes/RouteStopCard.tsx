@@ -204,6 +204,18 @@ export function RouteStopCard({
           <p className="text-xs text-text-secondary mt-2 italic">{stop.deliveryNotes}</p>
         )}
 
+        {/* Tracking Timestamps */}
+        {(stop.arrivedAt || stop.deliveredAt) && (
+          <div className="flex gap-4 mt-2 text-xs text-text-muted" data-testid="tracking-timestamps">
+            {stop.arrivedAt && (
+              <span>Arrived: {formatTime(stop.arrivedAt)}</span>
+            )}
+            {stop.deliveredAt && (
+              <span>Delivered: {formatTime(stop.deliveredAt)}</span>
+            )}
+          </div>
+        )}
+
         {/* Exception Badge */}
         {hasException && stop.exception && (
           <div className="mt-3 p-2 bg-status-error/10 border border-status-error/20 rounded-input">
