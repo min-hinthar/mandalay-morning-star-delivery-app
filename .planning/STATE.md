@@ -71,11 +71,11 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 ## Current Position
 
 Phase: 100 of 102 (Admin Route Editing) — 2 of 4 in milestone
-Plan: 2 of 4 complete
+Plan: 3 of 4 complete
 Status: Executing phase 100
-Last activity: 2026-03-15 — Completed 100-02 Route Split/Merge RPCs & API
+Last activity: 2026-03-15 — Completed 100-03 Drag Reorder & Driver Reassignment
 
-Progress: [█████░░░░░] 50%
+Progress: [███████░░░] 75%
 
 ## Performance Metrics
 
@@ -96,6 +96,7 @@ Progress: [█████░░░░░] 50%
 | Phase 99 P03 | 15min | 2 tasks | 5 files |
 | Phase 100 P01 | 13min | 2 tasks | 14 files |
 | Phase 100 P02 | 8min | 2 tasks | 6 files |
+| Phase 100 P03 | 13min | 2 tasks | 12 files |
 
 ## Accumulated Context
 
@@ -127,6 +128,9 @@ Progress: [█████░░░░░] 50%
 - UPDATE route_id (not DELETE+INSERT) to avoid prevent_duplicate_active_assignment trigger
 - User-scoped supabase client for RPC calls since SECURITY DEFINER handles permissions
 - Conditional RPC param inclusion for optional p_new_driver_id (TypeScript optional vs null)
+- SortableItem refactored to render-function children for handle-only drag activation
+- useReassignDriver hook in RouteDetailClient, confirmation state passed down to DriverInfoCard
+- Extracted RouteDetailSkeleton to keep RouteDetailClient under 400-line limit
 
 ### Decisions (Phase 99)
 
@@ -138,7 +142,7 @@ Progress: [█████░░░░░] 50%
 
 ## Session Continuity
 
-Last session: 2026-03-15T07:40:00Z
-Stopped at: Completed 100-02-PLAN.md
-Resume file: .planning/phases/100-admin-route-editing/100-02-SUMMARY.md
-Next action: Execute 100-03-PLAN.md
+Last session: 2026-03-15T08:03:43Z
+Stopped at: Completed 100-03-PLAN.md
+Resume file: .planning/phases/100-admin-route-editing/100-03-SUMMARY.md
+Next action: Execute 100-04-PLAN.md
