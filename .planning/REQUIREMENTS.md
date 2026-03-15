@@ -13,8 +13,8 @@ Requirements for Route Operations & Admin Mobile milestone. Each maps to roadmap
 - [x] **FOUND-02**: Order detail shows full item list with modifiers and special instructions
 - [x] **FOUND-03**: Order detail shows tip amount in totals breakdown
 - [x] **FOUND-04**: Order detail shows delivery notes, payment status, customer contact on one screen
-- [ ] **FOUND-05**: Driver can add delivery notes per stop (text input, column already exists)
-- [ ] **FOUND-06**: Admin route detail shows arrived_at/delivered_at timestamps per stop
+- [x] **FOUND-05**: Driver can add delivery notes per stop (text input, column already exists)
+- [x] **FOUND-06**: Admin route detail shows arrived_at/delivered_at timestamps per stop
 
 ### Admin Route Editing
 
@@ -81,8 +81,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | FOUND-02 | Phase 99 | Complete |
 | FOUND-03 | Phase 99 | Complete |
 | FOUND-04 | Phase 99 | Complete |
-| FOUND-05 | Phase 99 | Pending |
-| FOUND-06 | Phase 99 | Pending |
+| FOUND-05 | Phase 99 | Complete |
+| FOUND-06 | Phase 99 | Complete |
 | ROUTE-01 | Phase 100 | Pending |
 | ROUTE-02 | Phase 100 | Pending |
 | ROUTE-03 | Phase 100 | Pending |
