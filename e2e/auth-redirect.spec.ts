@@ -35,9 +35,7 @@ test.describe("Auth Callback Redirect Structure", () => {
   });
 
   test("callback with OAuth error param redirects to /login with error", async ({ page }) => {
-    await page.goto(
-      "/auth/callback?error=access_denied&error_description=User+denied+consent"
-    );
+    await page.goto("/auth/callback?error=access_denied&error_description=User+denied+consent");
 
     await page.waitForURL(/\/login/);
     const url = new URL(page.url());
@@ -51,9 +49,7 @@ test.describe("Login Page Redirect Setup", () => {
     await page.goto("/login");
 
     // Google OAuth button should be present
-    await expect(
-      page.getByRole("button", { name: /continue with google/i })
-    ).toBeVisible();
+    await expect(page.getByRole("button", { name: /continue with google/i })).toBeVisible();
   });
 
   test("Google OAuth button constructs correct callback URL", async ({ page }) => {
