@@ -1,562 +1,643 @@
 # Architecture Patterns
 
-**Domain:** Meal delivery operations dashboard (v1.9 features integrating into existing Next.js + Supabase app)
-**Researched:** 2026-03-01
-**Confidence:** HIGH -- based on direct codebase analysis of existing patterns, tables, and API routes
+**Domain:** Route operations, driver execution, admin mobile UX for Saturday meal delivery (v2.1)
+**Researched:** 2026-03-14
+**Confidence:** HIGH (all findings verified against existing codebase)
+
+## Existing Architecture Inventory
+
+### What Already Exists (Modify, Don't Rebuild)
+
+| Component | Location | Current State | v2.1 Action |
+|-----------|----------|---------------|-------------|
+| Route detail page | `(admin)/admin/routes/[id]/page.tsx` | Shows stops, driver, status | Enhance with editing UI |
+| RouteDetailClient | `components/ui/admin/routes/RouteDetailClient/` | 6 sub-components, read-only stops | Add drag-reorder, inline editing |
+| Route optimize API | `api/admin/routes/optimize/route.ts` | Google Routes + nearest-neighbor fallback | Already works, wire to UI button |
+| Stop CRUD APIs | `api/admin/routes/[id]/stops/route.ts` | POST (add), PATCH (status), DELETE (remove) | Already works, wire to editing UI |
+| Stop reorder API | `api/admin/routes/[id]/route.ts` PATCH | `batch_update_stop_indices` RPC with deferrable constraints | Already works, wire to drag UI |
+| Stop reassign API | `api/admin/routes/[id]/stops/reassign/route.ts` | Reassign stop between routes | Already exists |
+| Driver route page | `(driver)/driver/route/page.tsx` | SSR with stop list, timezone-aware | Add action buttons per stop |
+| ActiveRouteView | `components/ui/driver/ActiveRouteView.tsx` | Start/complete route, progress bar, location tracker | Add per-stop action flow |
+| SimpleStopView | `components/ui/driver/SimpleStopView.tsx` | Single-stop focus with photo capture, offline sync | Already has full flow, audit only |
+| StopCard | `components/ui/driver/StopCard.tsx` | Display-only with status badges, animated | Add navigation/action buttons |
+| StopDetailView | `components/ui/driver/StopDetailView.tsx` | Exists | Audit for completeness |
+| DeliveryActions | `components/ui/driver/DeliveryActions.tsx` | Exists | Audit and wire |
+| DeliveryConfirmDialog | `components/ui/driver/DeliveryConfirmDialog.tsx` | Exists | Already used by SimpleStopView |
+| PhotoCapture | `components/ui/driver/PhotoCapture.tsx` | Exists with camera capture | Already used by SimpleStopView |
+| ExceptionModal | `components/ui/driver/ExceptionModal.tsx` | Exists | Wire into stop detail |
+| NavigationButton | `components/ui/driver/NavigationButton.tsx` | Exists | Wire into stop detail |
+| Driver stop API | `api/driver/routes/[routeId]/stops/[stopId]/route.ts` | PATCH with status transitions, auto-next-stop, order status sync | Already works |
+| Photo upload API | `api/driver/routes/[routeId]/stops/[stopId]/photo/route.ts` | 5MB limit, JPEG/PNG/WebP, Supabase Storage, signed URLs | Already works |
+| Location tracker | `components/ui/driver/LocationTracker.tsx` | Posts to location_updates table | Already works for manual tracking |
+| Route builder | `components/ui/admin/routes/RouteBuilder/` | 5 sub-components, Leaflet map, driver selector | Stable, no changes |
+| RouteBuilderMap | `components/ui/admin/routes/RouteBuilderMap/` | Leaflet integration, dynamic import | Stable, no changes |
+| AdminNav | `components/ui/admin/AdminNav.tsx` | Desktop sidebar only, collapsible, no mobile support | Add mobile bottom nav |
+| Auth callback | `app/auth/callback/route.ts` | Role redirect via `getRoleDashboard()`, safe redirect validation | Fix `next` param handling |
+| Role redirect | `lib/auth/role-redirect.ts` | `getRoleDashboard()` maps roles to paths | No changes needed |
+| OpsCenter | `(admin)/admin/ops/OpsCenter.tsx` | Ops dashboard exists | Audit for mobile |
+
+### Database Primitives Already In Place
+
+| Table/RPC | What It Does | v2.1 Relevance |
+|-----------|-------------|----------------|
+| `routes` | delivery_date, driver_id, status (planned/in_progress/completed), stats_json, polyline | No schema changes needed |
+| `route_stops` | order_id, stop_index (deferrable unique), status (5 states), photo_url, notes | No schema changes needed |
+| `location_updates` | driver_id, route_id, lat/lng/accuracy/heading/speed, recorded_at | Use for manual tracking |
+| `delivery_exceptions` | route_stop_id, type (6 enum values), photo_url, resolution_notes | Already exists |
+| `orders` | Full order data including items, modifiers, contact, payment, tip, instructions | Expand API SELECT |
+| `order_items` | name_snapshot, quantity, line_total_cents, special_instructions | Need to include in route detail |
+| `order_item_modifiers` | name_snapshot, price_delta_snapshot | Need to include in route detail |
+| `batch_update_stop_indices()` | Atomic reorder with deferred constraints | Use for drag reorder |
+| `reindex_route_stops()` | Gap-free reindex after deletion | Use after stop removal |
+| `update_route_stats()` | Aggregate stop statuses into route stats_json | Use after any stop change |
+| `prevent_duplicate_active_assignment` | Trigger prevents order in multiple active routes | Protection in place |
+| `check_route_completion` | Trigger prevents completing route with non-terminal stops | Protection in place |
+
+**Key finding: The database layer is complete. No migrations needed for core route operations.**
+
+### Existing Status Enums
+
+```
+route_status: 'planned' | 'in_progress' | 'completed'
+route_stop_status: 'pending' | 'enroute' | 'arrived' | 'delivered' | 'skipped'
+order_status: 'pending' | 'pending_approval' | 'confirmed' | 'preparing' | 'out_for_delivery' | 'delivered' | 'cancelled' | 'refunded'
+delivery_exception_type: 'customer_not_home' | 'wrong_address' | 'access_issue' | 'refused_delivery' | 'damaged_order' | 'other'
+```
 
 ---
 
-## Existing Architecture Snapshot
-
-### Route Groups & Layout Hierarchy
-
-```
-src/app/
-  (admin)/admin/     -- AdminLayout (server auth check + AdminNav sidebar)
-  (driver)/driver/   -- DriverLayout (server auth check)
-  (customer)/        -- CustomerLayout
-  (public)/          -- Public pages
-  api/               -- API routes (admin/, driver/, webhooks/, etc.)
-```
-
-### Existing Tables (24 confirmed + 2 untyped)
-
-**Typed in `database.ts`:** profiles, addresses, menu_categories, menu_items, modifier_groups, modifier_options, item_modifier_groups, orders, order_audit_log, order_items, order_item_modifiers, featured_sections, featured_section_items, driver_invites, driver_ratings, customer_settings, webhook_events
-
-**Typed in `driver.ts`:** drivers, routes, route_stops, location_updates, delivery_exceptions, driver_badges
-
-**Referenced but NOT in Database type:** `app_settings`, `notification_logs` (both used via untyped Supabase calls with manual casts)
-
-### Auth Patterns
-
-- **Server Components:** `createClient()` + `supabase.auth.getUser()` + profile role check (admin layout, driver layout)
-- **API Routes:** `requireAdmin()` / `requireDriver()` helper returning `{ success, supabase, userId }` or error
-- **Rate Limiting:** `checkRateLimit({ limiter, identifier, role, route })` on all API routes
-
-### State Management
-
-- **Server state:** Direct Supabase queries in server components, `fetch('/api/...')` in client components with `useState`/`useEffect`
-- **Client state:** Zustand stores (cart-store, checkout-store, driver-store) with localStorage/IndexedDB persistence
-- **No React Query usage in admin/driver pages** -- admin pages use raw `fetch()` + `useState`
-
-### Real-time
-
-- **Single usage:** `useTrackingSubscription` for customer order tracking (Supabase Realtime `postgres_changes`)
-- **Pattern:** Subscribe to table changes with row-level filters, fallback to 30s polling on disconnect
-- **Separate channels** for high-frequency data (location) vs. status changes
-
----
-
-## Recommended Architecture for v1.9 Features
+## Recommended Architecture
 
 ### Component Boundaries
 
 | Component | Responsibility | Communicates With |
 |-----------|---------------|-------------------|
-| **Ops Dashboard** (`/admin` page replacement) | Saturday operations triage: status counts, bulk actions, countdown timers | `GET /api/admin/ops/summary` (new), `POST /api/admin/orders/bulk-status` (new) |
-| **Route Assignment Panel** (admin page) | Visual driver-to-order assignment, route creation | `GET /api/admin/routes` (existing), `POST /api/admin/routes` (new), `PATCH /api/admin/orders/:id/driver` (existing) |
-| **Admin Settings** (existing `/admin/settings`) | Configurable business rules CRUD | `GET/PATCH /api/admin/settings` (existing, extend schema) |
-| **Email Dashboard** (existing `/admin/emails`) | Delivery status, retry, webhook events | `GET /api/admin/emails` (existing), Resend webhook (existing) |
-| **Driver Simple Mode** (driver pages) | Stripped-down delivery interface | `drivers` table (new column), driver-store (extended), existing driver API routes |
+| `RouteEditor` (NEW) | Admin stop reorder/add/remove UI with drag | `api/admin/routes/[id]`, `api/admin/routes/[id]/stops` |
+| `DragReorderList` (NEW) | Generic drag-and-drop list using @dnd-kit | RouteEditor, DriverStopReorder |
+| `AdminMobileNav` (NEW) | Bottom tab nav for mobile admin | Conditional render in layout |
+| `AdminResponsiveShell` (NEW) | Switches sidebar/bottom-nav by viewport | AdminLayout |
+| `OrderDetailPanel` (NEW) | Full order info: items, modifiers, payment, contact | Route detail, stop detail, ops |
+| `DriverStopActions` (NEW) | Arrived/delivered/skip buttons for current stop | ActiveRouteView, StopDetailView |
+| `DriverStopReorder` (NEW) | Driver-side stop reorder (up/down or drag) | New driver reorder API |
+| `RouteDetailClient` (MODIFY) | Add editing mode toggle, order detail expansion | RouteEditor, OrderDetailPanel |
+| `ActiveRouteView` (MODIFY) | Integrate DriverStopActions into flow | DriverStopActions |
+| `StopCard` (MODIFY) | Add action buttons, navigation link | ActiveRouteView |
+| `StopDetailView` (MODIFY) | Add full order info, actions, photo | DriverStopActions, OrderDetailPanel |
 
 ### Data Flow
 
+#### Admin Route Editing Flow
 ```
-                    Saturday Morning Flow
-                    ====================
-
-Admin loads /admin (Ops Dashboard)
-  |
-  +--> GET /api/admin/ops/summary
-  |    (aggregates orders by status, counts unassigned, driver availability)
-  |
-  +--> Supabase Realtime channel: "ops:saturday-{date}"
-  |    (subscribes to orders table UPDATE events for current delivery_date)
-  |
-  +--> Bulk action: POST /api/admin/orders/bulk-status
-  |    { orderIds: [...], status: "confirmed" }
-  |    |
-  |    +--> Updates orders table (batch)
-  |    +--> Inserts order_audit_log entries (batch)
-  |    +--> Fire-and-forget: queues emails for each order
-  |
-  +--> Route assignment: POST /api/admin/routes/assign
-       { driverId, orderIds: [...] }
-       |
-       +--> Creates route row (delivery_date, driver_id)
-       +--> Creates route_stops rows (one per order, with stop_index)
-       +--> Updates orders.assigned_driver_id for each order
-       +--> Inserts audit log entries
+Admin opens /admin/routes/[id]
+  -> RouteDetailClient fetches GET /api/admin/routes/[id]
+     (already returns full stops + driver + addresses + exceptions)
+  -> Toggle editing mode
+     -> Drag reorder -> PATCH /api/admin/routes/[id] { stopOrder: [{stopId, stopIndex}] }
+        -> batch_update_stop_indices() RPC (deferrable unique constraint)
+        -> Clears optimized_polyline (stale after manual reorder)
+     -> Remove stop -> DELETE /api/admin/routes/[id]/stops?stopId=xxx
+        -> reindex_route_stops() RPC
+        -> update_route_stats() RPC
+     -> Add stops -> POST /api/admin/routes/[id]/stops { orderIds: [...] }
+        -> Validates no duplicate assignment (trigger)
+        -> Appends at max_stop_index + 1
+     -> Optimize -> POST /api/admin/routes/optimize { routeId }
+        -> Google Routes API or nearest-neighbor fallback
+        -> batch_update_stop_indices() with optimized order
+        -> Saves polyline
+  -> TanStack Query invalidates ['admin', 'route', id]
+  -> Split route -> POST /api/admin/routes/[id]/split { stopIds, driverId? }
+  -> Merge routes -> POST /api/admin/routes/[id]/merge { sourceRouteId }
 ```
 
+#### Driver Route Execution Flow (Existing, Audit-Only)
 ```
-                    Settings Read Flow
-                    ===================
+Driver opens /driver/route
+  -> SSR fetches today's route via delivery_date filter
+  -> DriverRouteSwitch conditionally renders:
+     - SimpleStopView (simple_mode = true): single-stop focus
+     - ActiveRouteView (simple_mode = false): full stop list
+  -> Route planned -> "Start Route" button
+     -> POST /api/driver/routes/[routeId]/start
+        -> Sets route status = 'in_progress', started_at = now
+        -> Sets first stop status = 'enroute'
+        -> Batch-updates all route orders to 'out_for_delivery'
+  -> Per-stop execution:
+     -> "I'm Here" -> PATCH status: 'arrived' (sets arrived_at)
+     -> "Delivered" -> confirm dialog -> PATCH status: 'delivered' (sets delivered_at)
+        -> Server auto-updates order.status = 'delivered'
+        -> Optional photo -> POST photo endpoint
+        -> Server auto-advances next stop to 'enroute'
+     -> "Skip" -> PATCH status: 'skipped'
+        -> Server auto-advances next stop to 'enroute'
+  -> All stops terminal -> "Complete Route" button
+     -> POST /api/driver/routes/[routeId]/complete
+        -> check_route_completion trigger validates
+  -> router.refresh() re-fetches SSR data after each mutation
+```
 
-Any API route needing business rules:
-  |
-  +--> getAppSettings(supabase)  // new utility
-  |    reads from app_settings table
-  |    returns typed { cutoffHour, cutoffDay, deliveryFeeCents, ... }
-  |
-  +--> No in-memory cache (serverless = no persistent memory)
-  |    Request-scoped: one read per request, amortized by
-  |    Supabase connection pooling
-  |
-  +--> Fallback: hardcoded defaults if table read fails (fail-open)
+#### Manual Delivery Tracking Flow
+```
+Driver updates stop status via any of the above
+  -> PATCH /api/driver/routes/[routeId]/stops/[stopId]
+  -> Updates route_stops.status + timestamps (arrived_at, delivered_at)
+  -> Updates orders.status when delivered
+  -> update_route_stats() refreshes stats_json
+  -> LocationTracker component posts to location_updates table
+  -> Customer /tracking/[orderId] or /tracking?token=xxx reads:
+     -> Order status + timestamps
+     -> Driver info (name, photo, vehicle)
+     -> Route stop position (currentStop / totalStops)
+     -> Latest location from location_updates
+  -> No live GPS stream -- status text + timestamps ARE the tracking data
 ```
 
 ---
 
-## Integration Design: Feature by Feature
+## What Is NEW vs MODIFIED (Explicit Inventory)
 
-### 1. Ops Dashboard
+### NEW Components (Create Fresh)
 
-**Where it lives:** Replace or augment the existing `/admin` dashboard page.
+| Component | Path | Lines Est. | Rationale |
+|-----------|------|------------|-----------|
+| `RouteEditor` | `components/ui/admin/routes/RouteEditor/RouteEditor.tsx` | ~200 | Encapsulates editing mode: drag reorder, add/remove buttons |
+| `RouteEditor/EditToolbar` | `components/ui/admin/routes/RouteEditor/EditToolbar.tsx` | ~80 | Action bar: Add Stops, Optimize, Split, Save |
+| `DragReorderList` | `components/ui/DragReorderList.tsx` | ~120 | Reusable @dnd-kit sortable list |
+| `AdminMobileNav` | `components/ui/admin/AdminMobileNav.tsx` | ~100 | Bottom tab bar (5 items + More sheet) |
+| `AdminResponsiveShell` | `components/ui/admin/AdminResponsiveShell.tsx` | ~40 | Viewport switch: sidebar vs bottom nav |
+| `OrderDetailPanel` | `components/ui/admin/orders/OrderDetailPanel/OrderDetailPanel.tsx` | ~250 | Items + modifiers, contact, address, payment, tip, delivery instructions |
+| `OrderDetailPanel/OrderItemsList` | `components/ui/admin/orders/OrderDetailPanel/OrderItemsList.tsx` | ~100 | Item rows with modifier sub-rows |
+| `OrderDetailPanel/PaymentSummary` | `components/ui/admin/orders/OrderDetailPanel/PaymentSummary.tsx` | ~80 | Subtotal, fee, tax, tip, discount, total |
+| `DriverStopActions` | `components/ui/driver/DriverStopActions.tsx` | ~150 | Action buttons: Navigate, Arrived, Delivered, Skip |
+| `DriverStopReorder` | `components/ui/driver/DriverStopReorder.tsx` | ~100 | Up/down arrows for driver stop reordering |
 
-The current admin dashboard at `/admin` (the default `page.tsx` inside `(admin)/admin/`) should become the Ops Dashboard on Saturdays. This avoids a new nav item -- the operator's first screen IS the ops center.
+### NEW API Routes
 
-**New API route:** `GET /api/admin/ops/summary`
-- Returns order counts by status for current Saturday
-- Returns unassigned order count (orders with `assigned_driver_id IS NULL` and status in [confirmed, preparing])
-- Returns available driver list (drivers with `saturday` in `availability_json.available_days` and current date not in `blocked_dates`)
-- Returns countdown data (cutoff time from `app_settings`, delivery start time)
+| Route | Method | Purpose | Complexity |
+|-------|--------|---------|------------|
+| `api/admin/routes/[id]/split/route.ts` | POST | Split route: move selected stops to new route | Medium |
+| `api/admin/routes/[id]/merge/route.ts` | POST | Merge source route stops into target route | Medium |
+| `api/driver/routes/[routeId]/reorder/route.ts` | PATCH | Driver-initiated stop reorder | Low (reuses batch_update_stop_indices RPC) |
 
-**New API route:** `POST /api/admin/orders/bulk-status`
-- Accepts `{ orderIds: string[], status: OrderStatus, reason?: string }`
-- Validates all orders exist and are in valid transition state
-- Updates in single transaction (Supabase service client)
-- Creates batch audit log entries
-- Queues emails fire-and-forget (does NOT await all emails)
+### MODIFIED Files
 
-**Real-time updates:** Use Supabase Realtime, same pattern as `useTrackingSubscription`.
-- Subscribe to `orders` table changes filtered by delivery date
-- On incoming update, refresh status counts (client-side recount from cached order list)
-- This gives the operator live status without manual refresh
-- Polling fallback at 15s (shorter than tracking's 30s because ops is time-sensitive)
+| File | Change | Risk |
+|------|--------|------|
+| `(admin)/admin/layout.tsx` | Replace static div + AdminNav with AdminResponsiveShell | Low |
+| `AdminNav.tsx` | Add `className` prop, add `hidden md:flex` for responsive | Low |
+| `RouteDetailClient/RouteDetailClient.tsx` | Add editing mode toggle, integrate RouteEditor | Medium |
+| `RouteDetailClient/RouteHeader.tsx` | Add Edit/Save buttons | Low |
+| `api/admin/routes/[id]/route.ts` GET | Expand order_items SELECT to include names, modifiers, payment fields | Low |
+| `api/admin/routes/[id]/types.ts` | Expand RouteDetailRow type for full order data | Low |
+| `ActiveRouteView.tsx` | Integrate DriverStopActions for in_progress route | Medium |
+| `StopCard.tsx` | Add onClick -> navigate to stop detail | Low |
+| `StopDetailView.tsx` | Add DriverStopActions, full order info, photo display | Medium |
+| `StopList.tsx` | Support drag reorder via DragReorderList when editing | Medium |
+| `auth/callback/route.ts` | Fix: use `next` param when it matches role prefix | Low |
+| Admin page layouts (ops, orders, routes, drivers) | Add responsive Tailwind classes for mobile | Low per file |
 
-**New components:**
-```
-src/app/(admin)/admin/
-  page.tsx                    -- Modified: conditionally show OpsCenter vs. existing dashboard
-  OpsCenter/
-    index.tsx                 -- Barrel
-    OpsDashboard.tsx          -- Main ops layout
-    StatusCountCards.tsx       -- Pending/Confirmed/Preparing/Out counts with bulk action buttons
-    CountdownTimer.tsx         -- Cutoff and delivery-start countdown
-    UnassignedBadge.tsx        -- Red indicator for orders needing routes
-    DriverAvailabilityWidget.tsx -- Who's available today
-    TimeWindowGrouping.tsx     -- Orders grouped by delivery slot
-```
+### NO Changes Needed
 
-**Why NOT a separate page:** The solo operator opens `/admin` and needs to immediately see Saturday state. A separate `/admin/ops` adds a click. The existing dashboard can detect "is today Saturday?" and show the ops view contextually.
-
-### 2. Route & Driver Assignment
-
-**Where it lives:** New page at `/admin/routes/assign` or enhanced `/admin/routes` page.
-
-The AdminNav already has a "Routes" item pointing to `/admin/routes`. Currently no route management page exists (only API routes for driver-side route operations). Build the assignment UI here.
-
-**Existing infrastructure to use:**
-- `routes` table: has `delivery_date`, `driver_id`, `status`, `stats_json`
-- `route_stops` table: has `route_id`, `order_id`, `stop_index`, `status`
-- `orders.assigned_driver_id`: already exists, updated by existing `PATCH /api/admin/orders/:id/driver`
-- `drivers` table: has `availability_json`, `is_active`
-- Driver assignment API: `PATCH /api/admin/orders/[id]/driver` already validates driver active status
-
-**New API route:** `POST /api/admin/routes`
-- Creates a route for a given delivery_date with a driver_id
-- Accepts `orderIds` array, creates route_stops with sequential stop_index
-- Updates each order's `assigned_driver_id`
-- Creates audit log entries
-
-**New API route:** `PATCH /api/admin/routes/[routeId]/orders`
-- Add/remove orders from existing route
-- Reindexes stop_index values
-- Updates order driver assignments accordingly
-
-**Modified API route:** `GET /api/admin/orders` -- add query param `?unassigned=true&deliveryDate=YYYY-MM-DD` to filter orders without routes.
-
-**New components:**
-```
-src/app/(admin)/admin/routes/
-  page.tsx                    -- Route management page
-  assign/
-    page.tsx                  -- Assignment interface
-  components/
-    UnassignedOrdersPanel.tsx -- Left panel: confirmed orders not on a route
-    AvailableDriversPanel.tsx -- Right panel: drivers with capacity
-    RouteBuilder.tsx          -- Drag-select orders + assign to driver
-    RouteSummaryCard.tsx      -- Stop count, estimated duration
-```
-
-**No new tables needed.** The existing `routes`, `route_stops`, and `orders.assigned_driver_id` schema fully supports this. The assignment is a matter of building the admin UI and the batch-creation API route.
-
-### 3. Configurable Business Rules (app_settings)
-
-**What exists already:**
-- `app_settings` table with `key`, `value` (JSONB), `category`, `updated_by`
-- `GET/PATCH /api/admin/settings` with category-based grouping
-- Settings validation schema in `src/lib/validations/settings.ts` with delivery, operations, notifications categories
-- Admin Settings page at `/admin/settings` with `SettingsClient` component
-- Email `send.ts` already reads `email_sending_enabled` from `app_settings`
-
-**What needs to change:**
-
-The hardcoded constants in `src/types/delivery.ts` must be replaced:
-```typescript
-// BEFORE (hardcoded)
-export const CUTOFF_DAY = 5;      // Friday
-export const CUTOFF_HOUR = 15;    // 3 PM
-export const TIMEZONE = "America/Los_Angeles";
-
-// AFTER (read from settings, with hardcoded fallback)
-```
-
-**New utility:** `src/lib/services/app-settings.ts`
-```typescript
-interface AppSettings {
-  cutoffDay: number;
-  cutoffHour: number;
-  deliveryFeeCents: number;
-  freeDeliveryThresholdCents: number;
-  deliveryStartHour: number;
-  deliveryEndHour: number;
-  maxDeliveryRadiusMiles: number;
-  emailSendingEnabled: boolean;
-}
-
-async function getAppSettings(supabase): Promise<AppSettings> {
-  // Read from app_settings table
-  // Return typed object with HARDCODED DEFAULTS as fallback
-  // One query per request (no cross-request cache on serverless)
-}
-```
-
-**Cache strategy:** No in-memory cache. Vercel serverless functions have no shared memory between invocations. Each API request reads `app_settings` once. At 20-50 orders/Saturday, this is ~100-200 reads total -- negligible for Supabase. The existing `deliverySettingsSchema` already has `delivery_cutoff_time`, `base_delivery_fee_cents`, `free_delivery_threshold_cents`, so the settings schema is mostly ready.
-
-**Settings that need to be seeded:**
-- `cutoff_day` (default: 5 / Friday)
-- `cutoff_hour` (default: 15 / 3PM)
-- `delivery_fee_cents` (default: 1500)
-- `free_delivery_threshold_cents` (default: 10000)
-- `delivery_start_hour` (default: 11)
-- `delivery_end_hour` (default: 19)
-
-**Migration path:** Seed `app_settings` rows with current hardcoded values. Update the settings form to expose these. Update API routes to use `getAppSettings()` instead of importing constants.
-
-### 4. Email Reliability
-
-**What exists already:**
-- `notification_logs` table (untyped but used): `id, order_id, user_id, notification_type, channel, recipient, subject, resend_id, status, error_message, metadata, sent_at, created_at`
-- `sendEmail()` in `src/lib/email/send.ts`: 3-retry with exponential backoff, logs success/failure to `notification_logs`
-- Resend webhook handler at `/api/webhooks/resend`: updates `notification_logs.status` + appends events to `metadata.resend_events[]`
-- Admin email log page at `/admin/emails`: paginated list with filters, resend button for failed emails
-- Admin email resend at `POST /api/admin/emails/:id/resend`
-
-**What needs to change:**
-
-The core email infrastructure is already built. The v1.9 work is incremental:
-
-1. **Order detail email indicator** -- The order detail page (`/admin/orders/[id]`) should show email status for that order. This is a `GET /api/admin/emails?orderId=X` call (already supported).
-
-2. **3-failures flag** -- After 3 send attempts all fail, flag the order for manual contact. Add a computed field or trigger: if `notification_logs` has 3+ `status='failed'` rows for same `order_id`, surface a "Contact manually" badge on the ops dashboard.
-
-3. **Webhook audit logging** -- The existing Resend webhook handler lacks body hash verification. Add `svix` package for proper signature verification (currently just checks header presence). Add a `webhook_audit_log` or extend `webhook_events` table with `body_hash` and `signature_valid` fields.
-
-**No new tables needed for core email reliability.** The `notification_logs` table already captures everything. The admin email page already has filtering, pagination, and retry. The work is wiring existing data into the order detail and ops dashboard views.
-
-**New component:**
-```
-src/app/(admin)/admin/orders/[id]/
-  EmailStatusBadge.tsx        -- Shows email delivery status for this order
-```
-
-### 5. Driver Simple Mode
-
-**Where the preference lives:** Server-side on the `drivers` table.
-
-Add `simple_mode` boolean column to `drivers` table (default `true` for new family drivers). This is a server-side preference because:
-- Admin can set it during driver invite/setup (family members default to simple)
-- Persists across devices (driver might use different phone)
-- Admin can toggle it from driver management page
-
-**Client-side behavior:**
-
-The driver Zustand store (`useDriverStore`) already tracks UI state. Add `isSimpleMode` to the store, hydrated from the server on page load.
-
-```typescript
-// driver-store.ts addition
-interface DriverState {
-  // ... existing
-  isSimpleMode: boolean;
-  setSimpleMode: (enabled: boolean) => void;
-}
-```
-
-**What simple mode hides:**
-- Route optimization comparison
-- Exception modals (replace with simple "Problem? Call admin" button)
-- Earnings dashboard link
-- Detailed delivery timestamps
-- Map overview
-
-**What simple mode shows:**
-- Customer name (large text)
-- Address (large text, tap to open Maps)
-- Phone (tap to call)
-- "Mark Delivered" button (large, green, with confirmation dialog)
-- "Next Stop" / "Done" indicator
-
-**New components:**
-```
-src/app/(driver)/driver/route/
-  SimpleStopCard.tsx          -- Simplified stop view for simple mode
-  SimpleRouteView.tsx         -- List of stops in simple mode
-  DeliveryConfirmDialog.tsx   -- "Mark delivered at 123 Main St?" confirmation
-```
-
-**Driver API change:** `GET /api/driver/profile` should return `simple_mode` field. Driver page server component reads it and passes to client.
-
-**Admin API change:** `PATCH /api/admin/drivers/:id` should accept `simpleMode` toggle.
+| Area | Why |
+|------|-----|
+| Database schema | All tables, enums, triggers, RPCs already exist |
+| `isValidStatusTransition()` | Already validates all stop status transitions |
+| Photo upload pipeline | Storage bucket, upload API, signed URL generation all working |
+| Route optimization service | Google Routes API + nearest-neighbor fallback in `lib/services/route-optimization/` |
+| Route builder / creation UI | Leaflet map, geographic clustering, order selection all working |
+| Auth role detection | `getRoleDashboard()` correctly maps roles to dashboards |
+| Rate limiting | All route APIs already rate-limited via `checkRateLimit()` |
+| Offline sync | `useOfflineSync()` hook already queues status updates + photos |
+| Simple mode provider | `SimpleModeProvider` + `useSimpleMode()` already reads from server |
 
 ---
 
 ## Patterns to Follow
 
-### Pattern 1: Batch API Operations
-
-**What:** Single API endpoint that operates on multiple records atomically.
-**When:** Bulk status changes, batch route assignment.
-**Why:** The ops dashboard needs to confirm 20 orders in one click. Individual PATCH calls would be slow and error-prone.
+### Pattern 1: Editing Mode Toggle
+**What:** Route detail defaults to read-only. Click "Edit" to enable drag-reorder and mutation buttons.
+**When:** Admin views route detail.
+**Why:** Prevents accidental changes during Saturday ops monitoring. Touch targets on mobile are large; accidental drags would be disruptive.
 
 ```typescript
-// POST /api/admin/orders/bulk-status
-export async function POST(request: Request) {
-  const auth = await requireAdmin();
-  if (!auth.success) return NextResponse.json({ error: auth.error }, { status: auth.status });
+// RouteDetailClient.tsx
+const [isEditing, setIsEditing] = useState(false);
 
-  const { orderIds, status, reason } = await request.json();
-  // Validate all order IDs exist and are in valid transition state
-  // Update all in single query: .in('id', orderIds)
-  // Batch insert audit logs
-  // Fire-and-forget email notifications
+return (
+  <>
+    <RouteHeader onToggleEdit={() => setIsEditing(!isEditing)} isEditing={isEditing} />
+    {isEditing ? (
+      <RouteEditor routeId={id} stops={stops} onStopsChange={() => refetch()} />
+    ) : (
+      <RouteTimeline stops={stops} />
+    )}
+  </>
+);
+```
+
+### Pattern 2: Optimistic Updates with TanStack Query (Admin Only)
+**What:** Admin route editing uses TanStack Query mutations with optimistic rollback.
+**When:** Stop reorder, status change, add/remove from admin UI.
+**Why:** Saturday ops needs instant visual feedback.
+
+```typescript
+const reorderMutation = useMutation({
+  mutationFn: (stopOrder) =>
+    fetch(`/api/admin/routes/${routeId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({ stopOrder }),
+    }),
+  onMutate: async (newOrder) => {
+    await queryClient.cancelQueries({ queryKey: ['admin', 'route', routeId] });
+    const previous = queryClient.getQueryData(['admin', 'route', routeId]);
+    queryClient.setQueryData(['admin', 'route', routeId], applyReorder(previous, newOrder));
+    return { previous };
+  },
+  onError: (_err, _data, context) => {
+    queryClient.setQueryData(['admin', 'route', routeId], context?.previous);
+  },
+  onSettled: () => queryClient.invalidateQueries({ queryKey: ['admin', 'route', routeId] }),
+});
+```
+
+### Pattern 3: SSR + router.refresh() for Driver Route (Keep Existing)
+**What:** Driver route page uses SSR. After mutations, `router.refresh()` re-runs server component.
+**When:** Driver completes any action (arrive, deliver, skip).
+**Why:** Already established pattern. SSR ensures fresh data, works with service worker caching for offline-first, simpler mental model for non-technical family drivers.
+**Do NOT switch to TanStack Query.** This is an explicit design decision from v1.9.
+
+### Pattern 4: Responsive Admin Shell
+**What:** Desktop shows sidebar, mobile shows bottom nav. Single layout component handles both.
+**When:** Admin layout renders.
+**Why:** Admin uses phone during Saturday kitchen ops.
+
+```typescript
+// AdminResponsiveShell.tsx
+export function AdminResponsiveShell({ children }: { children: React.ReactNode }) {
+  return (
+    <>
+      {/* Desktop */}
+      <div className="hidden md:flex min-h-screen bg-cream">
+        <AdminNav />
+        <main className="flex-1 overflow-auto">{children}</main>
+      </div>
+      {/* Mobile */}
+      <div className="flex flex-col min-h-screen bg-cream md:hidden">
+        <main className="flex-1 overflow-auto pb-16">{children}</main>
+        <AdminMobileNav />
+      </div>
+    </>
+  );
 }
 ```
 
-### Pattern 2: Settings Utility with Hardcoded Fallbacks
-
-**What:** Centralized settings reader that falls back to constants if DB read fails.
-**When:** Any API route needs business rules (cutoff, fees, delivery windows).
-**Why:** Fail-open pattern already established in email send. Settings must never block order flow.
+### Pattern 5: Driver Action State Machine
+**What:** Stop actions mirror the existing `isValidStatusTransition()` server-side validation.
+**When:** Driver interacts with a stop.
+**Why:** Client-side validation prevents rejected requests; server-side is the authority.
 
 ```typescript
-// src/lib/services/app-settings.ts
-const DEFAULTS: AppSettings = {
-  cutoffDay: 5,
-  cutoffHour: 15,
-  deliveryFeeCents: 1500,
-  // ...
-};
-
-export async function getAppSettings(supabase: SupabaseClient): Promise<AppSettings> {
-  try {
-    const { data } = await supabase.from('app_settings').select('key, value');
-    return mergeWithDefaults(data, DEFAULTS);
-  } catch {
-    return DEFAULTS; // fail-open
+const getAvailableActions = (status: RouteStopStatus): RouteStopStatus[] => {
+  switch (status) {
+    case 'pending': return []; // Only server sets to 'enroute' via auto-advance
+    case 'enroute': return ['arrived', 'skipped'];
+    case 'arrived': return ['delivered', 'skipped'];
+    default: return []; // Terminal states
   }
-}
-```
-
-### Pattern 3: Supabase Realtime for Admin Dashboard
-
-**What:** Subscribe to `orders` table changes filtered by delivery date.
-**When:** Ops dashboard needs live status counts.
-**Why:** Existing pattern in `useTrackingSubscription` proves it works. Admin needs faster updates than 30s polling.
-
-```typescript
-// useOpsDashboardSubscription.ts
-const channel = supabase
-  .channel(`ops:${deliveryDate}`)
-  .on('postgres_changes', {
-    event: 'UPDATE',
-    schema: 'public',
-    table: 'orders',
-    // No row-level filter -- want ALL order updates for this Saturday
-  }, handleOrderUpdate)
-  .subscribe();
-```
-
-**Key difference from tracking:** No row-level filter (want all orders, not one). Recalculate counts client-side when any order updates.
-
-### Pattern 4: Server-Side Preference with Client Hydration
-
-**What:** Driver preferences stored in DB, hydrated to client state on page load.
-**When:** Simple mode toggle, any driver preference that must persist across devices.
-**Why:** Family drivers share a phone or switch devices. Server-side ensures consistency.
-
-```typescript
-// Server component reads preference
-const { data: driver } = await supabase
-  .from('drivers').select('simple_mode').eq('user_id', user.id);
-
-// Pass to client component as prop
-<DriverRouteView isSimpleMode={driver.simple_mode ?? true} />
-
-// Client component stores in Zustand for UI toggling
-// But saves back to server on change
+};
 ```
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: In-Memory Caching for Settings
+### Anti-Pattern 1: TanStack Query for Driver Route
+**What:** Converting driver route from SSR to client-side data fetching.
+**Why bad:** Breaks offline-first caching. Adds loading spinners. Confuses non-technical drivers. SSR + service worker is simpler and more reliable.
+**Instead:** Keep SSR. Use `router.refresh()` after mutations.
 
-**What:** Caching `app_settings` in a module-level variable.
-**Why bad:** Vercel serverless functions are stateless. Module-level variables reset between invocations. Cache would either be stale or empty. At worst, two concurrent requests see different settings.
-**Instead:** Read once per request. At 20-50 orders/Saturday, this is negligible DB load.
+### Anti-Pattern 2: Custom Drag-and-Drop Implementation
+**What:** Building drag-and-drop from scratch with pointer events.
+**Why bad:** Accessibility (keyboard, screen reader), touch (scroll vs drag), scroll containers all need handling. 400-line file limit makes single-file implementation impractical.
+**Instead:** Use `@dnd-kit/core` + `@dnd-kit/sortable`. Tree-shakeable (~12KB gzipped total), accessible, touch-friendly.
 
-### Anti-Pattern 2: Individual API Calls for Bulk Operations
+### Anti-Pattern 3: Separate Mobile Admin Pages
+**What:** Creating `/admin/m/` routes with mobile-specific pages.
+**Why bad:** Doubles maintenance surface. Same data, same APIs, just different viewport.
+**Instead:** Make existing pages responsive. AdminResponsiveShell handles navigation. Tailwind `md:` classes handle layout.
 
-**What:** Calling `PATCH /api/admin/orders/:id/status` in a loop from the client.
-**Why bad:** 20 orders = 20 API calls = 20 cold starts on serverless = 5-10 seconds total. Race conditions possible. Partial failure leaves inconsistent state.
-**Instead:** Single `POST /api/admin/orders/bulk-status` endpoint.
+### Anti-Pattern 4: Realtime Subscriptions for Route Updates
+**What:** Using Supabase Realtime for live route stop updates during driver execution.
+**Why bad:** v1.9 decision: 5s polling is indistinguishable at 20-50 orders. Realtime adds connection management. Admin already polls ops dashboard.
+**Instead:** `router.refresh()` for driver. `invalidateQueries()` for admin.
 
-### Anti-Pattern 3: Client-Side Business Rule Constants
+### Anti-Pattern 5: Route Split/Merge as Client-Side Logic
+**What:** Splitting/merging routes with multiple sequential API calls from the client.
+**Why bad:** Partial failures leave routes in inconsistent state: stop_index gaps, orphaned stops, duplicate assignments.
+**Instead:** Single API endpoint per operation. Server handles transactionally.
 
-**What:** Importing `CUTOFF_DAY`, `CUTOFF_HOUR` directly in client components.
-**Why bad:** When admin changes cutoff via settings, client still shows old hardcoded values. Requires deploy to update.
-**Instead:** API routes read from `app_settings`. Client displays what API returns (e.g., "Order by Friday 5PM" comes from server-rendered content or API response, not a client constant).
-
-### Anti-Pattern 4: Full Page Reload for Real-Time Updates
-
-**What:** Using `router.refresh()` or full re-fetch on every order update.
-**Why bad:** The ops dashboard shows 40+ orders. Full refresh causes layout shift, loses scroll position, and is slow.
-**Instead:** Supabase Realtime subscription updates individual order status in client state. Optimistic UI for admin-initiated changes.
-
-### Anti-Pattern 5: Adding New Admin Nav Items for Every Feature
-
-**What:** Adding "Ops Center", "Assignment", "Settings" as separate nav items.
-**Why bad:** The admin nav already has 10 items. More items = harder to find things. Solo operator doesn't need complex navigation.
-**Instead:** Ops Dashboard replaces `/admin` default view on Saturdays. Route assignment lives under existing "Routes" nav item. Settings already has its nav item.
-
----
-
-## New vs. Modified: Explicit Inventory
-
-### New Files
-
-| File | Purpose |
-|------|---------|
-| `src/app/api/admin/ops/summary/route.ts` | Ops dashboard aggregation endpoint |
-| `src/app/api/admin/orders/bulk-status/route.ts` | Batch status change |
-| `src/app/api/admin/routes/route.ts` (POST) | Route creation with order assignment |
-| `src/app/api/admin/routes/[routeId]/orders/route.ts` | Add/remove orders from route |
-| `src/lib/services/app-settings.ts` | Centralized settings reader with defaults |
-| `src/app/(admin)/admin/OpsCenter/*.tsx` | Ops dashboard components (5-6 files) |
-| `src/app/(admin)/admin/routes/page.tsx` | Route management page |
-| `src/app/(admin)/admin/routes/components/*.tsx` | Route assignment UI (4 files) |
-| `src/app/(driver)/driver/route/SimpleStopCard.tsx` | Simple mode stop card |
-| `src/app/(driver)/driver/route/SimpleRouteView.tsx` | Simple mode route list |
-| `src/app/(driver)/driver/route/DeliveryConfirmDialog.tsx` | Delivery confirmation dialog |
-| `src/lib/hooks/useOpsDashboardSubscription.ts` | Supabase Realtime for ops |
-| `src/types/ops.ts` | Ops dashboard types |
-
-### Modified Files
-
-| File | Change |
-|------|--------|
-| `src/app/(admin)/admin/page.tsx` | Conditionally show Ops Dashboard vs. existing dashboard |
-| `src/app/api/admin/orders/route.ts` | Add `?unassigned=true&deliveryDate=` filters |
-| `src/lib/stores/driver-store.ts` | Add `isSimpleMode` state |
-| `src/lib/validations/settings.ts` | Add `cutoff_day`, `cutoff_hour` to delivery settings |
-| `src/types/delivery.ts` | Keep constants as defaults, add settings-aware versions |
-| `src/lib/email/send.ts` | Use `getAppSettings()` instead of direct `app_settings` query |
-| `src/app/(admin)/admin/orders/[id]/page.tsx` | Add email status indicator |
-| `src/app/(driver)/driver/route/page.tsx` | Conditional simple/full mode rendering |
-| `src/app/(driver)/driver/route/[stopId]/page.tsx` | Simple mode variant |
-| `src/components/ui/admin/AdminNav.tsx` | No change needed (Routes already in nav) |
-
-### Database Changes
-
-| Change | Type | Details |
-|--------|------|---------|
-| `drivers.simple_mode` | New column | `BOOLEAN DEFAULT true` -- family drivers default to simple |
-| `app_settings` seed data | New rows | `cutoff_day`, `cutoff_hour`, `delivery_fee_cents`, etc. |
-| Add `notification_logs` to Database type | Type fix | Currently untyped, used with manual casts |
-| Add `app_settings` to Database type | Type fix | Currently untyped, used with manual casts |
-| Index: `orders(delivery_window_start, status)` | New index | Ops dashboard queries filter by date + status |
-| Index: `orders(assigned_driver_id) WHERE assigned_driver_id IS NULL` | New partial index | Fast unassigned order lookup |
-| Index: `notification_logs(order_id, status)` | New index | Email status lookup per order |
-
-### No New Tables Required
-
-All five features integrate with existing tables:
-- **Ops Dashboard:** reads `orders`, `drivers`, `routes`, `app_settings`
-- **Route Assignment:** writes to `routes`, `route_stops`, updates `orders.assigned_driver_id`
-- **Business Rules:** reads/writes `app_settings` (already exists)
-- **Email Reliability:** reads/writes `notification_logs` (already exists)
-- **Driver Simple Mode:** adds column to `drivers` (already exists)
+### Anti-Pattern 6: Expanding Route Detail API Response Everywhere
+**What:** Adding full order items/modifiers to the route LIST endpoint.
+**Why bad:** Route list shows 5-10 routes with 5-10 stops each. Full item data is 5-10x payload.
+**Instead:** Only expand the route DETAIL endpoint (`GET /api/admin/routes/[id]`). List endpoint keeps summary data (item count, total).
 
 ---
 
-## Suggested Build Order (Dependency-Based)
+## Split/Merge Route Architecture
 
+### Route Split
 ```
-Phase 0: Critical Bug Fixes
-  (no architecture changes, just logic fixes)
-  |
-  v
-Phase 4: Configurable Business Rules
-  (app_settings utility must exist BEFORE ops dashboard reads cutoff times)
-  |
-  v
-Phase 1: Saturday Ops Dashboard
-  (depends on settings utility for cutoff/delivery-start countdown)
-  (depends on bulk-status API for confirm-all buttons)
-  |
-  v
-Phase 2: Route & Driver Assignment
-  (depends on ops dashboard for "unassigned orders" count)
-  (builds on driver availability already shown in ops dashboard)
-  |
-  v
-Phase 5: Email Reliability
-  (enhancement to existing infrastructure, no blockers)
-  |
-  v
-Phase 6: Driver Simplification
-  (independent of other features, can be built in parallel with Phase 5)
-  |
-  v
-Phase 7: Production Hardening
-  (runs last: indexes, rate limits, N+1 fixes benefit from seeing final query patterns)
+POST /api/admin/routes/[id]/split
+Body: { stopIds: string[], driverId?: string }
+
+Server (single transaction):
+1. Validate route status === 'planned' (reject in_progress/completed)
+2. Validate all stopIds belong to this route
+3. Create new route (same delivery_date, optional driverId)
+4. UPDATE route_stops SET route_id = newRouteId WHERE id IN (stopIds)
+5. reindex_route_stops(originalRouteId)
+6. reindex_route_stops(newRouteId)
+7. update_route_stats(originalRouteId)
+8. update_route_stats(newRouteId)
+9. Return { originalRouteId, newRouteId, movedStopCount }
 ```
 
-**Rationale for reordering Phase 4 before Phase 1:** The ops dashboard shows cutoff countdown timers. These timers read from `app_settings` via `getAppSettings()`. Building the settings utility first means the ops dashboard can use dynamic settings from day one, rather than hardcoding and retrofitting later. The settings admin form already exists -- just need to seed the new keys and build the reader utility.
+### Route Merge
+```
+POST /api/admin/routes/[id]/merge
+Body: { sourceRouteId: string }
+
+Server (single transaction):
+1. Validate BOTH routes status === 'planned'
+2. Get max stop_index of target route
+3. UPDATE source stops: SET route_id = targetId, stop_index += (maxIndex + 1)
+4. DELETE source route (now empty, cascade-safe)
+5. reindex_route_stops(targetRouteId)
+6. update_route_stats(targetRouteId)
+7. Return { mergedRouteId, stopsAdded }
+```
+
+---
+
+## Order Detail Completeness Architecture
+
+### Current Route Detail API Response (Per Stop)
+
+The `GET /api/admin/routes/[id]` currently returns:
+- `order.totalCents`, `order.specialInstructions`, `order.status`
+- `order.itemCount` (computed: `order_items.reduce(sum, quantity)` -- NOT item details)
+- `order.customer.id, fullName, phone` (missing: email)
+- `order.address.*` (full address with lat/lng)
+- `order.deliveryWindowStart, deliveryWindowEnd`
+
+### What to Add (API SELECT Expansion Only)
+
+```sql
+-- Current order_items join:
+order_items (quantity)
+
+-- Expand to:
+order_items (
+  id,
+  name_snapshot,
+  base_price_snapshot,
+  quantity,
+  line_total_cents,
+  special_instructions,
+  order_item_modifiers (
+    name_snapshot,
+    price_delta_snapshot
+  )
+)
+```
+
+Also expand the orders SELECT:
+```sql
+-- Add these fields (already in schema, just not selected):
+subtotal_cents,
+delivery_fee_cents,
+tax_cents,
+tip_cents,
+discount_cents,
+delivery_instructions,
+stripe_payment_intent_id,
+placed_at,
+confirmed_at,
+delivered_at
+```
+
+And expand profile join:
+```sql
+-- Add email to customer profile select:
+profiles!orders_user_id_fkey (id, full_name, phone, email)
+```
+
+### OrderDetailPanel TypeScript Interface
+
+```typescript
+interface OrderDetailData {
+  id: string;
+  status: string;
+  totalCents: number;
+  subtotalCents: number;
+  deliveryFeeCents: number;
+  taxCents: number;
+  tipCents: number;
+  discountCents: number;
+  specialInstructions: string | null;
+  deliveryInstructions: string | null;
+  stripePaymentIntentId: string | null; // null = COD
+  placedAt: string;
+  confirmedAt: string | null;
+  deliveredAt: string | null;
+  customer: {
+    id: string;
+    fullName: string | null;
+    phone: string | null;
+    email: string | null;
+  };
+  address: {
+    line1: string;
+    line2: string | null;
+    city: string;
+    state: string;
+    postalCode: string;
+    lat: number | null;
+    lng: number | null;
+  };
+  items: {
+    id: string;
+    nameSnapshot: string;
+    quantity: number;
+    lineTotalCents: number;
+    specialInstructions: string | null;
+    modifiers: {
+      nameSnapshot: string;
+      priceDeltaSnapshot: number;
+    }[];
+  }[];
+}
+```
+
+**No schema changes. Just expanding the SELECT in the existing route detail API and adding a new UI component.**
+
+---
+
+## Admin Mobile UX Architecture
+
+### Pages Requiring Mobile Audit
+
+| Page | Current State | Mobile Fix |
+|------|--------------|------------|
+| `/admin` (dashboard) | Grid stat cards | Likely already responsive |
+| `/admin/ops` | OpsCenter with counts + order table | Table needs horizontal scroll or card view |
+| `/admin/orders` | Order table | Card view on mobile, table on desktop |
+| `/admin/orders/[id]` | Detail view with sidebar info | Stack columns vertically |
+| `/admin/routes` | Route list + stats cards | Stack cards, list below |
+| `/admin/routes/[id]` | Route detail + map + stop list | Full-width stops, collapsible map |
+| `/admin/routes/new` | Route builder with map + order panel | Sheet-based order selection on mobile |
+| `/admin/drivers` | Driver list with stats | Card view on mobile |
+| `/admin/settings` | Form | Already single-column |
+| `/admin/emails` | Email log table | Card view on mobile |
+| `/admin/feedback` | Feedback list | Card view on mobile |
+
+### Mobile Navigation (AdminMobileNav)
+
+Bottom tab bar: 5 items max for thumb reach.
+```
+1. Dashboard (LayoutDashboard)
+2. Ops (Activity)
+3. Orders (ClipboardList)
+4. Routes (Route)
+5. More... (Menu) -> opens sheet with remaining links
+```
+
+The "More" sheet contains: Drivers, Menu, Categories, Photos, Sections, Analytics, Feedback, Settings, Sign Out.
+
+### Responsive Breakpoint Strategy
+- `< md` (768px): Mobile layout, bottom nav, stacked content, card views for tables
+- `>= md`: Desktop layout, sidebar nav, side-by-side content, table views
+- Use Tailwind `md:` prefix consistently. No custom breakpoints.
+- Admin pages should use `px-4 md:px-8` for edge spacing.
+
+---
+
+## Auth Routing Fix Architecture
+
+### Current Bug
+
+Auth callback has `next` param support but `getRoleDashboard()` always overrides it with role-based paths (`/admin`, `/driver`, `/menu`). When admin clicks a link like `/admin/routes/abc123` while logged out, the flow is:
+1. Redirect to `/login?next=/admin/routes/abc123`
+2. Login succeeds, callback gets `next=/admin/routes/abc123`
+3. But `getRoleDashboard()` returns `{ path: '/admin' }` and callback uses that
+4. Admin lands on `/admin` instead of `/admin/routes/abc123`
+
+### Fix (Minimal, Safe)
+
+In auth callback, after role resolution, check if `next` param is within the user's authorized prefix:
+
+```typescript
+// In auth/callback/route.ts, after getting roleResult:
+const rolePrefixes: Record<string, string> = {
+  admin: '/admin',
+  driver: '/driver',
+  customer: '/menu',
+};
+const prefix = rolePrefixes[roleResult.role] ?? '/';
+// Use next param if it's within the user's authorized area
+const finalPath = (next !== '/' && isSafeRedirect(next) && next.startsWith(prefix))
+  ? next
+  : roleResult.path;
+```
+
+This is ~5 lines of code. No other files need to change.
+
+---
+
+## New Dependency Assessment
+
+| Package | Purpose | Bundle Impact | Justification |
+|---------|---------|---------------|---------------|
+| `@dnd-kit/core` | Drag-and-drop primitives | ~8KB gzipped | Admin route editor + driver stop reorder. Accessible, touch-friendly. |
+| `@dnd-kit/sortable` | Sortable list preset | ~3KB gzipped | SortableContext for stop lists. |
+| `@dnd-kit/utilities` | CSS transform utilities | ~1KB gzipped | Required by sortable. |
+
+**Total new bundle: ~12KB gzipped.** Acceptable for the functionality gained. Dynamic import for both admin and driver route pages to avoid loading on unrelated pages.
+
+**No other new dependencies.** Everything else uses existing stack: TanStack Query (admin mutations), Zustand (client state), Framer Motion (animations), Leaflet (maps).
 
 ---
 
 ## Scalability Considerations
 
-| Concern | At 20-50 orders | At 200 orders | At 1000 orders |
-|---------|-----------------|---------------|----------------|
-| Ops dashboard load | Single query, instant | Still fine, add pagination | Need server-side aggregation view |
-| Realtime subscriptions | 1 admin connected | Works fine | Supabase Realtime has per-project limits, may need throttling |
-| Bulk status change | 20 orders in 1 query | 200 in 1 query, fine | Batch in chunks of 100 |
-| Settings reads | ~100 reads/Saturday | ~1000 reads, fine | Consider Supabase edge cache or read replica |
-| Email sending | 50-100 emails, sequential | Queue needed | Definitely need background job queue |
+| Concern | At 20 orders (current) | At 100 orders | At 500 orders |
+|---------|----------------------|---------------|---------------|
+| Route detail query | Single query with 3-level joins, fast | Same, Postgres handles it | Add pagination to stops list |
+| Stop reorder | batch_update_stop_indices handles 50+ stops | Same, batch is efficient | Same |
+| Order detail expansion | +2 joins (items, modifiers), ~50 items max | Same | Lazy-load item details on expand |
+| Photo uploads | 5MB per stop, Supabase Storage | Same | Add client-side compression |
+| Admin mobile | All data fits in viewport | Virtual scroll for order lists | Server-side pagination |
+| Drag-and-drop | 10 stops per route | 30 stops, fine | Virtualized drag list |
 
-**At current scale (20-50 orders), none of these are concerns.** The architecture is designed for simplicity at this scale. If orders grow 10x, the main bottleneck will be email sending (needs a proper queue) and the ops dashboard (needs server-side aggregation instead of client-side counting).
+---
+
+## Build Order (Dependency-Aware)
+
+```
+Phase 1: Auth Fix + Admin Mobile Shell (Foundation)
+  - Auth callback next param fix (standalone, ~5 lines)
+  - AdminResponsiveShell + AdminMobileNav (layout-only)
+  - AdminNav responsive hiding (add hidden md:flex)
+  - Mobile audit of admin pages (CSS-only Tailwind changes)
+  Dependencies: None. Enables all subsequent phases to be mobile-friendly.
+
+Phase 2: Order Detail Completeness (Data Foundation)
+  - Expand route detail API response (backend SELECT changes)
+  - Update RouteDetailRow type
+  - OrderDetailPanel component + sub-components
+  - Wire into RouteDetailClient (expandable per-stop)
+  Dependencies: None. Needed by Phase 3 and Phase 4.
+
+Phase 3: Admin Route Editing (Admin Feature)
+  - Install @dnd-kit/*
+  - DragReorderList component
+  - RouteEditor + EditToolbar components
+  - Split/merge API endpoints
+  - Wire into RouteDetailClient with edit mode toggle
+  - Optimize button wiring (API exists, just add UI trigger)
+  Dependencies: Phase 2 (OrderDetailPanel shown in edit mode).
+
+Phase 4: Driver Route Execution (Driver Feature)
+  - DriverStopActions component
+  - Modify ActiveRouteView to show per-stop actions
+  - Wire StopCard onClick to stop detail page
+  - StopDetailView with full order info + actions + photo + navigation
+  - Driver stop reorder API + DriverStopReorder component
+  - Audit SimpleStopView for completeness
+  - Audit all driver pages end-to-end (profile, earnings, history, schedule)
+  Dependencies: Phase 2 (OrderDetailPanel reused in stop detail).
+
+Phase 5: Manual Tracking + Photo Proof (Integration)
+  - Verify customer tracking page reads stop status updates
+  - Photo proof visibility in admin route detail (already in API, wire to UI)
+  - Photo proof in customer tracking (if not already shown)
+  - Email updates with delivery status (verify existing email templates)
+  Dependencies: Phase 4 (driver must be updating statuses).
+```
+
+**Rationale:**
+- Phase 1 is pure infrastructure with zero feature risk
+- Phase 2 provides the data layer both admin and driver features need
+- Phase 3 and Phase 4 are independent of each other (could parallelize)
+- Phase 5 is mostly verification that existing pieces connect properly
 
 ---
 
 ## Sources
 
-- Direct codebase analysis of existing files (HIGH confidence)
-- Supabase Realtime pattern from existing `useTrackingSubscription.ts` (HIGH confidence)
-- `app_settings` and `notification_logs` usage from `send.ts`, `webhooks/resend/route.ts`, admin emails page (HIGH confidence)
-- Settings validation schema from `src/lib/validations/settings.ts` (HIGH confidence)
-- Serverless caching constraints from Vercel architecture (HIGH confidence -- well-documented platform limitation)
+- Direct codebase analysis of all files referenced above (HIGH confidence)
+- Database schema: `supabase/migrations/001_schema.sql`, `20260312_route_pipeline_hardening.sql`, `20260313_fix_stop_index_unique_deferrable.sql`
+- Existing API contracts: `src/app/api/admin/routes/`, `src/app/api/driver/routes/`
+- Existing components: `src/components/ui/admin/routes/`, `src/components/ui/driver/`
+- Auth flow: `src/app/auth/callback/route.ts`, `src/lib/auth/role-redirect.ts`
+- @dnd-kit bundle size: published package sizes on npm (HIGH confidence, well-known library)

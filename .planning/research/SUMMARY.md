@@ -1,17 +1,17 @@
 # Project Research Summary
 
-**Project:** Mandalay Morning Star Delivery App — v1.9 Launch-Ready MVP
-**Domain:** Small-scale Saturday-only meal delivery ops tooling (20-50 orders, solo operator, family/friend drivers)
-**Researched:** 2026-03-01
+**Project:** Morning Star Delivery App — v2.1 Route Operations & Admin Mobile
+**Domain:** Saturday meal delivery — route editing, driver execution, admin mobile UX
+**Researched:** 2026-03-14
 **Confidence:** HIGH
 
 ## Executive Summary
 
-v1.9 is fundamentally a build-on-existing-infrastructure milestone, not a greenfield feature build. Every major capability — order status management, route creation, settings CRUD, email sending with retry, driver dashboards — already exists as working API routes and database tables. The work is (a) fixing three production-blocking bugs, (b) building admin UI surfaces that connect existing APIs, (c) migrating hardcoded constants to database-driven settings, and (d) simplifying the driver experience for non-technical family members. Zero new npm packages are required; the entire milestone ships using installed dependencies.
+v2.1 is fundamentally an enhancement milestone, not a greenfield build. The existing codebase already contains the complete database layer (all tables, enums, RPCs, triggers), every major API route, and most UI components needed for this milestone. The core work is: wiring existing pieces together end-to-end, adding drag-reorder via `@dnd-kit` (one new package), expanding the route detail API response to include full order data, and making admin pages responsive for mobile phone use during Saturday kitchen operations. No database migrations are required for core route operations.
 
-The recommended phase order is dictated by dependency chains, not feature priority. Bug fixes unblock everything. Configurable business rules must precede the ops dashboard because countdown timers consume settings data. The ops dashboard must precede route assignment because the unassigned orders panel feeds from the same data layer. Email reliability and driver simplification are fully independent and can run in parallel after Phase 2 ships. The architecture favors single-batch API endpoints over client-side loops, server-side driver preferences over localStorage, and Supabase RPC functions over manual multi-step rollbacks.
+The recommended approach is incremental: fix the foundation first (auth routing, order detail completeness, manual tracking display), then layer on the route editing features (drag-reorder, split/merge), then harden driver execution flows, and finally apply the admin mobile responsive overhaul once all features are stable. This ordering prevents building responsive layouts on top of incomplete features, which would require double-touching the same pages. The only new npm dependency is `@dnd-kit/core` + `@dnd-kit/sortable` + `@dnd-kit/utilities` (~15KB gzipped), chosen over Framer Motion's built-in `Reorder` due to verified mobile touch bugs in that library on iOS/Android (issues #1597, #1506, #2101).
 
-The dominant risk category is data integrity during bulk and multi-step operations. Three of the five critical pitfalls involve non-atomic operations: bulk status changes without a transaction, route creation with a fragile manual rollback, and email retry without idempotency. The mitigation pattern is consistent — use PostgreSQL RPC functions for operations touching multiple tables, and invalidate React Query caches from `onSettled` rather than applying optimistic patches to bulk operations.
+The key risks are: (1) drag-reorder triggering UNIQUE constraint violations if implemented with per-stop PATCH calls instead of the existing `batch_update_stop_indices` RPC; (2) the admin sidebar breaking mobile layout if not fully replaced with a Drawer-based pattern (collapsing to 64px icon bar is useless on phones); and (3) the auth callback regression risk when fixing the `?next=` parameter handling across 4 distinct auth flows. All three risks have known solutions documented in the research with specific code patterns.
 
 ---
 
@@ -19,155 +19,126 @@ The dominant risk category is data integrity during bulk and multi-step operatio
 
 ### Recommended Stack
 
-No new dependencies are required. All v1.9 features build on packages already installed: `@supabase/supabase-js` for Realtime subscriptions (existing `useTrackingSubscription` pattern), `@tanstack/react-query` for data fetching and polling, `resend` SDK (v6.9.1+) which bundles `webhooks.verify()` internally eliminating any need for the separate `svix` package, `zustand` with `persist` middleware for driver preferences, `recharts` for ops dashboard status charts, Radix UI primitives for checkboxes/selects/dialogs, and `date-fns` for all time calculations.
-
-Two explicitly rejected alternatives: `@dnd-kit` for drag-and-drop route ordering (overkill at 2-4 drivers and 5-10 stops — click-to-assign buttons are faster and avoid touch device complexity), and Supabase Realtime for the ops dashboard (React Query polling at 5-second intervals is indistinguishable from real-time at 20-50 orders and avoids the need for a new admin RLS policy on the `orders` table).
+The stack requires only one addition: `@dnd-kit/core` + `@dnd-kit/sortable` + `@dnd-kit/utilities`. Everything else — Framer Motion, Leaflet, Google Routes API, Supabase Storage, TanStack React Query, Zustand — is already installed and already used for the exact purposes v2.1 needs. Framer Motion's `Reorder` component was evaluated and rejected (verified open bugs #1597, #1506, #2101 for mobile touch: items snap back instead of reordering on iOS). The `@dnd-kit/react` v0.3.2 pre-release was also rejected in favor of the stable classic API (v6.3.1 + v10.0.0).
 
 **Core technologies:**
-- `@supabase/supabase-js`: database + real-time — extend existing `useTrackingSubscription` pattern to ops dashboard
-- `@tanstack/react-query`: data fetching with 5-second polling — replaces need for WebSocket infra at current scale
-- `resend` (^6.9.1): email + webhook verification — `webhooks.verify()` bundled, no additional svix package needed
-- `zustand` + `persist`: driver simple mode preference — localStorage scoped, same pattern as cart
-- `recharts`: status count visualization — PieChart for order distribution, already installed
-- `react-hook-form` + `zod`: settings forms and API validation — extend existing `deliverySettingsSchema`
-- `idb-keyval`: offline route caching for driver simple mode — already used for cart persistence
+- `@dnd-kit/core` + `@dnd-kit/sortable` + `@dnd-kit/utilities`: drag-to-reorder stop lists — mobile-reliable, accessible, React 19 compatible, ~15KB gzipped total
+- `batch_update_stop_indices` RPC (already exists): the only safe way to reorder stops — avoids UNIQUE(route_id, stop_index) constraint violations from per-stop updates
+- Tailwind v4 responsive utilities + existing Drawer component: admin mobile layout — zero new dependencies
+- TanStack Query optimistic updates (already in use): admin route editing — instant visual feedback during Saturday ops
+- SSR + `router.refresh()` (driver pages, keep existing): driver route execution — offline-first, works with service worker, appropriate for non-technical family drivers; do NOT switch to TanStack Query
 
 ### Expected Features
 
-**Must have (table stakes) — v1.9 launch blockers:**
-- Bug fixes (TOCTOU checkout cleanup, `isPastCutoff()` full datetime comparison, cart debounce dedup) — production blockers; nothing else ships first
-- Ops status overview with counts by status (pending/confirmed/preparing/out/delivered)
-- Bulk status transitions — 40 individual order clicks is not a viable Saturday morning workflow
-- Order-to-route assignment with visual panel — without this, operator texts drivers manually
-- Configurable cutoff time and delivery fee — must be changeable without a code deploy
-- Customer order cutoff enforcement — must block orders past cutoff with next-available-date messaging
-- Email delivery status per order — operator self-diagnoses "did customer get confirmation?"
-- Failed email retry — self-service recovery without developer involvement
-- Driver confirmation dialog before marking delivered — prevents mis-delivery by family members
+**Must have (table stakes):**
+- Drag-reorder stops (admin) — every route planner tool has this; manual override after optimization is expected
+- Driver status progression with all intermediate states — `arrived` status exists in DB schema but is never currently written
+- Navigate to stop — already built via `SimpleStopView.openMaps()` Google Maps deep-link
+- Photo proof of delivery — already built via `PhotoCapture.tsx` + Supabase Storage pipeline
+- Auth routing fix — admin/driver must land on their dashboard, not homepage, after login
+- Order detail completeness — items with modifiers, tip, special instructions visible during Saturday ops
+- Manual tracking display (admin) — show which stop driver is on; data already exists in `arrived_at`/`delivered_at` columns
 
 **Should have (differentiators):**
-- Saturday ops command center — single screen answering "what needs attention NOW?" in under 3 seconds
-- One-click route builder with unassigned/available-driver split panel
-- Driver simple mode toggle — strips UI to name, address, phone, and large "Mark Delivered" button
-- Email failure badge on ops dashboard — "3 emails failed" must be impossible to miss during Saturday triage
-- Mini-map preview during route assignment — visual geographic grouping without an optimization algorithm
-- Offline route data caching with explicit IndexedDB prefetch for family drivers in low-signal areas
+- Split route — overloaded route split into two with driver assignment via new transactional API endpoint
+- Merge routes — two light routes combined when driver cancels
+- Driver stop reordering — advanced mode only; most drivers use simple mode
+- Admin mobile UX — solo operator runs Saturday kitchen from phone; high effort (~800 lines, 20+ pages)
+- Delivery notes per stop — driver adds context ("left at door"); `delivery_notes` column already exists on `route_stops`
+- Route progress widget on ops dashboard — compact cards: driver name + progress bar + delivered/total
 
 **Defer (v2+):**
-- Real-time GPS tracking — text-based status sufficient; WebSocket infra is overkill at this scale
-- Route optimization algorithm — manual assignment scales to ~100 orders; costs money and gets it wrong
-- Push notifications — transactional email covers it
-- Multi-admin RBAC — solo operator only; adds schema complexity with no current benefit
-- Customer loyalty/referral — get 50 regulars first
-- Advanced analytics — 7-day KPIs already built are sufficient
+- Real-time GPS tracking map — out of scope, overkill at 20-50 orders, battery drain, WebSocket complexity
+- Auto-dispatch / auto-assignment — manual control preferred for family operation
+- Live ETA updates to customers — requires WebSocket infrastructure not justified at scale
+- Driver route acceptance flow — family drivers; operator texts them; formal acceptance overhead at 2-4 drivers
+- Driver chat / messaging — family drivers use phone/SMS; call button already exists
+- Cross-route drag-and-drop — use existing "Reassign" dropdown instead; DnD multi-container is error-prone
 
 ### Architecture Approach
 
-The architecture is extension-first: every new feature plugs into existing route groups (`(admin)/admin/`, `(driver)/driver/`), existing tables (`orders`, `routes`, `route_stops`, `app_settings`, `notification_logs`), and existing API patterns (`requireAdmin()`, `checkRateLimit()`). No new database tables are required. Three new API endpoints are needed (bulk status change, ops summary, route creation with orders), four new components subdirectories, and one new service utility (`src/lib/services/app-settings.ts`). The existing admin dashboard page becomes the ops center on Saturdays via conditional rendering — no new nav item.
+The architecture is entirely modification-based: 10 new components to create, 12 existing files to modify, zero database schema changes. The component split follows established project conventions — `RouteEditor` encapsulates drag-reorder editing mode, `OrderDetailPanel` handles full order data display (reused across admin route detail and driver stop detail), `AdminResponsiveShell` switches between sidebar and bottom-nav by viewport. Driver route execution deliberately stays on SSR + `router.refresh()` — switching to TanStack Query client-side would break offline-first caching and is an explicit anti-pattern from v1.9.
 
-**Major components:**
-1. **Ops Dashboard** (`/admin` page, Saturday-conditional) — aggregates order counts, bulk actions, countdown timers; reads from new `GET /api/admin/ops/summary` endpoint
-2. **Route Assignment Panel** (`/admin/routes`) — split-panel unassigned orders + available drivers; writes via new `POST /api/admin/routes` with batch stop creation inside an RPC transaction
-3. **App Settings Service** (`src/lib/services/app-settings.ts`) — centralized typed settings reader with hardcoded fallbacks; consumed by every API route needing business rules
-4. **Email Status Indicator** (`/admin/orders/[id]`) — queries existing `notification_logs` table; surfaces per-order send/deliver/bounce status
-5. **Driver Simple Mode** (driver route pages) — server-side preference on `drivers.simple_mode` column, hydrated to Zustand store; conditional rendering hides everything except stop essentials
+**Major components to create:**
+1. `RouteEditor` + `EditToolbar` — admin editing mode: drag-reorder, add/remove, optimize, split; defaults to read-only to prevent accidental Saturday ops changes
+2. `DragReorderList` — generic @dnd-kit sortable list, reused by both admin `StopsList` and driver stop reorder
+3. `AdminResponsiveShell` + `AdminMobileNav` — viewport-aware layout switch; sidebar on `md:`, bottom tab nav on mobile
+4. `OrderDetailPanel` + `OrderItemsList` + `PaymentSummary` — full order data display; API SELECT expansion only (no schema changes)
+5. `DriverStopActions` — arrived/delivered/skip buttons wired to existing `isValidStatusTransition()` server validation
+
+**Key patterns:**
+- Editing mode toggle on route detail (read-only by default)
+- Optimistic updates with rollback for admin mutations via TanStack Query
+- `batch_update_stop_indices` RPC for all stop reordering (never per-stop PATCH calls)
+- Card layouts below `md:` breakpoint for all admin tables
+- Single transactional API endpoints for split/merge (never client-side multi-step operations)
 
 ### Critical Pitfalls
 
-1. **Bulk status change without atomic transaction** — looping individual PATCH calls from the client creates partial failure states and 20-second blocking operations. Build a dedicated `POST /api/admin/orders/bulk-status` endpoint using Supabase `.in()` batch update with a single transaction. Return `{ succeeded, failed }` per order. Queue emails asynchronously after the transaction, never inside it.
+1. **Drag-reorder UNIQUE constraint violation** — Never issue per-stop index PATCH calls. The `UNIQUE(route_id, stop_index)` constraint is `DEFERRABLE INITIALLY IMMEDIATE`, so per-stop updates fail on index swaps. Always route through `batch_update_stop_indices` RPC via a dedicated `PATCH /api/admin/routes/[id]/reorder` endpoint that accepts the full ordered stop ID array.
 
-2. **Route creation with fragile manual rollback** — the current code does a manual `DELETE` on route after `route_stops` insert fails; if the delete also fails, an empty route orphan persists. Follow the existing `create_order_with_items` RPC pattern: wrap route + stops creation in a single PostgreSQL transaction function. Orphaned routes become impossible.
+2. **Admin sidebar breaking mobile** — Collapsing `AdminNav` to 64px icon bar is useless on phones. Replace with conditional render: `AdminNav` on `md:` and above, Drawer-based `AdminMobileNav` bottom tab bar on mobile. Test every admin page at 375px before marking mobile UX complete.
 
-3. **Optimistic UI corruption on bulk operations** — optimistic updates work for single-item actions but are dangerous for 40-item bulk ops. On partial failure, the cache shows phantom-confirmed orders that don't exist in the DB, leading to drivers being assigned non-existent orders. Use a pending/loading overlay on affected rows instead of optimistic state, then hard-invalidate via `queryClient.invalidateQueries` in `onSettled`.
+3. **Driver state machine incomplete transitions** — The DB has `enroute` and `arrived` statuses that are never written. Document the complete state machine before writing any driver UI code. Create a shared `isValidTransition(currentStatus, newStatus, role)` used by both API and UI. For simple mode: auto-set `enroute` on display; do not force extra taps.
 
-4. **Stale business rules after cutoff change** — client components importing `CUTOFF_HOUR` from `src/types/delivery.ts` never see admin changes. Every consumer of cutoff/fee constants must be audited and switched to `getAppSettings()` API reads. Use `revalidateTag('business-rules')` in the settings PATCH handler to bust Next.js cache immediately. Verify with: `grep -r "CUTOFF_HOUR\|DELIVERY_FEE_CENTS" src/` should return 0 results after migration.
+4. **Optimistic offline sync conflicts** — Offline sync queue was designed for single `delivered` update per stop. Adding intermediate states multiplies edge cases. Mitigation: make the API idempotent (accept any forward transition); treat status updates as "set to at-least-this-state." Test: airplane mode, mark 3 stops delivered, re-enable network, verify all 3 sync.
 
-5. **Email retry creates duplicates via unstable idempotency keys** — current code uses `Date.now()` in idempotency keys, defeating the purpose. Before any retry, check `notification_logs` status. If Resend webhook already confirmed delivery/open, disable the retry button. Fix idempotency key to `orderId + emailType + attemptNumber`. Cap combined retries (automatic + manual) at 3 total via `retry_count` column.
+5. **Auth callback regression across 4 flows** — The callback has 4 flows (OAuth normal, OAuth with driver invite, magic link normal, magic link expired). The `?next=` fix must be isolated to standard login path (~5 lines: check `next` param starts with user's role prefix). Write E2E tests for all 4 flows before touching any redirect logic.
 
 ---
 
 ## Implications for Roadmap
 
-Based on research, suggested phase structure:
+Based on combined research, all four researchers independently converged on the same 5-phase structure.
 
-### Phase 0: Critical Bug Fixes
-**Rationale:** Three confirmed production blockers exist today. No feature work ships until they are resolved; they affect checkout integrity and core delivery logic used by every subsequent phase.
-**Delivers:** Stable checkout (TOCTOU cleanup fixed with `.in()` batch), correct cutoff enforcement (full datetime comparison, not hour-only), deduplicated cart updates (Zustand timestamp dedup).
-**Addresses:** CQ-01 (TOCTOU), BL-01 (cutoff logic), SC-03 (driver ownership checks flagged for audit)
-**Avoids:** Any regression to checkout — run all 335 existing unit tests after each fix; add targeted test per bug.
-**Research flag:** Standard patterns. No research phase needed. Fixes are line-level changes in identified files.
+### Phase 1: Foundation Fixes
+**Rationale:** Independent low-risk changes with immediate ops value. Auth fix needed before any login testing. Order detail data needed by both admin and driver phases. Manual tracking display requires no new components, just rendering existing DB data. All items are 30-150 lines each.
+**Delivers:** Working auth redirects, full order visibility during ops (items/modifiers/tip/instructions), delivery notes per stop, manual stop tracking display in admin route detail
+**Addresses:** Auth routing fix, order detail completeness, delivery notes input, manual tracking display, `OrderDetailPanel` as shared component for Phase 2+3
+**Avoids:** Pitfall #5 (auth regression) — write E2E tests first, isolate fix to standard login flow
 
-### Phase 1: Configurable Business Rules
-**Rationale:** Must precede the ops dashboard. Countdown timers, delivery fee display, and cutoff enforcement all read from `app_settings`. Building ops dashboard first means hardcoding values and immediately retrofitting — a research-confirmed anti-pattern.
-**Delivers:** `src/lib/services/app-settings.ts` typed utility with hardcoded fallbacks; new setting keys seeded in `app_settings` (`cutoff_day`, `cutoff_hour`, `delivery_fee_cents`, `free_delivery_threshold_cents`, `delivery_start_hour`, `delivery_end_hour`); admin settings form extended with new fields; all hardcoded constant consumers migrated.
-**Uses:** Existing `GET/PATCH /api/admin/settings`, existing Zod schemas, existing `SettingsClient` component.
-**Avoids:** Stale cutoff pitfall — implement `revalidateTag('business-rules')` cache busting in the PATCH handler from day one; add validation bounds (`cutoff_hour: z.number().min(0).max(23)`) to prevent bad data entry.
-**Research flag:** Standard patterns. Well-documented Supabase + Next.js cache invalidation. Skip research phase.
+### Phase 2: Admin Route Editing
+**Rationale:** Install `@dnd-kit` once and use it for both admin reorder and (Phase 3) driver reorder. Split/merge APIs must be implemented as single server-side transactions to avoid partial failure states (orphaned stops, index gaps, stale `assigned_driver_id`).
+**Delivers:** Drag-reorder stops with read-only default + editing mode toggle, optimize-after-reorder confirmation dialog, route split/merge APIs + UI
+**Uses:** `@dnd-kit/core` + `@dnd-kit/sortable` (install in this phase), `batch_update_stop_indices` RPC, TanStack Query optimistic updates, `OrderDetailPanel` from Phase 1
+**Implements:** `RouteEditor`, `DragReorderList`, `EditToolbar`, split/merge API endpoints
+**Avoids:** Pitfall #1 (UNIQUE constraint) — batch RPC only, never per-stop updates; Pitfall #8 (optimization overwrites manual order) — confirmation dialog; Pitfall #15 (split/merge `assigned_driver_id` drift) — single transaction per operation
 
-### Phase 2: Saturday Ops Dashboard
-**Rationale:** Core operator workflow for Saturday. Bulk status transitions are the highest-leverage feature — confirming 40 orders individually is not operationally viable. Ops dashboard also establishes the unassigned orders count that feeds route assignment in Phase 3.
-**Delivers:** Saturday-conditional `/admin` home page with status count cards, bulk confirm/prepare/dispatch actions, cutoff and delivery-start countdown timers, unassigned orders badge, driver availability widget.
-**Uses:** New `GET /api/admin/ops/summary`, new `POST /api/admin/orders/bulk-status` (RPC-backed transaction), React Query 5-second polling, Recharts PieChart, Radix Checkbox for bulk selection.
-**Implements:** Ops Dashboard component tree (`OpsCenter/`, `StatusCountCards.tsx`, `CountdownTimer.tsx`, `UnassignedBadge.tsx`, `DriverAvailabilityWidget.tsx`).
-**Avoids:** Bulk operation non-atomicity — use server-side `.in()` batch update, not client-side loops. Avoid optimistic UI for bulk ops; use pending overlay + hard refetch on `onSettled`.
-**Research flag:** The bulk-status RPC function may benefit from one focused spike on Supabase RPC transaction patterns if the team hasn't authored one before. Reference: existing `create_order_with_items` in `checkout/session/route.ts`.
+### Phase 3: Driver Route Execution
+**Rationale:** Depends on Phase 2's DnD library for driver stop reordering (same `DragReorderList` component). Depends on Phase 1's `OrderDetailPanel` for full order info in stop detail. Driver flow audit is scoped strictly: audit first, categorize by severity, fix broken/crashed pages before placeholder data.
+**Delivers:** Complete driver execution flow with correct state machine (arrived/delivered/skip), NavigationButton wired in stop detail, full order info in stop detail, driver stop reordering (advanced mode only), SimpleStopView and all driver pages audited
+**Uses:** `@dnd-kit/sortable` (installed in Phase 2), SSR + `router.refresh()` (keep existing — do NOT convert to TanStack Query), `DriverStopActions`, `OrderDetailPanel` (reuse from Phase 1)
+**Avoids:** Pitfall #3 (state machine missing transitions) — document full state machine before coding; Pitfall #4 (offline sync conflicts) — idempotent API; Pitfall #13 (driver audit scope creep) — audit-first, categorize by severity; Pitfall #14 (AnimatePresence stale closure) — `key={stop.id}` on animated wrappers
 
-### Phase 3: Route and Driver Assignment
-**Rationale:** Depends on ops dashboard for the unassigned orders count and data layer. Building assignment UI without the ops context would require rework. At 2-4 drivers and 5-10 stops, click-to-assign is the correct pattern — no drag-and-drop library needed.
-**Delivers:** `/admin/routes` page with `UnassignedOrdersPanel`, `AvailableDriversPanel`, `RouteBuilder` (click-to-assign), mini-map pin preview, route summary cards. New `POST /api/admin/routes` RPC-backed transaction creating route + stops atomically. `GET /api/admin/orders?unassigned=true&deliveryDate=` filter.
-**Uses:** Existing `routes`, `route_stops`, `orders.assigned_driver_id` schema. Google Maps existing integration for pin preview. Radix Select for driver dropdown.
-**Avoids:** Orphaned route records — wrap route + stops creation in a `create_route_with_stops` RPC function following the `create_order_with_items` precedent. No manual rollback.
-**Research flag:** Standard patterns. The RPC function follows an already-established project precedent. Skip research phase.
+### Phase 4: Admin Mobile UX
+**Rationale:** Applied last because all features must be finalized before mobile audit. Adding responsive layout to incomplete pages wastes effort and doubles touch points. One-time responsive overhaul using only Tailwind — no new dependencies.
+**Delivers:** Fully responsive admin on 375px devices — bottom tab nav (5 items + More sheet), card views for all tables, stacked layouts for detail pages, touch-friendly action targets across all 11 admin pages
+**Implements:** `AdminResponsiveShell`, `AdminMobileNav`, responsive Tailwind classes across ops, orders, routes, drivers, and settings pages
+**Avoids:** Pitfall #2 (sidebar breaking mobile) — Drawer pattern, not collapsed icon bar; Pitfall #9 (tables invisible on mobile) — card layout below `md:`
 
-### Phase 4: Customer Pre-Checkout Gate
-**Rationale:** Depends on Phase 1 (configurable rules) for the dynamic cutoff time displayed in messaging. Building the gate before configurable rules means hardcoded values in customer-facing UI — immediate tech debt.
-**Delivers:** Saturday-only messaging on hero, menu page banner, cart drawer countdown, and checkout cutoff modal. Modal shows specific next available Saturday date using existing `getDeliveryDate()`. `isPastCutoff()` reads from `app_settings` instead of constant.
-**Uses:** Existing `getDeliveryDate()`, `getTimeUntilCutoff()`, `getCutoffForSaturday()` (refactored to use `getAppSettings()`).
-**Avoids:** Client-side constants leaking into customer UI — all cutoff data must flow from API/server-render, never imported client-side constants.
-**Research flag:** Standard patterns. Skip research phase.
-
-### Phase 5: Email Reliability
-**Rationale:** Independent of all other phases. Addresses production safety: forged webhook payloads and duplicate retry emails are live risks with real customer impact. Can run in parallel with Phase 3 or 4.
-**Delivers:** Proper `resend.webhooks.verify()` signature verification replacing simple header check. `retry_count` column on `notification_logs`. Email status badge on order detail page. Retry button disabled when Resend confirmed delivery. Idempotency key fixed to stable `orderId + emailType + attemptNumber`. Webhook deduplication via `svix-id` check.
-**Uses:** Existing `resend` SDK (v6.9.1 — `webhooks.verify()` already bundled). Existing `notification_logs`, `webhook_events` tables. Existing admin email page and resend endpoint.
-**Avoids:** Duplicate email pitfall — check status before retry, fix idempotency key, cap retries at 3 total.
-**Research flag:** The svix verification pattern is fully documented in Resend docs. Skip research phase.
-
-### Phase 6: Driver Simplification
-**Rationale:** Independent of other phases. Highest family-driver impact — non-technical users completing routes without training. Server-side preference on `drivers.simple_mode` (not localStorage) ensures persistence across devices.
-**Delivers:** `drivers.simple_mode BOOLEAN DEFAULT true` column. Preference hydrated from server to Zustand store. Simple mode renders only: customer name, address (tap to open Maps), phone (tap to call), large "Mark Delivered" with confirmation dialog. Complex sections conditionally hidden. Admin can toggle driver mode from driver management page.
-**Uses:** Zustand driver store (add `isSimpleMode`). Radix AlertDialog for delivery confirmation. `tel:` / `sms:` native HTML links for one-tap contact. New `SimpleStopCard.tsx`, `SimpleRouteView.tsx`, `DeliveryConfirmDialog.tsx`.
-**Avoids:** Mode preference lost on device switch — store in `drivers` table, not localStorage. Test with actual non-technical family member before marking complete; no verbal instructions allowed.
-**Research flag:** Standard patterns. Skip research phase.
-
-### Phase 7: Production Hardening
-**Rationale:** Runs last because optimal indexes and N+1 fixes benefit from seeing final query patterns established by all preceding phases.
-**Delivers:** DB indexes (`orders(delivery_window_start, status)`, `orders(assigned_driver_id) WHERE IS NULL`, `notification_logs(order_id, status)`, `routes(delivery_date)`). N+1 fix on ops dashboard (join addresses and route assignment in single query). Rate limiting on bulk-status endpoint (max 100 orders per call). Settings bounds validation. `settings_audit_log` for tracking who changed what. Full pre-launch checklist: separate Supabase project for production vs. staging, Resend domain verification, Upstash Redis provisioning, Stripe webhook URL update, Sentry DSN, Google Maps billing, cron job scheduling, database backup strategy.
-**Avoids:** Production database shared with staging — highest-recovery-cost pitfall in the research (requires point-in-time restore + contamination audit).
-**Research flag:** Standard patterns for indexing and rate limiting. The production checklist warrants a structured walkthrough but not a research phase.
+### Phase 5: Tracking & Integration Verification
+**Rationale:** Verification pass that all pieces connect end-to-end after Phases 1-4 complete. Photo proof and customer tracking page depend on driver phase being complete. Mostly confirming existing systems work together, with minor UI wiring if gaps are found.
+**Delivers:** Photo proof visible in admin route detail, customer tracking page reflecting current stop status (not GPS), email status updates verified, full "Looks Done But Isn't" checklist from PITFALLS.md executed
+**Avoids:** Pitfall #10 (photo upload on slow 3G) — compress client-side, decouple photo from delivery confirmation; Pitfall #11 (manual tracking using GPS table) — use `route_stops` status columns only, disable `LocationTracker` GPS component
 
 ### Phase Ordering Rationale
 
-- Phase 0 before everything: three confirmed production blockers that affect downstream phases directly (cutoff logic is used by ops dashboard; TOCTOU affects checkout integrity).
-- Phase 1 (settings) before Phase 2 (ops dashboard): countdown timers consume settings data; building in reverse order creates guaranteed rework.
-- Phase 2 (ops dashboard) before Phase 3 (route assignment): unassigned orders count and data layer are shared; assignment UI lives within or adjacent to the ops view.
-- Phase 4 (customer gate) after Phase 1 (settings): cutoff modal must display the database-driven cutoff time, not a hardcoded constant.
-- Phases 5 and 6 are independent: can run concurrently after Phase 2 ships, or sequentially in any order.
-- Phase 7 last: indexes are most useful after all query patterns are finalized.
+- Phase 1 first: zero new dependencies, zero risk, maximizes feature surface for Saturday ops testing; `OrderDetailPanel` is a shared component needed by Phases 2 and 3
+- Phase 2 before Phase 3: installs `@dnd-kit` once; `DragReorderList` reused in Phase 3 driver stop reorder
+- Phases 2 and 3 could be parallelized by separate developers (no file conflicts between admin route editing and driver execution)
+- Phase 4 last: responsive layout applied to finalized features; avoids double-touching the same pages
+- Phase 5 last: integration verification requires all prior phases complete
 
 ### Research Flags
 
-Phases that may benefit from a deeper research pass during planning:
-- **Phase 2 (Ops Dashboard) — bulk-status RPC:** If no team member has authored a Supabase RPC transaction function for this project before, one focused spike on the `create_order_with_items` precedent in `checkout/session/route.ts` is worthwhile before writing the bulk-status RPC.
+Phases needing deeper pre-implementation research:
+- **Phase 3 (Driver Execution):** Document the complete `isValidTransition()` state machine in a design doc before writing any code. The 4-flow offline sync behavior of `useOfflineSync` must be fully understood before adding intermediate states. Start with a read-only audit pass of all driver pages.
+- **Phase 4 (Admin Mobile UX):** Conduct a full page-by-page audit first — list every admin page, its current responsive state, and specific required changes. Prevents scope underestimation (~800 lines across 20+ files).
 
-Phases with standard, well-documented patterns (skip `/gsd:research-phase`):
-- **Phase 0:** Line-level bug fixes in identified files.
-- **Phase 1:** Existing settings infrastructure; standard Next.js cache invalidation.
-- **Phase 3:** Follows the `create_order_with_items` RPC precedent already in the codebase.
-- **Phase 4:** Uses existing delivery date utilities refactored to read from settings.
-- **Phase 5:** Resend SDK docs fully cover `webhooks.verify()`.
-- **Phase 6:** Zustand + server-side preference — established project patterns.
-- **Phase 7:** Standard DB indexing and Vercel production checklist.
+Phases with standard patterns (skip `/gsd:research-phase`):
+- **Phase 1 (Foundation Fixes):** All changes are small, isolated, and map to specific existing files. Straight implementation.
+- **Phase 2 (Route Editing):** `@dnd-kit` docs are comprehensive; `batch_update_stop_indices` RPC already validated in production; architecture doc has explicit code patterns including optimistic update boilerplate.
+- **Phase 5 (Integration):** Verification work only. Run the "Looks Done But Isn't" checklist from PITFALLS.md.
 
 ---
 
@@ -175,44 +146,47 @@ Phases with standard, well-documented patterns (skip `/gsd:research-phase`):
 
 | Area | Confidence | Notes |
 |------|------------|-------|
-| Stack | HIGH | Zero new packages — all findings based on installed dependency analysis and official SDK docs. No speculation. |
-| Features | HIGH | Derived from direct codebase audit of existing API routes, tables, and UI. Competitor analysis corroborates prioritization. |
-| Architecture | HIGH | Based on direct codebase analysis of existing patterns, tables, and route groups. Serverless caching constraints are well-documented Vercel platform behavior. |
-| Pitfalls | HIGH | Sourced from codebase audit of actual bug-prone code paths (line-level references to the manual rollback in `admin/routes/route.ts`), project ERROR_HISTORY.md, and official Resend/Svix docs. |
+| Stack | HIGH | All new packages verified on npm (React 19 compat confirmed). Framer Motion bug reports directly inspected. Entire existing stack audited against v2.1 requirements. |
+| Features | HIGH | Entire codebase read; feature status (built/exists/needs-work) confirmed per-file by direct inspection. Industry patterns cross-referenced with 8+ external sources. |
+| Architecture | HIGH | All file paths, component names, API routes, RPC names verified by direct codebase inspection. Zero inference — every component location is confirmed. |
+| Pitfalls | HIGH | Every pitfall identified from actual code: UNIQUE constraint from migration file, sidebar layout from `AdminNav.tsx`, state machine gaps from `SimpleStopView.tsx`, auth flows from `auth/callback/route.ts`. Not hypothetical. |
 
 **Overall confidence:** HIGH
 
 ### Gaps to Address
 
-- **Supabase `app_settings` and `notification_logs` types:** Both tables are currently untyped (used with manual casts). Adding them to `database.ts` is a prerequisite for type-safe settings and email utilities. Flag for Phase 1 setup.
-- **Timezone display for customer gate:** PITFALLS.md flags that cutoff messaging should use Myanmar time (`Asia/Yangon`), but the existing `TIMEZONE` constant uses `America/Los_Angeles`. Verify which timezone is correct for the customer base before Phase 4 implementation.
-- **Admin RLS policy on `orders` for Realtime:** If Supabase Realtime is chosen over polling for the ops dashboard post-launch (at 100+ orders), an admin SELECT RLS policy must be added. Not needed for v1.9 with polling approach, but document for future.
-- **Saturday dry run validation:** Research identifies a full lifecycle test as a "looks done but isn't" risk. Plan an explicit pre-launch dry run: 10 orders through place → confirm → assign route → driver start → deliver → complete route → emails received. This is a process gap, not a code gap.
+- **Driver audit scope:** The full extent of broken/placeholder driver pages (earnings, history, schedule) is unknown until a structured audit runs. Phase 3 must start with an audit pass before any implementation. Budget may need adjustment once scope is known.
+- **Photo compression configuration:** `browser-image-compression` is already installed but current usage is only for driver profile photos. Verify it handles 2-5MB camera captures at delivery time — may need `maxSizeMB` and `maxWidthOrHeight` tuning for stop photos vs. profile photos.
+- **React Compiler + @dnd-kit interaction:** No production data exists for this specific combination. Test drag-reorder in isolation before building full feature. Fallback: `'use no memo'` directive on drag components if React Compiler auto-memoization interferes with position update re-renders.
+- **Auth callback exact regression trigger:** The precise condition for admin landing on homepage post-OAuth is unconfirmed without live testing. The fix is clear (~5 lines, check `next` starts with role prefix) but E2E tests must cover all 4 auth flows before and after the change.
 
 ---
 
 ## Sources
 
-### Primary (HIGH confidence)
-- Direct codebase analysis — `src/app/api/admin/orders/`, `src/app/api/admin/routes/`, `src/app/api/admin/settings/`, `src/app/api/admin/emails/`, `src/app/api/webhooks/resend/`, `src/lib/email/send.ts`, `src/lib/utils/delivery-dates.ts`, `src/types/delivery.ts`, `src/lib/validations/settings.ts`
-- [Resend Webhook Verification](https://resend.com/docs/dashboard/webhooks/verify-webhooks-requests) — `webhooks.verify()` availability in SDK v6.9+
-- [Supabase Realtime Postgres Changes](https://supabase.com/docs/guides/realtime/postgres-changes) — subscription patterns
-- [Supabase Query Optimization](https://supabase.com/docs/guides/database/query-optimization) — join performance, partial indexes
-- [Svix Verification Guide](https://docs.svix.com/receiving/verifying-payloads/how) — HMAC-SHA256 signature verification, replay attack prevention
-- [Next.js Caching Guide](https://nextjs.org/docs/app/guides/caching) — `revalidateTag`, `revalidatePath` patterns
-- [Vercel Production Checklist](https://vercel.com/docs/production-checklist) — DNS, environment variables, monitoring
-- Project ERROR_HISTORY.md — driver avatar cache bug, NEXT_REDIRECT handling, storage migration permissions
-- V4_MILESTONE_MVP.md — existing 8-phase milestone plan with acceptance criteria
+### Primary (HIGH confidence — direct codebase inspection)
+- `src/components/ui/admin/routes/RouteDetailClient/` — existing route editing components (StopsList, RouteStopCard, OptimizationModal, AddStopsModal)
+- `src/components/ui/driver/` — all driver execution components (ActiveRouteView, SimpleStopView, DeliveryActions, PhotoCapture, StopDetailView, LocationTracker)
+- `src/app/api/admin/routes/` + `src/app/api/driver/routes/` — all route/stop/photo/reorder API endpoints
+- `src/lib/services/route-optimization/optimizer.ts` — Google Routes API + nearest-neighbor fallback (already complete)
+- `src/lib/hooks/useLocationTracking.ts` — adaptive GPS interval tracking
+- `supabase/migrations/001_schema.sql` + `20260313_fix_stop_index_unique_deferrable.sql` — schema and deferrable UNIQUE constraint
+- `src/app/auth/callback/route.ts` + `src/lib/auth/role-redirect.ts` — 4-flow auth redirect logic
 
-### Secondary (MEDIUM confidence)
-- [Food Delivery App Architecture (Enatega)](https://enatega.com/food-delivery-app-architecture/) — dispatch service patterns
-- [Redesigning A Delivery Driver App](https://amillionadventures.medium.com/redesigning-a-delivery-driver-app-part-3-ui-design-1b54d68eb6a7) — driver UX simplification patterns
-- [DispatchTrack Mobile App UX Refresh](https://www.dispatchtrack.com/company/news/mobile-app-ui-ux) — simplified driver interface patterns
-- [Webhook Security Best Practices 2025](https://dev.to/digital_trubador/webhook-security-best-practices-for-production-2025-2026-384n) — idempotency, retry storm prevention
+### Secondary (HIGH confidence — official package sources)
+- [@dnd-kit/sortable npm](https://www.npmjs.com/package/@dnd-kit/sortable) — v10.0.0, React 19 compat confirmed
+- [@dnd-kit/core npm](https://www.npmjs.com/package/@dnd-kit/core) — v6.3.1, peer dep React >=16.8
+- [dnd-kit Sortable docs](https://docs.dndkit.com/presets/sortable) — official API and patterns
+- [Framer Motion Reorder bug #1597](https://github.com/motiondivision/motion/issues/1597) — mobile snap-back verified
+- [Framer Motion scroll/drag conflict #1506](https://github.com/motiondivision/motion/issues/1506) — mobile drag vs scroll conflict verified
 
-### Tertiary (LOW confidence)
-- [Supabase Stale Data Troubleshooting](https://supabase.com/docs/guides/troubleshooting/nextjs-1314-stale-data-when-changing-rls-or-table-data-85b8oQ) — Next.js cache + Supabase race conditions; validate during Phase 1 implementation
+### Tertiary (MEDIUM confidence — industry patterns)
+- [EZRoutePlanner — Multi-Stop Route Planners 2026](https://www.ezrouteplanner.com/blog/best-free-multi-stop-route-planners)
+- [Track-POD — Delivery Driver App workflow](https://www.track-pod.com/delivery-driver-app/)
+- [DispatchTrack — 6 Features for Delivery Apps](https://www.dispatchtrack.com/blog/app-delivery-driver/)
+- [Puck — Top 5 DnD Libraries for React 2026](https://puckeditor.com/blog/top-5-drag-and-drop-libraries-for-react)
+- [Upper — Best Apps for Delivery Drivers 2026](https://www.upperinc.com/blog/best-apps-for-delivery-drivers/)
 
 ---
-*Research completed: 2026-03-01*
+*Research completed: 2026-03-14*
 *Ready for roadmap: yes*
