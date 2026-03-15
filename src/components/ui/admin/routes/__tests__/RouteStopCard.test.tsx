@@ -15,10 +15,31 @@ vi.mock("framer-motion", () => {
   function createMotionComponent(tag: string) {
     // eslint-disable-next-line react/display-name
     return ({ children, ...props }: Record<string, unknown>) => {
-      const { initial: _i, animate: _a, transition: _t, whileHover: _wh, whileTap: _wt, layout: _l, ...rest } = props;
+      const {
+        initial: _i,
+        animate: _a,
+        transition: _t,
+        whileHover: _wh,
+        whileTap: _wt,
+        layout: _l,
+        ...rest
+      } = props;
       const domProps: Record<string, unknown> = {};
       for (const [key, value] of Object.entries(rest)) {
-        if (typeof value !== "object" || key === "className" || key === "style" || key === "onClick" || key.startsWith("data-") || key.startsWith("aria-") || key === "disabled" || key === "type" || key === "href" || key === "ref" || key === "id" || key === "role") {
+        if (
+          typeof value !== "object" ||
+          key === "className" ||
+          key === "style" ||
+          key === "onClick" ||
+          key.startsWith("data-") ||
+          key.startsWith("aria-") ||
+          key === "disabled" ||
+          key === "type" ||
+          key === "href" ||
+          key === "ref" ||
+          key === "id" ||
+          key === "role"
+        ) {
           domProps[key] = value;
         }
       }

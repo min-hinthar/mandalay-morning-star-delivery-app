@@ -300,7 +300,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
             arrivedAt: routeStop.arrived_at,
             deliveredAt: routeStop.delivered_at,
             routeId: routeStop.route_id,
-            routeStatus: (routeStop.routes as { id: string; status: string } | null)?.status ?? null,
+            routeStatus:
+              (routeStop.routes as { id: string; status: string } | null)?.status ?? null,
           }
         : null,
       placedAt: order.placed_at,
