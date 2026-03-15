@@ -4,7 +4,14 @@ import type { MutableRefObject } from "react";
 import { m } from "framer-motion";
 import { Package } from "lucide-react";
 import { RouteStopCard } from "./RouteStopCard";
+import {
+  DragReorderList,
+  SortableItem,
+  DragHandle,
+  MoveButtons,
+} from "@/components/ui/DragReorderList";
 import type { RouteStopStatus, StopDetail, RouteStatus } from "@/types/driver";
+import { StopCardContent } from "./RouteStopCard/StopCardContent";
 
 interface AvailableRoute {
   id: string;
@@ -20,6 +27,15 @@ interface StopsListProps {
   stopRefs?: MutableRefObject<Record<string, HTMLDivElement | null>>;
   availableRoutes?: AvailableRoute[];
   onReassign?: (stopId: string, targetRouteId: string) => void;
+  onReorder: (stops: StopDetail[]) => void;
+  onMoveStop: (stopId: string, direction: "up" | "down") => void;
+  disabled: boolean;
+}
+
+function isStopDraggable(stop: StopDetail, routeStatus: RouteStatus): boolean {
+  if (routeStatus === "completed") return false;
+  if (routeStatus === "in_progress") return stop.status === "pending";
+  return true;
 }
 
 export function StopsList({
@@ -30,11 +46,12 @@ export function StopsList({
   stopRefs,
   availableRoutes,
   onReassign,
+  onReorder,
+  onMoveStop,
+  disabled,
 }: StopsListProps) {
-  // Sort stops by stop_index
   const sortedStops = [...stops].sort((a, b) => a.stopIndex - b.stopIndex);
 
-  // Empty state
   if (sortedStops.length === 0) {
     return (
       <m.div
@@ -64,28 +81,60 @@ export function StopsList({
         <h2 className="text-lg font-display text-text-primary">Stops ({sortedStops.length})</h2>
       </div>
 
-      <div className="space-y-4">
-        {sortedStops.map((stop, index) => (
-          <div
-            key={stop.id}
-            ref={(el) => {
-              if (stopRefs) {
-                stopRefs.current[stop.id] = el;
-              }
-            }}
-          >
-            <RouteStopCard
-              stop={stop}
-              index={index}
-              routeStatus={routeStatus}
-              onStatusChange={onStatusChange}
-              onRemoveStop={onRemoveStop}
-              availableRoutes={availableRoutes}
-              onReassign={onReassign}
-            />
+      <DragReorderList
+        items={sortedStops}
+        onReorder={onReorder}
+        getItemId={(stop) => stop.id}
+        disabled={disabled}
+        renderItem={(stop) => {
+          const index = sortedStops.indexOf(stop);
+          const draggable = isStopDraggable(stop, routeStatus);
+
+          return (
+            <SortableItem id={stop.id} disabled={!draggable}>
+              {({ listeners, attributes }) => (
+                <div
+                  ref={(el) => {
+                    if (stopRefs) {
+                      stopRefs.current[stop.id] = el;
+                    }
+                  }}
+                >
+                  <RouteStopCard
+                    stop={stop}
+                    index={index}
+                    routeStatus={routeStatus}
+                    onStatusChange={onStatusChange}
+                    onRemoveStop={onRemoveStop}
+                    availableRoutes={availableRoutes}
+                    onReassign={onReassign}
+                    dragHandle={
+                      draggable ? (
+                        <DragHandle listeners={listeners} attributes={attributes} />
+                      ) : undefined
+                    }
+                    moveButtons={
+                      draggable ? (
+                        <MoveButtons
+                          onMoveUp={() => onMoveStop(stop.id, "up")}
+                          onMoveDown={() => onMoveStop(stop.id, "down")}
+                          isFirst={index === 0}
+                          isLast={index === sortedStops.length - 1}
+                        />
+                      ) : undefined
+                    }
+                  />
+                </div>
+              )}
+            </SortableItem>
+          );
+        }}
+        renderOverlay={(stop) => (
+          <div className="opacity-80 shadow-lg ring-2 ring-interactive-primary rounded-xl bg-surface-primary p-4">
+            <StopCardContent stop={stop} index={sortedStops.indexOf(stop)} />
           </div>
-        ))}
-      </div>
+        )}
+      />
     </m.div>
   );
 }
