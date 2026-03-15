@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import type { RouteStopStatus, StopDetail, RouteStatus } from "@/types/driver";
@@ -20,6 +21,8 @@ export interface RouteStopCardProps {
   onRemoveStop: (stopId: string) => void;
   availableRoutes?: AvailableRoute[];
   onReassign?: (stopId: string, targetRouteId: string) => void;
+  dragHandle?: ReactNode;
+  moveButtons?: ReactNode;
 }
 
 export function RouteStopCard({
@@ -30,6 +33,8 @@ export function RouteStopCard({
   onRemoveStop,
   availableRoutes,
   onReassign,
+  dragHandle,
+  moveButtons,
 }: RouteStopCardProps) {
   const hasException = stop.exception && !stop.exception.resolved;
 
@@ -48,15 +53,21 @@ export function RouteStopCard({
         stop.status === "skipped" && "border-l-secondary",
       )}
     >
-      <StopCardContent stop={stop} index={index} />
-      <StopCardActions
-        stop={stop}
-        routeStatus={routeStatus}
-        onStatusChange={onStatusChange}
-        onRemoveStop={onRemoveStop}
-        availableRoutes={availableRoutes}
-        onReassign={onReassign}
-      />
+      <div className="flex items-start gap-2">
+        {dragHandle && <div className="flex-shrink-0 mt-1">{dragHandle}</div>}
+        <div className="flex-1 min-w-0">
+          <StopCardContent stop={stop} index={index} />
+          <StopCardActions
+            stop={stop}
+            routeStatus={routeStatus}
+            onStatusChange={onStatusChange}
+            onRemoveStop={onRemoveStop}
+            availableRoutes={availableRoutes}
+            onReassign={onReassign}
+          />
+        </div>
+        {moveButtons && <div className="flex-shrink-0">{moveButtons}</div>}
+      </div>
     </m.div>
   );
 }

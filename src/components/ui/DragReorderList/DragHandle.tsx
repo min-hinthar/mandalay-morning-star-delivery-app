@@ -1,11 +1,11 @@
 "use client";
 
 import { GripVertical } from "lucide-react";
+import type { SortableListeners, SortableAttributes } from "./SortableItem";
 
 interface DragHandleProps {
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
-  listeners?: Record<string, Function>;
-  attributes?: Record<string, unknown>;
+  listeners?: SortableListeners;
+  attributes?: SortableAttributes;
 }
 
 export function DragHandle({ listeners, attributes }: DragHandleProps) {

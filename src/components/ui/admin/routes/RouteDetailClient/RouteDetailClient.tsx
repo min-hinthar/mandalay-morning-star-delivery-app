@@ -3,10 +3,8 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { m } from "framer-motion";
-import { Route } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
 import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
+import { RouteDetailSkeleton, RouteErrorState } from "./RouteDetailSkeleton";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { RouteStatsBar } from "../RouteStatsBar";
 import { StopsList } from "../StopsList";
@@ -16,12 +14,15 @@ import { MapSkeleton } from "@/components/ui/maps/MapSkeleton";
 import { OptimizationModal, type StopSummary } from "../OptimizationModal";
 import { AddStopsModal } from "../AddStopsModal";
 import { toast } from "@/lib/hooks/useToastV8";
+import { useReorderStops } from "@/lib/hooks/useReorderStops";
+import { useReassignDriver } from "@/lib/hooks/useReassignDriver";
 import { RouteHeader } from "./RouteHeader";
 import { DriverInfoCard } from "./DriverInfoCard";
 import { RouteTimeline } from "./RouteTimeline";
 import { TimeComparison } from "./TimeComparison";
 import { ExceptionAlert } from "./ExceptionAlert";
 import type { RouteDetailResponse, DriverOption, RouteStatus, RouteStopStatus } from "./types";
+import type { StopDetail } from "@/types/driver";
 
 interface AvailableRoute {
   id: string;
@@ -43,6 +44,7 @@ export function RouteDetailClient() {
   const [optimizationModalOpen, setOptimizationModalOpen] = useState(false);
   const [addStopsModalOpen, setAddStopsModalOpen] = useState(false);
   const [isManuallyReordered, setIsManuallyReordered] = useState(false);
+  const [localStops, setLocalStops] = useState<StopDetail[]>([]);
 
   const stopRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { ref: mapRef, triggered: mapTriggered } = useViewportTrigger();
@@ -60,40 +62,22 @@ export function RouteDetailClient() {
       if (!response.ok) throw new Error("Failed to fetch route");
       const data = await response.json();
       setRoute(data);
+      setLocalStops(data.stops ?? []);
       setError(null);
-
-      // After loading route, fetch other planned routes for the same delivery date
       if (data.deliveryDate) {
         try {
-          const routesResponse = await fetch(`/api/admin/routes?date=${data.deliveryDate}`);
-          if (routesResponse.ok) {
-            const allRoutesJson = await routesResponse.json();
-            const allRoutes = allRoutesJson.data ?? allRoutesJson;
-            const others = allRoutes
-              .filter(
-                (r: {
-                  id: string;
-                  status: string;
-                  stopCount: number;
-                  driver: { fullName: string | null } | null;
-                }) => r.id !== routeId && r.status === "planned"
-              )
-              .map(
-                (r: {
-                  id: string;
-                  stopCount: number;
-                  driver: { fullName: string | null } | null;
-                }) => ({
-                  id: r.id,
-                  driverName: r.driver?.fullName ?? null,
-                  stopCount: r.stopCount,
-                })
-              );
-            setAvailableRoutes(others);
+          const res = await fetch(`/api/admin/routes?date=${data.deliveryDate}`);
+          if (res.ok) {
+            const json = await res.json();
+            const all = json.data ?? json;
+            type RouteRow = { id: string; status: string; stopCount: number; driver: { fullName: string | null } | null };
+            setAvailableRoutes(
+              all
+                .filter((r: RouteRow) => r.id !== routeId && r.status === "planned")
+                .map((r: RouteRow) => ({ id: r.id, driverName: r.driver?.fullName ?? null, stopCount: r.stopCount })),
+            );
           }
-        } catch {
-          // Non-critical — reassign dropdown simply won't show
-        }
+        } catch { /* non-critical */ }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to load route");
@@ -102,14 +86,11 @@ export function RouteDetailClient() {
 
   const fetchDrivers = useCallback(async () => {
     try {
-      const response = await fetch("/api/admin/drivers");
-      if (!response.ok) return;
-      const json = await response.json();
-      const data = json.data ?? json;
-      setDrivers(data.filter((d: DriverOption) => d.isActive));
-    } catch {
-      // Non-critical - continue without driver list
-    }
+      const res = await fetch("/api/admin/drivers");
+      if (!res.ok) return;
+      const json = await res.json();
+      setDrivers((json.data ?? json).filter((d: DriverOption) => d.isActive));
+    } catch { /* non-critical */ }
   }, []);
 
   useEffect(() => {
@@ -137,26 +118,6 @@ export function RouteDetailClient() {
       await fetchRoute();
     } catch {
       setRoute({ ...route, status: previousStatus });
-    } finally {
-      setIsUpdating(false);
-    }
-  };
-
-  const handleDriverChange = async (driverId: string) => {
-    if (!route || isUpdating) return;
-    setIsUpdating(true);
-    const previousDriver = route.driver;
-
-    try {
-      const response = await fetch(`/api/admin/routes/${routeId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ driverId: driverId || null }),
-      });
-      if (!response.ok) throw new Error("Failed to assign driver");
-      await fetchRoute();
-    } catch {
-      setRoute({ ...route, driver: previousDriver });
     } finally {
       setIsUpdating(false);
     }
@@ -240,6 +201,47 @@ export function RouteDetailClient() {
     }
   };
 
+  const reorderStops = useReorderStops({
+    routeId,
+    routeStatus: route?.status ?? "planned",
+    onSuccess: () => {
+      setIsManuallyReordered(true);
+      fetchRoute();
+    },
+    onError: (previousStops) => {
+      setLocalStops(previousStops);
+    },
+  });
+
+  const reassignDriver = useReassignDriver({
+    routeId,
+    routeStatus: route?.status ?? "planned",
+    currentDriverName: route?.driver?.fullName ?? null,
+    onSuccess: fetchRoute,
+  });
+
+  const handleReorder = useCallback(
+    (reorderedStops: StopDetail[]) => {
+      const updated = reorderedStops.map((stop, i) => ({ ...stop, stopIndex: i }));
+      setLocalStops(updated);
+      reorderStops.handleReorder(updated);
+    },
+    [reorderStops],
+  );
+
+  const handleMoveStop = useCallback(
+    (stopId: string, direction: "up" | "down") => {
+      const sorted = [...localStops].sort((a, b) => a.stopIndex - b.stopIndex);
+      const idx = sorted.findIndex((s) => s.id === stopId);
+      const target = direction === "up" ? idx - 1 : idx + 1;
+      if (idx === -1 || target < 0 || target >= sorted.length) return;
+      const swapped = [...sorted];
+      [swapped[idx], swapped[target]] = [swapped[target], swapped[idx]];
+      handleReorder(swapped);
+    },
+    [localStops, handleReorder],
+  );
+
   const handleOptimizationApply = async () => {
     if (!route) return;
     setOptimizationModalOpen(false);
@@ -264,43 +266,12 @@ export function RouteDetailClient() {
 
   const routeName = route ? `Route #${routeId.slice(0, 8)}` : "Route Details";
 
-  const routeDetailSkeleton = (
-    <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
-      <Skeleton width={300} height={24} radius="md" />
-      <div className="flex items-center justify-between">
-        <Skeleton width={120} height={36} radius="lg" />
-        <Skeleton width={200} height={40} radius="md" />
-      </div>
-      <Skeleton width="100%" height={80} radius="lg" />
-      <Skeleton width="100%" height={256} radius="lg" />
-      <div className="space-y-4">
-        <Skeleton width="100%" height={160} radius="lg" />
-        <Skeleton width="100%" height={160} radius="lg" />
-        <Skeleton width="100%" height={160} radius="lg" />
-      </div>
-    </div>
-  );
-
   if (!isLoading && (error || !route)) {
-    return (
-      <div className="p-4 md:p-8">
-        <div className="text-center py-16 bg-gradient-to-br from-surface-secondary to-surface-tertiary rounded-xl border border-border-v5">
-          <div className="rounded-full bg-status-error-bg w-20 h-20 mx-auto flex items-center justify-center mb-4">
-            <Route className="h-10 w-10 text-status-error" />
-          </div>
-          <h2 className="text-xl font-display text-text-primary mb-2">
-            {error || "Route not found"}
-          </h2>
-          <Button variant="outline" onClick={() => router.push("/admin/routes")}>
-            Back to Routes
-          </Button>
-        </div>
-      </div>
-    );
+    return <RouteErrorState error={error} onBack={() => router.push("/admin/routes")} />;
   }
 
   return (
-    <SkeletonCrossfade isLoading={isLoading} skeleton={routeDetailSkeleton}>
+    <SkeletonCrossfade isLoading={isLoading} skeleton={<RouteDetailSkeleton />}>
       <div className="p-4 md:p-8 space-y-6 max-w-6xl mx-auto">
         <AdminPageHeader
           title={routeName}
@@ -323,29 +294,31 @@ export function RouteDetailClient() {
               onAddStops={() => setAddStopsModalOpen(true)}
               onRefresh={fetchRoute}
               onBack={() => router.push("/admin/routes")}
-              pendingStopCount={route.stops.filter((s) => s.status === "pending").length}
+              pendingStopCount={localStops.filter((s) => s.status === "pending").length}
               hasSameDatePlannedRoutes={false}
               onSplit={() => {}}
               onMerge={() => {}}
               onDelete={() => {}}
             />
 
-            {/* Exception alert at top */}
             <ExceptionAlert stops={route.stops} />
 
             <RouteStatsBar route={route} />
 
-            {/* Time comparison (only shows for completed routes) */}
             <TimeComparison route={route} />
 
             <DriverInfoCard
               route={route}
               drivers={drivers}
               isUpdating={isUpdating}
-              onDriverChange={handleDriverChange}
+              onDriverChange={(id: string) => reassignDriver.reassignDriver(id)}
+              showConfirmation={reassignDriver.showConfirmation}
+              onConfirmReassign={reassignDriver.confirmReassign}
+              onCancelReassign={reassignDriver.cancelReassign}
+              isReassigning={reassignDriver.isReassigning}
+              pendingDriverId={reassignDriver.pendingDriverId}
             />
 
-            {/* Route Map */}
             <m.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
@@ -373,18 +346,19 @@ export function RouteDetailClient() {
               )}
             </m.div>
 
-            {/* Route Timeline */}
             <RouteTimeline stops={route.stops} />
 
-            {/* Traditional stops list */}
             <StopsList
-              stops={route.stops}
+              stops={localStops}
               routeStatus={route.status}
               onStatusChange={handleStopStatusChange}
               onRemoveStop={handleRemoveStop}
               stopRefs={stopRefs}
               availableRoutes={availableRoutes}
               onReassign={handleReassign}
+              onReorder={handleReorder}
+              onMoveStop={handleMoveStop}
+              disabled={route.status === "completed"}
             />
 
             <OptimizationModal
