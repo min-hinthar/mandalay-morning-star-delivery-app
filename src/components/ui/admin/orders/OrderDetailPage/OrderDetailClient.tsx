@@ -21,6 +21,7 @@ import { StatusTimelineCard } from "./StatusTimelineCard";
 import { EmailHistoryCard } from "./EmailHistoryCard";
 import { RefundDialog } from "./RefundDialog";
 import { DriverAssignDialog } from "./DriverAssignDialog";
+import { CustomerContactCard, DeliveryInfoCard } from "../OrderDetailPanel";
 
 export function OrderDetailClient() {
   const params = useParams<{ id: string }>();
@@ -178,6 +179,11 @@ export function OrderDetailClient() {
         />
       </div>
 
+      {/* Prominent customer contact */}
+      <div className="mt-6">
+        <CustomerContactCard order={order} />
+      </div>
+
       {/* Two-column layout */}
       <div className="mt-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Left column: Items + Totals + Email History */}
@@ -199,6 +205,7 @@ export function OrderDetailClient() {
         {/* Right column: Customer + Status Timeline + Payment */}
         <div className="space-y-6">
           <CustomerInfoCard order={order} />
+          <DeliveryInfoCard deliveryInfo={order.deliveryInfo} />
           <StatusTimelineCard auditLog={order.auditLog} />
           <PaymentInfoCard order={order} />
         </div>
