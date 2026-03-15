@@ -231,6 +231,15 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       }
     }
 
+    // Fetch route_stops for delivery info
+    const { data: routeStop } = await supabase
+      .from("route_stops")
+      .select("delivery_notes, arrived_at, delivered_at, route_id, routes(id, status)")
+      .eq("order_id", orderId)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
     // Fetch latest email status for this order
     let emailStatus: string | null = null;
     const { data: emailLog } = await supabase
@@ -284,6 +293,16 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       totalCents: order.total_cents,
       specialInstructions: order.special_instructions,
       deliveryInstructions: order.delivery_instructions,
+      deliveryInfo: routeStop
+        ? {
+            deliveryNotes: routeStop.delivery_notes,
+            deliveryInstructions: order.delivery_instructions ?? null,
+            arrivedAt: routeStop.arrived_at,
+            deliveredAt: routeStop.delivered_at,
+            routeId: routeStop.route_id,
+            routeStatus: (routeStop.routes as { id: string; status: string } | null)?.status ?? null,
+          }
+        : null,
       placedAt: order.placed_at,
       confirmedAt: order.confirmed_at,
       deliveredAt: order.delivered_at,
