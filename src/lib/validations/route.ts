@@ -84,6 +84,17 @@ export const reassignStopSchema = z.object({
   targetRouteId: z.string().uuid("Invalid target route ID"),
 });
 
+// Split route — select stops to move to a new route
+export const splitRouteSchema = z.object({
+  stopIds: z.array(z.string().uuid()).min(1, "At least one stop must be selected"),
+  driverId: z.string().uuid().optional(),
+});
+
+// Merge route — absorb source route into destination
+export const mergeRouteSchema = z.object({
+  sourceRouteId: z.string().uuid("Invalid route ID"),
+});
+
 // Type exports
 export type CreateRouteInput = z.infer<typeof createRouteSchema>;
 export type UpdateRouteInput = z.infer<typeof updateRouteSchema>;
@@ -93,3 +104,5 @@ export type UpdateStopStatusInput = z.infer<typeof updateStopStatusSchema>;
 export type ResolveExceptionInput = z.infer<typeof resolveExceptionSchema>;
 export type OptimizeRouteInput = z.infer<typeof optimizeRouteSchema>;
 export type ReassignStopInput = z.infer<typeof reassignStopSchema>;
+export type SplitRouteInput = z.infer<typeof splitRouteSchema>;
+export type MergeRouteInput = z.infer<typeof mergeRouteSchema>;
