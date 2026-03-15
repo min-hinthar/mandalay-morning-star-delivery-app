@@ -38,21 +38,13 @@ function createMockSupabase(overrides: {
         return {
           select: vi.fn(() => ({
             eq: vi.fn(() => ({
-              single: vi.fn(() =>
-                Promise.resolve({ data: profileData, error: profileError })
-              ),
-              maybeSingle: vi.fn(() =>
-                Promise.resolve({ data: checkData, error: null })
-              ),
+              single: vi.fn(() => Promise.resolve({ data: profileData, error: profileError })),
+              maybeSingle: vi.fn(() => Promise.resolve({ data: checkData, error: null })),
               is: vi.fn(() => Promise.resolve({ data: null, error: null })),
             })),
           })),
-          upsert: vi.fn(() =>
-            Promise.resolve({ error: overrides.upsertError ?? null })
-          ),
-          insert: vi.fn(() =>
-            Promise.resolve({ error: overrides.insertError ?? null })
-          ),
+          upsert: vi.fn(() => Promise.resolve({ error: overrides.upsertError ?? null })),
+          insert: vi.fn(() => Promise.resolve({ error: overrides.insertError ?? null })),
           update: vi.fn(() => ({
             eq: vi.fn(() => ({
               is: vi.fn(() => Promise.resolve({ data: null, error: null })),
@@ -64,9 +56,7 @@ function createMockSupabase(overrides: {
         return {
           select: vi.fn(() => ({
             eq: vi.fn(() => ({
-              single: vi.fn(() =>
-                Promise.resolve({ data: driverData, error: driverError })
-              ),
+              single: vi.fn(() => Promise.resolve({ data: driverData, error: driverError })),
             })),
           })),
         };
