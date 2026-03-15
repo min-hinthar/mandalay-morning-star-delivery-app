@@ -8,7 +8,18 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Phone, MessageSquare, MapPin, Clock, Copy, Package, FileText, Save, Check, Loader2 } from "lucide-react";
+import {
+  Phone,
+  MessageSquare,
+  MapPin,
+  Clock,
+  Copy,
+  Package,
+  FileText,
+  Save,
+  Check,
+  Loader2,
+} from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils/cn";
 import { NavigationButton } from "./NavigationButton";
@@ -137,14 +148,11 @@ export function StopDetail({
   const saveNotes = useCallback(async () => {
     setSaving(true);
     try {
-      const res = await fetch(
-        `/api/driver/routes/${routeId}/stops/${stopId}/notes`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ deliveryNotes: notes }),
-        }
-      );
+      const res = await fetch(`/api/driver/routes/${routeId}/stops/${stopId}/notes`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ deliveryNotes: notes }),
+      });
       if (!res.ok) throw new Error("Failed to save");
       setSaved(true);
       if (savedTimeoutRef.current) clearTimeout(savedTimeoutRef.current);
@@ -335,9 +343,7 @@ export function StopDetail({
             )}
           </>
         ) : (
-          <p className="font-body text-sm text-text-secondary">
-            {deliveryNotes || "No notes"}
-          </p>
+          <p className="font-body text-sm text-text-secondary">{deliveryNotes || "No notes"}</p>
         )}
       </m.div>
 

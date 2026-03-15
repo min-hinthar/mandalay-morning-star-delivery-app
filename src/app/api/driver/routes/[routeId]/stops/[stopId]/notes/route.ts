@@ -21,10 +21,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const parseResult = deliveryNotesSchema.safeParse(body);
 
     if (!parseResult.success) {
-      return NextResponse.json(
-        { error: parseResult.error.issues[0].message },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: parseResult.error.issues[0].message }, { status: 400 });
     }
 
     const { deliveryNotes } = parseResult.data;
@@ -55,10 +52,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     if (route.driver_id !== driverId) {
-      return NextResponse.json(
-        { error: "Not authorized to update this stop" },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "Not authorized to update this stop" }, { status: 403 });
     }
 
     if (route.status !== "in_progress") {
@@ -83,10 +77,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
         stopId,
         driverId,
       });
-      return NextResponse.json(
-        { error: "Failed to update delivery notes" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to update delivery notes" }, { status: 500 });
     }
 
     if (!updated || updated.length === 0) {
@@ -98,9 +89,6 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     logger.exception(error, {
       api: "driver/routes/[routeId]/stops/[stopId]/notes",
     });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
