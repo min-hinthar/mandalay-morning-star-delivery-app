@@ -26,6 +26,12 @@ export function TotalsCard({ order }: TotalsCardProps) {
           <span className="text-text-secondary">Tax</span>
           <span className="text-text-primary">{formatPrice(order.taxCents)}</span>
         </div>
+        {order.tipCents > 0 && (
+          <div className="flex items-center justify-between">
+            <span className="text-text-secondary">Tip</span>
+            <span className="text-text-primary">{formatPrice(order.tipCents)}</span>
+          </div>
+        )}
         {order.discountCents > 0 && (
           <div className="flex items-center justify-between">
             <span className="text-text-secondary">Discount</span>
