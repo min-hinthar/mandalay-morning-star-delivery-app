@@ -15,7 +15,7 @@ import { test, expect } from "@playwright/test";
 test.describe("Auth Callback Redirect Structure", () => {
   test("callback without code redirects to /login with error", async ({ page }) => {
     // Hitting callback with no code should redirect to login with error
-    const response = await page.goto("/auth/callback");
+    await page.goto("/auth/callback");
 
     // Should have redirected (302 -> final page)
     await page.waitForURL(/\/login/);
@@ -60,24 +60,9 @@ test.describe("Login Page Redirect Setup", () => {
     await page.goto("/login");
 
     // Intercept the OAuth redirect to verify URL structure
-    let oauthUrl: string | null = null;
-    page.on("request", (request) => {
-      const url = request.url();
-      if (url.includes("supabase") && url.includes("authorize")) {
-        oauthUrl = url;
-      }
-    });
-
-    // Click Google login (will attempt OAuth redirect)
+    // Verify the Google OAuth button is clickable
     const googleBtn = page.getByRole("button", { name: /continue with google/i });
-    await googleBtn.click();
-
-    // Give time for the redirect to initiate
-    await page.waitForTimeout(2000);
-
-    // The redirectTo should include /auth/callback?next=
-    // We can't fully verify because it redirects to Google,
-    // but we can check the button exists and is clickable
+    await expect(googleBtn).toBeEnabled();
   });
 });
 

@@ -159,11 +159,11 @@ export async function getRoleDashboard(
     // Default: customer or any other role
     return { path: "/menu", role: "customer" };
   } catch (err) {
-    logger.error("DB error in getRoleDashboard, falling back to /", {
+    logger.error("DB error in getRoleDashboard, redirecting to login with error", {
       api: "role-redirect",
       userId,
       error: err instanceof Error ? err.message : String(err),
     });
-    return { path: "/", role: "unknown" };
+    return { path: "/login?error=role_lookup_failed", role: "unknown" };
   }
 }

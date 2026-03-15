@@ -172,6 +172,11 @@ export async function GET(request: Request): Promise<NextResponse> {
 
     let redirectPath = result.path;
 
+    // If role lookup failed, redirect to login with error (never silently to /)
+    if (result.role === "unknown") {
+      return NextResponse.redirect(`${origin}${result.path}`, { status: 302 });
+    }
+
     if (!isStandardLogin) {
       // Honor ?next= deep link — but verify role authorization
       if (next.startsWith("/admin") && result.role !== "admin") {
