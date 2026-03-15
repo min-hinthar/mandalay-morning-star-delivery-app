@@ -1,212 +1,172 @@
-# Feature Research
+# Feature Landscape
 
-**Domain:** Meal delivery ops tooling (small-scale, Saturday-only, solo operator, family drivers)
-**Researched:** 2026-03-01
-**Confidence:** HIGH
+**Domain:** Saturday meal delivery — route operations, driver execution, admin mobile UX
+**Researched:** 2026-03-14
+**Milestone:** v2.1 Route Operations & Admin Mobile
+**Confidence:** HIGH (existing codebase fully audited + industry patterns verified)
 
-## Feature Landscape
+## Existing Foundation (What's Already Built)
 
-### Table Stakes (Users Expect These)
+| Component | State | Key Files |
+|-----------|-------|-----------|
+| Route creation (Leaflet map, greedy clustering) | Working | `RouteBuilderClient.tsx`, `RouteBuilderMap.tsx` |
+| Route detail (stats, map, timeline, driver assign) | Working | `RouteDetailClient.tsx`, `StopsList.tsx` |
+| Stop status change (admin) | Working | `RouteStopCard.tsx` — PATCH per stop |
+| Stop removal + reassignment to other routes | Working | `handleRemoveStop`, `handleReassign` in RouteDetailClient |
+| Optimization modal (before/after, Google Directions) | Working | `OptimizationModal.tsx` — POST to `/api/admin/routes/optimize` |
+| Add stops modal | Working | `AddStopsModal.tsx` |
+| Driver ActiveRouteView (progress bar, start/complete) | Working | `ActiveRouteView.tsx` — start/complete route APIs exist |
+| Driver SimpleStopView (photo-gated, one stop at a time) | Working | `SimpleStopView.tsx` — offline sync, photo upload |
+| DeliveryActions (arrived/delivered/skipped) | Working | `DeliveryActions.tsx` — offline queue, exception report |
+| Stop detail page (`/driver/route/[stopId]`) | Exists | `StopDetailView.tsx`, `StopDetail.tsx` |
+| Location tracker | Exists | `LocationTracker.tsx` |
+| Exception modal | Exists | `ExceptionModal.tsx` |
+| Order detail (header, items, customer, payment, timeline, email) | Working | `OrderDetailClient.tsx` — 2-column `lg:grid-cols-2` layout |
+| Driver simple mode toggle | Working | DB-backed `simple_mode` column |
+| Offline sync (IndexedDB queue) | Working | `useOfflineSync` hook |
+| Route stop status types | Defined | `pending | enroute | arrived | delivered | skipped` |
+| DB columns for tracking | Exist | `arrived_at`, `delivered_at`, `delivery_photo_url`, `delivery_notes` on `route_stops` |
 
-Features the solo operator and customers will assume exist for a functional Saturday operation. Missing any of these means the app cannot go live.
+## Table Stakes
 
-| Feature | Why Expected | Complexity | Notes |
-|---------|--------------|------------|-------|
-| **Ops status overview** -- at-a-glance order counts by status (pending/confirmed/preparing/out/delivered) | Operator needs situational awareness in <5 seconds on Saturday morning | LOW | Existing admin orders page has status filter badges with counts; needs elevation to a dedicated ops view scoped to current Saturday |
-| **Bulk status transitions** -- select multiple orders, advance status in one click | 40 orders x individual clicks = 10 min wasted; every delivery platform has bulk actions | MEDIUM | No bulk endpoint exists. Need `POST /api/admin/orders/bulk-status` with array of order IDs + target status. Optimistic UI with rollback on partial failure |
-| **Order-to-route assignment** -- assign confirmed orders to a driver's route | Core operational workflow; without this, operator must call/text drivers manually | MEDIUM | Route creation API exists (`POST /api/admin/routes` with `orderIds` + `driverId`). UI needs a visual assignment panel. `PATCH /api/admin/orders/[id]/driver` assigns driver to individual order |
-| **Unassigned orders indicator** -- badge showing orders not yet on any route | Operator must know at a glance how many orders still need routing | LOW | Query: orders with status `confirmed`/`preparing` with no matching `route_stops` entry. Display as red badge count |
-| **Order cutoff enforcement** -- prevent checkout after cutoff time | Customers will attempt to order Saturday morning; must be blocked with clear messaging | LOW | `isPastCutoff()` exists in `delivery-dates.ts` but has bug (BL-01: time-only comparison). Fix + surface cutoff modal at checkout |
-| **Email delivery status visibility** -- admin sees whether email reached customer | If customer says "I never got confirmation", operator needs to check | LOW | `notification_logs` table tracks status (sent/failed/delivered/opened/bounced). Need admin UI to surface per-order email status |
-| **Failed email retry** -- one-click resend for failed emails | Emails fail; operator needs self-service recovery without developer help | LOW | `POST /api/admin/emails/[id]/resend` already exists. Wire into admin email dashboard and per-order detail view |
-| **Configurable delivery fee** -- change delivery fee without code deploy | Business rule that changes seasonally | LOW | `app_settings` table + admin settings UI exist with `baseDeliveryFeeCents`. Wire server-side reads to use DB value instead of hardcoded constant |
-| **Configurable cutoff time** -- change order cutoff without code deploy | May shift from Friday 3PM to Friday 5PM based on kitchen capacity | MEDIUM | `CUTOFF_HOUR` and `CUTOFF_DAY` are hardcoded in `types/delivery.ts`. Refactor `getCutoffForSaturday()` and `isPastCutoff()` to read from `app_settings`. Settings schema already has `deliveryCutoffTime` |
-| **Driver stop list** -- driver sees ordered list of stops with name, address, phone | Minimum viable driver experience for completing deliveries | LOW | Existing driver route page (`/driver/route`) fetches active route with stops. Already functional |
-| **Mark delivered action** -- driver taps to mark individual stop delivered | Core delivery completion workflow | LOW | Existing `PATCH /api/driver/routes/[routeId]/stops/[stopId]`. Already functional |
+Features the operator and drivers expect for Saturday route ops. Missing = broken workflow.
 
-### Differentiators (Competitive Advantage)
+| Feature | Why Expected | Complexity | Dependencies | Notes |
+|---------|--------------|------------|--------------|-------|
+| **Drag-reorder stops (admin)** | Every route planner has it; admin needs manual override after optimization | Medium | `@dnd-kit/sortable` (new dep) | `StopsList` renders sorted by `stop_index`; need DnD wrapper + PATCH to persist new indices. Desktop DnD + mobile move-up/down buttons |
+| **Remove stop from route** | Admin drops last-minute cancellations | **Already built** | -- | `handleRemoveStop` in RouteDetailClient works |
+| **Add stops to route** | Late orders need assignment | **Already built** | -- | `AddStopsModal` exists and works |
+| **Auto-sort by proximity** | Admin clicks "Optimize" and gets distance-sorted order | **Already built** | Google Directions API | `OptimizationModal` with before/after comparison exists |
+| **Driver status progression** | Core delivery workflow: pending -> arrived -> delivered | **Already built** | -- | `DeliveryActions.tsx` handles all transitions with offline fallback |
+| **Navigate to stop** | Drivers need turn-by-turn directions | **Already built** | -- | `SimpleStopView.openMaps()` deep-links Google Maps |
+| **Mark delivered with confirmation** | Prevent accidental taps | **Already built** | -- | `DeliveryConfirmDialog` exists |
+| **Photo proof of delivery** | Dispute resolution, accountability | **Already built** | Supabase Storage | `PhotoCapture.tsx` with offline queue |
+| **Auth routing fix** | Admin/driver must land on dashboard after login, not homepage | Low | `auth/callback/route.ts` | Role redirect logic exists but has edge cases — needs audit |
+| **Order detail: items with modifiers** | Admin needs full order breakdown during Saturday ops | Low | Existing `OrderItemsCard` | Verify modifier rendering; may need to add modifier display |
+| **Order detail: delivery address on detail page** | Admin needs address for phone support | **Already built** | -- | `CustomerInfoCard` renders address |
+| **Order detail: payment/tip visibility** | Admin needs to know COD vs paid, tip amount | Low | Existing `PaymentInfoCard`, `TotalsCard` | Verify tip_cents renders; add if missing |
+| **Manual tracking display (admin)** | Admin sees which stop driver is on + timestamps | Low | Existing `arrived_at`, `delivered_at` columns | Data already collected by driver actions; need admin-facing display in `RouteDetailClient` |
 
-Features that make this app specifically suited for a solo operator running 20-50 Saturday orders with family/friend drivers.
+## Differentiators
 
-| Feature | Value Proposition | Complexity | Notes |
-|---------|-------------------|------------|-------|
-| **Saturday ops command center** -- single-screen dashboard with countdown timers, status pipeline, driver status, time-slot grouping | Solo operator manages entire Saturday from one screen in <3 minutes; generic admin pages force navigation between orders/routes/drivers | HIGH | New page or redesign of `/admin` for Saturday context. Combines: order status counts with action buttons, cutoff countdown, delivery-start countdown, driver availability widget, time-window groupings (11am: 12, 1pm: 8). Heavy frontend, light backend (reuses existing APIs) |
-| **One-click route builder** -- "Unassigned Orders" panel + "Available Drivers" panel, click to create route | Reduces route creation from multi-step form to visual assignment. At 2-4 drivers and 40 orders, highest-leverage UX improvement | HIGH | Backend: existing `POST /api/admin/routes` accepts `orderIds` + `driverId`. Frontend: split-panel layout, order cards grouped by time window or geography, driver cards with capacity indicator, click-to-assign |
-| **Driver simple mode** -- toggle that strips driver UI to stop list, customer info, "Mark Delivered" button, one-tap call/text | Family members who deliver occasionally need zero-training UI; existing pages have earnings, badges, availability that confuse non-technical users | MEDIUM | Add `simple_mode` boolean to `drivers` table or `driver_preferences` JSONB. When enabled: hide earnings, badges, availability scheduling. Show only: current route stops, address, phone, "Mark Delivered" with confirmation |
-| **Confirmation dialogs on delivery** -- "Mark as delivered at 123 Main St?" before completing | Prevents accidental delivery completion on wrong stop; critical for non-technical family drivers | LOW | Frontend-only: confirmation modal before `PATCH /api/driver/routes/[routeId]/stops/[stopId]`. No backend changes |
-| **Pre-checkout Saturday messaging** -- dynamic hero CTA, menu banner, cart countdown, cutoff modal | Customer instantly understands Saturday-only model within 3 seconds; reduces support questions and abandoned carts | MEDIUM | Touches hero section, menu page, cart drawer, checkout page. Uses existing `getDeliveryDate()` and `getTimeUntilCutoff()`. Mostly frontend with existing data |
-| **Email reliability dashboard** -- failure rate summary, bounce tracking, webhook event audit trail | Solo operator self-diagnoses email issues without developer; surfaces Resend webhook data already captured | MEDIUM | `notification_logs` captures webhook events via Resend handler. Need: admin page with stats summary, failure list with retry buttons, email event timeline from `metadata.resend_events` |
-| **Auto-suggest geographic grouping** -- group unassigned orders by delivery area for route creation | At 40 orders, visual geographic grouping helps operator create efficient routes without a routing algorithm | MEDIUM | Cluster by zip code or postal code from delivery addresses. No Google Maps API needed for clustering |
-| **Offline route instructions** -- banner telling driver their route is cached locally | Family driver in cellular dead zone can still see stops; service worker already exists | LOW | Service worker caches pages. Need: explicit prefetch of route data into IndexedDB when route loads, offline-aware banner |
+Features that set the app apart. Not expected at 20-50 order scale, but high value.
 
-### Anti-Features (Commonly Requested, Often Problematic)
+| Feature | Value Proposition | Complexity | Dependencies | Notes |
+|---------|-------------------|------------|--------------|-------|
+| **Split route** | Route overloaded; split stops into two routes | Medium | New API: POST `/api/admin/routes/{id}/split` | Admin selects stops -> new route created with those stops + new driver. Re-index remaining stops |
+| **Merge routes** | Two light routes combine when driver cancels | Medium | New API: POST `/api/admin/routes/merge` | Select source + target route -> move all stops -> delete empty source. Re-index combined stops |
+| **Driver route acceptance** | Driver explicitly accepts assigned route before starting | Low | New `accepted_at` column on `routes` + driver API | Current flow: admin assigns, driver sees route. Add intermediate "Accept Route" step in ActiveRouteView |
+| **Driver stop reordering** | Driver knows shortcuts; reorders remaining pending stops | Medium | `@dnd-kit/sortable` in driver UI | Advanced mode only (not simple mode); PATCH stop_index array |
+| **Admin mobile UX** | Solo operator runs Saturday kitchen from phone | High | Responsive audit of 20+ admin pages | Most admin pages use `p-8`, `lg:grid-cols-2`, wide tables. Need: stacked cards on mobile, collapsible sections, touch-friendly actions |
+| **Delivery notes per stop** | Driver adds context ("left at door", "gave to neighbor") | Low | Existing `delivery_notes` column on `route_stops` | Add text input in StopDetailView or DeliveryActions after marking delivered |
+| **Order detail: special instructions prominent** | Cooking/delivery instructions visible during ops | Low | Existing `special_instructions` column | Already in `StopDetail` type; ensure prominent rendering with visual callout |
+| **Route progress widget on ops dashboard** | Saturday ops shows route completion at a glance | Low | Existing ops dashboard polling | Add compact route cards: driver name + progress bar + delivered/total |
+| **Reassign driver mid-route** | Driver calls in sick mid-delivery; reassign remaining stops | Low | Existing `handleDriverChange` in RouteDetailClient | Already works for planned routes; verify it handles `in_progress` routes safely |
 
-| Feature | Why Requested | Why Problematic | Alternative |
-|---------|---------------|-----------------|-------------|
-| **Real-time GPS tracking for customers** | "I want to see my driver like Uber" | Continuous location streaming, battery drain, privacy, WebSocket infrastructure. Overkill at 20-50 orders | Text-based status: "Out for delivery" then "Delivered". Order tracking page exists with polling |
-| **Route optimization algorithm** | "Auto-optimize stop order" | Google Directions API cost, TSP solver complexity, poor time-window handling. Manual ordering fine at 5-10 stops per route | Geographic grouping suggestions + manual drag-to-reorder within route |
-| **Push notifications** | "Notify customers on status change" | VAPID keys, permission UX, cross-browser testing, background sync. Email + text covers it | Transactional emails (already built) + optional SMS later |
-| **Multi-admin role system** | "Different permissions for helper" | Solo operator now. RBAC adds schema complexity, permission checks everywhere, role management UI | Single admin role (already implemented). Revisit when second operator hired |
-| **Driver gamification / leaderboard** | "Motivate drivers with badges" | Family drivers are not gig workers. Gamification creates awkward family dynamics. Badges exist from v1.8 | Simple route completion celebration. Hide badges/streaks in simple mode |
-| **Auto-assign drivers to routes** | "System should auto-create routes" | At 2-4 drivers, manual takes <2 minutes. Auto-assignment needs availability, capacity balancing, geo optimization. Gets it wrong and operator wastes more time fixing | One-click visual assignment panel. Fast enough at current scale |
-| **Customer loyalty / referral** | "Reward repeat customers" | Need 50 regulars first. Points tracking, reward redemption, abuse prevention | Focus on delivery quality. Word of mouth is the referral system |
-| **Advanced analytics** | "Heatmaps, cohort analysis" | Current 7-day KPIs sufficient. Analytics require data warehouse, aggregation, complex viz. 20-50 orders/week doesn't need this | Simple KPIs (built): orders, revenue, fulfillment rate. Add email delivery rate |
+## Anti-Features
+
+Features to explicitly NOT build.
+
+| Anti-Feature | Why Avoid | What to Do Instead |
+|--------------|-----------|-------------------|
+| **Real-time GPS tracking map** | Out of scope (PROJECT.md), overkill at 20-50 orders, battery drain, WebSocket complexity | Manual status updates (arrived/delivered) + timestamps displayed in admin |
+| **Auto-dispatch / auto-assignment** | Solo operator with 2-4 family drivers; manual control preferred and faster | Keep click-to-assign pattern from v1.9 |
+| **Cross-route drag-and-drop** | Complex multi-container DnD context; high misfire rate, error-prone | Use existing "Reassign" dropdown to move single stop to another route |
+| **Drag-reorder on mobile for admin** | Touch DnD on long scrollable lists causes misfires and frustration | Move-up/move-down buttons on mobile; DnD on desktop only |
+| **Complex TSP solver** | Over-engineered for 5-15 stops per route; Google Directions waypoint optimization is sufficient | Keep existing "Optimize" button using Google Directions API |
+| **Live ETA updates to customers** | Requires WebSocket + continuous driver location polling | Text-based status updates via email ("Out for delivery", "Delivered") |
+| **Driver chat / messaging system** | Family drivers; text/call handles communication fine | Keep "Call for Help" button + direct phone/SMS links |
+| **Offline map tiles** | Drivers in urban Southern California; cellular coverage is reliable | Google Maps deep-link handles offline navigation gracefully |
+| **Batch photo upload** | One photo per stop is sufficient for proof of delivery | Keep single photo capture per stop |
+| **Route scheduling (future dates)** | Saturday-only model; routes are created same-day or day-before | Keep single-date route creation workflow |
 
 ## Feature Dependencies
 
 ```
-[Bug Fixes (Phase 0)]
-    |
-    +--requires--> [Configurable Business Rules]
-    |                  |
-    |                  +--enables--> [Customer Pre-Checkout Gate]
-    |                  |               (reads cutoff from app_settings)
-    |                  |
-    |                  +--enables--> [Saturday Ops Dashboard]
-    |                                  (reads cutoff for countdown timers)
-    |
-    +--requires--> [Saturday Ops Dashboard]
-    |                  |
-    |                  +--enables--> [Route & Driver Assignment]
-    |                                  (unassigned orders panel feeds from ops view)
-    |
-    +--independent--> [Email Reliability]
-    |                    (existing APIs + webhook handler + notification_logs)
-    |
-    +--independent--> [Driver Simplification]
-    |                    (existing driver pages + mode toggle)
-    |
-    +--independent--> [Production Hardening]
-                        (N+1 fixes, indexes, rate limits)
+Auth routing fix ─────────────────────────────> (independent, no deps)
+Order detail completeness ────────────────────> (independent, enhances existing cards)
+
+Manual tracking display ──────────────────────> (independent, render existing DB data)
+  └── enhanced by: Order detail completeness
+
+Drag-reorder stops (admin) ───────────────────> (independent, new DnD in StopsList)
+  └── requires: @dnd-kit/sortable install
+
+Split route ──────────────────────────────────> Drag-reorder stops (selecting stops for split)
+Merge routes ─────────────────────────────────> (independent, but test after split)
+
+Driver route acceptance ──────────────────────> (independent, new column + API)
+Driver execution flow audit ──────────────────> Driver route acceptance (accept first)
+Driver stop reordering ───────────────────────> Drag-reorder stops (same DnD lib + pattern)
+
+Delivery notes ───────────────────────────────> (independent, text input + existing column)
+
+Admin mobile UX ──────────────────────────────> ALL other features (responsive after final)
 ```
 
-### Dependency Notes
+Build order:
+```
+Phase 1: Auth fix + Order detail completeness + Delivery notes + Manual tracking display
+         (all independent, low risk, immediate ops value)
 
-- **Bug Fixes must precede everything:** TOCTOU cleanup bug, cutoff logic, and cart race condition are production blockers. No feature work until these are resolved.
-- **Configurable Business Rules enables Pre-Checkout Gate:** Checkout gate needs cutoff time from `app_settings` instead of hardcoded `CUTOFF_HOUR=15`. Building gate with hardcoded values creates immediate tech debt.
-- **Configurable Business Rules enables Ops Dashboard:** Countdown timers need cutoff time and delivery hours from `app_settings`.
-- **Ops Dashboard enables Route Assignment:** Route assignment UI lives within or adjacent to ops dashboard. Unassigned orders count flows from the same data. Building assignment without ops context means rework.
-- **Email Reliability is independent:** The pipeline (`sendEmail` -> `notification_logs` -> Resend webhook -> status update) already works. This is purely admin UI + webhook audit enhancement.
-- **Driver Simplification is independent:** Adding `simple_mode` toggle and conditional rendering has no feature dependencies. Build in parallel.
-- **Production Hardening is independent:** N+1 fixes, indexes, rate limit tuning are infrastructure with no feature dependencies.
+Phase 2: Drag-reorder stops (admin) + Route split/merge
+         (core route editing, needs @dnd-kit)
 
-## MVP Definition
+Phase 3: Driver acceptance + Driver execution flow audit + Driver stop reorder
+         (driver-facing changes, builds on Phase 2 DnD)
 
-### Launch With (v1.9)
+Phase 4: Admin mobile UX
+         (responsive overhaul after all features are finalized)
 
-Essential for the first real Saturday operation:
+Phase 5: Driver page audit
+         (end-to-end fix of all driver pages, integration testing)
+```
 
-- [x] Bug fixes (TOCTOU, cutoff, cart race) -- production blockers
-- [ ] Saturday Ops Dashboard with bulk status transitions -- operator manages 40 orders from one screen
-- [ ] Route & Driver Assignment panel -- operator creates routes and assigns drivers visually
-- [ ] Customer Pre-Checkout Gate -- Saturday-only messaging, cutoff enforcement modal
-- [ ] Configurable cutoff time + delivery fee -- operator adjusts without deploy
-- [ ] Email status visibility per order -- operator answers "did customer get the email?"
-- [ ] Failed email retry -- self-service recovery for email failures
-- [ ] Driver simple mode toggle -- family member completes route without training
-- [ ] Confirmation dialogs on driver delivery actions -- prevents mis-delivery
+## MVP Recommendation
 
-### Add After Validation (v1.9.x)
+**Prioritize (immediate Saturday ops value):**
 
-Add once first 2-3 Saturdays run successfully:
+1. **Auth routing fix** — Blocks every login; ~30 lines, highest ROI
+2. **Order detail completeness** — Add modifiers, tip, special instructions to existing cards; ~150 lines
+3. **Manual tracking display** — Show arrived_at/delivered_at in admin route detail; ~80 lines, data exists
+4. **Delivery notes** — Text input for driver per-stop notes; ~60 lines, column exists
+5. **Drag-reorder stops** — Admin manual override after optimization; ~200 lines + new dep
+6. **Driver page audit** — Fix broken/placeholder features end-to-end; ~400 lines
 
-- [ ] Geographic grouping suggestions for route creation -- after seeing real address distribution
-- [ ] Email reliability dashboard with failure rate charts -- after accumulating enough email volume
-- [ ] Webhook audit trail with body hash + svix signature verification -- security hardening
-- [ ] Offline route instructions with explicit prefetch -- after testing in low-signal areas
-- [ ] Order tracking polling indicator with "last updated" timestamp -- customer UX polish
+**Defer:**
 
-### Future Consideration (v2+)
+- **Split/merge routes** — Admin can manually create route + reassign stops (already possible via existing UI). Formal split/merge is convenience, not necessity
+- **Driver route acceptance** — Family drivers; operator texts them. Formal acceptance is overhead at 2-4 drivers
+- **Driver stop reordering** — Most drivers use simple mode. Optimization handles stop ordering
+- **Admin mobile UX** — High effort (~800 lines, 20+ pages). Build after features are stable, not before
 
-Defer until consistent 100+ orders/week:
+## Complexity Assessment
 
-- [ ] Route optimization algorithm -- manual scales to ~100 orders
-- [ ] Real-time GPS tracking -- text status sufficient
-- [ ] Push notifications -- email + text covers communication
-- [ ] Multi-admin roles -- solo operator for now
-- [ ] Advanced analytics -- simple KPIs sufficient
-- [ ] Customer loyalty/referral -- get 50 regulars first
-
-## Feature Prioritization Matrix
-
-| Feature | User Value | Implementation Cost | Priority | Depends On |
-|---------|------------|---------------------|----------|------------|
-| Bug fixes (TOCTOU, cutoff, cart race) | CRITICAL | LOW | P0 | Nothing |
-| Bulk status transitions | HIGH | MEDIUM | P1 | Bug fixes |
-| Ops status overview with counts | HIGH | LOW | P1 | Bug fixes |
-| Countdown timers (cutoff + delivery start) | HIGH | LOW | P1 | Configurable rules |
-| Unassigned orders badge | HIGH | LOW | P1 | Bug fixes |
-| Configurable cutoff time + cutoff day | HIGH | MEDIUM | P1 | Bug fixes |
-| Configurable delivery fee + free threshold | MEDIUM | LOW | P1 | Bug fixes |
-| One-click route builder | HIGH | HIGH | P1 | Ops dashboard |
-| Unassigned orders panel | HIGH | MEDIUM | P1 | Ops dashboard |
-| Available drivers panel | MEDIUM | LOW | P1 | Ops dashboard |
-| Customer pre-checkout gate (cutoff modal) | HIGH | MEDIUM | P1 | Configurable rules |
-| Saturday messaging (hero, menu, cart) | MEDIUM | MEDIUM | P1 | Configurable rules |
-| Email status on order detail | MEDIUM | LOW | P2 | Nothing |
-| Failed email retry UI | MEDIUM | LOW | P2 | Nothing |
-| Driver simple mode toggle | MEDIUM | MEDIUM | P2 | Nothing |
-| Confirmation dialogs on delivery | MEDIUM | LOW | P2 | Nothing |
-| One-tap customer contact (call/text) | MEDIUM | LOW | P2 | Nothing |
-| Geographic grouping suggestions | LOW | MEDIUM | P3 | Route builder |
-| Email reliability dashboard | LOW | MEDIUM | P3 | Email visibility |
-| Webhook audit logging (body hash) | LOW | LOW | P3 | Nothing |
-| N+1 query fixes | MEDIUM | LOW | P2 | Nothing |
-| DB index audit | MEDIUM | LOW | P2 | Nothing |
-| Rate limit tuning | LOW | LOW | P3 | Nothing |
-| Driver ownership check (SC-03) | MEDIUM | LOW | P2 | Nothing |
-
-**Priority key:**
-- P0: Blocks everything. Fix before any feature work
-- P1: Must have for first Saturday. Core operational capability
-- P2: Should have. Important for quality and reliability
-- P3: Nice to have. Defer if timeline is tight
-
-## Existing Infrastructure Leverage
-
-This milestone builds heavily on existing code. Understanding what exists avoids rebuilding.
-
-| Feature Need | What Already Exists | Gap to Close |
-|---|---|---|
-| Order status management | `PATCH /api/admin/orders/[id]/status` with valid transitions map, audit logging via `order_audit_log`, email notification on status change | Need bulk endpoint for multiple orders simultaneously |
-| Route creation | `POST /api/admin/routes` accepts `orderIds` + `driverId`, validates order status (confirmed/preparing), checks for duplicate route assignments, creates `route_stops` | Need visual UI; currently API-only |
-| Driver assignment | `PATCH /api/admin/orders/[id]/driver` with driver validation, audit logging, previous driver tracking | Need batch assignment via route creation UI |
-| Settings storage | `app_settings` table with `GET/PATCH /api/admin/settings`, Zod validation schemas (delivery/operations/notifications), admin settings UI with 3 tab forms, `FloatingUnsavedBar`, `RestoreDefaultsDialog` | Wire server logic to read cutoff/fees from DB instead of hardcoded constants in `types/delivery.ts` |
-| Email sending | `sendEmail()` with admin kill switch (`email_sending_enabled`), user preference check (`customer_settings.notification_prefs`), retry with exponential backoff (3 attempts, 10s base), notification_logs insert on success/failure | Surface logs in admin UI per order |
-| Email retry | `POST /api/admin/emails/[id]/resend` reconstructs email from order data, re-sends via full pipeline | Wire retry button into admin email UI |
-| Resend webhooks | `POST /api/webhooks/resend` maps events (delivered/opened/clicked/bounced/complained), updates `notification_logs` status, appends to `metadata.resend_events` array | Surface webhook data in admin; add svix signature verification |
-| Email log listing | `GET /api/admin/emails` with pagination, filtering by order/type/status/date, sorting by 5 columns | Need admin dashboard page to render this data |
-| Cutoff logic | `isPastCutoff()`, `getCutoffForSaturday()`, `getTimeUntilCutoff()`, `getDeliveryDate()` in `delivery-dates.ts` with timezone-aware calculations | Bug fix (BL-01) + refactor to read cutoff_hour/cutoff_day from `app_settings` |
-| Delivery constants | `CUTOFF_DAY=5` (Friday), `CUTOFF_HOUR=15` (3PM), `TIMEZONE="America/Los_Angeles"`, 8 time windows (11am-7pm hourly) in `types/delivery.ts` | Move to `app_settings`; keep constants as fallback defaults |
-| Driver dashboard | Full page with route status, stops, earnings, badges, availability, streak days, next route date | Add simple mode conditional rendering to hide complex sections |
-| Driver route view | `/driver/route` with active route, stop list, stop status, delivery actions, map polyline | Add confirmation dialog before status change, one-tap contact buttons |
-| Admin settings UI | `SettingsClient` with `DeliverySettingsForm`, `OperationsSettingsForm`, `NotificationSettingsForm`, restore defaults, `FloatingUnsavedBar` for unsaved changes | Add cutoff_day, cutoff_hour, delivery_start/end hours to delivery settings form |
-| Admin orders page | Status filter badges with counts, `OrdersTable`, individual status change via dropdown, refresh button | Elevate to ops dashboard with bulk actions and action buttons per status group |
-| Admin routes page | Route listing with date filter, driver info, stop counts, completion rate | Enhance with visual assignment panel for unassigned orders |
-
-## Competitor Feature Analysis
-
-| Feature | DoorDash Merchant | Square for Restaurants | Toast | Our Approach |
-|---------|-------------------|------------------------|-------|--------------|
-| Ops dashboard | Real-time order board with auto-accept, kitchen display | POS-integrated order flow with ticket management | Kitchen display system with prep timing | Saturday-focused command center with batch operations, countdown timers |
-| Route assignment | Automated gig worker dispatch, algorithm-driven | Not applicable (customer pickup model) | Not applicable (dine-in/pickup focus) | Visual split-panel, manual one-click assignment (family drivers, 2-4 max) |
-| Cutoff / scheduling | Rolling availability with per-item prep time estimates | Business hours + online ordering windows | Daypart scheduling with auto-disable | Saturday-only with configurable cutoff, clear customer messaging, countdown |
-| Email reliability | Automated transactional, no admin visibility into delivery | Basic receipt emails, no failure tracking | Automated via integration, minimal admin tools | Admin dashboard with per-email status, one-click retry, webhook audit trail |
-| Driver simplification | Dasher app redesigned May 2025 with simplified layout, "Earn by Time" mode | Not applicable | Not applicable | Simple mode toggle for family/friend drivers, confirmation dialogs, one-tap contact |
-| Business rules config | Merchant portal with extensive settings | Dashboard settings with pos integration | Web admin with restaurant-specific config | `app_settings` DB table with admin form, takes effect immediately, no deploy |
+| Feature | Est. Lines | New Dependencies | Risk | Touches |
+|---------|-----------|------------------|------|---------|
+| Auth routing fix | ~30 | None | Low | auth callback |
+| Order detail completeness | ~150 | None | Low | 3-4 existing card components |
+| Manual tracking display | ~80 | None | Low | RouteDetailClient, StopsList |
+| Delivery notes input | ~60 | None | Low | DeliveryActions or StopDetailView |
+| Drag-reorder stops | ~200 | `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities` | Medium | StopsList, new PATCH endpoint |
+| Split route | ~300 | None | Medium | New API + new modal component |
+| Merge routes | ~250 | None | Medium | New API + route selection UI |
+| Driver acceptance | ~150 | None | Low | New column, ActiveRouteView |
+| Driver page audit | ~400 | None | Medium | Multiple driver pages |
+| Admin mobile UX | ~800 | None | High | 20+ admin pages, regression risk |
 
 ## Sources
 
-- Codebase analysis: `src/app/api/admin/orders/`, `src/app/api/admin/routes/`, `src/app/api/admin/settings/`, `src/app/api/admin/emails/`, `src/app/api/webhooks/resend/`, `src/lib/email/`, `src/lib/utils/delivery-dates.ts`, `src/types/delivery.ts`, `src/lib/validations/settings.ts`, `src/components/ui/admin/settings/`
-- [Resend Webhook Documentation](https://resend.com/docs/webhooks/introduction) -- webhook events, retry policy (5s/5m/30m/2h/5h/10h), svix-id deduplication, at-least-once delivery guarantee
-- [Webhook reliability checklist](https://appmaster.io/blog/webhook-reliability-checklist) -- idempotency patterns, dead-letter queues, signature verification
-- [Food Delivery App Architecture (Enatega)](https://enatega.com/food-delivery-app-architecture/) -- dispatch service patterns, courier app features
-- [Redesigning A Delivery Driver App](https://amillionadventures.medium.com/redesigning-a-delivery-driver-app-part-3-ui-design-1b54d68eb6a7) -- driver UX simplification: friendlier tone, information hierarchy, obvious actions
-- [Food Delivery App Design (Agente)](https://agentestudio.com/blog/food-delivery-app-design) -- admin dashboard capabilities, order management patterns
-- [DispatchTrack Mobile App UX Refresh](https://www.dispatchtrack.com/company/news/mobile-app-ui-ux) -- driver app simplification: improved readability, modernized design, intuitive workflows
-- [Resend email best practices (GitHub)](https://github.com/resend/email-best-practices) -- email sending patterns, error handling
-- V4_MILESTONE_MVP.md -- existing milestone plan with 8-phase structure and acceptance criteria
+- Existing codebase audit — direct file reads of all route, driver, and admin components (HIGH confidence)
+- [EZRoutePlanner — Multi-Stop Route Planners 2026](https://www.ezrouteplanner.com/blog/best-free-multi-stop-route-planners)
+- [Track-POD — Delivery Driver App workflow](https://www.track-pod.com/delivery-driver-app/)
+- [DispatchTrack — 6 Features for Delivery Apps](https://www.dispatchtrack.com/blog/app-delivery-driver/)
+- [Appscrip — Workflow of a Delivery App](https://appscrip.com/blog/workflow-of-a-delivery-app-2/)
+- [Puck — Top 5 DnD Libraries for React 2026](https://puckeditor.com/blog/top-5-drag-and-drop-libraries-for-react)
+- [dnd-kit Sortable Docs](https://docs.dndkit.com/presets/sortable)
+- [Pencil & Paper — Dashboard UX Patterns](https://www.pencilandpaper.io/articles/ux-pattern-analysis-data-dashboards)
+- [Upper — Best Apps for Delivery Drivers 2026](https://www.upperinc.com/blog/best-apps-for-delivery-drivers/)
 
 ---
-*Feature research for: Meal delivery ops tooling (v1.9 Launch-Ready MVP)*
-*Researched: 2026-03-01*
+*Feature research for: v2.1 Route Operations & Admin Mobile*
+*Researched: 2026-03-14*
