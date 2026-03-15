@@ -88,7 +88,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
     ((freeDeliveryThresholdCents - amountToFreeDelivery) / freeDeliveryThresholdCents) * 100
   );
 
-  const hasFreeDelivery = amountToFreeDelivery <= 0;
+  const hasFreeDelivery = amountToFreeDelivery <= 0 && !isExtendedRange;
 
   return (
     <div

@@ -6,6 +6,10 @@ export function useCart() {
   // Get items array directly - this is the source of truth for reactivity
   const items = useCartStore((state) => state.items);
   const freeDeliveryThresholdCents = useCartStore((state) => state.freeDeliveryThresholdCents);
+  const addressDistanceMiles = useCartStore((state) => state.addressDistanceMiles);
+  const deliveryFeeCents = useCartStore((state) => state.deliveryFeeCents);
+  const longDistanceFeeCents = useCartStore((state) => state.longDistanceFeeCents);
+  const longDistanceThresholdMiles = useCartStore((state) => state.longDistanceThresholdMiles);
 
   // Get stable action references (Zustand action selectors are stable)
   const addItem = useCartStore((state) => state.addItem);
@@ -24,7 +28,14 @@ export function useCart() {
   const estimatedDeliveryFee = useMemo(
     () => useCartStore.getState().getEstimatedDeliveryFee(),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [items]
+    [
+      items,
+      addressDistanceMiles,
+      deliveryFeeCents,
+      freeDeliveryThresholdCents,
+      longDistanceFeeCents,
+      longDistanceThresholdMiles,
+    ]
   );
   const itemCount = useMemo(
     () => useCartStore.getState().getItemCount(),

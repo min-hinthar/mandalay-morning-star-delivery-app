@@ -4,6 +4,7 @@ import type { CheckoutState, CheckoutStep } from "@/types/checkout";
 import type { Address } from "@/types/address";
 import type { DeliverySelection } from "@/types/delivery";
 import type { PaymentMethod } from "@/types/database";
+import { useCartStore } from "./cart-store";
 
 interface CheckoutStore extends CheckoutState {
   setStep: (step: CheckoutStep) => void;
@@ -67,7 +68,11 @@ export const useCheckoutStore = create<CheckoutStore>()(
         }
       },
 
-      setAddress: (address) => set({ address, addressId: address.id }),
+      setAddress: (address) => {
+        set({ address, addressId: address.id });
+        // Sync distance to cart store for fee calculation
+        useCartStore.getState().setAddressDistance(address.distanceMiles ?? null);
+      },
       setDelivery: (delivery) => set({ delivery }),
       setCustomerNotes: (notes) => set({ customerNotes: notes }),
 
