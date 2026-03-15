@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/select";
 import type { RouteStatus } from "@/types/driver";
 import type { RouteDetailResponse } from "./types";
+import { RouteActionsMenu } from "./RouteActionsMenu";
 
 const STATUS_CONFIG: Record<
   RouteStatus,
@@ -57,6 +58,11 @@ interface RouteHeaderProps {
   onAddStops: () => void;
   onRefresh: () => void;
   onBack: () => void;
+  pendingStopCount: number;
+  hasSameDatePlannedRoutes: boolean;
+  onSplit: () => void;
+  onMerge: () => void;
+  onDelete: () => void;
 }
 
 export { STATUS_CONFIG };
@@ -71,6 +77,11 @@ export function RouteHeader({
   onAddStops,
   onRefresh,
   onBack,
+  pendingStopCount,
+  hasSameDatePlannedRoutes,
+  onSplit,
+  onMerge,
+  onDelete,
 }: RouteHeaderProps) {
   const statusConfig = STATUS_CONFIG[route.status];
 
@@ -139,6 +150,15 @@ export function RouteHeader({
         <Button variant="ghost" size="icon" onClick={onRefresh} aria-label="Refresh route">
           <RefreshCw className={cn("h-5 w-5", isUpdating && "animate-spin")} />
         </Button>
+
+        <RouteActionsMenu
+          routeStatus={route.status}
+          pendingStopCount={pendingStopCount}
+          hasSameDatePlannedRoutes={hasSameDatePlannedRoutes}
+          onSplit={onSplit}
+          onMerge={onMerge}
+          onDelete={onDelete}
+        />
       </div>
     </m.div>
   );

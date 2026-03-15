@@ -323,6 +323,11 @@ export function RouteDetailClient() {
               onAddStops={() => setAddStopsModalOpen(true)}
               onRefresh={fetchRoute}
               onBack={() => router.push("/admin/routes")}
+              pendingStopCount={route.stops.filter((s) => s.status === "pending").length}
+              hasSameDatePlannedRoutes={false}
+              onSplit={() => {}}
+              onMerge={() => {}}
+              onDelete={() => {}}
             />
 
             {/* Exception alert at top */}
