@@ -98,11 +98,12 @@
   3. Order detail screen shows full item list with modifiers, special instructions, tip amount, delivery notes, payment status, and customer contact info on one screen
   4. Driver can type and save delivery notes for any stop during delivery
   5. Admin route detail shows arrived_at and delivered_at timestamps per stop
-**Plans**: TBD
+**Plans**: 3 plans
 
 Plans:
-- [ ] 99-01: TBD
-- [ ] 99-02: TBD
+- [ ] 99-01-PLAN.md — Auth redirect E2E tests and bug fix
+- [ ] 99-02-PLAN.md — Order detail completeness and OrderDetailPanel extraction
+- [ ] 99-03-PLAN.md — Driver delivery notes and admin timestamp display
 
 ### Phase 100: Admin Route Editing
 **Goal**: Admins can fully edit route composition and stop order from both desktop and mobile during Saturday ops
@@ -171,7 +172,7 @@ Phases execute in numeric order: 99 -> 100 -> 101 -> 102
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 99. Foundation Fixes | v2.1 | 0/TBD | Not started | - |
+| 99. Foundation Fixes | v2.1 | 0/3 | Not started | - |
 | 100. Admin Route Editing | v2.1 | 0/TBD | Not started | - |
 | 101. Driver Experience | v2.1 | 0/TBD | Not started | - |
 | 102. Admin Mobile UX | v2.1 | 0/TBD | Not started | - |
