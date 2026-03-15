@@ -10,9 +10,9 @@ Requirements for Route Operations & Admin Mobile milestone. Each maps to roadmap
 ### Auth & Foundation
 
 - [ ] **FOUND-01**: Admin and driver land on correct dashboard after login/OAuth (audit runtime behavior, fix redirect bug)
-- [ ] **FOUND-02**: Order detail shows full item list with modifiers and special instructions
-- [ ] **FOUND-03**: Order detail shows tip amount in totals breakdown
-- [ ] **FOUND-04**: Order detail shows delivery notes, payment status, customer contact on one screen
+- [x] **FOUND-02**: Order detail shows full item list with modifiers and special instructions
+- [x] **FOUND-03**: Order detail shows tip amount in totals breakdown
+- [x] **FOUND-04**: Order detail shows delivery notes, payment status, customer contact on one screen
 - [ ] **FOUND-05**: Driver can add delivery notes per stop (text input, column already exists)
 - [ ] **FOUND-06**: Admin route detail shows arrived_at/delivered_at timestamps per stop
 
@@ -78,9 +78,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | FOUND-01 | Phase 99 | Pending |
-| FOUND-02 | Phase 99 | Pending |
-| FOUND-03 | Phase 99 | Pending |
-| FOUND-04 | Phase 99 | Pending |
+| FOUND-02 | Phase 99 | Complete |
+| FOUND-03 | Phase 99 | Complete |
+| FOUND-04 | Phase 99 | Complete |
 | FOUND-05 | Phase 99 | Pending |
 | FOUND-06 | Phase 99 | Pending |
 | ROUTE-01 | Phase 100 | Pending |
