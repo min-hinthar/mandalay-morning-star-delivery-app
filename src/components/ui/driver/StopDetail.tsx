@@ -8,7 +8,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Phone, MessageSquare, MapPin, Clock, Copy, Package, FileText } from "lucide-react";
+import { Phone, MessageSquare, MapPin, Clock, Copy, Package, FileText, Save, Check, Loader2 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils/cn";
 import { NavigationButton } from "./NavigationButton";
@@ -74,10 +74,17 @@ export function StopDetail({
   const [copied, setCopied] = useState(false);
   const copyTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Cleanup copy timeout on unmount
+  // Delivery notes state
+  const [notes, setNotes] = useState(deliveryNotes ?? "");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const savedTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Cleanup timeouts on unmount
   useEffect(() => {
     return () => {
       if (copyTimeoutRef.current) clearTimeout(copyTimeoutRef.current);
+      if (savedTimeoutRef.current) clearTimeout(savedTimeoutRef.current);
     };
   }, []);
 
@@ -123,6 +130,31 @@ export function StopDetail({
   const smsBody = encodeURIComponent(
     "Hi, this is your Morning Star delivery driver. I'm on my way!"
   );
+
+  const notesEditable = status !== "delivered" && status !== "skipped";
+  const notesChanged = notes !== (deliveryNotes ?? "");
+
+  const saveNotes = useCallback(async () => {
+    setSaving(true);
+    try {
+      const res = await fetch(
+        `/api/driver/routes/${routeId}/stops/${stopId}/notes`,
+        {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ deliveryNotes: notes }),
+        }
+      );
+      if (!res.ok) throw new Error("Failed to save");
+      setSaved(true);
+      if (savedTimeoutRef.current) clearTimeout(savedTimeoutRef.current);
+      savedTimeoutRef.current = setTimeout(() => setSaved(false), 2000);
+    } catch {
+      // Error silently — user can retry
+    } finally {
+      setSaving(false);
+    }
+  }, [routeId, stopId, notes]);
 
   return (
     <div className="space-y-6">
@@ -256,23 +288,58 @@ export function StopDetail({
         </m.div>
       )}
 
-      {/* Delivery Notes - V6 warning style */}
-      {deliveryNotes && (
-        <m.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.25 }}
-          className="rounded-card-sm border-l-4 border-secondary bg-secondary/10 p-4"
-        >
-          <div className="flex items-start gap-3">
-            <FileText className="h-5 w-5 shrink-0 text-secondary-hover" />
-            <div>
-              <p className="font-body text-sm font-medium text-secondary-hover">Delivery Notes</p>
-              <p className="mt-1 font-body text-text-primary">{deliveryNotes}</p>
-            </div>
-          </div>
-        </m.div>
-      )}
+      {/* Delivery Notes */}
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.25 }}
+        className="rounded-card-sm bg-surface-primary p-4 shadow-sm border border-border"
+      >
+        <div className="flex items-center gap-2 mb-2">
+          <FileText className="h-5 w-5 text-text-muted" />
+          <p className="font-body text-sm font-medium text-text-primary">Delivery Notes</p>
+        </div>
+        {notesEditable ? (
+          <>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="e.g., Left at door, Gate code 1234"
+              maxLength={500}
+              rows={2}
+              className="w-full rounded-input border border-border bg-surface-secondary p-3 font-body text-sm text-text-primary placeholder:text-text-muted resize-none focus:outline-none focus:ring-2 focus:ring-primary/40"
+              data-testid="delivery-notes-input"
+            />
+            {notesChanged && (
+              <button
+                onClick={saveNotes}
+                disabled={saving}
+                className={cn(
+                  "mt-2 flex items-center gap-2 rounded-input px-4 py-2 font-body text-sm font-medium transition-colors duration-fast",
+                  saved
+                    ? "bg-green/10 text-green"
+                    : "bg-primary text-text-inverse hover:bg-primary-hover active:scale-[0.98]",
+                  saving && "opacity-70 cursor-not-allowed"
+                )}
+                data-testid="save-notes-button"
+              >
+                {saving ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : saved ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <Save className="h-4 w-4" />
+                )}
+                {saving ? "Saving..." : saved ? "Saved" : "Save Notes"}
+              </button>
+            )}
+          </>
+        ) : (
+          <p className="font-body text-sm text-text-secondary">
+            {deliveryNotes || "No notes"}
+          </p>
+        )}
+      </m.div>
 
       {/* Order Items */}
       {orderItems.length > 0 && (
