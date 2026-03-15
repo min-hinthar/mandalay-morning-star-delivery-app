@@ -33,6 +33,15 @@ export interface AuditLogEntry {
   createdAt: string;
 }
 
+export interface DeliveryInfo {
+  deliveryNotes: string | null;
+  deliveryInstructions: string | null;
+  arrivedAt: string | null;
+  deliveredAt: string | null;
+  routeId: string | null;
+  routeStatus: string | null;
+}
+
 export interface OrderDetail {
   id: string;
   status: OrderStatus;
@@ -44,9 +53,11 @@ export interface OrderDetail {
   subtotalCents: number;
   deliveryFeeCents: number;
   taxCents: number;
+  tipCents: number;
   totalCents: number;
   discountCents: number;
   specialInstructions: string | null;
+  deliveryInfo: DeliveryInfo | null;
   placedAt: string;
   confirmedAt: string | null;
   deliveredAt: string | null;
