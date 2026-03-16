@@ -191,7 +191,7 @@ Plans:
 - GAP-102-03: Remove dead `RouteProgressState` type export
 
 *Responsive & animation (3 — low/info):*
-- GAP-102-01: Fix responsive padding on 5 loading/error skeletons (`p-8` → `p-4 md:p-8`)
+- GAP-102-01: Fix responsive padding on 5 loading/error skeletons (`p-8` -> `p-4 md:p-8`)
 - GAP-102-02: Remove unused `actionSlot` prop from AdminMobileHeader
 - GAP-102-04: Add `shouldAnimate` reduced-motion guard to SectionCard.tsx
 
@@ -211,7 +211,12 @@ Plans:
   5. `e2e/admin-mobile.spec.ts` has real assertions (no test.skip stubs)
   6. Notes endpoint has handler integration test
   7. Phases 99, 100, 102 pass Nyquist validation (wave_0_complete: true)
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 103-01-PLAN.md — Error handling fixes (email guard, delivery_instructions, toast on errors, optimistic revert)
+- [ ] 103-02-PLAN.md — Integration wiring, dead code removal, responsive padding, reduced-motion guard
+- [ ] 103-03-PLAN.md — Test stubs fill, handler integration tests, Nyquist compliance
 
 ## Progress
 
@@ -239,7 +244,7 @@ Phases execute in numeric order: 99 -> 100 -> 101 -> 102 -> 103
 | 100. Admin Route Editing | 4/4 | Complete    | 2026-03-15 | - |
 | 101. Driver Experience | 6/6 | Complete    | 2026-03-16 | - |
 | 102. Admin Mobile UX | 6/6 | Complete    | 2026-03-16 | - |
-| 103. Tech Debt & Nyquist | 0/TBD | Pending | - | - |
+| 103. Tech Debt & Nyquist | 0/3 | Pending | - | - |
 
 ---
 
