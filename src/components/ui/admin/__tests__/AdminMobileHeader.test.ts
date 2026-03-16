@@ -1,20 +1,40 @@
-import { describe, it } from "vitest";
+import { describe, it, expect } from "vitest";
+import { getPageTitle } from "../AdminMobileHeader";
 
 /**
  * Unit Tests: AdminMobileHeader
  *
- * Wave 0 test scaffold for MOBL-01 page title derivation.
- * Stubs are populated with real assertions in Plan 01.
+ * Tests getPageTitle pure function for MOBL-01 page title derivation.
  */
 
 describe("AdminMobileHeader", () => {
-  describe("page title derivation", () => {
-    it.todo("returns 'Dashboard' for /admin");
-    it.todo("returns 'Orders' for /admin/orders");
-    it.todo("returns 'Order Details' for /admin/orders/[id]");
-    it.todo("returns 'Route Builder' for /admin/routes/builder");
-    it.todo("returns 'Route Details' for /admin/routes/[id]");
-    it.todo("returns 'Edit Item' for /admin/menu/[id]");
-    it.todo("returns 'Admin' for unknown routes");
+  describe("getPageTitle", () => {
+    it("returns 'Dashboard' for /admin", () => {
+      expect(getPageTitle("/admin")).toBe("Dashboard");
+    });
+
+    it("returns 'Orders' for /admin/orders", () => {
+      expect(getPageTitle("/admin/orders")).toBe("Orders");
+    });
+
+    it("returns 'Order Details' for /admin/orders/[id]", () => {
+      expect(getPageTitle("/admin/orders/abc-123")).toBe("Order Details");
+    });
+
+    it("returns 'Route Builder' for /admin/routes/builder", () => {
+      expect(getPageTitle("/admin/routes/builder")).toBe("Route Builder");
+    });
+
+    it("returns 'Route Details' for /admin/routes/[id]", () => {
+      expect(getPageTitle("/admin/routes/some-uuid")).toBe("Route Details");
+    });
+
+    it("returns 'Edit Item' for /admin/menu/[id]", () => {
+      expect(getPageTitle("/admin/menu/item-id")).toBe("Edit Item");
+    });
+
+    it("returns 'Admin' for unknown routes", () => {
+      expect(getPageTitle("/admin/unknown-page")).toBe("Admin");
+    });
   });
 });
