@@ -20,7 +20,8 @@ export type EmailType =
   | "admin_new_order"
   | "admin_daily_digest"
   | "admin_feedback_alert"
-  | "feedback_confirmation";
+  | "feedback_confirmation"
+  | "admin_route_decline";
 
 export interface SendEmailOptions {
   to: string;
@@ -51,6 +52,7 @@ export const MANDATORY_EMAIL_TYPES: readonly EmailType[] = [
   "admin_daily_digest",
   "admin_feedback_alert",
   "feedback_confirmation",
+  "admin_route_decline",
 ] as const;
 
 /** Admin-only email types that are not logged to notification_logs (DB enum excludes them). */
@@ -59,6 +61,7 @@ export const ADMIN_EMAIL_TYPES: readonly EmailType[] = [
   "admin_daily_digest",
   "admin_feedback_alert",
   "feedback_confirmation",
+  "admin_route_decline",
 ] as const;
 
 // ===========================================
@@ -85,6 +88,7 @@ export function mapTypeToPrefKey(type: EmailType): keyof NotificationPrefs {
     case "admin_daily_digest":
     case "admin_feedback_alert":
     case "feedback_confirmation":
+    case "admin_route_decline":
       return "order_updates";
   }
 }

@@ -9,7 +9,7 @@ import type { OrdersRow, AddressesRow, ProfilesRow } from "./database";
 // ENUMS
 // ===========================================
 
-export type RouteStatus = "planned" | "in_progress" | "completed";
+export type RouteStatus = "planned" | "assigned" | "accepted" | "in_progress" | "completed";
 
 export type RouteStopStatus = "pending" | "enroute" | "arrived" | "delivered" | "skipped";
 

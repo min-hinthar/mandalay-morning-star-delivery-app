@@ -1247,6 +1247,10 @@ export type Database = {
           started_at: string | null;
           stats_json: Json | null;
           status: Database["public"]["Enums"]["route_status"];
+          accepted_at: string | null;
+          declined_at: string | null;
+          declined_reason: string | null;
+          declined_by: string | null;
           updated_at: string;
         };
         Insert: {
@@ -1259,6 +1263,10 @@ export type Database = {
           started_at?: string | null;
           stats_json?: Json | null;
           status?: Database["public"]["Enums"]["route_status"];
+          accepted_at?: string | null;
+          declined_at?: string | null;
+          declined_reason?: string | null;
+          declined_by?: string | null;
           updated_at?: string;
         };
         Update: {
@@ -1271,6 +1279,10 @@ export type Database = {
           started_at?: string | null;
           stats_json?: Json | null;
           status?: Database["public"]["Enums"]["route_status"];
+          accepted_at?: string | null;
+          declined_at?: string | null;
+          declined_reason?: string | null;
+          declined_by?: string | null;
           updated_at?: string;
         };
         Relationships: [
@@ -2024,7 +2036,7 @@ export type Database = {
         | "delivered"
         | "cancelled";
       payment_method: "stripe" | "cod";
-      route_status: "planned" | "in_progress" | "completed";
+      route_status: "planned" | "assigned" | "accepted" | "in_progress" | "completed";
       route_stop_status: "pending" | "enroute" | "arrived" | "delivered" | "skipped";
       vehicle_type: "car" | "motorcycle" | "bicycle" | "van" | "truck";
     };
@@ -2191,7 +2203,7 @@ export const Constants = {
         "cancelled",
       ],
       payment_method: ["stripe", "cod"],
-      route_status: ["planned", "in_progress", "completed"],
+      route_status: ["planned", "assigned", "accepted", "in_progress", "completed"],
       route_stop_status: ["pending", "enroute", "arrived", "delivered", "skipped"],
       vehicle_type: ["car", "motorcycle", "bicycle", "van", "truck"],
     },
