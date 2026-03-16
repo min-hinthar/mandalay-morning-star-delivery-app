@@ -22,6 +22,7 @@ import {
 } from "lucide-react";
 import { useState, useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils/cn";
+import { toast } from "@/lib/hooks/useToastV8";
 import { NavigationButton } from "./NavigationButton";
 import { DeliveryActions } from "./DeliveryActions";
 import type { RouteStopStatus } from "@/types/driver";
@@ -158,7 +159,7 @@ export function StopDetail({
       if (savedTimeoutRef.current) clearTimeout(savedTimeoutRef.current);
       savedTimeoutRef.current = setTimeout(() => setSaved(false), 2000);
     } catch {
-      // Error silently — user can retry
+      toast({ message: "Failed to save notes", type: "error" });
     } finally {
       setSaving(false);
     }
