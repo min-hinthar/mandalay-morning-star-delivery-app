@@ -15,7 +15,6 @@ export { DeliveryActions } from "./DeliveryActions";
 export { NavigationButton } from "./NavigationButton";
 export { ExceptionModal } from "./ExceptionModal";
 export { ActiveRouteView } from "./ActiveRouteView";
-export { LocationTracker } from "./LocationTracker";
 export { PhotoCapture } from "./PhotoCapture";
 export { OfflineBanner } from "./OfflineBanner";
 export { HighContrastToggle } from "./HighContrastToggle";

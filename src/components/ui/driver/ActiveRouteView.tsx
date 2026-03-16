@@ -7,16 +7,23 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { m } from "framer-motion";
 import { Play, Loader2, CheckCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useDriverReorderStops } from "@/lib/hooks/useDriverReorderStops";
 import { AnimatedValue } from "@/components/ui/admin/AdminDashboard/AnimatedValue";
+import {
+  DragReorderList,
+  SortableItem,
+  DragHandle,
+  MoveButtons,
+} from "@/components/ui/DragReorderList";
 import { StopList } from "./StopList";
-import { LocationTracker } from "./LocationTracker";
+import { StopCard } from "./StopCard";
 import type { RouteStopStatus } from "@/types/driver";
 
 interface StopData {
@@ -53,17 +60,40 @@ export function ActiveRouteView({ routeId, routeStatus, stops }: ActiveRouteView
   const [error, setError] = useState<string | null>(null);
   const { isFullMotion, shouldAnimate, getSpring } = useAnimationPreference();
 
+  // Local stops state for optimistic reorder
+  const [localStops, setLocalStops] = useState(stops);
+  useEffect(() => {
+    setLocalStops(stops);
+  }, [stops]);
+
+  // Drag reorder hook
+  const { reorderStops, isReordering } = useDriverReorderStops({
+    routeId,
+    onError: () => setLocalStops(stops), // Revert on error
+  });
+
+  // Split stops into reorderable (pending/enroute) and locked (delivered/skipped)
+  const reorderableStops = localStops.filter(
+    (s) => s.status === "pending" || s.status === "enroute",
+  );
+  const lockedStops = localStops.filter(
+    (s) => s.status === "delivered" || s.status === "skipped",
+  );
+
+  // Reorder is available on accepted and in_progress routes
+  const canReorder = routeStatus === "accepted" || routeStatus === "in_progress";
+
   // Calculate current stop index (first pending or enroute stop)
   const currentStopIndex =
-    stops.find((s) => s.status === "enroute")?.stopIndex ??
-    stops.find((s) => s.status === "pending")?.stopIndex ??
+    localStops.find((s) => s.status === "enroute")?.stopIndex ??
+    localStops.find((s) => s.status === "pending")?.stopIndex ??
     0;
 
   // Calculate progress
-  const deliveredCount = stops.filter((s) => s.status === "delivered").length;
-  const skippedCount = stops.filter((s) => s.status === "skipped").length;
+  const deliveredCount = localStops.filter((s) => s.status === "delivered").length;
+  const skippedCount = localStops.filter((s) => s.status === "skipped").length;
   const completedCount = deliveredCount + skippedCount;
-  const totalCount = stops.length;
+  const totalCount = localStops.length;
   const progressPercent = totalCount > 0 ? (completedCount / totalCount) * 100 : 0;
 
   // Check if route can be completed (all stops delivered or skipped)
@@ -161,13 +191,8 @@ export function ActiveRouteView({ routeId, routeStatus, stops }: ActiveRouteView
         )}
       </m.div>
 
-      {/* Location Tracker (when route in progress) */}
-      {routeStatus === "in_progress" && (
-        <LocationTracker routeId={routeId} enabled={true} showDetails={false} />
-      )}
-
-      {/* Start Route Button (for planned routes) */}
-      {routeStatus === "planned" && (
+      {/* Start Route Button (for planned and accepted routes) */}
+      {(routeStatus === "planned" || routeStatus === "accepted") && (
         <m.button
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
@@ -226,8 +251,124 @@ export function ActiveRouteView({ routeId, routeStatus, stops }: ActiveRouteView
         </p>
       )}
 
-      {/* Stop List */}
-      <StopList stops={stops} currentStopIndex={currentStopIndex} />
+      {/* Stop List - with drag reorder for reorderable stops */}
+      {canReorder && reorderableStops.length > 0 ? (
+        <div className="space-y-4">
+          {/* Reorderable stops */}
+          <DragReorderList
+            items={reorderableStops}
+            getItemId={(stop) => stop.id}
+            disabled={isReordering}
+            onReorder={(reordered) => {
+              const newOrder = [...reordered, ...lockedStops];
+              setLocalStops(newOrder);
+              reorderStops(
+                reordered.map((s, i) => ({ stopId: s.id, stopIndex: i })),
+              );
+            }}
+            renderItem={(stop, isDragging) => (
+              <SortableItem id={stop.id}>
+                {({ listeners, attributes }) => (
+                  <div
+                    className={cn(
+                      "flex items-center gap-2",
+                      isDragging && "opacity-50",
+                    )}
+                  >
+                    <DragHandle listeners={listeners} attributes={attributes} />
+                    <div className="min-w-0 flex-1">
+                      <StopCard
+                        stopIndex={stop.stopIndex}
+                        status={stop.status}
+                        customerName={stop.order.customer.fullName}
+                        address={stop.order.address}
+                        timeWindow={{
+                          start: stop.order.deliveryWindowStart,
+                          end: stop.order.deliveryWindowEnd,
+                        }}
+                        eta={stop.eta}
+                        isCurrentStop={stop.stopIndex === currentStopIndex}
+                        onClick={() => router.push(`/driver/route/${stop.id}`)}
+                      />
+                    </div>
+                    <MoveButtons
+                      onMoveUp={() => {
+                        const idx = reorderableStops.findIndex((s) => s.id === stop.id);
+                        if (idx <= 0) return;
+                        const reordered = [...reorderableStops];
+                        [reordered[idx - 1], reordered[idx]] = [reordered[idx], reordered[idx - 1]];
+                        const newOrder = [...reordered, ...lockedStops];
+                        setLocalStops(newOrder);
+                        reorderStops(
+                          reordered.map((s, i) => ({ stopId: s.id, stopIndex: i })),
+                        );
+                      }}
+                      onMoveDown={() => {
+                        const idx = reorderableStops.findIndex((s) => s.id === stop.id);
+                        if (idx >= reorderableStops.length - 1) return;
+                        const reordered = [...reorderableStops];
+                        [reordered[idx], reordered[idx + 1]] = [reordered[idx + 1], reordered[idx]];
+                        const newOrder = [...reordered, ...lockedStops];
+                        setLocalStops(newOrder);
+                        reorderStops(
+                          reordered.map((s, i) => ({ stopId: s.id, stopIndex: i })),
+                        );
+                      }}
+                      isFirst={reorderableStops.findIndex((s) => s.id === stop.id) === 0}
+                      isLast={
+                        reorderableStops.findIndex((s) => s.id === stop.id) ===
+                        reorderableStops.length - 1
+                      }
+                    />
+                  </div>
+                )}
+              </SortableItem>
+            )}
+            renderOverlay={(stop) => (
+              <div className="scale-[1.02] shadow-lg rounded-xl">
+                <StopCard
+                  stopIndex={stop.stopIndex}
+                  status={stop.status}
+                  customerName={stop.order.customer.fullName}
+                  address={stop.order.address}
+                  timeWindow={{
+                    start: stop.order.deliveryWindowStart,
+                    end: stop.order.deliveryWindowEnd,
+                  }}
+                  eta={stop.eta}
+                  isCurrentStop={stop.stopIndex === currentStopIndex}
+                />
+              </div>
+            )}
+          />
+
+          {/* Locked stops (delivered/skipped) -- not draggable, visually muted */}
+          {lockedStops.length > 0 && (
+            <div className="space-y-2 opacity-50">
+              <h3 className="font-body text-xs font-semibold uppercase tracking-wide text-text-muted">
+                Completed ({lockedStops.length})
+              </h3>
+              {lockedStops.map((stop) => (
+                <StopCard
+                  key={stop.id}
+                  stopIndex={stop.stopIndex}
+                  status={stop.status}
+                  customerName={stop.order.customer.fullName}
+                  address={stop.order.address}
+                  timeWindow={{
+                    start: stop.order.deliveryWindowStart,
+                    end: stop.order.deliveryWindowEnd,
+                  }}
+                  eta={stop.eta}
+                  onClick={() => router.push(`/driver/route/${stop.id}`)}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <StopList stops={localStops} currentStopIndex={currentStopIndex} />
+      )}
     </m.div>
   );
 }
