@@ -15,6 +15,9 @@ interface RouteWithDriver extends RoutesRow {
       })
     | null;
   route_stops: Array<{ id: string; status: string }>;
+  declined_driver: {
+    profiles: Pick<ProfilesRow, "full_name"> | null;
+  } | null;
 }
 
 /**
@@ -59,8 +62,14 @@ export async function GET(request: NextRequest) {
         completed_at,
         created_at,
         updated_at,
+        declined_by,
         drivers (
           id,
+          profiles (
+            full_name
+          )
+        ),
+        declined_driver:drivers!routes_declined_by_fkey (
           profiles (
             full_name
           )

@@ -11,6 +11,8 @@ import {
   DollarSign,
   AlertCircle,
   Ban,
+  UserCheck,
+  CheckCircle,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -47,6 +49,10 @@ const STATUS_COLORS: Record<string, string> = {
   active: "bg-green-100 text-green-800",
   inactive: "bg-gray-100 text-gray-800",
   skipped: "bg-amber-100 text-amber-800",
+  assigned: "bg-blue-100 text-blue-800",
+  accepted: "bg-green-100 text-green-800",
+  in_progress: "bg-amber-100 text-amber-800",
+  planned: "bg-gray-100 text-gray-800",
 };
 
 /** Statuses that receive a soft-pulse animation */
@@ -58,6 +64,8 @@ const ACTIVE_STATUSES = new Set([
   "in_transit",
   "out_for_delivery",
   "active",
+  "assigned",
+  "accepted",
 ]);
 
 const DEFAULT_COLORS = "bg-gray-100 text-gray-800";
@@ -83,6 +91,10 @@ const STATUS_ICONS: Record<string, LucideIcon> = {
   refunded: DollarSign,
   partial: AlertCircle,
   refund_pending: Clock,
+  assigned: UserCheck,
+  accepted: CheckCircle,
+  in_progress: Truck,
+  planned: Clock,
 };
 
 // ============================================

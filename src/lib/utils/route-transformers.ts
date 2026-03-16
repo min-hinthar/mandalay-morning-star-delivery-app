@@ -15,6 +15,7 @@ export interface TransformedRouteListItem {
   createdAt: string;
   estimatedDurationMinutes: number | null;
   driver: { id: string; fullName: string | null } | null;
+  declinedByDriverName: string | null;
 }
 
 export interface TransformedStop {
@@ -35,6 +36,9 @@ export function transformRouteForList(
       profiles: { full_name: string | null } | null;
     } | null;
     route_stops: Array<{ id: string; status: string }>;
+    declined_driver?: {
+      profiles: { full_name: string | null } | null;
+    } | null;
   }
 ): TransformedRouteListItem {
   const stopCount = route.route_stops?.length ?? 0;
@@ -56,6 +60,7 @@ export function transformRouteForList(
     completionRate: stopCount > 0 ? Math.round((deliveredCount / stopCount) * 100) : 0,
     createdAt: route.created_at,
     estimatedDurationMinutes: statsJson?.total_duration_minutes ?? null,
+    declinedByDriverName: route.declined_driver?.profiles?.full_name ?? null,
   };
 }
 

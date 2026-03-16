@@ -132,24 +132,26 @@ export function RouteHeader({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="planned">Planned</SelectItem>
+            <SelectItem value="assigned">Assigned</SelectItem>
+            <SelectItem value="accepted">Accepted</SelectItem>
             <SelectItem value="in_progress">In Progress</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
           </SelectContent>
         </Select>
 
-        {route.status === "planned" && (
+        {["planned", "assigned", "accepted"].includes(route.status) && (
           <Button variant="outline" onClick={onAddStops} leftIcon={<Plus className="h-4 w-4" />}>
             Add Stops
           </Button>
         )}
 
-        {route.status === "planned" && route.stops.length > 1 && (
+        {["planned", "assigned", "accepted"].includes(route.status) && route.stops.length > 1 && (
           <Button variant="outline" onClick={onOptimize} leftIcon={<Zap className="h-4 w-4" />}>
             Optimize
           </Button>
         )}
 
-        {isManuallyReordered && route.status === "planned" && (
+        {isManuallyReordered && ["planned", "assigned", "accepted"].includes(route.status) && (
           <Badge
             variant="outline"
             className="bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-900/20 dark:text-amber-400 dark:border-amber-700/30 gap-1.5"
