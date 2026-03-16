@@ -89,11 +89,11 @@ Accent reserved for:
 
 | Status | Background | Text | Token Approach |
 |--------|-----------|------|----------------|
-| planned | gray-100 | gray-800 | `bg-gray-100 text-gray-800` (existing) |
+| planned | gray-100 | gray-800 | `bg-gray-100 text-gray-800` (implicit via DEFAULT_COLORS fallback — add explicit entry) |
 | assigned | blue-100 | blue-800 | `bg-blue-100 text-blue-800` (new) |
-| accepted | green-100 | green-800 | `bg-green-100 text-green-800` (existing "active" match) |
-| in_progress | amber-100 | amber-800 | `bg-amber-100 text-amber-800` (new, maps to "pending" visual) |
-| completed | green-100 | green-800 | `bg-green-100 text-green-800` + CheckCircle icon (existing) |
+| accepted | green-100 | green-800 | `bg-green-100 text-green-800` (new, matches existing "active"/"delivered" color) |
+| in_progress | amber-100 | amber-800 | `bg-amber-100 text-amber-800` (new — no current entry, falls to default gray) |
+| completed | green-100 | green-800 | `bg-green-100 text-green-800` + CheckCircle icon (existing explicit entry) |
 
 ### Semantic Colors Used in This Phase
 
@@ -127,7 +127,7 @@ Accent reserved for:
 | DragHandle | `src/components/ui/DragReorderList/` | Drag grip icon on desktop |
 | MoveButtons | `src/components/ui/DragReorderList/` | Move up/down on mobile |
 | SortableItem | `src/components/ui/DragReorderList/` | Sortable wrapper per stop |
-| ConfirmDialog | `src/components/ui/admin/settings/ConfirmDialog.tsx` | Decline confirmation dialog |
+| ConfirmDialog | `src/components/ui/admin/settings/ConfirmDialog.tsx` | Decline confirmation base — extend with children slot or create DeclineConfirmDialog wrapping ConfirmDialog + textarea (ConfirmDialog has no form content slot) |
 | Button | `src/components/ui/button.tsx` | All CTAs |
 | Modal | `src/components/ui/Modal.tsx` | Decline reason dialog |
 
@@ -179,7 +179,7 @@ Accent reserved for:
   - Decline button: `flex-1 h-14`, variant outline, text-status-error border-status-error
   - Accept button: `flex-1 h-14`, bg-green text-text-inverse
 
-**Scroll behavior:** Stop list scrolls above the sticky bar. Apply `pb-[calc(80px+env(safe-area-inset-bottom,0px))]` to scrollable content to prevent overlap.
+**Scroll behavior:** Stop list scrolls above the sticky bar. Apply `pb-[calc(80px+env(safe-area-inset-bottom,0px)+16px)]` to scrollable content to prevent overlap (16px breathing room matches existing DriverLayout pattern at line 169).
 
 ### Decline Confirmation Dialog
 
@@ -322,4 +322,51 @@ No third-party registries declared. No new shadcn components needed -- all UI bu
 - [ ] Dimension 5 Spacing: PASS
 - [ ] Dimension 6 Registry Safety: PASS
 
-**Approval:** pending
+**Approval:** approved (revision 1 + manual cross-check)
+
+---
+
+## Learnings Cross-Reference
+
+Applicable learnings from `.claude/learnings/` verified against this UI-SPEC:
+
+| Learning | File | Impact on UI-SPEC | Status |
+|----------|------|-------------------|--------|
+| Safe area: position not padding (FABs) | mobile-ux.md | AcceptDeclineBar is a container bar, not FAB — padding is correct (matches DriverLayout:191) | OK |
+| `loading="lazy"` + opacity 0 containers | animation.md | Accept card has `opacity: 0->1` animation — do NOT use `loading="lazy"` on any images inside | Noted |
+| touchAction conflicts (drag handle) | mobile-ux.md | DragReorderList from Phase 100 already handles `touch-none` on handle, `pan-y` on content | OK |
+| Nested overflow-y-auto blocks wheel | mobile-ux.md | Single scroll container (DriverLayout main) — sticky bar is fixed, not nested | OK |
+| useRef + conditional render breaks observers | react-patterns.md | Accept/route card swap uses conditional content inside stable parent — no ref instability | OK |
+| Framer Motion drag unreliable with fixed | react-patterns.md | DragReorderList uses in-flow elements (not fixed) — drag works correctly | OK |
+| Defensive PanInfo null check | mobile-ux.md | DragReorderList handles this from Phase 100 | OK |
+| Bottom sheet swipe: two-layer fix | mobile-ux.md | Not using bottom sheet for accept/decline — using card + fixed bar | N/A |
+| Backdrop blur mobile perf | mobile-ux.md | No backdrop blur in accept/decline UI | N/A |
+| Non-existent token → transparent | design-tokens.md | All tokens verified against existing `@theme inline` definitions | OK |
+| WCAG AA contrast 4.5:1 | design-tokens.md | green #3d8b22 on white = 5.4:1, error #c45c4a on white = 4.6:1 — both pass | OK |
+| `revalidatePath` defaults to "page" | nextjs.md | Client-side mutations use React Query invalidation, not revalidatePath | N/A |
+| Vercel kills fire-and-forget | nextjs.md | Decline email API uses `after()` — covered in RESEARCH.md | OK |
+| Single mutation owner | state-management.md | Accept/decline hooks own mutation — button calls hook only | Noted |
+| Component deletion needs barrel cleanup | tooling.md | LocationTracker removal needs barrel export cleanup | Noted |
+
+### Existing Pattern Matches Verified
+
+| UI-SPEC Element | Verified Against | Match |
+|-----------------|-----------------|-------|
+| Accept CTA: `min-h-[72px] bg-green text-xl font-semibold` | SimpleHome.tsx:116-118 | Exact |
+| Continue CTA: `bg-accent-teal text-xl font-semibold` | SimpleHome.tsx:99-103 | Exact |
+| Progress bar: `bg-accent-teal` | SimpleHome.tsx:93 | Exact |
+| Empty state: "No Route Today" | SimpleHome.tsx:140 | Exact |
+| Empty state: "Check back when a route is assigned." | SimpleHome.tsx:142 | Exact |
+| Fixed bar: `z-30` | DriverLayout.tsx:185 | Exact |
+| Content padding: `80px + safe-area + 16px` | DriverLayout.tsx:169 | Fixed (was missing 16px) |
+| Bar safe-area: `paddingBottom: env()` | DriverLayout.tsx:191 | Exact |
+| Animation: `spring.default` | SimpleHome.tsx:75 | Exact |
+| Gradient bg: `from-surface-primary to-surface-tertiary/30` | SimpleHome.tsx:55 | Exact |
+
+### ConfirmDialog Limitation
+
+Admin `ConfirmDialog` (settings/ConfirmDialog.tsx) accepts: `title`, `description`, `confirmLabel`, `cancelLabel`, `confirmVariant`, `isLoading`. It has **no children slot or form content area**. Decline confirmation needs an optional reason textarea. Implementation options:
+1. Create `DeclineConfirmDialog` wrapping Modal directly (like DeliveryConfirmDialog pattern at driver/DeliveryConfirmDialog.tsx)
+2. Extend ConfirmDialog with optional `children` prop between description and buttons
+
+Option 1 recommended — follows existing driver dialog pattern, avoids modifying shared admin component.
