@@ -26,8 +26,8 @@ Requirements for Route Operations & Admin Mobile milestone. Each maps to roadmap
 
 ### Driver Experience
 
-- [ ] **DRV-01**: Driver can accept/decline an assigned route before starting
-- [ ] **DRV-02**: Driver page audit — all pages load real data, no empty/stub content
+- [x] **DRV-01**: Driver can accept/decline an assigned route before starting
+- [x] **DRV-02**: Driver page audit — all pages load real data, no empty/stub content
 - [ ] **DRV-03**: Driver can reorder remaining pending stops in advanced mode
 
 ### Admin Mobile
@@ -88,8 +88,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ROUTE-03 | Phase 100 | Complete |
 | ROUTE-04 | Phase 100 | Complete |
 | ROUTE-05 | Phase 100 | Complete |
-| DRV-01 | Phase 101 | Pending |
-| DRV-02 | Phase 101 | Pending |
+| DRV-01 | Phase 101 | Complete |
+| DRV-02 | Phase 101 | Complete |
 | DRV-03 | Phase 101 | Pending |
 | MOBL-01 | Phase 102 | Pending |
 | MOBL-02 | Phase 102 | Pending |

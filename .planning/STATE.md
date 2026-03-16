@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Route Operations & Admin Mobile
 status: active
-stopped_at: Phase 101 UI-SPEC approved
-last_updated: "2026-03-16T07:19:58.485Z"
+stopped_at: Completed 101-01-PLAN.md
+last_updated: "2026-03-16T08:15:09.589Z"
 last_activity: 2026-03-15 — Completed 100-04 Split & Merge Route UI
 progress:
   total_phases: 4
   completed_phases: 2
-  total_plans: 7
-  completed_plans: 7
+  total_plans: 13
+  completed_plans: 8
 ---
 
 ---
@@ -85,12 +85,12 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 
 ## Current Position
 
-Phase: 100 of 102 (Admin Route Editing) — 2 of 4 in milestone
-Plan: 4 of 4 complete
-Status: Phase 100 complete
-Last activity: 2026-03-15 — Completed 100-04 Split & Merge Route UI
+Phase: 101 of 102 (Driver Experience) — 3 of 4 in milestone
+Plan: 1 of 6 complete
+Status: Executing Phase 101
+Last activity: 2026-03-16 — Completed 101-01 Route Status Enum & Type Foundation
 
-Progress: [██████████] 100%
+Progress: [██████░░░░] 62%
 
 ## Performance Metrics
 
@@ -113,6 +113,7 @@ Progress: [██████████] 100%
 | Phase 100 P02 | 8min | 2 tasks | 6 files |
 | Phase 100 P03 | 13min | 2 tasks | 12 files |
 | Phase 100 P04 | 12min | 2 tasks | 13 files |
+| Phase 101 P01 | 3min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -139,6 +140,12 @@ Progress: [██████████] 100%
 - Upstash Redis provisioning needed before production rate limiting is active
 - Migrations 027-035 must be applied before deploying v2.0 features
 
+### Decisions (Phase 101)
+
+- Enum extension in separate migration file from backfill for PostgreSQL transaction safety
+- Split route sets new route to assigned if driver provided; merge resets target to assigned
+- admin_route_decline email type mapped to order_updates preference key
+
 ### Decisions (Phase 100)
 
 - UPDATE route_id (not DELETE+INSERT) to avoid prevent_duplicate_active_assignment trigger
@@ -161,7 +168,7 @@ Progress: [██████████] 100%
 
 ## Session Continuity
 
-Last session: 2026-03-16T07:19:58.482Z
-Stopped at: Phase 101 UI-SPEC approved
-Resume file: .planning/phases/101-driver-experience/101-UI-SPEC.md
-Next action: Phase 100 complete. Proceed to phase 101.
+Last session: 2026-03-16T08:15:09.585Z
+Stopped at: Completed 101-01-PLAN.md
+Resume file: None
+Next action: Continue with 101-02-PLAN.md (Accept/Decline API + Email)
