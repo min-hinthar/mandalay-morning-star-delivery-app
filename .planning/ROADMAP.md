@@ -4,7 +4,7 @@
 
 - v1.0-v1.9: Shipped (88 phases, 350 plans)
 - v2.0 Production-Grade Launch MVP: Shipped (10 phases, 34 plans)
-- v2.1 Route Operations & Admin Mobile: Phases 99-102 (in progress)
+- v2.1 Route Operations & Admin Mobile: Phases 99-103 (in progress)
 
 ## Phases
 
@@ -85,6 +85,7 @@
 - [x] **Phase 100: Admin Route Editing** - Drag-reorder stops, split/merge routes, driver reassignment with @dnd-kit (completed 2026-03-15)
 - [x] **Phase 101: Driver Experience** - Route acceptance, page audit, stop reordering in advanced mode (completed 2026-03-16)
 - [x] **Phase 102: Admin Mobile UX** - Sidebar to drawer, tables to cards, touch targets, route progress widget (completed 2026-03-16)
+- [ ] **Phase 103: Tech Debt Cleanup & Nyquist Compliance** - Wire area_description, error feedback, dead export removal, E2E assertions, Nyquist validation (gap closure)
 
 ## Phase Details
 
@@ -160,6 +161,20 @@ Plans:
 - [ ] 102-04-PLAN.md — Route progress widget (API endpoint, polling hook, widget component, OpsCenter wiring)
 - [ ] 102-05-PLAN.md — Touch target sweep + reduced-motion sweep + final verification checkpoint
 
+### Phase 103: Tech Debt Cleanup & Nyquist Compliance
+**Goal**: Close all audit-identified tech debt, wire cosmetic integration gap, fill E2E test stubs, and achieve Nyquist compliance across all v2.1 phases
+**Depends on**: Phase 102 (all feature work complete)
+**Requirements**: None (all 18/18 satisfied — this phase is gap closure only)
+**Gap Closure**: Closes gaps from v2.1-MILESTONE-AUDIT.md
+**Success Criteria** (what must be TRUE):
+  1. `area_description` passed from driver page query to AcceptDeclineCard — MapPin preview visible when data exists
+  2. Notes save error in StopDetail.tsx shows toast feedback to user (no silent swallow)
+  3. Dead `OrderDetailPanel` composed wrapper removed from exports
+  4. `e2e/admin-mobile.spec.ts` has real assertions replacing test.skip stubs
+  5. Notes endpoint has handler integration test (not just Zod schema validation)
+  6. Phases 99, 100, 102 pass Nyquist validation (wave_0_complete: true)
+**Plans**: TBD
+
 ## Progress
 
 | Milestone              | Phases | Plans | Shipped    |
@@ -178,7 +193,7 @@ Plans:
 | **Total shipped**      | **98** | **384** |            |
 
 **Execution Order:**
-Phases execute in numeric order: 99 -> 100 -> 101 -> 102
+Phases execute in numeric order: 99 -> 100 -> 101 -> 102 -> 103
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -186,6 +201,7 @@ Phases execute in numeric order: 99 -> 100 -> 101 -> 102
 | 100. Admin Route Editing | 4/4 | Complete    | 2026-03-15 | - |
 | 101. Driver Experience | 6/6 | Complete    | 2026-03-16 | - |
 | 102. Admin Mobile UX | 6/6 | Complete    | 2026-03-16 | - |
+| 103. Tech Debt & Nyquist | 0/TBD | Pending | - | - |
 
 ---
 
