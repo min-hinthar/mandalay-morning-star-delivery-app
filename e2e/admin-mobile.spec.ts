@@ -9,26 +9,26 @@ import { test } from "@playwright/test";
 
 test.describe("Admin Mobile UX", () => {
   test.describe("MOBL-01: Admin drawer navigation", () => {
-    test.todo("mobile header visible below md breakpoint");
-    test.todo("hamburger opens left drawer with all nav items");
-    test.todo("drawer auto-closes on navigation");
-    test.todo("desktop sidebar unchanged above md breakpoint");
-    test.todo("page title matches current route");
+    test.skip("mobile header visible below md breakpoint", async () => {});
+    test.skip("hamburger opens left drawer with all nav items", async () => {});
+    test.skip("drawer auto-closes on navigation", async () => {});
+    test.skip("desktop sidebar unchanged above md breakpoint", async () => {});
+    test.skip("page title matches current route", async () => {});
   });
 
   test.describe("MOBL-02: Table card layouts", () => {
-    test.todo("menu table shows cards below 768px");
-    test.todo("categories table shows cards below 768px");
-    test.todo("routes table shows cards below 768px");
-    test.todo("emails table shows cards below 768px");
-    test.todo("feedback table shows cards below 768px");
-    test.todo("ratings table shows cards below 768px");
-    test.todo("desktop table layout unchanged above 768px");
+    test.skip("menu table shows cards below 768px", async () => {});
+    test.skip("categories table shows cards below 768px", async () => {});
+    test.skip("routes table shows cards below 768px", async () => {});
+    test.skip("emails table shows cards below 768px", async () => {});
+    test.skip("feedback table shows cards below 768px", async () => {});
+    test.skip("ratings table shows cards below 768px", async () => {});
+    test.skip("desktop table layout unchanged above 768px", async () => {});
   });
 
   test.describe("MOBL-03: Touch targets", () => {
-    test.todo("all interactive elements >= 44px on 375px viewport");
-    test.todo("categories sort buttons are 44px on mobile");
-    test.todo("ops order row checkbox has 44px target");
+    test.skip("all interactive elements >= 44px on 375px viewport", async () => {});
+    test.skip("categories sort buttons are 44px on mobile", async () => {});
+    test.skip("ops order row checkbox has 44px target", async () => {});
   });
 });
