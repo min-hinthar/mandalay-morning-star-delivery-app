@@ -1,9 +1,9 @@
 ---
 phase: 99
 slug: foundation-fixes
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-03-14
 ---
 
@@ -50,10 +50,10 @@ created: 2026-03-14
 
 ## Wave 0 Requirements
 
-- [ ] `e2e/auth-redirect.spec.ts` — E2E tests for 4 auth flows with role-based redirect assertions
-- [ ] Unit tests for OrderDetailPanel component (delivery info, contact display)
-- [ ] Unit test for driver notes save API (delivery_notes update + .select("id") verification)
-- [ ] Unit test for RouteStopCard timestamp rendering (show when populated, hide when null)
+- [x] `e2e/auth-redirect.spec.ts` — E2E tests for 4 auth flows with role-based redirect assertions
+- [x] Unit tests for OrderDetailPanel component (delivery info, contact display)
+- [x] Unit test for driver notes save API (delivery_notes update + .select("id") verification)
+- [x] Unit test for RouteStopCard timestamp rendering (show when populated, hide when null)
 
 ---
 
@@ -68,11 +68,11 @@ created: 2026-03-14
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 60s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 60s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved (Phase 103 gap closure)

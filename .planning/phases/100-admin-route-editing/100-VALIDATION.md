@@ -1,9 +1,9 @@
 ---
 phase: 100
 slug: admin-route-editing
-status: draft
-nyquist_compliant: false
-wave_0_complete: false
+status: complete
+nyquist_compliant: true
+wave_0_complete: true
 created: 2026-03-15
 ---
 
@@ -52,11 +52,11 @@ created: 2026-03-15
 
 ## Wave 0 Requirements
 
-- [ ] `src/lib/hooks/__tests__/useReorderStops.test.ts` — stubs for ROUTE-01, ROUTE-02
-- [ ] `src/lib/hooks/__tests__/useSplitRoute.test.ts` — stubs for ROUTE-03
-- [ ] `src/lib/hooks/__tests__/useMergeRoutes.test.ts` — stubs for ROUTE-04
-- [ ] `src/lib/hooks/__tests__/useReassignDriver.test.ts` — stubs for ROUTE-05
-- [ ] `src/components/ui/admin/routes/__tests__/route-selection.test.ts` — selection logic stubs
+- [x] `src/lib/hooks/__tests__/useReorderStops.test.ts` — stubs for ROUTE-01, ROUTE-02
+- [x] `src/lib/hooks/__tests__/useSplitRoute.test.ts` — stubs for ROUTE-03
+- [x] `src/lib/hooks/__tests__/useMergeRoutes.test.ts` — stubs for ROUTE-04
+- [x] `src/lib/hooks/__tests__/useReassignDriver.test.ts` — stubs for ROUTE-05
+- [x] `src/components/ui/admin/routes/__tests__/route-selection.test.ts` — selection logic stubs
 
 *Existing infrastructure: Vitest configured, route validation tests exist.*
 
@@ -76,11 +76,11 @@ created: 2026-03-15
 
 ## Validation Sign-Off
 
-- [ ] All tasks have `<automated>` verify or Wave 0 dependencies
-- [ ] Sampling continuity: no 3 consecutive tasks without automated verify
-- [ ] Wave 0 covers all MISSING references
-- [ ] No watch-mode flags
-- [ ] Feedback latency < 30s
-- [ ] `nyquist_compliant: true` set in frontmatter
+- [x] All tasks have `<automated>` verify or Wave 0 dependencies
+- [x] Sampling continuity: no 3 consecutive tasks without automated verify
+- [x] Wave 0 covers all MISSING references
+- [x] No watch-mode flags
+- [x] Feedback latency < 30s
+- [x] `nyquist_compliant: true` set in frontmatter
 
-**Approval:** pending
+**Approval:** approved (Phase 103 gap closure)
