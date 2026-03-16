@@ -91,19 +91,89 @@ const navItems = [
 const indicatorSpring = { type: "spring" as const, stiffness: 300, damping: 30 };
 const iconHoverTransition = { duration: 0.3 };
 
+interface AdminNavProps {
+  /** Render mode: sidebar (desktop collapsible) or drawer (mobile always-expanded) */
+  variant?: "sidebar" | "drawer";
+}
+
 /**
  * V8 Admin Navigation - Teal Accent with Animated Indicator
  *
  * Features:
- * - Animated active indicator that slides between nav items (layoutId)
+ * - Animated active indicator that slides between nav items (layoutId in sidebar mode)
  * - Icon hover animation (wobble + scale)
  * - Teal accent for active state
- * - Collapsible sidebar with smooth animation
+ * - Collapsible sidebar with smooth animation (sidebar mode only)
+ * - Drawer mode: always expanded, no tooltips, simple highlight instead of layoutId
  */
-export function AdminNav() {
+export function AdminNav({ variant = "sidebar" }: AdminNavProps) {
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const isDrawer = variant === "drawer";
 
+  // --- Drawer variant: simplified, always-expanded nav ---
+  if (isDrawer) {
+    return (
+      <nav className="flex h-full flex-col">
+        <div className="flex-1 space-y-1 p-2">
+          {navItems.map((item) => {
+            const isActive =
+              pathname === item.href || (item.href !== "/admin" && pathname.startsWith(item.href));
+            const Icon = item.icon;
+
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={cn(
+                  "relative flex items-center gap-3 rounded-lg px-3 py-2.5",
+                  "font-body text-sm font-medium",
+                  "transition-colors duration-fast",
+                  isActive
+                    ? "text-accent-teal"
+                    : "text-text-secondary hover:bg-surface-tertiary hover:text-text-primary"
+                )}
+              >
+                {/* Simple active indicator (no layoutId to avoid cross-mount glitch) */}
+                {isActive && <div className="absolute inset-0 rounded-lg bg-accent-teal/10" />}
+
+                {/* Icon with hover animation */}
+                <m.div
+                  className="relative z-10 shrink-0"
+                  whileHover={{ scale: 1.15, rotate: [-3, 3, 0] }}
+                  transition={iconHoverTransition}
+                >
+                  <Icon
+                    className={cn("h-5 w-5", isActive ? "text-accent-teal" : "text-text-muted")}
+                  />
+                </m.div>
+
+                <span className="relative z-10">{item.label}</span>
+              </Link>
+            );
+          })}
+        </div>
+
+        {/* Footer: Exit Admin */}
+        <div className="border-t border-border p-2">
+          <Link
+            href="/"
+            className={cn(
+              "flex items-center gap-3 rounded-input px-3 py-2.5",
+              "font-body text-sm font-medium text-text-muted",
+              "transition-colors duration-fast",
+              "hover:bg-surface-tertiary hover:text-text-primary"
+            )}
+          >
+            <LogOut className="h-5 w-5 shrink-0" />
+            <span>Exit Admin</span>
+          </Link>
+        </div>
+      </nav>
+    );
+  }
+
+  // --- Sidebar variant: existing behavior with collapse, tooltips, layoutId ---
   return (
     <TooltipProvider>
       <m.aside

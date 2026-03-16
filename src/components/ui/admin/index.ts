@@ -1,4 +1,5 @@
 export { AdminNav } from "./AdminNav";
+export { AdminMobileHeader } from "./AdminMobileHeader";
 export { AdminDashboard } from "./AdminDashboard";
 export type { KPIData } from "./AdminDashboard";
 export { OrdersTable } from "./OrdersTable";

@@ -2,7 +2,10 @@
 
 import { m, AnimatePresence } from "framer-motion";
 import { AlertCircle } from "lucide-react";
-import { PhotoGrid as PhotoGridComponent, type PhotoItem } from "@/components/ui/admin/photos/PhotoGrid";
+import {
+  PhotoGrid as PhotoGridComponent,
+  type PhotoItem,
+} from "@/components/ui/admin/photos/PhotoGrid";
 import { PhotoMetadata } from "@/components/ui/admin/photos/PhotoMetadata";
 
 interface MenuItem {
