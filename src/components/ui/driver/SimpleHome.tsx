@@ -10,7 +10,7 @@
 import { useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { m } from "framer-motion";
-import { Calendar, Package, Play, ArrowRight, Loader2 } from "lucide-react";
+import { Calendar, CheckCircle, Package, Play, ArrowRight, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -108,27 +108,35 @@ export function SimpleHome({ driverName, todayRoute, dayOfWeek, dateDisplay }: S
                 </button>
               </div>
             ) : (
-              /* Start Route */
-              <button
-                onClick={handleStartRoute}
-                disabled={isStarting}
-                className={cn(
-                  "flex min-h-[72px] w-full items-center justify-center gap-3 rounded-card-sm",
-                  "bg-green font-body text-xl font-semibold text-text-inverse shadow-md",
-                  "transition-all duration-fast hover:bg-green/90 hover:shadow-lg",
-                  "active:scale-[0.98]",
-                  "disabled:cursor-not-allowed disabled:opacity-50"
+              /* Start Route (for accepted and planned statuses) */
+              <div className="space-y-3">
+                {todayRoute.status === "accepted" && (
+                  <div className="flex items-center justify-center gap-1.5 text-green">
+                    <CheckCircle className="h-4 w-4" />
+                    <span className="font-body text-sm font-semibold">Accepted</span>
+                  </div>
                 )}
-              >
-                {isStarting ? (
-                  <Loader2 className="h-7 w-7 animate-spin" />
-                ) : (
-                  <>
-                    <Play className="h-7 w-7" />
-                    <span>Start Today&apos;s Route</span>
-                  </>
-                )}
-              </button>
+                <button
+                  onClick={handleStartRoute}
+                  disabled={isStarting}
+                  className={cn(
+                    "flex min-h-[72px] w-full items-center justify-center gap-3 rounded-card-sm",
+                    "bg-green font-body text-xl font-semibold text-text-inverse shadow-md",
+                    "transition-all duration-fast hover:bg-green/90 hover:shadow-lg",
+                    "active:scale-[0.98]",
+                    "disabled:cursor-not-allowed disabled:opacity-50",
+                  )}
+                >
+                  {isStarting ? (
+                    <Loader2 className="h-7 w-7 animate-spin" />
+                  ) : (
+                    <>
+                      <Play className="h-7 w-7" />
+                      <span>Start Today&apos;s Route</span>
+                    </>
+                  )}
+                </button>
+              </div>
             )
           ) : (
             /* No Route */
