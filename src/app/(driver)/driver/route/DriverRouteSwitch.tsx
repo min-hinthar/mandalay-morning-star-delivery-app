@@ -5,9 +5,11 @@
 
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useSimpleMode } from "@/components/ui/driver/SimpleModeProvider";
 import { SimpleStopView } from "@/components/ui/driver/SimpleStopView";
 import { ActiveRouteView } from "@/components/ui/driver/ActiveRouteView";
+import { AcceptDeclineBar } from "@/components/ui/driver/AcceptDeclineBar";
 import { DriverPageHeader } from "@/components/ui/driver/DriverPageHeader";
 import { Package } from "lucide-react";
 import type { RouteStopStatus } from "@/types/driver";
@@ -37,6 +39,10 @@ interface DriverRouteSwitchProps {
 
 export function DriverRouteSwitch({ route, stops }: DriverRouteSwitchProps) {
   const { isSimpleMode } = useSimpleMode();
+  const router = useRouter();
+
+  const showBar = route?.status === "assigned" || route?.status === "accepted";
+  const barPadding = showBar ? "pb-[calc(80px+env(safe-area-inset-bottom,0px)+16px)]" : "";
 
   if (!route) {
     if (isSimpleMode) {
@@ -71,14 +77,26 @@ export function DriverRouteSwitch({ route, stops }: DriverRouteSwitchProps) {
   }
 
   if (isSimpleMode) {
-    return <SimpleStopView routeId={route.id} stops={stops} />;
+    return (
+      <div className={barPadding}>
+        <SimpleStopView routeId={route.id} stops={stops} />
+        {showBar && route && (
+          <AcceptDeclineBar
+            routeId={route.id}
+            routeStatus={route.status}
+            onAccepted={() => router.refresh()}
+            onDeclined={() => router.refresh()}
+          />
+        )}
+      </div>
+    );
   }
 
   const deliveredCount = stops.filter((s) => s.status === "delivered").length;
   const totalCount = stops.length;
 
   return (
-    <div className="min-h-screen bg-surface-secondary pb-20">
+    <div className={`min-h-screen bg-surface-secondary ${showBar ? barPadding : "pb-20"}`}>
       <DriverPageHeader
         title="Route"
         subtitle={`${deliveredCount}/${totalCount} Complete`}
@@ -88,6 +106,14 @@ export function DriverRouteSwitch({ route, stops }: DriverRouteSwitchProps) {
       <div className="p-4">
         <ActiveRouteView routeId={route.id} routeStatus={route.status} stops={stops} />
       </div>
+      {showBar && (
+        <AcceptDeclineBar
+          routeId={route.id}
+          routeStatus={route.status}
+          onAccepted={() => router.refresh()}
+          onDeclined={() => router.refresh()}
+        />
+      )}
     </div>
   );
 }

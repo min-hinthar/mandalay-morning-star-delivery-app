@@ -5,9 +5,11 @@
 
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useSimpleMode } from "@/components/ui/driver/SimpleModeProvider";
 import { SimpleHome } from "@/components/ui/driver/SimpleHome";
 import { DriverDashboard } from "@/components/ui/driver/DriverDashboard";
+import { AcceptDeclineCard } from "@/components/ui/driver/AcceptDeclineCard";
 import type { RoutesRow, VehicleType } from "@/types/driver";
 
 interface DriverHomeData {
@@ -41,6 +43,26 @@ interface DriverHomeData {
 
 export function DriverHomeSwitch(data: DriverHomeData) {
   const { isSimpleMode } = useSimpleMode();
+  const router = useRouter();
+
+  // Show accept/decline card when route is assigned (same UI for both modes)
+  if (data.todayRoute?.status === "assigned") {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-surface-primary to-surface-tertiary/30">
+        <div className="px-4 py-8 space-y-8">
+          <AcceptDeclineCard
+            route={{
+              id: data.todayRoute.id,
+              status: data.todayRoute.status,
+              stopCount: data.todayRoute.stopCount,
+            }}
+            onAccepted={() => router.refresh()}
+            onDeclined={() => router.refresh()}
+          />
+        </div>
+      </div>
+    );
+  }
 
   if (isSimpleMode) {
     return (

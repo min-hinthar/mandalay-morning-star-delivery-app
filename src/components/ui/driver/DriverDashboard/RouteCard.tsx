@@ -77,11 +77,15 @@ export function RouteCard({
             className={cn(
               "px-3 py-1 rounded-full text-xs font-semibold",
               route.status === "planned" && "bg-secondary/10 text-secondary",
+              route.status === "assigned" && "bg-blue-100 text-blue-800",
+              route.status === "accepted" && "bg-green-100 text-green-800",
               route.status === "in_progress" && "bg-accent-teal/10 text-accent-teal",
-              route.status === "completed" && "bg-green/10 text-green"
+              route.status === "completed" && "bg-green/10 text-green",
             )}
           >
             {route.status === "planned" && "Ready to Start"}
+            {route.status === "assigned" && "Assigned"}
+            {route.status === "accepted" && "Accepted"}
             {route.status === "in_progress" && "In Progress"}
             {route.status === "completed" && "Completed"}
           </div>
@@ -130,7 +134,7 @@ export function RouteCard({
 
       {/* Action button */}
       <div className="p-4 pt-0">
-        {route.status === "planned" && (
+        {(route.status === "planned" || route.status === "accepted") && (
           <Button
             variant="primary"
             size="lg"
