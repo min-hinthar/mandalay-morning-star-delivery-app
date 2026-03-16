@@ -194,137 +194,141 @@ export default function AdminEmailLogPage() {
           {/* Desktop table */}
           <div className="hidden md:block overflow-x-auto rounded-card-sm border border-border-subtle">
             <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border-subtle bg-surface-secondary">
-                <th className="w-8 px-2" />
-                <th className="text-left px-4 py-3 font-semibold text-text-secondary">Recipient</th>
-                <th className="text-left px-4 py-3 font-semibold text-text-secondary">Type</th>
-                <th className="text-left px-4 py-3 font-semibold text-text-secondary">Subject</th>
-                <th className="text-left px-4 py-3 font-semibold text-text-secondary">Status</th>
-                <th className="text-left px-4 py-3 font-semibold text-text-secondary">Sent At</th>
-                <th className="text-right px-4 py-3 font-semibold text-text-secondary">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border-subtle">
-              {emails.map((email) => (
-                <Fragment key={email.id}>
-                  <tr
-                    className="hover:bg-surface-secondary/50 transition-colors cursor-pointer"
-                    onClick={() => setExpandedId(expandedId === email.id ? null : email.id)}
-                  >
-                    <td className="px-2 py-3 text-center">
-                      <ChevronDown
-                        className={`h-3.5 w-3.5 text-text-muted transition-transform ${
-                          expandedId === email.id ? "rotate-180" : ""
-                        }`}
-                      />
-                    </td>
-                    <td className="px-4 py-3 text-text-primary truncate max-w-[180px]">
-                      {email.recipient}
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge variant="outline" size="sm">
-                        {formatEmailType(email.notification_type)}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-text-secondary truncate max-w-[250px]">
-                      {email.subject}
-                    </td>
-                    <td className="px-4 py-3">
-                      <Badge variant={STATUS_BADGE_MAP[email.status] || "default"} size="sm">
-                        {email.status}
-                      </Badge>
-                    </td>
-                    <td className="px-4 py-3 text-text-secondary text-xs">
-                      {formatEmailDate(email.sent_at || email.created_at)}
-                    </td>
-                    <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-end gap-2">
-                        {email.order_id && (
-                          <Link
-                            href={`/admin/orders/${email.order_id}`}
-                            className="text-xs text-primary hover:underline min-h-[44px] inline-flex items-center"
-                          >
-                            View Order
-                          </Link>
-                        )}
-                        {email.status === "failed" && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={resendingId === email.id}
-                            onClick={() => handleResend(email.id)}
-                            className="text-xs h-11 md:h-9"
-                          >
-                            {resendingId === email.id ? (
-                              <Loader2 className="h-3 w-3 animate-spin" />
-                            ) : (
-                              "Resend"
-                            )}
-                          </Button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                  {expandedId === email.id && (
-                    <tr key={`${email.id}-detail`}>
-                      <td colSpan={7}>
-                        <EmailDetailPanel email={email} />
+              <thead>
+                <tr className="border-b border-border-subtle bg-surface-secondary">
+                  <th className="w-8 px-2" />
+                  <th className="text-left px-4 py-3 font-semibold text-text-secondary">
+                    Recipient
+                  </th>
+                  <th className="text-left px-4 py-3 font-semibold text-text-secondary">Type</th>
+                  <th className="text-left px-4 py-3 font-semibold text-text-secondary">Subject</th>
+                  <th className="text-left px-4 py-3 font-semibold text-text-secondary">Status</th>
+                  <th className="text-left px-4 py-3 font-semibold text-text-secondary">Sent At</th>
+                  <th className="text-right px-4 py-3 font-semibold text-text-secondary">
+                    Actions
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border-subtle">
+                {emails.map((email) => (
+                  <Fragment key={email.id}>
+                    <tr
+                      className="hover:bg-surface-secondary/50 transition-colors cursor-pointer"
+                      onClick={() => setExpandedId(expandedId === email.id ? null : email.id)}
+                    >
+                      <td className="px-2 py-3 text-center">
+                        <ChevronDown
+                          className={`h-3.5 w-3.5 text-text-muted transition-transform ${
+                            expandedId === email.id ? "rotate-180" : ""
+                          }`}
+                        />
+                      </td>
+                      <td className="px-4 py-3 text-text-primary truncate max-w-[180px]">
+                        {email.recipient}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant="outline" size="sm">
+                          {formatEmailType(email.notification_type)}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-text-secondary truncate max-w-[250px]">
+                        {email.subject}
+                      </td>
+                      <td className="px-4 py-3">
+                        <Badge variant={STATUS_BADGE_MAP[email.status] || "default"} size="sm">
+                          {email.status}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-3 text-text-secondary text-xs">
+                        {formatEmailDate(email.sent_at || email.created_at)}
+                      </td>
+                      <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
+                        <div className="flex items-center justify-end gap-2">
+                          {email.order_id && (
+                            <Link
+                              href={`/admin/orders/${email.order_id}`}
+                              className="text-xs text-primary hover:underline min-h-[44px] inline-flex items-center"
+                            >
+                              View Order
+                            </Link>
+                          )}
+                          {email.status === "failed" && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              disabled={resendingId === email.id}
+                              onClick={() => handleResend(email.id)}
+                              className="text-xs h-11 md:h-9"
+                            >
+                              {resendingId === email.id ? (
+                                <Loader2 className="h-3 w-3 animate-spin" />
+                              ) : (
+                                "Resend"
+                              )}
+                            </Button>
+                          )}
+                        </div>
                       </td>
                     </tr>
-                  )}
-                </Fragment>
-              ))}
-            </tbody>
-          </table>
-        </div>
+                    {expandedId === email.id && (
+                      <tr key={`${email.id}-detail`}>
+                        <td colSpan={7}>
+                          <EmailDetailPanel email={email} />
+                        </td>
+                      </tr>
+                    )}
+                  </Fragment>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Mobile cards */}
-        <div className="md:hidden space-y-3">
-          {emails.map((email) => (
-            <div key={email.id} className="rounded-lg border border-border p-4">
-              <div className="flex items-center justify-between mb-2">
-                <div className="flex items-center gap-2 min-w-0 flex-1">
-                  <Badge variant={STATUS_BADGE_MAP[email.status] || "default"} size="sm">
-                    {email.status}
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {emails.map((email) => (
+              <div key={email.id} className="rounded-lg border border-border p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2 min-w-0 flex-1">
+                    <Badge variant={STATUS_BADGE_MAP[email.status] || "default"} size="sm">
+                      {email.status}
+                    </Badge>
+                    <span className="text-sm font-medium truncate">{email.recipient}</span>
+                  </div>
+                  <Badge variant="outline" size="sm" className="shrink-0 ml-2">
+                    {formatEmailType(email.notification_type)}
                   </Badge>
-                  <span className="text-sm font-medium truncate">{email.recipient}</span>
                 </div>
-                <Badge variant="outline" size="sm" className="shrink-0 ml-2">
-                  {formatEmailType(email.notification_type)}
-                </Badge>
-              </div>
-              <div className="flex items-center justify-between text-xs text-text-muted">
-                <span>{formatEmailDate(email.sent_at || email.created_at)}</span>
-                <div className="flex items-center gap-2">
-                  {email.order_id && (
-                    <Link
-                      href={`/admin/orders/${email.order_id}`}
-                      className="text-xs text-primary hover:underline min-h-[44px] inline-flex items-center"
-                    >
-                      View Order
-                    </Link>
-                  )}
-                  {email.status === "failed" && (
-                    <Button
-                      size="sm"
-                      className="h-11 md:h-9"
-                      variant="ghost"
-                      disabled={resendingId === email.id}
-                      onClick={() => handleResend(email.id)}
-                    >
-                      {resendingId === email.id ? (
-                        <Loader2 className="h-3 w-3 animate-spin" />
-                      ) : (
-                        "Resend"
-                      )}
-                    </Button>
-                  )}
+                <div className="flex items-center justify-between text-xs text-text-muted">
+                  <span>{formatEmailDate(email.sent_at || email.created_at)}</span>
+                  <div className="flex items-center gap-2">
+                    {email.order_id && (
+                      <Link
+                        href={`/admin/orders/${email.order_id}`}
+                        className="text-xs text-primary hover:underline min-h-[44px] inline-flex items-center"
+                      >
+                        View Order
+                      </Link>
+                    )}
+                    {email.status === "failed" && (
+                      <Button
+                        size="sm"
+                        className="h-11 md:h-9"
+                        variant="ghost"
+                        disabled={resendingId === email.id}
+                        onClick={() => handleResend(email.id)}
+                      >
+                        {resendingId === email.id ? (
+                          <Loader2 className="h-3 w-3 animate-spin" />
+                        ) : (
+                          "Resend"
+                        )}
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         </>
       )}
 

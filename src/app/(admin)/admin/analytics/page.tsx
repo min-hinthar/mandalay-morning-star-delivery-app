@@ -63,7 +63,7 @@ export default async function AnalyticsPage() {
     ratings.length > 0 ? ratings.reduce((sum, r) => sum + r.rating, 0) / ratings.length : null;
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <div className="mb-8">
         <h1 className="text-3xl font-display text-charcoal">Analytics</h1>
         <p className="text-muted-foreground">

@@ -46,7 +46,7 @@ export default async function DeliveryMetricsPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <Suspense fallback={<DeliveryMetricsSkeleton />}>
         <DeliveryMetricsDashboard />
       </Suspense>

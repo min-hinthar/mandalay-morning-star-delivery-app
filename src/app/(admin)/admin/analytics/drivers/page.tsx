@@ -46,7 +46,7 @@ export default async function DriverAnalyticsPage() {
   }
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <Suspense fallback={<DriverAnalyticsSkeleton />}>
         <DriverAnalyticsDashboard />
       </Suspense>

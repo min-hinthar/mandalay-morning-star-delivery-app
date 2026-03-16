@@ -181,7 +181,7 @@ export default function AdminOrdersPage() {
   const isFiltered = statusFilter !== "all" || refundFilter !== "all";
 
   return (
-    <div className="p-8">
+    <div className="p-4 md:p-8">
       <SkeletonCrossfade isLoading={loading} skeleton={<OrdersPageSkeleton />}>
         {/* Header */}
         <AdminPageHeader

@@ -239,82 +239,82 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
         <>
           {/* Desktop table */}
           <div className="hidden md:block overflow-x-auto rounded-card border border-border-subtle bg-surface-primary">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border-subtle bg-surface-secondary">
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">Date</th>
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">Category</th>
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">Subject</th>
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">Customer</th>
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">Status</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border-subtle">
-              {feedback.map((f) => (
-                <FeedbackDetailPanel key={f.id} feedback={f}>
-                  <tr className="hover:bg-surface-secondary/50 cursor-pointer">
-                    <td className="whitespace-nowrap px-4 py-3 text-text-secondary">
-                      {formatDate(f.created_at)}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={cn("text-xs font-medium", CATEGORY_COLORS[f.category])}>
-                        {CATEGORY_LABELS[f.category]}
-                      </span>
-                    </td>
-                    <td className="max-w-xs truncate px-4 py-3 font-medium text-text-primary">
-                      {f.subject}
-                    </td>
-                    <td className="px-4 py-3 text-text-secondary">
-                      {f.profiles?.full_name ?? f.contact_email ?? "Anonymous"}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span
-                        className={cn(
-                          "rounded-full px-2 py-0.5 text-xs font-medium",
-                          STATUS_STYLES[f.status]
-                        )}
-                      >
-                        {STATUS_LABELS[f.status]}
-                      </span>
-                    </td>
-                  </tr>
-                </FeedbackDetailPanel>
-              ))}
-            </tbody>
-          </table>
-        </div>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border-subtle bg-surface-secondary">
+                  <th className="px-4 py-3 text-left font-medium text-text-secondary">Date</th>
+                  <th className="px-4 py-3 text-left font-medium text-text-secondary">Category</th>
+                  <th className="px-4 py-3 text-left font-medium text-text-secondary">Subject</th>
+                  <th className="px-4 py-3 text-left font-medium text-text-secondary">Customer</th>
+                  <th className="px-4 py-3 text-left font-medium text-text-secondary">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border-subtle">
+                {feedback.map((f) => (
+                  <FeedbackDetailPanel key={f.id} feedback={f}>
+                    <tr className="hover:bg-surface-secondary/50 cursor-pointer">
+                      <td className="whitespace-nowrap px-4 py-3 text-text-secondary">
+                        {formatDate(f.created_at)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={cn("text-xs font-medium", CATEGORY_COLORS[f.category])}>
+                          {CATEGORY_LABELS[f.category]}
+                        </span>
+                      </td>
+                      <td className="max-w-xs truncate px-4 py-3 font-medium text-text-primary">
+                        {f.subject}
+                      </td>
+                      <td className="px-4 py-3 text-text-secondary">
+                        {f.profiles?.full_name ?? f.contact_email ?? "Anonymous"}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={cn(
+                            "rounded-full px-2 py-0.5 text-xs font-medium",
+                            STATUS_STYLES[f.status]
+                          )}
+                        >
+                          {STATUS_LABELS[f.status]}
+                        </span>
+                      </td>
+                    </tr>
+                  </FeedbackDetailPanel>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Mobile cards */}
-        <div className="md:hidden space-y-3">
-          {feedback.map((f) => (
-            <FeedbackDetailPanel key={f.id} feedback={f}>
-              <div className="rounded-lg border border-border p-4 cursor-pointer active:bg-surface-secondary/50">
-                <div className="flex items-center justify-between mb-1">
-                  <span
-                    className={cn(
-                      "rounded-full px-2 py-0.5 text-xs font-medium",
-                      STATUS_STYLES[f.status]
-                    )}
-                  >
-                    {STATUS_LABELS[f.status]}
-                  </span>
-                  <span className="text-xs text-text-muted">{formatDate(f.created_at)}</span>
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {feedback.map((f) => (
+              <FeedbackDetailPanel key={f.id} feedback={f}>
+                <div className="rounded-lg border border-border p-4 cursor-pointer active:bg-surface-secondary/50">
+                  <div className="flex items-center justify-between mb-1">
+                    <span
+                      className={cn(
+                        "rounded-full px-2 py-0.5 text-xs font-medium",
+                        STATUS_STYLES[f.status]
+                      )}
+                    >
+                      {STATUS_LABELS[f.status]}
+                    </span>
+                    <span className="text-xs text-text-muted">{formatDate(f.created_at)}</span>
+                  </div>
+                  <p className="text-sm font-medium text-text-primary mt-1">{f.subject}</p>
+                  <div className="flex items-center justify-between mt-1">
+                    <span className={cn("text-xs font-medium", CATEGORY_COLORS[f.category])}>
+                      {CATEGORY_LABELS[f.category]}
+                    </span>
+                    <span className="text-xs text-text-secondary">
+                      {f.profiles?.full_name ?? f.contact_email ?? "Anonymous"}
+                    </span>
+                  </div>
+                  {f.message && (
+                    <p className="text-sm text-text-secondary line-clamp-2 mt-2">{f.message}</p>
+                  )}
                 </div>
-                <p className="text-sm font-medium text-text-primary mt-1">{f.subject}</p>
-                <div className="flex items-center justify-between mt-1">
-                  <span className={cn("text-xs font-medium", CATEGORY_COLORS[f.category])}>
-                    {CATEGORY_LABELS[f.category]}
-                  </span>
-                  <span className="text-xs text-text-secondary">
-                    {f.profiles?.full_name ?? f.contact_email ?? "Anonymous"}
-                  </span>
-                </div>
-                {f.message && (
-                  <p className="text-sm text-text-secondary line-clamp-2 mt-2">{f.message}</p>
-                )}
-              </div>
-            </FeedbackDetailPanel>
-          ))}
+              </FeedbackDetailPanel>
+            ))}
           </div>
         </>
       )}
