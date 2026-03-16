@@ -85,6 +85,14 @@ export {
 export { useDriverRating } from "./useDriverRating";
 
 // ============================================
+// DRIVER ROUTE ACTIONS
+// ============================================
+
+export { useAcceptRoute } from "./useAcceptRoute";
+export { useDeclineRoute } from "./useDeclineRoute";
+export { useDriverReorderStops } from "./useDriverReorderStops";
+
+// ============================================
 // AUTH
 // ============================================
 

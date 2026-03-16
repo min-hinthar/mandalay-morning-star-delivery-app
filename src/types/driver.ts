@@ -141,6 +141,10 @@ export interface RoutesInsert {
   stats_json?: RouteStats | null;
   started_at?: string | null;
   completed_at?: string | null;
+  accepted_at?: string | null;
+  declined_at?: string | null;
+  declined_reason?: string | null;
+  declined_by?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -154,6 +158,10 @@ export interface RoutesUpdate {
   stats_json?: RouteStats | null;
   started_at?: string | null;
   completed_at?: string | null;
+  accepted_at?: string | null;
+  declined_at?: string | null;
+  declined_reason?: string | null;
+  declined_by?: string | null;
   created_at?: string;
   updated_at?: string;
 }
