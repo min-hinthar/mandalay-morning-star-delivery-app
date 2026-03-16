@@ -163,11 +163,11 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 ## Current Position
 
 Phase: 101 of 102 (Driver Experience) — 3 of 4 in milestone
-Plan: 4 of 6 complete
+Plan: 5 of 6 complete
 Status: Executing Phase 101
-Last activity: 2026-03-16 — Completed 101-03b Admin UI Status Updates
+Last activity: 2026-03-16 — Completed 101-04 Driver UI Components
 
-Progress: [█████████░] 85%
+Progress: [█████████░] 92%
 
 ## Performance Metrics
 
@@ -194,6 +194,7 @@ Progress: [█████████░] 85%
 | Phase 101 P03 | 5min | 1 tasks | 17 files |
 | Phase 101 P02 | 12min | 2 tasks | 10 files |
 | Phase 101 P03b | 11min | 1 tasks | 10 files |
+| Phase 101 P04 | 16min | 2 tasks | 13 files |
 
 ## Accumulated Context
 
@@ -230,6 +231,10 @@ Progress: [█████████░] 85%
 - Decline route uses createServiceClient() to bypass RLS since driver_id is nulled during mutation
 - Decline email sent via after() for fire-and-forget; decline route file is .tsx for JSX support
 - Driver reorder reuses batch_update_stop_indices RPC (SECURITY DEFINER handles permissions)
+- DeclineConfirmDialog wraps AnimatePresence directly (DeliveryConfirmDialog pattern), not admin ConfirmDialog
+- AcceptDeclineBar visible for both assigned and accepted statuses (un-accept per locked decision)
+- DragReorderList renders for accepted and in_progress routes; lockedStops separated with opacity-50
+- DriverHomeSwitch intercepts assigned status before mode switch (same UI for simple + advanced)
 
 ### Decisions (Phase 100)
 
@@ -253,7 +258,7 @@ Progress: [█████████░] 85%
 
 ## Session Continuity
 
-Last session: 2026-03-16T08:49:44.120Z
-Stopped at: Completed 101-03b-PLAN.md
+Last session: 2026-03-16T09:09:06.000Z
+Stopped at: Completed 101-04-PLAN.md
 Resume file: None
-Next action: Continue with 101-02-PLAN.md (Accept/Decline API + Email)
+Next action: Continue with 101-05-PLAN.md (Page Audit & E2E Verification)
