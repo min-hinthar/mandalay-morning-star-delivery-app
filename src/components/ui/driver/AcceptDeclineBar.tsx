@@ -61,7 +61,7 @@ export function AcceptDeclineBar({
         transition={getSpring(spring.default)}
         className={cn(
           "fixed bottom-0 left-0 right-0 z-[30]",
-          "bg-background shadow-[0_-2px_10px_rgba(0,0,0,0.1)]",
+          "bg-background shadow-[0_-2px_10px_rgba(0,0,0,0.1)]"
         )}
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
       >
@@ -78,7 +78,7 @@ export function AcceptDeclineBar({
               "active:scale-[0.98]",
               "disabled:cursor-not-allowed disabled:opacity-50",
               // Full-width when accepted (no Accept button shown)
-              !isAssigned && "flex-auto",
+              !isAssigned && "flex-auto"
             )}
           >
             Decline Route
@@ -94,7 +94,7 @@ export function AcceptDeclineBar({
                 "bg-green font-body font-semibold text-text-inverse shadow-md",
                 "transition-all duration-fast hover:bg-green-hover hover:shadow-lg",
                 "active:scale-[0.98]",
-                "disabled:cursor-not-allowed disabled:opacity-50",
+                "disabled:cursor-not-allowed disabled:opacity-50"
               )}
             >
               {isAccepting ? (

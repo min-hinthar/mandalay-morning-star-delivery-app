@@ -71,7 +71,7 @@ export function DeclineConfirmDialog({
               className={cn(
                 "mt-4 w-full resize-none rounded-card-sm border border-border bg-surface-secondary p-3",
                 "font-body text-sm text-text-primary placeholder:text-text-muted",
-                "focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary",
+                "focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary"
               )}
             />
 
@@ -85,7 +85,7 @@ export function DeclineConfirmDialog({
                   "transition-all duration-fast",
                   "hover:bg-surface-secondary",
                   "active:scale-[0.98]",
-                  "disabled:cursor-not-allowed disabled:opacity-50",
+                  "disabled:cursor-not-allowed disabled:opacity-50"
                 )}
               >
                 Keep Route
@@ -99,7 +99,7 @@ export function DeclineConfirmDialog({
                   "transition-all duration-fast",
                   "hover:brightness-110 hover:shadow-lg",
                   "active:scale-[0.98]",
-                  "disabled:cursor-not-allowed disabled:opacity-50",
+                  "disabled:cursor-not-allowed disabled:opacity-50"
                 )}
               >
                 {isLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Decline Route"}

@@ -124,7 +124,7 @@ export function SimpleHome({ driverName, todayRoute, dayOfWeek, dateDisplay }: S
                     "bg-green font-body text-xl font-semibold text-text-inverse shadow-md",
                     "transition-all duration-fast hover:bg-green/90 hover:shadow-lg",
                     "active:scale-[0.98]",
-                    "disabled:cursor-not-allowed disabled:opacity-50",
+                    "disabled:cursor-not-allowed disabled:opacity-50"
                   )}
                 >
                   {isStarting ? (
