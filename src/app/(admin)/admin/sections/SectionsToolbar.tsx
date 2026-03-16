@@ -4,6 +4,7 @@ import { m } from "framer-motion";
 import { Plus, RefreshCw, LayoutGrid, Eye, Package } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
+import { useAnimationPreference } from "@/lib/hooks";
 import { DraftBanner } from "@/components/ui/admin/sections/DraftBanner";
 
 interface SectionsToolbarProps {
@@ -27,6 +28,7 @@ export function SectionsToolbar({
   onCreate,
   onPublishComplete,
 }: SectionsToolbarProps) {
+  const { shouldAnimate } = useAnimationPreference();
   return (
     <>
       {/* Draft Banner */}
@@ -37,7 +39,7 @@ export function SectionsToolbar({
 
       {/* Header */}
       <m.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={shouldAnimate ? { opacity: 0, y: -20 } : undefined}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
@@ -71,7 +73,7 @@ export function SectionsToolbar({
 
       {/* Stats Cards */}
       <m.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
         className="grid grid-cols-1 md:grid-cols-3 gap-4"

@@ -2,6 +2,7 @@
 
 import { m, AnimatePresence } from "framer-motion";
 import { AlertCircle } from "lucide-react";
+import { useAnimationPreference } from "@/lib/hooks";
 import {
   PhotoGrid as PhotoGridComponent,
   type PhotoItem,
@@ -46,9 +47,10 @@ export function PhotoGridSection({
   searchQuery,
   filter,
 }: PhotoGridSectionProps) {
+  const { shouldAnimate } = useAnimationPreference();
   return (
     <m.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.25 }}
       className="flex gap-6"

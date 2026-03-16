@@ -2,6 +2,7 @@
 
 import { m } from "framer-motion";
 import { Image as ImageIcon, CheckCircle, HardDrive } from "lucide-react";
+import { useAnimationPreference } from "@/lib/hooks";
 
 interface PhotosStatsCardsProps {
   total: number;
@@ -10,9 +11,10 @@ interface PhotosStatsCardsProps {
 }
 
 export function PhotosStatsCards({ total, assigned, unassigned }: PhotosStatsCardsProps) {
+  const { shouldAnimate } = useAnimationPreference();
   return (
     <m.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
       className="grid grid-cols-1 md:grid-cols-3 gap-4"

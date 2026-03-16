@@ -5,6 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { m } from "framer-motion";
 import { ArrowLeft, Save, Loader2 } from "lucide-react";
 import { toast } from "@/lib/hooks/useToastV8";
+import { useAnimationPreference } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { MenuItemFormFields, type MenuItemFormData } from "./MenuItemFormFields";
 import { MenuItemPhotoSection } from "./MenuItemPhotoSection";
@@ -37,6 +38,7 @@ interface Category {
 }
 
 export default function AdminMenuItemEditPage() {
+  const { shouldAnimate } = useAnimationPreference();
   const params = useParams();
   const router = useRouter();
   const itemId = params.id as string;
@@ -190,7 +192,7 @@ export default function AdminMenuItemEditPage() {
     <div className="p-4 md:p-8 space-y-6 max-w-5xl">
       {/* Header */}
       <m.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={shouldAnimate ? { opacity: 0, y: -20 } : undefined}
         animate={{ opacity: 1, y: 0 }}
         className="flex items-center justify-between gap-4"
       >

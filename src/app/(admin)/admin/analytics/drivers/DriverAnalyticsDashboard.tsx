@@ -11,6 +11,7 @@ import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
 import { Users, Trophy, Clock, Star, TrendingUp, RefreshCw, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAnimationPreference } from "@/lib/hooks";
 import {
   MetricCard,
   MetricCardGrid,
@@ -38,6 +39,7 @@ const itemVariants = {
 };
 
 export function DriverAnalyticsDashboard() {
+  const { shouldAnimate } = useAnimationPreference();
   const [data, setData] = useState<DriverAnalyticsListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -88,7 +90,12 @@ export function DriverAnalyticsDashboard() {
   }
 
   return (
-    <m.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+    <m.div
+      variants={containerVariants}
+      initial={shouldAnimate ? "hidden" : undefined}
+      animate="visible"
+      className="space-y-6"
+    >
       {/* Header */}
       <m.div
         variants={itemVariants}
@@ -222,9 +229,10 @@ export function DriverAnalyticsDashboard() {
 }
 
 function DriverDetailCard({ driver, onClose }: { driver: DriverStats; onClose: () => void }) {
+  const { shouldAnimate } = useAnimationPreference();
   return (
     <m.div
-      initial={{ opacity: 0, scale: 0.95 }}
+      initial={shouldAnimate ? { opacity: 0, scale: 0.95 } : undefined}
       animate={{ opacity: 1, scale: 1 }}
       className="rounded-xl bg-surface-primary p-6 shadow-warm-sm"
     >
@@ -281,9 +289,10 @@ function TeamStatsCard({
   activeCount: number;
   inactiveCount: number;
 }) {
+  const { shouldAnimate } = useAnimationPreference();
   return (
     <m.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
       animate={{ opacity: 1, y: 0 }}
       className="rounded-xl bg-surface-primary p-6 shadow-warm-sm"
     >

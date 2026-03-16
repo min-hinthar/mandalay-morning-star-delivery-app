@@ -4,6 +4,7 @@ import Image from "next/image";
 import { m } from "framer-motion";
 import { Edit2, Trash2, ToggleLeft, ToggleRight, AlertCircle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useAnimationPreference } from "@/lib/hooks";
 import { formatPrice } from "@/lib/utils/currency";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -62,9 +63,10 @@ export function MenuItemsTable({
   onToggleSoldOut,
   onDelete,
 }: MenuItemsTableProps) {
+  const { shouldAnimate } = useAnimationPreference();
   return (
     <m.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
     >

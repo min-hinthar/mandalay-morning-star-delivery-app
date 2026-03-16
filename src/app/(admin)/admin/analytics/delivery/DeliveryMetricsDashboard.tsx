@@ -11,6 +11,7 @@ import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
 import { Package, DollarSign, CheckCircle, Clock, RefreshCw, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAnimationPreference } from "@/lib/hooks";
 import {
   MetricCard,
   MetricCardGrid,
@@ -42,6 +43,7 @@ const itemVariants = {
 };
 
 export function DeliveryMetricsDashboard() {
+  const { shouldAnimate } = useAnimationPreference();
   const [data, setData] = useState<DeliveryDashboardResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -86,7 +88,12 @@ export function DeliveryMetricsDashboard() {
   const summary = data?.summary;
 
   return (
-    <m.div variants={containerVariants} initial="hidden" animate="visible" className="space-y-6">
+    <m.div
+      variants={containerVariants}
+      initial={shouldAnimate ? "hidden" : undefined}
+      animate="visible"
+      className="space-y-6"
+    >
       {/* Header */}
       <m.div
         variants={itemVariants}
@@ -228,7 +235,7 @@ export function DeliveryMetricsDashboard() {
 
         {/* Top Drivers */}
         <m.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
           animate={{ opacity: 1, y: 0 }}
           className="rounded-xl bg-surface-primary p-6 shadow-warm-sm"
         >

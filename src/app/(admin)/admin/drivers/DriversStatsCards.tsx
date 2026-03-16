@@ -2,6 +2,7 @@
 
 import { m } from "framer-motion";
 import { Truck, Users, Star, TrendingUp } from "lucide-react";
+import { useAnimationPreference } from "@/lib/hooks";
 
 interface DriversStatsCardsProps {
   total: number;
@@ -16,9 +17,10 @@ export function DriversStatsCards({
   avgRating,
   totalDeliveries,
 }: DriversStatsCardsProps) {
+  const { shouldAnimate } = useAnimationPreference();
   return (
     <m.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
       className="grid grid-cols-2 md:grid-cols-4 gap-4"
