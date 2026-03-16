@@ -69,15 +69,11 @@ export function AcceptDeclineCard({ route, onAccepted, onDeclined }: AcceptDecli
             : undefined
         }
         transition={isExiting ? { duration: 0.2 } : getSpring(spring.default)}
-        className={cn(
-          "w-full overflow-hidden rounded-2xl border-2 border-border shadow-card",
-        )}
+        className={cn("w-full overflow-hidden rounded-2xl border-2 border-border shadow-card")}
       >
         {/* Header */}
         <div className="bg-gradient-to-r from-accent-teal/10 to-surface-tertiary/30 p-4">
-          <h2 className="font-display text-xl font-semibold text-text-primary">
-            Route Assigned
-          </h2>
+          <h2 className="font-display text-xl font-semibold text-text-primary">Route Assigned</h2>
         </div>
 
         {/* Preview */}
@@ -107,7 +103,7 @@ export function AcceptDeclineCard({ route, onAccepted, onDeclined }: AcceptDecli
               "flex min-h-[72px] w-full items-center justify-center gap-3 rounded-xl",
               "bg-green font-body text-xl font-semibold text-text-inverse shadow-md",
               "transition-all duration-fast hover:bg-green-hover hover:shadow-lg",
-              "disabled:cursor-not-allowed disabled:opacity-50",
+              "disabled:cursor-not-allowed disabled:opacity-50"
             )}
           >
             {isAccepting ? (
@@ -127,7 +123,7 @@ export function AcceptDeclineCard({ route, onAccepted, onDeclined }: AcceptDecli
             className={cn(
               "mx-auto block font-body text-sm text-status-error",
               "hover:underline",
-              "disabled:cursor-not-allowed disabled:opacity-50",
+              "disabled:cursor-not-allowed disabled:opacity-50"
             )}
           >
             Decline

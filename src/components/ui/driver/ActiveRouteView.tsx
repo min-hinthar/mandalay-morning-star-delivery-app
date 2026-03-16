@@ -74,11 +74,9 @@ export function ActiveRouteView({ routeId, routeStatus, stops }: ActiveRouteView
 
   // Split stops into reorderable (pending/enroute) and locked (delivered/skipped)
   const reorderableStops = localStops.filter(
-    (s) => s.status === "pending" || s.status === "enroute",
+    (s) => s.status === "pending" || s.status === "enroute"
   );
-  const lockedStops = localStops.filter(
-    (s) => s.status === "delivered" || s.status === "skipped",
-  );
+  const lockedStops = localStops.filter((s) => s.status === "delivered" || s.status === "skipped");
 
   // Reorder is available on accepted and in_progress routes
   const canReorder = routeStatus === "accepted" || routeStatus === "in_progress";
@@ -262,19 +260,12 @@ export function ActiveRouteView({ routeId, routeStatus, stops }: ActiveRouteView
             onReorder={(reordered) => {
               const newOrder = [...reordered, ...lockedStops];
               setLocalStops(newOrder);
-              reorderStops(
-                reordered.map((s, i) => ({ stopId: s.id, stopIndex: i })),
-              );
+              reorderStops(reordered.map((s, i) => ({ stopId: s.id, stopIndex: i })));
             }}
             renderItem={(stop, isDragging) => (
               <SortableItem id={stop.id}>
                 {({ listeners, attributes }) => (
-                  <div
-                    className={cn(
-                      "flex items-center gap-2",
-                      isDragging && "opacity-50",
-                    )}
-                  >
+                  <div className={cn("flex items-center gap-2", isDragging && "opacity-50")}>
                     <DragHandle listeners={listeners} attributes={attributes} />
                     <div className="min-w-0 flex-1">
                       <StopCard
@@ -299,9 +290,7 @@ export function ActiveRouteView({ routeId, routeStatus, stops }: ActiveRouteView
                         [reordered[idx - 1], reordered[idx]] = [reordered[idx], reordered[idx - 1]];
                         const newOrder = [...reordered, ...lockedStops];
                         setLocalStops(newOrder);
-                        reorderStops(
-                          reordered.map((s, i) => ({ stopId: s.id, stopIndex: i })),
-                        );
+                        reorderStops(reordered.map((s, i) => ({ stopId: s.id, stopIndex: i })));
                       }}
                       onMoveDown={() => {
                         const idx = reorderableStops.findIndex((s) => s.id === stop.id);
@@ -310,9 +299,7 @@ export function ActiveRouteView({ routeId, routeStatus, stops }: ActiveRouteView
                         [reordered[idx], reordered[idx + 1]] = [reordered[idx + 1], reordered[idx]];
                         const newOrder = [...reordered, ...lockedStops];
                         setLocalStops(newOrder);
-                        reorderStops(
-                          reordered.map((s, i) => ({ stopId: s.id, stopIndex: i })),
-                        );
+                        reorderStops(reordered.map((s, i) => ({ stopId: s.id, stopIndex: i })));
                       }}
                       isFirst={reorderableStops.findIndex((s) => s.id === stop.id) === 0}
                       isLast={

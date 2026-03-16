@@ -80,7 +80,7 @@ export function RouteCard({
               route.status === "assigned" && "bg-blue-100 text-blue-800",
               route.status === "accepted" && "bg-green-100 text-green-800",
               route.status === "in_progress" && "bg-accent-teal/10 text-accent-teal",
-              route.status === "completed" && "bg-green/10 text-green",
+              route.status === "completed" && "bg-green/10 text-green"
             )}
           >
             {route.status === "planned" && "Ready to Start"}
