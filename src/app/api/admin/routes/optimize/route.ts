@@ -66,9 +66,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
-    // Only optimize planned routes
-    if (route.status !== "planned") {
-      return NextResponse.json({ error: "Can only optimize planned routes" }, { status: 400 });
+    // Only optimize pre-start routes
+    if (!["planned", "assigned", "accepted"].includes(route.status)) {
+      return NextResponse.json(
+        { error: "Can only optimize planned, assigned, or accepted routes" },
+        { status: 400 }
+      );
     }
 
     // Fetch stops with order addresses

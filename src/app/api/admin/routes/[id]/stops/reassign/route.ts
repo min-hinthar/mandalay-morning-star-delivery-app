@@ -81,9 +81,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
-    if (sourceRoute.status !== "planned") {
+    if (!["planned", "assigned", "accepted"].includes(sourceRoute.status)) {
       return NextResponse.json(
-        { error: "Can only reassign stops from planned routes" },
+        { error: "Can only reassign stops from planned, assigned, or accepted routes" },
         { status: 400 }
       );
     }
@@ -99,9 +99,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Target route not found" }, { status: 404 });
     }
 
-    if (targetRoute.status !== "planned") {
+    if (!["planned", "assigned", "accepted"].includes(targetRoute.status)) {
       return NextResponse.json(
-        { error: "Can only reassign stops to planned routes" },
+        { error: "Can only reassign stops to planned, assigned, or accepted routes" },
         { status: 400 }
       );
     }

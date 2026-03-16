@@ -114,7 +114,7 @@ export async function GET() {
       .select("id, status, stats_json, started_at")
       .eq("driver_id", driverId)
       .eq("delivery_date", todayStr)
-      .in("status", ["planned", "in_progress"])
+      .in("status", ["assigned", "accepted", "planned", "in_progress"])
       .returns<RouteQueryResult[]>()
       .single();
 

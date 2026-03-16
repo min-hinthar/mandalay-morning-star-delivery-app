@@ -74,7 +74,7 @@ async function getActiveRoute() {
     )
     .eq("driver_id", driver.id)
     .eq("delivery_date", todayStr)
-    .in("status", ["planned", "in_progress"])
+    .in("status", ["assigned", "accepted", "planned", "in_progress"])
     .returns<RouteQueryResult[]>()
     .single();
 

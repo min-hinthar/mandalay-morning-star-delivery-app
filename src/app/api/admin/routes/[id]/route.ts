@@ -328,6 +328,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     if (driverId !== undefined) {
       routeUpdate.driver_id = driverId;
+      if (driverId !== null) {
+        routeUpdate.status = "assigned";
+        routeUpdate.accepted_at = null; // Clear if reassigning
+      } else {
+        // Unassigning driver -- revert to planned
+        routeUpdate.status = "planned";
+      }
     }
 
     if (status !== undefined) {
@@ -414,8 +421,11 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
-    if (route.status !== "planned") {
-      return NextResponse.json({ error: "Can only delete planned routes" }, { status: 400 });
+    if (route.status !== "planned" && route.status !== "assigned") {
+      return NextResponse.json(
+        { error: "Can only delete planned or assigned routes" },
+        { status: 400 }
+      );
     }
 
     // Delete route (stops will cascade)

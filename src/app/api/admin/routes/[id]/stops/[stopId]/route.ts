@@ -219,9 +219,9 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Route not found" }, { status: 404 });
     }
 
-    if (route.status !== "planned") {
+    if (!["planned", "assigned", "accepted"].includes(route.status)) {
       return NextResponse.json(
-        { error: "Can only remove stops from planned routes" },
+        { error: "Can only remove stops from planned, assigned, or accepted routes" },
         { status: 400 }
       );
     }

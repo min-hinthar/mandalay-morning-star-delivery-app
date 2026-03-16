@@ -1,4 +1,4 @@
-import { Play, CheckCircle2, Clock } from "lucide-react";
+import { Play, CheckCircle2, Clock, UserCheck, ThumbsUp } from "lucide-react";
 import type { RouteStatus } from "@/types/driver";
 
 export interface AdminRoute {
@@ -30,6 +30,16 @@ export const STATUS_CONFIG: Record<
   RouteStatus,
   { label: string; className: string; icon: React.ReactNode }
 > = {
+  assigned: {
+    label: "Assigned",
+    className: "bg-purple-500/10 text-purple-600 border-purple-500/30",
+    icon: <UserCheck className="h-3.5 w-3.5" />,
+  },
+  accepted: {
+    label: "Accepted",
+    className: "bg-indigo-500/10 text-indigo-600 border-indigo-500/30",
+    icon: <ThumbsUp className="h-3.5 w-3.5" />,
+  },
   planned: {
     label: "Planned",
     className: "bg-status-info-bg text-status-info border-status-info/30",
@@ -49,6 +59,8 @@ export const STATUS_CONFIG: Record<
 };
 
 export const NEXT_STATUSES: Record<RouteStatus, RouteStatus[]> = {
+  assigned: ["planned"],
+  accepted: ["in_progress"],
   planned: ["in_progress"],
   in_progress: ["completed"],
   completed: [],

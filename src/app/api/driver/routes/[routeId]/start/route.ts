@@ -53,8 +53,8 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Not authorized to start this route" }, { status: 403 });
     }
 
-    // Check route can be started
-    if (route.status !== "planned") {
+    // Check route can be started (planned or accepted)
+    if (route.status !== "planned" && route.status !== "accepted") {
       return NextResponse.json(
         { error: `Cannot start route with status: ${route.status}` },
         { status: 400 }
