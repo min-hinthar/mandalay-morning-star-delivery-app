@@ -45,8 +45,7 @@ function RouteProgressCard({ route }: { route: RouteProgressItem }) {
         {/* Row 2: Progress bar + count (or waiting state) */}
         {isWaiting ? (
           <p className="text-sm text-text-secondary">
-            {route.status === "assigned" ? "Assigned" : "Accepted"} — waiting to
-            start
+            {route.status === "assigned" ? "Assigned" : "Accepted"} — waiting to start
           </p>
         ) : (
           <div className="flex items-center gap-3">
@@ -69,9 +68,7 @@ function RouteProgressCard({ route }: { route: RouteProgressItem }) {
 
         {/* Skipped stops indicator (if any) */}
         {skipped > 0 && !isWaiting && (
-          <p className="text-xs text-status-warning mt-1">
-            {skipped} skipped
-          </p>
+          <p className="text-xs text-status-warning mt-1">{skipped} skipped</p>
         )}
       </div>
     </Link>
@@ -88,18 +85,13 @@ export function RouteProgressWidget() {
 
   return (
     <section aria-labelledby="route-progress-heading">
-      <h2
-        id="route-progress-heading"
-        className="text-lg font-semibold text-text-primary mb-4"
-      >
+      <h2 id="route-progress-heading" className="text-lg font-semibold text-text-primary mb-4">
         Route Progress
       </h2>
 
       {routes.length === 0 ? (
         <div className="rounded-lg border border-border border-dashed p-6 text-center">
-          <p className="text-sm font-medium text-text-secondary">
-            No active routes
-          </p>
+          <p className="text-sm font-medium text-text-secondary">No active routes</p>
           <p className="text-xs text-text-muted mt-1">
             Routes will appear here once drivers start deliveries.
           </p>
@@ -109,9 +101,7 @@ export function RouteProgressWidget() {
           {routes.map((route, index) => (
             <m.div
               key={route.id}
-              initial={
-                shouldAnimate ? { opacity: 0, y: 10 } : undefined
-              }
+              initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
             >

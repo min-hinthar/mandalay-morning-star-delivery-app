@@ -52,7 +52,7 @@ export function PhotosFilters({
               key={f}
               variant={filter === f ? "default" : "outline"}
               className={cn(
-                "cursor-pointer transition-all duration-fast font-body capitalize",
+                "cursor-pointer transition-all duration-fast font-body capitalize min-h-[44px] md:min-h-0 inline-flex items-center px-3",
                 filter === f
                   ? "bg-primary hover:bg-primary-hover text-text-inverse border-transparent"
                   : "bg-surface-primary border-border text-text-primary hover:bg-primary/10 hover:border-primary/30"
@@ -81,7 +81,7 @@ export function PhotosFilters({
               variant="outline"
               size="sm"
               onClick={onClearSelection}
-              className="border-primary/30 text-primary hover:bg-primary/10"
+              className="h-11 md:h-9 border-primary/30 text-primary hover:bg-primary/10"
             >
               Clear
             </Button>
@@ -89,7 +89,7 @@ export function PhotosFilters({
               variant="outline"
               size="sm"
               onClick={onBulkDelete}
-              className="border-status-error/30 text-status-error hover:bg-status-error/10"
+              className="h-11 md:h-9 border-status-error/30 text-status-error hover:bg-status-error/10"
             >
               <Trash2 className="h-4 w-4 mr-1" />
               Delete

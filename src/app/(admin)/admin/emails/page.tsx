@@ -119,6 +119,7 @@ export default function AdminEmailLogPage() {
           size="sm"
           onClick={() => fetchEmails(pagination.page)}
           disabled={loading}
+          className="h-11 md:h-9"
         >
           {loading ? (
             <Loader2 className="h-4 w-4 animate-spin" />
@@ -344,6 +345,7 @@ export default function AdminEmailLogPage() {
               size="sm"
               disabled={pagination.page <= 1 || loading}
               onClick={() => fetchEmails(pagination.page - 1)}
+              className="h-11 w-11 md:h-9 md:w-9"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
@@ -358,7 +360,7 @@ export default function AdminEmailLogPage() {
                   size="sm"
                   onClick={() => fetchEmails(pageNum)}
                   disabled={loading}
-                  className="min-w-[36px]"
+                  className="min-w-[44px] h-11 md:min-w-[36px] md:h-9"
                 >
                   {pageNum}
                 </Button>
@@ -369,6 +371,7 @@ export default function AdminEmailLogPage() {
               size="sm"
               disabled={pagination.page >= pagination.totalPages || loading}
               onClick={() => fetchEmails(pagination.page + 1)}
+              className="h-11 w-11 md:h-9 md:w-9"
             >
               <ChevronRight className="h-4 w-4" />
             </Button>

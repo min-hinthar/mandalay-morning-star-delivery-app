@@ -308,7 +308,7 @@ export default function AdminSectionsPage() {
   return (
     <div className="flex h-full min-h-screen">
       {/* Left: Section management */}
-      <div className="flex-1 overflow-auto p-4 md:p-8 space-y-6">
+      <div className="flex-1 p-4 md:p-8 space-y-6">
         <SectionsToolbar
           hasUnpublishedChanges={hasUnpublishedChanges}
           refreshing={refreshing}
