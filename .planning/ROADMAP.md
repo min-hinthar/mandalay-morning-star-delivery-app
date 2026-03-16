@@ -131,12 +131,13 @@ Plans:
   1. Driver sees assigned route and can accept or decline before starting deliveries
   2. Every driver page (dashboard, earnings, history, schedule, profile, active route) loads real data with no empty/stub content
   3. Driver in advanced mode can drag-reorder remaining pending stops on their active route
-**Plans**: 5 plans
+**Plans**: 6 plans
 
 Plans:
 - [ ] 101-01-PLAN.md — Database migrations (enum, backfill, RPC updates), TypeScript types, Zod schemas, email type registration
-- [ ] 101-02-PLAN.md — Accept/decline/reorder API endpoints, client hooks with tests, React Email template, admin PATCH auto-transition
-- [ ] 101-03-PLAN.md — Status filter audit (9 queries + 6 guards), admin UI status updates (StatusBadge, RouteHeader, ops dashboard)
+- [ ] 101-02-PLAN.md — Accept/decline/reorder API endpoints, client hooks with tests, React Email template
+- [ ] 101-03-PLAN.md — Status filter audit (9 queries + 6 guards) + admin PATCH auto-transition
+- [ ] 101-03b-PLAN.md — Admin UI status updates (StatusBadge, RouteHeader, RouteCardRow, ops dashboard)
 - [ ] 101-04-PLAN.md — AcceptDeclineCard, AcceptDeclineBar, DeclineConfirmDialog, DragReorderList in ActiveRouteView, LocationTracker cleanup
 - [ ] 101-05-PLAN.md — Full verification suite + manual page audit checkpoint
 
@@ -179,7 +180,7 @@ Phases execute in numeric order: 99 -> 100 -> 101 -> 102
 |-------|-----------|----------------|--------|-----------|
 | 99. Foundation Fixes | 3/3 | Complete    | 2026-03-15 | - |
 | 100. Admin Route Editing | 4/4 | Complete    | 2026-03-15 | - |
-| 101. Driver Experience | v2.1 | 0/5 | Not started | - |
+| 101. Driver Experience | v2.1 | 0/6 | Not started | - |
 | 102. Admin Mobile UX | v2.1 | 0/TBD | Not started | - |
 
 ---
