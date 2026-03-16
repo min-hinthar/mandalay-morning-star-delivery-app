@@ -185,61 +185,59 @@ export default async function RatingsPage({ searchParams }: RatingsPageProps) {
         <>
           {/* Desktop table */}
           <div className="hidden md:block overflow-x-auto rounded-card border border-border-subtle bg-surface-primary">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border-subtle bg-surface-secondary">
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">Order #</th>
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">Customer</th>
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">Stars</th>
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">Feedback</th>
-                <th className="px-4 py-3 text-left font-medium text-text-secondary">Date</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border-subtle">
-              {ratings.map((r) => (
-                <tr key={r.id} className="hover:bg-surface-secondary/50">
-                  <td className="px-4 py-3 font-mono text-xs text-text-primary">
-                    #{r.orders.id.slice(0, 8).toUpperCase()}
-                  </td>
-                  <td className="px-4 py-3 text-text-primary">
-                    {r.orders.profiles?.full_name ?? "Unknown"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <StarDisplay rating={r.rating} />
-                  </td>
-                  <td className="max-w-xs truncate px-4 py-3 text-text-secondary">
-                    {r.feedback_text ?? "--"}
-                  </td>
-                  <td className="whitespace-nowrap px-4 py-3 text-text-secondary">
-                    {formatDate(r.submitted_at)}
-                  </td>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border-subtle bg-surface-secondary">
+                  <th className="px-4 py-3 text-left font-medium text-text-secondary">Order #</th>
+                  <th className="px-4 py-3 text-left font-medium text-text-secondary">Customer</th>
+                  <th className="px-4 py-3 text-left font-medium text-text-secondary">Stars</th>
+                  <th className="px-4 py-3 text-left font-medium text-text-secondary">Feedback</th>
+                  <th className="px-4 py-3 text-left font-medium text-text-secondary">Date</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody className="divide-y divide-border-subtle">
+                {ratings.map((r) => (
+                  <tr key={r.id} className="hover:bg-surface-secondary/50">
+                    <td className="px-4 py-3 font-mono text-xs text-text-primary">
+                      #{r.orders.id.slice(0, 8).toUpperCase()}
+                    </td>
+                    <td className="px-4 py-3 text-text-primary">
+                      {r.orders.profiles?.full_name ?? "Unknown"}
+                    </td>
+                    <td className="px-4 py-3">
+                      <StarDisplay rating={r.rating} />
+                    </td>
+                    <td className="max-w-xs truncate px-4 py-3 text-text-secondary">
+                      {r.feedback_text ?? "--"}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-text-secondary">
+                      {formatDate(r.submitted_at)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
 
-        {/* Mobile cards */}
-        <div className="md:hidden space-y-3">
-          {ratings.map((r) => (
-            <div key={r.id} className="rounded-lg border border-border p-4">
-              <div className="flex items-center justify-between">
-                <StarDisplay rating={r.rating} />
-                <span className="text-xs text-text-muted">{formatDate(r.submitted_at)}</span>
-              </div>
-              <p className="text-sm font-medium mt-1">
-                {r.orders.profiles?.full_name ?? "Unknown"}
-              </p>
-              <p className="text-xs text-text-secondary font-mono">
-                Order #{r.orders.id.slice(0, 8).toUpperCase()}
-              </p>
-              {r.feedback_text && (
-                <p className="text-sm text-text-secondary line-clamp-2 mt-2">
-                  {r.feedback_text}
+          {/* Mobile cards */}
+          <div className="md:hidden space-y-3">
+            {ratings.map((r) => (
+              <div key={r.id} className="rounded-lg border border-border p-4">
+                <div className="flex items-center justify-between">
+                  <StarDisplay rating={r.rating} />
+                  <span className="text-xs text-text-muted">{formatDate(r.submitted_at)}</span>
+                </div>
+                <p className="text-sm font-medium mt-1">
+                  {r.orders.profiles?.full_name ?? "Unknown"}
                 </p>
-              )}
-            </div>
-          ))}
+                <p className="text-xs text-text-secondary font-mono">
+                  Order #{r.orders.id.slice(0, 8).toUpperCase()}
+                </p>
+                {r.feedback_text && (
+                  <p className="text-sm text-text-secondary line-clamp-2 mt-2">{r.feedback_text}</p>
+                )}
+              </div>
+            ))}
           </div>
         </>
       )}
