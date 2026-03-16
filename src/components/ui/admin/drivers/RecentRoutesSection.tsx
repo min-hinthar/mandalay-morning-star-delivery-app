@@ -33,6 +33,16 @@ interface RecentRoutesSectionProps {
 }
 
 const STATUS_STYLES: Record<RouteStatus, { bg: string; text: string; label: string }> = {
+  assigned: {
+    bg: "bg-purple-500/10",
+    text: "text-purple-600 dark:text-purple-400",
+    label: "Assigned",
+  },
+  accepted: {
+    bg: "bg-indigo-500/10",
+    text: "text-indigo-600 dark:text-indigo-400",
+    label: "Accepted",
+  },
   planned: {
     bg: "bg-blue-500/10",
     text: "text-blue-600 dark:text-blue-400",

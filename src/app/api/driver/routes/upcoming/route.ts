@@ -55,7 +55,7 @@ export async function GET() {
       .select("id, delivery_date, status, stats_json, started_at")
       .eq("driver_id", driverId)
       .gte("delivery_date", todayStr)
-      .in("status", ["planned", "in_progress"])
+      .in("status", ["assigned", "accepted", "planned", "in_progress"])
       .order("delivery_date", { ascending: true })
       .limit(14)
       .returns<RouteQueryResult[]>();

@@ -122,7 +122,7 @@ async function getDriverData() {
       .select("id, status, stats_json, started_at, optimized_polyline")
       .eq("driver_id", driver.id)
       .eq("delivery_date", todayStr)
-      .in("status", ["planned", "in_progress"])
+      .in("status", ["assigned", "accepted", "planned", "in_progress"])
       .returns<RouteQueryResult[]>()
       .single(),
     supabase.rpc("calculate_driver_streak", { p_driver_id: driver.id }),
@@ -153,7 +153,7 @@ async function getDriverData() {
       .select("delivery_date")
       .eq("driver_id", driver.id)
       .gt("delivery_date", todayStr)
-      .in("status", ["planned", "in_progress"])
+      .in("status", ["assigned", "accepted", "planned", "in_progress"])
       .order("delivery_date", { ascending: true })
       .limit(1)
       .returns<{ delivery_date: string }[]>()

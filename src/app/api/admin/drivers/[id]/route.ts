@@ -296,7 +296,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       .from("routes")
       .select("id")
       .eq("driver_id", id)
-      .in("status", ["planned", "in_progress"])
+      .in("status", ["assigned", "accepted", "planned", "in_progress"])
       .limit(1);
 
     if (activeRoutes && activeRoutes.length > 0) {

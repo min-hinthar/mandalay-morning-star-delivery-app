@@ -165,7 +165,7 @@ export async function GET() {
       )
       .eq("driver_id", driverId)
       .eq("delivery_date", todayStr)
-      .in("status", ["planned", "in_progress"])
+      .in("status", ["assigned", "accepted", "planned", "in_progress"])
       .order("stop_index", { referencedTable: "route_stops", ascending: true })
       .returns<RouteQueryResult[]>()
       .single();
