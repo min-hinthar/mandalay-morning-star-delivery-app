@@ -81,153 +81,218 @@ export function MenuItemsTable({
           </p>
         </div>
       ) : (
-        <div className="rounded-card-sm border border-border bg-surface-primary overflow-hidden shadow-sm">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-surface-secondary hover:bg-surface-secondary">
-                <TableHead className="w-[250px] font-body font-medium text-text-secondary">
-                  Item
-                </TableHead>
-                <TableHead className="font-body font-medium text-text-secondary">
-                  Category
-                </TableHead>
-                <TableHead className="text-right font-body font-medium text-text-secondary">
-                  Price
-                </TableHead>
-                <TableHead className="text-center font-body font-medium text-text-secondary">
-                  Status
-                </TableHead>
-                <TableHead className="text-center font-body font-medium text-text-secondary">
-                  Sold Out
-                </TableHead>
-                <TableHead className="w-[100px] font-body font-medium text-text-secondary">
-                  Actions
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {items.map((item) => {
-                const isUpdating = updatingId === item.id;
-
-                return (
-                  <TableRow
-                    key={item.id}
-                    className={cn(
-                      "hover:bg-surface-secondary/50 transition-colors duration-fast",
-                      !item.is_active && "opacity-50",
-                      isUpdating && "opacity-70"
-                    )}
-                  >
-                    <TableCell>
-                      <div className="flex items-center gap-3">
-                        {item.image_url ? (
-                          <Image
-                            src={item.image_url}
-                            alt={item.name_en}
-                            width={40}
-                            height={40}
-                            className="h-10 w-10 rounded-input object-cover"
-                            referrerPolicy="no-referrer"
-                          />
-                        ) : (
-                          <div className="h-10 w-10 rounded-input bg-surface-tertiary flex items-center justify-center text-text-muted text-xs font-body">
-                            No img
-                          </div>
-                        )}
-                        <div>
-                          <p className="font-body font-medium text-text-primary">{item.name_en}</p>
-                          <p className="text-xs font-body text-text-muted font-mono">{item.slug}</p>
-                        </div>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant="outline"
-                        className="border-border text-text-secondary font-body"
-                      >
-                        {item.menu_categories.name}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-body font-medium text-primary">
+        <>
+          {/* Mobile card layout */}
+          <div className="space-y-2 md:hidden">
+            {items.map((item) => {
+              const isUpdating = updatingId === item.id;
+              return (
+                <div
+                  key={item.id}
+                  className={cn(
+                    "flex items-center gap-3 rounded-card-sm border border-border bg-surface-primary p-3 shadow-sm",
+                    !item.is_active && "opacity-50",
+                    isUpdating && "opacity-70"
+                  )}
+                >
+                  {item.image_url ? (
+                    <Image
+                      src={item.image_url}
+                      alt={item.name_en}
+                      width={48}
+                      height={48}
+                      className="h-12 w-12 shrink-0 rounded-lg object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="h-12 w-12 shrink-0 rounded-lg bg-surface-tertiary flex items-center justify-center text-text-muted text-xs font-body">
+                      No img
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-body font-medium text-sm text-text-primary truncate">
+                      {item.name_en}
+                    </p>
+                    <p className="text-xs font-body text-text-secondary">
+                      {item.menu_categories.name}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-sm font-body font-medium text-primary">
                       {formatPrice(item.base_price_cents)}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onToggleActive(item)}
-                        disabled={isUpdating}
-                        className="p-1 hover:bg-transparent"
-                      >
-                        {item.is_active ? (
-                          <ToggleRight className="h-6 w-6 text-green" />
-                        ) : (
-                          <ToggleLeft className="h-6 w-6 text-text-muted" />
-                        )}
-                      </Button>
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => onToggleSoldOut(item)}
-                        disabled={isUpdating}
-                        className="p-1 hover:bg-transparent"
-                      >
-                        {item.is_sold_out ? (
-                          <Badge className="bg-secondary/10 text-secondary-hover hover:bg-secondary/20 border-0">
-                            Sold Out
-                          </Badge>
-                        ) : (
-                          <Badge
-                            variant="outline"
-                            className="border-border text-text-secondary hover:bg-surface-tertiary"
-                          >
-                            In Stock
-                          </Badge>
-                        )}
-                      </Button>
-                    </TableCell>
-                    <TableCell>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            disabled={isUpdating}
-                            className="hover:bg-surface-tertiary"
-                          >
-                            <Edit2 className="h-4 w-4 text-text-secondary" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="end"
-                          className="bg-surface-primary border-border rounded-input shadow-md"
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => onToggleActive(item)}
+                      disabled={isUpdating}
+                      className="h-11 w-11 p-0 hover:bg-transparent"
+                    >
+                      {item.is_active ? (
+                        <ToggleRight className="h-6 w-6 text-green" />
+                      ) : (
+                        <ToggleLeft className="h-6 w-6 text-text-muted" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Desktop table layout */}
+          <div className="hidden md:block rounded-card-sm border border-border bg-surface-primary overflow-hidden shadow-sm">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-surface-secondary hover:bg-surface-secondary">
+                  <TableHead className="w-[250px] font-body font-medium text-text-secondary">
+                    Item
+                  </TableHead>
+                  <TableHead className="font-body font-medium text-text-secondary">
+                    Category
+                  </TableHead>
+                  <TableHead className="text-right font-body font-medium text-text-secondary">
+                    Price
+                  </TableHead>
+                  <TableHead className="text-center font-body font-medium text-text-secondary">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-center font-body font-medium text-text-secondary">
+                    Sold Out
+                  </TableHead>
+                  <TableHead className="w-[100px] font-body font-medium text-text-secondary">
+                    Actions
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {items.map((item) => {
+                  const isUpdating = updatingId === item.id;
+
+                  return (
+                    <TableRow
+                      key={item.id}
+                      className={cn(
+                        "hover:bg-surface-secondary/50 transition-colors duration-fast",
+                        !item.is_active && "opacity-50",
+                        isUpdating && "opacity-70"
+                      )}
+                    >
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          {item.image_url ? (
+                            <Image
+                              src={item.image_url}
+                              alt={item.name_en}
+                              width={40}
+                              height={40}
+                              className="h-10 w-10 rounded-input object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          ) : (
+                            <div className="h-10 w-10 rounded-input bg-surface-tertiary flex items-center justify-center text-text-muted text-xs font-body">
+                              No img
+                            </div>
+                          )}
+                          <div>
+                            <p className="font-body font-medium text-text-primary">
+                              {item.name_en}
+                            </p>
+                            <p className="text-xs font-body text-text-muted font-mono">
+                              {item.slug}
+                            </p>
+                          </div>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <Badge
+                          variant="outline"
+                          className="border-border text-text-secondary font-body"
                         >
-                          <DropdownMenuItem
-                            className="font-body hover:bg-surface-tertiary cursor-pointer"
-                            onClick={() => (window.location.href = `/admin/menu/${item.id}`)}
+                          {item.menu_categories.name}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right font-body font-medium text-primary">
+                        {formatPrice(item.base_price_cents)}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onToggleActive(item)}
+                          disabled={isUpdating}
+                          className="p-1 hover:bg-transparent"
+                        >
+                          {item.is_active ? (
+                            <ToggleRight className="h-6 w-6 text-green" />
+                          ) : (
+                            <ToggleLeft className="h-6 w-6 text-text-muted" />
+                          )}
+                        </Button>
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => onToggleSoldOut(item)}
+                          disabled={isUpdating}
+                          className="p-1 hover:bg-transparent"
+                        >
+                          {item.is_sold_out ? (
+                            <Badge className="bg-secondary/10 text-secondary-hover hover:bg-secondary/20 border-0">
+                              Sold Out
+                            </Badge>
+                          ) : (
+                            <Badge
+                              variant="outline"
+                              className="border-border text-text-secondary hover:bg-surface-tertiary"
+                            >
+                              In Stock
+                            </Badge>
+                          )}
+                        </Button>
+                      </TableCell>
+                      <TableCell>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              disabled={isUpdating}
+                              className="hover:bg-surface-tertiary"
+                            >
+                              <Edit2 className="h-4 w-4 text-text-secondary" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align="end"
+                            className="bg-surface-primary border-border rounded-input shadow-md"
                           >
-                            <Edit2 className="mr-2 h-4 w-4" />
-                            Edit Details
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator className="bg-border" />
-                          <DropdownMenuItem
-                            className="font-body text-status-error hover:bg-status-error/10 cursor-pointer"
-                            onClick={() => onDelete(item)}
-                          >
-                            <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
-            </TableBody>
-          </Table>
-        </div>
+                            <DropdownMenuItem
+                              className="font-body hover:bg-surface-tertiary cursor-pointer"
+                              onClick={() => (window.location.href = `/admin/menu/${item.id}`)}
+                            >
+                              <Edit2 className="mr-2 h-4 w-4" />
+                              Edit Details
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="bg-border" />
+                            <DropdownMenuItem
+                              className="font-body text-status-error hover:bg-status-error/10 cursor-pointer"
+                              onClick={() => onDelete(item)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
     </m.div>
   );
