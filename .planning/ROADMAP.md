@@ -206,7 +206,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. All 5 error handling gaps fixed — no silent catch blocks, all mutations show toast on failure
   2. All 4 integration wiring gaps closed — barrels complete, merge picker filtered, area_description passed
-  3. All 6 dead exports/props removed
+  3. 3 dead exports/props removed (showActions, currentDriverName, formatTime); 3 gaps reclassified as intentionally kept (OrderDetailPanel wrapper — consumed via new barrel; getSelectableStops — used by tests; RouteProgressState — public hook return type)
   4. All 3 responsive/animation gaps fixed — responsive padding, reduced-motion guard
   5. `e2e/admin-mobile.spec.ts` has real assertions (no test.skip stubs)
   6. Notes endpoint has handler integration test
