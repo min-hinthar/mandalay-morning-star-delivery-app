@@ -37,6 +37,7 @@ export function useStopMutations({
         await fetchRoute();
       } catch {
         setRoute({ ...route, status: previousStatus });
+        toast({ message: "Failed to update route status", type: "error" });
       } finally {
         setIsUpdating(false);
       }
@@ -63,6 +64,7 @@ export function useStopMutations({
         await fetchRoute();
       } catch {
         setRoute({ ...route, stops: previousStops });
+        toast({ message: "Failed to update stop status", type: "error" });
       } finally {
         setIsUpdating(false);
       }

@@ -18,7 +18,7 @@ export function useReorderStops({
   const [isReordering, setIsReordering] = useState(false);
 
   const handleReorder = useCallback(
-    async (reorderedStops: StopDetail[]) => {
+    async (reorderedStops: StopDetail[], previousStops: StopDetail[]) => {
       setIsReordering(true);
 
       const stopOrder = reorderedStops.map((stop, index) => ({
@@ -39,14 +39,14 @@ export function useReorderStops({
         });
 
         if (!response.ok) {
-          onError(reorderedStops);
+          onError(previousStops);
           toast({ message: "Failed to reorder stops", type: "error" });
           return;
         }
 
         onSuccess();
       } catch {
-        onError(reorderedStops);
+        onError(previousStops);
         toast({ message: "Failed to reorder stops", type: "error" });
       } finally {
         setIsReordering(false);

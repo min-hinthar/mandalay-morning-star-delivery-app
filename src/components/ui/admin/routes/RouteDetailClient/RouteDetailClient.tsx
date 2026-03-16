@@ -150,7 +150,6 @@ export function RouteDetailClient() {
   const reassignDriver = useReassignDriver({
     routeId,
     routeStatus: route?.status ?? "planned",
-    currentDriverName: route?.driver?.fullName ?? null,
     onSuccess: fetchRoute,
   });
 
