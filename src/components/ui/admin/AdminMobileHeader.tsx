@@ -13,7 +13,7 @@ interface AdminMobileHeaderProps {
 }
 
 /** Map pathname segments to page titles (UI-SPEC copywriting contract) */
-function getPageTitle(pathname: string): string {
+export function getPageTitle(pathname: string): string {
   // Check dynamic/prefix routes first (order matters: more specific before less specific)
   if (pathname === "/admin/routes/builder") return "Route Builder";
   if (pathname === "/admin/analytics/delivery") return "Delivery Analytics";
