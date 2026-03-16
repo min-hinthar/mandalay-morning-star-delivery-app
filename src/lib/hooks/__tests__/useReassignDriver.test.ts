@@ -30,7 +30,6 @@ describe("useReassignDriver", () => {
       useReassignDriver({
         routeId: "route-1",
         routeStatus: "planned",
-        currentDriverName: "Driver A",
       })
     );
 
@@ -53,7 +52,6 @@ describe("useReassignDriver", () => {
       useReassignDriver({
         routeId: "route-1",
         routeStatus: "in_progress",
-        currentDriverName: "Driver A",
       })
     );
 
@@ -76,7 +74,6 @@ describe("useReassignDriver", () => {
       useReassignDriver({
         routeId: "route-1",
         routeStatus: "in_progress",
-        currentDriverName: "Driver A",
       })
     );
 
@@ -102,7 +99,6 @@ describe("useReassignDriver", () => {
       useReassignDriver({
         routeId: "route-1",
         routeStatus: "in_progress",
-        currentDriverName: "Driver A",
       })
     );
 
@@ -131,7 +127,6 @@ describe("useReassignDriver", () => {
       useReassignDriver({
         routeId: "route-1",
         routeStatus: "planned",
-        currentDriverName: "Driver A",
       })
     );
 
@@ -154,7 +149,6 @@ describe("useReassignDriver", () => {
       useReassignDriver({
         routeId: "route-1",
         routeStatus: "planned",
-        currentDriverName: "Driver A",
       })
     );
 

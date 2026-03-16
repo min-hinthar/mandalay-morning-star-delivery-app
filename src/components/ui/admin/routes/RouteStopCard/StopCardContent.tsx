@@ -43,8 +43,6 @@ function formatTime(dateString: string | null): string {
   }
 }
 
-export { formatTime };
-
 interface StopCardContentProps {
   stop: StopDetail;
   index: number;

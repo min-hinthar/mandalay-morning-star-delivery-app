@@ -93,7 +93,7 @@ export default function AdminPhotosPage() {
 
   if (loading) {
     return (
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         <div className="animate-pulse space-y-6">
           <div className="h-10 w-48 bg-surface-tertiary rounded-input" />
           <div className="h-4 w-64 bg-surface-tertiary rounded-input" />

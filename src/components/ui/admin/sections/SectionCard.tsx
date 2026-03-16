@@ -24,6 +24,7 @@ import {
   MoreVertical,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -90,6 +91,7 @@ export function SectionCard({
   isExpanded = false,
 }: SectionCardProps) {
   const [isHovered, setIsHovered] = useState(false);
+  const { shouldAnimate } = useAnimationPreference();
   const isDeleted = !!section.deletedAt;
   const IconComponent = section.icon ? ICON_MAP[section.icon] || Star : Star;
 
@@ -105,9 +107,9 @@ export function SectionCard({
   return (
     <m.div
       layout
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -10 }}
+      initial={shouldAnimate ? { opacity: 0, y: 10 } : false}
+      animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+      exit={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
       className={cn(
         "relative rounded-card-sm border bg-surface-primary",
         "transition-all duration-fast",

@@ -5,7 +5,6 @@ import type { RouteStatus } from "@/types/driver";
 interface UseReassignDriverOptions {
   routeId: string;
   routeStatus: RouteStatus;
-  currentDriverName: string | null;
   onSuccess?: () => void;
 }
 

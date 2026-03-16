@@ -161,7 +161,7 @@ export default function AdminMenuItemEditPage() {
 
   if (loading) {
     return (
-      <div className="p-8">
+      <div className="p-4 md:p-8">
         <div className="animate-pulse space-y-6">
           <div className="h-10 w-48 bg-surface-tertiary rounded-input" />
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -179,7 +179,7 @@ export default function AdminMenuItemEditPage() {
 
   if (!item) {
     return (
-      <div className="p-8 text-center">
+      <div className="p-4 md:p-8 text-center">
         <p className="text-text-secondary">Menu item not found</p>
         <Button variant="outline" onClick={() => router.push("/admin/menu")} className="mt-4">
           Back to Menu
