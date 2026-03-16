@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { getRoleDashboard } from "@/lib/auth/role-redirect";
 import { AdminNav } from "@/components/ui/admin/AdminNav";
+import { AdminMobileHeader } from "@/components/ui/admin/AdminMobileHeader";
 import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
 import type { ProfileRole } from "@/types/database";
 
@@ -40,8 +41,14 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <DomMaxProvider>
       <div className="flex min-h-screen bg-cream">
-        <AdminNav />
-        <main className="flex-1 overflow-auto">{children}</main>
+        {/* Desktop sidebar -- hidden on mobile */}
+        <div className="hidden md:block">
+          <AdminNav />
+        </div>
+        {/* Mobile header -- hidden on desktop (md:hidden is inside the component) */}
+        <AdminMobileHeader />
+        {/* Main content with mobile header offset */}
+        <main className="flex-1 overflow-auto pt-14 md:pt-0">{children}</main>
       </div>
     </DomMaxProvider>
   );
