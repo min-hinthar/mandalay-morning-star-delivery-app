@@ -203,16 +203,16 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-14)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Current focus:** v2.1 Route Operations & Admin Mobile — Phase 102 Admin Mobile UX
+**Current focus:** v2.1 Gap Closure & Nyquist Compliance — Phase 103 Tech Debt & Nyquist
 
 ## Current Position
 
-Phase: 102 of 102 (Admin Mobile UX) — 4 of 4 in milestone
-Plan: 6 of 6 complete
-Status: Phase 102 Complete
-Last activity: 2026-03-16 — Completed 102-05 Touch Target Sweep + Reduced Motion
+Phase: 103 of 103 (Tech Debt & Nyquist) — 5 of 5 in milestone
+Plan: 1 of 3 complete
+Status: Executing Phase 103
+Last activity: 2026-03-16 — Completed 103-01 Error Handling & UX Feedback Gaps
 
-Progress: [██████████] 100%
+Progress: [███░░░░░░░] 33%
 
 ## Performance Metrics
 
@@ -247,6 +247,7 @@ Progress: [██████████] 100%
 | Phase 102 P04 | 7min | 2 tasks | 5 files |
 | Phase 102 P03 | 15min | 2 tasks | 8 files |
 | Phase 102 P05 | 17min | 3 tasks | 30 files |
+| Phase 103 P01 | 10min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -272,6 +273,14 @@ Progress: [██████████] 100%
 
 - Upstash Redis provisioning needed before production rate limiting is active
 - Migrations 027-035 must be applied before deploying v2.0 features
+
+### Decisions (Phase 103)
+
+- routeStop query uses inline .returns<>() type annotation instead of separate interface
+- Fallback deliveryInfo for unrouted orders uses null for all non-instruction fields
+- useReorderStops previousStops passed as second parameter (not closure capture) for explicitness
+- Every catch block in mutation hooks must show toast.error -- no silent swallows
+- Optimistic revert callbacks receive pre-mutation data via explicit parameter
 
 ### Decisions (Phase 102)
 
@@ -333,7 +342,7 @@ Progress: [██████████] 100%
 
 ## Session Continuity
 
-Last session: 2026-03-16T13:00:00Z
-Stopped at: Completed 102-05-PLAN.md — Phase 102 complete, v2.1 milestone complete
+Last session: 2026-03-16T23:32:00Z
+Stopped at: Completed 103-01-PLAN.md
 Resume file: None
-Next action: v2.1 milestone shipped — all 4 phases (99-102) complete
+Next action: Execute 103-02-PLAN.md (structural gaps)
