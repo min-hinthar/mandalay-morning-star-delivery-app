@@ -28,6 +28,8 @@ const STATUS_TINT: Record<string, string> = {
   in_progress: "bg-blue-50/50",
   completed: "bg-green-50/50",
   planned: "bg-gray-50/50",
+  assigned: "bg-blue-50/50",
+  accepted: "bg-green-50/50",
 };
 
 // ============================================
@@ -105,6 +107,11 @@ export function RouteCardRow({ route, selected, onClick }: RouteCardRowProps) {
               {format(parseISO(route.deliveryDate), "EEE, MMM d")}
             </p>
             <p className="text-xs text-text-muted font-mono">#{route.id.slice(0, 8)}</p>
+            {route.status === "planned" && route.declinedByDriverName && (
+              <p className="text-xs text-status-error">
+                Declined by {route.declinedByDriverName}
+              </p>
+            )}
           </div>
         </div>
 
@@ -185,6 +192,11 @@ export function RouteCardRow({ route, selected, onClick }: RouteCardRowProps) {
                 {format(parseISO(route.deliveryDate), "EEE, MMM d")}
               </p>
               <p className="text-xs text-text-muted">{route.driver?.fullName || "Unassigned"}</p>
+              {route.status === "planned" && route.declinedByDriverName && (
+                <p className="text-xs text-status-error">
+                  Declined by {route.declinedByDriverName}
+                </p>
+              )}
             </div>
           </div>
           <StatusBadge status={route.status} />

@@ -27,6 +27,8 @@ type StatusFilter = "all" | RouteStatus;
 const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
   { value: "all", label: "All Routes" },
   { value: "planned", label: "Planned" },
+  { value: "assigned", label: "Assigned" },
+  { value: "accepted", label: "Accepted" },
   { value: "in_progress", label: "In Progress" },
   { value: "completed", label: "Completed" },
 ];
@@ -160,6 +162,8 @@ export default function AdminRoutesPage() {
   const stats = {
     total: routes.length,
     planned: routes.filter((r) => r.status === "planned").length,
+    assigned: routes.filter((r) => r.status === "assigned").length,
+    accepted: routes.filter((r) => r.status === "accepted").length,
     inProgress: routes.filter((r) => r.status === "in_progress").length,
     completed: routes.filter((r) => r.status === "completed").length,
     totalStops: routes.reduce((sum, r) => sum + r.stopCount, 0),
@@ -206,6 +210,8 @@ export default function AdminRoutesPage() {
           <RoutesStatsCards
             total={stats.total}
             planned={stats.planned}
+            assigned={stats.assigned}
+            accepted={stats.accepted}
             inProgress={stats.inProgress}
             completed={stats.completed}
           />

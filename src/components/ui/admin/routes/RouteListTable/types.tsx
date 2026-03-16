@@ -14,6 +14,7 @@ export interface AdminRoute {
   completionRate: number;
   createdAt: string;
   estimatedDurationMinutes?: number | null;
+  declinedByDriverName?: string | null;
 }
 
 export interface RouteListTableProps {

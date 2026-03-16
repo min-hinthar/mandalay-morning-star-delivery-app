@@ -36,6 +36,7 @@ interface AvailableRoute {
   id: string;
   driverName: string | null;
   stopCount: number;
+  status: string;
 }
 
 export function RouteDetailClient() {
@@ -83,11 +84,12 @@ export function RouteDetailClient() {
             };
             setAvailableRoutes(
               all
-                .filter((r: RouteRow) => r.id !== routeId && r.status === "planned")
+                .filter((r: RouteRow) => r.id !== routeId && ["planned", "assigned", "accepted"].includes(r.status))
                 .map((r: RouteRow) => ({
                   id: r.id,
                   driverName: r.driver?.fullName ?? null,
                   stopCount: r.stopCount,
+                  status: r.status,
                 }))
             );
           }
@@ -333,7 +335,7 @@ export function RouteDetailClient() {
               open={routeActions.showMergeModal}
               onOpenChange={routeActions.setShowMergeModal}
               routeId={routeId}
-              availableRoutes={availableRoutes.map((r) => ({ ...r, status: "planned" }))}
+              availableRoutes={availableRoutes}
               onSuccess={routeActions.onMergeComplete}
               onOptimize={() => setOptimizationModalOpen(true)}
             />
