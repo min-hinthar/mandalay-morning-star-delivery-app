@@ -94,7 +94,6 @@ export { useAuth } from "./useAuth";
 // REALTIME & TRACKING
 // ============================================
 
-export { useLocationTracking } from "./useLocationTracking";
 export { useTrackingSubscription } from "./useTrackingSubscription";
 
 // ============================================
