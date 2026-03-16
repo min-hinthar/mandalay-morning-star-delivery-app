@@ -5,9 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { m } from "framer-motion";
 import { format, startOfDay, parseISO, addDays, subDays } from "date-fns";
-import { RefreshCw, Plus, Filter, MapPin, Calendar, ChevronLeft, ChevronRight } from "lucide-react";
+import { RefreshCw, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToastV8";
 import { RouteListTable, type AdminRoute } from "@/components/ui/admin/routes/RouteListTable";
@@ -21,17 +20,7 @@ import { InlineErrorCard } from "@/components/ui/admin/InlineErrorCard";
 import { RoutesPageSkeleton } from "@/components/ui/admin/routes/RouteListTable/RoutesPageSkeleton";
 import type { RouteStatus } from "@/types/driver";
 import { RoutesStatsCards } from "./RoutesStatsCards";
-
-type StatusFilter = "all" | RouteStatus;
-
-const STATUS_FILTERS: { value: StatusFilter; label: string }[] = [
-  { value: "all", label: "All Routes" },
-  { value: "planned", label: "Planned" },
-  { value: "assigned", label: "Assigned" },
-  { value: "accepted", label: "Accepted" },
-  { value: "in_progress", label: "In Progress" },
-  { value: "completed", label: "Completed" },
-];
+import { RoutePageHeader, type StatusFilter } from "./RoutePageHeader";
 
 export default function AdminRoutesPage() {
   const router = useRouter();
@@ -170,6 +159,15 @@ export default function AdminRoutesPage() {
     deliveredStops: routes.reduce((sum, r) => sum + r.deliveredCount, 0),
   };
 
+  const statusCounts = {
+    all: routes.length,
+    planned: stats.planned,
+    assigned: stats.assigned,
+    accepted: stats.accepted,
+    in_progress: stats.inProgress,
+    completed: stats.completed,
+  };
+
   return (
     <SkeletonCrossfade isLoading={loading} skeleton={<RoutesPageSkeleton />}>
       <div className="p-4 md:p-8 space-y-6">
@@ -217,107 +215,21 @@ export default function AdminRoutesPage() {
           />
         )}
 
-        {/* Date Navigation & Status Filters */}
+        {/* Date nav, status filters, delivery progress */}
         {!error && (
-          <m.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
-          >
-            <div className="flex items-center gap-2 bg-surface-primary rounded-xl border border-accent-teal/10 p-1">
-              <Button variant="ghost" size="icon" onClick={goToPreviousDay} className="h-8 w-8">
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="flex items-center gap-2 px-3">
-                <Calendar className="h-4 w-4 text-accent-teal" />
-                <span className="text-sm font-medium min-w-[120px] text-center">
-                  {selectedDate ? format(parseISO(selectedDate), "EEE, MMM d") : "All Dates"}
-                </span>
-              </div>
-              <Button variant="ghost" size="icon" onClick={goToNextDay} className="h-8 w-8">
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-              {!selectedDate && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={goToToday}
-                  className="text-xs text-accent-teal hover:text-accent-teal"
-                >
-                  Today
-                </Button>
-              )}
-              {selectedDate && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearDateFilter}
-                  className="text-xs text-accent-teal hover:text-accent-teal"
-                >
-                  Clear
-                </Button>
-              )}
-            </div>
-
-            <div className="flex items-center gap-2 flex-wrap">
-              <div className="flex items-center gap-2 text-text-muted">
-                <Filter className="h-4 w-4" />
-                <span className="text-sm hidden sm:inline">Status:</span>
-              </div>
-              {STATUS_FILTERS.map((f) => {
-                const count =
-                  f.value === "all"
-                    ? routes.length
-                    : routes.filter((r) => r.status === f.value).length;
-                const isActive = statusFilter === f.value;
-
-                return (
-                  <Badge
-                    key={f.value}
-                    variant={isActive ? "default" : "outline"}
-                    className={cn(
-                      "cursor-pointer transition-all",
-                      isActive
-                        ? "bg-accent-teal hover:bg-accent-teal/90 text-text-inverse border-transparent"
-                        : "bg-surface-primary border-accent-teal/20 text-text-primary hover:bg-accent-teal/10 hover:border-accent-teal/30"
-                    )}
-                    onClick={() => setStatusFilter(f.value)}
-                  >
-                    {f.label}
-                    {count > 0 && <span className="ml-1.5 text-xs opacity-80">({count})</span>}
-                  </Badge>
-                );
-              })}
-            </div>
-          </m.div>
-        )}
-
-        {/* Delivery Progress Summary */}
-        {!error && stats.totalStops > 0 && (
-          <m.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.25 }}
-            className="bg-gradient-to-r from-accent-teal/5 to-accent-teal/10 rounded-xl border border-accent-teal/10 p-4"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <MapPin className="h-5 w-5 text-accent-teal" />
-                <div>
-                  <p className="text-sm font-medium text-text-primary">Delivery Progress</p>
-                  <p className="text-xs text-text-muted">
-                    {stats.deliveredStops} of {stats.totalStops} stops completed
-                  </p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="text-2xl font-display text-text-primary">
-                  {Math.round((stats.deliveredStops / stats.totalStops) * 100)}%
-                </p>
-              </div>
-            </div>
-          </m.div>
+          <RoutePageHeader
+            selectedDate={selectedDate}
+            statusFilter={statusFilter}
+            routeCount={routes.length}
+            statusCounts={statusCounts}
+            deliveredStops={stats.deliveredStops}
+            totalStops={stats.totalStops}
+            onPreviousDay={goToPreviousDay}
+            onNextDay={goToNextDay}
+            onToday={goToToday}
+            onClearDate={clearDateFilter}
+            onStatusFilterChange={setStatusFilter}
+          />
         )}
 
         {/* Routes Table */}
