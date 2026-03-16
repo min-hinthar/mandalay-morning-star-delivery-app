@@ -11,6 +11,7 @@ import { OpsKPIGrid } from "@/components/ui/admin/ops/OpsKPIGrid";
 import { OpsOrderList } from "@/components/ui/admin/ops/OpsOrderList";
 import { OpsBulkToolbar } from "@/components/ui/admin/ops/OpsBulkToolbar";
 import { OpsDriverPanel } from "@/components/ui/admin/ops/OpsDriverPanel";
+import { RouteProgressWidget } from "@/components/ui/admin/ops/RouteProgressWidget";
 import {
   useOpsPolling,
   useCountdown,
@@ -134,6 +135,9 @@ export function OpsCenter({ rules }: OpsCenterProps) {
         onFilterChange={setStatusFilter}
         unassignedCount={unassignedCount}
       />
+
+      {/* Route progress widget */}
+      <RouteProgressWidget />
 
       {/* Order list with checkboxes and time window grouping */}
       <OpsOrderList
