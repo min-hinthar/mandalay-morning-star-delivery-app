@@ -32,10 +32,10 @@ Requirements for Route Operations & Admin Mobile milestone. Each maps to roadmap
 
 ### Admin Mobile
 
-- [ ] **MOBL-01**: Admin sidebar converts to drawer/bottom nav on mobile
-- [ ] **MOBL-02**: Admin tables convert to card layouts on mobile
-- [ ] **MOBL-03**: All admin touch targets meet 44px minimum
-- [ ] **MOBL-04**: Route progress widget on ops dashboard (driver + progress bar + delivered/total)
+- [x] **MOBL-01**: Admin sidebar converts to drawer/bottom nav on mobile
+- [x] **MOBL-02**: Admin tables convert to card layouts on mobile
+- [x] **MOBL-03**: All admin touch targets meet 44px minimum
+- [x] **MOBL-04**: Route progress widget on ops dashboard (driver + progress bar + delivered/total)
 
 ## Future Requirements
 
@@ -91,10 +91,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | DRV-01 | Phase 101 | Complete |
 | DRV-02 | Phase 101 | Complete |
 | DRV-03 | Phase 101 | Complete |
-| MOBL-01 | Phase 102 | Pending |
-| MOBL-02 | Phase 102 | Pending |
-| MOBL-03 | Phase 102 | Pending |
-| MOBL-04 | Phase 102 | Pending |
+| MOBL-01 | Phase 102 | Complete |
+| MOBL-02 | Phase 102 | Complete |
+| MOBL-03 | Phase 102 | Complete |
+| MOBL-04 | Phase 102 | Complete |
 
 **Coverage:**
 - v2.1 requirements: 18 total
