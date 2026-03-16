@@ -85,7 +85,7 @@
 - [x] **Phase 100: Admin Route Editing** - Drag-reorder stops, split/merge routes, driver reassignment with @dnd-kit (completed 2026-03-15)
 - [x] **Phase 101: Driver Experience** - Route acceptance, page audit, stop reordering in advanced mode (completed 2026-03-16)
 - [x] **Phase 102: Admin Mobile UX** - Sidebar to drawer, tables to cards, touch targets, route progress widget (completed 2026-03-16)
-- [ ] **Phase 103: Tech Debt Cleanup & Nyquist Compliance** - Wire area_description, error feedback, dead export removal, E2E assertions, Nyquist validation (gap closure)
+- [ ] **Phase 103: Tech Debt Cleanup & Nyquist Compliance** - 19 structural gaps (5 medium, 8 low, 6 info), barrel wiring, error handling, dead code, E2E assertions, Nyquist validation (gap closure)
 
 ## Phase Details
 
@@ -162,17 +162,55 @@ Plans:
 - [ ] 102-05-PLAN.md — Touch target sweep + reduced-motion sweep + final verification checkpoint
 
 ### Phase 103: Tech Debt Cleanup & Nyquist Compliance
-**Goal**: Close all audit-identified tech debt, wire cosmetic integration gap, fill E2E test stubs, and achieve Nyquist compliance across all v2.1 phases
+**Goal**: Close all 19 structural/wiring gaps found in deep audit of Phases 99-102, clean dead code, fix error handling, fill test stubs, and achieve Nyquist compliance
 **Depends on**: Phase 102 (all feature work complete)
 **Requirements**: None (all 18/18 satisfied — this phase is gap closure only)
-**Gap Closure**: Closes gaps from v2.1-MILESTONE-AUDIT.md
+**Gap Closure**: Closes gaps from structural audit + v2.1-MILESTONE-AUDIT.md
+
+**Gaps Addressed (19 total):**
+
+*Error handling & UX feedback (5 — medium/low):*
+- GAP-99-01: Guard `CustomerContactCard` mailto link when email is empty
+- GAP-99-02: Show `delivery_instructions` for unrouted orders (DeliveryInfoCard returns null)
+- GAP-99-05: Add toast on notes save error in StopDetail.tsx
+- GAP-100-01: Fix `useReorderStops` optimistic revert (passes new stops to onError instead of old)
+- GAP-100-04: Add toast on `handleStatusChange`/`handleStopStatusChange` silent revert
+
+*Integration wiring (4 — medium/low):*
+- GAP-101-01: Wire `area_description` from driver page query to AcceptDeclineCard
+- GAP-100-02: Filter merge picker to `planned`-only routes (matches RPC constraint)
+- GAP-CROSS-02: Add 5 missing Phase 100 hooks to `src/lib/hooks/index.ts` barrel
+- GAP-CROSS-03: Add orders barrel to `src/components/ui/admin/index.ts`
+
+*Dead code cleanup (6 — low/info):*
+- GAP-99-03: Remove dead `OrderDetailPanel` composed wrapper or wire it
+- GAP-99-04: Remove unused `showActions` prop from OrderDetailPanel
+- GAP-100-03: Remove unused `currentDriverName` param from useReassignDriver
+- GAP-99-07: Remove dead `formatTime` export from StopCardContent
+- GAP-100-05: Remove dead `getSelectableStops` export
+- GAP-102-03: Remove dead `RouteProgressState` type export
+
+*Responsive & animation (3 — low/info):*
+- GAP-102-01: Fix responsive padding on 5 loading/error skeletons (`p-8` → `p-4 md:p-8`)
+- GAP-102-02: Remove unused `actionSlot` prop from AdminMobileHeader
+- GAP-102-04: Add `shouldAnimate` reduced-motion guard to SectionCard.tsx
+
+*Type safety (1 — info):*
+- GAP-99-06: Add `.returns<>()` type annotation to routeStop query
+
+*Tests & Nyquist:*
+- GAP-102-05: Write real E2E assertions replacing 19 test.skip/it.todo stubs
+- Notes endpoint handler integration test
+- Nyquist validation for phases 99, 100, 102
+
 **Success Criteria** (what must be TRUE):
-  1. `area_description` passed from driver page query to AcceptDeclineCard — MapPin preview visible when data exists
-  2. Notes save error in StopDetail.tsx shows toast feedback to user (no silent swallow)
-  3. Dead `OrderDetailPanel` composed wrapper removed from exports
-  4. `e2e/admin-mobile.spec.ts` has real assertions replacing test.skip stubs
-  5. Notes endpoint has handler integration test (not just Zod schema validation)
-  6. Phases 99, 100, 102 pass Nyquist validation (wave_0_complete: true)
+  1. All 5 error handling gaps fixed — no silent catch blocks, all mutations show toast on failure
+  2. All 4 integration wiring gaps closed — barrels complete, merge picker filtered, area_description passed
+  3. All 6 dead exports/props removed
+  4. All 3 responsive/animation gaps fixed — responsive padding, reduced-motion guard
+  5. `e2e/admin-mobile.spec.ts` has real assertions (no test.skip stubs)
+  6. Notes endpoint has handler integration test
+  7. Phases 99, 100, 102 pass Nyquist validation (wave_0_complete: true)
 **Plans**: TBD
 
 ## Progress
