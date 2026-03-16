@@ -129,14 +129,14 @@ export default async function RatingsPage({ searchParams }: RatingsPageProps) {
 
   if (ratingsError) {
     return (
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <p className="text-status-error">Failed to load ratings.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 md:p-0 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-text-primary">Ratings</h1>
@@ -182,7 +182,9 @@ export default async function RatingsPage({ searchParams }: RatingsPageProps) {
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-card border border-border-subtle bg-surface-primary">
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto rounded-card border border-border-subtle bg-surface-primary">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border-subtle bg-surface-secondary">
@@ -216,6 +218,30 @@ export default async function RatingsPage({ searchParams }: RatingsPageProps) {
             </tbody>
           </table>
         </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3">
+          {ratings.map((r) => (
+            <div key={r.id} className="rounded-lg border border-border p-4">
+              <div className="flex items-center justify-between">
+                <StarDisplay rating={r.rating} />
+                <span className="text-xs text-text-muted">{formatDate(r.submitted_at)}</span>
+              </div>
+              <p className="text-sm font-medium mt-1">
+                {r.orders.profiles?.full_name ?? "Unknown"}
+              </p>
+              <p className="text-xs text-text-secondary font-mono">
+                Order #{r.orders.id.slice(0, 8).toUpperCase()}
+              </p>
+              {r.feedback_text && (
+                <p className="text-sm text-text-secondary line-clamp-2 mt-2">
+                  {r.feedback_text}
+                </p>
+              )}
+            </div>
+          ))}
+          </div>
+        </>
       )}
     </div>
   );
