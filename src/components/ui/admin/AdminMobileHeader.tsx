@@ -1,16 +1,11 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Drawer } from "@/components/ui/Drawer";
 import { AdminNav } from "@/components/ui/admin/AdminNav";
-
-interface AdminMobileHeaderProps {
-  /** Optional right-side action element (e.g., "Add" button on menu page) */
-  actionSlot?: ReactNode;
-}
 
 /** Map pathname segments to page titles (UI-SPEC copywriting contract) */
 export function getPageTitle(pathname: string): string {
@@ -43,7 +38,7 @@ export function getPageTitle(pathname: string): string {
   return titles[pathname] ?? "Admin";
 }
 
-export function AdminMobileHeader({ actionSlot }: AdminMobileHeaderProps) {
+export function AdminMobileHeader() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const pageTitle = getPageTitle(pathname);
@@ -65,8 +60,8 @@ export function AdminMobileHeader({ actionSlot }: AdminMobileHeaderProps) {
 
         <h1 className="flex-1 text-center font-display text-lg font-bold truncate">{pageTitle}</h1>
 
-        {/* Right action slot -- renders provided element or 44px spacer for title centering */}
-        {actionSlot ?? <div className="w-11" aria-hidden="true" />}
+        {/* 44px spacer for title centering */}
+        <div className="w-11" aria-hidden="true" />
       </header>
 
       <Drawer
