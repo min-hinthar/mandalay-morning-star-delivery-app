@@ -3,11 +3,42 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Route Operations & Admin Mobile
 status: active
+stopped_at: Completed 101-03-PLAN.md
+last_updated: "2026-03-16T08:24:16.733Z"
+last_activity: 2026-03-16 — Completed 101-03 Status Filter Audit & Admin PATCH Auto-Transition
+progress:
+  total_phases: 4
+  completed_phases: 2
+  total_plans: 13
+  completed_plans: 9
+---
+
+---
+gsd_state_version: 1.0
+milestone: v2.1
+milestone_name: Route Operations & Admin Mobile
+status: active
+stopped_at: Completed 101-01-PLAN.md
+last_updated: "2026-03-16T08:23:42.846Z"
+last_activity: 2026-03-16 — Completed 101-01 Route Status Enum & Type Foundation
+progress:
+  total_phases: 4
+  completed_phases: 2
+  total_plans: 13
+  completed_plans: 9
+  percent: 69
+---
+
+---
+gsd_state_version: 1.0
+milestone: v2.1
+milestone_name: Route Operations & Admin Mobile
+status: active
 stopped_at: Completed 101-01-PLAN.md
 last_updated: "2026-03-16T08:15:09.589Z"
 last_activity: 2026-03-15 — Completed 100-04 Split & Merge Route UI
 progress:
-  total_phases: 4
+  [███████░░░] 69%
   completed_phases: 2
   total_plans: 13
   completed_plans: 8
@@ -86,9 +117,9 @@ See: .planning/PROJECT.md (updated 2026-03-14)
 ## Current Position
 
 Phase: 101 of 102 (Driver Experience) — 3 of 4 in milestone
-Plan: 1 of 6 complete
+Plan: 3 of 6 complete
 Status: Executing Phase 101
-Last activity: 2026-03-16 — Completed 101-01 Route Status Enum & Type Foundation
+Last activity: 2026-03-16 — Completed 101-03 Status Filter Audit & Admin PATCH Auto-Transition
 
 Progress: [██████░░░░] 62%
 
@@ -114,6 +145,7 @@ Progress: [██████░░░░] 62%
 | Phase 100 P03 | 13min | 2 tasks | 12 files |
 | Phase 100 P04 | 12min | 2 tasks | 13 files |
 | Phase 101 P01 | 3min | 2 tasks | 7 files |
+| Phase 101 P03 | 5min | 1 tasks | 17 files |
 
 ## Accumulated Context
 
@@ -145,6 +177,8 @@ Progress: [██████░░░░] 62%
 - Enum extension in separate migration file from backfill for PostgreSQL transaction safety
 - Split route sets new route to assigned if driver provided; merge resets target to assigned
 - admin_route_decline email type mapped to order_updates preference key
+- DELETE handler allows assigned but not accepted (driver committed)
+- NEXT_STATUSES: assigned->planned, accepted->in_progress
 
 ### Decisions (Phase 100)
 
@@ -168,7 +202,7 @@ Progress: [██████░░░░] 62%
 
 ## Session Continuity
 
-Last session: 2026-03-16T08:15:09.585Z
-Stopped at: Completed 101-01-PLAN.md
+Last session: 2026-03-16T08:24:16.730Z
+Stopped at: Completed 101-03-PLAN.md
 Resume file: None
 Next action: Continue with 101-02-PLAN.md (Accept/Decline API + Email)
