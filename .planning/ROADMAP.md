@@ -150,11 +150,14 @@ Plans:
   2. All admin data tables render as card layouts on mobile (no horizontal scroll)
   3. Every interactive element on admin pages meets 44px minimum touch target
   4. Ops dashboard shows a route progress widget per active route (driver name, progress bar, delivered/total count)
-**Plans**: TBD
+**Plans**: 5 plans
 
 Plans:
-- [ ] 102-01: TBD
-- [ ] 102-02: TBD
+- [ ] 102-01-PLAN.md — Prerequisites (Drawer cleanup, photos extraction) + admin mobile navigation (header, drawer, layout)
+- [ ] 102-02-PLAN.md — Flex-based table card conversions (menu, categories, routes)
+- [ ] 102-03-PLAN.md — HTML table card conversions (emails, feedback, ratings) + responsive padding sweep
+- [ ] 102-04-PLAN.md — Route progress widget (API endpoint, polling hook, widget component, OpsCenter wiring)
+- [ ] 102-05-PLAN.md — Touch target sweep + reduced-motion sweep + final verification checkpoint
 
 ## Progress
 
@@ -181,7 +184,7 @@ Phases execute in numeric order: 99 -> 100 -> 101 -> 102
 | 99. Foundation Fixes | 3/3 | Complete    | 2026-03-15 | - |
 | 100. Admin Route Editing | 4/4 | Complete    | 2026-03-15 | - |
 | 101. Driver Experience | 6/6 | Complete    | 2026-03-16 | - |
-| 102. Admin Mobile UX | v2.1 | 0/TBD | Not started | - |
+| 102. Admin Mobile UX | v2.1 | 0/5 | Not started | - |
 
 ---
 
