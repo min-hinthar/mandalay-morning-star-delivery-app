@@ -1,14 +1,16 @@
 # Phase 101: Driver Experience - Research
 
-**Researched:** 2026-03-15
+**Researched:** 2026-03-16
 **Domain:** Driver mobile UX, PostgreSQL enum migration, drag-and-drop reorder, React Email notifications
-**Confidence:** HIGH
+**Confidence:** VERY HIGH
 
 ## Summary
 
-Phase 101 extends the driver mobile experience with accept/decline route flow, page audit for real data, and driver stop reorder. The technical risk is concentrated in the PostgreSQL enum migration (`ALTER TYPE ADD VALUE` is non-transactional) and the codebase-wide status filter audit (9+ queries hardcode `["planned", "in_progress"]` that must include `assigned` and `accepted`). All UI components and API patterns exist -- this phase extends them, not builds new.
+Phase 101 extends the driver mobile experience with accept/decline route flow, page audit for real data, and driver stop reorder. The technical risk is concentrated in the PostgreSQL enum migration (`ALTER TYPE ADD VALUE` is non-transactional) and the codebase-wide status filter audit (9 queries hardcode `["planned", "in_progress"]` that must include `assigned` and `accepted`). All UI components and API patterns exist -- this phase extends them, not builds new.
 
 The reorder feature is near-direct reuse of Phase 100 assets (`DragReorderList<T>`, `batch_update_stop_indices` RPC, `useReorderStops` hook pattern). The accept/decline flow introduces two new API endpoints, a React Email template, and conditional rendering in existing driver switch components. The email system (`sendEmail` with Resend + retry + kill switch) is fully built.
+
+Deep dive audit confirmed: 9 status filter queries need update, 6 `!== "planned"` guards need expansion, 3 admin UI status maps need new entries, 1 Zod schema + 1 TypeScript type need extension, 2 email type registrations needed, 2 RPCs need status-aware updates, and 4 dead code files need removal (LocationTracker cleanup).
 
 **Primary recommendation:** Migration first, type updates second, status filter audit third -- then UI in parallel. The enum migration MUST be its own separate SQL statement outside any transaction block, and backfill MUST be a separate migration file applied after.
 
@@ -69,7 +71,7 @@ None -- discussion stayed within phase scope
 | ID | Description | Research Support |
 |----|-------------|-----------------|
 | DRV-01 | Driver can accept/decline an assigned route before starting | New `assigned`/`accepted` enum values, accept/decline API endpoints, conditional rendering in DriverHomeSwitch/DriverRouteSwitch, React Email decline notification, admin ops dashboard badge updates |
-| DRV-02 | Driver page audit -- all pages load real data, no empty/stub content | Status filter audit for 9+ queries with `["planned", "in_progress"]`, testing both simple/advanced modes, new status handling in all driver pages |
+| DRV-02 | Driver page audit -- all pages load real data, no empty/stub content | Status filter audit for 9 queries with `["planned", "in_progress"]`, testing both simple/advanced modes, new status handling in all driver pages |
 | DRV-03 | Driver can reorder remaining pending stops in advanced mode | DragReorderList reuse, new POST /api/driver/routes/[routeId]/reorder endpoint, useDriverReorderStops hook, filter reorderable stops (pending/enroute only) |
 </phase_requirements>
 
@@ -289,18 +291,9 @@ if (driverId !== undefined) {
 
 ### Pitfall 2: Status Filter Audit Incomplete
 **What goes wrong:** Some queries still filter `.in("status", ["planned", "in_progress"])` and miss routes with `assigned` or `accepted` status. Driver sees no route despite having one assigned.
-**Why it happens:** 9+ files across driver pages, driver APIs, and admin APIs hardcode the old status filter.
-**How to avoid:** Full grep audit. Every `.in("status", ["planned", "in_progress"])` in driver context MUST become `.in("status", ["assigned", "accepted", "planned", "in_progress"])` or equivalent.
+**Why it happens:** 9 files across driver pages, driver APIs, and admin APIs hardcode the old status filter.
+**How to avoid:** Full grep audit. Every `.in("status", ["planned", "in_progress"])` in driver context MUST become `.in("status", ["assigned", "accepted", "planned", "in_progress"])` or equivalent. See Complete Status Query Audit section for exhaustive list.
 **Warning signs:** Driver dashboard shows "No Route Today" when route exists with `assigned` status.
-**Affected files (from codebase grep):**
-- `src/app/(driver)/driver/page.tsx` lines 125, 156
-- `src/app/(driver)/driver/route/page.tsx` line 77
-- `src/app/(driver)/driver/schedule/page.tsx` line 65
-- `src/app/api/driver/routes/upcoming/route.ts` line 58
-- `src/app/api/driver/routes/active/route.ts` line 168
-- `src/app/api/driver/me/route.ts` line 117
-- `src/app/api/admin/drivers/[id]/route.ts` line 299
-- `src/app/api/admin/drivers/[id]/archive/route.ts` line 93
 
 ### Pitfall 3: prevent_duplicate_active_assignment Trigger Mismatch
 **What goes wrong:** Trigger currently checks `r.status != 'completed'` to determine "active". With new enum values, `assigned` and `accepted` routes are active but the trigger already handles them (they satisfy `!= 'completed'`). However, the split_route RPC creates new routes with `status = 'planned'` -- if splitting an assigned route, the new route should be `assigned`.
@@ -310,20 +303,20 @@ if (driverId !== undefined) {
 
 ### Pitfall 4: Admin PATCH Endpoint Must Auto-Transition to `assigned`
 **What goes wrong:** Admin saves driver assignment via PATCH but route stays `planned`. Driver never sees accept/decline flow.
-**Why it happens:** Current PATCH handler just sets `driver_id` without touching `status`.
+**Why it happens:** Current PATCH handler (lines 329-331 of `src/app/api/admin/routes/[id]/route.ts`) just sets `driver_id` without touching `status`.
 **How to avoid:** When `driverId` is set to a non-null value, also set `status = 'assigned'`. When `driverId` is set to null, revert to `planned`.
 **Warning signs:** Route has driver_id but status is still `planned`.
 
 ### Pitfall 5: Start Route Must Accept from `accepted` (Not Just `planned`)
 **What goes wrong:** Driver accepts route, then taps "Start Route" -- API rejects because it checks `status !== "planned"`.
-**Why it happens:** Existing `/api/driver/routes/[routeId]/start` checks `route.status !== "planned"` (line 57).
+**Why it happens:** Existing `/api/driver/routes/[routeId]/start` line 57: `if (route.status !== "planned")`.
 **How to avoid:** Update check to accept both `planned` and `accepted`: `if (route.status !== "planned" && route.status !== "accepted")`.
 **Warning signs:** Driver gets "Cannot start route with status: accepted" error.
 
 ### Pitfall 6: Email Type Registration in types.ts
 **What goes wrong:** New email type `admin_route_decline` not registered in `EmailType` union or `ADMIN_EMAIL_TYPES` array -- TypeScript error or notification_logs insert fails.
 **Why it happens:** The `sendEmail` function requires `type: EmailType`. New email types must be added to the union in `src/lib/email/types.ts`.
-**How to avoid:** Add `"admin_route_decline"` to both `EmailType` union and `ADMIN_EMAIL_TYPES` array. Since it's admin-only, it won't be logged to `notification_logs`.
+**How to avoid:** Add `"admin_route_decline"` to: (1) `EmailType` union type, (2) `ADMIN_EMAIL_TYPES` array, (3) `MANDATORY_EMAIL_TYPES` array. Also add case to `mapTypeToPrefKey` switch (return `"order_updates"`).
 **Warning signs:** TypeScript error on `type: "admin_route_decline"`.
 
 ### Pitfall 7: Safe Area Insets on Sticky Bottom Bar
@@ -334,9 +327,21 @@ if (driverId !== undefined) {
 
 ### Pitfall 8: LocationTracker Removal Breaks Imports
 **What goes wrong:** Removing LocationTracker component breaks imports in ActiveRouteView and the barrel export in `src/components/ui/driver/index.ts`.
-**Why it happens:** Two files import LocationTracker: `ActiveRouteView.tsx` (line 19) and `src/components/ui/driver/index.ts` (line 18). Plus `useLocationTracking` hook is only used by LocationTracker.
-**How to avoid:** Remove in order: 1) Remove usage in ActiveRouteView, 2) Remove barrel export, 3) Delete LocationTracker.tsx, 4) Delete useLocationTracking.ts, 5) Check for any other dead imports.
+**Why it happens:** Four files form the dependency tree: `ActiveRouteView.tsx` (line 19 import, line 166 render), `src/components/ui/driver/index.ts` (line 18 export), `LocationTracker.tsx` (component), `useLocationTracking.ts` (hook), `src/lib/hooks/index.ts` (line 97 export).
+**How to avoid:** Remove in order: 1) Remove usage in ActiveRouteView, 2) Remove barrel export from driver/index.ts, 3) Delete LocationTracker.tsx, 4) Remove hook barrel export from hooks/index.ts, 5) Delete useLocationTracking.ts.
 **Warning signs:** Build error on missing module.
+
+### Pitfall 9: RLS Policy on Decline -- Driver Loses Access After driver_id Nulled
+**What goes wrong:** Decline nulls `driver_id`, but the driver is still in the API handler and needs the response to return successfully. If subsequent queries run after the null, they fail with RLS denial.
+**Why it happens:** Routes RLS policy (`002_rls_policies.sql` lines 247-263) uses `driver_id = get_my_driver_id()`. Once nulled, driver cannot SELECT/UPDATE that route.
+**How to avoid:** The decline endpoint updates `driver_id = null` as the final mutation, then immediately returns success. No subsequent queries on that route after nulling. Alternatively, use service client (bypasses RLS) for the decline mutation. Recommend service client approach to be safe.
+**Warning signs:** Decline succeeds but driver gets error on redirect or subsequent page load (expected behavior -- route is no longer theirs).
+
+### Pitfall 10: Split/Merge RPCs Need Status Updates for New Statuses
+**What goes wrong:** `split_route` RPC hardcodes `status = 'planned'` (line 41) for new routes. `merge_routes` RPC requires `source.status = 'planned'` (line 83). Both need updates for assigned/accepted routes.
+**Why it happens:** RPCs were written for the 3-status world.
+**How to avoid:** Per locked decision: split/merge available on planned + assigned + accepted. Update `split_route` to carry over driver assignment status. Update `merge_routes` to accept `assigned`/`accepted` as valid source statuses.
+**Warning signs:** Split on assigned route creates new route as `planned` instead of `assigned`. Merge fails on assigned source route.
 
 ## Code Examples
 
@@ -379,11 +384,26 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
 import { after } from "next/server";
 import { sendEmail } from "@/lib/email/send";
 import { RouteDeclineAlert } from "@/emails/RouteDeclineAlert";
+import { createServiceClient } from "@/lib/supabase/service";
 
 export async function POST(request: NextRequest, { params }: RouteParams) {
   const { routeId } = await params;
   const auth = await requireDriver();
-  // ... auth + rate limit + ownership check ...
+  // ... auth + rate limit ...
+
+  // Use service client to bypass RLS (driver_id will be nulled)
+  const serviceClient = createServiceClient();
+
+  // Verify ownership with driver's supabase client first
+  const { data: route } = await auth.supabase
+    .from("routes")
+    .select("id, status, driver_id, delivery_date, stops:route_stops(count)")
+    .eq("id", routeId)
+    .single();
+
+  if (!route || route.driver_id !== auth.driverId) {
+    return NextResponse.json({ error: "Not authorized" }, { status: 403 });
+  }
 
   if (route.status !== "assigned" && route.status !== "accepted") {
     return NextResponse.json(
@@ -395,8 +415,17 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
   const body = await request.json();
   const reason = body.reason?.trim() || null;
 
+  // Get driver name before nulling (for email)
+  const { data: driver } = await serviceClient
+    .from("drivers")
+    .select("profiles(full_name)")
+    .eq("id", auth.driverId)
+    .single();
+  const driverName = driver?.profiles?.full_name ?? "Unknown Driver";
+
   // Decline: null driver, revert to planned, record timestamps
-  const { error } = await supabase
+  // Use service client to bypass RLS since driver_id is being nulled
+  const { error } = await serviceClient
     .from("routes")
     .update({
       driver_id: null,
@@ -404,6 +433,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       accepted_at: null,
       declined_at: new Date().toISOString(),
       declined_reason: reason,
+      declined_by: auth.driverId, // Persist who declined even after driver_id nulled
     })
     .eq("id", routeId)
     .select("id");
@@ -414,16 +444,31 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
   // Fire-and-forget email to admin
   after(async () => {
-    const adminEmail = await getAdminEmail(supabase); // app_settings fallback to env
-    await sendEmail({
-      to: adminEmail,
-      subject: `Route Declined by ${driverName}`,
-      react: <RouteDeclineAlert driverName={driverName} routeId={routeId} ... />,
-      type: "admin_route_decline",
-      orderId: routeId,
-      userId: auth.userId,
-      mandatory: true,
-    });
+    // Try app_settings first, fall back to env
+    const { data: setting } = await serviceClient
+      .from("app_settings")
+      .select("value")
+      .eq("key", "admin_notification_email")
+      .single();
+    const adminEmail = setting?.value || process.env.ADMIN_EMAIL || "";
+
+    if (adminEmail) {
+      await sendEmail({
+        to: adminEmail,
+        subject: `Route Declined by ${driverName}`,
+        react: <RouteDeclineAlert
+          driverName={driverName}
+          routeDate={route.delivery_date}
+          stopCount={route.stops?.[0]?.count ?? 0}
+          reason={reason}
+          routeId={routeId}
+        />,
+        type: "admin_route_decline",
+        orderId: routeId,
+        userId: auth.userId,
+        mandatory: true,
+      });
+    }
   });
 
   return NextResponse.json({ success: true });
@@ -484,6 +529,7 @@ ALTER TYPE route_status ADD VALUE IF NOT EXISTS 'accepted';
 ALTER TABLE routes ADD COLUMN IF NOT EXISTS accepted_at TIMESTAMPTZ;
 ALTER TABLE routes ADD COLUMN IF NOT EXISTS declined_at TIMESTAMPTZ;
 ALTER TABLE routes ADD COLUMN IF NOT EXISTS declined_reason TEXT;
+ALTER TABLE routes ADD COLUMN IF NOT EXISTS declined_by UUID REFERENCES drivers(id);
 
 -- Backfill: routes with driver_id and planned status -> assigned
 UPDATE routes SET status = 'assigned'
@@ -528,6 +574,174 @@ export function RouteDeclineAlert({
 }
 ```
 
+## Complete Status Query Audit
+
+Every file:line that needs modification for the new `assigned`/`accepted` statuses.
+
+### Category A: Status Filter Queries (`.in("status", [...])`)
+Must add `"assigned"` and `"accepted"` to the filter array.
+
+| # | File | Line | Current Filter | Context |
+|---|------|------|----------------|---------|
+| 1 | `src/app/(driver)/driver/page.tsx` | 125 | `["planned", "in_progress"]` | Today's route query |
+| 2 | `src/app/(driver)/driver/page.tsx` | 156 | `["planned", "in_progress"]` | Next upcoming route query |
+| 3 | `src/app/(driver)/driver/route/page.tsx` | 77 | `["planned", "in_progress"]` | Active route query |
+| 4 | `src/app/(driver)/driver/schedule/page.tsx` | 65 | `["planned", "in_progress"]` | Upcoming routes 14-day query |
+| 5 | `src/app/api/driver/routes/active/route.ts` | 168 | `["planned", "in_progress"]` | Active route API |
+| 6 | `src/app/api/driver/routes/upcoming/route.ts` | 58 | `["planned", "in_progress"]` | Upcoming routes API |
+| 7 | `src/app/api/driver/me/route.ts` | 117 | `["planned", "in_progress"]` | Driver profile active route count |
+| 8 | `src/app/api/admin/drivers/[id]/route.ts` | 299 | `["planned", "in_progress"]` | Admin driver detail active routes |
+| 9 | `src/app/api/admin/drivers/[id]/archive/route.ts` | 93 | `["planned", "in_progress"]` | Archive guard -- active route check |
+
+### Category B: Strict `"planned"` Guards (`status !== "planned"`)
+Must expand to accept additional statuses.
+
+| # | File | Line | Current Check | Required Change |
+|---|------|------|---------------|-----------------|
+| 1 | `src/app/api/driver/routes/[routeId]/start/route.ts` | 57 | `!== "planned"` | Also allow `"accepted"` |
+| 2 | `src/app/api/admin/routes/[id]/route.ts` (DELETE) | 417 | `!== "planned"` | Also allow `"assigned"` |
+| 3 | `src/app/api/admin/routes/optimize/route.ts` | 70 | `!== "planned"` | Also allow `"assigned"`, `"accepted"` |
+| 4 | `src/app/api/admin/routes/[id]/stops/reassign/route.ts` | 84 | `!== "planned"` (source) | Also allow `"assigned"`, `"accepted"` |
+| 5 | `src/app/api/admin/routes/[id]/stops/reassign/route.ts` | 102 | `!== "planned"` (target) | Also allow `"assigned"`, `"accepted"` |
+| 6 | `src/app/api/admin/routes/[id]/stops/[stopId]/route.ts` | 222 | `!== "planned"` | Also allow `"assigned"`, `"accepted"` (stop add/remove on pre-start routes) |
+
+### Category C: Status-Based Rendering (UI components)
+Must add visual handling for `assigned` and `accepted`.
+
+| # | File | Lines | What Needs Adding |
+|---|------|-------|-------------------|
+| 1 | `src/components/ui/driver/DriverDashboard/RouteCard.tsx` | 79-86, 133-155 | Badge colors + labels for assigned/accepted; action buttons for assigned (accept/decline) and accepted (start route) |
+| 2 | `src/components/ui/driver/ActiveRouteView.tsx` | 170 | Start button: `routeStatus === "planned"` must also render for `"accepted"` |
+| 3 | `src/components/ui/driver/SimpleHome.tsx` | 79-143 | Add assigned/accepted rendering with accept/decline flow |
+| 4 | `src/app/(driver)/driver/DriverHomeSwitch.tsx` | entire | Add branch for assigned status to show AcceptDeclineCard |
+| 5 | `src/app/(driver)/driver/route/DriverRouteSwitch.tsx` | entire | Add branch for assigned/accepted route states |
+| 6 | `src/components/ui/admin/StatusBadge.tsx` | 36-50, 53-61, 69-86 | Add `assigned`/`accepted` to STATUS_COLORS, ACTIVE_STATUSES, STATUS_ICONS |
+| 7 | `src/components/ui/admin/routes/RouteListTable/RouteCardRow.tsx` | 27-31 | Add `assigned`/`accepted` to STATUS_TINT map |
+| 8 | `src/components/ui/admin/routes/RouteDetailClient/RouteHeader.tsx` | 29-49 | Add `assigned`/`accepted` to STATUS_CONFIG map |
+| 9 | `src/components/ui/admin/routes/RouteDetailClient/RouteHeader.tsx` | 121-126 | Status SelectContent: add assigned/accepted options |
+| 10 | `src/components/ui/admin/routes/RouteDetailClient/RouteHeader.tsx` | 128-148 | Conditional actions: also show for assigned/accepted (Add Stops, Optimize) |
+| 11 | `src/app/(admin)/admin/routes/page.tsx` | 27-32 | STATUS_FILTERS: add assigned/accepted filter options |
+| 12 | `src/app/(admin)/admin/routes/page.tsx` | 160-167 | Stats: add assigned/accepted counts |
+| 13 | `src/app/(admin)/admin/routes/RoutesStatsCards.tsx` | entire | Add assigned/accepted stat cards (or combine into "Pending Assignment" counter) |
+
+### Category D: Type and Schema Definitions
+Must extend with new values.
+
+| # | File | Line | What to Add |
+|---|------|------|-------------|
+| 1 | `src/types/driver.ts` | 12 | Add `"assigned" \| "accepted"` to `RouteStatus` union |
+| 2 | `src/lib/validations/route.ts` | 4 | Add `"assigned"`, `"accepted"` to `routeStatusSchema` enum |
+| 3 | `src/types/database.ts` | routes table type | Add `accepted_at`, `declined_at`, `declined_reason`, `declined_by` columns |
+| 4 | `src/lib/email/types.ts` | 18-23 | Add `"admin_route_decline"` to `EmailType` union |
+| 5 | `src/lib/email/types.ts` | 47-54 | Add `"admin_route_decline"` to `MANDATORY_EMAIL_TYPES` |
+| 6 | `src/lib/email/types.ts` | 57-62 | Add `"admin_route_decline"` to `ADMIN_EMAIL_TYPES` |
+| 7 | `src/lib/email/types.ts` | 72-90 | Add `"admin_route_decline"` case to `mapTypeToPrefKey` switch |
+
+### Category E: Database RPCs
+Must handle new statuses in validation logic.
+
+| # | File | Line | What to Change |
+|---|------|------|----------------|
+| 1 | `supabase/migrations/20260315_route_editing_rpcs.sql` (split_route) | 41 | `status = 'planned'` hardcoded -- new route should inherit `'assigned'` when source has driver |
+| 2 | `supabase/migrations/20260315_route_editing_rpcs.sql` (merge_routes) | 83 | `source.status != 'planned'` restriction -- must also accept `'assigned'`, `'accepted'` |
+
+### Category F: Admin PATCH Auto-Transition (NEW behavior)
+
+| # | File | Lines | What to Add |
+|---|------|-------|-------------|
+| 1 | `src/app/api/admin/routes/[id]/route.ts` | 329-331 | When `driverId` set to non-null, also set `status = 'assigned'`, `accepted_at = null` |
+
+### Category G: Dead Code Removal (LocationTracker)
+
+| # | File | Line | Action |
+|---|------|------|--------|
+| 1 | `src/components/ui/driver/ActiveRouteView.tsx` | 19 | Remove `import { LocationTracker }` |
+| 2 | `src/components/ui/driver/ActiveRouteView.tsx` | 164-167 | Remove LocationTracker render block |
+| 3 | `src/components/ui/driver/index.ts` | 18 | Remove `export { LocationTracker }` |
+| 4 | `src/components/ui/driver/LocationTracker.tsx` | entire | Delete file (135 lines) |
+| 5 | `src/lib/hooks/index.ts` | 97 | Remove `export { useLocationTracking }` |
+| 6 | `src/lib/hooks/useLocationTracking.ts` | entire | Delete file |
+
+## Cross-Phase Integration Risks
+
+### Risk 1: Phase 100 Split/Merge RPCs Hardcode `'planned'`
+**Source:** `supabase/migrations/20260315_route_editing_rpcs.sql`
+**Issue:** `split_route` creates new routes with `status = 'planned'` (line 41). `merge_routes` requires source `status != 'planned'` (line 83). Both block new statuses.
+**Impact:** After Phase 101, splitting an assigned/accepted route creates a `planned` route (should be `assigned`). Merging an `assigned` route fails.
+**Resolution:** Create a NEW migration in Phase 101 that `CREATE OR REPLACE FUNCTION` for both RPCs with updated logic. Do NOT modify the Phase 100 migration file.
+**Specific changes needed:**
+- `split_route`: If source has `driver_id` and `p_new_driver_id` is provided, set new route status to `'assigned'`. If source is `assigned`/`accepted`, keep source as `assigned` after split.
+- `merge_routes`: Accept `'assigned'` and `'accepted'` as valid source statuses (change to `NOT IN ('in_progress', 'completed')`).
+
+### Risk 2: Phase 100 RouteHeader STATUS_CONFIG Only Has 3 Entries
+**Source:** `src/components/ui/admin/routes/RouteDetailClient/RouteHeader.tsx` lines 29-49
+**Issue:** `STATUS_CONFIG` is typed as `Record<RouteStatus, ...>`. When `RouteStatus` union expands to include `assigned`/`accepted`, TypeScript will error because those keys are missing.
+**Impact:** Type error at build time. Good -- forces the update.
+**Resolution:** Add entries for `assigned` and `accepted` in Phase 101 implementation.
+
+### Risk 3: Phase 100 RouteDetailClient Merge Modal Filters `status === "planned"`
+**Source:** `src/components/ui/admin/routes/RouteDetailClient/RouteDetailClient.tsx` line 86
+**Issue:** Merge candidate filter: `.filter((r) => r.id !== routeId && r.status === "planned")`. Won't show `assigned`/`accepted` routes as merge candidates.
+**Impact:** Admin can't merge assigned routes from the merge modal.
+**Resolution:** Update filter to include `assigned` and `accepted` per locked decision.
+
+### Risk 4: Phase 99 OrderDetailPanel Integration
+**Source:** Phase 99 context notes OrderDetailPanel used in route detail views.
+**Issue:** No status dependency -- OrderDetailPanel renders order data, not route status.
+**Impact:** None -- no risk.
+**Resolution:** No action needed.
+
+### Risk 5: Admin API DELETE Only Allows `"planned"` Status
+**Source:** `src/app/api/admin/routes/[id]/route.ts` line 417
+**Issue:** `route.status !== "planned"` blocks deletion of `assigned` routes. Per context: admin should be able to delete routes that haven't started.
+**Impact:** Admin can't delete a route that has been assigned to a driver but not yet started.
+**Resolution:** Expand to allow `assigned` status. Do NOT allow deleting `accepted` routes without warning -- driver has committed.
+
+## Applicable Learnings Matrix
+
+Cross-reference of all 13 learnings files against Phase 101 implementation tasks.
+
+| Learning File | Applicable Learning | Affected Task | Risk Level | Mitigation |
+|---------------|-------------------|---------------|------------|------------|
+| `react-patterns.md` | Event listeners belong inside useEffect, not useCallback with state deps | Accept/decline hooks, reorder hooks | MEDIUM | Follow existing hook patterns (useReorderStops) which correctly use useEffect |
+| `react-patterns.md` | useRef on conditional render targets breaks observers | AcceptDeclineCard in conditional render | LOW | Use stable wrapper element, same as Phase 100 DragReorderList |
+| `react-patterns.md` | flex items-center collapses children when content is empty | AcceptDeclineCard empty state | LOW | Ensure min-height or fallback content |
+| `animation.md` | loading="lazy" + opacity:0 containers = images never load | NOT applicable | N/A | No lazy images in accept/decline flow |
+| `nextjs.md` | void asyncFn() killed on Vercel -- use after() | Decline email send | HIGH | Use `after()` from next/server (already planned) |
+| `nextjs.md` | process.env.KEY inlined at build time | Admin email fallback from env | LOW | `ADMIN_EMAIL` is only fallback; primary source is app_settings DB query at runtime |
+| `email-system.md` | EmailType union split -- add to all 3 arrays | Adding `admin_route_decline` | HIGH | Add to EmailType, ADMIN_EMAIL_TYPES, MANDATORY_EMAIL_TYPES, mapTypeToPrefKey |
+| `email-system.md` | getAdminEmails() returns `{ id, email, full_name }[]` | Decline notification recipient | MEDIUM | Can use `getAdminEmails()` OR app_settings. Context says app_settings -- use that |
+| `email-system.md` | after() for email sends in API routes | Decline endpoint | HIGH | Already planned |
+| `testing.md` | Stale tests after validation changes | routeStatusSchema extension | MEDIUM | Check for existing route validation tests that may fail with new enum values |
+| `testing.md` | Supabase mock chain matching matters | New hook tests | LOW | Follow existing useReorderStops.test.ts mock pattern exactly |
+| `testing.md` | Vacuous tests that always pass | New hook tests | LOW | Verify assertions actually test behavior, not just that code doesn't throw |
+| `state-management.md` | Single mutation owner principle | Accept/decline button callbacks | MEDIUM | AcceptDeclineCard fires callback to parent, parent owns mutation |
+| `state-management.md` | Settings sync pipeline for business rules | Admin email setting | LOW | Not a client-side setting -- only used server-side in API route |
+| `supabase-auth.md` | Service client auth.getUser() returns null | Decline endpoint -- get driver name | HIGH | Use `auth.admin.getUserById()` or query `drivers` table directly. Recommend: query drivers table joined to profiles |
+| `supabase-auth.md` | RLS patterns with get_my_driver_id() | Decline endpoint driver_id nulling | HIGH | Use service client for decline mutation to bypass RLS. See Pitfall 9 |
+| `stripe.md` | .update() needs .select("id") to verify row count | All route update mutations | HIGH | Chain `.select("id")` on every `.update()` call |
+| `mobile-ux.md` | touchAction conflicts on drag handles | Driver stop reorder DragHandle | HIGH | `touch-none` on handle, `pan-y` on content -- reuse Phase 100 pattern |
+| `mobile-ux.md` | Safe-area position not padding for iOS fixed buttons | AcceptDeclineBar sticky bottom | HIGH | `style={{ bottom: "env(safe-area-inset-bottom, 0px)" }}` |
+| `mobile-ux.md` | Nested overflow-y-auto blocks wheel events | Driver stop list with reorder | MEDIUM | Single scroll container -- don't nest overflow-y-auto |
+| `data-schema.md` | DEFERRABLE constraint for batch reorder | Driver reorder uses batch_update_stop_indices | LOW | Already handled by existing RPC |
+| `data-schema.md` | New RPC functions need manual database.ts entries | No new RPCs needed | N/A | Phase 101 reuses existing RPCs |
+| `data-schema.md` | Idempotent enum creation | ALTER TYPE ADD VALUE IF NOT EXISTS | HIGH | Always use `IF NOT EXISTS` for re-runnable migrations |
+| `design-tokens.md` | Semantic naming for status colors | New badge colors for assigned/accepted | MEDIUM | Use existing design tokens (bg-status-info-bg, etc.) per StatusBadge pattern |
+| `design-tokens.md` | Non-existent tokens render transparent | Badge color typos | LOW | Test badge rendering visually, verify token names exist in @theme |
+| `tooling.md` | Component deletion requires barrel cleanup | LocationTracker removal | HIGH | Remove from all barrel index.ts files (driver/index.ts, hooks/index.ts) |
+| `tooling.md` | CI format:check fails on unformatted files | New files | MEDIUM | Run `pnpm format:check` before committing |
+| `performance.md` | IntersectionObserver pause when off-screen | NOT applicable | N/A | No infinite scroll or lazy render in accept/decline flow |
+
+### High-Risk Learnings Summary (must address in implementation)
+1. **void asyncFn() killed on Vercel** -- use `after()` for decline email
+2. **EmailType registration** -- add to all 4 locations in types.ts
+3. **Service client for decline** -- bypass RLS when nulling driver_id
+4. **.update() needs .select("id")** -- on every mutation
+5. **touchAction on drag handles** -- reuse Phase 100 pattern
+6. **Safe-area position** -- for AcceptDeclineBar bottom bar
+7. **ALTER TYPE IF NOT EXISTS** -- idempotent migration
+8. **Barrel cleanup on deletion** -- LocationTracker removal
+
 ## State of the Art
 
 | Old Approach | Current Approach | When Changed | Impact |
@@ -547,20 +761,18 @@ Source: [PostgreSQL ALTER TYPE docs](https://www.postgresql.org/docs/current/sql
 
 ## Open Questions
 
-1. **Admin email from app_settings**
-   - What we know: `app_settings` table has key-value pairs. No existing `admin_notification_email` key found in codebase.
-   - What's unclear: Exact key name to use and whether to seed it.
-   - Recommendation: Use key `admin_notification_email` in category `notifications`. Fallback to `ADMIN_EMAIL` env var. Seed via migration if key doesn't exist.
+1. **Admin email from app_settings -- key name**
+   - What we know: `app_settings` table has key-value pairs. No existing `admin_notification_email` key found in codebase. `getAdminEmails()` helper at `src/lib/email/admin-recipients.ts` queries profiles table for role='admin'.
+   - What's unclear: Use app_settings key or existing `getAdminEmails()` helper.
+   - Recommendation: Use `getAdminEmails()` helper since it already exists and returns all admin emails. Decline email should go to all admins. Fallback to `ADMIN_EMAIL` env var if no admin profiles found.
 
 2. **Ops dashboard declined annotation storage**
    - What we know: `declined_at` and `declined_reason` columns will be added. `driver_id` gets nulled on decline.
-   - What's unclear: How to show "Declined by [Driver]" when driver_id is null. Need to store declined_by_driver_name or declined_by_driver_id.
-   - Recommendation: Add `declined_by` column (UUID, nullable, FK to drivers) that persists even when driver_id is nulled. Query joins to get name.
+   - Resolution: Add `declined_by` column (UUID, nullable, FK to drivers) that persists even when `driver_id` is nulled. Query joins `declined_by -> drivers -> profiles` to get name for "Declined by [Driver]" annotation.
 
-3. **Supabase generated types regeneration**
+3. **Supabase generated types update**
    - What we know: New columns and enum values need TypeScript types. `database.ts` is manually maintained.
-   - What's unclear: Whether to regenerate or manually patch.
-   - Recommendation: Manually add to `src/types/database.ts` (route_status type) and `src/types/driver.ts` (RouteStatus union). Follow existing pattern per learnings/data-schema.md.
+   - Resolution: Manually add to `src/types/database.ts` (route_status type + new columns) and `src/types/driver.ts` (RouteStatus union). Follow existing pattern per learnings/data-schema.md.
 
 ## Validation Architecture
 
@@ -598,18 +810,23 @@ Source: [PostgreSQL ALTER TYPE docs](https://www.postgresql.org/docs/current/sql
 ## Sources
 
 ### Primary (HIGH confidence)
-- Codebase analysis: `src/app/api/driver/routes/[routeId]/start/route.ts` -- driver API auth pattern
-- Codebase analysis: `src/lib/hooks/useReorderStops.ts` -- optimistic mutation hook pattern
-- Codebase analysis: `src/lib/email/send.ts` + `src/lib/email/types.ts` -- email system architecture
-- Codebase analysis: `src/components/ui/DragReorderList/DragReorderList.tsx` -- generic drag reorder
-- Codebase analysis: `src/emails/AdminNewOrderAlert.tsx` -- React Email template pattern
-- Codebase analysis: `supabase/migrations/20260315_route_editing_rpcs.sql` -- RPC pattern
-- Codebase analysis: `supabase/migrations/20260312_route_pipeline_hardening.sql` -- trigger behavior
+- Codebase deep audit: every file listed in Complete Status Query Audit verified by direct Read + Grep
+- `src/app/api/driver/routes/[routeId]/start/route.ts` line 57 -- driver API auth pattern, status guard
+- `src/lib/hooks/useReorderStops.ts` -- optimistic mutation hook pattern
+- `src/lib/email/send.ts` + `src/lib/email/types.ts` -- email system architecture, type registration
+- `src/lib/email/admin-recipients.ts` -- getAdminEmails() helper for admin notification
+- `src/components/ui/DragReorderList/DragReorderList.tsx` -- generic drag reorder
+- `src/emails/AdminNewOrderAlert.tsx` -- React Email template pattern
+- `supabase/migrations/20260315_route_editing_rpcs.sql` -- split/merge RPC patterns, hardcoded status values
+- `supabase/migrations/20260312_route_pipeline_hardening.sql` -- trigger behavior, `status != 'completed'` check
+- `supabase/migrations/002_rls_policies.sql` lines 247-263 -- RLS policy for routes using `driver_id = get_my_driver_id()`
 - [PostgreSQL ALTER TYPE docs](https://www.postgresql.org/docs/current/sql-altertype.html) -- enum migration constraints
+- All 13 `.claude/learnings/*.md` files -- cross-referenced for applicable patterns
 
 ### Secondary (MEDIUM confidence)
 - `.claude/learnings/mobile-ux.md` -- safe-area inset position pattern
 - `.claude/learnings/data-schema.md` -- DEFERRABLE constraint, manual RPC type entries
+- `.claude/learnings/email-system.md` -- EmailType split, getAdminEmails() usage
 - Project CLAUDE.md gotchas -- void async, .update() row count, falsy-zero
 
 ### Tertiary (LOW confidence)
@@ -618,10 +835,12 @@ Source: [PostgreSQL ALTER TYPE docs](https://www.postgresql.org/docs/current/sql
 ## Metadata
 
 **Confidence breakdown:**
-- Standard stack: HIGH -- zero new dependencies, all patterns verified in codebase
-- Architecture: HIGH -- every pattern has existing precedent in the codebase
-- Pitfalls: HIGH -- all 8 pitfalls verified against actual code (grep results, file contents)
-- Migration: HIGH -- PostgreSQL docs confirm enum non-transactional behavior
+- Standard stack: VERY HIGH -- zero new dependencies, all patterns verified in codebase
+- Architecture: VERY HIGH -- every pattern has existing precedent with file:line citations
+- Pitfalls: VERY HIGH -- all 10 pitfalls verified against actual code with grep results
+- Migration: VERY HIGH -- PostgreSQL docs confirm enum non-transactional behavior
+- Status audit: VERY HIGH -- exhaustive grep of entire src/ for all status patterns (9 filter queries, 6 guard checks, 13 UI rendering points, 7 type definitions, 2 RPC updates)
+- Learnings cross-check: VERY HIGH -- all 13 files read, 27 applicable learnings mapped to tasks with risk levels
 
-**Research date:** 2026-03-15
-**Valid until:** 2026-04-15 (stable stack, no library updates expected)
+**Research date:** 2026-03-16
+**Valid until:** 2026-04-16 (stable stack, no library updates expected)
