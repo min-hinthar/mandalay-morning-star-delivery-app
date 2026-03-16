@@ -67,10 +67,7 @@ export async function GET() {
         flowId: "fetch",
         userId: auth.userId,
       });
-      return NextResponse.json(
-        { error: "Failed to fetch route progress" },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch route progress" }, { status: 500 });
     }
 
     // Transform to flat response
@@ -90,9 +87,6 @@ export async function GET() {
       api: "admin/ops/routes-progress",
       flowId: "fetch",
     });
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

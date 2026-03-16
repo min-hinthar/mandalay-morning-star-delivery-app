@@ -116,10 +116,10 @@ export function RoutePageHeader({
                 key={f.value}
                 variant={isActive ? "default" : "outline"}
                 className={cn(
-                  "cursor-pointer transition-all",
+                  "cursor-pointer transition-all min-h-[44px] md:min-h-0 inline-flex items-center px-3",
                   isActive
                     ? "bg-accent-teal hover:bg-accent-teal/90 text-text-inverse border-transparent"
-                    : "bg-surface-primary border-accent-teal/20 text-text-primary hover:bg-accent-teal/10 hover:border-accent-teal/30",
+                    : "bg-surface-primary border-accent-teal/20 text-text-primary hover:bg-accent-teal/10 hover:border-accent-teal/30"
                 )}
                 onClick={() => onStatusFilterChange(f.value)}
               >

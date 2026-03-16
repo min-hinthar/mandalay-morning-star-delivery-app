@@ -17,7 +17,4 @@ export { useCountdown, computeCountdown, type CountdownState } from "./useCountd
 
 export { OpsDriverPanel } from "./OpsDriverPanel";
 
-export {
-  useRouteProgressPolling,
-  type RouteProgressState,
-} from "./useRouteProgressPolling";
+export { useRouteProgressPolling, type RouteProgressState } from "./useRouteProgressPolling";

@@ -54,11 +54,13 @@ export function OpsOrderRow({ order, isSelected, onToggle }: OpsOrderRowProps) {
       )}
     >
       {/* Checkbox */}
-      <Checkbox
-        checked={isSelected}
-        onCheckedChange={() => onToggle(order.id)}
-        aria-label={`Select order from ${order.customerName ?? order.customerEmail}`}
-      />
+      <div className="inline-flex items-center justify-center min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0">
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={() => onToggle(order.id)}
+          aria-label={`Select order from ${order.customerName ?? order.customerEmail}`}
+        />
+      </div>
 
       {/* Customer name */}
       <div className="min-w-0 flex-1">

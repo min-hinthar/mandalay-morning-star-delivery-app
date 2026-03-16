@@ -21,9 +21,7 @@ export interface RouteProgressState {
  * Polls /api/admin/ops/routes-progress at the given interval.
  * Returns today's active routes with driver info and stats.
  */
-export function useRouteProgressPolling(
-  intervalMs = 5000
-): RouteProgressState {
+export function useRouteProgressPolling(intervalMs = 5000): RouteProgressState {
   const [routes, setRoutes] = useState<RouteProgressItem[]>([]);
   const [isRefreshing, setIsRefreshing] = useState(false);
 

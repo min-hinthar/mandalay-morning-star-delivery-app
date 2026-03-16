@@ -167,7 +167,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
         <a
           href={filterUrl({ sort: resolvedParams.sort, category: resolvedParams.category })}
           className={cn(
-            "rounded-full px-3 py-1 text-sm font-medium transition-colors",
+            "rounded-full px-3 py-1 text-sm font-medium transition-colors min-h-[44px] md:min-h-0 inline-flex items-center",
             !statusFilter
               ? "bg-primary text-text-inverse"
               : "bg-surface-secondary text-text-secondary hover:text-text-primary"
@@ -184,7 +184,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
               category: resolvedParams.category,
             })}
             className={cn(
-              "rounded-full px-3 py-1 text-sm font-medium transition-colors",
+              "rounded-full px-3 py-1 text-sm font-medium transition-colors min-h-[44px] md:min-h-0 inline-flex items-center",
               statusFilter === s
                 ? "bg-primary text-text-inverse"
                 : "bg-surface-secondary text-text-secondary hover:text-text-primary"
@@ -198,7 +198,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
         <a
           href={filterUrl({ sort: resolvedParams.sort, status: resolvedParams.status })}
           className={cn(
-            "rounded-full px-3 py-1 text-sm font-medium transition-colors",
+            "rounded-full px-3 py-1 text-sm font-medium transition-colors min-h-[44px] md:min-h-0 inline-flex items-center",
             !categoryFilter
               ? "bg-primary text-text-inverse"
               : "bg-surface-secondary text-text-secondary hover:text-text-primary"
@@ -215,7 +215,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
               category: c,
             })}
             className={cn(
-              "rounded-full px-3 py-1 text-sm font-medium transition-colors",
+              "rounded-full px-3 py-1 text-sm font-medium transition-colors min-h-[44px] md:min-h-0 inline-flex items-center",
               categoryFilter === c
                 ? "bg-primary text-text-inverse"
                 : "bg-surface-secondary text-text-secondary hover:text-text-primary"

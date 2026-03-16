@@ -151,7 +151,7 @@ export default async function RatingsPage({ searchParams }: RatingsPageProps) {
         <Link
           href="/admin/ratings?sort=date"
           className={cn(
-            "rounded-full px-3 py-1 text-sm font-medium transition-colors",
+            "rounded-full px-3 py-1 text-sm font-medium transition-colors min-h-[44px] md:min-h-0 inline-flex items-center",
             sort === "date"
               ? "bg-primary text-text-inverse"
               : "bg-surface-secondary text-text-secondary hover:text-text-primary"
@@ -162,7 +162,7 @@ export default async function RatingsPage({ searchParams }: RatingsPageProps) {
         <Link
           href="/admin/ratings?sort=stars"
           className={cn(
-            "rounded-full px-3 py-1 text-sm font-medium transition-colors",
+            "rounded-full px-3 py-1 text-sm font-medium transition-colors min-h-[44px] md:min-h-0 inline-flex items-center",
             sort === "stars"
               ? "bg-primary text-text-inverse"
               : "bg-surface-secondary text-text-secondary hover:text-text-primary"

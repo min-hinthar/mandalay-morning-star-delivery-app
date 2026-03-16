@@ -47,7 +47,7 @@ export function MenuFilterBar({
         <Badge
           variant={selectedCategory === "all" ? "default" : "outline"}
           className={cn(
-            "cursor-pointer transition-all duration-fast font-body",
+            "cursor-pointer transition-all duration-fast font-body min-h-[44px] md:min-h-0 inline-flex items-center px-3",
             selectedCategory === "all"
               ? "bg-primary hover:bg-primary-hover text-text-inverse border-transparent"
               : "bg-surface-primary border-border text-text-primary hover:bg-primary/10 hover:border-primary/30"
@@ -61,7 +61,7 @@ export function MenuFilterBar({
             key={category.id}
             variant={selectedCategory === category.id ? "default" : "outline"}
             className={cn(
-              "cursor-pointer transition-all duration-fast font-body",
+              "cursor-pointer transition-all duration-fast font-body min-h-[44px] md:min-h-0 inline-flex items-center px-3",
               selectedCategory === category.id
                 ? "bg-primary hover:bg-primary-hover text-text-inverse border-transparent"
                 : "bg-surface-primary border-border text-text-primary hover:bg-primary/10 hover:border-primary/30"

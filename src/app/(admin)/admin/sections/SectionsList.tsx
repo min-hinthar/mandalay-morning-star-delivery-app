@@ -139,7 +139,7 @@ export function SectionsList({
         >
           <button
             onClick={() => onSetShowDeleted(!showDeleted)}
-            className="w-full flex items-center justify-between p-4 bg-surface-secondary hover:bg-surface-tertiary transition-colors"
+            className="w-full flex items-center justify-between p-4 min-h-[44px] bg-surface-secondary hover:bg-surface-tertiary transition-colors"
           >
             <div className="flex items-center gap-2">
               <Trash2 className="h-4 w-4 text-text-muted" />

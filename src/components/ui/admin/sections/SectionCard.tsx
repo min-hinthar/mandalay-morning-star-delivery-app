@@ -207,7 +207,10 @@ export function SectionCard({
                   variant="ghost"
                   size="sm"
                   onClick={() => onToggleVisibility(section)}
-                  className={cn("p-2", section.isVisible ? "text-green" : "text-text-muted")}
+                  className={cn(
+                    "min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 p-2",
+                    section.isVisible ? "text-green" : "text-text-muted"
+                  )}
                 >
                   {section.isVisible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                 </Button>
@@ -217,7 +220,7 @@ export function SectionCard({
                   variant="ghost"
                   size="sm"
                   onClick={() => onExpand(section)}
-                  className="p-2 text-text-secondary"
+                  className="min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 p-2 text-text-secondary"
                 >
                   {isExpanded ? (
                     <ChevronUp className="h-4 w-4" />
@@ -233,7 +236,7 @@ export function SectionCard({
                       variant="ghost"
                       size="sm"
                       className={cn(
-                        "p-2 text-text-muted hover:text-text-primary",
+                        "min-h-[44px] min-w-[44px] md:min-h-0 md:min-w-0 p-2 text-text-muted hover:text-text-primary",
                         isHovered && "opacity-100"
                       )}
                     >
