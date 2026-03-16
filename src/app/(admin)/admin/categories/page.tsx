@@ -5,11 +5,13 @@ import { m } from "framer-motion";
 import { RefreshCw, FolderTree, CheckCircle, UtensilsCrossed } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToastV8";
+import { useAnimationPreference } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { AddCategoryDialog } from "./AddCategoryDialog";
 import { CategoriesTable, type CategoryRow } from "./CategoriesTable";
 
 export default function AdminCategoriesPage() {
+  const { shouldAnimate } = useAnimationPreference();
   const [categories, setCategories] = useState<CategoryRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -177,7 +179,7 @@ export default function AdminCategoriesPage() {
     <div className="p-4 md:p-8 space-y-6">
       {/* Header */}
       <m.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={shouldAnimate ? { opacity: 0, y: -20 } : undefined}
         animate={{ opacity: 1, y: 0 }}
         className="flex flex-col sm:flex-row sm:items-center justify-between gap-4"
       >
@@ -205,7 +207,7 @@ export default function AdminCategoriesPage() {
 
       {/* Stats Cards */}
       <m.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
         className="grid grid-cols-1 md:grid-cols-3 gap-4"
@@ -248,7 +250,7 @@ export default function AdminCategoriesPage() {
 
       {/* Categories Table */}
       <m.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >

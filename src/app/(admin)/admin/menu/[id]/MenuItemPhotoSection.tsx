@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { m } from "framer-motion";
 import { X, Image as ImageIcon, Clock, Info } from "lucide-react";
+import { useAnimationPreference } from "@/lib/hooks";
 import { toast } from "@/lib/hooks/useToastV8";
 import { PhotoUploadZone } from "@/components/ui/admin/photos/PhotoUploadZone";
 import type { UploadResult } from "@/lib/supabase/storage";
@@ -22,6 +23,7 @@ export function MenuItemPhotoSection({
   updatedAt,
   onImageChange,
 }: MenuItemPhotoSectionProps) {
+  const { shouldAnimate } = useAnimationPreference();
   const handlePhotoUploadComplete = (results: UploadResult[]) => {
     if (results.length > 0) {
       onImageChange(results[0].publicUrl);
@@ -46,7 +48,7 @@ export function MenuItemPhotoSection({
 
   return (
     <m.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
       className="space-y-6"

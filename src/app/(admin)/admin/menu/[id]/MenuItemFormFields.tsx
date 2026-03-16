@@ -3,6 +3,7 @@
 import { type Dispatch, type SetStateAction } from "react";
 import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
+import { useAnimationPreference } from "@/lib/hooks";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 
@@ -48,6 +49,7 @@ export function MenuItemFormFields({
   categories,
   onFormDataChange,
 }: MenuItemFormFieldsProps) {
+  const { shouldAnimate } = useAnimationPreference();
   const toggleAllergen = (value: string) => {
     onFormDataChange((prev) => ({
       ...prev,
@@ -59,7 +61,7 @@ export function MenuItemFormFields({
 
   return (
     <m.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
       className="space-y-6"

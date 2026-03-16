@@ -9,6 +9,7 @@ import { RefreshCw, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToastV8";
+import { useAnimationPreference } from "@/lib/hooks";
 import { RouteListTable, type AdminRoute } from "@/components/ui/admin/routes/RouteListTable";
 import {
   CreateRouteModal,
@@ -23,6 +24,7 @@ import { RoutesStatsCards } from "./RoutesStatsCards";
 import { RoutePageHeader, type StatusFilter } from "./RoutePageHeader";
 
 export default function AdminRoutesPage() {
+  const { shouldAnimate } = useAnimationPreference();
   const router = useRouter();
   const [routes, setRoutes] = useState<AdminRoute[]>([]);
   const [loading, setLoading] = useState(true);
@@ -235,7 +237,7 @@ export default function AdminRoutesPage() {
         {/* Routes Table */}
         {!error && (
           <m.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
           >

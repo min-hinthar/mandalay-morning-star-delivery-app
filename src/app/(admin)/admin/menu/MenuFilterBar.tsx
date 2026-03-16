@@ -5,6 +5,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
+import { useAnimationPreference } from "@/lib/hooks";
 
 interface Category {
   id: string;
@@ -27,9 +28,10 @@ export function MenuFilterBar({
   onCategoryChange,
   categories,
 }: MenuFilterBarProps) {
+  const { shouldAnimate } = useAnimationPreference();
   return (
     <m.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
       className="flex flex-col sm:flex-row gap-4"

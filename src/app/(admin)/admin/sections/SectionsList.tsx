@@ -4,6 +4,7 @@ import { m, AnimatePresence, Reorder } from "framer-motion";
 import { Plus, LayoutGrid, ChevronDown, ChevronUp, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useAnimationPreference } from "@/lib/hooks";
 import { SectionCard, type SectionCardSection } from "@/components/ui/admin/sections/SectionCard";
 import { ItemSelector, type SelectableItem } from "@/components/ui/admin/sections/ItemSelector";
 
@@ -53,11 +54,12 @@ export function SectionsList({
   onRemoveItem,
   onReorderItems,
 }: SectionsListProps) {
+  const { shouldAnimate } = useAnimationPreference();
   return (
     <>
       {/* Sections List */}
       <m.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
       >
@@ -132,7 +134,7 @@ export function SectionsList({
       {/* Deleted Sections Panel */}
       {deletedSections.length > 0 && (
         <m.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3 }}
           className="border border-border rounded-card-sm overflow-hidden"

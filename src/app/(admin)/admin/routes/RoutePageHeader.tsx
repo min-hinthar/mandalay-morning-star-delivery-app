@@ -6,6 +6,7 @@ import { Filter, MapPin, Calendar, ChevronLeft, ChevronRight } from "lucide-reac
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
+import { useAnimationPreference } from "@/lib/hooks";
 import type { RouteStatus } from "@/types/driver";
 
 type StatusFilter = "all" | RouteStatus;
@@ -48,11 +49,12 @@ export function RoutePageHeader({
   onClearDate,
   onStatusFilterChange,
 }: RoutePageHeaderProps) {
+  const { shouldAnimate } = useAnimationPreference();
   return (
     <>
       {/* Date Navigation & Status Filters */}
       <m.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         className="flex flex-col md:flex-row gap-4 items-start md:items-center justify-between"
@@ -134,7 +136,7 @@ export function RoutePageHeader({
       {/* Delivery Progress Summary */}
       {totalStops > 0 && (
         <m.div
-          initial={{ opacity: 0, y: 10 }}
+          initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.25 }}
           className="bg-gradient-to-r from-accent-teal/5 to-accent-teal/10 rounded-xl border border-accent-teal/10 p-4"

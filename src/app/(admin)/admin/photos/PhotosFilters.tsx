@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils/cn";
+import { useAnimationPreference } from "@/lib/hooks";
 
 type FilterType = "all" | "assigned" | "unassigned";
 
@@ -28,11 +29,12 @@ export function PhotosFilters({
   onClearSelection,
   onBulkDelete,
 }: PhotosFiltersProps) {
+  const { shouldAnimate } = useAnimationPreference();
   return (
     <>
       {/* Filters */}
       <m.div
-        initial={{ opacity: 0, y: 10 }}
+        initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
         className="flex flex-col sm:flex-row gap-4"

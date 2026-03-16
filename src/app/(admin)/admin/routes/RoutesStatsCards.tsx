@@ -2,6 +2,7 @@
 
 import { m } from "framer-motion";
 import { Route, Clock, TrendingUp, CheckCircle2, UserCheck, ThumbsUp } from "lucide-react";
+import { useAnimationPreference } from "@/lib/hooks";
 
 interface RoutesStatsCardsProps {
   total: number;
@@ -20,9 +21,10 @@ export function RoutesStatsCards({
   inProgress,
   completed,
 }: RoutesStatsCardsProps) {
+  const { shouldAnimate } = useAnimationPreference();
   return (
     <m.div
-      initial={{ opacity: 0, y: 10 }}
+      initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.1 }}
       className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4"
