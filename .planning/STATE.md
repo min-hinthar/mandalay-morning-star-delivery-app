@@ -3,11 +3,42 @@ gsd_state_version: 1.0
 milestone: v2.1
 milestone_name: Route Operations & Admin Mobile
 status: active
+stopped_at: Completed 101-02-PLAN.md
+last_updated: "2026-03-16T08:32:23.200Z"
+last_activity: 2026-03-16 — Completed 101-03 Status Filter Audit & Admin PATCH Auto-Transition
+progress:
+  total_phases: 4
+  completed_phases: 2
+  total_plans: 13
+  completed_plans: 10
+---
+
+---
+gsd_state_version: 1.0
+milestone: v2.1
+milestone_name: Route Operations & Admin Mobile
+status: active
+stopped_at: Completed 101-03-PLAN.md
+last_updated: "2026-03-16T08:31:31.851Z"
+last_activity: 2026-03-16 — Completed 101-03 Status Filter Audit & Admin PATCH Auto-Transition
+progress:
+  total_phases: 4
+  completed_phases: 2
+  total_plans: 13
+  completed_plans: 10
+  percent: 77
+---
+
+---
+gsd_state_version: 1.0
+milestone: v2.1
+milestone_name: Route Operations & Admin Mobile
+status: active
 stopped_at: Completed 101-03-PLAN.md
 last_updated: "2026-03-16T08:24:16.733Z"
 last_activity: 2026-03-16 — Completed 101-03 Status Filter Audit & Admin PATCH Auto-Transition
 progress:
-  total_phases: 4
+  [████████░░] 77%
   completed_phases: 2
   total_plans: 13
   completed_plans: 9
@@ -146,6 +177,7 @@ Progress: [██████░░░░] 62%
 | Phase 100 P04 | 12min | 2 tasks | 13 files |
 | Phase 101 P01 | 3min | 2 tasks | 7 files |
 | Phase 101 P03 | 5min | 1 tasks | 17 files |
+| Phase 101 P02 | 12min | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -179,6 +211,9 @@ Progress: [██████░░░░] 62%
 - admin_route_decline email type mapped to order_updates preference key
 - DELETE handler allows assigned but not accepted (driver committed)
 - NEXT_STATUSES: assigned->planned, accepted->in_progress
+- Decline route uses createServiceClient() to bypass RLS since driver_id is nulled during mutation
+- Decline email sent via after() for fire-and-forget; decline route file is .tsx for JSX support
+- Driver reorder reuses batch_update_stop_indices RPC (SECURITY DEFINER handles permissions)
 
 ### Decisions (Phase 100)
 
@@ -202,7 +237,7 @@ Progress: [██████░░░░] 62%
 
 ## Session Continuity
 
-Last session: 2026-03-16T08:24:16.730Z
-Stopped at: Completed 101-03-PLAN.md
+Last session: 2026-03-16T08:32:23.197Z
+Stopped at: Completed 101-02-PLAN.md
 Resume file: None
 Next action: Continue with 101-02-PLAN.md (Accept/Decline API + Email)
