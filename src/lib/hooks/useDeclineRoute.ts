@@ -38,7 +38,7 @@ export function useDeclineRoute({ routeId, onSuccess }: UseDeclineRouteOptions) 
         setIsDeclining(false);
       }
     },
-    [routeId, onSuccess],
+    [routeId, onSuccess]
   );
 
   return { declineRoute, isDeclining };

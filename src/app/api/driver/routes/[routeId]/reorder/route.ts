@@ -50,10 +50,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Verify driver owns this route
     if (route.driver_id !== driverId) {
-      return NextResponse.json(
-        { error: "Not authorized to reorder this route" },
-        { status: 403 },
-      );
+      return NextResponse.json({ error: "Not authorized to reorder this route" }, { status: 403 });
     }
 
     // Status guard: only accepted or in_progress routes can be reordered
@@ -71,7 +68,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     if (!parsed.success) {
       return NextResponse.json(
         { error: "Invalid stop order", details: parsed.error.flatten() },
-        { status: 400 },
+        { status: 400 }
       );
     }
 

@@ -25,9 +25,7 @@ describe("useDeclineRoute", () => {
       json: () => Promise.resolve({ success: true }),
     });
 
-    const { result } = renderHook(() =>
-      useDeclineRoute({ routeId: "route-1" }),
-    );
+    const { result } = renderHook(() => useDeclineRoute({ routeId: "route-1" }));
 
     await act(async () => {
       await result.current.declineRoute();
@@ -35,7 +33,7 @@ describe("useDeclineRoute", () => {
 
     expect(globalThis.fetch).toHaveBeenCalledWith(
       "/api/driver/routes/route-1/decline",
-      expect.objectContaining({ method: "POST" }),
+      expect.objectContaining({ method: "POST" })
     );
   });
 
@@ -45,9 +43,7 @@ describe("useDeclineRoute", () => {
       json: () => Promise.resolve({ success: true }),
     });
 
-    const { result } = renderHook(() =>
-      useDeclineRoute({ routeId: "route-1" }),
-    );
+    const { result } = renderHook(() => useDeclineRoute({ routeId: "route-1" }));
 
     await act(async () => {
       await result.current.declineRoute("Schedule conflict");
@@ -65,9 +61,7 @@ describe("useDeclineRoute", () => {
     });
 
     const onSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useDeclineRoute({ routeId: "route-1", onSuccess }),
-    );
+    const { result } = renderHook(() => useDeclineRoute({ routeId: "route-1", onSuccess }));
 
     await act(async () => {
       await result.current.declineRoute();
@@ -75,7 +69,7 @@ describe("useDeclineRoute", () => {
 
     expect(onSuccess).toHaveBeenCalled();
     expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "Route declined", type: "success" }),
+      expect.objectContaining({ message: "Route declined", type: "success" })
     );
   });
 
@@ -87,18 +81,14 @@ describe("useDeclineRoute", () => {
     });
 
     const onSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useDeclineRoute({ routeId: "route-1", onSuccess }),
-    );
+    const { result } = renderHook(() => useDeclineRoute({ routeId: "route-1", onSuccess }));
 
     await act(async () => {
       await result.current.declineRoute();
     });
 
     expect(onSuccess).not.toHaveBeenCalled();
-    expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "error" }),
-    );
+    expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
   });
 
   it("tracks isDeclining state during fetch", async () => {
@@ -109,9 +99,7 @@ describe("useDeclineRoute", () => {
 
     (globalThis.fetch as ReturnType<typeof vi.fn>).mockReturnValueOnce(promise);
 
-    const { result } = renderHook(() =>
-      useDeclineRoute({ routeId: "route-1" }),
-    );
+    const { result } = renderHook(() => useDeclineRoute({ routeId: "route-1" }));
 
     expect(result.current.isDeclining).toBe(false);
 

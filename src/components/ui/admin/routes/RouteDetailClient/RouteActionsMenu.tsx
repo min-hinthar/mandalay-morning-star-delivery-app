@@ -61,10 +61,7 @@ export function RouteActionsMenu({
         )}
         {hasSeparator && <DropdownMenuSeparator />}
         {showDelete && (
-          <DropdownMenuItem
-            onClick={onDelete}
-            className="cursor-pointer gap-2 text-destructive"
-          >
+          <DropdownMenuItem onClick={onDelete} className="cursor-pointer gap-2 text-destructive">
             <Trash2 className="h-4 w-4" />
             Delete Route
           </DropdownMenuItem>

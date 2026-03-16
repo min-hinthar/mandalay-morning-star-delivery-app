@@ -51,11 +51,7 @@ export function StopCardActions({
       <div className="flex items-center gap-2 mt-4 pt-3 border-t border-border">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button
-              size="sm"
-              variant="ghost"
-              rightIcon={<ChevronDown className="h-3.5 w-3.5" />}
-            >
+            <Button size="sm" variant="ghost" rightIcon={<ChevronDown className="h-3.5 w-3.5" />}>
               Change Status
             </Button>
           </DropdownMenuTrigger>

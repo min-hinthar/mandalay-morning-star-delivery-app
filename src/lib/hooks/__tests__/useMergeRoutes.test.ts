@@ -53,9 +53,7 @@ describe("useMergeRoutes", () => {
     });
 
     expect(onSuccess).not.toHaveBeenCalled();
-    expect(toast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "error" }),
-    );
+    expect(toast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
   });
 
   it("tracks isMerging state during request", async () => {
@@ -101,8 +99,6 @@ describe("useMergeRoutes", () => {
       await result.current.mergeRoutes("dest-route", "source-route");
     });
 
-    expect(toast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "success" }),
-    );
+    expect(toast).toHaveBeenCalledWith(expect.objectContaining({ type: "success" }));
   });
 });

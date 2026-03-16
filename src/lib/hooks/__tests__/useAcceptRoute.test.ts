@@ -25,18 +25,15 @@ describe("useAcceptRoute", () => {
       json: () => Promise.resolve({ success: true }),
     });
 
-    const { result } = renderHook(() =>
-      useAcceptRoute({ routeId: "route-1" }),
-    );
+    const { result } = renderHook(() => useAcceptRoute({ routeId: "route-1" }));
 
     await act(async () => {
       await result.current.acceptRoute();
     });
 
-    expect(globalThis.fetch).toHaveBeenCalledWith(
-      "/api/driver/routes/route-1/accept",
-      { method: "POST" },
-    );
+    expect(globalThis.fetch).toHaveBeenCalledWith("/api/driver/routes/route-1/accept", {
+      method: "POST",
+    });
   });
 
   it("calls onSuccess and shows success toast on 200", async () => {
@@ -46,9 +43,7 @@ describe("useAcceptRoute", () => {
     });
 
     const onSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useAcceptRoute({ routeId: "route-1", onSuccess }),
-    );
+    const { result } = renderHook(() => useAcceptRoute({ routeId: "route-1", onSuccess }));
 
     await act(async () => {
       await result.current.acceptRoute();
@@ -56,7 +51,7 @@ describe("useAcceptRoute", () => {
 
     expect(onSuccess).toHaveBeenCalled();
     expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "Route accepted!", type: "success" }),
+      expect.objectContaining({ message: "Route accepted!", type: "success" })
     );
   });
 
@@ -68,18 +63,14 @@ describe("useAcceptRoute", () => {
     });
 
     const onSuccess = vi.fn();
-    const { result } = renderHook(() =>
-      useAcceptRoute({ routeId: "route-1", onSuccess }),
-    );
+    const { result } = renderHook(() => useAcceptRoute({ routeId: "route-1", onSuccess }));
 
     await act(async () => {
       await result.current.acceptRoute();
     });
 
     expect(onSuccess).not.toHaveBeenCalled();
-    expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "error" }),
-    );
+    expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
   });
 
   it("tracks isAccepting state during fetch", async () => {
@@ -90,9 +81,7 @@ describe("useAcceptRoute", () => {
 
     (globalThis.fetch as ReturnType<typeof vi.fn>).mockReturnValueOnce(promise);
 
-    const { result } = renderHook(() =>
-      useAcceptRoute({ routeId: "route-1" }),
-    );
+    const { result } = renderHook(() => useAcceptRoute({ routeId: "route-1" }));
 
     expect(result.current.isAccepting).toBe(false);
 
@@ -113,19 +102,15 @@ describe("useAcceptRoute", () => {
 
   it("shows error toast on network error", async () => {
     (globalThis.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-      new Error("Network error"),
+      new Error("Network error")
     );
 
-    const { result } = renderHook(() =>
-      useAcceptRoute({ routeId: "route-1" }),
-    );
+    const { result } = renderHook(() => useAcceptRoute({ routeId: "route-1" }));
 
     await act(async () => {
       await result.current.acceptRoute();
     });
 
-    expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "error" }),
-    );
+    expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
   });
 });

@@ -8,9 +8,7 @@ import {
 } from "../route-selection-utils";
 import type { StopDetail } from "@/types/driver";
 
-function makeStop(
-  overrides: Partial<StopDetail> & { id: string; stopIndex: number },
-): StopDetail {
+function makeStop(overrides: Partial<StopDetail> & { id: string; stopIndex: number }): StopDetail {
   return {
     eta: null,
     status: "pending",

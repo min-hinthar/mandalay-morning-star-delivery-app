@@ -9,11 +9,7 @@ interface UseReassignDriverOptions {
   onSuccess?: () => void;
 }
 
-export function useReassignDriver({
-  routeId,
-  routeStatus,
-  onSuccess,
-}: UseReassignDriverOptions) {
+export function useReassignDriver({ routeId, routeStatus, onSuccess }: UseReassignDriverOptions) {
   const [isReassigning, setIsReassigning] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [pendingDriverId, setPendingDriverId] = useState<string | null>(null);
@@ -43,7 +39,7 @@ export function useReassignDriver({
         setPendingDriverId(null);
       }
     },
-    [routeId, onSuccess],
+    [routeId, onSuccess]
   );
 
   const reassignDriver = useCallback(
@@ -55,7 +51,7 @@ export function useReassignDriver({
       }
       await fireReassign(driverId);
     },
-    [routeStatus, fireReassign],
+    [routeStatus, fireReassign]
   );
 
   const confirmReassign = useCallback(async () => {

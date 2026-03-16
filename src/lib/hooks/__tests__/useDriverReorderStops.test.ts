@@ -30,22 +30,17 @@ describe("useDriverReorderStops", () => {
       json: () => Promise.resolve({ success: true }),
     });
 
-    const { result } = renderHook(() =>
-      useDriverReorderStops({ routeId: "route-1" }),
-    );
+    const { result } = renderHook(() => useDriverReorderStops({ routeId: "route-1" }));
 
     await act(async () => {
       await result.current.reorderStops(stopOrder);
     });
 
-    expect(globalThis.fetch).toHaveBeenCalledWith(
-      "/api/driver/routes/route-1/reorder",
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stopOrder }),
-      },
-    );
+    expect(globalThis.fetch).toHaveBeenCalledWith("/api/driver/routes/route-1/reorder", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ stopOrder }),
+    });
   });
 
   it("does not show toast on success (silent save)", async () => {
@@ -54,9 +49,7 @@ describe("useDriverReorderStops", () => {
       json: () => Promise.resolve({ success: true }),
     });
 
-    const { result } = renderHook(() =>
-      useDriverReorderStops({ routeId: "route-1" }),
-    );
+    const { result } = renderHook(() => useDriverReorderStops({ routeId: "route-1" }));
 
     await act(async () => {
       await result.current.reorderStops(stopOrder);
@@ -73,16 +66,14 @@ describe("useDriverReorderStops", () => {
     });
 
     const onError = vi.fn();
-    const { result } = renderHook(() =>
-      useDriverReorderStops({ routeId: "route-1", onError }),
-    );
+    const { result } = renderHook(() => useDriverReorderStops({ routeId: "route-1", onError }));
 
     await act(async () => {
       await result.current.reorderStops(stopOrder);
     });
 
     expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({ message: "Failed to save stop order", type: "error" }),
+      expect.objectContaining({ message: "Failed to save stop order", type: "error" })
     );
     expect(onError).toHaveBeenCalled();
   });
@@ -95,9 +86,7 @@ describe("useDriverReorderStops", () => {
 
     (globalThis.fetch as ReturnType<typeof vi.fn>).mockReturnValueOnce(promise);
 
-    const { result } = renderHook(() =>
-      useDriverReorderStops({ routeId: "route-1" }),
-    );
+    const { result } = renderHook(() => useDriverReorderStops({ routeId: "route-1" }));
 
     expect(result.current.isReordering).toBe(false);
 

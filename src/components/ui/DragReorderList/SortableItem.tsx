@@ -36,9 +36,7 @@ export function SortableItem({ id, disabled = false, children }: SortableItemPro
   };
 
   const content =
-    typeof children === "function"
-      ? children({ listeners, attributes, isDragging })
-      : children;
+    typeof children === "function" ? children({ listeners, attributes, isDragging }) : children;
 
   return (
     <div

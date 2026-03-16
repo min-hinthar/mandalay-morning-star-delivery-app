@@ -52,7 +52,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     if (route.status !== "assigned") {
       return NextResponse.json(
         { error: `Cannot accept route with status: ${route.status}` },
-        { status: 400 },
+        { status: 400 }
       );
     }
 

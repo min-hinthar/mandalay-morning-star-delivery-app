@@ -77,9 +77,7 @@ export function StopCardContent({ stop, index }: StopCardContentProps) {
 
       {/* Customer Info */}
       <div className="mt-4">
-        <p className="font-medium text-text-primary">
-          {customer?.fullName || "Unknown Customer"}
-        </p>
+        <p className="font-medium text-text-primary">{customer?.fullName || "Unknown Customer"}</p>
         {address && (
           <>
             <p className="text-sm text-text-secondary">{address.line1}</p>
@@ -153,10 +151,7 @@ export function StopCardContent({ stop, index }: StopCardContentProps) {
 
       {/* Tracking Timestamps */}
       {(stop.arrivedAt || stop.deliveredAt) && (
-        <div
-          className="flex gap-4 mt-2 text-xs text-text-muted"
-          data-testid="tracking-timestamps"
-        >
+        <div className="flex gap-4 mt-2 text-xs text-text-muted" data-testid="tracking-timestamps">
           {stop.arrivedAt && <span>Arrived: {formatTime(stop.arrivedAt)}</span>}
           {stop.deliveredAt && <span>Delivered: {formatTime(stop.deliveredAt)}</span>}
         </div>

@@ -44,7 +44,7 @@ export function DragReorderList<T>({
     }),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    })
   );
 
   const activeItem = activeId ? items.find((item) => getItemId(item) === activeId) : null;

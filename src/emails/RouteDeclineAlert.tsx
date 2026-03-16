@@ -24,10 +24,7 @@ export function RouteDeclineAlert({
   const adminRouteUrl = `${APP_URL}/admin/routes/${routeId}`;
 
   return (
-    <EmailLayout
-      emailType="confirmation"
-      previewText={`Route declined by ${driverName}`}
-    >
+    <EmailLayout emailType="confirmation" previewText={`Route declined by ${driverName}`}>
       {/* ---- Header ---------------------------------------- */}
       <Section style={{ padding: "32px 24px 0 24px" }}>
         <Text
