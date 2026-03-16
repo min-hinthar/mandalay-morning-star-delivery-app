@@ -48,13 +48,15 @@ export function CustomerContactCard({ order }: CustomerContactCardProps) {
       )}
 
       {/* Email */}
-      <a
-        href={`mailto:${order.customerEmail}`}
-        className="mt-2 inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-primary transition-colors"
-      >
-        <Mail className="h-3.5 w-3.5" />
-        {order.customerEmail}
-      </a>
+      {order.customerEmail && (
+        <a
+          href={`mailto:${order.customerEmail}`}
+          className="mt-2 inline-flex items-center gap-1.5 text-sm text-text-secondary hover:text-primary transition-colors"
+        >
+          <Mail className="h-3.5 w-3.5" />
+          {order.customerEmail}
+        </a>
+      )}
     </div>
   );
 }

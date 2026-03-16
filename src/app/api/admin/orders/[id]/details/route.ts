@@ -238,6 +238,15 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       .eq("order_id", orderId)
       .order("created_at", { ascending: false })
       .limit(1)
+      .returns<
+        {
+          delivery_notes: string | null;
+          arrived_at: string | null;
+          delivered_at: string | null;
+          route_id: string;
+          routes: { id: string; status: string } | null;
+        }[]
+      >()
       .maybeSingle();
 
     // Fetch latest email status for this order
@@ -300,10 +309,18 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
             arrivedAt: routeStop.arrived_at,
             deliveredAt: routeStop.delivered_at,
             routeId: routeStop.route_id,
-            routeStatus:
-              (routeStop.routes as { id: string; status: string } | null)?.status ?? null,
+            routeStatus: routeStop.routes?.status ?? null,
           }
-        : null,
+        : order.delivery_instructions
+          ? {
+              deliveryNotes: null,
+              deliveryInstructions: order.delivery_instructions,
+              arrivedAt: null,
+              deliveredAt: null,
+              routeId: null,
+              routeStatus: null,
+            }
+          : null,
       placedAt: order.placed_at,
       confirmedAt: order.confirmed_at,
       deliveredAt: order.delivered_at,
