@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { Fragment, useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import {
   Mail,
@@ -146,7 +146,7 @@ export default function AdminEmailLogPage() {
         <select
           value={typeFilter}
           onChange={(e) => setTypeFilter(e.target.value)}
-          className="h-10 rounded-md border border-border-subtle bg-surface-primary px-3 text-sm text-text-primary"
+          className="h-11 md:h-10 rounded-md border border-border-subtle bg-surface-primary px-3 text-sm text-text-primary"
         >
           {EMAIL_TYPES.map((t) => (
             <option key={t.value} value={t.value}>
@@ -157,7 +157,7 @@ export default function AdminEmailLogPage() {
         <select
           value={statusFilter}
           onChange={(e) => setStatusFilter(e.target.value)}
-          className="h-10 rounded-md border border-border-subtle bg-surface-primary px-3 text-sm text-text-primary"
+          className="h-11 md:h-10 rounded-md border border-border-subtle bg-surface-primary px-3 text-sm text-text-primary"
         >
           {EMAIL_STATUSES.map((s) => (
             <option key={s.value} value={s.value}>
@@ -190,28 +190,25 @@ export default function AdminEmailLogPage() {
           <p className="text-sm">No emails found</p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-card-sm border border-border-subtle">
-          <table className="w-full text-sm">
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto rounded-card-sm border border-border-subtle">
+            <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border-subtle bg-surface-secondary">
                 <th className="w-8 px-2" />
                 <th className="text-left px-4 py-3 font-semibold text-text-secondary">Recipient</th>
                 <th className="text-left px-4 py-3 font-semibold text-text-secondary">Type</th>
-                <th className="text-left px-4 py-3 font-semibold text-text-secondary hidden md:table-cell">
-                  Subject
-                </th>
+                <th className="text-left px-4 py-3 font-semibold text-text-secondary">Subject</th>
                 <th className="text-left px-4 py-3 font-semibold text-text-secondary">Status</th>
-                <th className="text-left px-4 py-3 font-semibold text-text-secondary hidden sm:table-cell">
-                  Sent At
-                </th>
+                <th className="text-left px-4 py-3 font-semibold text-text-secondary">Sent At</th>
                 <th className="text-right px-4 py-3 font-semibold text-text-secondary">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border-subtle">
               {emails.map((email) => (
-                <>
+                <Fragment key={email.id}>
                   <tr
-                    key={email.id}
                     className="hover:bg-surface-secondary/50 transition-colors cursor-pointer"
                     onClick={() => setExpandedId(expandedId === email.id ? null : email.id)}
                   >
@@ -230,7 +227,7 @@ export default function AdminEmailLogPage() {
                         {formatEmailType(email.notification_type)}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-text-secondary truncate max-w-[250px] hidden md:table-cell">
+                    <td className="px-4 py-3 text-text-secondary truncate max-w-[250px]">
                       {email.subject}
                     </td>
                     <td className="px-4 py-3">
@@ -238,7 +235,7 @@ export default function AdminEmailLogPage() {
                         {email.status}
                       </Badge>
                     </td>
-                    <td className="px-4 py-3 text-text-secondary text-xs hidden sm:table-cell">
+                    <td className="px-4 py-3 text-text-secondary text-xs">
                       {formatEmailDate(email.sent_at || email.created_at)}
                     </td>
                     <td className="px-4 py-3 text-right" onClick={(e) => e.stopPropagation()}>
@@ -246,7 +243,7 @@ export default function AdminEmailLogPage() {
                         {email.order_id && (
                           <Link
                             href={`/admin/orders/${email.order_id}`}
-                            className="text-xs text-primary hover:underline"
+                            className="text-xs text-primary hover:underline min-h-[44px] inline-flex items-center"
                           >
                             View Order
                           </Link>
@@ -257,7 +254,7 @@ export default function AdminEmailLogPage() {
                             size="sm"
                             disabled={resendingId === email.id}
                             onClick={() => handleResend(email.id)}
-                            className="text-xs"
+                            className="text-xs h-11 md:h-9"
                           >
                             {resendingId === email.id ? (
                               <Loader2 className="h-3 w-3 animate-spin" />
@@ -276,11 +273,59 @@ export default function AdminEmailLogPage() {
                       </td>
                     </tr>
                   )}
-                </>
+                </Fragment>
               ))}
             </tbody>
           </table>
         </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3">
+          {emails.map((email) => (
+            <div key={email.id} className="rounded-lg border border-border p-4">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2 min-w-0 flex-1">
+                  <Badge variant={STATUS_BADGE_MAP[email.status] || "default"} size="sm">
+                    {email.status}
+                  </Badge>
+                  <span className="text-sm font-medium truncate">{email.recipient}</span>
+                </div>
+                <Badge variant="outline" size="sm" className="shrink-0 ml-2">
+                  {formatEmailType(email.notification_type)}
+                </Badge>
+              </div>
+              <div className="flex items-center justify-between text-xs text-text-muted">
+                <span>{formatEmailDate(email.sent_at || email.created_at)}</span>
+                <div className="flex items-center gap-2">
+                  {email.order_id && (
+                    <Link
+                      href={`/admin/orders/${email.order_id}`}
+                      className="text-xs text-primary hover:underline min-h-[44px] inline-flex items-center"
+                    >
+                      View Order
+                    </Link>
+                  )}
+                  {email.status === "failed" && (
+                    <Button
+                      size="sm"
+                      className="h-11 md:h-9"
+                      variant="ghost"
+                      disabled={resendingId === email.id}
+                      onClick={() => handleResend(email.id)}
+                    >
+                      {resendingId === email.id ? (
+                        <Loader2 className="h-3 w-3 animate-spin" />
+                      ) : (
+                        "Resend"
+                      )}
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        </>
       )}
 
       {/* Pagination */}

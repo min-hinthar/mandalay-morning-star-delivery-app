@@ -129,7 +129,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
 
   if (fetchError) {
     return (
-      <div className="p-6">
+      <div className="p-4 md:p-6">
         <p className="text-status-error">Failed to load feedback.</p>
       </div>
     );
@@ -152,7 +152,7 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
   const categories: FeedbackCategory[] = ["bug_report", "order_issue", "suggestion", "general"];
 
   return (
-    <div className="space-y-6">
+    <div className="p-4 md:p-0 space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between">
         <h1 className="font-display text-2xl font-bold text-text-primary">Feedback</h1>
@@ -236,7 +236,9 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
           </p>
         </div>
       ) : (
-        <div className="overflow-x-auto rounded-card border border-border-subtle bg-surface-primary">
+        <>
+          {/* Desktop table */}
+          <div className="hidden md:block overflow-x-auto rounded-card border border-border-subtle bg-surface-primary">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-border-subtle bg-surface-secondary">
@@ -281,6 +283,40 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
             </tbody>
           </table>
         </div>
+
+        {/* Mobile cards */}
+        <div className="md:hidden space-y-3">
+          {feedback.map((f) => (
+            <FeedbackDetailPanel key={f.id} feedback={f}>
+              <div className="rounded-lg border border-border p-4 cursor-pointer active:bg-surface-secondary/50">
+                <div className="flex items-center justify-between mb-1">
+                  <span
+                    className={cn(
+                      "rounded-full px-2 py-0.5 text-xs font-medium",
+                      STATUS_STYLES[f.status]
+                    )}
+                  >
+                    {STATUS_LABELS[f.status]}
+                  </span>
+                  <span className="text-xs text-text-muted">{formatDate(f.created_at)}</span>
+                </div>
+                <p className="text-sm font-medium text-text-primary mt-1">{f.subject}</p>
+                <div className="flex items-center justify-between mt-1">
+                  <span className={cn("text-xs font-medium", CATEGORY_COLORS[f.category])}>
+                    {CATEGORY_LABELS[f.category]}
+                  </span>
+                  <span className="text-xs text-text-secondary">
+                    {f.profiles?.full_name ?? f.contact_email ?? "Anonymous"}
+                  </span>
+                </div>
+                {f.message && (
+                  <p className="text-sm text-text-secondary line-clamp-2 mt-2">{f.message}</p>
+                )}
+              </div>
+            </FeedbackDetailPanel>
+          ))}
+          </div>
+        </>
       )}
     </div>
   );
