@@ -52,9 +52,9 @@ Exceptions:
 | Role | Size | Weight | Line Height | Token |
 |------|------|--------|-------------|-------|
 | Body | 16px (1rem) | 400 (normal) | 1.5 | --type-body |
-| Label | 14px (0.875rem) | 500 (medium) | 1.4 | --type-label |
+| Label | 14px (0.875rem) | 400 (normal) | 1.4 | --type-label |
 | Heading | 20px (1.25rem) | 600 (semibold) | 1.3 | --type-h3 |
-| Display | 32px (2rem) | 700 (bold) | 1.2 | --type-h1 |
+| Display | 32px (2rem) | 600 (semibold) | 1.2 | --type-h1 |
 
 Font families:
 - Display text (headings, greeting): `font-display` (Nunito, ui-rounded, system-ui)
@@ -64,9 +64,10 @@ Phase-specific typography usage:
 - Accept card heading ("Route Assigned"): --type-h3 (20px/600)
 - Route preview stats (stop count, duration): --type-body (16px/400)
 - CTA button labels: 20px/600 (existing SimpleHome `text-xl font-semibold` pattern)
-- Status badge labels: 12px/600 (--text-xs, font-semibold, matching StatusBadge)
-- Decline reason textarea placeholder: --type-body-sm (14px/400)
-- Toast messages: --type-body-sm (14px/400)
+- Decline reason textarea placeholder: --type-body (14px/400, maps to Label role)
+- Toast messages: --type-body (14px/400, maps to Label role)
+
+Note: StatusBadge uses 12px/600 (--text-xs) -- inherited from existing component, not a new declared size for this phase.
 
 ---
 
@@ -189,7 +190,7 @@ Accent reserved for:
 - Description: "This route will be unassigned and the admin will be notified."
 - Optional textarea: placeholder "Reason (optional)", max-length 500, 3 rows
 - Confirm button: "Decline Route" (destructive variant)
-- Cancel button: "Cancel" (outline variant)
+- Cancel button: "Keep Route" (outline variant)
 - Loading state: confirm button shows spinner during API call
 
 **Animation:** Modal fade-in (existing Modal component handles this).
@@ -199,12 +200,13 @@ Accent reserved for:
 **Visibility:** Always visible on reorderable stops (pending + enroute). No toggle.
 
 **Desktop (>= md breakpoint):**
-- DragHandle (grip icon) on left side of each reorderable stop
+- DragHandle (grip icon) on left side of each reorderable stop, `aria-label="Drag to reorder"`
 - Drag interaction: @dnd-kit sortable, visual lift + shadow during drag
 - Delivered/skipped stops: no handle, visually muted (opacity-50)
 
 **Mobile (< md breakpoint):**
 - MoveButtons (chevron-up / chevron-down) on right side of each reorderable stop
+- Up button: `aria-label="Move stop up"`, down button: `aria-label="Move stop down"`
 - Each button: min 44px touch target
 - First item: up button disabled. Last item: down button disabled.
 
@@ -259,6 +261,7 @@ assigned, accepted
 | Decline confirmation title | "Decline Route?" |
 | Decline confirmation body | "This route will be unassigned and the admin will be notified." |
 | Decline confirmation CTA | "Decline Route" |
+| Decline confirmation cancel | "Keep Route" |
 | Decline reason placeholder | "Reason (optional)" |
 | Toast: accept success | "Route accepted!" |
 | Toast: decline success | "Route declined" |
@@ -267,6 +270,19 @@ assigned, accepted
 | Accepted status pill | "Accepted" |
 | Assigned status pill | "Assigned" |
 | Declined annotation | "Declined by {driverName}" |
+
+---
+
+## Accessibility Contract
+
+| Element | Attribute | Value |
+|---------|-----------|-------|
+| DragHandle | aria-label | "Drag to reorder" |
+| MoveButtons (up) | aria-label | "Move stop up" |
+| MoveButtons (down) | aria-label | "Move stop down" |
+| Accept button | (self-labeling) | "Accept Route" text content |
+| Decline button | (self-labeling) | "Decline" / "Decline Route" text content |
+| Status badge | (self-labeling) | Status label text content |
 
 ---
 
