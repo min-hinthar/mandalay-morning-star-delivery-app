@@ -1,11 +1,12 @@
 ---
 phase: 102
 slug: admin-mobile-ux
-status: draft
+status: approved
 shadcn_initialized: true
 preset: new-york
 created: 2026-03-16
 revised: 2026-03-16
+reviewed_at: 2026-03-16
 ---
 
 # Phase 102 -- UI Design Contract
@@ -40,10 +41,10 @@ Declared values (multiples of 4, from existing `tokens.css` `--space-*` system):
 | lg | 24px (`space-6`) | Card-to-card vertical gap, section margins |
 | xl | 32px (`space-8`) | Desktop page padding (`p-8`), widget grid gap on desktop |
 | 2xl | 48px (`space-12`) | Major section breaks (KPI grid to widget grid) |
-| 3xl | 56px (`space-14`) | Mobile header height (`h-14`) |
 
 Exceptions:
 - **44px** (`space-11`): Minimum touch target on mobile (WCAG 2.1 AA, existing `--touch-target-min` token)
+- **56px** (`space-14`, `h-14`): Mobile header height per design token `h-14`
 - **256px**: Drawer width (matches sidebar `width="sm"`)
 
 ---
@@ -59,7 +60,20 @@ Uses existing project typography presets from `tokens.css`. Phase 102 references
 | Caption | 12px (`text-xs`) | 400 | 1.4 | Badge text, meta info (route number, start time) |
 | Heading | 20px (`text-xl`) | 700 | 1.3 | Mobile header page title, widget section heading |
 
-All four weights used across phase 102 admin components (verified from codebase):
+### Primary Weight Declaration (Phase 102 New Components)
+
+The two weights this phase introduces in `AdminMobileHeader`, `RouteProgressWidget`, and `useRouteProgressPolling`:
+
+| Weight | Tailwind Class | Used For |
+|--------|---------------|----------|
+| 500 (`medium`) | `font-medium` | Nav link text, card primary fields, widget labels |
+| 700 (`bold`) | `font-bold` | Page headings, widget section heading, large KPI values |
+
+> Existing admin components retain their declared weights from `tokens.css` (400 normal for body text, 600 semibold for button labels/table headers). This phase does not introduce weight changes to existing components.
+
+### Full Weight Reference (Informational)
+
+All four weights present in Phase 102 admin component scope (verified from codebase):
 
 | Weight | Tailwind Class | Where Used in Phase 102 Scope |
 |--------|---------------|-------------------------------|
