@@ -116,9 +116,9 @@ export type {
   ConfirmModalProps,
 } from "./Modal";
 
-// Drawer (V8 Unified - includes BottomSheet)
-export { Drawer, BottomSheet } from "./Drawer";
-export type { DrawerProps, BottomSheetProps } from "./Drawer";
+// Drawer (V8 Unified)
+export { Drawer } from "./Drawer";
+export type { DrawerProps } from "./Drawer";
 
 // Dropdown Menu (Radix)
 export {
