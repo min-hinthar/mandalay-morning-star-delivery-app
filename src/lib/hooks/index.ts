@@ -93,6 +93,16 @@ export { useDeclineRoute } from "./useDeclineRoute";
 export { useDriverReorderStops } from "./useDriverReorderStops";
 
 // ============================================
+// ADMIN ROUTE ACTIONS
+// ============================================
+
+export { useReorderStops } from "./useReorderStops";
+export { useSplitRoute } from "./useSplitRoute";
+export { useMergeRoutes } from "./useMergeRoutes";
+export { useReassignDriver } from "./useReassignDriver";
+export { useRouteActions } from "./useRouteActions";
+
+// ============================================
 // AUTH
 // ============================================
 

@@ -76,7 +76,7 @@ describe("useReorderStops", () => {
     const reordered = [STOPS[2], STOPS[0], STOPS[1]];
 
     await act(async () => {
-      await result.current.handleReorder(reordered);
+      await result.current.handleReorder(reordered, STOPS);
     });
 
     expect(globalThis.fetch).toHaveBeenCalledWith("/api/admin/routes/route-1", {
@@ -110,7 +110,7 @@ describe("useReorderStops", () => {
     );
 
     await act(async () => {
-      await result.current.handleReorder(STOPS);
+      await result.current.handleReorder(STOPS, STOPS);
     });
 
     const body = JSON.parse((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
@@ -133,7 +133,7 @@ describe("useReorderStops", () => {
     );
 
     await act(async () => {
-      await result.current.handleReorder(STOPS);
+      await result.current.handleReorder(STOPS, STOPS);
     });
 
     const body = JSON.parse((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
@@ -162,10 +162,10 @@ describe("useReorderStops", () => {
     const reordered = [STOPS[2], STOPS[0], STOPS[1]];
 
     await act(async () => {
-      await result.current.handleReorder(reordered);
+      await result.current.handleReorder(reordered, STOPS);
     });
 
-    expect(onError).toHaveBeenCalledWith(reordered);
+    expect(onError).toHaveBeenCalledWith(STOPS);
     expect(onSuccess).not.toHaveBeenCalled();
   });
 
@@ -186,7 +186,7 @@ describe("useReorderStops", () => {
     );
 
     await act(async () => {
-      await result.current.handleReorder(STOPS);
+      await result.current.handleReorder(STOPS, STOPS);
     });
 
     expect(onError).toHaveBeenCalledWith(STOPS);
@@ -213,7 +213,7 @@ describe("useReorderStops", () => {
 
     let reorderPromise: Promise<void>;
     act(() => {
-      reorderPromise = result.current.handleReorder(STOPS);
+      reorderPromise = result.current.handleReorder(STOPS, STOPS);
     });
 
     expect(result.current.isReordering).toBe(true);

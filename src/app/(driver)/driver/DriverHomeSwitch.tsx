@@ -31,6 +31,7 @@ interface DriverHomeData {
     pendingCount: number;
     totalDurationMinutes: number | null;
     startedAt: string | null;
+    areaDescription: string | null;
   } | null;
   nextRouteDate: string | null;
   streakDays: number;
@@ -55,6 +56,7 @@ export function DriverHomeSwitch(data: DriverHomeData) {
               id: data.todayRoute.id,
               status: data.todayRoute.status,
               stopCount: data.todayRoute.stopCount,
+              area_description: data.todayRoute.areaDescription,
             }}
             onAccepted={() => router.refresh()}
             onDeclined={() => router.refresh()}
