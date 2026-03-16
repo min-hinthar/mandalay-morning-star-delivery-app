@@ -63,7 +63,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     if (route.status !== "assigned" && route.status !== "accepted") {
       return NextResponse.json(
         { error: `Cannot decline route with status: ${route.status}` },
-        { status: 400 },
+        { status: 400 }
       );
     }
 

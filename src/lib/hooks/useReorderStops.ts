@@ -52,7 +52,7 @@ export function useReorderStops({
         setIsReordering(false);
       }
     },
-    [routeId, routeStatus, onSuccess, onError],
+    [routeId, routeStatus, onSuccess, onError]
   );
 
   return { handleReorder, isReordering };

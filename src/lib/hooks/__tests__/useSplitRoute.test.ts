@@ -51,9 +51,7 @@ describe("useSplitRoute", () => {
       await result.current.splitRoute("route-1", ["stop-a"]);
     });
 
-    const body = JSON.parse(
-      (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body,
-    );
+    const body = JSON.parse((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
     expect(body.driverId).toBeUndefined();
     expect(onSuccess).toHaveBeenCalledWith("new-route-2");
   });
@@ -73,9 +71,7 @@ describe("useSplitRoute", () => {
     });
 
     expect(onSuccess).not.toHaveBeenCalled();
-    expect(toast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "error" }),
-    );
+    expect(toast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
   });
 
   it("tracks isSplitting state during request", async () => {

@@ -70,7 +70,7 @@ describe("useReorderStops", () => {
         routeStatus: "planned",
         onSuccess,
         onError,
-      }),
+      })
     );
 
     const reordered = [STOPS[2], STOPS[0], STOPS[1]];
@@ -106,16 +106,14 @@ describe("useReorderStops", () => {
         routeStatus: "in_progress",
         onSuccess: vi.fn(),
         onError: vi.fn(),
-      }),
+      })
     );
 
     await act(async () => {
       await result.current.handleReorder(STOPS);
     });
 
-    const body = JSON.parse(
-      (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body,
-    );
+    const body = JSON.parse((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
     expect(body.forceOverride).toBe(true);
   });
 
@@ -131,16 +129,14 @@ describe("useReorderStops", () => {
         routeStatus: "planned",
         onSuccess: vi.fn(),
         onError: vi.fn(),
-      }),
+      })
     );
 
     await act(async () => {
       await result.current.handleReorder(STOPS);
     });
 
-    const body = JSON.parse(
-      (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body,
-    );
+    const body = JSON.parse((globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0][1].body);
     expect(body.forceOverride).toBeUndefined();
   });
 
@@ -160,7 +156,7 @@ describe("useReorderStops", () => {
         routeStatus: "planned",
         onSuccess,
         onError,
-      }),
+      })
     );
 
     const reordered = [STOPS[2], STOPS[0], STOPS[1]];
@@ -175,7 +171,7 @@ describe("useReorderStops", () => {
 
   it("calls onError on fetch exception", async () => {
     (globalThis.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
-      new Error("Network error"),
+      new Error("Network error")
     );
 
     const onError = vi.fn();
@@ -186,7 +182,7 @@ describe("useReorderStops", () => {
         routeStatus: "planned",
         onSuccess: vi.fn(),
         onError,
-      }),
+      })
     );
 
     await act(async () => {
@@ -210,7 +206,7 @@ describe("useReorderStops", () => {
         routeStatus: "planned",
         onSuccess: vi.fn(),
         onError: vi.fn(),
-      }),
+      })
     );
 
     expect(result.current.isReordering).toBe(false);

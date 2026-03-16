@@ -1,7 +1,13 @@
 import { z } from "zod";
 
 // Route status enum
-export const routeStatusSchema = z.enum(["planned", "assigned", "accepted", "in_progress", "completed"]);
+export const routeStatusSchema = z.enum([
+  "planned",
+  "assigned",
+  "accepted",
+  "in_progress",
+  "completed",
+]);
 
 // Route stop status enum
 export const routeStopStatusSchema = z.enum([

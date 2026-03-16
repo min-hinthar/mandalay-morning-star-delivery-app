@@ -33,7 +33,7 @@ export function useDriverReorderStops({ routeId, onError }: UseDriverReorderStop
         setIsReordering(false);
       }
     },
-    [routeId, onError],
+    [routeId, onError]
   );
 
   return { reorderStops, isReordering };

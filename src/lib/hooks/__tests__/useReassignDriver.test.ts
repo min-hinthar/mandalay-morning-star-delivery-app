@@ -31,7 +31,7 @@ describe("useReassignDriver", () => {
         routeId: "route-1",
         routeStatus: "planned",
         currentDriverName: "Driver A",
-      }),
+      })
     );
 
     expect(result.current.showConfirmation).toBe(false);
@@ -54,7 +54,7 @@ describe("useReassignDriver", () => {
         routeId: "route-1",
         routeStatus: "in_progress",
         currentDriverName: "Driver A",
-      }),
+      })
     );
 
     act(() => {
@@ -77,7 +77,7 @@ describe("useReassignDriver", () => {
         routeId: "route-1",
         routeStatus: "in_progress",
         currentDriverName: "Driver A",
-      }),
+      })
     );
 
     act(() => {
@@ -103,7 +103,7 @@ describe("useReassignDriver", () => {
         routeId: "route-1",
         routeStatus: "in_progress",
         currentDriverName: "Driver A",
-      }),
+      })
     );
 
     act(() => {
@@ -132,16 +132,14 @@ describe("useReassignDriver", () => {
         routeId: "route-1",
         routeStatus: "planned",
         currentDriverName: "Driver A",
-      }),
+      })
     );
 
     await act(async () => {
       await result.current.reassignDriver("driver-2");
     });
 
-    expect(mockToast).toHaveBeenCalledWith(
-      expect.objectContaining({ type: "error" }),
-    );
+    expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
   });
 
   it("tracks isReassigning state", async () => {
@@ -157,7 +155,7 @@ describe("useReassignDriver", () => {
         routeId: "route-1",
         routeStatus: "planned",
         currentDriverName: "Driver A",
-      }),
+      })
     );
 
     expect(result.current.isReassigning).toBe(false);

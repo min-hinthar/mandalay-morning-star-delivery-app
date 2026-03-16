@@ -108,9 +108,7 @@ export function RouteCardRow({ route, selected, onClick }: RouteCardRowProps) {
             </p>
             <p className="text-xs text-text-muted font-mono">#{route.id.slice(0, 8)}</p>
             {route.status === "planned" && route.declinedByDriverName && (
-              <p className="text-xs text-status-error">
-                Declined by {route.declinedByDriverName}
-              </p>
+              <p className="text-xs text-status-error">Declined by {route.declinedByDriverName}</p>
             )}
           </div>
         </div>

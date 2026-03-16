@@ -37,13 +37,12 @@ export function DriverInfoCard({
   isReassigning = false,
   pendingDriverId,
 }: DriverInfoCardProps) {
-  const pendingDriverName =
-    pendingDriverId
-      ? drivers.find((d) => d.id === pendingDriverId)?.fullName ?? "selected driver"
-      : "selected driver";
+  const pendingDriverName = pendingDriverId
+    ? (drivers.find((d) => d.id === pendingDriverId)?.fullName ?? "selected driver")
+    : "selected driver";
 
   const deliveredCount = route.stops.filter(
-    (s) => s.status === "delivered" || s.status === "skipped",
+    (s) => s.status === "delivered" || s.status === "skipped"
   ).length;
   const totalCount = route.stops.length;
 
@@ -126,7 +125,7 @@ export function DriverInfoCard({
               {drivers.map((driver) => {
                 const available = isDriverAvailable(
                   driver.availability ?? null,
-                  route.deliveryDate,
+                  route.deliveryDate
                 );
                 const label = driver.fullName || driver.userId.slice(0, 8);
                 const displayLabel = available ? label : `${label} (Unavailable)`;
