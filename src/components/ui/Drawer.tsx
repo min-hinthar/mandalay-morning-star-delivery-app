@@ -383,20 +383,3 @@ export function Drawer({
     </Portal>
   );
 }
-
-// ============================================
-// BACKWARDS COMPATIBILITY ALIAS
-// ============================================
-
-/**
- * BottomSheet alias for backwards compatibility.
- * Use Drawer with position="bottom" instead.
- *
- * @deprecated Use Drawer with position="bottom" instead
- */
-export function BottomSheet(props: Omit<DrawerProps, "position">) {
-  return <Drawer {...props} position="bottom" />;
-}
-
-// Re-export DrawerProps as BottomSheetProps for backwards compatibility
-export type BottomSheetProps = Omit<DrawerProps, "position">;

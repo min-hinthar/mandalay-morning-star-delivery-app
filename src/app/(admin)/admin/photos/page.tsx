@@ -2,23 +2,16 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { RefreshCw, AlertCircle } from "lucide-react";
+import { RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { logger } from "@/lib/utils/logger";
 import { toast } from "@/lib/hooks/useToastV8";
 import { Button } from "@/components/ui/button";
 import { PhotoUploadZone } from "@/components/ui/admin/photos/PhotoUploadZone";
-import { PhotoGrid, type PhotoItem } from "@/components/ui/admin/photos/PhotoGrid";
-import { PhotoMetadata } from "@/components/ui/admin/photos/PhotoMetadata";
 import { BulkUploadMatcher } from "@/components/ui/admin/photos/BulkUploadMatcher";
+import { type PhotoItem } from "@/components/ui/admin/photos/PhotoGrid";
 import { PhotosStatsCards } from "./PhotosStatsCards";
 import { PhotosFilters } from "./PhotosFilters";
-
-interface PhotoStats {
-  total: number;
-  assigned: number;
-  unassigned: number;
-}
+import { PhotoGridSection, usePhotoHandlers, usePhotoData } from "./PhotosPage";
 
 interface MenuItem {
   id: string;
@@ -27,6 +20,12 @@ interface MenuItem {
   categoryName: string;
   imageUrl: string | null;
   basePriceCents: number;
+}
+
+interface PhotoStats {
+  total: number;
+  assigned: number;
+  unassigned: number;
 }
 
 type FilterType = "all" | "assigned" | "unassigned";
@@ -43,56 +42,22 @@ export default function AdminPhotosPage() {
   const [selectedPhoto, setSelectedPhoto] = useState<PhotoItem | null>(null);
   const [bulkFiles, setBulkFiles] = useState<File[] | null>(null);
 
+  const { fetchPhotos: fetchPhotosRaw, fetchMenuItems: fetchMenuItemsRaw } = usePhotoData();
+
   const fetchPhotos = useCallback(async () => {
     try {
-      const params = new URLSearchParams();
-      if (searchQuery) params.set("search", searchQuery);
-      if (filter !== "all") params.set("filter", filter);
-
-      const response = await fetch(`/api/admin/photos?${params}`);
-      if (!response.ok) throw new Error("Failed to fetch photos");
-
-      const data = await response.json();
+      const data = await fetchPhotosRaw(searchQuery, filter);
       setPhotos(data.photos || []);
       setStats(data.stats || { total: 0, assigned: 0, unassigned: 0 });
     } catch {
-      toast({
-        message: "Failed to fetch photos",
-        type: "error",
-      });
+      toast({ message: "Failed to fetch photos", type: "error" });
     }
-  }, [searchQuery, filter]);
+  }, [fetchPhotosRaw, searchQuery, filter]);
 
   const fetchMenuItems = useCallback(async () => {
-    try {
-      const response = await fetch("/api/admin/menu?limit=500");
-      if (!response.ok) throw new Error("Failed to fetch menu items");
-
-      const json = await response.json();
-      const data = json.data ?? json;
-      setMenuItems(
-        data.map(
-          (item: {
-            id: string;
-            slug: string;
-            name_en: string;
-            menu_categories: { name: string };
-            image_url: string | null;
-            base_price_cents: number;
-          }) => ({
-            id: item.id,
-            slug: item.slug,
-            name: item.name_en,
-            categoryName: item.menu_categories?.name || "Unknown",
-            imageUrl: item.image_url,
-            basePriceCents: item.base_price_cents,
-          })
-        )
-      );
-    } catch {
-      logger.error("Failed to fetch menu items", { api: "admin/photos" });
-    }
-  }, []);
+    const items = await fetchMenuItemsRaw();
+    setMenuItems(items);
+  }, [fetchMenuItemsRaw]);
 
   useEffect(() => {
     const load = async () => {
@@ -103,165 +68,21 @@ export default function AdminPhotosPage() {
     load();
   }, [fetchPhotos, fetchMenuItems]);
 
+  const handlers = usePhotoHandlers({
+    photos,
+    setPhotos,
+    setMenuItems,
+    setSelectedIds,
+    setSelectedPhoto,
+    setBulkFiles,
+    fetchPhotos,
+    fetchMenuItems,
+  });
+
   const handleRefresh = async () => {
     setRefreshing(true);
     await Promise.all([fetchPhotos(), fetchMenuItems()]);
     setRefreshing(false);
-  };
-
-  const handleUploadComplete = () => {
-    fetchPhotos();
-    fetchMenuItems();
-    toast({
-      message: "Photos uploaded successfully",
-      type: "success",
-    });
-  };
-
-  const handleBulkUploadComplete = () => {
-    setBulkFiles(null);
-    fetchPhotos();
-    fetchMenuItems();
-  };
-
-  const handlePageDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    const files = Array.from(e.dataTransfer.files).filter((f) => f.type.startsWith("image/"));
-    if (files.length > 1) {
-      setBulkFiles(files);
-    }
-    // Single file drops handled by PhotoUploadZone naturally
-  }, []);
-
-  const handlePageDragOver = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-  }, []);
-
-  const handleSelect = (id: string) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
-      }
-      return next;
-    });
-  };
-
-  const handlePhotoClick = (photo: PhotoItem) => {
-    setSelectedPhoto(photo);
-  };
-
-  const handleAssign = async (photoId: string, menuItemId: string) => {
-    try {
-      const photo = photos.find((p) => p.id === photoId);
-      if (!photo) return;
-
-      const response = await fetch(`/api/admin/photos/${photoId}`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ menuItemId, imageUrl: photo.imageUrl }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to assign photo");
-      }
-
-      toast({ message: "Photo assigned to menu item", type: "success" });
-      fetchPhotos();
-      fetchMenuItems();
-      setSelectedPhoto(null);
-    } catch (err) {
-      toast({
-        message: err instanceof Error ? err.message : "Failed to assign photo",
-        type: "error",
-      });
-    }
-  };
-
-  const handleDelete = async (photoId: string) => {
-    try {
-      const response = await fetch(`/api/admin/photos/${photoId}`, {
-        method: "DELETE",
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to delete photo");
-      }
-
-      toast({ message: "Photo removed from menu item", type: "success" });
-      fetchPhotos();
-      fetchMenuItems();
-      setSelectedPhoto(null);
-    } catch (err) {
-      toast({
-        message: err instanceof Error ? err.message : "Failed to delete photo",
-        type: "error",
-      });
-    }
-  };
-
-  const handleGoogleDriveLink = async (photoId: string, url: string) => {
-    try {
-      const verifyResponse = await fetch("/api/admin/photos/verify-drive", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url }),
-      });
-
-      const verifyData = await verifyResponse.json();
-      if (!verifyData.valid && !verifyData.warning) {
-        throw new Error(verifyData.error || "Invalid Drive URL");
-      }
-
-      const response = await fetch(`/api/admin/menu/${photoId}/photo`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ imageUrl: verifyData.previewUrl }),
-      });
-
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to save Drive URL");
-      }
-
-      toast({ message: "Photo URL updated", type: "success" });
-      fetchPhotos();
-      fetchMenuItems();
-    } catch (err) {
-      toast({
-        message: err instanceof Error ? err.message : "Failed to save Drive URL",
-        type: "error",
-      });
-    }
-  };
-
-  const handleBulkDelete = async () => {
-    if (selectedIds.size === 0) return;
-    if (!confirm(`Delete ${selectedIds.size} selected photos?`)) return;
-
-    let successCount = 0;
-    for (const id of selectedIds) {
-      try {
-        const response = await fetch(`/api/admin/photos/${id}`, {
-          method: "DELETE",
-        });
-        if (response.ok) successCount++;
-      } catch {
-        // Continue with other deletions
-      }
-    }
-
-    toast({
-      message: `${successCount} of ${selectedIds.size} photos removed`,
-      type: "success",
-    });
-    setSelectedIds(new Set());
-    fetchPhotos();
-    fetchMenuItems();
   };
 
   const filteredPhotos = photos.filter((photo) => {
@@ -289,20 +110,22 @@ export default function AdminPhotosPage() {
   }
 
   return (
-    <div className="p-4 md:p-8 space-y-6" onDrop={handlePageDrop} onDragOver={handlePageDragOver}>
-      {/* Bulk Upload Modal */}
+    <div
+      className="p-4 md:p-8 space-y-6"
+      onDrop={handlers.handlePageDrop}
+      onDragOver={handlers.handlePageDragOver}
+    >
       <AnimatePresence>
         {bulkFiles && (
           <BulkUploadMatcher
             files={bulkFiles}
             menuItems={menuItems}
-            onComplete={handleBulkUploadComplete}
+            onComplete={handlers.handleBulkUploadComplete}
             onCancel={() => setBulkFiles(null)}
           />
         )}
       </AnimatePresence>
 
-      {/* Header */}
       <m.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -323,19 +146,10 @@ export default function AdminPhotosPage() {
         </Button>
       </m.div>
 
-      <PhotosStatsCards
-        total={stats.total}
-        assigned={stats.assigned}
-        unassigned={stats.unassigned}
-      />
+      <PhotosStatsCards total={stats.total} assigned={stats.assigned} unassigned={stats.unassigned} />
 
-      {/* Upload Zone */}
-      <m.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.15 }}
-      >
-        <PhotoUploadZone onUploadComplete={handleUploadComplete} />
+      <m.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
+        <PhotoUploadZone onUploadComplete={handlers.handleUploadComplete} />
       </m.div>
 
       <PhotosFilters
@@ -345,52 +159,23 @@ export default function AdminPhotosPage() {
         onFilterChange={setFilter}
         selectedCount={selectedIds.size}
         onClearSelection={() => setSelectedIds(new Set())}
-        onBulkDelete={handleBulkDelete}
+        onBulkDelete={() => handlers.handleBulkDelete(selectedIds)}
       />
 
-      {/* Main Content */}
-      <m.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25 }}
-        className="flex gap-6"
-      >
-        <div className="flex-1">
-          {filteredPhotos.length === 0 ? (
-            <div className="text-center py-16 bg-surface-secondary rounded-card-sm border border-border">
-              <AlertCircle className="h-12 w-12 text-text-muted mx-auto mb-4" />
-              <h2 className="text-lg font-display font-medium text-text-primary mb-2">
-                No photos found
-              </h2>
-              <p className="font-body text-text-secondary">
-                {searchQuery || filter !== "all"
-                  ? "Try adjusting your filters"
-                  : "Upload photos to get started"}
-              </p>
-            </div>
-          ) : (
-            <PhotoGrid
-              photos={filteredPhotos}
-              selectedIds={selectedIds}
-              onSelect={handleSelect}
-              onPhotoClick={handlePhotoClick}
-            />
-          )}
-        </div>
-
-        <AnimatePresence>
-          {selectedPhoto && (
-            <PhotoMetadata
-              photo={selectedPhoto}
-              menuItems={menuItems}
-              onClose={() => setSelectedPhoto(null)}
-              onAssign={handleAssign}
-              onDelete={handleDelete}
-              onGoogleDriveLink={handleGoogleDriveLink}
-            />
-          )}
-        </AnimatePresence>
-      </m.div>
+      <PhotoGridSection
+        filteredPhotos={filteredPhotos}
+        selectedIds={selectedIds}
+        onSelect={handlers.handleSelect}
+        onPhotoClick={handlers.handlePhotoClick}
+        selectedPhoto={selectedPhoto}
+        menuItems={menuItems}
+        onCloseMetadata={() => setSelectedPhoto(null)}
+        onAssign={handlers.handleAssign}
+        onDelete={handlers.handleDelete}
+        onGoogleDriveLink={handlers.handleGoogleDriveLink}
+        searchQuery={searchQuery}
+        filter={filter}
+      />
     </div>
   );
 }
