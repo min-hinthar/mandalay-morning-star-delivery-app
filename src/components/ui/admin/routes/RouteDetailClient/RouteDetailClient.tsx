@@ -86,7 +86,7 @@ export function RouteDetailClient() {
               all
                 .filter(
                   (r: RouteRow) =>
-                    r.id !== routeId && ["planned", "assigned", "accepted"].includes(r.status)
+                    r.id !== routeId && r.status === "planned"
                 )
                 .map((r: RouteRow) => ({
                   id: r.id,
@@ -156,11 +156,12 @@ export function RouteDetailClient() {
 
   const handleReorder = useCallback(
     (reorderedStops: StopDetail[]) => {
+      const previousStops = [...localStops];
       const updated = reorderedStops.map((stop, i) => ({ ...stop, stopIndex: i }));
       setLocalStops(updated);
-      reorderStops.handleReorder(updated);
+      reorderStops.handleReorder(updated, previousStops);
     },
-    [reorderStops]
+    [reorderStops, localStops]
   );
 
   const handleMoveStop = useCallback(

@@ -18,4 +18,5 @@ export {
 // Sub-directory re-exports
 export * from "./analytics";
 export * from "./drivers";
+export * from "./orders";
 export * from "./routes";
