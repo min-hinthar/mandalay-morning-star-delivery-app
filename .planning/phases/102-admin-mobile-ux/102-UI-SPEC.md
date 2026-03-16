@@ -5,6 +5,7 @@ status: draft
 shadcn_initialized: true
 preset: new-york
 created: 2026-03-16
+revised: 2026-03-16
 ---
 
 # Phase 102 -- UI Design Contract
@@ -54,15 +55,20 @@ Uses existing project typography presets from `tokens.css`. Phase 102 references
 | Role | Size | Weight | Line Height | Phase 102 Usage |
 |------|------|--------|-------------|-----------------|
 | Body | 16px (`text-base`) | 400 | 1.5 | Mobile card body text, widget description |
-| Label | 14px (`text-sm`) | 500 | 1.4 | Mobile card secondary fields, timestamps, filter labels |
+| Label | 14px (`text-sm`) | 500 | 1.4 | Mobile card secondary fields, timestamps, filter labels, AdminNav link text |
 | Caption | 12px (`text-xs`) | 400 | 1.4 | Badge text, meta info (route number, start time) |
 | Heading | 20px (`text-xl`) | 700 | 1.3 | Mobile header page title, widget section heading |
 
-Weights restricted to:
-- **400 (normal)**: Body text, descriptions, secondary info
-- **600 (semibold)**: Card primary field (name, driver), button labels, nav items
+All four weights used across phase 102 admin components (verified from codebase):
 
-Source: `tokens.css` `--type-*` presets
+| Weight | Tailwind Class | Where Used in Phase 102 Scope |
+|--------|---------------|-------------------------------|
+| 400 (`normal`) | `font-normal` (default) | Body text, descriptions, secondary info, caption text |
+| 500 (`medium`) | `font-medium` | AdminNav link text (`font-body text-sm font-medium`), OpsOrderRow customer name, feedback/ratings table cells, filter labels, card primary fields |
+| 600 (`semibold`) | `font-semibold` | OpsOrderRow total amount, RouteStatsBar stat values, email table headers, button labels, count badges |
+| 700 (`bold`) | `font-bold` | AdminNav header logo (`font-bold text-accent-teal`), page headings (`font-display font-bold`), OpsKPIGrid large numbers (`text-3xl font-bold`), OpsCountdownBar timer, stat card values |
+
+Source: `tokens.css` `--type-*` presets, verified via grep across `AdminNav.tsx`, `OpsOrderRow.tsx`, `OpsKPIGrid.tsx`, `RouteStatsBar.tsx`, all admin page files.
 
 ---
 
@@ -82,6 +88,15 @@ Accent (`primary` #a41034) reserved for:
 - Hamburger icon when drawer is open (visual feedback)
 - Route progress widget progress bar fill (`bg-gradient-progress` -- existing golden gradient, not primary)
 
+**Mobile CSS variable fallback (Tailwind v4 learning):**
+Mobile header background must use explicit color fallback. `bg-surface-secondary` may resolve to transparent on mobile if CSS variable tokens haven't loaded. Apply pattern:
+```
+bg-neutral-50 md:bg-surface-secondary
+```
+Use explicit `bg-neutral-50` (the resolved value of `--color-surface-secondary` in light mode) on mobile-critical fixed elements. Desktop can use the token. Apply this to:
+- `AdminMobileHeader` background
+- Drawer backdrop (already handled by Drawer component)
+
 **Route progress widget color mapping:**
 | State | Progress Bar | Badge |
 |-------|-------------|-------|
@@ -100,29 +115,29 @@ Source: `tokens.css`, `StatusBadge.tsx` STATUS_COLORS, `progress.tsx` `bg-gradie
 
 | Component | Location | Purpose |
 |-----------|----------|---------|
-| `AdminMobileHeader` | `src/components/ui/admin/AdminMobileHeader.tsx` | Fixed top bar: hamburger + page title + action slot. `'use client'`, uses `useState` for drawer open. Height `h-14` (56px). Fixed position with `top: calc(env(safe-area-inset-top, 0px))`. Background `bg-surface-secondary border-b border-border`. |
-| `RouteProgressWidget` | `src/components/ui/admin/ops/RouteProgressWidget.tsx` | Card per active route: driver name + StatusBadge + Progress bar + "X/Y delivered" + start time. Clickable (Link to route detail). Grid: 1-col mobile, 2-col `sm:`, 3-col `lg:`. Animation: `initial={{ opacity: 0, y: 10 }}` with `useAnimationPreference()`. |
+| `AdminMobileHeader` | `src/components/ui/admin/AdminMobileHeader.tsx` | Fixed top bar: hamburger + page title + action slot. `'use client'`, uses `useState` for drawer open. Height `h-14` (56px). Fixed position with `top: calc(env(safe-area-inset-top, 0px))`. Background `bg-neutral-50 md:bg-surface-secondary border-b border-border`. |
+| `RouteProgressWidget` | `src/components/ui/admin/ops/RouteProgressWidget.tsx` | Card per active route: driver name + StatusBadge + Progress bar + "X/Y delivered" + start time. Clickable (Link to route detail). Grid: 1-col mobile, 2-col `sm:`, 3-col `lg:`. Animation: `initial={{ opacity: 0, y: 10 }}` with `useAnimationPreference()`. Widget cards use `willChange: isHovered ? "transform" : "auto"` on hover interaction (not permanent). |
 | `useRouteProgressPolling` | `src/components/ui/admin/ops/useRouteProgressPolling.ts` | Hook polling `GET /api/admin/ops/routes-progress` every 5s. Returns today's non-completed routes with id, name, status, driver_name, stats_json, started_at. Pattern: mirror `useOpsPolling.ts`. |
 
 ### Modified Components
 
 | Component | Change |
 |-----------|--------|
-| `AdminNav` | Add `variant: "sidebar" \| "drawer"` prop. Drawer variant: omit `m.aside` width animation, disable `layoutId` on active indicator, render nav items in scrollable list. |
-| `Drawer` | Prerequisite cleanup: remove deprecated `BottomSheet` alias (saves ~13 lines to get under 400). |
+| `AdminNav` (219 lines) | Add `variant: "sidebar" \| "drawer"` prop. Drawer variant: omit `m.aside` width animation, disable `layoutId` on active indicator, render nav items in scrollable list. **Line budget risk:** Adding drawer variant logic may add 40-80 lines, pushing past 400. If exceeds 350 lines during implementation, extract `NavItemList.tsx` as co-located sibling containing the `navItems.map()` rendering loop. Alternative: split into `AdminNavSidebar.tsx` / `AdminNavDrawer.tsx` if variant logic diverges significantly. |
+| `Drawer` (402 lines) | Prerequisite cleanup: remove deprecated `BottomSheet` alias (~13 lines saved) to get under 400. |
 | Admin layout (`layout.tsx`) | Add `AdminMobileHeader` client island. Responsive flex: `md:flex` with sidebar hidden below `md:`. Main content: `pt-14 md:pt-0` for fixed header offset. Layout stays Server Component. |
-| 6 data tables | Inline responsive card branches per table (no shared wrapper). Pattern: `hidden md:flex` table header + `md:hidden` card layout. |
+| 6 data tables | Inline responsive card branches per table (no shared wrapper). See HTML table conversion strategy below. |
 
 ### Existing Components Reused
 
 | Component | Phase 102 Usage |
 |-----------|-----------------|
-| `Drawer` | Left drawer (`position="left"`, `width="sm"`) wrapping AdminNav drawer variant |
+| `Drawer` | Left drawer (`position="left"`, `width="sm"`) wrapping AdminNav drawer variant. Drawer internally uses `useRouteChangeClose` for auto-close on navigation. AdminMobileHeader passes `isOpen`/`onClose` to Drawer; no extra wiring for route-change close needed. |
 | `StatusBadge` | Route progress widget status indicator |
 | `Progress` | Route progress widget bar (with spring animation) |
 | `Button` | Hamburger button, action slot buttons (all `size="icon"` = 44px) |
 | `EmptyState` | "No active routes" widget empty state |
-| `useAnimationPreference` | Reduced-motion gate on widget stagger animations, routes page animations |
+| `useAnimationPreference` | Reduced-motion gate on widget stagger animations, plus reduced-motion sweep across 17 admin page files |
 
 ---
 
@@ -135,7 +150,7 @@ Source: `tokens.css`, `StatusBadge.tsx` STATUS_COLORS, `progress.tsx` `bg-gradie
 | Hamburger tap | Opens left drawer. Touch target: 44px (`size="icon"`). Icon: `Menu` from Lucide. |
 | Drawer backdrop tap | Closes drawer (existing Drawer behavior). |
 | Drawer X button | Closes drawer. 44px touch target. |
-| Navigation item tap | Navigates + auto-closes drawer via `useRouteChangeClose`. |
+| Navigation item tap | Navigates + auto-closes drawer. Drawer component calls `useRouteChangeClose` internally -- no extra wiring in AdminMobileHeader. |
 | Page title | Static text derived from `usePathname()`. E.g., `/admin/orders` renders "Orders". |
 | Right action slot | Optional per-page. Renders nothing if unused. |
 
@@ -145,7 +160,42 @@ Responsive switch:
 
 ### Tables to Cards (MOBL-02)
 
-Each table renders dual layout: desktop table header + mobile card. Details per table:
+Each table renders dual layout. **Two distinct conversion strategies** depending on whether the page uses HTML `<table>` or flex-based layout:
+
+#### Strategy A: Flex-Based Tables (already use `<div>` layout)
+
+Pattern: `hidden md:flex` table header + `md:hidden` card layout.
+
+Applies to:
+- **MenuItemsTable** (flex-based)
+- **CategoriesTable** (flex-based)
+- **RouteListTable** (flex-based)
+
+#### Strategy B: HTML `<table>` Tables
+
+These pages use real `<table>/<thead>/<tbody>/<tr>` elements. The `hidden md:flex` pattern does NOT work on `<thead>` (wrong display type). Conversion approach per page:
+
+**Email Log (`emails/page.tsx`, 331 lines):**
+- Existing partial responsive: `hidden md:table-cell` on Subject column (L200), `hidden sm:table-cell` on Sent At column (L204)
+- Strategy: Add `hidden md:table` on `<table>` element, add separate `md:hidden` card `<div>` rendering the same `emails.map()` data as cards below the hidden table
+- Mobile card: `[status icon + recipient] [email type badge] [date] [resend button]`
+- Resend button: 44px, right-aligned
+- **Pre-existing bug:** Line 212 wraps `<tr>` in bare `<>` Fragment with `key` on inner `<tr>`, not the Fragment. Fix during card conversion by switching to `<Fragment key={email.id}>` import or restructuring the map to avoid Fragment wrapper.
+
+**Feedback Table (`feedback/page.tsx`, 287 lines):**
+- No existing responsive classes on table headers
+- Strategy: Add `hidden md:block` on `overflow-x-auto` table wrapper, add separate `md:hidden` card `<div>` above or below
+- Mobile card: `[star rating] [customer name] [date] [message excerpt, 2 lines truncated]`
+- Tap to expand full message inline (no navigation)
+- Fix `space-y-6` outer to `p-4 md:p-0 space-y-6` (currently no padding -- content touches edges)
+
+**Ratings Table (`ratings/page.tsx`, 222 lines):**
+- No existing responsive classes
+- Strategy: Same as feedback -- `hidden md:block` on table wrapper, separate `md:hidden` card div
+- Mobile card: `[star rating] [customer name] [order ref] [date]`
+- Simplest conversion. 178-line buffer. Fix `overflow-x-auto` to be wrapped in `hidden md:block`.
+
+#### Per-Table Card Details
 
 **MenuItemsTable:**
 - Mobile card: `[48px photo] [name + category] [price] [active toggle]`
@@ -161,28 +211,16 @@ Each table renders dual layout: desktop table header + mobile card. Details per 
 - Entire card clickable (navigates to route detail)
 - May require `RoutePageHeader` extraction if line count exceeds 400
 
-**Email Log:**
-- Mobile card: `[status icon + recipient] [email type badge] [date] [resend button]`
-- Resend button: 44px, right-aligned
-- Desktop retains HTML `<table>`; mobile renders flex cards
-
-**Feedback Table:**
-- Mobile card: `[star rating] [customer name] [date] [message excerpt, 2 lines truncated]`
-- Tap to expand full message inline (no navigation)
-- Fix `p-6` to `p-4 md:p-6`
-
-**Ratings Table:**
-- Mobile card: `[star rating] [customer name] [order ref] [date]`
-- Simplest conversion. Fix `overflow-x-auto` to be `md:overflow-x-auto` only.
-
 ### Touch Target Sweep (MOBL-03)
 
 Strategy: mobile-only override (`h-11 md:h-9` pattern). Desktop density preserved.
 
+**IMPORTANT: Only INTERACTIVE elements listed.** Display-only icons (status indicators, decorative) are excluded from this sweep.
+
 | Element Type | Current | Mobile Override | Pattern |
 |---|---|---|---|
 | `Button size="sm"` (~25) | 36px | 44px | `h-11 md:h-9` responsive class |
-| Icon-only `h-6 w-6` (~15) | 24px | 44px | `min-h-[44px] min-w-[44px]` transparent padding wrapper |
+| Icon-only buttons `h-6 w-6` (~15) | 24px | 44px | `min-h-[44px] min-w-[44px]` transparent padding wrapper |
 | Checkboxes `h-5` (~5) | 20px | 44px | Transparent padding wrapper extending hit area |
 | Toggle switches (~2) | 24px | 44px | Container `min-h-[44px]` on mobile |
 | Badge filter chips (~49) | 28-32px | 44px | `min-h-[44px]` + horizontal padding |
@@ -190,12 +228,21 @@ Strategy: mobile-only override (`h-11 md:h-9` pattern). Desktop density preserve
 | Close/dismiss X (~5) | 16-24px | 44px | Transparent padding wrapper |
 | Input `size="sm"` (~10) | 36px | 44px | Change to default `h-11` on mobile |
 
-**Priority fixes (worst offenders):**
-1. `OpsOrderRow.tsx` icons: 14px -> 44px touch wrapper
-2. `CategoriesTable` sort buttons: 24px -> 44px
-3. `SectionCard` eye/chevron/more buttons: 32px -> 44px
-4. Routes page date nav buttons: 32px -> 44px
-5. Emails page filter inputs: 40px -> 44px
+**Priority fixes (worst offenders -- INTERACTIVE elements only):**
+
+| # | Element | File | Current | Interactive? | Fix |
+|---|---------|------|---------|-------------|-----|
+| 1 | Checkbox | `OpsOrderRow.tsx` L57 | `h-5 w-5` (20px) | YES (onCheckedChange handler) | Transparent padding wrapper to 44px hit area |
+| 2 | Sort up/down buttons | `CategoriesTable` | `h-6 w-6 p-0` (24px) | YES (onClick) | `h-11 w-11 md:h-6 md:w-6` |
+| 3 | Eye/chevron/more buttons | `SectionCard` | ~`p-2` (32px) | YES (onClick handlers) | Add touch padding to 44px |
+| 4 | Date nav prev/next buttons | `routes/page.tsx` | `h-8 w-8` (32px) | YES (onClick) | `h-11 w-11 md:h-8 md:w-8` |
+| 5 | Filter inputs | `emails/page.tsx` | `h-10` (40px) | YES (onChange) | `h-11` on mobile |
+| 6 | "View Order" links | `emails/page.tsx` L248 | `text-xs` (no min height) | YES (Link) | `min-h-[44px] inline-flex items-center` |
+| 7 | Resend button | `emails/page.tsx` L256 | `size="sm"` (36px) | YES (onClick) | `h-11 md:h-9` |
+
+**Removed from sweep (display-only, NOT interactive):**
+- `OpsOrderRow.tsx` email status icons (`h-3.5 w-3.5`): These are `<span>` elements with `aria-label` -- display-only indicators, not buttons
+- `OpsOrderRow.tsx` assigned indicator dot (`h-2.5 w-2.5`): `<span>` with `title` -- display-only
 
 ### Route Progress Widget (MOBL-04)
 
@@ -206,6 +253,7 @@ Strategy: mobile-only override (`h-11 md:h-9` pattern). Desktop density preserve
 | Polling | Auto-refresh every 5 seconds (matches ops order polling cadence) |
 | Stagger animation | Cards enter with `opacity: 0, y: 10` -> `opacity: 1, y: 0`, staggered 0.05s each |
 | Reduced motion | `useAnimationPreference()` skips entrance animation |
+| Hover performance | `willChange: isHovered ? "transform" : "auto"` on widget cards (not permanent -- per learning "willChange Only on Interaction") |
 
 Widget layout:
 ```
@@ -221,7 +269,17 @@ States:
 - **assigned/accepted**: "Waiting" state -- "Assigned to [Driver]" or "Accepted by [Driver]", no progress bar
 - **Empty**: "No active routes" empty state text
 
-Placement: Ops dashboard, between KPI grid and order list.
+**Exact insertion point in OpsCenter.tsx:** After `<OpsKPIGrid />` (L131-136) and before `<OpsOrderList />` (L139-147), within the existing `<div className="space-y-6">` container (L105). Add:
+```tsx
+{/* Route progress widget section */}
+<section aria-labelledby="route-progress-heading">
+  <h2 id="route-progress-heading" className="text-lg font-semibold text-text-primary">
+    Route Progress
+  </h2>
+  <RouteProgressWidget />
+</section>
+```
+The `<section>` wrapper with `aria-labelledby` heading is required for accessibility landmark navigation.
 
 ---
 
@@ -283,17 +341,17 @@ Implementation: CSS classes only (`hidden md:block`, `md:hidden`). No `useMediaQ
 
 ## Padding Fixes
 
-| Page | Current | Target |
-|------|---------|--------|
-| Dashboard `/admin` | `p-8` | `p-4 md:p-8` |
-| Orders `/admin/orders` | `p-8` | `p-4 md:p-8` |
-| Analytics Hub | `p-8` | `p-4 md:p-8` |
-| Delivery Analytics | `p-8` | `p-4 md:p-8` |
-| Driver Analytics | `p-8` | `p-4 md:p-8` |
-| Feedback | `p-6` | `p-4 md:p-6` |
-| Ratings | no padding | `p-4 md:p-6` |
+| Page | Current | Target | Verified |
+|------|---------|--------|----------|
+| Dashboard `/admin` | `p-8` (L216) | `p-4 md:p-8` | YES -- `admin/page.tsx` L216 has `<div className="p-8">` |
+| Orders `/admin/orders` | `p-8` (L184) | `p-4 md:p-8` | YES -- `orders/page.tsx` L184 has `<div className="p-8">` |
+| Analytics Hub | `p-8` | `p-4 md:p-8` | from CONTEXT |
+| Delivery Analytics | `p-8` | `p-4 md:p-8` | from CONTEXT |
+| Driver Analytics | `p-8` | `p-4 md:p-8` | from CONTEXT |
+| Feedback | `space-y-6` (no padding) | `p-4 md:p-0 space-y-6` | YES -- `feedback/page.tsx` L155 has `<div className="space-y-6">` with no padding |
+| Ratings | `space-y-6` (no padding) | `p-4 md:p-0 space-y-6` | YES -- `ratings/page.tsx` L139 has `<div className="space-y-6">` with no padding |
 
-Already correct (no change): Drivers, Menu, Menu Edit, Categories, Routes, Photos, Emails, Sections, Settings.
+Already correct (no change): Drivers, Menu, Menu Edit, Categories, Routes, Photos, Emails (`p-4 md:p-8`), Sections.
 
 ---
 
@@ -303,10 +361,45 @@ Must complete BEFORE adding responsive branches (400-line limit enforcement):
 
 | File | Lines | Action |
 |------|-------|--------|
-| `admin/photos/page.tsx` | 396 | Extract into `PhotosPage/index.tsx` + `PhotoGrid.tsx` + `PhotoMetadata.tsx` |
+| `admin/photos/page.tsx` | 396 | **CRITICAL:** Extract into `PhotosPage/index.tsx` + `PhotoGrid.tsx` + `PhotoMetadata.tsx` |
 | `Drawer.tsx` | 402 | Remove deprecated `BottomSheet` alias (~13 lines saved) |
-| `admin/sections/page.tsx` | 363 | Monitor; extract `SectionEditor` if responsive additions approach 400 |
+| `admin/sections/page.tsx` | 363 | Monitor; extract `SectionEditor` modal call if responsive additions approach 400 |
 | `admin/routes/page.tsx` | 347 | Monitor; extract `RoutePageHeader.tsx` if card conversion approaches 400 |
+| `admin/page.tsx` (Dashboard) | 342 | RouteProgressWidget goes inside OpsCenter.tsx (not page.tsx). Dashboard page needs NO extraction -- responsive work is padding change only (`p-8` to `p-4 md:p-8`). |
+
+---
+
+## Reduced-Motion Sweep
+
+**17 admin page-level files** use `initial={{ opacity: 0 }}` Framer Motion animations but do NOT call `useAnimationPreference()`. Only component-level files in `components/ui/admin/` use the hook (AdminDashboard, OpsKPIGrid, OpsCountdownBar, etc.).
+
+Each file below needs `useAnimationPreference()` added, following the OpsKPIGrid pattern:
+```tsx
+const { shouldAnimate, getSpring } = useAnimationPreference();
+// Then guard: initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+```
+
+| File | Instances | Priority |
+|------|-----------|----------|
+| `analytics/drivers/DriverAnalyticsDashboard.tsx` | 2 (`initial={{ opacity: 0, scale: 0.95 }}`, `initial={{ opacity: 0, y: 20 }}`) | HIGH (heavy page) |
+| `analytics/delivery/DeliveryMetricsDashboard.tsx` | 2 | HIGH (heavy page) |
+| `photos/page.tsx` | 3 | HIGH (after extraction) |
+| `photos/PhotosFilters.tsx` | 2 | MEDIUM |
+| `photos/PhotosStatsCards.tsx` | 1 | MEDIUM |
+| `sections/SectionsToolbar.tsx` | 2 | MEDIUM |
+| `sections/SectionsList.tsx` | 4 | MEDIUM |
+| `drivers/DriversStatsCards.tsx` | 1 | LOW |
+| `routes/RoutesStatsCards.tsx` | 1 | LOW |
+| `routes/page.tsx` | 3 | MEDIUM |
+| `menu/page.tsx` | 2 | MEDIUM |
+| `menu/MenuFilterBar.tsx` | 1 | LOW |
+| `menu/MenuItemsTable.tsx` | 1 | LOW |
+| `menu/[id]/page.tsx` | 1 | LOW |
+| `menu/[id]/MenuItemFormFields.tsx` | 1 | LOW |
+| `menu/[id]/MenuItemPhotoSection.tsx` | 1 | LOW |
+| `categories/page.tsx` | 3 | MEDIUM |
+
+**Total: 31 animation instances across 17 files.** This is a quality/accessibility requirement (WCAG 2.1 SC 2.3.3 reduced motion), not optional polish.
 
 ---
 
@@ -314,16 +407,54 @@ Must complete BEFORE adding responsive branches (400-line limit enforcement):
 
 From learnings cross-check (bugs WILL occur if violated):
 
-| Rule | Detail |
-|------|--------|
-| No nested `overflow-y-auto` | Admin `<main>` has `overflow-auto`. Card wrappers must NOT add their own scroll containers. |
-| Safe area: position not padding | Mobile header: `position: fixed` + `top: calc(env(safe-area-inset-top, 0px))`, NOT padding. |
-| No backdrop-blur on mobile | Drawer already handles this (`sm:backdrop-blur-xl` only). Mobile header: solid `bg-surface-secondary`. |
-| Flex `items-center` needs `w-full` | Mobile card children inside `flex-col items-center` need explicit `w-full`. |
-| `layoutId` cross-mount | Disable `layoutId="admin-nav-indicator"` in drawer variant to prevent glitchy cross-mount animation. |
-| `overflow-x-auto` conditional | Tables with `overflow-x-auto` (emails, feedback, ratings): apply only on `md:` since mobile renders cards. |
-| `touch-none` scope | Only on drag handles, never on content areas (blocks native scroll). |
-| `willChange` only on interaction | Widget cards and animated rows: `willChange: isHovered ? "transform" : "auto"`, not permanent. |
+| # | Rule | Detail |
+|---|------|--------|
+| 1 | No nested `overflow-y-auto` | Admin `<main>` has `overflow-auto`. Card wrappers must NOT add their own scroll containers. |
+| 2 | **Sections page violator** | `sections/page.tsx` L311 has `overflow-auto` on left panel (`<div className="flex-1 overflow-auto p-4 md:p-8 space-y-6">`), nested inside `<main className="flex-1 overflow-auto">` from layout.tsx L44. This is an active violation of Rule 1. **Fix during phase 102:** Remove `overflow-auto` from sections page left panel -- let `<main>` be the sole scroll container. |
+| 3 | Safe area: position not padding | Mobile header: `position: fixed` + `top: calc(env(safe-area-inset-top, 0px))`, NOT padding. |
+| 4 | No backdrop-blur on mobile | Drawer already handles this (`sm:backdrop-blur-xl` only). Mobile header: solid `bg-neutral-50`. |
+| 5 | Flex `items-center` needs `w-full` | Mobile card children inside `flex-col items-center` need explicit `w-full`. |
+| 6 | `layoutId` cross-mount | Disable `layoutId="admin-nav-indicator"` in drawer variant to prevent glitchy cross-mount animation. |
+| 7 | `overflow-x-auto` conditional | Tables with `overflow-x-auto` (emails, feedback, ratings): wrap in `hidden md:block` since mobile renders cards. |
+| 8 | `touch-none` scope | Only on drag handles, never on content areas (blocks native scroll). |
+| 9 | `willChange` only on interaction | Widget cards and animated rows: `willChange: isHovered ? "transform" : "auto"`, not permanent. |
+| 10 | Mobile CSS variable fallback | Use `bg-neutral-50` (explicit) on mobile-critical fixed elements, `bg-surface-secondary` on desktop. Per Tailwind v4 learning. |
+| 11 | Emails page Fragment key | L212 bare `<>` Fragment wraps `<tr>` -- `key` is on inner `<tr>`, not Fragment. Fix during card conversion. |
+
+---
+
+## Testing Considerations
+
+| Area | Approach |
+|------|----------|
+| Responsive breakpoints | Playwright viewport resize tests: verify `md:hidden` / `hidden md:block` elements appear/disappear at 768px threshold |
+| Drawer open/close | E2E: use `.count()` === 0 for drawer close verification, NOT `.toBeVisible()` (AnimatePresence exit animation per testing learning) |
+| Reduced motion | Mock `useAnimationPreference` to return `{ shouldAnimate: false }` in unit tests; verify no `initial` prop applied |
+| CSS `hidden md:` patterns | NOT unit-testable (JSDOM has no layout engine). Playwright E2E required for visibility assertions. |
+| Touch targets | Playwright `boundingBox()` assertions: verify interactive elements >= 44px on mobile viewport (375px width) |
+| Card conversion | Visual regression: Storybook stories at 375px and 768px viewports for each converted table |
+
+---
+
+## AdminNav Line Budget
+
+AdminNav.tsx is currently 219 lines (verified). Adding `variant: "sidebar" | "drawer"` prop with drawer-specific rendering will add estimated 40-80 lines of conditional logic.
+
+| Scenario | Estimated Lines | Action |
+|----------|----------------|--------|
+| < 350 lines after changes | No extraction needed | Proceed normally |
+| 350-399 lines | Extract `NavItemList.tsx` | Move `navItems.map()` rendering loop (~50 lines) into co-located sibling file |
+| > 400 lines | Split components | Create `AdminNavSidebar.tsx` / `AdminNavDrawer.tsx` with shared `navItems` config |
+
+Decision point: After implementing drawer variant, run `wc -l` and extract if approaching 400.
+
+---
+
+## Dashboard Images in Animated Containers
+
+**Verified: NO images in animated containers.** `AdminDashboard.tsx` (157 lines) uses `m.div` with `initial={{ opacity: 0 }}` but contains zero `<img>` or `<Image>` elements (confirmed via grep). All children are `KPICard`, `QuickStat`, and `RefreshCw` icon -- text and SVG only. The `loading="lazy"` + opacity:0 bug does NOT apply to the admin dashboard.
+
+The dashboard page (`admin/page.tsx`, 342 lines) itself renders `AdminDashboard`, `LazyRevenueChart`, `PopularItems`, and cards -- but these are not inside framer-motion animated containers with `initial={{ opacity: 0 }}`.
 
 ---
 
