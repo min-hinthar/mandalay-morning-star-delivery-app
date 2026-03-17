@@ -10,6 +10,14 @@ import {
   apiErrorResponse,
   createRoutesResponse,
 } from "@/test/mocks/google-routes";
+// Mock getBusinessRules to return defaults (avoids Supabase calls in unit tests)
+vi.mock("@/lib/settings/business-rules", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/settings/business-rules")>();
+  return {
+    ...actual,
+    getBusinessRules: vi.fn().mockResolvedValue(actual.BUSINESS_RULES_DEFAULTS),
+  };
+});
 
 // Store original fetch
 const originalFetch = global.fetch;

@@ -51,6 +51,8 @@ export const deliverySettingsBaseSchema = z.object({
   max_delivery_duration_minutes: z.number().int().min(1).max(480),
   delivery_zones: z.array(deliveryZoneSchema).optional(),
   cod_enabled: z.boolean().optional(),
+  long_distance_fee_cents: z.number().min(0).optional(),
+  long_distance_threshold_miles: z.number().min(1).max(100).optional(),
 });
 
 /** Full delivery settings with cross-field validation */

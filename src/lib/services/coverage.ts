@@ -7,7 +7,7 @@ import {
   KITCHEN_LOCATION,
 } from "@/types/address";
 import { getDirectionsForCoords, DEFAULT_ZONES } from "@/lib/utils/delivery-zones";
-import { BUSINESS_RULES_DEFAULTS } from "@/lib/settings/business-rules";
+import { getBusinessRules } from "@/lib/settings/business-rules";
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
@@ -121,24 +121,58 @@ export async function checkCoverage(
     let estimatedFeeCents: number | undefined;
 
     if (isValid) {
-      const DAY_NAMES: Record<string, string> = {
-        east: "Monday",
-        west: "Wednesday",
-        south: "Thursday",
-      };
-      const dirs = getDirectionsForCoords(destLat, destLng, DEFAULT_ZONES);
+      // Fetch live business rules from DB (cached 5 min) instead of hardcoded defaults
+      const rules = await getBusinessRules();
+      const zones = rules.deliveryZones.length > 0 ? rules.deliveryZones : DEFAULT_ZONES;
+
+      // Build day-name map from actual delivery_days config
+      const dayNameMap: Record<string, string[]> = {};
+      const DAY_LABELS = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+      for (const dd of rules.deliveryDays) {
+        if (!dd.isActive) continue;
+        const dir = dd.direction ?? "all";
+        if (!dayNameMap[dir]) dayNameMap[dir] = [];
+        dayNameMap[dir].push(DAY_LABELS[dd.dayOfWeek]);
+      }
+
+      const dirs = getDirectionsForCoords(destLat, destLng, zones);
       directions = dirs;
-      const days = dirs.map((d) => DAY_NAMES[d]).filter(Boolean);
-      days.push("Saturday");
+
+      // Collect eligible days: days matching customer direction + "all"-direction days
+      const days: string[] = [];
+      for (const d of dirs) {
+        if (dayNameMap[d]) days.push(...dayNameMap[d]);
+      }
+      if (dayNameMap["all"]) days.push(...dayNameMap["all"]);
+      // Fallback: if no delivery_days config, use legacy static mapping
+      if (days.length === 0 && dirs.length > 0) {
+        const LEGACY_DAY_NAMES: Record<string, string> = {
+          east: "Monday",
+          west: "Wednesday",
+          south: "Thursday",
+        };
+        for (const d of dirs) {
+          if (LEGACY_DAY_NAMES[d]) days.push(LEGACY_DAY_NAMES[d]);
+        }
+        days.push("Saturday");
+      }
       eligibleDays = [...new Set(days)];
 
-      const threshold = BUSINESS_RULES_DEFAULTS.longDistanceThresholdMiles;
+      const threshold = rules.longDistanceThresholdMiles;
       if (roundedMiles > threshold) {
         feeTier = "extended";
-        estimatedFeeCents = BUSINESS_RULES_DEFAULTS.longDistanceFeeCents;
+        estimatedFeeCents = rules.longDistanceFeeCents;
       } else {
         feeTier = "standard";
-        estimatedFeeCents = BUSINESS_RULES_DEFAULTS.deliveryFeeCents;
+        estimatedFeeCents = rules.deliveryFeeCents;
       }
     }
 
