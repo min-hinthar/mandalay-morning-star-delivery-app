@@ -130,7 +130,18 @@ export async function GET(request: NextRequest) {
 
     if (routesError) {
       logger.exception(routesError, { api: "admin/routes" });
-      return NextResponse.json({ error: "Failed to fetch routes" }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: "Failed to fetch routes",
+          debug: {
+            message: routesError.message,
+            code: routesError.code,
+            hint: routesError.hint,
+            details: routesError.details,
+          },
+        },
+        { status: 500 }
+      );
     }
 
     // Transform to API response format
@@ -149,7 +160,13 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     logger.exception(error, { api: "admin/routes" });
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: "Internal server error",
+        debug: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    );
   }
 }
 
