@@ -179,7 +179,7 @@ export default function AdminRoutesPage() {
           count={routes.length}
           breadcrumbs={[{ label: "Dashboard", href: "/admin" }, { label: "Routes" }]}
           actions={
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               <Button
                 variant="outline"
                 onClick={handleRefresh}

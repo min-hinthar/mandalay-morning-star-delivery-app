@@ -76,7 +76,7 @@ export function AdminPageHeader({
       )}
 
       {/* Title row */}
-      <div className="flex items-center justify-between gap-4">
+      <div className="flex flex-wrap items-center justify-between gap-2 md:gap-4">
         <div className="flex items-center gap-3">
           <h1 className="font-display text-2xl font-bold text-text-primary">{title}</h1>
 
@@ -94,7 +94,7 @@ export function AdminPageHeader({
         </div>
 
         {/* Actions slot */}
-        {actions && <div className="flex items-center gap-2">{actions}</div>}
+        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
       </div>
     </div>
   );
