@@ -47,11 +47,8 @@ export async function GET(request: NextRequest) {
     });
     if (rl.limited) return rl.response;
 
-    // Build query
-    let query = supabase
-      .from("routes")
-      .select(
-        `
+    // Build query — includes declined_by fields (requires migration 20260316)
+    const fullSelect = `
         id,
         delivery_date,
         driver_id,
@@ -78,22 +75,54 @@ export async function GET(request: NextRequest) {
           id,
           status
         )
-      `,
-        { count: "exact" }
-      )
-      .order("delivery_date", { ascending: false })
-      .order("created_at", { ascending: false });
+      `;
 
-    // Add date filter if provided
-    if (date) {
-      query = query.eq("delivery_date", date);
+    // Fallback select without declined_by (pre-migration compatibility)
+    const fallbackSelect = `
+        id,
+        delivery_date,
+        driver_id,
+        status,
+        optimized_polyline,
+        stats_json,
+        started_at,
+        completed_at,
+        created_at,
+        updated_at,
+        drivers (
+          id,
+          profiles (
+            full_name
+          )
+        ),
+        route_stops (
+          id,
+          status
+        )
+      `;
+
+    async function fetchRoutes(selectStr: string) {
+      let q = supabase
+        .from("routes")
+        .select(selectStr, { count: "exact" })
+        .order("delivery_date", { ascending: false })
+        .order("created_at", { ascending: false });
+      if (date) {
+        q = q.eq("delivery_date", date);
+      }
+      return q.range(rangeStart, rangeEnd).returns<RouteWithDriver[]>();
     }
 
-    const {
-      data: routes,
-      error: routesError,
-      count,
-    } = await query.range(rangeStart, rangeEnd).returns<RouteWithDriver[]>();
+    let { data: routes, error: routesError, count } = await fetchRoutes(fullSelect);
+
+    // Fallback if declined_by column/FK doesn't exist yet (migration not applied)
+    if (routesError) {
+      logger.warn("Routes query failed, retrying without declined_by fields", {
+        api: "admin/routes",
+        error: routesError.message,
+      });
+      ({ data: routes, error: routesError, count } = await fetchRoutes(fallbackSelect));
+    }
 
     if (routesError) {
       logger.exception(routesError, { api: "admin/routes" });
