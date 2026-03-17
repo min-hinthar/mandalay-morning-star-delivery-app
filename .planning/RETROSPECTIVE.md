@@ -1,5 +1,54 @@
 # Project Retrospectives
 
+## Milestone: v2.1 — Route Operations & Admin Mobile
+
+**Shipped:** 2026-03-17
+**Phases:** 5 | **Plans:** 22 | **Requirements:** 18/18
+
+### What Was Built
+- Role-based auth redirect with error-indicating paths (admin/driver/customer → correct dashboard)
+- Order detail completeness: items/modifiers, contact (click-to-call/SMS), payment, tip, delivery notes on one screen
+- Full route editing suite: drag-reorder (desktop DnD + mobile move buttons), split, merge, driver reassignment
+- Driver accept/decline flow: 5-status lifecycle, decline with reason, email alert, admin auto-transition
+- Admin mobile UX: drawer navigation, 6 table-to-card conversions, 44px touch targets, route progress widget
+- Phase 103 gap closure: 19 structural gaps closed (error handling, barrel exports, dead code, tests, Nyquist)
+
+### What Worked
+- **Wave-based parallel execution** — 3 gap closure plans (Phase 103) ran in parallel, completing in ~20 minutes vs ~60 sequential
+- **@dnd-kit as generic DragReorderList** — built once in Phase 100, reused in Phase 101 ActiveRouteView with zero modifications
+- **Strategy B (dual render) for mobile/desktop** — md:hidden/hidden md:block is zero-JS, instant, no layout shift
+- **Audit → gap closure → re-audit cycle** — first audit (tech_debt, 5 items) → Phase 103 fix → second audit (passed) provided clean completion
+- **3-day execution** — 5 phases, 22 plans, 43 tasks in 3 days with clear dependency ordering
+- **Nyquist validation** — catching test stubs early (Wave 0 scaffolds) and filling them in Phase 103 ensured test quality
+
+### What Was Inefficient
+- **Phase 103 needed for tech debt** — 19 gaps found after 4 feature phases. Still ~25% overhead for cleanup (1 gap closure phase per 4 feature phases), but improved from v1.9's 50%
+- **SUMMARY frontmatter extraction still fragile** — `summary-extract` returned empty for `one_liner` and `task_count` fields; had to grep frontmatter directly
+- **area_description wiring missed until audit** — driver page query didn't include it; AcceptDeclineCard accepted it as prop but never received it. Integration checker caught this
+- **OrderDetailPanel composed wrapper orphaned** — P99 SUMMARY stated "for Phase 100 route detail embedding" but P100 never embedded it. Subcomponents used directly instead
+
+### Patterns Established
+- 5-status route lifecycle (planned→assigned→accepted→in_progress→completed) with admin auto-transition
+- after() for fire-and-forget email in API routes (decline email, consistent with v1.9)
+- Drawer with useRouteChangeClose for mobile navigation auto-dismiss
+- useRouteProgressPolling with 5s setInterval + isMountedRef guard for safe unmount
+- shouldAnimate guard pattern for reduced-motion across all Framer Motion animations
+- Two-param handleReorder pattern: (reorderedStops, previousStops) for correct optimistic revert
+
+### Key Lessons
+1. **Integration checker is the highest-value audit agent** — caught orphaned exports and unwired props that phase-level verification missed
+2. **Barrel exports without consumers are dead code** — Phase 103 added orders barrel, but OrderDetailPanel wrapper is still uncalled. Barrels must have imports.
+3. **Mobile-first responsive is cheaper upfront** — Phase 102's card conversions (6 tables) would have been simpler if built mobile-first in the original phases
+4. **Wave 0 test scaffolds (test.skip stubs) work** — they create placeholders that Nyquist validation catches; filling them in Phase 103 ensures nothing is forgotten
+5. **Gap closure phases are fast** — Phase 103 (19 gaps, 6 files per plan) executed in ~45 minutes because code existed; just needed fixes and wiring
+
+### Cost Observations
+- Model mix: ~75% opus, ~25% sonnet (sonnet for verifier, integration checker, and test runner agents)
+- Sessions: ~4 sessions across 3 days
+- Notable: Phase 103 parallel execution (3 agents) was the most cost-efficient pattern — each agent had fresh context, zero coordination overhead
+
+---
+
 ## Milestone: v1.9 — Launch-Ready MVP
 
 **Shipped:** 2026-03-03
