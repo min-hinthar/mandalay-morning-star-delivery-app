@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 import { MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -98,8 +99,12 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
     redirect("/?error=unauthorized");
   }
 
+  // Use service client for data query (bypasses RLS, avoids 5s timeout)
+  // Admin auth already verified above
+  const serviceClient = createServiceClient();
+
   // Build query
-  let query = supabase
+  let query = serviceClient
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .from("customer_feedback" as any)
     .select(
