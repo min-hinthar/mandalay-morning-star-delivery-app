@@ -103,19 +103,12 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
   // Admin auth already verified above
   const serviceClient = createServiceClient();
 
-  // Build query
+  // Build query — no profiles join (customer_feedback.user_id -> auth.users, not profiles)
+  // Falls back to contact_email for display
   let query = serviceClient
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .from("customer_feedback" as any)
-    .select(
-      `
-      *,
-      profiles (
-        full_name,
-        email
-      )
-    `
-    );
+    .select("*");
 
   if (statusFilter) {
     query = query.eq("status", statusFilter);
