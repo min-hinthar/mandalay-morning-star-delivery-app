@@ -43,7 +43,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
         completed_at,
         created_at,
         updated_at,
-        drivers (
+        drivers!routes_driver_id_fkey (
           id,
           user_id,
           vehicle_type,

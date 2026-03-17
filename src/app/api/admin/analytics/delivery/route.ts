@@ -214,7 +214,7 @@ export async function GET(request: NextRequest) {
           ),
           routes!inner (
             driver_id,
-            drivers (
+            drivers!routes_driver_id_fkey (
               profiles (
                 full_name
               )
