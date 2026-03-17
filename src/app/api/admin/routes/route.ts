@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { createServiceClient } from "@/lib/supabase/server";
 import { createRouteSchema } from "@/lib/validations/route";
 import { logger } from "@/lib/utils/logger";
 import type { ProfilesRow } from "@/types/database";
@@ -30,7 +31,10 @@ export async function GET(request: NextRequest) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-    const { supabase, userId } = auth;
+    const { userId } = auth;
+    // Use service client for complex join query (bypasses RLS, avoids 5s timeout)
+    // Admin auth already verified by requireAdmin()
+    const supabase = createServiceClient();
 
     const { searchParams } = new URL(request.url);
     const date = searchParams.get("date");
@@ -126,15 +130,7 @@ export async function GET(request: NextRequest) {
 
     if (routesError) {
       logger.exception(routesError, { api: "admin/routes" });
-      return NextResponse.json(
-        {
-          error: "Failed to fetch routes",
-          detail: routesError.message,
-          code: routesError.code,
-          hint: routesError.hint,
-        },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch routes" }, { status: 500 });
     }
 
     // Transform to API response format
