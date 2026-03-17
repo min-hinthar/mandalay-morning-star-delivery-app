@@ -2,30 +2,31 @@
 
 ## What This Is
 
-A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. Ten milestones shipped (v1.0-v1.9) across 88 phases and 350 plans. V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. Complete operator tooling: ops dashboard with bulk status changes, route builder with Leaflet maps, configurable business rules, email reliability with webhook verification. Customer UX with Saturday-only delivery gate, cutoff countdown, and dynamic pricing. Driver experience with simple mode for non-technical family members, offline overlay, and guided onboarding. Production hardened with CSP headers, RLS on all tables, distributed rate limiting, composite indexes, and endpoint-specific error handling.
+A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. Eleven milestones shipped (v1.0-v2.1) across 103 phases and 406 plans. V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. Complete operator tooling: ops dashboard with route progress monitoring, route builder with Leaflet maps, full route editing (drag-reorder, split, merge, driver reassignment), configurable business rules, email reliability. Admin mobile UX with drawer navigation, card layouts, 44px touch targets — all ops runnable from a phone. Customer UX with Saturday-only delivery gate, cutoff countdown, and dynamic pricing. Driver experience with route accept/decline flow, stop-by-stop delivery, simple mode for non-technical family members, offline overlay, and guided onboarding. Production hardened with CSP headers, RLS on all tables, distributed rate limiting, composite indexes, and endpoint-specific error handling.
 
 ## Core Value
 
 **Every UI element is reliably clickable and the app feels delightfully alive with motion.** If overlays block clicks or animations feel janky, we've failed.
 
-## Current State (v1.9 Launch-Ready MVP shipped)
+## Current State (v2.1 Route Operations & Admin Mobile shipped)
 
-- 10 milestones complete: v1.0-v1.9 (88 phases, 350 plans, 49/49 v1.9 requirements at 100%)
+- 11 milestones complete: v1.0-v2.1 (103 phases, 406 plans, 18/18 v2.1 requirements at 100%)
 - Deployed to production at delivery.mandalaymorningstar.com
-- Saturday ops dashboard: bulk status changes, countdown timers, driver availability, unassigned badge
+- Full route lifecycle: drag-reorder stops (desktop DnD + mobile move buttons), split/merge routes, driver reassignment with confirmation
+- Route progress widget: real-time 5s polling ops dashboard showing per-route driver, status, delivered/total
+- Admin mobile UX: drawer navigation, 6 table-to-card conversions, 44px touch targets — all ops from phone
+- Driver accept/decline: 5-status lifecycle, decline with reason + admin email alert, area description preview
+- Order detail completeness: items/modifiers/instructions, contact (click-to-call/SMS), payment, tip, delivery notes on one screen
+- Auth routing: admin/driver/customer land on correct dashboard after login/OAuth
+- Saturday ops dashboard: bulk status changes, countdown timers, driver availability, route progress
 - Route builder: Leaflet map with geographic clustering, one-click route creation, order reassignment
 - Configurable business rules: cutoff, delivery fee, hours, radius — all from admin settings (no deploy)
 - Customer delivery gate: dynamic hero CTA, menu banner, cart countdown, cutoff modal, order tracking
 - Email reliability: svix webhook verification, retry with max 3 attempts, admin dashboard with stats
 - Driver simple mode: 2-tab nav, SimpleStopView, confirm dialog, offline overlay (DB-backed, default on)
 - Production hardened: 5 composite indexes, endpoint-specific rate limits, N+1 eliminated, pagination on all lists
-- Health endpoint validates 5 services (Supabase, Stripe, Google OAuth, Search Console, Resend)
 - Full observability: Sentry client/server/edge with source maps, Speed Insights, web vitals
-- LCP optimized to <4s (async LazyMotion, CSS-only hero, CI-enforced)
-- Enforcing CSP + 5 security headers with Sentry violation reporting
-- All 24 Supabase tables have verified RLS policies with 62-assertion regression test
-- Distributed rate limiting via Upstash Redis on all API endpoints
-- ~68,599 lines TypeScript (src/)
+- ~90,766 lines TypeScript (src/)
 
 ## Requirements
 
@@ -96,27 +97,29 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - ✓ Email reliability (webhook verification, retry, admin dashboard, ops indicators) — v1.9
 - ✓ Driver simple mode (2-tab nav, SimpleStopView, confirm dialog, offline overlay) — v1.9
 - ✓ Production hardening (5 indexes, rate limits, N+1 fix, pagination, Sentry context) — v1.9
+- ✓ Auth routing fix (admin/driver land on correct dashboard after login/OAuth) — v2.1
+- ✓ Order detail completeness (items/modifiers/instructions, contact, payment, tip, delivery notes on one screen) — v2.1
+- ✓ Admin route editing (drag-reorder stops, split/merge routes, driver reassignment) — v2.1
+- ✓ Driver route flow (accept/decline → stop reordering in advanced mode) — v2.1
+- ✓ Admin mobile UX (drawer nav, card layouts, 44px touch targets, route progress widget) — v2.1
+- ✓ Driver page audit (all pages load real data, no empty/stub content) — v2.1
 
 ### Active
 
-<!-- v2.1 Route Operations & Admin Mobile -->
+<!-- Next milestone TBD -->
 
-- [ ] Admin route editing (reorder/add/remove stops, reassign drivers, split/merge routes)
-- [ ] Route optimization (auto-sort by proximity + manual drag-reorder)
-- [ ] Driver route flow (accept → navigate → arrived → delivered → next, stop reordering)
-- [ ] Manual delivery tracking (driver status + location updates per stop, no live GPS)
+- [ ] Push/email notifications for route assignments (NOTF-01)
+- [ ] Customer delivery status email updates with photo proof (NOTF-02)
 - [ ] Photo proof delivery (optional, visible to admin + customer + email updates)
-- [ ] Admin mobile UX (all admin pages usable from phone during Saturday ops)
-- [ ] Order detail completeness (items/modifiers/instructions, contact, address, payment, tip, notes)
-- [ ] Auth routing fix (admin/driver land on dashboard after login/OAuth, not homepage)
-- [ ] Driver page audit (end-to-end fix of all driver pages, replace placeholders with working features)
+- [ ] Manual delivery tracking (driver status updates per stop, no live GPS)
+- [ ] Route optimization (auto-sort by proximity beyond existing drag-reorder)
 
 ### Out of Scope
 
 - Real-time GPS map for customers — text status updates suffice at 20-50 orders
 - Driver gamification/badges — family drivers don't need this
 - Advanced analytics dashboards — simple counts + revenue enough
-- Route optimization algorithm — NOW IN SCOPE for v2.1 (auto-sort by proximity + manual reorder)
+- Route optimization algorithm — manual drag-reorder shipped in v2.1; auto-sort by proximity deferred to next milestone
 - Push notifications via service worker — email + text covers it
 - Customer loyalty/referral system — get first 50 regulars first
 - Multi-admin role system — solo operator for now
@@ -126,22 +129,11 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - Multi-restaurant marketplace — not part of Morning Star scope
 - Docker/Kubernetes — Vercel is serverless; containerization adds zero value
 
-## Current Milestone: v2.1 Route Operations & Admin Mobile
+## Last Milestone: v2.1 Route Operations & Admin Mobile (SHIPPED 2026-03-17)
 
-**Goal:** Full route lifecycle management — admins and drivers can plan, edit, optimize, and execute delivery routes entirely from their phones on Saturday.
+**Delivered:** Full route lifecycle management — admins and drivers can plan, edit, optimize, and execute delivery routes entirely from their phones on Saturday. 18/18 requirements, 5 phases, 22 plans.
 
-**Target features:**
-- Admin route editing (reorder/add/remove stops, reassign, split/merge)
-- Route optimization (auto-sort by proximity + manual drag-reorder)
-- Driver route execution (accept → arrived → delivered → next stop)
-- Manual delivery tracking (status + location per stop, no live GPS)
-- Optional photo proof (visible to admin, customer, and in emails)
-- Admin mobile UX (all pages phone-friendly for Saturday kitchen ops)
-- Order detail completeness (full items, contact, payment, notes on one screen)
-- Auth routing fix (admin/driver → dashboard on login)
-- Driver page audit (fix all broken/placeholder features end-to-end)
-
-## Last Milestone: v2.0 Production-Grade Launch MVP (SHIPPED 2026-03-04)
+## Previous Milestone: v2.0 Production-Grade Launch MVP (SHIPPED 2026-03-04)
 
 **Delivered:** Production-ready for real Saturday operations — solo operator triaging 20-50 orders with family/friend drivers. All 49 requirements satisfied across 12 phases.
 
@@ -160,11 +152,12 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - Fuse.js for fuzzy search
 - Upstash Redis for distributed rate limiting
 - Recharts for driver earnings charts
-- ~68,599 lines TypeScript (src/)
+- @dnd-kit for drag-reorder on admin and driver routes
+- ~90,766 lines TypeScript (src/)
 
 **Remaining tech debt:**
 
-- 6 Supabase migrations pending production apply (027-032)
+- 6+ Supabase migrations pending production apply
 - RESEND_WEBHOOK_SECRET env var needs configuration for webhook verification
 - Upstash Redis provisioning needed on Vercel Marketplace for production rate limiting
 - Sentry alert rule "Rate Limit Spike" needs manual dashboard creation
@@ -173,6 +166,8 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - Apple Sign-in deferred (no Apple Developer account)
 - Chromatic visual regression baselines deferred
 - SETT-04 language preference deferred
+- OrderDetailPanel composed wrapper unused in route detail context (subcomponents used directly)
+- Human verification outstanding for phases 101 (6 items) and 102 (9 items)
 
 **Deferred requirements (carried from v1.8):**
 
@@ -249,6 +244,22 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 | simple_mode default true for new drivers | Non-technical family members see simple UI by default | ✓ Good — safe default |
 | Gap closure via 4 additional phases (85-88) | Audit found verification + integration gaps after core 8 phases | ✓ Essential — 100% coverage |
 
+### v2.1 Decisions
+
+| Decision | Rationale | Outcome |
+|---|---|---|
+| @dnd-kit for drag-reorder (not react-beautiful-dnd) | Active maintenance, smaller bundle, better touch support | ✓ Good — works on desktop + mobile |
+| DragReorderList as generic component | Reused in admin (StopsList) and driver (ActiveRouteView) | ✓ Good — zero duplication |
+| Move-up/move-down buttons for mobile reorder | Drag on mobile is unreliable; discrete buttons with 44px targets | ✓ Good — accessible, reliable |
+| split_route/merge_routes as PostgreSQL RPCs | Atomic multi-table operations; SECURITY DEFINER bypasses RLS | ✓ Good — no partial failures |
+| 5-status route lifecycle (planned→assigned→accepted→in_progress→completed) | Separates admin assignment from driver acknowledgment | ✓ Good — clear state transitions |
+| Admin PATCH auto-transitions (assign→assigned, unassign→planned) | Reduces admin clicks; status always reflects reality | ✓ Good — intuitive |
+| after() for decline email | Fire-and-forget; never blocks the API response | ✓ Good — consistent with v1.9 pattern |
+| Drawer navigation (not bottom nav) for admin mobile | 12+ nav items; bottom nav can't hold that many | ✓ Good — scales to any nav count |
+| Strategy B (dual render) for table/card | md:hidden + hidden md:block; no JS needed for responsive switch | ✓ Good — instant, no layout shift |
+| 5s polling for route progress widget | Same pattern as v1.9 ops dashboard; Supabase Realtime overkill | ✓ Good — consistent, reliable |
+| Gap closure as Phase 103 (not inline fixes) | 19 structural gaps from audit; better tracked as explicit phase | ✓ Good — clean audit trail |
+
 ---
 
-_Last updated: 2026-03-14 after v2.1 milestone initialization_
+_Last updated: 2026-03-17 after v2.1 milestone completion_

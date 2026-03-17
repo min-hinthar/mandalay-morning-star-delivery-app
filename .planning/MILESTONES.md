@@ -1,4 +1,36 @@
 # Project Milestones: Morning Star V8 UI Rewrite
+## v2.1 Route Operations & Admin Mobile (Shipped: 2026-03-17)
+
+**Delivered:** Full route lifecycle management — admins and drivers can plan, edit, optimize, and execute delivery routes entirely from their phones on Saturday. 18/18 requirements satisfied across 5 phases.
+
+**Phases completed:** 5 phases, 22 plans, 43 tasks
+
+**Key accomplishments:**
+
+- Role-based auth redirect — admin/driver/customer land on correct dashboard after login/OAuth with error-indicating redirects
+- Order detail completeness — full items with modifiers, tip, delivery notes, payment status, customer contact (click-to-call/SMS) on one screen
+- Full route editing suite — drag-reorder stops (desktop DnD + mobile move buttons), split overloaded routes, merge light routes, driver reassignment with confirmation
+- Driver accept/decline flow — 5-status lifecycle (planned→assigned→accepted→in_progress→completed), decline with reason + email alert, admin auto-transition on driver assignment
+- Admin mobile UX overhaul — drawer navigation, 6 table-to-card conversions, 44px touch targets, route progress widget with 5s polling
+- 19 structural gaps closed — error handling (toast on all mutation failures), barrel exports, dead code removal, responsive padding, reduced-motion guards, Nyquist compliance
+
+**Stats:**
+
+- 5 phases (99-103), 22 plans, 43 tasks
+- 18/18 requirements satisfied (100%)
+- ~120 commits, 219 files modified
+- +24,224 / -2,057 lines (net +22,167)
+- 3 days (2026-03-14 to 2026-03-16)
+
+**Tech debt remaining:**
+
+- OrderDetailPanel composed wrapper exported but unused in route detail context (subcomponents used directly)
+- Human verification outstanding for phases 101 (6 items) and 102 (9 items) — runtime browser tests
+
+**What's next:** TBD — notifications, advanced driver features, or quality improvements
+
+---
+
 ## v1.9 Launch-Ready MVP (Shipped: 2026-03-03)
 
 **Delivered:** Production-ready for real Saturday operations — solo operator triaging 20-50 orders with family/friend drivers. 8 core phases + 4 gap closure phases covering bug fixes, ops tooling, customer UX, email reliability, driver simplification, and production hardening.
