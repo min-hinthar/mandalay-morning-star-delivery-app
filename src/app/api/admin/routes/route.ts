@@ -126,7 +126,15 @@ export async function GET(request: NextRequest) {
 
     if (routesError) {
       logger.exception(routesError, { api: "admin/routes" });
-      return NextResponse.json({ error: "Failed to fetch routes" }, { status: 500 });
+      return NextResponse.json(
+        {
+          error: "Failed to fetch routes",
+          detail: routesError.message,
+          code: routesError.code,
+          hint: routesError.hint,
+        },
+        { status: 500 }
+      );
     }
 
     // Transform to API response format
