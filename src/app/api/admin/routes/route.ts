@@ -64,7 +64,7 @@ export async function GET(request: NextRequest) {
         created_at,
         updated_at,
         declined_by,
-        drivers (
+        drivers!routes_driver_id_fkey (
           id,
           profiles (
             full_name
@@ -93,7 +93,7 @@ export async function GET(request: NextRequest) {
         completed_at,
         created_at,
         updated_at,
-        drivers (
+        drivers!routes_driver_id_fkey (
           id,
           profiles (
             full_name
@@ -130,18 +130,7 @@ export async function GET(request: NextRequest) {
 
     if (routesError) {
       logger.exception(routesError, { api: "admin/routes" });
-      return NextResponse.json(
-        {
-          error: "Failed to fetch routes",
-          debug: {
-            message: routesError.message,
-            code: routesError.code,
-            hint: routesError.hint,
-            details: routesError.details,
-          },
-        },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to fetch routes" }, { status: 500 });
     }
 
     // Transform to API response format
@@ -160,13 +149,7 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     logger.exception(error, { api: "admin/routes" });
-    return NextResponse.json(
-      {
-        error: "Internal server error",
-        debug: error instanceof Error ? error.message : String(error),
-      },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 

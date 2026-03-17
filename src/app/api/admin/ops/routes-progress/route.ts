@@ -52,7 +52,7 @@ export async function GET() {
         stats_json,
         started_at,
         delivery_date,
-        drivers!inner(
+        drivers!routes_driver_id_fkey!inner(
           profiles!inner(full_name)
         )
       `
