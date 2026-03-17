@@ -59,9 +59,7 @@ describe("GET /api/admin/ops/routes-progress", () => {
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
               neq: vi.fn().mockReturnValue({
-                neq: vi
-                  .fn()
-                  .mockResolvedValue({ data: mockRoutes, error: null }),
+                neq: vi.fn().mockResolvedValue({ data: mockRoutes, error: null }),
               }),
             }),
           }),
@@ -95,9 +93,7 @@ describe("GET /api/admin/ops/routes-progress", () => {
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
               neq: vi.fn().mockReturnValue({
-                neq: vi
-                  .fn()
-                  .mockResolvedValue({ data: null, error: new Error("DB") }),
+                neq: vi.fn().mockResolvedValue({ data: null, error: new Error("DB") }),
               }),
             }),
           }),
@@ -131,9 +127,7 @@ describe("GET /api/admin/ops/routes-progress", () => {
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
               neq: vi.fn().mockReturnValue({
-                neq: vi
-                  .fn()
-                  .mockResolvedValue({ data: mockRoutes, error: null }),
+                neq: vi.fn().mockResolvedValue({ data: mockRoutes, error: null }),
               }),
             }),
           }),
@@ -188,9 +182,7 @@ describe("GET /api/admin/ops/routes-progress", () => {
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
               neq: vi.fn().mockReturnValue({
-                neq: vi
-                  .fn()
-                  .mockResolvedValue({ data: mockRoutes, error: null }),
+                neq: vi.fn().mockResolvedValue({ data: mockRoutes, error: null }),
               }),
             }),
           }),

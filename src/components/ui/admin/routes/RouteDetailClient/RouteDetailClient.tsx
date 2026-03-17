@@ -84,10 +84,7 @@ export function RouteDetailClient() {
             };
             setAvailableRoutes(
               all
-                .filter(
-                  (r: RouteRow) =>
-                    r.id !== routeId && r.status === "planned"
-                )
+                .filter((r: RouteRow) => r.id !== routeId && r.status === "planned")
                 .map((r: RouteRow) => ({
                   id: r.id,
                   driverName: r.driver?.fullName ?? null,

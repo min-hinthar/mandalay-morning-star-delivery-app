@@ -22,9 +22,7 @@ test.describe("Admin Mobile UX", () => {
       await expect(page).toHaveURL(/\/(login|admin)/);
     });
 
-    test("login page renders correctly at mobile viewport", async ({
-      page,
-    }) => {
+    test("login page renders correctly at mobile viewport", async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 812 });
       await page.goto("/login");
       await expect(page.locator("body")).toBeVisible();
@@ -37,22 +35,14 @@ test.describe("Admin Mobile UX", () => {
       }
     });
 
-    test("login page renders correctly at desktop viewport", async ({
-      page,
-    }) => {
+    test("login page renders correctly at desktop viewport", async ({ page }) => {
       await page.setViewportSize({ width: 1280, height: 800 });
       await page.goto("/login");
       await expect(page.locator("body")).toBeVisible();
     });
 
     test("admin routes respond without server error", async ({ page }) => {
-      const routes = [
-        "/admin",
-        "/admin/orders",
-        "/admin/routes",
-        "/admin/menu",
-        "/admin/ops",
-      ];
+      const routes = ["/admin", "/admin/orders", "/admin/routes", "/admin/menu", "/admin/ops"];
       for (const route of routes) {
         const response = await page.goto(route);
         // Should get 200 (login page) or 302 (redirect) -- NOT 500
@@ -62,33 +52,21 @@ test.describe("Admin Mobile UX", () => {
   });
 
   test.describe("MOBL-02: Table card layouts", () => {
-    test("public menu page renders without horizontal scroll at mobile", async ({
-      page,
-    }) => {
+    test("public menu page renders without horizontal scroll at mobile", async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 812 });
       await page.goto("/menu");
       await page.waitForLoadState("domcontentloaded");
-      const scrollWidth = await page.evaluate(
-        () => document.documentElement.scrollWidth,
-      );
-      const clientWidth = await page.evaluate(
-        () => document.documentElement.clientWidth,
-      );
+      const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+      const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
       expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1);
     });
 
-    test("homepage renders without horizontal scroll at mobile", async ({
-      page,
-    }) => {
+    test("homepage renders without horizontal scroll at mobile", async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 812 });
       await page.goto("/");
       await page.waitForLoadState("domcontentloaded");
-      const scrollWidth = await page.evaluate(
-        () => document.documentElement.scrollWidth,
-      );
-      const clientWidth = await page.evaluate(
-        () => document.documentElement.clientWidth,
-      );
+      const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+      const clientWidth = await page.evaluate(() => document.documentElement.clientWidth);
       expect(scrollWidth).toBeLessThanOrEqual(clientWidth + 1);
     });
 
@@ -101,9 +79,7 @@ test.describe("Admin Mobile UX", () => {
   });
 
   test.describe("MOBL-03: Touch targets", () => {
-    test("public page interactive elements have minimum 44px targets", async ({
-      page,
-    }) => {
+    test("public page interactive elements have minimum 44px targets", async ({ page }) => {
       await page.setViewportSize({ width: 375, height: 812 });
       await page.goto("/menu");
       await page.waitForLoadState("domcontentloaded");

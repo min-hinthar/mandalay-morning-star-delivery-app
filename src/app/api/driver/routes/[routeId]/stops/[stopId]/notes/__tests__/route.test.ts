@@ -114,14 +114,11 @@ describe("Delivery Notes API Validation", () => {
 // ============================================
 
 function makeRequest(body: unknown): NextRequest {
-  return new NextRequest(
-    "http://localhost:3000/api/driver/routes/r1/stops/s1/notes",
-    {
-      method: "PATCH",
-      body: JSON.stringify(body),
-      headers: { "Content-Type": "application/json" },
-    },
-  );
+  return new NextRequest("http://localhost:3000/api/driver/routes/r1/stops/s1/notes", {
+    method: "PATCH",
+    body: JSON.stringify(body),
+    headers: { "Content-Type": "application/json" },
+  });
 }
 
 const makeParams = (routeId = "r1", stopId = "s1") => ({
@@ -162,9 +159,7 @@ describe("PATCH handler integration", () => {
         from: vi.fn(() => ({
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
-              single: vi
-                .fn()
-                .mockResolvedValue({ data: null, error: new Error("none") }),
+              single: vi.fn().mockResolvedValue({ data: null, error: new Error("none") }),
             }),
           }),
         })),

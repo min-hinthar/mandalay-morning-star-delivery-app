@@ -36,9 +36,7 @@ describe("useRouteProgressPolling", () => {
     await act(async () => {
       await vi.advanceTimersByTimeAsync(10);
     });
-    expect(global.fetch).toHaveBeenCalledWith(
-      "/api/admin/ops/routes-progress",
-    );
+    expect(global.fetch).toHaveBeenCalledWith("/api/admin/ops/routes-progress");
     expect(result.current.routes).toHaveLength(1);
   });
 
@@ -64,7 +62,7 @@ describe("useRouteProgressPolling", () => {
     vi.spyOn(global, "fetch").mockReturnValue(
       new Promise((resolve) => {
         resolveFetch = resolve;
-      }),
+      })
     );
     const { result } = renderHook(() => useRouteProgressPolling(5000));
     // isRefreshing should be true while fetch is pending
@@ -90,11 +88,9 @@ describe("useRouteProgressPolling", () => {
     vi.spyOn(global, "fetch").mockReturnValue(
       new Promise((resolve) => {
         resolveFetch = resolve;
-      }),
+      })
     );
-    const { result, unmount } = renderHook(() =>
-      useRouteProgressPolling(5000),
-    );
+    const { result, unmount } = renderHook(() => useRouteProgressPolling(5000));
     unmount();
     // Resolve fetch after unmount -- should not throw
     await act(async () => {
