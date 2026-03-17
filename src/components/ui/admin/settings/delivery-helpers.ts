@@ -163,6 +163,8 @@ const FIELD_LABELS: Record<string, string> = {
   deliveryStartHour: "Delivery Start Hour",
   deliveryEndHour: "Delivery End Hour",
   maxDeliveryDurationMinutes: "Max Delivery Duration",
+  longDistanceFeeCents: "Extended Delivery Fee",
+  longDistanceThresholdMiles: "Distance Threshold",
 };
 
 function formatFieldValue(field: string, value: number): string {
@@ -170,8 +172,11 @@ function formatFieldValue(field: string, value: number): string {
     case "minimumOrderCents":
     case "freeDeliveryThresholdCents":
     case "baseDeliveryFeeCents":
+    case "longDistanceFeeCents":
       return `$${centsToDollars(value)}`;
     case "deliveryRadiusMiles":
+      return `${value} miles`;
+    case "longDistanceThresholdMiles":
       return `${value} miles`;
     case "cutoffDay":
       return DAY_NAMES[value] ?? String(value);
@@ -202,6 +207,8 @@ export function computeDeliveryChanges(
     "deliveryStartHour",
     "deliveryEndHour",
     "maxDeliveryDurationMinutes",
+    "longDistanceFeeCents",
+    "longDistanceThresholdMiles",
   ];
 
   for (const field of scalarFields) {
@@ -214,15 +221,6 @@ export function computeDeliveryChanges(
         newValue: formatFieldValue(field, newVal),
       });
     }
-  }
-
-  // Zones: compare by JSON stringify for simplicity
-  if (JSON.stringify(current.deliveryZones) !== JSON.stringify(original.deliveryZones)) {
-    changes.push({
-      field: "Delivery Zones",
-      oldValue: `${original.deliveryZones.length} zone(s)`,
-      newValue: `${current.deliveryZones.length} zone(s)`,
-    });
   }
 
   return changes;

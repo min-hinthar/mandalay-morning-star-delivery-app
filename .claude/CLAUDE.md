@@ -97,7 +97,7 @@ ComponentName/
 - `getUTCDay()` wrong in LA timezone — use `getZonedDayOfWeek()` helper
 - `@react-google-maps/api` crashes SSR — always `ssr: false` dynamic import
 - `google.maps.*` in useMemo runs before API loads — guard with `if (!isLoaded) return null`
-- PostgREST FK hints: only needed for multiple FKs to same table; wrong hints break single-FK joins
+- PostgREST FK hints: adding a 2nd FK to same table (e.g. `declined_by` on `routes→drivers`) breaks ALL existing unqualified `drivers (` joins with PGRST201 — must add `!fk_name` hint to every query
 - `DO NOTHING` / `ignoreDuplicates` won't fill NULL cols — use `DO UPDATE WHERE col IS NULL`
 - `.update()` returns no row count — chain `.select("id")` to verify affected rows
 - Webhook handlers: return 500 on DB errors for retry; never swallow into 200

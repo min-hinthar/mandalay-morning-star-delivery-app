@@ -36,28 +36,25 @@ Config: `src/lib/search/search-config.ts`
 
 ## PostgREST Ambiguous FK Hints Required
 
-**Context:** `orders` table has two FKs to `profiles`: `user_id` (customer) and `contacted_by` (admin who contacted). PostgREST failed on every un-hinted `profiles` join.
+**Context:** Multiple cases of PostgREST FK ambiguity in this project.
 
-**Learning:** When a table has multiple FKs to the same target, PostgREST requires explicit FK hints in the select string. This project's known ambiguous joins:
+**Learning:** When a table has multiple FKs to the same target, PostgREST requires explicit FK hints. Known ambiguous joins:
 
 | Source Table | Target | FK Hint |
 |-------------|--------|---------|
 | `orders` | `profiles` | `profiles!orders_user_id_fkey` |
 | `orders` | `addresses` | `addresses!orders_address_id_fkey` |
+| `routes` | `drivers` | `drivers!routes_driver_id_fkey` (main), `drivers!routes_declined_by_fkey` (declined) |
 
-**Affected routes (all fixed 2026-03-02):**
-- `api/admin/orders`, `api/admin/orders/[id]/details`, `api/admin/ops/orders`
-- `api/admin/routes/builder-orders`, `api/admin/routes/[id]`
-- `api/admin/drivers/[id]/ratings`
-- `(driver)/driver/route/page.tsx`, `(driver)/driver/route/[stopId]/page.tsx`
+**Critical: adding a 2nd FK breaks ALL existing queries.** When `declined_by` FK was added to `routes→drivers` (migration 20260316), every existing unqualified `drivers (` join on the `routes` table failed with PGRST201. Fixed in 4 files: `api/admin/routes/route.ts`, `api/admin/routes/[id]/route.ts`, `api/admin/analytics/delivery/route.ts`, `api/admin/ops/routes-progress/route.ts`.
 
-**Caveat:** FK hints are only needed when the source table has **multiple FKs to the same target**. `customer_feedback` has only ONE FK (`user_id → auth.users`), so `profiles` joins work without a hint — PostgREST infers the through-join via `auth.users` automatically. A wrong hint (`profiles!customer_feedback_user_id_fkey`) actually breaks the query because the FK targets `auth.users`, not `profiles`.
+**FK to `auth.users` ≠ FK to `profiles`:** `customer_feedback.user_id → auth.users(id)` does NOT allow joining `profiles` table. PostgREST returns PGRST200 ("no relationship found") because no FK path exists from `customer_feedback` to `profiles`. Must query `*` only and use `contact_email` for display.
 
 **Prevention:** When adding a new FK to any table, run:
 ```bash
 grep -rn 'from.*TABLE_NAME' src/app/api/ --include='*.ts' | grep 'select'
 ```
-Add FK hints to every query joining the target table. But don't add hints when there's only one FK path — it can cause the opposite problem.
+Add FK hints to every query joining the target table.
 
 **Apply when:** Adding new FK columns or writing Supabase queries that join tables with multiple FK relationships.
 
