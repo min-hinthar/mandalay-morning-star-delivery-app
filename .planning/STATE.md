@@ -1,32 +1,34 @@
 ---
 gsd_state_version: 1.0
-milestone: v2.1
-milestone_name: Route Operations & Admin Mobile
-status: completed
-stopped_at: Milestone v2.1 archived and tagged
-last_updated: "2026-03-17T04:00:00.000Z"
-last_activity: 2026-03-17 — Milestone v2.1 completed and archived
+milestone: v2.2
+milestone_name: Stability & Correctness
+status: active
+stopped_at: Defining requirements
+last_updated: "2026-03-19T00:00:00.000Z"
+last_activity: 2026-03-19 — Milestone v2.2 started
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 22
-  completed_plans: 22
-  percent: 100
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
+  percent: 0
 ---
 
 # Project State
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-17)
+See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
-**Last milestone:** v2.1 Route Operations & Admin Mobile — SHIPPED 2026-03-17
+**Current milestone:** v2.2 Stability & Correctness — fixing critical bugs from codebase deep dive
 
 ## Current Position
 
-Milestone v2.1 completed and archived. No active milestone.
-Next action: `/gsd:new-milestone` to start next milestone cycle.
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-19 — Milestone v2.2 started
 
 ## Performance Metrics
 
@@ -62,7 +64,7 @@ Next action: `/gsd:new-milestone` to start next milestone cycle.
 
 ## Session Continuity
 
-Last session: 2026-03-17T04:00:00.000Z
-Stopped at: Milestone v2.1 completed
+Last session: 2026-03-19T00:00:00.000Z
+Stopped at: Milestone v2.2 defining requirements
 Resume file: None
-Next action: Start next milestone with /gsd:new-milestone
+Next action: Define requirements and create roadmap

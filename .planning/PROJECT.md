@@ -106,13 +106,24 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 ### Active
 
-<!-- Next milestone TBD -->
+<!-- v2.2 Stability & Correctness -->
 
-- [ ] Push/email notifications for route assignments (NOTF-01)
-- [ ] Customer delivery status email updates with photo proof (NOTF-02)
-- [ ] Photo proof delivery (optional, visible to admin + customer + email updates)
-- [ ] Manual delivery tracking (driver status updates per stop, no live GPS)
-- [ ] Route optimization (auto-sort by proximity beyond existing drag-reorder)
+- [ ] Fix driver route start blocked by `assigned` status mismatch (CONCERNS Issue F)
+- [ ] Fix COD email naive timestamps — use timezone-aware delivery window strings (Issue B)
+- [ ] Fix checkout `scheduledDate` fragile timezone parsing (Issue A)
+- [ ] Add future date upper bound validation on checkout (Issue E)
+- [ ] Fix delivery reminder cron UTC vs LA date bug (Issue 6)
+- [ ] Fix `active/route` API missing `customer_name`/`customer_phone` fallback (Issue 7)
+- [ ] Create `increment_driver_deliveries` RPC migration (Issue J)
+- [ ] Fix race condition in route stop next-stop promotion (Issue 9)
+- [ ] Fix `revalidateTag` invalid second argument (Issue 5)
+- [ ] Regenerate Supabase types to include `delivery_zones` table (Issue 4)
+- [ ] Provision distributed rate limiting (Upstash REST or Vercel KV) (Issue 3)
+- [ ] Fix `updateRouteStats` counting `enroute` as `pending` (Issue I)
+- [ ] Pre-filter cutoff-passed dates in `getAvailableDeliveryDatesMultiDay` (Issue C)
+- [ ] Guard admin route status override to prevent lifecycle bypass (Issue G)
+- [ ] Add integration tests for driver route lifecycle (Test gap 1)
+- [ ] Split oversized `handlers.ts` webhook file (Tech debt)
 
 ### Out of Scope
 
@@ -128,6 +139,21 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - Storybook/Chromatic visual regression — deferred from original v1.9 plan
 - Multi-restaurant marketplace — not part of Morning Star scope
 - Docker/Kubernetes — Vercel is serverless; containerization adds zero value
+
+## Current Milestone: v2.2 Stability & Correctness
+
+**Goal:** Fix all critical bugs and correctness issues found in codebase deep dive — driver route lifecycle blockers, checkout delivery window discrepancies, timezone bugs, missing RPCs, broken rate limiting, race conditions, and test coverage gaps.
+
+**Target fixes:**
+- Driver cannot start/proceed with assigned routes (status state machine)
+- Checkout delivery window timezone discrepancies (COD emails, cron, date parsing)
+- Missing `increment_driver_deliveries` RPC (driver stats broken)
+- Non-functional distributed rate limiting (all 13 limiters null)
+- Race condition in stop next-stop promotion
+- Missing `delivery_zones` Supabase types
+- Cutoff-passed date pre-filtering
+- Admin route status override lifecycle guards
+- Integration test coverage for driver route lifecycle
 
 ## Last Milestone: v2.1 Route Operations & Admin Mobile (SHIPPED 2026-03-17)
 
@@ -262,4 +288,4 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 ---
 
-_Last updated: 2026-03-17 after v2.1 milestone completion_
+_Last updated: 2026-03-19 after v2.2 milestone initialization_
