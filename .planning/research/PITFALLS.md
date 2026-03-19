@@ -1,153 +1,251 @@
 # Domain Pitfalls
 
-**Domain:** Route editing/optimization, driver execution flow, admin mobile UX, manual tracking, auth routing -- additions to existing Next.js/Supabase Saturday meal delivery app
-**Researched:** 2026-03-14
-**Confidence:** HIGH (all findings verified against existing codebase inspection)
+**Domain:** Stability and correctness fixes -- timezone migration, state machine guards, rate limiting restoration, race condition fixes, RPC/migration safety, integration testing for existing production Next.js 16 + Supabase delivery app
+**Researched:** 2026-03-19
+**Confidence:** HIGH (all findings verified against codebase inspection + CONCERNS.md audit)
 
 ---
 
 ## Critical Pitfalls
 
-### Pitfall 1: Drag-Reorder Violating UNIQUE(route_id, stop_index) Constraint
+Mistakes that cause data corruption, production outages, or require rollbacks.
 
-**What goes wrong:** Adding drag-to-reorder on the `StopsList` component triggers individual `stop_index` updates that violate the `UNIQUE(route_id, stop_index)` constraint. Swapping stop 0 and stop 1 fails because setting stop 1 to index 0 conflicts with the existing row at index 0.
-**Why it happens:** The constraint is `DEFERRABLE INITIALLY IMMEDIATE` (migration `20260313_fix_stop_index_unique_deferrable.sql`), meaning individual UPDATE statements within a non-deferred transaction still fail. The existing `batch_update_stop_indices` RPC handles this by deferring the constraint, but developers building the drag-reorder UI will naturally issue sequential PATCH calls per stop instead.
-**Consequences:** 500 errors on reorder, lost stop order, confused admin during Saturday ops.
+### Pitfall 1: Timezone Fix Creates Comparison Mismatch with Existing DB Data
+
+**What goes wrong:** The cron endpoint (Issue 6) currently queries `delivery_window_start` with naive strings like `2026-03-19T00:00:00`. If you fix the cron to use LA-timezone-aware queries but **don't verify** how existing `delivery_window_start` values are stored, the fix breaks instead of fixing. The DB stores these as LA-offset ISO strings (e.g., `2026-03-19T11:00:00-07:00`) via `toISOWithTimezone()`. A "fixed" query using `${laToday}T00:00:00-07:00` would work during PDT but fail during PST (offset is `-08:00`), unless you use `timestamptz` comparison instead of string comparison.
+
+**Why it happens:** Developers fix the "today" calculation to LA time but forget the **comparison format** must also change. PostgreSQL string comparison of `2026-03-19T00:00:00-07:00` against stored `2026-03-19T11:00:00-07:00` works only if offsets match. During DST transitions, stored offsets can differ from query offsets.
+
+**Consequences:**
+- Cron sends zero reminders on DST-transition days (2 days/year)
+- Cron sends yesterday's reminders between midnight UTC and 7 AM PT during the ~2-week window around DST changes
+- Silent failure: no error thrown, just wrong result set
+
 **Prevention:**
-1. Always use the existing `batch_update_stop_indices` RPC for any stop reordering.
-2. Build a new API endpoint (e.g., `PATCH /api/admin/routes/[id]/reorder`) that accepts the full ordered array of stop IDs and calls the RPC in one transaction.
-3. Never issue per-stop index updates.
-**Detection:** Test reorder with 3+ stops. If any swap fails with a unique constraint error, the per-stop approach is in use.
+- Use `timestamptz` column comparison, not string comparison: `delivery_window_start >= '2026-03-19'::date` (PostgreSQL casts date to timestamptz at midnight in the connection timezone)
+- Or construct bounds using `toISOWithTimezone()` helper already in the codebase, ensuring both query bounds use the same helper
+- Write a test that mocks `new Date()` to a DST transition day (March second Sunday, November first Sunday) and verifies correct date range
 
-### Pitfall 2: Admin Sidebar Breaks Mobile Layout
+**Detection:** Sentry alerts for "0 reminders sent" on a delivery day. Add a check: if `orders.length === 0` on a known delivery day, log a warning.
 
-**What goes wrong:** `AdminNav` is a fixed 256px sidebar (`flex h-screen`) with layout using `<div className="flex min-h-screen"><AdminNav /><main className="flex-1 overflow-auto">`. On mobile, the sidebar either overlaps content or creates horizontal scroll. The sidebar uses Framer Motion `animate={{ width: isCollapsed ? 64 : 256 }}` with purely local `useState` -- no responsive behavior.
-**Why it happens:** `AdminNav` was designed desktop-only. Adding a hamburger menu + off-canvas drawer requires rethinking the layout without breaking the existing desktop sidebar UX, its `layoutId="admin-nav-indicator"` animation, and the 12-item nav structure.
-**Consequences:** Admin pages unusable on phone during Saturday kitchen ops -- the primary stated use case for mobile admin. A partially responsive admin is worse than not trying.
+**Phase relevance:** Timezone fixes phase -- every query touching `delivery_window_start`/`delivery_window_end` must be audited together.
+
+---
+
+### Pitfall 2: Fixing COD Email Timestamps Breaks Email Template Rendering
+
+**What goes wrong:** Issue B's fix changes `deliveryWindowStart` from `"2026-03-19T11:00:00"` to `"2026-03-19T11:00:00-07:00"`. The `OrderConfirmation` and `AdminNewOrderAlert` email templates **parse or display** this string. If the template uses `new Date(deliveryWindowStart).toLocaleTimeString()`, adding the offset changes the displayed time. A naive string was being interpreted as local time by the email renderer; an offset string is interpreted as UTC-relative.
+
+**Why it happens:** The email template's date formatting code is not checked when fixing the data source. The fix is correct at the API level but the consumer interprets it differently.
+
+**Consequences:** Customers see wrong delivery time in confirmation email (e.g., "6:00 PM" instead of "11:00 AM" if template renders in UTC).
+
 **Prevention:**
-1. Replace `AdminNav` with a responsive pattern: sidebar on `lg:` screens, off-canvas Drawer on mobile. Reuse the existing portal-based Drawer component from the component library.
-2. Persist `isCollapsed` state (localStorage/cookie) so desktop users keep their preference across refreshes.
-3. On mobile, remove the sidebar entirely -- don't just collapse it to 64px (icon bar is useless on phones).
-4. Test every admin page at 375px width before marking mobile UX complete.
-**Detection:** Open any admin page on a phone. If you can't see full content or sidebar overlaps, this pitfall is active.
+- Audit all email templates that consume `deliveryWindowStart`/`deliveryWindowEnd` before changing the format
+- The template should format with explicit timezone: `new Intl.DateTimeFormat('en-US', { timeZone: 'America/Los_Angeles', ... })`
+- Add a unit test for each email template that passes a timezone-offset string and asserts the displayed time is in PT
 
-### Pitfall 3: Driver Route Execution State Machine Missing Transitions
+**Detection:** Send a test COD order after the fix and visually check the confirmation email.
 
-**What goes wrong:** The DB supports `pending -> enroute -> arrived -> delivered/skipped` for stops, but current code only uses `pending -> delivered`. `ActiveRouteView` has `Start Route` (planned -> in_progress) and `Complete Route` (all done -> completed). `SimpleStopView` goes directly from showing the current pending stop to marking it delivered. There's no `arrived` button, no `enroute` transition when navigating, and no way for drivers to mark intermediate statuses.
-**Why it happens:** v1.9 built minimal flows: simple mode (photo -> delivered) and active route view (start -> list -> complete). The full execution flow was deferred. But `route_stop_status` enum includes `enroute` and `arrived` -- they exist in the schema but are never written. Building on top without documenting which transitions are allowed leads to inconsistent states.
-**Consequences:** Drivers see buttons that don't match their mental model. Admin sees stops stuck in wrong states. Status-based queries become unreliable because `enroute`/`arrived` are never set.
+**Phase relevance:** Timezone fixes phase -- COD email fix and email template audit must be in the same plan.
+
+---
+
+### Pitfall 3: State Machine Guard Rejects Existing `assigned` Routes Mid-Operation
+
+**What goes wrong:** Tightening the route start endpoint to require `status === "accepted"` (removing `"planned"` from the allowed list) is the correct fix for Issue F. But if existing routes in the DB are in `planned` status with a `driver_id` set (legacy data that the backfill migration missed, or routes created via admin PATCH after the backfill ran), those routes become permanently unstartable. The driver sees the route, cannot accept it (no accept endpoint for `planned`), cannot start it (guard rejects `planned`).
+
+**Why it happens:** The backfill migration (`20260316_route_status_backfill.sql`) ran once. Routes created after the backfill but before the code fix can have `planned` + `driver_id` if created via admin direct PATCH.
+
+**Consequences:** Driver is stuck; admin must manually SQL-update the route status. On a Saturday delivery day with a phone-only admin, this is a blocking operational failure.
+
 **Prevention:**
-1. Document the complete state machine BEFORE writing code: which transitions are allowed, who triggers them (driver vs admin), what side effects each has (timestamps, notifications).
-2. Create a shared `isValidTransition(currentStatus, newStatus, role)` function used by both API routes and UI components.
-3. For simple mode: keep the simplified flow (photo -> delivered) but auto-set `enroute` when the stop is displayed. Don't force intermediate clicks.
-4. For advanced mode: add "Navigate" (sets `enroute`), "I'm Here" (sets `arrived`), "Delivered" (sets `delivered`).
-**Detection:** Query the database after a delivery day. If `enroute` or `arrived` statuses never appear, the state machine is incomplete.
+- Run a **re-backfill** as part of the migration: `UPDATE routes SET status = 'assigned' WHERE driver_id IS NOT NULL AND status = 'planned'`
+- Add a DB trigger or CHECK constraint: `planned` status must have `driver_id IS NULL`
+- Admin PATCH endpoint (Issue G) must be fixed in the **same phase** as the start endpoint guard -- they are coupled
 
-### Pitfall 4: Optimistic Updates Without Rollback in Offline Driver Flow
+**Detection:** Query `SELECT count(*) FROM routes WHERE status = 'planned' AND driver_id IS NOT NULL` before deploying. If > 0, the backfill is needed.
 
-**What goes wrong:** `SimpleStopView` uses `localStatuses` for optimistic updates and `useOfflineSync` for queuing. Adding more status transitions (enroute, arrived) multiplies offline edge cases. Driver marks "arrived" offline, then "delivered" offline. First sync fails (409 conflict). The queue processes in order but can't handle dependency between operations.
-**Why it happens:** The existing offline sync queues individual operations without dependency tracking. It was designed for a single `delivered` update per stop.
-**Consequences:** Stops in impossible states (e.g., `delivered` without ever being `enroute`). Admin sees data that doesn't match reality.
+**Phase relevance:** State machine fixes phase -- the start guard, admin PATCH guard, and re-backfill migration must ship together as one atomic deployment.
+
+---
+
+### Pitfall 4: Race Condition Fix Introduces Deadlocks or Excessive Locking
+
+**What goes wrong:** The next-stop promotion race (Issue 9) requires making the SELECT + UPDATE atomic. The obvious fix is a PostgreSQL function with `SELECT ... FOR UPDATE`. But if the same route has concurrent requests (driver marking stop delivered + admin viewing route stats), `FOR UPDATE` on `route_stops` blocks the stats query. If the stats query also locks (e.g., `update_route_stats` RPC), you get a deadlock: stop update waits for stats lock, stats waits for stop lock.
+
+**Why it happens:** The existing `updateRouteStats` function in `route_pipeline_hardening.sql` does `UPDATE routes SET stats_json = ...` and reads from `route_stops`. If the stop promotion function locks `route_stops` rows and then calls `updateRouteStats` which also reads `route_stops`, the lock ordering is consistent (route_stops first, routes second). But if an admin endpoint concurrently calls `update_route_stats` directly while a stop is being promoted, the lock ordering can conflict.
+
+**Consequences:** 30-second query timeout on a delivery Saturday. Driver's "mark delivered" hangs, then fails. They tap again, creating more contention.
+
 **Prevention:**
-1. For manual tracking (no live GPS), simplify driver-side transitions: `pending -> delivered` or `pending -> skipped`. Don't require intermediate states from drivers.
-2. If intermediate states are needed, make the API idempotent: a `delivered` update succeeds even if `enroute` was never recorded. The API should accept any "forward" transition.
-3. The offline queue should treat status updates as "set to at-least-this-state" rather than "transition from X to Y".
-**Detection:** Put phone in airplane mode, mark 3 stops delivered, re-enable network. Check if all 3 sync correctly.
+- Use `UPDATE route_stops SET status = 'enroute' WHERE id = (SELECT id FROM route_stops WHERE route_id = $1 AND status = 'pending' ORDER BY stop_index LIMIT 1 FOR UPDATE SKIP LOCKED) RETURNING id` -- the `SKIP LOCKED` prevents deadlocks by skipping already-locked rows
+- Or use a single `UPDATE ... WHERE status = 'pending'` with `LIMIT 1` (no SELECT needed) -- atomic by nature
+- Do NOT wrap `updateRouteStats` inside the same transaction as the stop promotion
+- Test with concurrent requests: 2 rapid stop completions on the same route
 
-### Pitfall 5: Auth Callback Role Redirect Regression
+**Detection:** Monitor Supabase logs for `deadlock detected` or `lock timeout` errors after deployment.
 
-**What goes wrong:** The auth callback (`/auth/callback/route.ts`) already has role-based redirect via `getRoleDashboard()`. The "auth routing fix" says admin/driver should land on their dashboard after login -- which the callback already handles for OAuth. The bug is likely in the `?next=` parameter override logic (lines 171-184) or magic link flows. Fixing one path breaks another.
-**Why it happens:** The callback has 4 distinct flows: (1) OAuth normal, (2) OAuth with driver invite, (3) magic link normal, (4) magic link expired. The `next` parameter interacts with role authorization checks. The `isStandardLogin` check (line 171: `const isStandardLogin = next === "/login" || next === "/"`) means if `next` is `/`, the user gets role-based redirect -- but if `next` is anything else, it's honored. A magic link without `?next=` sets `next` to `/`, which correctly triggers role-based redirect. The bug may be in the OAuth flow where the `?next=` from the login page persists as `/`.
-**Consequences:** Admin logs in and lands on homepage. Driver accepts invite but gets redirected to `/menu`. Customer ends up on `/driver`.
+**Phase relevance:** Race condition fixes phase.
+
+---
+
+### Pitfall 5: Rate Limiter Restoration Blocks Legitimate Traffic on First Deploy
+
+**What goes wrong:** Switching from null limiters to live Upstash `Ratelimit` constructors means the in-memory fallback (15 req/min) is replaced by configured limits. If the configured limits are tighter than 15/min (e.g., `authSignInLimiter` at 5/min) **and** the app has been running with effectively no rate limiting, legitimate automated flows (e.g., admin bulk operations, cron health checks) may suddenly hit 429s.
+
+**Why it happens:** The in-memory fallback was per-instance (so effectively unlimited under concurrency). Distributed rate limiting shares a single counter across all instances. Traffic patterns that worked before (admin making 20 rapid PATCH calls during Saturday ops) now exceed the limit.
+
+**Consequences:** Admin locked out of their own dashboard during Saturday delivery operations. Rate limit errors on checkout for multiple simultaneous customers.
+
 **Prevention:**
-1. Write E2E tests for all 4 auth flows BEFORE changing any redirect logic.
-2. Map current behavior: for each (role x auth_method x next_param) combination, document where the user lands.
-3. Don't touch the driver invite flow -- it works. Isolate the fix.
-4. The fix is likely ensuring that the OAuth login page sets `?next=` correctly (or omits it) so the callback's `isStandardLogin` check fires.
-**Detection:** Log in as admin via Google OAuth with no explicit `?next=` param. If you land on `/` instead of `/admin`, the bug is confirmed.
+- Set initial limits **higher** than intended (2x the expected max), monitor for 1-2 weeks, then tighten
+- `adminBulkLimiter` should be at least 60/min (bulk ops send sequential PATCHes with 100ms delay = up to 600/min theoretical)
+- The `checkoutLimiter` should allow at least 10/min per user (customer may refresh checkout page, retry failed payment)
+- Use Upstash's `slidingWindow` algorithm (not `fixedWindow`) to avoid burst rejection at window boundaries
+- Add a kill-switch: if `UPSTASH_REDIS_REST_URL` is unset, fall back to in-memory (already implemented via null check in `check.ts`)
+
+**Detection:** Monitor 429 response rate in Sentry for the first 24 hours after deployment. Alert if 429 rate exceeds 1% of requests.
+
+**Phase relevance:** Rate limiting restoration phase.
 
 ---
 
 ## Moderate Pitfalls
 
-### Pitfall 6: Leaflet Map SSR Crash When Adding Interactive Features
+### Pitfall 6: `increment_driver_deliveries` RPC Migration Conflicts with Existing `try/catch` Swallow
 
-**What goes wrong:** Adding drag-reorder markers or interactive overlays to the existing `LazyRouteMap`/`RouteBuilderMap` causes SSR hydration errors because Leaflet accesses `window` during import. The existing code uses `ssr: false` dynamic imports, but new Leaflet plugins or custom marker components that aren't dynamically imported cause server-side crashes.
-**Prevention:** Every new Leaflet-dependent component must use `dynamic(() => import(...), { ssr: false })`. Keep Leaflet code in dedicated files that are only dynamically imported. Never import Leaflet at module level in server components.
+**What goes wrong:** Creating the `increment_driver_deliveries` RPC migration fixes Issue J. But the existing code has `try { await supabase.rpc(...) } catch { /* ignore */ }`. After deploying the migration, the RPC exists but could fail for other reasons (wrong parameter names, missing permissions). The `catch` block swallows ALL errors, including legitimate failures like "permission denied" or type mismatch.
 
-### Pitfall 7: Drag Library Bundle Size and Touch/Scroll Conflict
-
-**What goes wrong:** Adding `@dnd-kit` or `react-beautiful-dnd` for drag-reorder increases bundle. `react-beautiful-dnd` is unmaintained and has React 19 issues. On mobile, drag-reorder conflicts with page scroll -- users try to scroll the stops list but accidentally reorder stops.
 **Prevention:**
-1. Use `@dnd-kit/core` + `@dnd-kit/sortable` (smallest footprint, React 19 compatible).
-2. Add a visible drag handle (grip icon) so touch users distinguish drag from scroll. Without a handle, any touch on the card triggers drag.
-3. Test on actual phones -- simulator touch events behave differently.
-4. Note: this adds a new npm dependency, breaking v1.9's "zero new packages" streak. Accept this tradeoff for drag-reorder.
-5. Consider: for 5-15 stops, "move up/move down" buttons may be more usable on mobile than drag-and-drop.
+- Remove the `try/catch` swallow after deploying the migration -- replace with proper error handling that logs but doesn't block route completion
+- Verify parameter names match exactly: `p_driver_id` vs `driver_id`, `p_count` vs `count` -- PostgreSQL RPCs are strict on parameter naming
+- Test the RPC manually via Supabase SQL Editor before deploying the application code that removes the catch
 
-### Pitfall 8: Route Optimization Overwrites Manual Drag Reorder
+**Detection:** After deployment, check `SELECT deliveries_count FROM drivers WHERE id = $recent_driver` to verify it's incrementing.
 
-**What goes wrong:** Admin manually reorders stops via drag, then clicks "Optimize" which calls `POST /api/admin/routes/optimize` and immediately applies the new order via `batch_update_stop_indices`. The `isManuallyReordered` state already exists in `RouteDetailClient` but isn't used to gate the optimize action. There's no undo.
+**Phase relevance:** RPC/migration phase.
+
+---
+
+### Pitfall 7: `checkout scheduledDate` Fix Silently Breaks Cart Recovery from IndexedDB
+
+**What goes wrong:** Issue A's fix changes `new Date(input.scheduledDate + "T12:00:00")` to use `toISOWithTimezone()`. But the Zustand cart store persists `scheduledDate` as a plain `YYYY-MM-DD` string to IndexedDB via `idb-keyval`. Carts saved before the fix contain the old format. If the new parsing code expects a different format from the persisted value, cart recovery fails and the customer loses their in-progress order.
+
 **Prevention:**
-1. Show a confirmation dialog if `isManuallyReordered` is true: "You've manually reordered stops. Optimization will overwrite your changes."
-2. Store previous stop order before optimization to enable undo.
-3. Rename the "Done" button in `OptimizationModal` to "Apply" and add an "Undo" option post-application.
+- The fix should only change server-side parsing in `route.ts`, not the format stored in the cart
+- Verify that `input.scheduledDate` from the Zod schema is always `YYYY-MM-DD` regardless of the parsing change
+- Keep `toISOWithTimezone(input.scheduledDate, "12:00")` as the server-side construction -- the input format stays the same
 
-### Pitfall 9: Admin Tables Not Responsive -- Data Invisible on Mobile
+**Detection:** Clear IndexedDB, add items to cart, refresh, verify cart survives. Then test with a cart saved before the fix.
 
-**What goes wrong:** Admin pages use full-width tables (`RouteListTable`, `MenuItemsTable`, `OrdersTable`). On mobile, tables get horizontal scroll (users miss columns) or overflow hidden (data invisible). Adding `overflow-x-auto` doesn't fix usability -- users don't know to scroll horizontally.
+**Phase relevance:** Timezone fixes phase.
+
+---
+
+### Pitfall 8: Admin Route Override Guard Breaks Emergency Operations
+
+**What goes wrong:** Issue G's fix adds lifecycle guards to the admin PATCH endpoint (e.g., `in_progress` only allowed from `accepted` or `assigned`). But the admin uses direct status overrides as an **emergency escape hatch** -- e.g., force-completing a stuck route, skipping a misbehaving state. If the guard is too strict, the admin loses their only recovery tool and must resort to direct SQL.
+
 **Prevention:**
-1. Convert tables to card layouts below `md:` breakpoint. Each row becomes a stacked card showing key fields.
-2. Prioritize columns for mobile: status + customer name + total. Hide address and timestamps.
-3. Use existing `Badge` component for status indicators in card view.
-4. The `RouteCardRow` component already exists in `RouteListTable/` -- extend it as the mobile representation.
+- Guard transitions but allow admin to force-complete with a `force: true` parameter that logs an audit trail
+- Required transitions: `planned -> assigned` (needs driver_id), `assigned -> accepted` (driver action only), `accepted/assigned -> in_progress` (start)
+- Allowed admin overrides with logging: any status -> `completed` (with all-stops-terminal check), any status -> `planned` (unassign driver)
+- Log every admin override to an `audit_log` table or Sentry event
 
-### Pitfall 10: Photo Proof Upload Fails on Slow 3G Networks
+**Detection:** Test all admin PATCH scenarios in integration tests before deploying the guard.
 
-**What goes wrong:** `PhotoCapture` uploads photos as FormData blobs. On slow networks during delivery, uploads time out or fail silently. The offline queue (`queuePhoto`) stores blobs in IndexedDB, but large photos (2-5MB from phone cameras) can exceed IndexedDB quota on some devices.
+**Phase relevance:** State machine fixes phase -- must ship with the start endpoint guard (Pitfall 3).
+
+---
+
+### Pitfall 9: Integration Tests Create Cross-Test State Pollution
+
+**What goes wrong:** The existing test setup (`src/test/setup.ts`) mocks environment variables but has no database state management. Adding integration tests for the driver route lifecycle requires creating routes, stops, orders, drivers, and profiles. If tests don't clean up, subsequent tests inherit polluted state. Vitest runs tests in parallel by default, so two test files creating routes with the same driver can conflict.
+
 **Prevention:**
-1. Compress photos client-side before upload (canvas resize to max 1200px, JPEG quality 0.7).
-2. Show upload progress indicator.
-3. Decouple photo upload from delivery confirmation -- delivery status should succeed even if photo upload fails. The current `SimpleStopView` gates delivery behind photo (`!hasPhoto ? Take Photo : Mark Delivered`), which blocks delivery if camera fails.
-4. Make photo optional but encouraged (show a "skip photo" option after 5 seconds).
+- Use `describe.sequential()` for tests that share database state
+- Each test file should create **unique** UUIDs for all entities (use `crypto.randomUUID()`, not hardcoded UUIDs from factories)
+- Implement `beforeEach`/`afterEach` cleanup that deletes test data by a marker (e.g., `delivery_date = '9999-12-31'` for test routes)
+- Mock Supabase at the HTTP level (MSW) rather than hitting a real DB -- the existing tests already mock at the schema/validation level
+- If testing against a real local Supabase instance: use a separate `test` schema or use transactions that roll back
 
-### Pitfall 11: Manual Tracking Schema Confusion with Existing GPS Tables
+**Detection:** Run `pnpm test -- --reporter=verbose` and look for test order dependencies (tests that pass alone but fail when run with others).
 
-**What goes wrong:** The database has a `location_updates` table designed for live GPS tracking (lat/lng, accuracy, heading, speed). The v2.1 requirement is "manual delivery tracking -- no live GPS." Building manual tracking on top of the GPS table creates confusing data. The `LocationTracker` component in `ActiveRouteView` actively uses `useLocationTracking` which watches the browser's geolocation API.
+**Phase relevance:** Integration testing phase.
+
+---
+
+### Pitfall 10: `revalidateTag` Fix Seems Harmless but Masks a Cache Propagation Issue
+
+**What goes wrong:** Issue 5's fix (removing `{ expire: 0 }` second argument) is trivial. But it draws attention away from the real problem: `revalidateTag` only invalidates the cache on the **instance that handles the request** in serverless deployments. The 5-minute `revalidate: 300` TTL on `unstable_cache` means other Vercel instances serve stale business rules for up to 5 minutes after an admin change.
+
 **Prevention:**
-1. Manual tracking should use `route_stops.status` + `route_stops.arrived_at`/`route_stops.delivered_at` (already exist in schema). No need for `location_updates`.
-2. Remove/disable `LocationTracker` component from `ActiveRouteView` -- it does live GPS which is out of scope.
-3. "Manual tracking" means: admin/customer sees which stop the driver is on (based on stop statuses), not GPS coordinates.
-4. Don't add manual tracking columns to `location_updates`. Keep that table for potential future GPS use.
+- Fix Issue 5 as-is (remove the invalid argument)
+- For the cache propagation issue: reduce `revalidate` to 60 seconds (1 minute max staleness) -- this is acceptable for a 20-50 order operation
+- Do NOT attempt to solve multi-instance invalidation with a pub/sub pattern -- it adds complexity disproportionate to the scale
+- Document the 60-second staleness window for the admin: "Changes take up to 1 minute to apply"
+
+**Detection:** Admin changes cutoff time; verify on a different browser/device that the change reflects within 60 seconds.
+
+**Phase relevance:** Can be a standalone fix, not blocked by other phases.
+
+---
+
+### Pitfall 11: Supabase Type Regeneration Breaks Existing `as any` Casts Unpredictably
+
+**What goes wrong:** Regenerating Supabase types (Issue 4) to include `delivery_zones` adds the table to the `Database` type. This is good. But type regeneration also picks up any schema changes made since the last generation -- new columns, renamed fields, altered types. If the production schema has drifted from what the code expects (e.g., a migration was applied to production but the types were never regenerated), the new types may expose **dozens of type errors** in unrelated files.
+
+**Prevention:**
+- Before regenerating: `npx supabase db diff` to see what schema changes exist
+- Regenerate against a local Supabase instance that has all migrations applied, not against production directly
+- Run `pnpm typecheck` immediately after regeneration -- fix all new errors before committing
+- This should be done **first** in the milestone since it may surface type errors that other fixes depend on
+
+**Detection:** `pnpm typecheck` failure count comparison before and after regeneration.
+
+**Phase relevance:** Should be Phase 1 of the milestone -- all other code changes benefit from accurate types.
 
 ---
 
 ## Minor Pitfalls
 
-### Pitfall 12: Stop Index Gaps After Remove
+### Pitfall 12: Future Date Bound Validation Rejects Legitimate Advance Orders
 
-**What goes wrong:** Removing a stop (`handleRemoveStop` in `RouteDetailClient`) deletes the row but doesn't reindex remaining stops. Indices become 0, 1, 3, 4 (gap at 2). The optimization algorithm expects contiguous indices.
-**Prevention:** After removing a stop, call `batch_update_stop_indices` to reindex remaining stops to 0, 1, 2, 3. Handle this atomically in the stop removal API endpoint.
+**What goes wrong:** Issue E's fix adds a 30-day upper bound on `scheduledDate`. But multi-day delivery (Mon/Wed/Thu/Sat) means the next available date could be up to 6 days away. If the bound is too tight (e.g., 7 days for a single-day delivery model), it breaks when delivery days expand. If too loose (90 days), it doesn't meaningfully prevent abuse.
 
-### Pitfall 13: Driver Page Audit Scope Creep
+**Prevention:**
+- Use the `getAvailableDeliveryDatesMultiDay` function's 3-week window as the bound: `scheduledDate` must be within the set of dates that function returns
+- Or use 30 days as a simple upper bound (covers 4+ weeks of any delivery schedule)
+- Make it configurable via `app_settings` if the operator wants to adjust
 
-**What goes wrong:** "Fix all broken/placeholder features end-to-end" is unbounded. The driver section has: earnings, history, schedule, profile, test-delivery, and route execution. Trying to fix everything in one phase leads to a massive PR.
-**Prevention:** Audit first, then prioritize. Create a checklist of every driver page. Categorize issues as (a) broken/crashes, (b) placeholder/fake data, (c) works but incomplete. Fix (a) first, then (b). Skip (c) for later.
+**Detection:** Attempt to order for the last available date shown in the picker. If rejected, the bound is too tight.
 
-### Pitfall 14: Framer Motion AnimatePresence Stale Closure in Stop Transitions
+---
 
-**What goes wrong:** Adding step-by-step transitions (current stop slides out, next slides in) can cause stale closure bugs where the exiting animation references wrong stop data because the stops array has already updated.
-**Prevention:** Use `key={currentStop.id}` on the stop card wrapper inside `AnimatePresence`. Don't animate the same DOM element between different stops -- let AnimatePresence handle the swap via keys.
+### Pitfall 13: `updateRouteStats` `enroute` Counting Fix Changes Dashboard Behavior
 
-### Pitfall 15: Split/Merge Routes Without Updating order.assigned_driver_id
+**What goes wrong:** Issue I's fix changes `enroute` from being counted as `pending` to a new `in_progress` category. Any admin dashboard component that renders `pending_stops` will now show a lower number. If the dashboard uses `pending_stops === 0` as a "route nearly complete" indicator, the behavior changes.
 
-**What goes wrong:** Moving stops between routes doesn't update `orders.assigned_driver_id`. The existing reassign endpoint (`/api/admin/routes/[id]/stops/reassign`) moves the `route_stops` row but may not sync the order's driver assignment.
-**Prevention:** Check the reassign API. If it only moves `route_stops`, add logic to update `orders.assigned_driver_id` based on the target route's `driver_id`. Wrap in a transaction.
+**Prevention:**
+- Add `in_progress_stops` field to `RouteStats` type
+- Update both the application-level `updateRouteStats` function AND the SQL `update_route_stats` RPC (they diverge currently)
+- Check all dashboard components that read `stats_json.pending_stops`
 
-### Pitfall 16: React Compiler + @dnd-kit Interaction
+**Detection:** Compare dashboard display before and after the fix on a route with an active `enroute` stop.
 
-**What goes wrong:** React Compiler auto-memoizes components, which can interfere with drag-and-drop libraries that rely on specific re-render timing for position updates. Drag handles may become unresponsive or animations may stutter.
-**Prevention:** Test drag-reorder thoroughly with React Compiler enabled. If issues arise, add `'use no memo'` directive to the specific drag-sortable component file. The project already uses React Compiler globally (`babel-plugin-react-compiler`).
+---
+
+### Pitfall 14: `handlers.ts` Split Breaks Stripe Webhook Event Routing
+
+**What goes wrong:** The 529-line `handlers.ts` needs splitting (tech debt item). Each handler function is imported and called from the main `route.ts` switch statement. If the split changes function signatures or export names, the switch statement silently falls through to the default case, returning a 200 with no processing.
+
+**Prevention:**
+- Keep barrel re-exports in the original `handlers.ts` path (or new `handlers/index.ts`)
+- Test every Stripe event type after the split: `checkout.session.completed`, `charge.refunded`, `payment_intent.payment_failed`
+- Use TypeScript's `satisfies` to ensure all event types have handlers
+
+**Detection:** Process a test Stripe webhook event via the CLI (`stripe trigger checkout.session.completed`) after the split.
 
 ---
 
@@ -155,43 +253,39 @@
 
 | Phase Topic | Likely Pitfall | Mitigation |
 |-------------|---------------|------------|
-| Route editing (drag-reorder) | #1 UNIQUE constraint, #7 drag library, #8 overwrites manual order, #16 React Compiler | Use batch RPC, @dnd-kit with grip handle, confirm before optimize, test with compiler |
-| Route optimization | #8 optimization overwrites, #12 index gaps | Store previous order for undo, reindex on remove |
-| Driver route execution | #3 state machine, #4 offline sync, #14 animation conflicts | Document transitions first, simplify offline states, use AnimatePresence keys |
-| Manual tracking | #11 GPS table confusion | Use existing stop status columns, disable LocationTracker |
-| Photo proof delivery | #10 slow network uploads | Compress client-side, decouple from delivery confirmation |
-| Admin mobile UX | #2 sidebar layout, #9 tables not responsive | Drawer nav for mobile, card layouts below md: |
-| Auth routing fix | #5 regression across 4 flows | E2E tests first, isolate fix to standard login path |
-| Driver page audit | #13 scope creep | Audit -> categorize -> prioritize broken pages first |
-| Order detail completeness | Minor -- mostly missing query joins | Verify all fields fetched in order detail API, test with real orders |
-| Split/merge routes | #1 constraint, #15 assigned_driver_id drift | Transaction wrapping, update order driver assignment |
+| Timezone fixes | DST transition breaks query comparisons (Pitfall 1) | Use `timestamptz` comparison, not string. Test on DST boundary dates |
+| Timezone fixes | Email template renders wrong time after format change (Pitfall 2) | Audit all email template consumers before changing data format |
+| State machine guards | Orphaned `planned` routes become unstartable (Pitfall 3) | Re-backfill migration + admin PATCH guard in same deploy |
+| State machine guards | Admin loses emergency override capability (Pitfall 8) | Allow `force: true` admin overrides with audit logging |
+| Race condition fixes | Deadlock from nested locking (Pitfall 4) | Use `SKIP LOCKED` or single atomic UPDATE, avoid nested transactions |
+| Rate limiting restoration | Legitimate traffic blocked by tighter limits (Pitfall 5) | Start 2x higher than target, monitor, then tighten |
+| RPC/migration changes | Swallowed catch hides new RPC failures (Pitfall 6) | Remove try/catch swallow when RPC exists, log errors |
+| Supabase type regen | Exposes unrelated type errors from schema drift (Pitfall 11) | Do first, fix all type errors before other phases |
+| Integration tests | Cross-test state pollution in parallel execution (Pitfall 9) | Unique UUIDs per test, cleanup hooks, sequential for DB tests |
+| `handlers.ts` split | Webhook event routing silently breaks (Pitfall 14) | Barrel re-exports, test every event type |
 
----
+## Migration Ordering Risks
 
-## "Looks Done But Isn't" Checklist
+The fixes in this milestone have **ordering dependencies**:
 
-- [ ] **Drag reorder:** Reorder 5 stops to reverse order. Refresh page. Order persists. No 500 errors in console.
-- [ ] **Drag reorder on mobile:** Use actual phone, not simulator. Scroll the page past the stops list without triggering a drag.
-- [ ] **Optimization after manual reorder:** Manually reorder, then optimize. Confirm dialog appears warning about overwrite.
-- [ ] **Driver execution flow:** Complete a full route: start -> navigate to stop 1 -> mark arrived -> mark delivered -> navigate to stop 2 -> ... -> complete route. All status timestamps populated in DB.
-- [ ] **Simple mode execution:** Non-technical user completes 5-stop route with no verbal instructions. Photo capture works. All stops sync.
-- [ ] **Offline delivery:** Mark 3 stops delivered with airplane mode. Re-enable network. All 3 sync within 30 seconds.
-- [ ] **Admin on mobile:** Open ops dashboard, orders page, routes page, route detail on 375px-width phone. All content visible, all actions reachable.
-- [ ] **Auth routing:** Log in as admin via OAuth -> lands on /admin. Log in as driver via magic link -> lands on /driver. Log in as customer -> lands on /menu.
-- [ ] **Photo upload on slow network:** Throttle to 3G. Take photo. Mark delivered. Delivery succeeds even if photo upload is still pending.
-- [ ] **Manual tracking visibility:** Admin opens route detail. Can see which stop driver is currently on (based on stop statuses, not GPS).
-- [ ] **Remove stop reindex:** Remove middle stop from 5-stop route. Remaining stop indices are 0,1,2,3 (no gaps).
-- [ ] **Driver page audit:** Every driver page loads without error. No "Coming soon" placeholders remain. Earnings chart shows real data (or graceful empty state).
+1. **Type regeneration first** (Pitfall 11) -- other fixes benefit from accurate types, and this may surface hidden issues
+2. **State machine + admin guard together** (Pitfalls 3, 8) -- deploying start guard without admin guard creates a dead state
+3. **Timezone fixes as a batch** (Pitfalls 1, 2, 7) -- all timezone-related code should be audited and fixed in one pass to avoid format inconsistency
+4. **RPC migration before code change** (Pitfall 6) -- the RPC must exist in production before the code that removes the try/catch is deployed
+5. **Rate limiting last** (Pitfall 5) -- this is the highest-risk operational change and should be deployed with monitoring, after all other fixes are stable
+
+Deploying these out of order risks the fixes themselves becoming bugs.
 
 ---
 
 ## Sources
 
-- Codebase inspection: `AdminNav.tsx` (sidebar layout), `RouteDetailClient.tsx` (stop management), `StopsList.tsx` (no drag support), `SimpleStopView.tsx` (delivery flow), `ActiveRouteView.tsx` (route execution), `LocationTracker.tsx` (GPS tracking), `optimizer.ts` (nearest-neighbor + Google Routes), `OptimizationModal.tsx` (before/after comparison)
-- Database schema: `001_schema.sql` (routes, route_stops, location_updates tables, UNIQUE constraints)
-- Migration: `20260313_fix_stop_index_unique_deferrable.sql` (deferrable constraint + batch_update_stop_indices RPC)
-- Auth callback: `/auth/callback/route.ts` (4-flow role redirect logic, isStandardLogin check)
-- Admin layout: `/admin/layout.tsx` (flex sidebar + main, no responsive breakpoints)
-- Driver layout: `/driver/layout.tsx` (SimpleModeProvider, DriverNav bottom nav)
-- Known gotchas from project `.claude/CLAUDE.md` learnings section
-- v1.9 key decisions: zero new npm packages, greedy clustering, 5s polling, click-to-assign
+- Codebase: `src/app/api/driver/routes/active/route.ts`, `src/app/api/driver/routes/[routeId]/start/route.ts`, `src/app/api/driver/routes/[routeId]/stops/[stopId]/route.ts`, `src/app/api/checkout/session/route.ts`, `src/app/api/checkout/session/helpers.ts`, `src/app/api/cron/delivery-reminders/route.ts`, `src/lib/rate-limit/client.ts`, `src/lib/rate-limit/check.ts`, `src/lib/utils/delivery-dates.ts`, `src/lib/validations/driver-api.ts`
+- Migrations: `20260312_route_pipeline_hardening.sql`, `20260316_route_status_enum_extend.sql`, `20260316_route_status_backfill.sql`
+- [Vercel serverless timezone discussion](https://github.com/vercel/vercel/discussions/4158) -- confirms Vercel runs in UTC, TZ env var behavior
+- [Next.js hydration mismatch with dates](https://github.com/vercel/next.js/discussions/37877) -- server/client timezone divergence
+- [PostgreSQL race conditions prevention](https://dev.to/mistval/winning-race-conditions-with-postgresql-54gn) -- SELECT FOR UPDATE SKIP LOCKED pattern
+- [Supabase SERIALIZABLE isolation discussion](https://github.com/orgs/supabase/discussions/30334) -- SERIALIZABLE alone insufficient for high concurrency
+- [PostgreSQL migration safety](https://medium.com/preply-engineering/postgresql-schema-change-gotchas-bf904e2d5bb7) -- ACCESS EXCLUSIVE lock risks
+- [Upstash rate limiting for serverless](https://upstash.com/blog/upstash-ratelimit) -- slidingWindow algorithm, analytics completion in background
+- [Upstash + Vercel KV rate limiting example](https://upstash.com/examples/ratelimitingwithvercelkv) -- integration pattern

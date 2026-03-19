@@ -1,643 +1,573 @@
 # Architecture Patterns
 
-**Domain:** Route operations, driver execution, admin mobile UX for Saturday meal delivery (v2.1)
-**Researched:** 2026-03-14
-**Confidence:** HIGH (all findings verified against existing codebase)
+**Domain:** Stability & correctness fixes for existing delivery app (v2.2)
+**Researched:** 2026-03-19
+**Confidence:** HIGH -- all findings verified against source code
 
-## Existing Architecture Inventory
+## Fix Integration Map
 
-### What Already Exists (Modify, Don't Rebuild)
-
-| Component | Location | Current State | v2.1 Action |
-|-----------|----------|---------------|-------------|
-| Route detail page | `(admin)/admin/routes/[id]/page.tsx` | Shows stops, driver, status | Enhance with editing UI |
-| RouteDetailClient | `components/ui/admin/routes/RouteDetailClient/` | 6 sub-components, read-only stops | Add drag-reorder, inline editing |
-| Route optimize API | `api/admin/routes/optimize/route.ts` | Google Routes + nearest-neighbor fallback | Already works, wire to UI button |
-| Stop CRUD APIs | `api/admin/routes/[id]/stops/route.ts` | POST (add), PATCH (status), DELETE (remove) | Already works, wire to editing UI |
-| Stop reorder API | `api/admin/routes/[id]/route.ts` PATCH | `batch_update_stop_indices` RPC with deferrable constraints | Already works, wire to drag UI |
-| Stop reassign API | `api/admin/routes/[id]/stops/reassign/route.ts` | Reassign stop between routes | Already exists |
-| Driver route page | `(driver)/driver/route/page.tsx` | SSR with stop list, timezone-aware | Add action buttons per stop |
-| ActiveRouteView | `components/ui/driver/ActiveRouteView.tsx` | Start/complete route, progress bar, location tracker | Add per-stop action flow |
-| SimpleStopView | `components/ui/driver/SimpleStopView.tsx` | Single-stop focus with photo capture, offline sync | Already has full flow, audit only |
-| StopCard | `components/ui/driver/StopCard.tsx` | Display-only with status badges, animated | Add navigation/action buttons |
-| StopDetailView | `components/ui/driver/StopDetailView.tsx` | Exists | Audit for completeness |
-| DeliveryActions | `components/ui/driver/DeliveryActions.tsx` | Exists | Audit and wire |
-| DeliveryConfirmDialog | `components/ui/driver/DeliveryConfirmDialog.tsx` | Exists | Already used by SimpleStopView |
-| PhotoCapture | `components/ui/driver/PhotoCapture.tsx` | Exists with camera capture | Already used by SimpleStopView |
-| ExceptionModal | `components/ui/driver/ExceptionModal.tsx` | Exists | Wire into stop detail |
-| NavigationButton | `components/ui/driver/NavigationButton.tsx` | Exists | Wire into stop detail |
-| Driver stop API | `api/driver/routes/[routeId]/stops/[stopId]/route.ts` | PATCH with status transitions, auto-next-stop, order status sync | Already works |
-| Photo upload API | `api/driver/routes/[routeId]/stops/[stopId]/photo/route.ts` | 5MB limit, JPEG/PNG/WebP, Supabase Storage, signed URLs | Already works |
-| Location tracker | `components/ui/driver/LocationTracker.tsx` | Posts to location_updates table | Already works for manual tracking |
-| Route builder | `components/ui/admin/routes/RouteBuilder/` | 5 sub-components, Leaflet map, driver selector | Stable, no changes |
-| RouteBuilderMap | `components/ui/admin/routes/RouteBuilderMap/` | Leaflet integration, dynamic import | Stable, no changes |
-| AdminNav | `components/ui/admin/AdminNav.tsx` | Desktop sidebar only, collapsible, no mobile support | Add mobile bottom nav |
-| Auth callback | `app/auth/callback/route.ts` | Role redirect via `getRoleDashboard()`, safe redirect validation | Fix `next` param handling |
-| Role redirect | `lib/auth/role-redirect.ts` | `getRoleDashboard()` maps roles to paths | No changes needed |
-| OpsCenter | `(admin)/admin/ops/OpsCenter.tsx` | Ops dashboard exists | Audit for mobile |
-
-### Database Primitives Already In Place
-
-| Table/RPC | What It Does | v2.1 Relevance |
-|-----------|-------------|----------------|
-| `routes` | delivery_date, driver_id, status (planned/in_progress/completed), stats_json, polyline | No schema changes needed |
-| `route_stops` | order_id, stop_index (deferrable unique), status (5 states), photo_url, notes | No schema changes needed |
-| `location_updates` | driver_id, route_id, lat/lng/accuracy/heading/speed, recorded_at | Use for manual tracking |
-| `delivery_exceptions` | route_stop_id, type (6 enum values), photo_url, resolution_notes | Already exists |
-| `orders` | Full order data including items, modifiers, contact, payment, tip, instructions | Expand API SELECT |
-| `order_items` | name_snapshot, quantity, line_total_cents, special_instructions | Need to include in route detail |
-| `order_item_modifiers` | name_snapshot, price_delta_snapshot | Need to include in route detail |
-| `batch_update_stop_indices()` | Atomic reorder with deferred constraints | Use for drag reorder |
-| `reindex_route_stops()` | Gap-free reindex after deletion | Use after stop removal |
-| `update_route_stats()` | Aggregate stop statuses into route stats_json | Use after any stop change |
-| `prevent_duplicate_active_assignment` | Trigger prevents order in multiple active routes | Protection in place |
-| `check_route_completion` | Trigger prevents completing route with non-terminal stops | Protection in place |
-
-**Key finding: The database layer is complete. No migrations needed for core route operations.**
-
-### Existing Status Enums
-
-```
-route_status: 'planned' | 'in_progress' | 'completed'
-route_stop_status: 'pending' | 'enroute' | 'arrived' | 'delivered' | 'skipped'
-order_status: 'pending' | 'pending_approval' | 'confirmed' | 'preparing' | 'out_for_delivery' | 'delivered' | 'cancelled' | 'refunded'
-delivery_exception_type: 'customer_not_home' | 'wrong_address' | 'access_issue' | 'refused_delivery' | 'damaged_order' | 'other'
-```
+This document maps each v2.2 fix to its integration points in the existing architecture, identifies what code gets modified vs. created, and establishes fix ordering based on dependencies.
 
 ---
 
-## Recommended Architecture
+## Component Boundaries
 
-### Component Boundaries
-
-| Component | Responsibility | Communicates With |
-|-----------|---------------|-------------------|
-| `RouteEditor` (NEW) | Admin stop reorder/add/remove UI with drag | `api/admin/routes/[id]`, `api/admin/routes/[id]/stops` |
-| `DragReorderList` (NEW) | Generic drag-and-drop list using @dnd-kit | RouteEditor, DriverStopReorder |
-| `AdminMobileNav` (NEW) | Bottom tab nav for mobile admin | Conditional render in layout |
-| `AdminResponsiveShell` (NEW) | Switches sidebar/bottom-nav by viewport | AdminLayout |
-| `OrderDetailPanel` (NEW) | Full order info: items, modifiers, payment, contact | Route detail, stop detail, ops |
-| `DriverStopActions` (NEW) | Arrived/delivered/skip buttons for current stop | ActiveRouteView, StopDetailView |
-| `DriverStopReorder` (NEW) | Driver-side stop reorder (up/down or drag) | New driver reorder API |
-| `RouteDetailClient` (MODIFY) | Add editing mode toggle, order detail expansion | RouteEditor, OrderDetailPanel |
-| `ActiveRouteView` (MODIFY) | Integrate DriverStopActions into flow | DriverStopActions |
-| `StopCard` (MODIFY) | Add action buttons, navigation link | ActiveRouteView |
-| `StopDetailView` (MODIFY) | Add full order info, actions, photo | DriverStopActions, OrderDetailPanel |
-
-### Data Flow
-
-#### Admin Route Editing Flow
-```
-Admin opens /admin/routes/[id]
-  -> RouteDetailClient fetches GET /api/admin/routes/[id]
-     (already returns full stops + driver + addresses + exceptions)
-  -> Toggle editing mode
-     -> Drag reorder -> PATCH /api/admin/routes/[id] { stopOrder: [{stopId, stopIndex}] }
-        -> batch_update_stop_indices() RPC (deferrable unique constraint)
-        -> Clears optimized_polyline (stale after manual reorder)
-     -> Remove stop -> DELETE /api/admin/routes/[id]/stops?stopId=xxx
-        -> reindex_route_stops() RPC
-        -> update_route_stats() RPC
-     -> Add stops -> POST /api/admin/routes/[id]/stops { orderIds: [...] }
-        -> Validates no duplicate assignment (trigger)
-        -> Appends at max_stop_index + 1
-     -> Optimize -> POST /api/admin/routes/optimize { routeId }
-        -> Google Routes API or nearest-neighbor fallback
-        -> batch_update_stop_indices() with optimized order
-        -> Saves polyline
-  -> TanStack Query invalidates ['admin', 'route', id]
-  -> Split route -> POST /api/admin/routes/[id]/split { stopIds, driverId? }
-  -> Merge routes -> POST /api/admin/routes/[id]/merge { sourceRouteId }
-```
-
-#### Driver Route Execution Flow (Existing, Audit-Only)
-```
-Driver opens /driver/route
-  -> SSR fetches today's route via delivery_date filter
-  -> DriverRouteSwitch conditionally renders:
-     - SimpleStopView (simple_mode = true): single-stop focus
-     - ActiveRouteView (simple_mode = false): full stop list
-  -> Route planned -> "Start Route" button
-     -> POST /api/driver/routes/[routeId]/start
-        -> Sets route status = 'in_progress', started_at = now
-        -> Sets first stop status = 'enroute'
-        -> Batch-updates all route orders to 'out_for_delivery'
-  -> Per-stop execution:
-     -> "I'm Here" -> PATCH status: 'arrived' (sets arrived_at)
-     -> "Delivered" -> confirm dialog -> PATCH status: 'delivered' (sets delivered_at)
-        -> Server auto-updates order.status = 'delivered'
-        -> Optional photo -> POST photo endpoint
-        -> Server auto-advances next stop to 'enroute'
-     -> "Skip" -> PATCH status: 'skipped'
-        -> Server auto-advances next stop to 'enroute'
-  -> All stops terminal -> "Complete Route" button
-     -> POST /api/driver/routes/[routeId]/complete
-        -> check_route_completion trigger validates
-  -> router.refresh() re-fetches SSR data after each mutation
-```
-
-#### Manual Delivery Tracking Flow
-```
-Driver updates stop status via any of the above
-  -> PATCH /api/driver/routes/[routeId]/stops/[stopId]
-  -> Updates route_stops.status + timestamps (arrived_at, delivered_at)
-  -> Updates orders.status when delivered
-  -> update_route_stats() refreshes stats_json
-  -> LocationTracker component posts to location_updates table
-  -> Customer /tracking/[orderId] or /tracking?token=xxx reads:
-     -> Order status + timestamps
-     -> Driver info (name, photo, vehicle)
-     -> Route stop position (currentStop / totalStops)
-     -> Latest location from location_updates
-  -> No live GPS stream -- status text + timestamps ARE the tracking data
-```
+| Component | Responsibility | Fixed By |
+|-----------|---------------|----------|
+| `src/lib/utils/delivery-timezone.ts` | LA timezone ISO string construction | Extended: new `getLAToday()` helper |
+| `src/app/api/checkout/session/route.ts` | Checkout validation + order creation | Modified: timezone-safe date, future bound |
+| `src/app/api/checkout/session/helpers.ts` | COD email + address distance | Modified: timezone-aware delivery window strings |
+| `src/app/api/driver/routes/active/route.ts` | Driver's today route fetch | Modified: add `customer_name`/`customer_phone` to select |
+| `src/app/api/driver/routes/[routeId]/start/route.ts` | Route start transition | Modified: accept `accepted` status (already does), gate `assigned` |
+| `src/app/api/driver/routes/[routeId]/stops/[stopId]/route.ts` | Stop status transitions + next-stop promotion | Modified: atomic promotion, fix `updateRouteStats` |
+| `src/app/api/driver/routes/[routeId]/complete/route.ts` | Route completion + badges | Modified: call new RPC |
+| `src/app/api/cron/delivery-reminders/route.ts` | Daily reminder emails | Modified: LA timezone for `today` |
+| `src/app/api/admin/routes/[id]/route.ts` | Admin route PATCH | Modified: lifecycle guard on status override |
+| `src/app/api/admin/settings/route.ts` | Admin settings PATCH | Modified: remove `{ expire: 0 }` arg |
+| `src/app/api/admin/delivery-days/route.ts` | Admin delivery days PATCH | Modified: remove `{ expire: 0 }` arg |
+| `src/app/api/admin/delivery-zones/route.ts` | Admin delivery zones CRUD | Modified: remove `{ expire: 0 }` arg, remove `as any` |
+| `src/app/api/admin/settings/restore/route.ts` | Admin settings restore | Modified: remove `{ expire: 0 }` arg |
+| `src/lib/settings/business-rules.ts` | Cached business rules fetch | Modified: remove `as any` |
+| `src/lib/rate-limit/client.ts` | Rate limiter exports | Modified: restore `Ratelimit` constructors |
+| `src/lib/utils/delivery-dates.ts` | Delivery date computation | Modified: pre-filter cutoff-passed candidates |
+| `supabase/migrations/` | DB functions + triggers | New: `increment_driver_deliveries` RPC, `promote_next_stop` RPC |
+| `src/types/database.ts` | Generated Supabase types | Regenerated: includes `delivery_zones` |
 
 ---
 
-## What Is NEW vs MODIFIED (Explicit Inventory)
+## Fix-by-Fix Integration Analysis
 
-### NEW Components (Create Fresh)
+### Fix 1: Timezone-Safe Date Construction (Issues A, B, 6)
 
-| Component | Path | Lines Est. | Rationale |
-|-----------|------|------------|-----------|
-| `RouteEditor` | `components/ui/admin/routes/RouteEditor/RouteEditor.tsx` | ~200 | Encapsulates editing mode: drag reorder, add/remove buttons |
-| `RouteEditor/EditToolbar` | `components/ui/admin/routes/RouteEditor/EditToolbar.tsx` | ~80 | Action bar: Add Stops, Optimize, Split, Save |
-| `DragReorderList` | `components/ui/DragReorderList.tsx` | ~120 | Reusable @dnd-kit sortable list |
-| `AdminMobileNav` | `components/ui/admin/AdminMobileNav.tsx` | ~100 | Bottom tab bar (5 items + More sheet) |
-| `AdminResponsiveShell` | `components/ui/admin/AdminResponsiveShell.tsx` | ~40 | Viewport switch: sidebar vs bottom nav |
-| `OrderDetailPanel` | `components/ui/admin/orders/OrderDetailPanel/OrderDetailPanel.tsx` | ~250 | Items + modifiers, contact, address, payment, tip, delivery instructions |
-| `OrderDetailPanel/OrderItemsList` | `components/ui/admin/orders/OrderDetailPanel/OrderItemsList.tsx` | ~100 | Item rows with modifier sub-rows |
-| `OrderDetailPanel/PaymentSummary` | `components/ui/admin/orders/OrderDetailPanel/PaymentSummary.tsx` | ~80 | Subtotal, fee, tax, tip, discount, total |
-| `DriverStopActions` | `components/ui/driver/DriverStopActions.tsx` | ~150 | Action buttons: Navigate, Arrived, Delivered, Skip |
-| `DriverStopReorder` | `components/ui/driver/DriverStopReorder.tsx` | ~100 | Up/down arrows for driver stop reordering |
+**Problem:** Three locations construct dates or "today" strings using naive UTC or server-local time instead of LA timezone.
 
-### NEW API Routes
+**Integration Points:**
 
-| Route | Method | Purpose | Complexity |
-|-------|--------|---------|------------|
-| `api/admin/routes/[id]/split/route.ts` | POST | Split route: move selected stops to new route | Medium |
-| `api/admin/routes/[id]/merge/route.ts` | POST | Merge source route stops into target route | Medium |
-| `api/driver/routes/[routeId]/reorder/route.ts` | PATCH | Driver-initiated stop reorder | Low (reuses batch_update_stop_indices RPC) |
+| Location | Current Code | Fix |
+|----------|-------------|-----|
+| `checkout/session/route.ts:53` | `new Date(input.scheduledDate + "T12:00:00")` | `toISOWithTimezone(input.scheduledDate, "12:00")` then parse |
+| `checkout/session/helpers.ts:119-120,158-159` | `` `${opts.scheduledDate}T${opts.timeWindowStart}:00` `` | `toISOWithTimezone(opts.scheduledDate, opts.timeWindowStart)` |
+| `cron/delivery-reminders/route.ts:60` | `new Date().toISOString().split("T")[0]` | Use `getLAToday()` from shared utility |
 
-### MODIFIED Files
+**New Code:**
 
-| File | Change | Risk |
-|------|--------|------|
-| `(admin)/admin/layout.tsx` | Replace static div + AdminNav with AdminResponsiveShell | Low |
-| `AdminNav.tsx` | Add `className` prop, add `hidden md:flex` for responsive | Low |
-| `RouteDetailClient/RouteDetailClient.tsx` | Add editing mode toggle, integrate RouteEditor | Medium |
-| `RouteDetailClient/RouteHeader.tsx` | Add Edit/Save buttons | Low |
-| `api/admin/routes/[id]/route.ts` GET | Expand order_items SELECT to include names, modifiers, payment fields | Low |
-| `api/admin/routes/[id]/types.ts` | Expand RouteDetailRow type for full order data | Low |
-| `ActiveRouteView.tsx` | Integrate DriverStopActions for in_progress route | Medium |
-| `StopCard.tsx` | Add onClick -> navigate to stop detail | Low |
-| `StopDetailView.tsx` | Add DriverStopActions, full order info, photo display | Medium |
-| `StopList.tsx` | Support drag reorder via DragReorderList when editing | Medium |
-| `auth/callback/route.ts` | Fix: use `next` param when it matches role prefix | Low |
-| Admin page layouts (ops, orders, routes, drivers) | Add responsive Tailwind classes for mobile | Low per file |
-
-### NO Changes Needed
-
-| Area | Why |
-|------|-----|
-| Database schema | All tables, enums, triggers, RPCs already exist |
-| `isValidStatusTransition()` | Already validates all stop status transitions |
-| Photo upload pipeline | Storage bucket, upload API, signed URL generation all working |
-| Route optimization service | Google Routes API + nearest-neighbor fallback in `lib/services/route-optimization/` |
-| Route builder / creation UI | Leaflet map, geographic clustering, order selection all working |
-| Auth role detection | `getRoleDashboard()` correctly maps roles to dashboards |
-| Rate limiting | All route APIs already rate-limited via `checkRateLimit()` |
-| Offline sync | `useOfflineSync()` hook already queues status updates + photos |
-| Simple mode provider | `SimpleModeProvider` + `useSimpleMode()` already reads from server |
-
----
-
-## Patterns to Follow
-
-### Pattern 1: Editing Mode Toggle
-**What:** Route detail defaults to read-only. Click "Edit" to enable drag-reorder and mutation buttons.
-**When:** Admin views route detail.
-**Why:** Prevents accidental changes during Saturday ops monitoring. Touch targets on mobile are large; accidental drags would be disruptive.
+Add `getLAToday()` to `src/lib/utils/delivery-timezone.ts` -- the existing `toISOWithTimezone()` lives there. This is the canonical location for LA timezone operations.
 
 ```typescript
-// RouteDetailClient.tsx
-const [isEditing, setIsEditing] = useState(false);
-
-return (
-  <>
-    <RouteHeader onToggleEdit={() => setIsEditing(!isEditing)} isEditing={isEditing} />
-    {isEditing ? (
-      <RouteEditor routeId={id} stops={stops} onStopsChange={() => refetch()} />
-    ) : (
-      <RouteTimeline stops={stops} />
-    )}
-  </>
-);
-```
-
-### Pattern 2: Optimistic Updates with TanStack Query (Admin Only)
-**What:** Admin route editing uses TanStack Query mutations with optimistic rollback.
-**When:** Stop reorder, status change, add/remove from admin UI.
-**Why:** Saturday ops needs instant visual feedback.
-
-```typescript
-const reorderMutation = useMutation({
-  mutationFn: (stopOrder) =>
-    fetch(`/api/admin/routes/${routeId}`, {
-      method: 'PATCH',
-      body: JSON.stringify({ stopOrder }),
-    }),
-  onMutate: async (newOrder) => {
-    await queryClient.cancelQueries({ queryKey: ['admin', 'route', routeId] });
-    const previous = queryClient.getQueryData(['admin', 'route', routeId]);
-    queryClient.setQueryData(['admin', 'route', routeId], applyReorder(previous, newOrder));
-    return { previous };
-  },
-  onError: (_err, _data, context) => {
-    queryClient.setQueryData(['admin', 'route', routeId], context?.previous);
-  },
-  onSettled: () => queryClient.invalidateQueries({ queryKey: ['admin', 'route', routeId] }),
-});
-```
-
-### Pattern 3: SSR + router.refresh() for Driver Route (Keep Existing)
-**What:** Driver route page uses SSR. After mutations, `router.refresh()` re-runs server component.
-**When:** Driver completes any action (arrive, deliver, skip).
-**Why:** Already established pattern. SSR ensures fresh data, works with service worker caching for offline-first, simpler mental model for non-technical family drivers.
-**Do NOT switch to TanStack Query.** This is an explicit design decision from v1.9.
-
-### Pattern 4: Responsive Admin Shell
-**What:** Desktop shows sidebar, mobile shows bottom nav. Single layout component handles both.
-**When:** Admin layout renders.
-**Why:** Admin uses phone during Saturday kitchen ops.
-
-```typescript
-// AdminResponsiveShell.tsx
-export function AdminResponsiveShell({ children }: { children: React.ReactNode }) {
-  return (
-    <>
-      {/* Desktop */}
-      <div className="hidden md:flex min-h-screen bg-cream">
-        <AdminNav />
-        <main className="flex-1 overflow-auto">{children}</main>
-      </div>
-      {/* Mobile */}
-      <div className="flex flex-col min-h-screen bg-cream md:hidden">
-        <main className="flex-1 overflow-auto pb-16">{children}</main>
-        <AdminMobileNav />
-      </div>
-    </>
-  );
+// src/lib/utils/delivery-timezone.ts -- ADD:
+export function getLAToday(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "America/Los_Angeles",
+    year: "numeric", month: "2-digit", day: "2-digit",
+  }).format(new Date());
 }
 ```
 
-### Pattern 5: Driver Action State Machine
-**What:** Stop actions mirror the existing `isValidStatusTransition()` server-side validation.
-**When:** Driver interacts with a stop.
-**Why:** Client-side validation prevents rejected requests; server-side is the authority.
+Note: `active/route.ts` already has a correct `getTodayInTimezone()` using this same pattern. Consolidate into the shared utility so all consumers use one function.
+
+**Cron query also needs fix:** The `.gte()` / `.lt()` string comparison against timezone-aware DB timestamps must use proper LA-offset boundaries:
+```typescript
+const today = getLAToday();
+const startOfDay = toISOWithTimezone(today, "00:00");
+const endOfDay = toISOWithTimezone(today, "23:59");
+```
+
+**Modified files:** 3 (checkout route, checkout helpers, cron route)
+**New code in:** 1 (delivery-timezone.ts -- add `getLAToday`)
+**Risk:** LOW -- `toISOWithTimezone` already proven; just extending usage
+
+---
+
+### Fix 2: Route Status Machine Guards (Issues F, G)
+
+**Problem:** Driver sees route with `assigned` status but "Start Route" button produces 400 error because `start` endpoint requires `planned` or `accepted`.
+
+**Current Flow (verified in code):**
+```
+assigned → AcceptDeclineBar shown (DriverRouteSwitch.tsx:44)
+            → POST /accept → status becomes "accepted"
+accepted → Start button shown (ActiveRouteView)
+            → POST /start → status becomes "in_progress"
+```
+
+The UI is already correct: `AcceptDeclineBar` renders for `assigned`/`accepted`, and `ActiveRouteView` shows "Start" for `accepted`/`planned`. The actual bug is the `start` endpoint accepting `planned` -- a `planned` route with a `driver_id` set (pre-backfill legacy, or admin manipulation per Issue G) should not be startable without acceptance.
+
+**Integration Points:**
+
+| Location | Change |
+|----------|--------|
+| `start/route.ts:57` | Change from `planned && accepted` to `accepted` only |
+| `admin/routes/[id]/route.ts:340` | Add lifecycle guard: reject `in_progress` if current status is `planned`/`assigned` |
+| `active/route.ts:168` | Remove `planned` from status filter (driver should not see unassigned routes) |
+| `driver/route/page.tsx:77` | Same -- remove `planned` from SSR query |
+
+**Admin lifecycle guard (Issue G):**
+```typescript
+// admin/routes/[id]/route.ts -- ADD before routeUpdate:
+if (status !== undefined) {
+  const { data: currentRoute } = await supabase.from("routes").select("status, driver_id").eq("id", id).single();
+  const VALID_ADMIN_TRANSITIONS: Record<string, string[]> = {
+    planned: ["assigned"],  // only via driverId assignment
+    assigned: ["planned", "accepted"],
+    accepted: ["assigned", "in_progress"],
+    in_progress: ["completed"],
+    completed: [],
+  };
+  if (currentRoute && !VALID_ADMIN_TRANSITIONS[currentRoute.status]?.includes(status)) {
+    return NextResponse.json(
+      { error: `Cannot transition from ${currentRoute.status} to ${status}` },
+      { status: 400 }
+    );
+  }
+}
+```
+
+**Modified files:** 4 (start, admin PATCH, active route API, driver page SSR)
+**New code:** Transition map constant (inline in admin route)
+**Risk:** LOW -- straightening existing logic, UI already handles correctly
+
+---
+
+### Fix 3: Atomic Next-Stop Promotion (Issue 9)
+
+**Problem:** After marking a stop `delivered`, two separate queries (SELECT next pending + UPDATE to enroute) create a race condition if two stops complete rapidly.
+
+**Current code in `stops/[stopId]/route.ts:167-186`:**
+```typescript
+// SELECT next pending stop
+const { data: nextStopData } = await supabase
+  .from("route_stops")
+  .select("id, stop_index")
+  .eq("route_id", routeId)
+  .eq("status", "pending")
+  .order("stop_index", { ascending: true })
+  .limit(1)
+  .single();
+// Then UPDATE it to enroute -- RACE WINDOW HERE
+```
+
+**Fix:** Replace with a PostgreSQL RPC that does the SELECT + UPDATE atomically:
+
+```sql
+-- New migration: promote_next_stop RPC
+CREATE OR REPLACE FUNCTION promote_next_stop(p_route_id uuid)
+RETURNS TABLE(stop_id uuid, stop_index int) AS $$
+BEGIN
+  RETURN QUERY
+  UPDATE route_stops
+  SET status = 'enroute'
+  WHERE id = (
+    SELECT id FROM route_stops
+    WHERE route_id = p_route_id AND status = 'pending'
+    ORDER BY stop_index ASC
+    LIMIT 1
+    FOR UPDATE SKIP LOCKED
+  )
+  RETURNING route_stops.id AS stop_id, route_stops.stop_index;
+END;
+$$ LANGUAGE plpgsql;
+```
+
+**Integration:** Replace the SELECT+UPDATE in `stops/[stopId]/route.ts:167-186` with:
+```typescript
+const { data: promoted } = await supabase.rpc("promote_next_stop", { p_route_id: routeId });
+const nextStop = promoted?.[0] ? { id: promoted[0].stop_id, stopIndex: promoted[0].stop_index } : null;
+```
+
+Same pattern applies in `exception/route.ts` which has a duplicate `updateRouteStats` + next-stop logic.
+
+**Modified files:** 2 (stop status route, exception route)
+**New code:** 1 migration file
+**Risk:** LOW -- `FOR UPDATE SKIP LOCKED` is standard Postgres concurrency
+
+---
+
+### Fix 4: Fix `updateRouteStats` Counting Bug (Issue I)
+
+**Problem:** JS-side `updateRouteStats` counts `enroute` as `pending`. The SQL RPC `update_route_stats` (from `20260312_route_pipeline_hardening.sql`) counts correctly -- but the API uses the JS version.
+
+**Current state:**
+- SQL RPC `update_route_stats(p_route_id)` exists and counts `pending` correctly (no `enroute` conflation)
+- JS `updateRouteStats` in `stops/[stopId]/route.ts:206-235` has the bug
+- Same JS function duplicated in `exception/route.ts:263+`
+
+**Fix:** Replace both JS `updateRouteStats` calls with the existing SQL RPC:
+```typescript
+await supabase.rpc("update_route_stats", { p_route_id: routeId });
+```
+
+This eliminates the bug AND the code duplication. The SQL RPC already does the `UPDATE routes SET stats_json = ...` so no additional step needed.
+
+**Modified files:** 2 (stop status route, exception route) -- remove ~30 lines each
+**New code:** None -- SQL RPC already exists
+**Risk:** NONE -- SQL RPC is already used by `split_route` and `merge_routes`
+
+---
+
+### Fix 5: `increment_driver_deliveries` RPC (Issue J)
+
+**Problem:** `route complete` endpoint calls `supabase.rpc("increment_driver_deliveries", ...)` but the RPC does not exist in any migration. `deliveries_count` is never updated.
+
+**Fix:** Create migration with the RPC:
+```sql
+CREATE OR REPLACE FUNCTION increment_driver_deliveries(
+  p_driver_id uuid,
+  p_count int
+) RETURNS void AS $$
+BEGIN
+  UPDATE drivers
+  SET deliveries_count = deliveries_count + p_count
+  WHERE id = p_driver_id;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER SET search_path = public;
+```
+
+**Integration:** The call site in `complete/route.ts:108-118` already exists with the correct parameters (`p_driver_id`, `p_count`). Remove the try/catch swallow and let it propagate (non-blocking -- badge failure already has its own try/catch).
+
+Actually, keep the try/catch but log at `warn` level instead of `info`, and remove the "might not exist yet" comment since the RPC will now exist.
+
+**Modified files:** 1 (complete route -- clean up try/catch comment)
+**New code:** 1 migration file
+**Risk:** NONE -- simple atomic UPDATE
+
+---
+
+### Fix 6: Active Route Missing Customer Contact (Issue 7)
+
+**Problem:** `active/route.ts` selects from `profiles!orders_user_id_fkey` for customer data but does not include `customer_name` / `customer_phone` from `orders` table. The `[routeId]/route.ts` detail endpoint correctly uses fallback.
+
+**Diff between endpoints:**
+
+| Field | `active/route.ts` | `[routeId]/route.ts` |
+|-------|-------------------|---------------------|
+| `customer_name` | NOT selected | Selected from `orders` |
+| `customer_phone` | NOT selected | Selected from `orders` |
+| Fallback logic | `profiles.full_name` only | `customer_name ?? profiles.full_name` |
+
+**Fix:**
+1. Add `customer_name, customer_phone` to the orders select in `active/route.ts:141`
+2. Update the `OrderData` interface to include these fields
+3. Update the response transform at line 199-203 to use fallback:
+```typescript
+fullName: stop.orders!.customer_name ?? stop.orders!.profiles?.full_name ?? null,
+phone: stop.orders!.customer_phone ?? stop.orders!.profiles?.phone ?? null,
+```
+
+**Modified files:** 1 (active route)
+**Risk:** NONE -- adding fields to select, no schema change
+
+---
+
+### Fix 7: `revalidateTag` Invalid Second Argument (Issue 5)
+
+**Problem:** `revalidateTag("business-rules", { expire: 0 })` -- second arg is silently ignored. Not a functional bug (tag is still invalidated) but indicates confusion about the API.
+
+**Integration Points:**
+- `admin/settings/route.ts:221`
+- `admin/settings/restore/route.ts:121`
+- `admin/delivery-zones/route.ts:116`
+- `admin/delivery-days/route.ts:122`
+
+**Fix:** Remove second argument from all 4 locations. Pure find-and-replace.
+
+**Modified files:** 4
+**Risk:** NONE -- removing dead code
+
+---
+
+### Fix 8: Regenerate Supabase Types (Issue 4)
+
+**Problem:** `delivery_zones` table exists (migration `20260312`) but `src/types/database.ts` was not regenerated. Three files use `as any` cast.
+
+**Fix:**
+```bash
+npx supabase gen types typescript --project-id <ref> > src/types/database.ts
+```
+
+Then remove `as any` from:
+- `src/lib/settings/business-rules.ts:125`
+- `src/app/api/admin/delivery-zones/route.ts:59,103`
+
+**Modified files:** 3 (remove casts) + 1 regenerated (`database.ts`)
+**Depends on:** All new migrations (Fixes 3, 5) should be applied BEFORE type regeneration
+**Risk:** LOW -- may surface new type errors if generated types reveal mismatches
+
+---
+
+### Fix 9: Rate Limiting Restoration (Issue 3)
+
+**Problem:** All 13 rate limiters in `client.ts` are `null`. In-memory fallback is per-instance, not distributed.
+
+**Architecture decision needed:** Upstash REST Redis vs Vercel KV
+
+| Option | Pros | Cons |
+|--------|------|------|
+| **Upstash REST Redis** | Already in `package.json` (`@upstash/redis`, `@upstash/ratelimit`). Config infrastructure exists (`config.ts`). Just needs credentials. | Requires Upstash account/provisioning |
+| **Vercel KV** | Native Vercel integration. Same REST protocol as Upstash (Vercel KV IS Upstash under the hood). | Different import path (`@vercel/kv`), new dependency |
+
+**Recommendation:** Upstash REST Redis. Zero code changes to `check.ts` or any consumer. Only `client.ts` changes:
 
 ```typescript
-const getAvailableActions = (status: RouteStopStatus): RouteStopStatus[] => {
-  switch (status) {
-    case 'pending': return []; // Only server sets to 'enroute' via auto-advance
-    case 'enroute': return ['arrived', 'skipped'];
-    case 'arrived': return ['delivered', 'skipped'];
-    default: return []; // Terminal states
-  }
-};
+import { Redis } from "@upstash/redis";
+import { Ratelimit } from "@upstash/ratelimit";
+import { RATE_LIMITS } from "./config";
+
+function getRedisClient(): Redis | null {
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+  if (!url || !token) return null;
+  return new Redis({ url, token });
+}
+
+const redis = getRedisClient();
+
+function limiter(tier: keyof typeof RATE_LIMITS): Ratelimit | null {
+  if (!redis) return null;
+  const cfg = RATE_LIMITS[tier];
+  return new Ratelimit({
+    redis,
+    limiter: Ratelimit.slidingWindow(cfg.max, cfg.window as `${number} ${"s" | "m" | "h"}`),
+    prefix: `rl:${tier}`,
+  });
+}
+
+export const authSignInLimiter = limiter("auth-signin");
+export const authSignUpLimiter = limiter("auth-signup");
+// ... all 13 limiters
+```
+
+**Modified files:** 1 (`client.ts`)
+**New env vars:** `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
+**Risk:** LOW -- existing infrastructure, just credentials. Fail-open fallback already in `check.ts`
+
+---
+
+### Fix 10: Checkout Future Date Bound (Issue E)
+
+**Problem:** No upper bound on `scheduledDate`. Customer could order for 2 years from now.
+
+**Fix:** Add validation in `checkout/session/route.ts` after line 53:
+```typescript
+const maxFutureDays = 30;
+const daysFromNow = Math.ceil((scheduledDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+if (daysFromNow > maxFutureDays) {
+  return errorResponse("VALIDATION_ERROR", "Cannot schedule more than 30 days in advance", 400);
+}
+```
+
+**Modified files:** 1
+**Risk:** NONE
+
+---
+
+### Fix 11: Pre-filter Cutoff-Passed Dates (Issue C)
+
+**Problem:** `getAvailableDeliveryDatesMultiDay` includes cutoff-passed dates in results, consuming slots in the `count` limit.
+
+**Fix:** In `delivery-dates.ts:296-311`, filter before adding to results:
+```typescript
+// Before: adds all candidates, marks cutoffPassed
+// After: skip cutoff-passed candidates from week 0 (current week)
+.forEach(({ date, dayConfig }) => {
+  const dateStr = formatDateString(date);
+  if (seen.has(dateStr) || results.length >= count) return;
+  const cutoffPassed = isPastCutoffForDay(date, dayConfig, now);
+  if (cutoffPassed) return; // Skip instead of including with flag
+  seen.add(dateStr);
+  // ...
+});
+```
+
+**Modified files:** 1
+**Risk:** LOW -- verify that no consumer depends on cutoff-passed entries being present. `TimeStepV8` already skips them via `availableDates.find((d) => !d.cutoffPassed)`, so removing them is safe.
+
+---
+
+### Fix 12: Split Oversized `handlers.ts` (Tech Debt)
+
+**Problem:** `src/app/api/webhooks/stripe/handlers.ts` is 529 lines with `/* eslint-disable max-lines */`.
+
+**Fix:** Extract into per-event handler files:
+```
+src/app/api/webhooks/stripe/
+  handlers/
+    index.ts           # Re-exports handler map
+    checkout.ts        # handleCheckoutSessionCompleted
+    expired.ts         # handleCheckoutSessionExpired
+    refund.ts          # handleChargeRefunded, handleRefundUpdated
+  route.ts             # Unchanged -- imports from handlers/
+```
+
+**Modified files:** 1 split into 4-5
+**Risk:** LOW -- pure refactor, barrel re-exports preserve all imports
+
+---
+
+### Fix 13: Integration Tests for Driver Route Lifecycle
+
+**Problem:** No test covers the full sequence: `assigned` -> `accept` -> `start` -> stop transitions -> `complete`.
+
+**Architecture for tests:**
+
+Existing test pattern (from `__tests__/route.test.ts` files): Vitest with mocked Supabase client.
+
+**Test file location:** `src/app/api/driver/routes/__tests__/lifecycle.test.ts`
+
+**Test structure:**
+```typescript
+describe("Driver Route Lifecycle", () => {
+  it("rejects start on assigned route (must accept first)");
+  it("accepts assigned route -> status becomes accepted");
+  it("starts accepted route -> status becomes in_progress, first stop enroute");
+  it("marks stop delivered -> order status updated, next stop promoted");
+  it("completes route -> stats calculated, deliveries incremented");
+  it("rejects double-accept");
+  it("rejects start on already in_progress route");
+});
+```
+
+**Depends on:** Fixes 2, 3, 4, 5 (tests should validate the fixed behavior)
+**New files:** 1 test file
+
+---
+
+## Data Flow Changes
+
+### New RPCs (Migrations)
+
+| RPC | Purpose | Called By | Security |
+|-----|---------|-----------|----------|
+| `increment_driver_deliveries(p_driver_id, p_count)` | Atomically increment `drivers.deliveries_count` | `complete/route.ts` | SECURITY DEFINER |
+| `promote_next_stop(p_route_id)` | Atomically find+promote next pending stop to enroute | `stops/[stopId]/route.ts`, `exception/route.ts` | SECURITY DEFINER |
+
+### Type Regeneration
+
+After both migrations are applied, run `supabase gen types typescript` to update `src/types/database.ts`. This also picks up `delivery_zones` table (existing migration `20260312`).
+
+### Env Vars
+
+| Variable | Purpose | Required For |
+|----------|---------|-------------|
+| `UPSTASH_REDIS_REST_URL` | Upstash REST endpoint | Rate limiting (Fix 9) |
+| `UPSTASH_REDIS_REST_TOKEN` | Upstash REST auth token | Rate limiting (Fix 9) |
+
+---
+
+## Suggested Fix Order (Dependencies)
+
+Fixes fall into three independent tracks that can be parallelized within each track:
+
+### Track A: Database Layer (must go first)
+
+```
+Phase 1: Migrations
+  - increment_driver_deliveries RPC (Fix 5)
+  - promote_next_stop RPC (Fix 3)
+  - Regenerate Supabase types (Fix 8) -- AFTER migrations applied
+
+Rationale: API code changes depend on these RPCs existing.
+Type regeneration must happen after all schema changes.
+```
+
+### Track B: API Correctness (depends on Track A)
+
+```
+Phase 2: Route lifecycle fixes
+  - Route status machine guards (Fix 2) -- critical blocker
+  - Atomic next-stop promotion (Fix 3 API side) -- depends on RPC
+  - Fix updateRouteStats counting (Fix 4) -- replace JS with existing SQL RPC
+  - increment_driver_deliveries call cleanup (Fix 5 API side) -- depends on RPC
+  - Active route customer contact (Fix 6)
+  - Admin lifecycle guard (Fix 2 admin side)
+
+Phase 3: Checkout + timezone fixes
+  - Timezone-safe date construction (Fix 1) -- checkout, COD email, cron
+  - Checkout future date bound (Fix 10)
+  - Pre-filter cutoff-passed dates (Fix 11)
+```
+
+### Track C: Infrastructure + Cleanup (independent)
+
+```
+Phase 4: Infrastructure
+  - Rate limiting restoration (Fix 9) -- requires Upstash provisioning
+  - revalidateTag cleanup (Fix 7) -- trivial
+
+Phase 5: Code quality
+  - Split handlers.ts (Fix 12) -- pure refactor
+  - Integration tests (Fix 13) -- depends on Fixes 2-5 being done
+```
+
+### Dependency Graph
+
+```
+                Fix 5 (RPC migration)
+                Fix 3 (RPC migration)
+                         |
+                Fix 8 (type regen)
+                    /          \
+          Fix 3 (API)    Fix 5 (API)
+          Fix 4 (API)    Fix 6 (API)
+          Fix 2 (API)
+               |
+          Fix 13 (tests) -- validates all route fixes
+
+  Fix 1 (timezone) -- independent
+  Fix 7 (revalidateTag) -- independent
+  Fix 9 (rate limit) -- independent (infra provisioning)
+  Fix 10 (date bound) -- independent
+  Fix 11 (cutoff filter) -- independent
+  Fix 12 (split handlers) -- independent
 ```
 
 ---
 
 ## Anti-Patterns to Avoid
 
-### Anti-Pattern 1: TanStack Query for Driver Route
-**What:** Converting driver route from SSR to client-side data fetching.
-**Why bad:** Breaks offline-first caching. Adds loading spinners. Confuses non-technical drivers. SSR + service worker is simpler and more reliable.
-**Instead:** Keep SSR. Use `router.refresh()` after mutations.
+### Anti-Pattern 1: JS Reimplementation of SQL Logic
+**What:** `updateRouteStats` in JS duplicates the SQL `update_route_stats` RPC with a different formula (counts `enroute` as `pending`).
+**Why bad:** Logic divergence between application and database layer. The SQL version is already used by `split_route` and `merge_routes`.
+**Instead:** Always call the SQL RPC. Single source of truth in the database.
 
-### Anti-Pattern 2: Custom Drag-and-Drop Implementation
-**What:** Building drag-and-drop from scratch with pointer events.
-**Why bad:** Accessibility (keyboard, screen reader), touch (scroll vs drag), scroll containers all need handling. 400-line file limit makes single-file implementation impractical.
-**Instead:** Use `@dnd-kit/core` + `@dnd-kit/sortable`. Tree-shakeable (~12KB gzipped total), accessible, touch-friendly.
+### Anti-Pattern 2: Swallowing RPC Errors with "Might Not Exist"
+**What:** `try { await supabase.rpc(...) } catch { // might not exist }`
+**Why bad:** Silently hides all errors, not just "function not found." Once the RPC exists, legitimate errors (wrong params, constraint violations) are swallowed too.
+**Instead:** Create the RPC via migration. Remove the defensive try/catch (or keep it but log at `warn` level for operational visibility).
 
-### Anti-Pattern 3: Separate Mobile Admin Pages
-**What:** Creating `/admin/m/` routes with mobile-specific pages.
-**Why bad:** Doubles maintenance surface. Same data, same APIs, just different viewport.
-**Instead:** Make existing pages responsive. AdminResponsiveShell handles navigation. Tailwind `md:` classes handle layout.
+### Anti-Pattern 3: Inline `getTodayInTimezone()` Per File
+**What:** `active/route.ts` defines its own `getTodayInTimezone()`. Cron uses `new Date().toISOString().split("T")[0]`.
+**Why bad:** Inconsistent timezone handling. Each file can independently get it wrong.
+**Instead:** Export `getLAToday()` from `delivery-timezone.ts`. All consumers import from one place.
 
-### Anti-Pattern 4: Realtime Subscriptions for Route Updates
-**What:** Using Supabase Realtime for live route stop updates during driver execution.
-**Why bad:** v1.9 decision: 5s polling is indistinguishable at 20-50 orders. Realtime adds connection management. Admin already polls ops dashboard.
-**Instead:** `router.refresh()` for driver. `invalidateQueries()` for admin.
-
-### Anti-Pattern 5: Route Split/Merge as Client-Side Logic
-**What:** Splitting/merging routes with multiple sequential API calls from the client.
-**Why bad:** Partial failures leave routes in inconsistent state: stop_index gaps, orphaned stops, duplicate assignments.
-**Instead:** Single API endpoint per operation. Server handles transactionally.
-
-### Anti-Pattern 6: Expanding Route Detail API Response Everywhere
-**What:** Adding full order items/modifiers to the route LIST endpoint.
-**Why bad:** Route list shows 5-10 routes with 5-10 stops each. Full item data is 5-10x payload.
-**Instead:** Only expand the route DETAIL endpoint (`GET /api/admin/routes/[id]`). List endpoint keeps summary data (item count, total).
-
----
-
-## Split/Merge Route Architecture
-
-### Route Split
-```
-POST /api/admin/routes/[id]/split
-Body: { stopIds: string[], driverId?: string }
-
-Server (single transaction):
-1. Validate route status === 'planned' (reject in_progress/completed)
-2. Validate all stopIds belong to this route
-3. Create new route (same delivery_date, optional driverId)
-4. UPDATE route_stops SET route_id = newRouteId WHERE id IN (stopIds)
-5. reindex_route_stops(originalRouteId)
-6. reindex_route_stops(newRouteId)
-7. update_route_stats(originalRouteId)
-8. update_route_stats(newRouteId)
-9. Return { originalRouteId, newRouteId, movedStopCount }
-```
-
-### Route Merge
-```
-POST /api/admin/routes/[id]/merge
-Body: { sourceRouteId: string }
-
-Server (single transaction):
-1. Validate BOTH routes status === 'planned'
-2. Get max stop_index of target route
-3. UPDATE source stops: SET route_id = targetId, stop_index += (maxIndex + 1)
-4. DELETE source route (now empty, cascade-safe)
-5. reindex_route_stops(targetRouteId)
-6. update_route_stats(targetRouteId)
-7. Return { mergedRouteId, stopsAdded }
-```
-
----
-
-## Order Detail Completeness Architecture
-
-### Current Route Detail API Response (Per Stop)
-
-The `GET /api/admin/routes/[id]` currently returns:
-- `order.totalCents`, `order.specialInstructions`, `order.status`
-- `order.itemCount` (computed: `order_items.reduce(sum, quantity)` -- NOT item details)
-- `order.customer.id, fullName, phone` (missing: email)
-- `order.address.*` (full address with lat/lng)
-- `order.deliveryWindowStart, deliveryWindowEnd`
-
-### What to Add (API SELECT Expansion Only)
-
-```sql
--- Current order_items join:
-order_items (quantity)
-
--- Expand to:
-order_items (
-  id,
-  name_snapshot,
-  base_price_snapshot,
-  quantity,
-  line_total_cents,
-  special_instructions,
-  order_item_modifiers (
-    name_snapshot,
-    price_delta_snapshot
-  )
-)
-```
-
-Also expand the orders SELECT:
-```sql
--- Add these fields (already in schema, just not selected):
-subtotal_cents,
-delivery_fee_cents,
-tax_cents,
-tip_cents,
-discount_cents,
-delivery_instructions,
-stripe_payment_intent_id,
-placed_at,
-confirmed_at,
-delivered_at
-```
-
-And expand profile join:
-```sql
--- Add email to customer profile select:
-profiles!orders_user_id_fkey (id, full_name, phone, email)
-```
-
-### OrderDetailPanel TypeScript Interface
-
-```typescript
-interface OrderDetailData {
-  id: string;
-  status: string;
-  totalCents: number;
-  subtotalCents: number;
-  deliveryFeeCents: number;
-  taxCents: number;
-  tipCents: number;
-  discountCents: number;
-  specialInstructions: string | null;
-  deliveryInstructions: string | null;
-  stripePaymentIntentId: string | null; // null = COD
-  placedAt: string;
-  confirmedAt: string | null;
-  deliveredAt: string | null;
-  customer: {
-    id: string;
-    fullName: string | null;
-    phone: string | null;
-    email: string | null;
-  };
-  address: {
-    line1: string;
-    line2: string | null;
-    city: string;
-    state: string;
-    postalCode: string;
-    lat: number | null;
-    lng: number | null;
-  };
-  items: {
-    id: string;
-    nameSnapshot: string;
-    quantity: number;
-    lineTotalCents: number;
-    specialInstructions: string | null;
-    modifiers: {
-      nameSnapshot: string;
-      priceDeltaSnapshot: number;
-    }[];
-  }[];
-}
-```
-
-**No schema changes. Just expanding the SELECT in the existing route detail API and adding a new UI component.**
-
----
-
-## Admin Mobile UX Architecture
-
-### Pages Requiring Mobile Audit
-
-| Page | Current State | Mobile Fix |
-|------|--------------|------------|
-| `/admin` (dashboard) | Grid stat cards | Likely already responsive |
-| `/admin/ops` | OpsCenter with counts + order table | Table needs horizontal scroll or card view |
-| `/admin/orders` | Order table | Card view on mobile, table on desktop |
-| `/admin/orders/[id]` | Detail view with sidebar info | Stack columns vertically |
-| `/admin/routes` | Route list + stats cards | Stack cards, list below |
-| `/admin/routes/[id]` | Route detail + map + stop list | Full-width stops, collapsible map |
-| `/admin/routes/new` | Route builder with map + order panel | Sheet-based order selection on mobile |
-| `/admin/drivers` | Driver list with stats | Card view on mobile |
-| `/admin/settings` | Form | Already single-column |
-| `/admin/emails` | Email log table | Card view on mobile |
-| `/admin/feedback` | Feedback list | Card view on mobile |
-
-### Mobile Navigation (AdminMobileNav)
-
-Bottom tab bar: 5 items max for thumb reach.
-```
-1. Dashboard (LayoutDashboard)
-2. Ops (Activity)
-3. Orders (ClipboardList)
-4. Routes (Route)
-5. More... (Menu) -> opens sheet with remaining links
-```
-
-The "More" sheet contains: Drivers, Menu, Categories, Photos, Sections, Analytics, Feedback, Settings, Sign Out.
-
-### Responsive Breakpoint Strategy
-- `< md` (768px): Mobile layout, bottom nav, stacked content, card views for tables
-- `>= md`: Desktop layout, sidebar nav, side-by-side content, table views
-- Use Tailwind `md:` prefix consistently. No custom breakpoints.
-- Admin pages should use `px-4 md:px-8` for edge spacing.
-
----
-
-## Auth Routing Fix Architecture
-
-### Current Bug
-
-Auth callback has `next` param support but `getRoleDashboard()` always overrides it with role-based paths (`/admin`, `/driver`, `/menu`). When admin clicks a link like `/admin/routes/abc123` while logged out, the flow is:
-1. Redirect to `/login?next=/admin/routes/abc123`
-2. Login succeeds, callback gets `next=/admin/routes/abc123`
-3. But `getRoleDashboard()` returns `{ path: '/admin' }` and callback uses that
-4. Admin lands on `/admin` instead of `/admin/routes/abc123`
-
-### Fix (Minimal, Safe)
-
-In auth callback, after role resolution, check if `next` param is within the user's authorized prefix:
-
-```typescript
-// In auth/callback/route.ts, after getting roleResult:
-const rolePrefixes: Record<string, string> = {
-  admin: '/admin',
-  driver: '/driver',
-  customer: '/menu',
-};
-const prefix = rolePrefixes[roleResult.role] ?? '/';
-// Use next param if it's within the user's authorized area
-const finalPath = (next !== '/' && isSafeRedirect(next) && next.startsWith(prefix))
-  ? next
-  : roleResult.path;
-```
-
-This is ~5 lines of code. No other files need to change.
-
----
-
-## New Dependency Assessment
-
-| Package | Purpose | Bundle Impact | Justification |
-|---------|---------|---------------|---------------|
-| `@dnd-kit/core` | Drag-and-drop primitives | ~8KB gzipped | Admin route editor + driver stop reorder. Accessible, touch-friendly. |
-| `@dnd-kit/sortable` | Sortable list preset | ~3KB gzipped | SortableContext for stop lists. |
-| `@dnd-kit/utilities` | CSS transform utilities | ~1KB gzipped | Required by sortable. |
-
-**Total new bundle: ~12KB gzipped.** Acceptable for the functionality gained. Dynamic import for both admin and driver route pages to avoid loading on unrelated pages.
-
-**No other new dependencies.** Everything else uses existing stack: TanStack Query (admin mutations), Zustand (client state), Framer Motion (animations), Leaflet (maps).
+### Anti-Pattern 4: SELECT Then UPDATE Without Lock
+**What:** `stops/[stopId]/route.ts` finds next pending stop via SELECT, then UPDATE it separately.
+**Why bad:** Race condition when two requests execute concurrently.
+**Instead:** Use atomic RPC with `FOR UPDATE SKIP LOCKED` or single UPDATE ... WHERE ... RETURNING.
 
 ---
 
 ## Scalability Considerations
 
-| Concern | At 20 orders (current) | At 100 orders | At 500 orders |
-|---------|----------------------|---------------|---------------|
-| Route detail query | Single query with 3-level joins, fast | Same, Postgres handles it | Add pagination to stops list |
-| Stop reorder | batch_update_stop_indices handles 50+ stops | Same, batch is efficient | Same |
-| Order detail expansion | +2 joins (items, modifiers), ~50 items max | Same | Lazy-load item details on expand |
-| Photo uploads | 5MB per stop, Supabase Storage | Same | Add client-side compression |
-| Admin mobile | All data fits in viewport | Virtual scroll for order lists | Server-side pagination |
-| Drag-and-drop | 10 stops per route | 30 stops, fine | Virtualized drag list |
-
----
-
-## Build Order (Dependency-Aware)
-
-```
-Phase 1: Auth Fix + Admin Mobile Shell (Foundation)
-  - Auth callback next param fix (standalone, ~5 lines)
-  - AdminResponsiveShell + AdminMobileNav (layout-only)
-  - AdminNav responsive hiding (add hidden md:flex)
-  - Mobile audit of admin pages (CSS-only Tailwind changes)
-  Dependencies: None. Enables all subsequent phases to be mobile-friendly.
-
-Phase 2: Order Detail Completeness (Data Foundation)
-  - Expand route detail API response (backend SELECT changes)
-  - Update RouteDetailRow type
-  - OrderDetailPanel component + sub-components
-  - Wire into RouteDetailClient (expandable per-stop)
-  Dependencies: None. Needed by Phase 3 and Phase 4.
-
-Phase 3: Admin Route Editing (Admin Feature)
-  - Install @dnd-kit/*
-  - DragReorderList component
-  - RouteEditor + EditToolbar components
-  - Split/merge API endpoints
-  - Wire into RouteDetailClient with edit mode toggle
-  - Optimize button wiring (API exists, just add UI trigger)
-  Dependencies: Phase 2 (OrderDetailPanel shown in edit mode).
-
-Phase 4: Driver Route Execution (Driver Feature)
-  - DriverStopActions component
-  - Modify ActiveRouteView to show per-stop actions
-  - Wire StopCard onClick to stop detail page
-  - StopDetailView with full order info + actions + photo + navigation
-  - Driver stop reorder API + DriverStopReorder component
-  - Audit SimpleStopView for completeness
-  - Audit all driver pages end-to-end (profile, earnings, history, schedule)
-  Dependencies: Phase 2 (OrderDetailPanel reused in stop detail).
-
-Phase 5: Manual Tracking + Photo Proof (Integration)
-  - Verify customer tracking page reads stop status updates
-  - Photo proof visibility in admin route detail (already in API, wire to UI)
-  - Photo proof in customer tracking (if not already shown)
-  - Email updates with delivery status (verify existing email templates)
-  Dependencies: Phase 4 (driver must be updating statuses).
-```
-
-**Rationale:**
-- Phase 1 is pure infrastructure with zero feature risk
-- Phase 2 provides the data layer both admin and driver features need
-- Phase 3 and Phase 4 are independent of each other (could parallelize)
-- Phase 5 is mostly verification that existing pieces connect properly
+| Concern | Current (20-50 orders) | At Scale |
+|---------|----------------------|----------|
+| Rate limiting | In-memory per-instance is fine | Distributed Redis required |
+| Stop promotion race | Unlikely with 1-2 drivers | Guaranteed with concurrent drivers |
+| `updateRouteStats` JS | Works but wrong count | SQL RPC is faster and correct |
+| Signed URL generation | 10 parallel calls per route view | Batch or cache needed at 50+ stops |
+| Business rules cache | 5-min stale window acceptable | Multi-instance stale window may need Vercel data cache |
 
 ---
 
 ## Sources
 
-- Direct codebase analysis of all files referenced above (HIGH confidence)
-- Database schema: `supabase/migrations/001_schema.sql`, `20260312_route_pipeline_hardening.sql`, `20260313_fix_stop_index_unique_deferrable.sql`
-- Existing API contracts: `src/app/api/admin/routes/`, `src/app/api/driver/routes/`
-- Existing components: `src/components/ui/admin/routes/`, `src/components/ui/driver/`
-- Auth flow: `src/app/auth/callback/route.ts`, `src/lib/auth/role-redirect.ts`
-- @dnd-kit bundle size: published package sizes on npm (HIGH confidence, well-known library)
+- All findings verified against source code in the repository
+- `check_route_completion` trigger: `supabase/migrations/20260312_route_pipeline_hardening.sql`
+- `update_route_stats` SQL RPC: same migration file
+- `split_route`/`merge_routes` RPCs: `supabase/migrations/20260316_route_rpc_status_update.sql`
+- `calculate_driver_streak` RPC: `supabase/migrations/021_driver_gamification.sql`
+- Driver UI status handling: `src/app/(driver)/driver/route/DriverRouteSwitch.tsx`
+- Rate limit architecture: `src/lib/rate-limit/check.ts`, `config.ts`, `client.ts`
+
+---
+
+*Architecture analysis: 2026-03-19*
