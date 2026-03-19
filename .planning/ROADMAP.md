@@ -5,6 +5,7 @@
 - v1.0-v1.9: Shipped (88 phases, 350 plans)
 - v2.0 Production-Grade Launch MVP: Shipped (10 phases, 34 plans)
 - v2.1 Route Operations & Admin Mobile: Shipped (5 phases, 22 plans)
+- v2.2 Stability & Correctness: In progress (6 phases, 104-109)
 
 ## Phases
 
@@ -84,7 +85,95 @@
 
 </details>
 
+### v2.2 Stability & Correctness (In Progress)
+
+**Milestone Goal:** Fix all critical bugs and correctness issues found in codebase deep dive -- driver route lifecycle blockers, checkout delivery window discrepancies, timezone bugs, missing RPCs, broken rate limiting, race conditions, and test coverage gaps.
+
+- [ ] **Phase 104: Type Safety & API Corrections** - Regenerate types, fix trivial API bugs, establish correct foundation for subsequent phases
+- [ ] **Phase 105: Route Lifecycle Guards** - Fix driver route start blocker and admin override bypass
+- [ ] **Phase 106: Timezone Correctness** - Batch-fix all timezone bugs across checkout, email, cron, and date filtering
+- [ ] **Phase 107: Data Integrity** - Atomic stop promotion RPC and dead code removal
+- [ ] **Phase 108: Rate Limiting Restoration** - Provision Upstash REST Redis and restore all 13 rate limiters
+- [ ] **Phase 109: Quality & Maintenance** - Integration tests for route lifecycle, webhook handler file split
+
+## Phase Details
+
+### Phase 104: Type Safety & API Corrections
+**Goal**: All Supabase types are accurate and trivial API bugs are eliminated -- subsequent phases build on correct types
+**Depends on**: Nothing (first phase)
+**Requirements**: INFRA-02, API-01, API-02, ROUTE-02
+**Success Criteria** (what must be TRUE):
+  1. `npx supabase gen types` output includes `delivery_zones` table and all `as any` casts referencing it are removed
+  2. Driver active route API returns `customer_name` and `customer_phone` for every stop -- COD customers' contact info is visible
+  3. `revalidateTag` calls across the codebase have no invalid second argument -- zero runtime warnings in server logs
+  4. Admin ops dashboard shows correct in-progress count when a route has `enroute` stops (not counted as pending)
+**Plans**: TBD
+
+### Phase 105: Route Lifecycle Guards
+**Goal**: Drivers can start and proceed through assigned routes, and admins cannot bypass lifecycle states
+**Depends on**: Phase 104 (accurate types needed for route status type narrowing)
+**Requirements**: ROUTE-01, ROUTE-03
+**Success Criteria** (what must be TRUE):
+  1. Driver sees "Accept Route" button for routes in `assigned` status -- tapping it transitions to `accepted`, not a 400 error
+  2. Driver sees "Start Route" button only after accepting -- the start action transitions `accepted` to `in_progress`
+  3. Admin route status override dropdown excludes states that violate lifecycle (cannot set `in_progress` without driver acceptance)
+  4. Manual admin overrides are logged with timestamp and previous state for audit trail
+**Plans**: TBD
+
+### Phase 106: Timezone Correctness
+**Goal**: All date/time operations use LA timezone consistently -- customers see correct delivery windows, reminders fire on the right day, checkout rejects stale or far-future dates
+**Depends on**: Phase 104 (clean types prevent masking timezone issues)
+**Requirements**: TZ-01, TZ-02, TZ-03, TZ-04, TZ-05
+**Success Criteria** (what must be TRUE):
+  1. Checkout `scheduledDate` is constructed via `toISOWithTimezone` -- no raw `new Date(date + "T12:00:00")` string concatenation
+  2. COD confirmation email shows delivery window with timezone offset (e.g., "10:00 AM - 6:00 PM PST") matching Stripe checkout path
+  3. Delivery reminder cron at 12:00 UTC sends reminders for LA-date orders, not UTC-date orders -- correct between midnight UTC and 8AM LA
+  4. Customer date picker shows only future dates with cutoff not yet passed -- no stale "today" slot when cutoff has elapsed
+  5. Checkout API returns 400 for `scheduledDate` more than 30 days in the future
+**Plans**: TBD
+
+### Phase 107: Data Integrity
+**Goal**: Route stop promotion is race-free and driver delivery counts are accurate
+**Depends on**: Phase 105 (route lifecycle must be correct before fixing stop transitions within routes)
+**Requirements**: DATA-01, DATA-02
+**Success Criteria** (what must be TRUE):
+  1. Completing two stops in rapid succession (< 500ms apart) never promotes the same next stop twice -- atomic `FOR UPDATE SKIP LOCKED` prevents double-promotion
+  2. `complete/route` endpoint does not call `increment_driver_deliveries` RPC -- the existing `update_driver_deliveries_count` trigger handles counts per stop, preventing double-counting
+**Plans**: TBD
+
+### Phase 108: Rate Limiting Restoration
+**Goal**: All API endpoints have functional distributed rate limiting -- no more null rate limiters
+**Depends on**: Phase 104 (type safety), independent of Phases 105-107
+**Requirements**: INFRA-01
+**Success Criteria** (what must be TRUE):
+  1. Upstash REST Redis is provisioned and `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` env vars are set
+  2. All 13 `Ratelimit` constructors in `client.ts` return functional instances (not null)
+  3. Exceeding rate limit on any endpoint returns 429 with appropriate `Retry-After` header
+**Plans**: TBD
+
+### Phase 109: Quality & Maintenance
+**Goal**: Route lifecycle has integration test coverage and webhook handler file meets ESLint size limit
+**Depends on**: Phase 105 (lifecycle must be final), Phase 107 (stop promotion must be final)
+**Requirements**: QUAL-01, QUAL-02
+**Success Criteria** (what must be TRUE):
+  1. Integration test suite covers full route lifecycle: `assigned` -> accept -> start -> stop arrive -> stop deliver -> next-stop promoted -> route complete -- all assertions pass
+  2. `handlers.ts` is split into per-event-type handler files, each under 400 lines, with barrel re-export preserving the existing import contract
+  3. `pnpm test` passes with zero failures including the new integration tests
+**Plans**: TBD
+
 ## Progress
+
+**Execution Order:**
+Phases execute in numeric order: 104 -> 105 -> 106 -> 107 -> 108 -> 109
+
+| Phase | Plans Complete | Status | Completed |
+|-------|----------------|--------|-----------|
+| 104. Type Safety & API Corrections | 0/TBD | Not started | - |
+| 105. Route Lifecycle Guards | 0/TBD | Not started | - |
+| 106. Timezone Correctness | 0/TBD | Not started | - |
+| 107. Data Integrity | 0/TBD | Not started | - |
+| 108. Rate Limiting Restoration | 0/TBD | Not started | - |
+| 109. Quality & Maintenance | 0/TBD | Not started | - |
 
 | Milestone              | Phases  | Plans | Shipped    |
 | ---------------------- | ------- | ----- | ---------- |
@@ -100,6 +189,7 @@
 | v1.9 Launch-Ready MVP  | 77-88   | 38    | 2026-03-03 |
 | v2.0 Launch MVP        | 89-98   | 34    | 2026-03-04 |
 | v2.1 Route Ops & Mobile| 99-103  | 22    | 2026-03-17 |
+| v2.2 Stability         | 104-109 | TBD   | -          |
 | **Total shipped**      | **103** | **406** |          |
 
 ---
