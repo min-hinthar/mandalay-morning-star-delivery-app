@@ -1,285 +1,239 @@
 # Codebase Structure
 
-**Analysis Date:** 2026-03-18
+**Analysis Date:** 2026-03-19
 
 ## Directory Layout
 
 ```
 project-root/
 ├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── (admin)/admin/      # Admin dashboard (role-gated)
-│   │   ├── (auth)/login/       # Login page
-│   │   ├── (customer)/         # Customer UX (auth required)
-│   │   ├── (driver)/driver/    # Driver mobile interface (auth + driver record)
-│   │   ├── (public)/           # Homepage, menu, public pages
-│   │   ├── api/                # API Route Handlers
-│   │   ├── providers.tsx        # Root client providers
-│   │   ├── layout.tsx           # Root layout (fonts, PWA, analytics)
-│   │   └── globals.css          # Tailwind v4 global styles + @theme tokens
+│   ├── app/                         # Next.js App Router
+│   │   ├── (admin)/admin/           # Admin dashboard portal
+│   │   ├── (auth)/login/            # Shared login page
+│   │   ├── (customer)/              # Customer-facing pages
+│   │   ├── (driver)/driver/         # Driver mobile interface
+│   │   ├── (public)/                # Public pages + driver onboard
+│   │   ├── api/                     # API route handlers
+│   │   ├── layout.tsx               # Root layout (fonts, providers)
+│   │   ├── providers.tsx            # Client providers (Query, Motion, Theme)
+│   │   └── globals.css              # Global styles + Tailwind v4 @theme
 │   ├── components/
-│   │   ├── providers/          # DomMaxProvider (viewport utility)
-│   │   └── ui/                 # All React components (70+)
-│   ├── emails/                 # React Email templates
+│   │   └── ui/                      # 70+ UI components
+│   ├── emails/                      # React Email templates
 │   ├── lib/
-│   │   ├── auth/               # requireAdmin, requireDriver, getRoleDashboard
-│   │   ├── design-system/      # Design tokens (z-index, motion)
-│   │   ├── email/              # Email send/build utilities
-│   │   ├── gsap/               # GSAP animation presets
-│   │   ├── health/             # /api/health checks
-│   │   ├── hooks/              # 30+ custom React hooks
-│   │   ├── micro-interactions/ # Button/card animation patterns
-│   │   ├── motion-tokens/      # Framer Motion token library
-│   │   ├── providers/          # QueryProvider, AnimationProvider
-│   │   ├── queries/            # Supabase direct query helpers
-│   │   ├── rate-limit/         # Upstash rate limiter wrappers
-│   │   ├── search/             # Fuzzy search utilities
-│   │   ├── services/           # External integrations, offline store
-│   │   ├── settings/           # Business rules cache + time windows
-│   │   ├── stores/             # Zustand stores
-│   │   ├── stripe/             # Stripe server + promo utilities
-│   │   ├── supabase/           # Supabase client factory + Server Actions
-│   │   ├── swipe-gestures/     # Touch gesture hooks
-│   │   ├── utils/              # Pure utility functions
-│   │   ├── validations/        # Zod schemas
-│   │   └── validators/         # Coverage validator
-│   └── types/                  # TypeScript definitions (DB + domain)
+│   │   ├── auth/                    # Role-based auth guards
+│   │   ├── constants/               # Kitchen coords, etc.
+│   │   ├── hooks/                   # 30+ custom React hooks
+│   │   ├── providers/               # QueryProvider, AnimationProvider
+│   │   ├── queries/                 # TanStack Query definitions
+│   │   ├── rate-limit/              # Rate limiter instances
+│   │   ├── services/                # Business logic services
+│   │   ├── settings/                # BusinessRules cache
+│   │   ├── stores/                  # Zustand state stores
+│   │   ├── stripe/                  # Stripe client + promo
+│   │   ├── supabase/                # Supabase client factories
+│   │   ├── utils/                   # Pure utility functions
+│   │   └── validations/             # Zod schemas
+│   └── types/                       # Shared TypeScript types
 ├── supabase/
-│   └── migrations/             # SQL migration files
-├── e2e/                        # Playwright tests
-├── data/                       # Menu seed YAML
-├── docs/                       # Architecture guides
-├── scripts/                    # Build scripts (build-sw.mjs)
-├── public/                     # Static assets, icons, manifest.json
-├── middleware.ts                # Next.js middleware (session refresh)
-└── .planning/                  # GSD planning artifacts
+│   └── migrations/                  # 50+ SQL migration files
+├── e2e/                             # Playwright tests
+├── data/                            # Menu seed YAML
+├── docs/                            # Architecture guides
+├── scripts/                         # build-sw.mjs (PWA service worker)
+└── .planning/                       # GSD planning files
 ```
 
 ## Directory Purposes
 
 **`src/app/(admin)/admin/`:**
-- Purpose: Admin dashboard pages and co-located sibling components
-- Key files: `layout.tsx` (auth guard), `page.tsx` (dashboard), per-section subdirs
-- Pattern: `page.tsx` + sibling `SectionNameComponent.tsx` files (NOT barrel exports)
+- Purpose: Admin dashboard for managing orders, routes, drivers, menu, settings
+- Contains: Server pages + co-located Client components per section
+- Key files: `admin/routes/new/page.tsx`, `admin/ops/OpsCenter.tsx`, `admin/orders/[id]/page.tsx`, `admin/settings/page.tsx`
 
 **`src/app/(customer)/`:**
-- Purpose: Authenticated customer UX — cart, checkout, orders, account
-- Key files: `layout.tsx` (auth + business rules), `CustomerShell.tsx` (Zustand seed)
-- Pages: `cart/`, `checkout/`, `orders/[id]/`, `account/`
+- Purpose: Customer shopping experience
+- Contains: Menu browsing, cart, checkout flow, order history, order tracking
+- Key files: `checkout/page.tsx`, `checkout/CheckoutClient.tsx`, `orders/[id]/tracking/page.tsx`, `CustomerShell.tsx`
 
 **`src/app/(driver)/driver/`:**
-- Purpose: Driver mobile-first interface
-- Key files: `layout.tsx` (driver auth + active check), `DriverHomeSwitch.tsx`
-- Pages: `route/`, `route/[stopId]/`, `schedule/`, `earnings/`, `history/`, `profile/`
-
-**`src/app/(public)/`:**
-- Purpose: Unauthenticated pages
-- Key files: `page.tsx` (homepage), `menu/page.tsx`, `PublicShell.tsx`
+- Purpose: Driver mobile PWA interface
+- Contains: Route execution, stop management, earnings, schedule, profile
+- Key files: `route/page.tsx`, `route/DriverRouteSwitch.tsx`, `route/[stopId]/page.tsx`, `schedule/SchedulePageClient.tsx`
 
 **`src/app/api/`:**
-- Purpose: All API Route Handlers
-- Structure mirrors URL path: `api/admin/routes/[id]/stops/route.ts`
-- Co-located files: `route.ts`, `types.ts`, `schemas.ts`, `helpers.ts`, `validation.ts`
+- Purpose: All backend API endpoints
+- Contains: Route handlers, co-located types/schemas/helpers
+- Key subtrees: `api/checkout/session/`, `api/admin/routes/`, `api/driver/routes/`, `api/tracking/`, `api/webhooks/stripe/`, `api/cron/`
 
-**`src/components/ui/`:**
-- Purpose: All React UI components organized by domain
-- Subdirs: `admin/`, `account/`, `auth/`, `cart/`, `checkout/`, `driver/`, `layout/`, `menu/`, `orders/`, `offline/`, `search/`, `theme/`, etc.
-- Complex components use subfolder pattern with barrel
-
-**`src/emails/`:**
-- Purpose: React Email templates rendered server-side and sent via Resend
-- Templates: `OrderConfirmation`, `AdminNewOrderAlert`, `DriverInvite`, `RefundNotification`, `OrderCancellation`, `DeliveryReminder`, `AdminDailyDigest`, `AdminFeedbackAlert`, `FeedbackConfirmation`, `RouteDeclineAlert`
-- Shared components in `src/emails/components/`
-
-**`src/lib/hooks/`:**
-- Purpose: 30+ custom hooks for all business logic in client components
-- Examples: `useMenu.ts`, `useCart.ts`, `useDeliveryGate.ts`, `useTrackingSubscription.ts`, `useAcceptRoute.ts`, `useMergeRoutes.ts`, `useReorderStops.ts`
-- Tests co-located in `__tests__/`
+**`src/lib/auth/`:**
+- Purpose: Role-based auth guards for API routes
+- Contains: `admin.ts`, `driver.ts`, `role-redirect.ts`
+- Key files: `src/lib/auth/admin.ts` — `requireAdmin()`, `src/lib/auth/driver.ts` — `requireDriver()`
 
 **`src/lib/services/`:**
-- Purpose: Server-side external service integrations
-- `coverage.ts` — Google Routes API v2 coverage check
-- `geocoding.ts` — Google Geocoding API
-- `route-optimization/` — TSP optimizer (Google + nearest-neighbor fallback)
-- `offline-store/` — Driver IndexedDB (db.ts, stores.ts, sync.ts, retry.ts)
-- `cart-idb-storage.ts` — Cart IndexedDB adapter
+- Purpose: Reusable server-side business logic
+- Contains: `cod-order.ts`, `coverage.ts`, `geocoding.ts`, `route-optimization/`
+- Key files: `src/lib/services/cod-order.ts` — COD order creation, `src/lib/services/route-optimization/optimizer.ts` — Google Routes API + fallback
+
+**`src/lib/settings/`:**
+- Purpose: Cached business rules from DB
+- Contains: `business-rules.ts`, `generate-time-windows.ts`, `index.ts`
+- Key files: `src/lib/settings/business-rules.ts` — `getBusinessRules()` with 5-min unstable_cache
 
 **`src/lib/stores/`:**
-- Purpose: Zustand global state stores
-- `cart-store.ts` — cart items + delivery fee settings (IDB persist)
-- `checkout-store.ts` — multi-step checkout state (sessionStorage persist)
-- `driver-store.ts` — driver route/location state (localStorage persist)
-- `cart-animation-store.ts` — add-to-cart animation trigger state
+- Purpose: Client-side Zustand state
+- Contains: `cart-store.ts`, `checkout-store.ts`, `driver-store.ts`, `cart-animation-store.ts`
 
 **`src/lib/utils/`:**
-- Purpose: Pure utility functions (no React, no Supabase)
-- Key: `delivery-dates.ts` (timezone-safe date math), `delivery-zones.ts` (bearing/zone logic), `order.ts` (price calculations), `format.ts`, `currency.ts`, `price.ts`, `eta.ts`
+- Purpose: Pure functions with no side effects
+- Contains: `delivery-dates.ts`, `delivery-zones.ts`, `delivery-timezone.ts`, `eta.ts`, `order.ts`, `route-transformers.ts`, `logger.ts`, `origin-check.ts`
 
 **`src/lib/validations/`:**
-- Purpose: Zod schemas used in both client forms and server API parsing
-- Files: `checkout.ts`, `order.ts`, `address.ts`, `route.ts`, `driver.ts`, `driver-api.ts`, `account.ts`, `settings.ts`, `analytics.ts`, `tracking.ts`
+- Purpose: Zod schemas for API input validation
+- Key files: `checkout.ts` (`createCheckoutSessionSchema`), `route.ts` (`createRouteSchema`, `addStopsSchema`), `driver-api.ts` (`updateStopStatusSchema`, `isValidStatusTransition`)
 
 **`src/types/`:**
-- Purpose: TypeScript type definitions — exempt from 400-line rule
-- `database.ts` — auto-generated Supabase types (Row, Insert, Update for every table + enums)
-- `order.ts` — `Order`, `OrderStatus`, `ORDER_STATUS_LABELS`, `ORDER_STATUS_COLORS`
-- `delivery.ts` — `DeliveryDayConfig`, `DeliveryZoneConfig`, `DeliveryDirection`, `TIMEZONE`
-- `cart.ts` — `CartItem`, `CartStore`, `SelectedModifier`
-- `checkout.ts` — `CheckoutState`, `CheckoutStep`
-- `driver.ts` — `DriversRow` and driver-specific types
-- `tracking.ts` — Realtime tracking types
+- Purpose: Shared TypeScript definitions — exempt from 400-line limit
+- Key files: `database.ts` (Supabase-generated), `delivery.ts` (`DeliveryDayConfig`, `DeliveryZoneConfig`, `TimeWindow`), `driver.ts` (`RouteStatus`, `RouteStopStatus`), `order.ts` (`OrderStatus`, `Order`), `tracking.ts`
+
+**`src/emails/`:**
+- Purpose: React Email templates for transactional emails
+- Key files: `OrderConfirmation.tsx`, `AdminNewOrderAlert.tsx`, `RefundNotification.tsx`
 
 **`supabase/migrations/`:**
-- Purpose: SQL migrations in chronological order
-- Naming: `YYYYMMDD_description.sql`
+- Purpose: Versioned SQL migrations for schema, RLS, and RPC functions
+- Pattern: Numeric prefix + descriptive name. Recent: `20260316_route_status_enum_extend.sql`, `20260315_route_editing_rpcs.sql`, `20260312_delivery_direction_zones.sql`
 
 ## Key File Locations
 
 **Entry Points:**
-- `src/app/layout.tsx` — root layout, providers, fonts
-- `middleware.ts` — session refresh middleware
-- `src/app/providers.tsx` — client-side provider tree
+- `src/app/layout.tsx` — Root layout, fonts, global providers
+- `src/app/providers.tsx` — Client provider tree (ThemeProvider, QueryProvider, LazyMotion)
+- `src/app/(customer)/checkout/page.tsx` — Checkout SSR entry, loads `BusinessRules`
+- `src/app/(driver)/driver/route/page.tsx` — Driver route SSR entry, loads today's route
+- `src/app/api/checkout/session/route.ts` — Order creation API (both Stripe and COD)
+- `src/app/api/webhooks/stripe/route.ts` + `handlers.ts` — Stripe webhook processing
 
-**Auth:**
-- `src/lib/supabase/middleware.ts` — session refresh + route gating
-- `src/lib/auth/admin.ts` — `requireAdmin()` for API routes
-- `src/lib/auth/driver.ts` — `requireDriver()` for API routes
-- `src/lib/auth/role-redirect.ts` — `getRoleDashboard()`, `ensureProfile()`
-- `src/lib/supabase/actions.ts` — `signInWithMagicLink()`, `signInWithGoogle()` Server Actions
+**Configuration:**
+- `src/app/globals.css` — Tailwind v4 `@theme inline` source of truth for all design tokens
+- `src/lib/settings/business-rules.ts` — Delivery rules cache, DB key → interface mapping
+- `src/types/delivery.ts` — `TIMEZONE` constant (`process.env.DELIVERY_TIMEZONE || "America/Los_Angeles"`)
+- `src/lib/constants/kitchen.ts` — `KITCHEN_COORDS` (Covina CA origin for all distance/bearing calculations)
 
-**Supabase Clients:**
-- `src/lib/supabase/server.ts` — `createClient()` (cookie), `createServiceClient()` (service role), `createPublicClient()`
-- `src/lib/supabase/client.ts` — `createClient()` browser
+**Core Logic:**
+- `src/app/api/checkout/session/route.ts` — Full checkout validation + order creation flow
+- `src/app/api/checkout/session/helpers.ts` — `resolveAddressDistance()`, `sendCODOrderEmail()`
+- `src/app/api/checkout/session/validation.ts` — `fetchAndValidateCart()`, `buildRpcPayload()`
+- `src/app/api/driver/routes/[routeId]/start/route.ts` — Route start + batch order status update
+- `src/app/api/driver/routes/[routeId]/stops/[stopId]/route.ts` — Stop status transitions + order delivered update
+- `src/lib/utils/delivery-dates.ts` — All cutoff and available-date calculations (LA timezone-aware)
+- `src/lib/utils/delivery-zones.ts` — Bearing-based zone matching (`getDirectionsForCoords`)
+- `src/lib/utils/delivery-timezone.ts` — `toISOWithTimezone()` — converts date+time string to LA-offset ISO
+- `src/lib/services/route-optimization/optimizer.ts` — Google Routes API + nearest-neighbor
+- `src/app/api/tracking/[orderId]/route.ts` — Customer tracking: order + route stop + driver + ETA
 
-**Business Logic:**
-- `src/lib/settings/business-rules.ts` — `getBusinessRules()` cached 5 min
-- `src/lib/utils/delivery-dates.ts` — cutoff/date math, `getZonedDayOfWeek()`
-- `src/lib/utils/delivery-zones.ts` — bearing calculation, zone matching
-- `src/lib/services/coverage.ts` — address coverage check
-- `src/lib/utils/order.ts` — `calculateOrderTotals()`, `calculateDeliveryFee()`, `validateCartItems()`
-- `src/lib/services/route-optimization/optimizer.ts` — `optimizeRoute()`
-
-**Webhooks:**
-- `src/app/api/webhooks/stripe/route.ts` — Stripe webhook receiver
-- `src/app/api/webhooks/stripe/handlers.ts` — event handler functions
-
-**Types:**
-- `src/types/database.ts` — all DB types (generated)
-- `src/types/order.ts` — `OrderStatus` enum, `ORDER_STATUS_LABELS`
+**Testing:**
+- `e2e/` — Playwright tests
+- `src/app/api/**/__tests__/` — Vitest unit tests co-located with route handlers
+- `src/lib/**/__tests__/` — Vitest unit tests co-located with utilities
 
 ## Naming Conventions
 
 **Files:**
-- React components: `PascalCase.tsx` (e.g., `CartItem.tsx`, `AdminNav.tsx`)
-- Hooks: `camelCase.ts` with `use` prefix (e.g., `useCart.ts`, `useDeliveryGate.ts`)
-- Utilities: `kebab-case.ts` (e.g., `delivery-dates.ts`, `api-error.ts`)
-- API routes: always `route.ts`
-- Type files: `kebab-case.ts` (e.g., `database.ts`, `delivery.ts`)
-- Test files: `*.test.ts` or `*.test.tsx`
+- `PascalCase.tsx` — React components
+- `camelCase.ts` — Utilities, hooks, services
+- `route.ts` — Next.js API route handler
+- `page.tsx` — Next.js page component
+- `layout.tsx` — Next.js layout
+- `__tests__/` — Test directory co-located with implementation
 
 **Directories:**
-- Route groups: lowercase in parens `(admin)`, `(customer)`, `(driver)`, `(public)`, `(auth)`
-- Component subfolders: `PascalCase/` matching component name
-- Feature subfolders: `kebab-case/` (e.g., `route-optimization/`, `offline-store/`)
+- `kebab-case/` — All directories (route segments, lib subdirs)
+- `[param]/` — Dynamic route segments
+- `(group)/` — Route groups (no URL segment)
+- `ComponentName/` — Component subfolders with barrel `index.tsx`
 
-## File Organization
-
-**400-line rule:** ESLint `max-lines` warning. Exempt: `src/types/**`, test files, Storybook stories.
-
-**When splitting a UI component:**
-```
-ComponentName/
-  index.tsx        # Barrel — re-exports ALL original exports
-  SubPart.tsx      # PascalCase sub-components
-  useHook.ts       # camelCase hooks
-  helpers.ts       # camelCase utilities
-```
-Every extracted file using hooks/events needs `"use client"`. Barrel must re-export ALL original exports.
-
-**Admin page pattern:**
-```
-admin/feature/
-  page.tsx                  # RSC shell
-  FeatureList.tsx           # Client component
-  FeatureDetailPanel.tsx    # Client component
-  loading.tsx               # Suspense fallback
-  error.tsx                 # Error boundary
-```
-
-**API route pattern:**
-```
-api/feature/[id]/
-  route.ts          # Handler (GET/POST/PATCH/DELETE)
-  types.ts          # Local types
-  schemas.ts        # Zod schemas (if complex)
-  helpers.ts        # Extracted logic
-```
+**API Responses:**
+- Success: `{ data: ... }` or `{ success: true, ... }`
+- Error: `{ error: string }` or `{ error: { code, message } }`
+- Paginated: `{ data: [...], pagination: { page, limit, total, totalPages } }`
 
 ## Where to Add New Code
 
-**New API endpoint:**
-- Create `src/app/api/<feature>/route.ts`
-- Add Zod schema to `src/lib/validations/<feature>.ts`
-- Auth guard: call `requireAdmin()` or `requireDriver()` at top of handler
+**New Customer Page:**
+- Implementation: `src/app/(customer)/[route-name]/page.tsx`
+- Client parts: `src/app/(customer)/[route-name]/ComponentName.tsx`
+- Tests: `src/app/(customer)/[route-name]/__tests__/`
 
-**New customer page:**
-- `src/app/(customer)/<page>/page.tsx` — RSC
-- Extract client parts into `<PageName>Client.tsx`
-- Add `loading.tsx` and `error.tsx` siblings
+**New Admin Page:**
+- Implementation: `src/app/(admin)/admin/[route-name]/page.tsx` + co-located sibling components
+- Pattern: page.tsx (RSC) + SiblingComponent.tsx (client)
 
-**New admin page:**
-- `src/app/(admin)/admin/<feature>/page.tsx` — RSC
-- Co-locate `FeatureComponent.tsx` siblings
+**New Driver Page:**
+- Implementation: `src/app/(driver)/driver/[route-name]/page.tsx` + `[PageName]Client.tsx`
+- Pattern: SSR page loads data, hands off to Client component
 
-**New UI component:**
-- Under 400 lines: `src/components/ui/<domain>/ComponentName.tsx`
-- Over 400 lines or complex: `src/components/ui/<domain>/ComponentName/index.tsx` + subfiles
+**New API Route:**
+- Implementation: `src/app/api/[domain]/[resource]/route.ts`
+- Co-locate: `types.ts`, `schemas.ts`, `helpers.ts` in same directory
+- Always start with auth guard: `requireAdmin()` or `requireDriver()`
 
-**New hook:**
-- `src/lib/hooks/useFeatureName.ts`
-- Export from `src/lib/hooks/index.ts` barrel
+**New Business Logic Service:**
+- Implementation: `src/lib/services/[service-name].ts` or `src/lib/services/[service-name]/index.ts`
 
-**New utility function:**
-- Pure logic (no React): `src/lib/utils/<domain>.ts`
-- Business rule: `src/lib/settings/`
+**New Utility Function:**
+- Implementation: `src/lib/utils/[domain].ts`
+- Must be pure — no DB calls, no imports from `@/lib/supabase`
 
-**New Zustand store:**
-- `src/lib/stores/<domain>-store.ts`
-- Decide persist strategy: IDB (cart), sessionStorage (checkout), localStorage (driver), no persist (animation)
+**New Zod Schema:**
+- Implementation: `src/lib/validations/[domain].ts`
 
-**New type:**
-- Domain type: `src/types/<domain>.ts`
-- DB-derived type: add to `src/types/database.ts` (only for manual additions; Row/Insert/Update come from Supabase CLI)
+**New Custom Hook:**
+- Implementation: `src/lib/hooks/use[HookName].ts`
+- Add export to `src/lib/hooks/index.ts`
 
-**New migration:**
-- `supabase/migrations/YYYYMMDD_description.sql`
+**New UI Component (<400 lines):**
+- Implementation: `src/components/ui/[ComponentName].tsx`
 
-**New email template:**
-- `src/emails/TemplateName.tsx`
-- Register send type in `src/lib/email/types.ts`
+**New UI Component (>400 lines or needs subfolder):**
+- Implementation: `src/components/ui/ComponentName/index.tsx` (barrel) + `SubComponent.tsx` + `useHook.ts` + `helpers.ts`
+- Every extracted file with hooks/events needs `'use client'`
+
+**New Database Migration:**
+- Implementation: `supabase/migrations/[YYYYMMDD]_[description].sql`
+- Follow existing pattern for RLS policies and RPC functions
+
+**New Email Template:**
+- Implementation: `src/emails/[TemplateName].tsx`
 
 ## Special Directories
 
 **`.planning/`:**
-- Purpose: GSD planning artifacts (phases, codebase docs, retros)
-- Generated: No
+- Purpose: GSD planning docs, phase plans, codebase maps
+- Generated: Partially (by GSD commands)
 - Committed: Yes
 
+**`.claude/`:**
+- Purpose: Project-specific Claude instructions, learnings, session logs
+- Generated: Partially
+- Committed: Yes
+
+**`.next/`:**
+- Purpose: Next.js build output
+- Generated: Yes
+- Committed: No (`.gitignore`)
+
 **`supabase/migrations/`:**
-- Purpose: Schema history
-- Generated: Partial (Supabase CLI can generate, but hand-edited)
+- Purpose: Source-of-truth for DB schema history
+- Generated: No (manually written)
 - Committed: Yes
 
 **`e2e/`:**
 - Purpose: Playwright end-to-end tests
-- Generated: No
 - Committed: Yes
-
-**`public/`:**
-- Purpose: Static assets — icons, manifest, service worker placeholder
-- `public/icons/` — PWA icons (icon-192.png, etc.)
-- Committed: Yes
+- Run: `pnpm test:e2e`
 
 ---
 
-*Structure analysis: 2026-03-18*
+*Structure analysis: 2026-03-19*
