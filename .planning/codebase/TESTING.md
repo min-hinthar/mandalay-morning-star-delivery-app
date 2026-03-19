@@ -1,235 +1,179 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-03-14
+**Analysis Date:** 2026-03-18
 
 ## Test Framework
 
-**Runner:**
-- Vitest 4.0.17 (unit/integration)
-- Playwright 1.57.0 (E2E)
-- Config: `vitest.config.ts`, `playwright.config.ts`
+**Unit/Integration Runner:**
+- Vitest 4.0.17
+- Config: `vitest.config.ts`
+- Environment: jsdom
+- Globals: enabled (no explicit `import { describe, it, expect }` needed — though files frequently import them explicitly for IDE autocomplete)
 
-**Assertion Library:**
-- Vitest built-in `expect` (jest-compatible API)
-- `@testing-library/jest-dom` for DOM matchers (`toBeVisible`, `toHaveClass`, etc.)
-- Playwright `expect` for E2E assertions
+**Component Testing:**
+- `@testing-library/react` 16.3.1 — `render`, `screen`, `renderHook`, `act`
+- `@testing-library/jest-dom` 6.9.1 — DOM matchers (`toBeInTheDocument`, `toBeVisible`, etc.)
+- `fake-indexeddb` 6.2.5 — auto-loaded in setup for IDB storage in cart store tests
+
+**E2E Runner:**
+- `@playwright/test` 1.57.0
+- Config: `playwright.config.ts`
+- Browsers: Chromium (Desktop Chrome), Mobile Chrome (Pixel 5)
+
+**Visual Regression:**
+- Playwright `toHaveScreenshot` — pixel-diff with `maxDiffPixels: 100`, `threshold: 0.2`
+- Chromatic + Storybook — `chromatic.config.js`, via `pnpm chromatic`
+
+**Accessibility:**
+- `@axe-core/playwright` 4.11.0 — WCAG 2.1 AA, critical/serious violations only
 
 **Run Commands:**
 ```bash
 pnpm test              # Run all unit tests (vitest run)
-pnpm test:ci           # CI mode (bail on first failure, no parallelism)
-pnpm test:e2e          # E2E tests (playwright test)
-pnpm test:e2e:ui       # E2E with interactive UI
-pnpm test:menu         # Single test file (vitest run src/components/menu/__tests__/menu-content.test.tsx)
-pnpm test:a11y         # Accessibility E2E tests only
-pnpm test:animations   # Animation E2E tests only
+pnpm test:ci           # CI with bail on first failure (--bail 1 --no-file-parallelism)
+pnpm test:e2e          # Playwright E2E tests
+pnpm test:e2e:ui       # Playwright with interactive UI
+pnpm test:a11y         # Accessibility spec files only
+pnpm test:animations   # Animation E2E specs only
 ```
-
-## Vitest Configuration
-
-**File:** `vitest.config.ts`
-
-```typescript
-export default defineConfig({
-  plugins: [react()],
-  test: {
-    environment: "jsdom",
-    setupFiles: ["./src/test/setup.ts"],
-    globals: true,              // describe, it, expect, vi available globally
-    exclude: ["**/node_modules/**", "**/e2e/**"],
-    teardownTimeout: 1000,      // Force exit to avoid hanging on Windows
-    testTimeout: 10000,
-    hookTimeout: 10000,
-  },
-  resolve: {
-    alias: { "@": path.resolve(__dirname, "./src") },
-  },
-});
-```
-
-Key points:
-- `globals: true` -- no need to import `describe`, `it`, `expect`, `vi` (but some files import explicitly for clarity)
-- `jsdom` environment for DOM testing
-- Path alias `@/` mirrors `tsconfig.json`
-- E2E tests explicitly excluded from Vitest
 
 ## Test File Organization
 
 **Location:**
-- Unit tests: `__tests__/` subdirectory co-located with source
-- E2E tests: `e2e/` top-level directory
-- Test setup: `src/test/setup.ts`
-- Factories: `src/test/factories/index.ts`
-- Mocks: `src/test/mocks/` directory
+- Unit/integration tests: co-located in `__tests__/` subdirectory next to source
+- E2E tests: `e2e/` directory at project root
 
 **Naming:**
-- Unit tests: `*.test.ts` or `*.test.tsx`
-- E2E tests: `*.spec.ts`
+- Unit: `[SourceFile].test.ts` or `[SourceFile].test.tsx`
+- E2E: `[feature-area].spec.ts`
 
-**Structure:**
+**Structure example:**
 ```
-src/
-  lib/
-    utils/
-      delivery-dates.ts
-      __tests__/
-        delivery-dates.test.ts
-        delivery-dates-multiday.test.ts
-    stores/
-      cart-store.ts
-      __tests__/
-        cart-store.test.ts
-    hooks/
-      useDeliveryGate.ts
-      __tests__/
-        useDeliveryGate.test.ts
-    validations/
-      checkout.ts
-      __tests__/
-        analytics.test.ts
-        driver-api.test.ts
-    services/
-      coverage.ts
-      __tests__/
-        coverage.test.ts
-  app/
-    api/
-      webhooks/stripe/
-        route.ts
-        __tests__/
-          route.test.ts
-      checkout/session/
-        __tests__/
-          route.test.ts
-          helpers.test.ts
-      addresses/
-        __tests__/
-          transform.test.ts
-      tracking/
-        __tests__/
-          route.test.ts
-  test/
-    setup.ts             # Global test setup
-    factories/
-      index.ts           # Mock data factories
-    mocks/
-      stripe.ts          # Stripe mock events/clients
-      google-routes.ts   # Google Routes API mocks
+src/app/api/checkout/session/
+  route.ts
+  helpers.ts
+  __tests__/
+    route.test.ts
+    helpers.test.ts
+
+src/lib/hooks/
+  useAcceptRoute.ts
+  __tests__/
+    useAcceptRoute.test.ts
+
 e2e/
   happy-path.spec.ts
-  accessibility.spec.ts
-  cart-flow.spec.ts
-  checkout-flow.spec.ts
   authentication.spec.ts
-  customer-tracking.spec.ts
-  driver-flow.spec.ts
+  accessibility.spec.ts
   admin-operations.spec.ts
-  admin-analytics.spec.ts
   visual-regression.spec.ts
-  hydration-smoke.spec.ts
-  error-states.spec.ts
-  animations/
-    v7-motion.spec.ts
-    v7-accessibility.spec.ts
 ```
 
 ## Test Setup
 
-**File:** `src/test/setup.ts`
+**File:** `src/test/setup.ts` — loaded via `vitest.config.ts` `setupFiles`
 
+**Global mocks configured in setup:**
 ```typescript
-/// <reference types="vitest/globals" />
-import "fake-indexeddb/auto";        // IndexedDB polyfill for cart persistence
-import "@testing-library/jest-dom";  // DOM matchers
+import "fake-indexeddb/auto";         // IDB for cart store
+import "@testing-library/jest-dom";   // DOM matchers
 
-// Mock ResizeObserver (not in jsdom)
-global.ResizeObserver = class ResizeObserver {
-  observe() {}
-  unobserve() {}
-  disconnect() {}
-};
+// ResizeObserver (not in jsdom)
+global.ResizeObserver = class ResizeObserver { observe() {} unobserve() {} disconnect() {} };
 
-// Mock localStorage
-const localStorageMock = { getItem: () => null, setItem: () => {}, ... };
-Object.defineProperty(window, "localStorage", { value: localStorageMock });
+// localStorage stub
+Object.defineProperty(window, "localStorage", { value: localStorageMock, writable: true });
 
-// Mock matchMedia (not in jsdom)
+// matchMedia stub
 Object.defineProperty(window, "matchMedia", {
-  value: (query: string) => ({ matches: false, media: query, ... }),
+  writable: true,
+  value: (query: string) => ({ matches: false, media: query, addListener: () => {}, ... }),
 });
 
-// Mock environment variables
+// Environment variables
 process.env.GOOGLE_MAPS_API_KEY = "test-google-maps-api-key";
 process.env.STRIPE_SECRET_KEY = "sk_test_mock";
-process.env.STRIPE_WEBHOOK_SECRET = "whsec_test_mock";
 process.env.NEXT_PUBLIC_SUPABASE_URL = "http://localhost:54321";
-process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY = "test-anon-key";
-process.env.SUPABASE_SERVICE_ROLE_KEY = "test-service-role-key";
 ```
 
-Key setup features:
-- `fake-indexeddb` for testing Zustand stores with IDB persistence
-- Browser API mocks for `ResizeObserver`, `localStorage`, `matchMedia`
-- Environment variables set for Stripe, Supabase, Google Maps
+## Unit Test Structure
 
-## Test Structure
-
-**Suite Organization:**
+**Standard pattern:**
 ```typescript
-// Standard unit test pattern
-describe("CartStore", () => {
-  beforeEach(() => {
-    useCartStore.getState().clearCart();
-    useCartStore.persist.clearStorage?.();
-    __clearDebounceState();
-  });
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-  describe("addItem", () => {
-    it("adds item to cart", () => {
-      const store = useCartStore.getState();
-      store.addItem(baseItem);
-      const updated = useCartStore.getState();
-      expect(updated.items).toHaveLength(1);
+describe("ComponentOrModule", () => {
+  describe("specific behavior or method", () => {
+    it("does X when Y", () => {
+      // arrange
+      const result = functionUnderTest(input);
+      // assert
+      expect(result).toBe(expected);
     });
   });
 });
 ```
 
-**Patterns:**
-- Nested `describe` blocks for logical grouping
-- `beforeEach` for state reset (stores, mocks)
-- Use `getState()` pattern for Zustand store testing (no React rendering needed)
-- Descriptive test names: `it("returns isOpen: true when well before cutoff (Wednesday 10AM)")"`
-- Bug-tagged tests: `describe("BUG-06: debounce race condition")`
-- Feature-tagged tests: `describe("concurrent cart operations (TST-01)")`
-
-**Pure function testing:**
-Hooks export pure computation functions alongside React hooks for testability:
+**Hook testing with renderHook:**
 ```typescript
-// In src/lib/hooks/useDeliveryGate.ts
-export function computeDeliveryGate(cutoffDay, cutoffHour, now) { ... }  // Pure, testable
-export function useDeliveryGate(cutoffDay, cutoffHour) { ... }           // React hook
+import { renderHook, act } from "@testing-library/react";
+
+it("tracks isAccepting state during fetch", async () => {
+  const { result } = renderHook(() => useAcceptRoute({ routeId: "route-1" }));
+  expect(result.current.isAccepting).toBe(false);
+
+  await act(async () => {
+    await result.current.acceptRoute();
+  });
+
+  expect(result.current.isAccepting).toBe(false);
+});
 ```
 
-Tests import the pure function directly:
+**Component rendering:**
 ```typescript
-import { computeDeliveryGate } from "../useDeliveryGate";
+import { render, screen } from "@testing-library/react";
+
+it("renders timestamp when arrivedAt is set", () => {
+  render(<RouteStopCard stop={createMockStop({ arrivedAt: "2026-03-15T10:30:00Z" })} {...defaultProps} />);
+  expect(screen.getByTestId("tracking-timestamps")).toBeInTheDocument();
+});
 ```
 
-## Mocking
-
-**Framework:** Vitest `vi` (built-in)
-
-**Module Mocking Pattern:**
+**Store tests — direct state manipulation:**
 ```typescript
-// Mock entire module
-vi.mock("@/lib/rate-limit", () => ({
-  checkRateLimit: vi.fn().mockResolvedValue({ limited: false }),
-  webhookLimiter: {},
-  getClientIp: vi.fn().mockReturnValue("127.0.0.1"),
+describe("CartStore", () => {
+  beforeEach(() => {
+    useCartStore.getState().clearCart();
+    useCartStore.persist.clearStorage?.();
+    __clearDebounceState();
+    useCartStore.getState().setDeliverySettings(DELIVERY_FEE, FREE_DELIVERY_THRESHOLD);
+  });
+
+  it("adds item to cart", () => {
+    useCartStore.getState().addItem(baseItem);
+    const updated = useCartStore.getState();
+    expect(updated.items).toHaveLength(1);
+  });
+});
+```
+
+## Mocking Patterns
+
+**Module mocks with `vi.mock()`:**
+```typescript
+// Place vi.mock() calls before imports — Vitest hoists them
+vi.mock("@/lib/hooks/useToastV8", () => ({
+  toast: vi.fn(),
 }));
 
-// Mock with original preserved
+vi.mock("@/lib/supabase/server", () => ({
+  createServiceClient: vi.fn(),
+}));
+```
+
+**Partial mock with async original:**
+```typescript
 vi.mock("next/server", async (importOriginal) => {
   const mod = await importOriginal<typeof import("next/server")>();
   return {
@@ -237,364 +181,370 @@ vi.mock("next/server", async (importOriginal) => {
     after: (cb: () => Promise<void>) => { void cb(); },
   };
 });
-
-// Track mock for assertions
-const mockConstructEvent = vi.fn();
-vi.mock("@/lib/stripe/server", () => ({
-  stripe: { webhooks: { constructEvent: (...args) => mockConstructEvent(...args) } },
-}));
 ```
 
-**Global Fetch Mocking:**
+**Global fetch mocking:**
 ```typescript
+const originalFetch = globalThis.fetch;
+
 beforeEach(() => {
-  vi.stubGlobal("fetch", vi.fn());
+  globalThis.fetch = vi.fn();
 });
 
 afterEach(() => {
-  global.fetch = originalFetch;
-  vi.restoreAllMocks();
+  globalThis.fetch = originalFetch;
 });
 
-// Usage
-vi.mocked(global.fetch).mockResolvedValueOnce({
+// Usage:
+(globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
   ok: true,
-  json: () => Promise.resolve(withinCoverageResponse),
-} as Response);
+  json: () => Promise.resolve({ success: true }),
+});
 ```
 
-**Environment Variable Mocking:**
+**Supabase client chain mocking (builder pattern):**
 ```typescript
-vi.stubEnv("DELIVERY_TIMEZONE", "Asia/Yangon");
-vi.resetModules();  // Required after env changes
-const mod = await import("@/types/delivery");
-vi.unstubAllEnvs();
+const fromMock = vi.fn();
+
+fromMock.mockImplementation((table: string) => {
+  if (table === "orders") {
+    return {
+      update: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            select: vi.fn().mockReturnValue({ data: [{ id: "order-1" }], error: null }),
+          }),
+        }),
+      }),
+      select: vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({
+          single: vi.fn().mockReturnValue({ data: mockOrder, error: null }),
+        }),
+      }),
+    };
+  }
+  return {};
+});
+
+mockCreateServiceClient.mockReturnValue({ from: fromMock });
 ```
 
-**What to Mock:**
-- External APIs (Stripe, Google Maps, Supabase)
-- `next/headers`, `next/server` (server-only Next.js APIs)
-- Rate limiting (`@/lib/rate-limit`)
-- Logger (`@/lib/utils/logger`)
-- Email sending (`@/lib/email`)
-- `fetch` for HTTP calls
+**Framer Motion mock (component tests):**
+```typescript
+vi.mock("framer-motion", () => {
+  function createMotionComponent(tag: string) {
+    return ({ children, initial: _i, animate: _a, transition: _t, ...props }: Record<string, unknown>) => {
+      const Tag = tag as unknown as React.ElementType;
+      return <Tag {...props}>{children as React.ReactNode}</Tag>;
+    };
+  }
+  const handler = { get: (_: unknown, prop: string) => createMotionComponent(prop) };
+  return {
+    m: new Proxy({}, handler),
+    motion: new Proxy({}, handler),
+    AnimatePresence: ({ children }: { children: React.ReactNode }) => children,
+  };
+});
+```
 
-**What NOT to Mock:**
-- Pure utility functions (test directly)
-- Zod schemas (test `.safeParse()` directly)
-- Zustand stores (test via `getState()` / `setState()`)
-- Business logic functions
+**Next.js mocks:**
+```typescript
+// next/image
+vi.mock("next/image", () => ({
+  default: (props: Record<string, unknown>) => <img {...props} />,
+}));
+
+// next/cache — pass-through for server functions
+vi.mock("next/cache", () => ({
+  unstable_cache: (fn: (...args: unknown[]) => unknown) => fn,
+}));
+```
+
+**Timer mocking:**
+```typescript
+beforeEach(() => { vi.useFakeTimers({ shouldAdvanceTime: true }); });
+afterEach(() => { vi.useRealTimers(); vi.restoreAllMocks(); });
+
+// Advance and flush:
+await act(async () => { await vi.advanceTimersByTimeAsync(3000); });
+```
 
 ## Fixtures and Factories
 
-**Test Data Factories:**
-Location: `src/test/factories/index.ts`
+**Location:** `src/test/factories/index.ts`
 
+**Pattern — factory functions with optional overrides:**
 ```typescript
-import type { MenuItemsRow } from "@/types/database";
-
 export function createMockMenuItem(overrides?: Partial<MenuItemsRow>): MenuItemsRow {
   return {
     id: "menu-item-uuid",
-    category_id: "category-uuid",
-    slug: "test-item",
     name_en: "Test Menu Item",
     base_price_cents: 1500,
     is_active: true,
-    is_sold_out: false,
     // ... all required fields with sensible defaults
     ...overrides,
   };
 }
 ```
 
-Available factories:
-- `createMockMenuItem(overrides?)` - Menu items
-- `createMockModifierOption(overrides?)` - Modifier options
-- `createMockAddress(overrides?)` - User addresses
-- `createMockOrder(overrides?)` - Orders
-- `createValidatedCartItem(menuItem?, modifiers?, quantity?)` - Cart items with computed totals
-- `createCheckoutItemInput(menuItemId, quantity?, modifiers?)` - Checkout input (no prices per CHKT-01)
+**Available factories:**
+- `createMockMenuItem(overrides?)` → `MenuItemsRow`
+- `createMockModifierOption(overrides?)` → `ModifierOptionsRow`
+- `createMockAddress(overrides?)` → `AddressesRow`
+- `createMockOrder(overrides?)` → `OrdersRow`
+- `createValidatedCartItem(menuItem?, modifiers?, quantity?)` → cart item with computed totals
+- `createCheckoutItemInput(menuItemId, quantity?, modifiers?)` → checkout API input
 
-**Stripe Mock Events:**
-Location: `src/test/mocks/stripe.ts`
+**Location:** `src/test/mocks/stripe.ts`
 
+**Pattern — typed Stripe event builders:**
 ```typescript
-export function createMockStripeClient() { ... }
-export function createCheckoutCompletedEvent(orderId, userId, paymentIntentId?) { ... }
-export function createCheckoutExpiredEvent(orderId, userId) { ... }
-export function createChargeRefundedEvent(paymentIntentId, amountCents, fullRefund?) { ... }
-export function createPaymentFailedEvent(orderId?) { ... }
+export function createCheckoutCompletedEvent(
+  orderId: string,
+  userId: string,
+  paymentIntentId = "pi_test_123456"
+): Stripe.Event { ... }
+
+export function createCheckoutExpiredEvent(orderId: string, userId: string): Stripe.Event { ... }
+export function createChargeRefundedEvent(paymentIntentId: string, amountCents: number, fullRefund?: boolean): Stripe.Event { ... }
+export function createPaymentFailedEvent(orderId?: string): Stripe.Event { ... }
 ```
 
-**Google Routes API Mocks:**
-Location: `src/test/mocks/google-routes.ts`
-
+**Inline fixtures for component tests:**
 ```typescript
-export const withinCoverageResponse: MockRoutesResponse = { ... };
-export const exceedsDistanceResponse: MockRoutesResponse = { ... };
-export const atThresholdResponse: MockRoutesResponse = { ... };
-export function createRoutesResponse(distanceMiles, durationMinutes) { ... }
-export function createGoogleRoutesFetchMock(response) { ... }
+function createMockStop(overrides: Partial<StopDetail> = {}): StopDetail {
+  return {
+    id: "stop-1",
+    status: "pending" as RouteStopStatus,
+    arrivedAt: null,
+    deliveredAt: null,
+    order: { ... },
+    ...overrides,
+  };
+}
 ```
 
-**Inline Test Data:**
-For simple tests, define data inline rather than using factories:
-```typescript
-const baseItem = {
-  menuItemId: "item-1",
-  menuItemSlug: "mohinga",
-  nameEn: "Mohinga",
-  basePriceCents: 1200,
-  quantity: 1,
-  modifiers: [],
-  notes: "",
-};
-```
+## Mocking Strategy
 
-**Date Fixtures:**
-Use explicit UTC dates with PT offset comments:
-```typescript
-// Wednesday, March 4 2026 10:00 AM PT
-const WEDNESDAY_10AM = new Date("2026-03-04T18:00:00.000Z");
-// Friday, March 6 2026 2:45 PM PT -- 15m before cutoff, critical
-const FRIDAY_2_45PM = new Date("2026-03-06T22:45:00.000Z");
-```
+**What to mock:**
+- External services (Supabase, Stripe, Google Maps, Resend)
+- `next/headers`, `next/cache`, `next/server`
+- Framer Motion (component tests only — avoid jsdom animation issues)
+- `globalThis.fetch` for hook tests that call API endpoints
+- Logger (`@/lib/utils/logger`) — always no-op in tests
+- Toast (`@/lib/hooks/useToastV8`) — spy to assert toast calls
+- Rate limiter (`@/lib/rate-limit`) — always allow in route tests
 
-## Coverage
-
-**Requirements:** None enforced via config. No coverage threshold configured.
-
-**View Coverage:**
-```bash
-pnpm test -- --coverage    # Vitest coverage
-```
-
-## Test Types
-
-**Unit Tests (31 test files):**
-- Pure functions: utils (`delivery-dates`, `price`, `format`, `order`, `eta`, `clustering`, `delivery-zones`, `delivery-schedule`, `refund-calc`, `analytics-helpers`)
-- Zod validation schemas (`analytics`, `driver-api`, `route`, `checkout`)
-- Zustand stores (`cart-store`, `driver-store`)
-- Hooks (pure computation functions: `useDeliveryGate`, `useCountdown`)
-- API route handlers (webhook processing, checkout session creation, tracking)
-- Service functions (`coverage`, `route-optimization`, `delivery-photos`)
-- Component helpers (`ops/helpers`)
-
-**E2E Tests (20 spec files in `e2e/`):**
-- Happy path: `happy-path.spec.ts` (menu browse -> cart -> checkout)
-- Feature flows: `cart-flow.spec.ts`, `checkout-flow.spec.ts`, `authentication.spec.ts`
-- Role flows: `driver-flow.spec.ts`, `admin-operations.spec.ts`, `admin-analytics.spec.ts`
-- Tracking: `customer-tracking.spec.ts`, `customer-feedback.spec.ts`
-- Accessibility: `accessibility.spec.ts`, `animations/v7-accessibility.spec.ts`
-- Visual: `visual-regression.spec.ts`, `v4-theme-parity.spec.ts`
-- Stability: `hydration-smoke.spec.ts`, `error-states.spec.ts`, `sprint-1-bugfixes.spec.ts`
+**What NOT to mock:**
+- Zod schemas (test the actual validation logic)
+- Pure utility functions (test directly without mocking)
+- Zustand stores (test the real store state)
+- `src/test/factories` utilities (they are test helpers, not subjects)
 
 ## E2E Test Patterns
 
-**Playwright Configuration:** `playwright.config.ts`
+**File:** `e2e/[feature].spec.ts`
+
+**Basic page test:**
 ```typescript
-export default defineConfig({
-  testDir: "./e2e",
-  fullyParallel: true,
-  timeout: 30000,
-  retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : undefined,
-  use: {
-    baseURL: "http://localhost:3000",
-    trace: "on-first-retry",
-    screenshot: "only-on-failure",
-  },
-  projects: [
-    { name: "chromium", use: { ...devices["Desktop Chrome"] } },
-    { name: "Mobile Chrome", use: { ...devices["Pixel 5"] } },
-  ],
-  webServer: {
-    command: "pnpm dev --webpack",
-    url: "http://localhost:3000",
-    reuseExistingServer: !process.env.CI,
-    timeout: 180000,
-  },
+import { test, expect } from "@playwright/test";
+
+test.describe("Feature Area", () => {
+  test("user can do X", async ({ page }) => {
+    await page.goto("/path");
+    await expect(page.getByRole("heading", { name: /title/i })).toBeVisible();
+
+    const items = page.locator('[data-testid="item"]');
+    await expect(items.first()).toBeVisible();
+  });
+});
+```
+
+**Skipped tests (require auth):**
+```typescript
+test.skip("admin can view orders", async ({ page }) => {
+  // Requires admin authentication — runs manually or with auth state fixture
 });
 ```
 
 **Visual regression:**
-- `maxDiffPixels: 100`, `threshold: 0.2`
-- Snapshots in `e2e/__snapshots__/`
-
-**E2E Test Structure:**
 ```typescript
-import { test, expect } from "@playwright/test";
+test("homepage - desktop", async ({ page }) => {
+  await page.goto("/");
+  await page.waitForLoadState("networkidle");
+  await page.waitForTimeout(500); // animations settle
 
-test.describe("Menu Browsing", () => {
-  test("user can browse menu and see categories", async ({ page }) => {
-    await page.goto("/");
-    await expect(page.getByRole("heading", { name: /menu/i })).toBeVisible();
-    const menuItems = page.locator('[data-testid="menu-item"]');
-    await expect(menuItems.first()).toBeVisible();
+  await expect(page).toHaveScreenshot("homepage-desktop.png", {
+    fullPage: true,
+    maxDiffPixels: 100,
   });
-});
-
-test.describe("Mobile Responsiveness", () => {
-  test.use({ viewport: { width: 375, height: 667 } });
-  // Mobile-specific tests...
 });
 ```
 
-**Test selectors (priority):**
-1. Roles: `page.getByRole("button", { name: /add to cart/i })`
-2. Test IDs: `page.locator('[data-testid="menu-item"]')`
-3. Text: `page.getByText(/subtotal/i)`
-4. Locators: `page.locator("text=Sold Out")`
-
-**Accessibility Testing:**
-Uses `@axe-core/playwright` for WCAG 2.1 AA compliance:
+**Network mocking (font routes):**
 ```typescript
-import AxeBuilder from "@axe-core/playwright";
-
-async function checkA11y(page, options?) {
-  const builder = new AxeBuilder({ page })
-    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"]);
-  const results = await builder.analyze();
-  const criticalViolations = results.violations.filter(
-    (v) => v.impact === "critical" || v.impact === "serious"
+async function mockFonts(page: Page) {
+  await page.route("**/fonts.googleapis.com/**", (route) =>
+    route.fulfill({ status: 200, contentType: "text/css", body: "" })
   );
-  if (criticalViolations.length > 0) throw new Error(...);
 }
 ```
 
-## Common Unit Test Patterns
-
-**Zustand Store Testing:**
+**Accessibility check:**
 ```typescript
-describe("CartStore", () => {
-  beforeEach(() => {
-    useCartStore.getState().clearCart();
-    useCartStore.persist.clearStorage?.();
-    __clearDebounceState();
+import AxeBuilder from "@axe-core/playwright";
+
+const results = await new AxeBuilder({ page })
+  .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+  .analyze();
+
+const criticalViolations = results.violations.filter(
+  (v) => v.impact === "critical" || v.impact === "serious"
+);
+// assert criticalViolations.length === 0
+```
+
+**Playwright config:**
+- `testDir: "./e2e"`
+- `timeout: 30000`
+- `retries: 2` in CI, `0` locally
+- `workers: 1` in CI, auto locally
+- `webServer`: `pnpm dev`, reuse existing server locally
+- Snapshots: `e2e/__snapshots__/`
+
+## Coverage
+
+**Requirements:** None enforced (no coverage thresholds configured in `vitest.config.ts`).
+
+**View coverage:**
+```bash
+pnpm test -- --coverage  # add coverage flag to vitest run
+```
+
+## Test Types
+
+**Unit Tests** — `src/**/__tests__/*.test.ts(x)`:
+- Pure functions: utility functions, Zod schemas, formatters, business logic helpers
+- Hooks: behavior via `renderHook`/`act`, state transitions, error paths
+- Stores: Zustand state mutations and computed selectors directly
+- API helpers: pure functions extracted from route handlers
+
+**Integration Tests** — co-located with API routes:
+- Route handlers: mock Supabase chains, assert status codes and response shape
+- Webhook handlers: mock event constructors, assert DB update calls
+- Auth flows: mock `requireAdmin`, assert 401/403 responses
+
+**E2E Tests** — `e2e/*.spec.ts`:
+- User flows: menu browsing, cart, checkout redirect
+- Auth redirects: unauthenticated access → login redirect
+- Accessibility: axe-core WCAG 2.1 AA audit
+- Visual regression: screenshot comparison (Playwright + Chromatic)
+- Animation behavior: `e2e/animations/`
+
+**Storybook** — `src/stories/` and `src/**/*.stories.tsx`:
+- Design system documentation only (no production stories found)
+- Chromatic runs visual regression on stories
+- `@storybook/addon-vitest` for story-level unit tests
+- `@storybook/addon-a11y` for in-browser accessibility checks
+
+## Storybook Setup
+
+**Config:** `.storybook/main.ts`, `.storybook/preview.ts`
+
+**Story discovery:** `src/**/*.stories.@(js|jsx|mjs|ts|tsx)` and `src/**/*.mdx`
+
+**Framework:** `@storybook/nextjs-vite` (Vite-based, fast HMR)
+
+**Preview configuration:**
+```typescript
+// Viewports: mobile (375px), tablet (768px), desktop (1280px)
+// Backgrounds: light (#F8F5F0), dark (#1A1A1A)
+// Theme toggle: sets data-theme on documentElement
+// Imports: src/app/globals.css (includes Tailwind v4 tokens)
+```
+
+**Chromatic integration:**
+- `chromatic.config.js` — project token from `CHROMATIC_PROJECT_TOKEN` env var
+- `onlyChanged: true` — only snapshot changed stories
+- `turboSnap.bailIfNotBuilt: true`
+- Viewports tested: 375, 640, 768, 1024, 1280
+- Delay: 300ms before capture (animations settle)
+- `diffThreshold: 0.063`
+- Ignore: `[data-chromatic-ignore]`, `.chromatic-ignore`, `[data-testid="timestamp"]`
+
+## Common Async Patterns
+
+**Async hook testing:**
+```typescript
+it("shows error toast on network error", async () => {
+  (globalThis.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("Network error"));
+  const { result } = renderHook(() => useAcceptRoute({ routeId: "route-1" }));
+
+  await act(async () => {
+    await result.current.acceptRoute();
   });
 
-  it("adds item to cart", () => {
-    const store = useCartStore.getState();
-    store.addItem(baseItem);
-    const updated = useCartStore.getState();
-    expect(updated.items).toHaveLength(1);
-  });
+  expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
 });
 ```
 
-**Zod Schema Validation Testing:**
+**Polling hook testing with fake timers:**
 ```typescript
-describe("updateStopStatusSchema", () => {
-  it("should accept valid status updates", () => {
-    for (const status of ["enroute", "arrived", "delivered", "skipped"]) {
-      const result = updateStopStatusSchema.safeParse({ status });
-      expect(result.success).toBe(true);
-    }
-  });
+it("polls every N milliseconds", async () => {
+  vi.useFakeTimers({ shouldAdvanceTime: true });
+  renderHook(() => useRouteProgressPolling(3000));
 
-  it("should reject delivery notes exceeding 500 characters", () => {
-    const result = updateStopStatusSchema.safeParse({
-      status: "delivered",
-      deliveryNotes: "x".repeat(501),
-    });
-    expect(result.success).toBe(false);
-  });
+  await vi.advanceTimersByTimeAsync(0);
+  expect(global.fetch).toHaveBeenCalledTimes(1);
+
+  await act(async () => { await vi.advanceTimersByTimeAsync(3000); });
+  expect(global.fetch).toHaveBeenCalledTimes(2);
 });
 ```
 
-**API Route Testing:**
+**Dynamic import for route handler (avoid mock hoisting issues):**
 ```typescript
-describe("webhook failure scenarios", () => {
-  let POST: (request: Request) => Promise<Response>;
+beforeEach(async () => {
+  vi.clearAllMocks();
+  const routeModule = await import("../route");
+  POST = routeModule.POST;
+});
+```
 
-  beforeEach(async () => {
-    vi.clearAllMocks();
-    const routeModule = await import("../route");
-    POST = routeModule.POST;
-  });
-
-  function makeRequest(body: string, sig = "stripe-sig-valid"): Request {
-    return new Request("http://localhost/api/webhooks/stripe", {
-      method: "POST",
-      body,
-      headers: { "stripe-signature": sig, "content-type": "application/json" },
-    });
+**Zod schema validation testing:**
+```typescript
+it("accepts valid status updates", () => {
+  const result = updateStopStatusSchema.safeParse({ status: "delivered" });
+  expect(result.success).toBe(true);
+  if (result.success) {
+    expect(result.data.status).toBe("delivered");
   }
+});
 
-  it("returns 400 for non-JSON body", async () => {
-    mockConstructEvent.mockImplementation(() => { throw new Error("Invalid payload"); });
-    const res = await POST(makeRequest("not-json-at-all!!!"));
-    expect(res.status).toBe(400);
-  });
+it("rejects invalid values", () => {
+  const result = schema.safeParse({ status: "invalid" });
+  expect(result.success).toBe(false);
 });
 ```
 
-Key pattern for API tests:
-- Dynamic import of route module (`await import("../route")`) after mocks are set
-- Helper function for creating Request objects
-- Mock Supabase chains: `.from().upsert().select()` pattern
-- Assert both status code and response body
+## CI Integration
 
-**Async Testing:**
-```typescript
-it("allows adds after debounce window expires", async () => {
-  store.addItem(baseItem);
-  await new Promise((resolve) => setTimeout(resolve, 350));
-  __clearDebounceState();
-  store.addItem(baseItem);
-  expect(useCartStore.getState().items[0].quantity).toBe(2);
-});
+**Linting/type-checking (run before tests):**
+```bash
+pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck
 ```
 
-**Boundary Testing:**
-```typescript
-it("returns valid at exact threshold (50 miles, 90 minutes)", async () => {
-  vi.mocked(global.fetch).mockResolvedValueOnce({
-    ok: true,
-    json: () => Promise.resolve(atThresholdResponse),
-  } as Response);
-  const result = await checkCoverage(34.1, -118.1);
-  expect(result.isValid).toBe(true);
-  expect(result.distanceMiles).toBeCloseTo(50, 0);
-});
+**Full verification suite:**
+```bash
+pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test && pnpm build
 ```
 
-## Supabase Mock Chain Pattern
-
-Mock Supabase client calls by building chainable return values:
-
-```typescript
-const fromMock = vi.fn();
-fromMock.mockImplementation((table: string) => {
-  if (table === "webhook_events") {
-    return {
-      upsert: vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          data: [{ id: "claimed-1" }],
-          error: null,
-        }),
-      }),
-    };
-  }
-  if (table === "orders") {
-    return {
-      update: updateMock.mockReturnValue({
-        eq: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            select: vi.fn().mockReturnValue({
-              data: [{ id: "order-123" }],
-              error: null,
-            }),
-          }),
-        }),
-      }),
-    };
-  }
-});
-mockCreateServiceClient.mockReturnValue({ from: fromMock });
-```
+**CI-specific behavior:**
+- `vitest run --bail 1 --no-file-parallelism` for `pnpm test:ci`
+- Playwright: `forbidOnly: true`, `retries: 2`, `workers: 1`
+- Chromatic: `autoAcceptChanges: "main"` (feature branches require manual review)
+- Husky pre-commit: `lint-staged` runs ESLint + Stylelint on staged files
 
 ---
 
-*Testing analysis: 2026-03-14*
+*Testing analysis: 2026-03-18*

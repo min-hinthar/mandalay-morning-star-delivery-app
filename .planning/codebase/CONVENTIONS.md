@@ -1,400 +1,415 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-03-14
+**Analysis Date:** 2026-03-18
 
 ## Naming Patterns
 
 **Files:**
-- UI primitives: `kebab-case.tsx` (e.g., `button.tsx`, `alert-dialog.tsx`, `scroll-area.tsx`)
-- Custom components: `PascalCase.tsx` (e.g., `AnimatedLink.tsx`, `Backdrop.tsx`, `EmptyState.tsx`)
-- Hooks: `camelCase.ts` prefixed with `use` (e.g., `useAuth.ts`, `useDeliveryGate.ts`)
-- Stores: `kebab-case.ts` suffixed with `-store` (e.g., `cart-store.ts`, `driver-store.ts`)
-- Utils: `kebab-case.ts` (e.g., `api-error.ts`, `delivery-dates.ts`)
-- Validations: `kebab-case.ts` matching domain (e.g., `checkout.ts`, `driver-api.ts`)
-- Types: `kebab-case.ts` matching domain (e.g., `cart.ts`, `delivery.ts`, `database.ts`)
-- Tests: `*.test.ts` or `*.test.tsx` in `__tests__/` subdirectory
+- React components: `PascalCase.tsx` for single-file components (e.g., `CartButton.tsx`, `DeliveryMetricsDashboard.tsx`)
+- Multi-file components: `PascalCase/` subfolder with `index.tsx` barrel (e.g., `Modal/index.tsx`, `DragReorderList/index.tsx`)
+- Hooks: `camelCase.ts` with `use` prefix (e.g., `useAcceptRoute.ts`, `useTrackingSubscription.ts`)
+- Utilities: `kebab-case.ts` (e.g., `delivery-dates.ts`, `delivery-zones.ts`)
+- Validation schemas: `kebab-case.ts` in `src/lib/validations/` (e.g., `checkout.ts`, `driver-api.ts`)
+- Stores: `kebab-case-store.ts` (e.g., `cart-store.ts`, `driver-store.ts`)
+- API routes: `route.ts` with co-located `helpers.ts`, `validation.ts`, `types.ts`
+- Test files: inside `__tests__/` subdirectory with `.test.ts` or `.test.tsx` extension
 
 **Functions:**
-- `camelCase` for all functions and methods
-- Hooks: `use` prefix (e.g., `useAuth`, `useMenu`, `useDeliveryGateMultiDay`)
+- camelCase for all functions: `computeDeliveryGate`, `createMockMenuItem`, `getPageTitle`
+- Exported hooks: `use` prefix always present
 - Factory functions: `create` prefix (e.g., `createMockMenuItem`, `createMockStripeClient`)
-- Compute functions: `compute` prefix for pure derivation (e.g., `computeDeliveryGate`)
-- Boolean getters: `is` prefix (e.g., `isPastCutoff`, `isValidStatusTransition`)
+- Pure helper functions: descriptive verb-noun (e.g., `buildRpcPayload`, `fetchAndValidateCart`)
 
 **Variables:**
-- `camelCase` for all variables
-- Constants: `UPPER_SNAKE_CASE` for module-level constants (e.g., `MAX_CART_ITEMS`, `DEBOUNCE_MS`, `DELIVERY_FEE`)
-- Private store internals: `_` prefix (e.g., `_hasHydrated`, `_setHasHydrated`)
-- Test export helpers: `__` double underscore prefix (e.g., `__clearDebounceState`)
+- camelCase throughout
+- Underscore prefix for unused function args and private store internals: `_hasHydrated`, `_i`, `_a`
+- Constants: SCREAMING_SNAKE_CASE at module-level (e.g., `DEBOUNCE_MS`, `POLLING_INTERVAL`, `MAX_ITEM_QUANTITY`)
 
-**Types & Interfaces:**
-- `PascalCase` for types and interfaces
-- Suffixed by role: `Row` for DB rows (`MenuItemsRow`), `Props` for components (`ButtonProps`), `Store` for Zustand (`CartStore`), `Schema` for Zod (`checkoutItemSchema`)
-- Zod schemas: `camelCase` ending in `Schema` (e.g., `createCheckoutSessionSchema`, `addressFormSchema`)
-- Inferred Zod types: `PascalCase` ending in `Input` or `Values` (e.g., `CreateCheckoutSessionInput`, `AddressFormValues`)
+**Types/Interfaces:**
+- PascalCase for all types and interfaces; no `I` prefix on interfaces
+- Union types: plain name (e.g., `PaymentMethod`, `OrderStatus`, `RouteStopStatus`)
+- DB row types: `Row` suffix from generated schema (e.g., `MenuItemsRow`, `OrdersRow`)
+- API response types: `Response` suffix (e.g., `MenuResponse`, `AddressListResponse`)
+- Form/schema types: `Values` or `Input` suffix (e.g., `AddressFormValues`, `CheckoutItemInput`)
 
 ## Code Style
 
-**Formatting:**
-- Prettier with config in `.prettierrc`
-- Double quotes (`"singleQuote": false`)
-- Semicolons always (`"semi": true`)
-- Print width: 100 characters
-- Trailing commas: `es5`
+**Formatting (Prettier):**
+- `printWidth: 100`
+- `singleQuote: false` (double quotes)
+- `semi: true`
+- `trailingComma: "es5"`
 
-**Linting:**
-- ESLint flat config in `eslint.config.mjs`
+**Linting (ESLint):**
 - Extends: `next/core-web-vitals`, `next/typescript`, `prettier`
-- Stylelint for CSS in `.stylelintrc.json` (extends `stylelint-config-standard`)
-- `import-x/no-cycle` enabled (max depth 10) to prevent circular imports
-- `max-lines: 400` (warning) on all `src/**/*.ts{x}` except types, tests, stories
-- Underscore-prefixed unused vars allowed: `argsIgnorePattern: "^_"`
-
-**Pre-commit:**
-- Husky + lint-staged
-- On commit: `eslint --max-warnings=0 --no-warn-ignored` on staged `.ts/.tsx` files
-- On commit: `stylelint` on staged `.css` files
-
-**TypeScript:**
-- Strict mode enabled (`"strict": true`)
-- `noUnusedLocals` and `noUnusedParameters` enabled
-- Path alias: `@/*` maps to `./src/*`
-- Target: ES2017, JSX: react-jsx
-
-## Design Token Enforcement
-
-62+ design tokens enforced via ESLint `no-restricted-syntax` rules in `eslint.config.mjs`:
-
-**Colors:** Use semantic tokens, never hardcoded hex or `text-white`/`bg-black`:
-- `text-white` -> `text-text-inverse` or `text-hero-text`
-- `bg-white` -> `bg-surface-primary`
-- `bg-black` -> `bg-surface-inverse`
-- `bg-[#xxx]` / `text-[#xxx]` -> use design token equivalents
-
-**Typography:** Use Tailwind scale, never arbitrary pixel values:
-- `text-[14px]` -> `text-sm`
-- Inline `fontSize: "14px"` -> Tailwind class
-
-**Spacing:** Use Tailwind scale, never arbitrary values:
-- `m-[8px]`, `p-[16px]`, `gap-[12px]` -> `m-2`, `p-4`, `gap-3`
-
-**Shadows & Blur:** Use CSS variables or Tailwind utilities:
-- `boxShadow: "0 2px..."` -> `var(--shadow-*)` or `shadow-*`
-- `backdropFilter: "blur(8px)"` -> `var(--blur-*)` or `backdrop-blur-*`
-
-**Duration:** Use token classes:
-- `duration-[200ms]` -> `duration-normal`
-- Allowed tokens: `duration-instant(0ms)`, `duration-fast(150ms)`, `duration-normal(220ms)`, `duration-slow(350ms)`, `duration-slower(500ms)`
-
-**z-index:** Use standard Tailwind numeric classes:
-- `z-0` (base), `z-10` (dropdown), `z-20` (sticky), `z-30` (fixed)
-- `z-40` (modal-backdrop), `z-50` (modal), `z-[60]` (popover), `z-[70]` (tooltip)
-
-**CSP:** Use individual `style.property` assignments, never `cssText`.
+- Circular dependency prevention: `import-x/no-cycle` at `maxDepth: 10`
+- `@typescript-eslint/no-unused-vars`: warn, underscore-prefix exempt
+- File size: `max-lines: 400` warning on `src/**/*.{ts,tsx}` (exempt: `src/types/**`, test files, stories)
+- Staged files: `lint-staged` runs `eslint --max-warnings=0` on commit
 
 ## Import Organization
 
-**Order (enforced by convention, not auto-sorted):**
-1. React / Next.js framework imports
-2. Third-party libraries (`framer-motion`, `zod`, `zustand`, etc.)
-3. Internal absolute imports with `@/` alias, grouped by:
-   - `@/components/ui/...` (UI components)
-   - `@/lib/...` (utilities, hooks, stores, services)
-   - `@/types/...` (type definitions)
-4. Relative imports (co-located files like `./helpers`, `./transform`)
+**Order observed in source files:**
+1. React / Next.js framework (`"react"`, `"next/..."`)
+2. Third-party libraries (`"framer-motion"`, `"@tanstack/react-query"`, `"zod"`, `"zustand"`)
+3. Internal path alias imports (`"@/components/..."`, `"@/lib/..."`, `"@/types/..."`)
+4. Relative imports (`"./helpers"`, `"../route"`)
 
 **Path Aliases:**
-- `@/*` -> `./src/*` (the only alias; use it for all non-relative imports)
+- `@/` maps to `src/` (via `tsconfig.json` and `vitest.config.ts`)
 
-**Barrel Exports:**
-- `src/components/ui/index.ts` is the main UI barrel -- import primitives from `@/components/ui`
-- Each UI subdirectory has its own `index.ts` barrel (e.g., `@/components/ui/checkout`, `@/components/ui/admin`)
-- `src/lib/hooks/index.ts` barrel for hooks
+## Restricted Import Paths (ESLint Error-Level)
 
-**Consolidation Guards:**
-ESLint `no-restricted-imports` prevents importing from deprecated locations. All components live under `@/components/ui/`. Never import from:
-- `@/components/menu/*` -> use `@/components/ui/menu`
-- `@/components/admin/*` -> use `@/components/ui/admin`
-- `@/components/checkout/*` -> use `@/components/ui/checkout`
-- `@/components/driver/*` -> use `@/components/ui/driver`
-- `@/contexts/*` -> use `@/app/contexts`
-- See full list in `eslint.config.mjs` lines 44-151
+All legacy directories are blocked; import from consolidated paths only:
+
+| Blocked | Use Instead |
+|---------|-------------|
+| `@/components/ui-v8/*` | `@/components/ui` |
+| `@/components/menu/*` | `@/components/ui/menu` |
+| `@/components/admin/*` | `@/components/ui/admin` |
+| `@/components/checkout/*` | `@/components/ui/checkout` |
+| `@/components/driver/*` | `@/components/ui/driver` |
+| `@/components/navigation/*` | `@/components/ui/layout` or `@/components/ui/navigation` |
+| `@/contexts/*` | `@/app/contexts` |
+| `@/design-system/*` | `@/lib/design-system` |
+
+## Design Token Enforcement (ESLint `no-restricted-syntax`)
+
+Applied to `src/components/**/*.tsx` and `src/app/**/*.tsx`:
+
+**Colors — use semantic tokens:**
+- `text-white` → `text-text-inverse` or `text-hero-text`
+- `text-black` → `text-text-primary`
+- `bg-white` → `bg-surface-primary`
+- `bg-black` → `bg-surface-inverse`
+- `bg-[#hex]`, `text-[#hex]` → use design token color classes
+
+**Spacing — no arbitrary px:**
+- Forbidden: `m-[Npx]`, `mx-[Npx]`, `p-[Npx]`, `px-[Npx]`, `gap-[Npx]`
+- Use Tailwind scale: `m-1`, `p-4`, `gap-2`, etc.
+
+**Typography:**
+- Forbidden: `text-[Npx]` → use `text-2xs`, `text-xs`, `text-sm`, etc.
+- Forbidden: inline `fontSize` px value or `fontWeight` numeric in style objects
+- Use Tailwind: `font-normal` (400), `font-medium` (500), `font-semibold` (600), `font-bold` (700)
+
+**Z-index:** Standard Tailwind only: `z-0`, `z-10`, `z-20`, `z-30`, `z-40`, `z-50`, `z-[60]`, `z-[70]`, `z-[80]`, `z-[100]`. No inline `zIndex: N`.
+
+**Shadows:** `var(--shadow-*)` or `shadow-*` utilities. No hardcoded `boxShadow` literals (Framer Motion animation exception applies).
+
+**Blur:** `var(--blur-*)` or `backdrop-blur-*`. No hardcoded `blur(Npx)`.
+
+**Duration:** `duration-fast` (150ms), `duration-normal` (220ms), `duration-slow` (350ms), `duration-slower` (500ms). No `duration-[Nms]` or inline `transitionDuration`.
+
+**CSP:** No `element.style.cssText`. Use individual `style.property` assignments.
+
+## Error Handling
+
+**API route — standardized response shape:**
+```typescript
+// Always: { error: { code, message, details? } } with appropriate HTTP status
+return NextResponse.json(
+  { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
+  { status: 401 }
+);
+```
+
+**API route — catch-all pattern:**
+```typescript
+try {
+  // handler logic
+} catch (error) {
+  logger.exception(error, { api: "route-name" });
+  return NextResponse.json(
+    { error: { code: "INTERNAL_ERROR", message: "Failed to ..." } },
+    { status: 500 }
+  );
+}
+```
+
+**Client-side hooks — toast on failure, never throw:**
+```typescript
+try {
+  const response = await fetch(...);
+  if (!response.ok) {
+    toast({ message: "...", type: "error" });
+    return;
+  }
+  toast({ message: "...", type: "success" });
+  onSuccess?.();
+} catch {
+  toast({ message: "...", type: "error" });
+} finally {
+  setIsLoading(false);
+}
+```
+
+**Supabase query errors:**
+```typescript
+const { data, error } = await supabase.from("table").select("*");
+if (error) throw error; // let API catch-all handle it
+// OR return early for inline handling:
+if (error) return { ok: false as const, response: errorResponse("INTERNAL_ERROR", "...", 500) };
+```
+
+## Logging
+
+**Module:** `src/lib/utils/logger.ts`
+
+**Methods:** `logger.info()`, `logger.warn()`, `logger.error()`, `logger.exception(error, context?)`
+
+**Pattern:** Used in API route catch blocks only. Client components/hooks use toast; never use `console.log` in production code.
+
+## Comments
+
+**When to comment:**
+- Module-level JSDoc for complex hooks and service functions
+- Inline `// NOTE:` for important caveats and disabled rules
+- `// BUG-NN:` to trace decision back to specific bug fix
+- Section dividers with `// ===...===` for long files
+
+**JSDoc style:**
+```typescript
+/**
+ * Hook for subscribing to real-time tracking updates.
+ * Falls back to polling if Realtime connection fails.
+ */
+export function useTrackingSubscription({ ... }: Options): Return { ... }
+```
+
+## React Compiler Implications
+
+React Compiler (`babel-plugin-react-compiler`) is enabled. Auto-memoizes client components.
+
+**Rules:**
+- Do NOT add `useMemo`, `useCallback`, or `React.memo` manually for performance
+- `useCallback` may still appear for semantic clarity and correct dependency arrays in hooks
+- Do NOT add new manual memoization
 
 ## Component Patterns
 
-**UI Primitives (shadcn/ui style):**
-Use `cva` (class-variance-authority) for variant-based styling. Pattern:
+**`'use client'` directive:** Required on any file using hooks, event handlers, or browser APIs. Always at top of file before imports.
 
+**Server Components:** Default in App Router. No directive. Fetch server-side, pass as props.
+
+**Framer Motion:** Use `m` (not `motion`) for tree-shaking:
 ```typescript
-// src/components/ui/button.tsx
-"use client";
-
-import * as React from "react";
-import { cva, type VariantProps } from "class-variance-authority";
-import { cn } from "@/lib/utils/cn";
-
-const buttonVariants = cva(
-  "base-classes...",
-  {
-    variants: {
-      variant: { primary: "...", secondary: "...", ghost: "..." },
-      size: { sm: "...", md: "...", lg: "..." },
-    },
-    defaultVariants: { variant: "default", size: "default" },
-  }
-);
-
-export interface ButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof buttonVariants> {
-  asChild?: boolean;
-  isLoading?: boolean;
-}
-
-const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant, size, ...props }, ref) => (
-    <button
-      className={cn(buttonVariants({ variant, size, className }))}
-      ref={ref}
-      {...props}
-    />
-  )
-);
-Button.displayName = "Button";
-
-export { Button, buttonVariants };
+import { m, AnimatePresence } from "framer-motion";
+// Use: <m.div ...> not <motion.div ...>
 ```
 
-Key rules:
-- Always use `React.forwardRef` for primitives
-- Always set `displayName`
-- Always accept `className` prop and merge with `cn()`
-- Use `"use client"` directive for any component using hooks, events, or Framer Motion
-- Export both the component and its variants function
-- Export the Props interface
-
-**Animated Components:**
-Use Framer Motion `m` (lazy motion) component for animations. Import motion tokens from `@/lib/design-system/tokens/motion`.
-
+**Animation variants as const:**
 ```typescript
-import { m, type HTMLMotionProps } from "framer-motion";
-import { spring, hover } from "@/lib/motion-tokens";
-
-const motionProps = shouldAnimate ? {
-  whileHover: hover.buttonPress.whileHover,
-  whileTap: hover.buttonPress.whileTap,
-  transition: spring.snappyButton,
-} : {};
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
+} as const;
 ```
 
-- Respect `useAnimationPreference()` hook -- skip motion when user prefers reduced motion
-- React Compiler is enabled -- do NOT manually use `useMemo`, `useCallback`, or `React.memo`
-
-**Component Subfolder Pattern:**
-When a component exceeds 400 lines, split into subfolder:
-
-```
-ComponentName/
-  index.tsx          # Barrel re-exports only
-  SubComponent.tsx   # PascalCase
-  useHook.ts         # camelCase with use prefix
-  helpers.ts         # camelCase
-```
-
-- Every extracted file using hooks/events needs `'use client'`
-- Barrel `index.tsx` must re-export ALL original exports
-- Example: `src/components/ui/checkout/index.ts`, `src/components/ui/Modal/index.tsx`
-
-## Zustand Store Patterns
-
-**Store definition:**
+**Guard animations with preference hook:**
 ```typescript
-// src/lib/stores/cart-store.ts
-import { create } from "zustand";
-import { createJSONStorage, persist } from "zustand/middleware";
-
-export const useCartStore = create<CartStore>()(
-  persist(
-    (set, get) => ({
-      // State
-      items: [],
-      // Derived getters
-      getItemsSubtotal: () => { /* ... */ },
-      // Actions
-      addItem: (item) => set((state) => ({ items: [...state.items, item] })),
-      clearCart: () => set({ items: [] }),
-    }),
-    {
-      name: "mms-cart",
-      storage: createJSONStorage(() => cartIDBStorage),
-      partialize: (state) => ({ items: state.items }),
-    }
-  )
-);
+const { shouldAnimate } = useAnimationPreference();
 ```
 
-- Define the store interface separately in `src/types/` (e.g., `CartStore` in `src/types/cart.ts`)
-- Use `persist` middleware with `createJSONStorage` for IndexedDB or localStorage
-- Use `partialize` to persist only serializable data
-- Export test helpers prefixed with `__` for resetting internal state (e.g., `__clearDebounceState`)
+## Form Patterns (React Hook Form + Zod)
 
-## TanStack React Query Patterns
-
-**Data fetching hooks:**
-```typescript
-// src/lib/hooks/useMenu.ts
-import { useQuery } from "@tanstack/react-query";
-
-export function useMenu() {
-  return useQuery<MenuResponse>({
-    queryKey: ["menu"],
-    queryFn: async () => {
-      const res = await fetch("/api/menu");
-      if (!res.ok) throw new Error("Failed to fetch menu");
-      return res.json() as Promise<MenuResponse>;
-    },
-    staleTime: 5 * 60 * 1000,
-  });
-}
-```
-
-- Always type the `useQuery<T>` generic
-- Use hierarchical `queryKey` arrays: `["menu"]`, `["menu", "search", query]`
-- Fetch via internal API routes (`/api/...`), not direct Supabase client calls
-- Use `enabled` option for conditional queries
-
-## Validation Patterns (Zod)
+**Schema location:** `src/lib/validations/` — one file per domain, export schema + inferred type.
 
 **Schema definition:**
 ```typescript
 // src/lib/validations/checkout.ts
 import { z } from "zod";
-
 export const createCheckoutSessionSchema = z.object({
   addressId: z.string().uuid("Invalid address ID"),
-  items: z.array(checkoutItemSchema).min(1).max(50),
-  tipCents: z.number().int().min(0).max(100_000).optional(),
   paymentMethod: z.enum(["stripe", "cod"]).default("stripe"),
-  customerPhone: z.string()
-    .transform((val) => val.replace(/\D/g, ""))
-    .pipe(z.string().min(10).max(15)),
+  // ...
 });
-
 export type CreateCheckoutSessionInput = z.infer<typeof createCheckoutSessionSchema>;
 ```
 
-- One schema file per domain in `src/lib/validations/`
-- Always export inferred types alongside schemas
-- Use `.safeParse()` in API routes, never `.parse()` (to control error responses)
-- Include user-friendly error messages in validators
+**Form hook setup:**
+```typescript
+const { register, handleSubmit, control, formState: { errors, dirtyFields, touchedFields } } =
+  useForm<AddressFormValues>({
+    resolver: zodResolver(addressFormSchema) as Resolver<AddressFormValues>,
+    defaultValues: { label: "Home", line1: "", city: "", state: "CA", postalCode: "" },
+  });
+```
+
+**Server-side validation:**
+```typescript
+const parsed = schema.safeParse(body);
+if (!parsed.success) {
+  return errorResponse("VALIDATION_ERROR", "Invalid request data", 400, parsed.error.issues);
+}
+const input = parsed.data; // fully typed, safe to use
+```
 
 ## API Route Patterns
 
-**Standard API route structure:**
+**File layout:**
+```
+src/app/api/checkout/session/
+  route.ts        # HTTP handlers (POST, GET, etc.) — import from helpers/validation
+  helpers.ts      # Pure functions specific to this route
+  validation.ts   # Re-usable validation helpers, errorResponse factory
+  types.ts        # Local TypeScript types
+  __tests__/      # Co-located tests
+```
+
+**Handler signature:**
 ```typescript
-// src/app/api/addresses/route.ts
-import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
-import { logger } from "@/lib/utils/logger";
-import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
+export async function POST(request: Request) { ... }
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) { ... }
+```
 
-export async function GET() {
-  try {
-    // 1. Auth check
-    const supabase = await createClient();
-    const { data: { user } } = await supabase.auth.getUser();
-    if (!user) return NextResponse.json(
-      { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
-      { status: 401 }
-    );
+**Auth check:**
+```typescript
+const supabase = await createClient(); // cookie-based, respects RLS
+const { data: { user } } = await supabase.auth.getUser();
+if (!user) return NextResponse.json({ error: { code: "UNAUTHORIZED", ... } }, { status: 401 });
+```
 
-    // 2. Rate limiting
-    const rl = await checkRateLimit({ limiter: customerLimiter, identifier: user.id, role: "customer", route: "addresses" });
-    if (rl.limited) return rl.response;
+**Rate limiting:**
+```typescript
+const rl = await checkRateLimit({
+  limiter: customerLimiter,
+  identifier: user.id,
+  role: "customer",
+  route: "addresses",
+});
+if (rl.limited) return rl.response;
+```
 
-    // 3. Business logic
-    const { data, error } = await supabase.from("addresses").select("*")...;
-    if (error) throw error;
+**Service client:** Use `createServiceClient()` only in webhook/cron/admin contexts (bypasses RLS). Use `createClient()` for user-authenticated routes.
 
-    // 4. Success response
-    return NextResponse.json({ data, meta: { count: data.length } });
-  } catch (error) {
-    // 5. Error handling
-    logger.exception(error, { api: "addresses" });
-    return NextResponse.json(
-      { error: { code: "INTERNAL_ERROR", message: "Failed to fetch addresses" } },
-      { status: 500 }
-    );
-  }
+**Fire-and-forget (not `void asyncFn()`):**
+```typescript
+import { after } from "next/server";
+after(async () => { await sendEmail(...); });
+```
+
+## Supabase Query Patterns
+
+**Typed returns:**
+```typescript
+const { data, error } = await supabase
+  .from("menu_items")
+  .select("*")
+  .in("id", ids)
+  .returns<MenuItemsRow[]>();
+```
+
+**FK disambiguation (mandatory when 2+ FKs to same table):**
+```typescript
+// Prevents PGRST201 error
+.select("drivers!fk_route_drivers(profiles(full_name))")
+```
+
+**Upsert with affected-row check:**
+```typescript
+// DO UPDATE WHERE col IS NULL (DO NOTHING won't fill null cols)
+const { data } = await supabase
+  .from("webhook_events")
+  .upsert({ id: eventId }, { onConflict: "id" })
+  .select("id"); // chain .select() — .update() returns no row count otherwise
+```
+
+**Supabase client selection:**
+- `createClient()` — server-side, cookie-based, user auth context, respects RLS
+- `createPublicClient()` — anon key, no cookies, for public data reads
+- `createServiceClient()` — service role, bypasses RLS, trusted server contexts only
+
+## Zustand Store Patterns
+
+**Store structure:**
+```typescript
+// src/lib/stores/[name]-store.ts
+interface NameState { /* fields + action signatures */ }
+
+const initialState = { field: value };
+
+export const useNameStore = create<NameState>()(
+  persist(
+    (set, get) => ({
+      ...initialState,
+      // actions
+      setField: (value) => set({ field: value }),
+      // computed selectors as methods
+      getComputedValue: () => {
+        const { field } = get();
+        return /* computed */;
+      },
+    }),
+    {
+      name: "mms-[name]",           // localStorage key prefix: mms-
+      storage: createJSONStorage(getStorage),
+      partialize: (state) => ({     // only persist needed fields
+        field: state.field,
+      }),
+    }
+  )
+);
+```
+
+**SSR-safe storage:**
+```typescript
+const getStorage = (): Storage => {
+  if (typeof window === "undefined") return createMemoryStorage();
+  return window.localStorage;
+};
+```
+
+**Cart store:** Uses IndexedDB storage via `src/lib/services/cart-idb-storage.ts`.
+
+**Hydration tracking:** `_hasHydrated` + `_setHasHydrated` pattern in cart store for SSR safety.
+
+## TanStack React Query Patterns
+
+**Query:**
+```typescript
+export function useAddresses() {
+  return useQuery<ResponseType>({
+    queryKey: ["resource"],
+    queryFn: async () => {
+      const res = await fetch("/api/resource");
+      if (!res.ok) {
+        const error = await res.json().catch(() => null);
+        throw new Error(error?.error?.message ?? "Failed to fetch resource");
+      }
+      return res.json();
+    },
+    staleTime: 5 * 60 * 1000, // when applicable
+    enabled: Boolean(condition), // when conditional
+  });
 }
 ```
 
-Key patterns:
-- Always wrap in try/catch
-- Auth check first, then rate limit, then validation, then business logic
-- Use structured error format: `{ error: { code: ApiErrorCode, message: string, details?: unknown } }`
-- Error codes: `UNAUTHORIZED`, `FORBIDDEN`, `VALIDATION_ERROR`, `NOT_FOUND`, `RATE_LIMITED`, `INTERNAL_ERROR`, `STRIPE_ERROR`, `CONFLICT`, `BAD_REQUEST`
-- Use `apiError()` helper from `@/lib/utils/api-error.ts` for consistent error responses
-- Zod validation: `schema.safeParse(body)` -> return 400 with `result.error.issues` on failure
-- Use `logger.exception()` for caught errors (sends to Sentry)
-- Success responses: `{ data: T, meta?: { count, coverage, etc. } }`
-
-## Error Handling
-
-**Server-side (API routes):**
-- Wrap all route handlers in try/catch
-- Use `logger.exception(error, context)` for Sentry + console logging
-- Return structured `{ error: { code, message } }` JSON responses
-- Use `apiError()` utility for common error responses
-
-**Client-side:**
-- Use `try/catch` with toast notifications for user-facing errors
-- Non-fatal fetch failures: log and continue (e.g., profile auto-fill)
-- Use `catch { /* Non-fatal */ }` pattern for optional features
-
-**Logging:**
-- Framework: `@/lib/utils/logger.ts` wrapping `@sentry/nextjs`
-- Levels: `debug`, `info`, `warn`, `error`, `exception`
-- Always include context: `{ api, userId, orderId, flowId }`
-- In development: outputs to console with `[LEVEL]` prefix
-- In production: adds Sentry breadcrumbs, captures messages for warn/error
-
+**Mutation:**
 ```typescript
-logger.error("Failed to update order", { orderId, userId, flowId: "checkout" });
-logger.exception(error, { api: "stripe-webhook" });
+export function useCreateResource() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (data: InputType) => {
+      const res = await fetch("/api/resource", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      });
+      const payload = await res.json();
+      if (!res.ok) throw payload; // throw full server error shape
+      return payload as ResponseType;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["resource"] });
+    },
+  });
+}
 ```
-
-## Comments
-
-**When to Comment:**
-- Section headers using `// ============...` separator blocks in long files
-- JSDoc on exported functions with `@example` where non-obvious
-- `@deprecated` annotations with migration path
-- Bug fix references: `// BUG-06 FIX: ...` with explanation of root cause
-- Business logic notes: `// CHKT-01: No client-sent prices...`
-- eslint-disable with reason: `// eslint-disable-next-line react-hooks/exhaustive-deps`
-
-**JSDoc/TSDoc:**
-- Used on exported functions in libraries and utilities
-- Not required on React components (Props interface serves as documentation)
-- Include `@example` for non-obvious APIs (e.g., motion tokens, logger)
-
-## `cn()` Utility
-
-Use `cn()` from `@/lib/utils/cn` for all Tailwind class merging:
-```typescript
-import { cn } from "@/lib/utils/cn";
-// Combines clsx + tailwind-merge
-cn("base-class", conditional && "extra", className)
-```
-
-## Money Handling
-
-- All monetary values stored and computed in **cents** (integer)
-- Variable naming: suffixed with `Cents` (e.g., `basePriceCents`, `deliveryFeeCents`, `totalCents`)
-- Display formatting: `formatPrice(cents)` from `@/lib/utils/format.ts`
-- Never use floating-point for money calculations
 
 ---
 
-*Convention analysis: 2026-03-14*
+*Convention analysis: 2026-03-18*

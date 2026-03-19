@@ -1,222 +1,237 @@
 # Technology Stack
 
-**Analysis Date:** 2026-03-14
+**Analysis Date:** 2026-03-18
 
 ## Languages
 
 **Primary:**
-- TypeScript 5 (strict mode) - All application code (`src/`, `scripts/`, config files)
-  - `tsconfig.json`: `strict: true`, `noUnusedLocals: true`, `noUnusedParameters: true`
-  - Target: ES2017, Module: ESNext, Module Resolution: bundler
-  - Path alias: `@/*` maps to `./src/*`
+- TypeScript 5 (strict) - all source files under `src/`, build scripts, config files
+- SQL - Supabase migrations under `supabase/migrations/`
 
 **Secondary:**
-- SQL (PostgreSQL) - Database migrations in `supabase/migrations/` (58+ migration files)
-- JavaScript - Build scripts (`scripts/build-sw.mjs`, `scripts/rls-isolation-test.mjs`), config files (`lighthouserc.js`, `chromatic.config.js`)
-- CSS - Tailwind CSS v4 with `@theme inline` directives
+- JavaScript (ESM) - build scripts under `scripts/` (`.mjs`, `.js`)
+- CSS - global styles at `src/app/globals.css`, component-level styles
 
 ## Runtime
 
 **Environment:**
-- Node.js 22 (per CI workflow in `.github/workflows/ci.yml`)
-- No `.nvmrc` at project root
+- Node.js 22 (pinned in `.github/workflows/ci.yml`)
+- TypeScript target: ES2017 (`tsconfig.json`)
+- Service worker target: Chrome 90 / Firefox 90 / Safari 15 (`scripts/build-sw.mjs`)
 
 **Package Manager:**
-- pnpm 10 (per CI `pnpm/action-setup@v4` with `version: 10`)
-- Lockfile: `pnpm-lock.yaml` present
+- pnpm 10 (pinned in CI via `pnpm/action-setup@v4`)
+- Lockfile: `pnpm-lock.yaml` present, `--frozen-lockfile` enforced in CI
+- Workspace: `pnpm-workspace.yaml` (single-package workspace)
 
 ## Frameworks
 
 **Core:**
-- Next.js 16.1.2 (`next`) - App Router, React Server Components, Server Actions
-  - React Compiler enabled (`reactCompiler: true` in `next.config.ts`)
-  - React Strict Mode enabled
-  - Server Actions with 2MB body size limit
-  - Image optimization: AVIF/WebP, remote patterns for Supabase and Google Drive
-  - CSP headers with Sentry reporting
-  - Bundle analyzer via `@next/bundle-analyzer`
-- React 19.2.3 (`react`, `react-dom`) - Auto-memoized via React Compiler (no manual useMemo/useCallback needed)
+- Next.js 16.1.2 - App Router, React Server Components, Server Actions
+- React 19.2.3 with React Compiler enabled (`reactCompiler: true` in `next.config.ts`)
+- React DOM 19.2.3
 
-**State Management:**
-- Zustand 5.0.10 (`zustand`) - Client-side stores in `src/lib/stores/`
-  - `cart-store.ts` - Shopping cart state
-  - `checkout-store.ts` - Checkout flow state
-  - `driver-store.ts` - Driver dashboard state
-  - `cart-animation-store.ts` - Cart animation triggers
-- TanStack React Query 5.90.1 (`@tanstack/react-query`) - Server state, caching, mutations
-
-**Forms & Validation:**
-- React Hook Form 7.71.1 (`react-hook-form`) - Form state management
-- `@hookform/resolvers` 5.2.2 - Zod integration bridge
-- Zod 4.3.5 (`zod`) - Schema validation (forms, API inputs, env vars)
-
-**Testing:**
-- Vitest 4.0.17 (`vitest`) - Unit testing, jsdom environment
-  - Config: `vitest.config.ts`
-  - Setup file: `src/test/setup.ts`
-  - 10s test timeout, 10s hook timeout
-- Playwright 1.57.0 (`@playwright/test`) - E2E testing
-  - Config: `playwright.config.ts`
-  - Browsers: Chromium (Desktop Chrome + Mobile Chrome/Pixel 5)
-  - Visual regression: screenshot comparison, snapshot matching
-- Testing Library (`@testing-library/react` 16.3.1, `@testing-library/jest-dom` 6.9.1)
-- `fake-indexeddb` 6.2.5 - IndexedDB mocking for offline store tests
-
-**Build/Dev:**
-- esbuild 0.27.2 - Service worker compilation (`scripts/build-sw.mjs`)
-- tsx 4.19.2 - TypeScript script runner for seed/verify scripts
-- sharp 0.34.5 - Server-side image processing (WebP conversion, 4:3 crop)
-
-## UI Framework
-
-**Component Library:**
-- Radix UI (8 primitives) - AlertDialog, Checkbox, Dialog, Label, Progress, RadioGroup, ScrollArea, Select, Slot
-- shadcn/ui pattern - Components in `src/components/ui/` using CVA + Radix
-- Tailwind CSS v4 (`tailwindcss` ^4) via `@tailwindcss/postcss`
-  - `tailwind.config.ts` contains design token definitions (colors, spacing, shadows, animations)
-  - **IMPORTANT:** `@theme inline` in CSS is source of truth; `tailwind.config.ts` content extends tokens only
-  - `tailwindcss-animate` for animation utilities
-- class-variance-authority 0.7.1 (`cva`) - Variant-based component styling
-- clsx 2.1.1 + tailwind-merge 3.4.0 - Class name utilities (via `cn()` in `src/lib/utils/cn.ts`)
-
-**Icons:**
-- lucide-react 0.562.0 - Icon library with modular imports (`transform: lucide-react/dist/esm/icons/{{ kebabCase member }}`)
+**UI / Styling:**
+- Tailwind CSS v4 (`tailwindcss ^4`) - `@theme inline` in `src/app/globals.css` is source of truth; `tailwind.config.ts` is supplemental for shadcn/Radix compatibility
+- `@tailwindcss/postcss ^4` - PostCSS plugin (`postcss.config.mjs`)
+- shadcn/ui (style: "new-york", configured in `components.json`) - component primitives built on Radix UI
+- Radix UI primitives: `react-alert-dialog`, `react-checkbox`, `react-dialog`, `react-label`, `react-progress`, `react-radio-group`, `react-scroll-area`, `react-select`, `react-slot`
+- `tailwind-merge ^3.4.0` - class merging
+- `tailwindcss-animate ^1.0.7` - animation keyframe plugin
+- `class-variance-authority ^0.7.1` - component variant generation
+- `clsx ^2.1.1` - conditional class utility
 
 **Animation:**
-- Framer Motion 12.26.1 (`framer-motion`) - React animations, gestures, layout transitions
-- GSAP 3.14.2 (`gsap`, `@gsap/react`) - Complex timeline animations
-- Motion tokens in `src/lib/motion-tokens/` and `src/lib/micro-interactions/`
+- Framer Motion 12.26.1 - React declarative animations (import optimized in `next.config.ts`)
+- GSAP 3.14.2 + `@gsap/react ^2.1.2` - imperative animations with React hooks
+
+**State Management:**
+- Zustand 5.0.10 - client-side stores (`src/lib/stores/`: cart-store, checkout-store, driver-store, cart-animation-store)
+- TanStack React Query 5.90.1 - server state, caching, background sync (`src/lib/providers/query-provider.tsx`)
+
+**Forms & Validation:**
+- React Hook Form 7.71.1
+- `@hookform/resolvers ^5.2.2` - Zod adapter
+- Zod 4.3.5 - schema validation (`src/lib/validations/`, `src/lib/validators/`)
 
 **Rich Text:**
-- TipTap 3.19.0 (`@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/pm`) - Rich text editor for admin email compose
-  - Extensions: `@tiptap/extension-link`, `@tiptap/extension-placeholder`
-
-**Charts:**
-- Recharts 3.6.0 - Admin analytics charts
+- Tiptap 3.19.0 (`@tiptap/react`, `@tiptap/starter-kit`, `@tiptap/extension-link`, `@tiptap/extension-placeholder`, `@tiptap/pm`)
 
 **Maps:**
-- `@react-google-maps/api` 2.20.8 - Google Maps React components (admin route maps, delivery tracking, homepage map)
-- Leaflet 1.9.4 + react-leaflet 5.0.0 - Alternative map rendering
+- `@react-google-maps/api ^2.20.8` - Google Maps React wrapper (always `ssr: false` dynamic import - crashes SSR)
+- `leaflet ^1.9.4` + `react-leaflet ^5.0.0` + `@types/leaflet ^1.9.21` - Leaflet maps (delivery zone visualization)
+
+**Charts:**
+- Recharts 3.6.0 - admin analytics charts
 
 **Search:**
-- Fuse.js 7.1.0 - Client-side fuzzy search for menu items (`src/lib/search/`)
-- cmdk 1.1.1 - Command palette UI
+- `fuse.js ^7.1.0` - fuzzy search (menu search, `src/lib/search/`)
+- `cmdk ^1.1.1` - command palette component
 
-**Other UI:**
-- next-themes 0.4.6 - Dark/light theme switching
-- react-easy-crop 5.5.6 - Image cropping UI
-- browser-image-compression 2.0.2 - Client-side image optimization
-- `@fontsource-variable/inter`, `@fontsource-variable/playfair-display` - Self-hosted fonts
+**Image Processing:**
+- `sharp ^0.34.5` - server-side image processing (WebP conversion, 4:3 crop) used in `/api/admin/photos/process`
+- `browser-image-compression ^2.0.2` - client-side compression
+- `react-easy-crop ^5.5.6` - image cropping UI
 
-## Key Dependencies
+**Offline / PWA:**
+- `serwist ^9.5.4` + `@serwist/next ^9.5.4` + `@serwist/build ^9.5.6`
+- Service worker built separately via `scripts/build-sw.mjs` (esbuild + `@serwist/build getManifest`)
+- SW source: `src/app/sw.ts` → compiled to `public/sw.js` (excluded from tsconfig)
+- Registration hook: `src/lib/hooks/useServiceWorker.ts`
+- Precached routes: `/`, `/menu`, `/cart`, `/offline`
+- `idb-keyval ^6.2.2` - IndexedDB wrapper for offline cart persistence (`src/lib/services/cart-idb-storage.ts`)
 
-**Critical (breaks core functionality):**
-- `@supabase/supabase-js` 2.90.1 + `@supabase/ssr` 0.8.0 - Database, auth, storage, realtime
-- `stripe` 20.1.2 - Payment processing (server-side SDK)
-- `resend` 6.9.1 - Transactional email delivery
-- `zod` 4.3.5 - Validation across all layers (forms, APIs, env vars)
+**Data Utilities:**
+- `date-fns ^4.1.0` - date formatting and manipulation
+- `uuid ^13.0.0` - UUID generation
+- `yaml ^2.8.2` - YAML parsing for menu seed data (`data/`)
 
-**Infrastructure:**
-- `@sentry/nextjs` 10.38.0 - Error tracking, performance monitoring, session replay
-- `@serwist/next` 9.5.4 + `serwist` 9.5.4 - PWA service worker framework
-- `@upstash/ratelimit` 2.0.8 + `@upstash/redis` 1.36.2 - Rate limiting (currently disabled, in-memory fallback active)
-- `@vercel/analytics` 1.6.1 + `@vercel/speed-insights` 1.3.1 - Vercel performance analytics
-- `svix` 1.86.0 - Webhook signature verification (Resend webhooks)
-- `web-vitals` 5.1.0 - Core Web Vitals monitoring
+**Drag & Drop:**
+- `@dnd-kit/core ^6.3.1` + `@dnd-kit/sortable ^10.0.0` + `@dnd-kit/utilities ^3.2.2` - admin menu/route ordering
 
-**Utilities:**
-- `date-fns` 4.1.0 - Date manipulation (delivery scheduling, time windows)
-- `uuid` 13.0.0 - UUID generation
-- `yaml` 2.8.2 - Menu seed data parsing
-- `idb-keyval` 6.2.2 - IndexedDB key-value store for offline data
+**Icons:**
+- `lucide-react ^0.562.0` - icon library (modularized in `next.config.ts` via `modularizeImports`)
+
+**Fonts:**
+- `@fontsource-variable/inter ^5.2.8` - Inter variable font
+- `@fontsource-variable/playfair-display ^5.2.8` - Playfair Display variable font
+- Nunito (display/body) and Padauk (Burmese script) registered in Tailwind theme
+
+**Theming:**
+- `next-themes ^0.4.6` - dark/light mode toggle
+
+**Rate Limiting:**
+- `@upstash/ratelimit ^2.0.8` - rate limiter (all limiters currently null; in-memory fallback active at 15 req/min)
+- `@upstash/redis ^1.36.2` - Redis client (not connected; requires Upstash REST endpoint)
+
+**Webhook Verification:**
+- `svix ^1.86.0` - HMAC signature verification for Resend webhooks (`src/app/api/webhooks/resend/route.ts`)
+
+## Build Configuration
+
+**`next.config.ts`:**
+- `reactCompiler: true` - auto-memoizes all client components
+- `reactStrictMode: true`
+- `compress: true`
+- `removeConsole` in production (preserves `error`, `warn`)
+- Image optimization: avif + webp, qualities [70, 85], 30-day cache TTL
+- `serverExternalPackages: ["@react-email/render"]` - prevents Turbopack bundling issues
+- `optimizePackageImports` for lucide-react, framer-motion, all Radix UI, recharts, date-fns, @react-google-maps/api
+- `modularizeImports` for lucide-react (ESM icon paths)
+- Server Actions `bodySizeLimit: "2mb"`
+- CSP headers with Sentry report-uri, Google Maps domains, Supabase domains
+- Security headers: HSTS, X-Content-Type-Options, X-Frame-Options, Permissions-Policy
+- Remote image patterns: `**.supabase.co`, `drive.google.com`, `**.googleusercontent.com`
+- Wrapped by: `withSentryConfig` then `withBundleAnalyzer`
+
+**Sentry config:**
+- `sentry.client.config.ts` - session replay (10% sessions, 100% on error), traces 20% in prod
+- `sentry.server.config.ts` - extra error data depth 5
+- `sentry.edge.config.ts` - edge runtime support
+- Tunnel route: `/monitoring` (ad-blocker bypass)
+- Org: `mandalay-morning-star`, Project: `mandalay-morning-star-delivery-app`
+
+## Configuration Files
+
+| File | Purpose |
+|------|---------|
+| `next.config.ts` | Next.js + Sentry + bundle analyzer |
+| `tsconfig.json` | TypeScript strict config, `@/*` alias |
+| `eslint.config.mjs` | ESLint flat config (design token enforcement, circular deps, max-lines 400) |
+| `vitest.config.ts` | Vitest unit tests (jsdom, setupFiles, `@` alias) |
+| `playwright.config.ts` | E2E config (chromium + Pixel 5 mobile, visual regression) |
+| `tailwind.config.ts` | Tailwind theme extension for shadcn compat + design tokens |
+| `postcss.config.mjs` | PostCSS with Tailwind v4 plugin |
+| `sentry.client.config.ts` | Sentry browser: replay integration |
+| `sentry.server.config.ts` | Sentry server: extra error data |
+| `sentry.edge.config.ts` | Sentry edge runtime |
+| `instrumentation.ts` | Next.js instrumentation hook (loads Sentry per runtime) |
+| `instrumentation-client.ts` | Client-side instrumentation |
+| `vercel.json` | Vercel cron jobs (3 crons: delivery-reminders 15:00, admin-digest 14:00+06:00 UTC) |
+| `components.json` | shadcn/ui config (new-york style, lucide icons) |
+| `chromatic.config.js` | Chromatic visual regression (5 breakpoints, TurboSnap enabled) |
+| `lighthouserc.js` | Lighthouse CI (5 public URLs, mobile profile, LCP/CLS error gates) |
+| `knip.json` | Dead code detection |
+| `supabase/config.toml` | Supabase local dev (Postgres 15, port 54321, pgTAP, plpgsql_check) |
 
 ## Dev Tooling
 
-**Linting:**
-- ESLint 9 (`eslint`) with flat config (`eslint.config.mjs`)
-  - Extends: `next/core-web-vitals`, `next/typescript`, `prettier`
-  - `eslint-plugin-import-x` - Circular dependency detection (`import-x/no-cycle`, maxDepth: 10)
-  - `eslint-plugin-storybook` - Storybook best practices
-  - 62+ design token enforcement rules via `no-restricted-syntax`
-  - Consolidation guards via `no-restricted-imports` (prevents imports from deprecated directories)
-  - File size limit: 400 lines (`max-lines` warning, excludes `src/types/**`, test files, stories)
-- Stylelint 17.0.0 (`stylelint`) with `stylelint-config-standard`
-- Prettier 3.7.4 (`prettier`)
+**Code Quality:**
+- ESLint 9 (flat config) - extends `next/core-web-vitals`, `next/typescript`, `prettier`
+- `eslint-plugin-import-x ^4.16.1` - circular dependency detection (`no-cycle`, maxDepth: 10)
+- `eslint-plugin-storybook ^10.1.11` - Storybook-specific linting
+- Prettier 3.7.4 - code formatting
+- Stylelint 17 + `stylelint-config-standard ^40.0.0` - CSS linting
+- `eslint-config-prettier ^10.1.8` - disables formatting conflicts
+
+**Design Token Enforcement (ESLint):**
+- Hardcoded hex colors in Tailwind classes → error
+- Hardcoded `text-white`, `bg-white`, `text-black`, `bg-black` → error (use semantic tokens)
+- Arbitrary font sizes `text-[Npx]` → error
+- Arbitrary spacing/padding/gap `p-[Npx]`, `m-[Npx]` → error
+- Hardcoded `boxShadow`, `backdropFilter blur(Npx)`, `transitionDuration` → error (use CSS vars)
+- Arbitrary duration `duration-[Nms]` → error
+- Inline `zIndex: 50` → error (use zIndex tokens)
+- File max-lines: 400 (warning, excluding `src/types/**`, test files, stories)
 
 **Pre-commit:**
-- Husky 9.1.7 (`husky`) - Git hooks
-- lint-staged 16.2.7 (`lint-staged`)
-  - `src/**/*.{ts,tsx}`: ESLint with `--max-warnings=0`
-  - `src/**/*.css`: Stylelint
+- Husky 9.1.7 (`.husky/pre-commit`) + lint-staged 16.2.7
+- Staged `.ts/.tsx`: ESLint `--max-warnings=0`
+- Staged `.css`: Stylelint
 
-**Code Quality:**
-- knip 5.82.1 - Dead code / unused dependency detection
+**Dead Code:**
+- Knip 5.82.1 (`knip.json`)
 
-**Visual Testing:**
-- Storybook 10.1.11 (`storybook`, `@storybook/nextjs-vite`)
-  - Addons: a11y, docs, onboarding, vitest
-  - Port: 6006
-- Chromatic 5.0.0 (`@chromatic-com/storybook`) - Visual regression testing
-  - Config: `chromatic.config.js`
-  - TurboSnap enabled, 5 viewport breakpoints (375, 640, 768, 1024, 1280)
-  - Chrome browser only
+**Bundle Analysis:**
+- `@next/bundle-analyzer ^16.1.3` - activated via `ANALYZE=true pnpm build`
+- `pnpm analyze:server` / `pnpm analyze:browser` for split analysis
 
 **Performance:**
-- Lighthouse CI (`@lhci/cli` 0.15.1) - Performance regression gate
-  - Config: `lighthouserc.js`
-  - Mobile-first: 3 runs per URL, 5 public routes
-  - CI thresholds: LCP < 10s, CLS < 0.15, Perf > 0.3, A11y > 0.9
-- `@next/bundle-analyzer` - Bundle size analysis (`ANALYZE=true next build`)
+- `@lhci/cli ^0.15.1` - Lighthouse CI (mobile-only, 3 runs per URL)
 
-## Configuration
+**Visual Regression:**
+- Storybook 10.1.11 (`@storybook/nextjs-vite`) at port 6006
+- Chromatic (`@chromatic-com/storybook ^5.0.0`) - visual regression CI
+- Storybook addons: a11y, docs, onboarding, vitest
 
-**Environment:**
-- `.env.local` for local development (git-ignored)
-- `.env.example` documents all required/optional vars
-- Env validation via Zod in `src/lib/health/env.ts`
-- Critical vars (block production_ready): `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `RESEND_API_KEY`, `NEXT_PUBLIC_APP_URL`
-- Important vars (warn only): `SUPABASE_SERVICE_ROLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `CRON_SECRET`, `GOOGLE_MAPS_API_KEY`, `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `GOOGLE_SITE_VERIFICATION`
+**Testing Utilities:**
+- `@testing-library/react ^16.3.1` + `@testing-library/jest-dom ^6.9.1`
+- `@axe-core/playwright ^4.11.0` - accessibility checks in E2E
+- `fake-indexeddb ^6.2.5` - IndexedDB mock for Vitest
+- `jsdom ^27.4.0` - DOM environment
 
-**Build:**
-- `next.config.ts` - Central build config with Sentry and bundle analyzer wrappers
-- `postcss.config.mjs` - Tailwind CSS v4 PostCSS plugin
-- `tsconfig.json` - TypeScript strict configuration
-- `vitest.config.ts` - Test runner config
-- `playwright.config.ts` - E2E test config
-- `vercel.json` - Cron job schedules
+**Build Utilities:**
+- `tsx ^4.19.2` - TypeScript script runner (`pnpm seed:menu`, `pnpm launch:check`)
+- `esbuild ^0.27.2` - service worker bundling in `scripts/build-sw.mjs`
+- `vite ^7.3.1` + `@vitejs/plugin-react ^5.1.2` - Vitest/Storybook build
 
-**Build Pipeline:**
-1. `next build` - Compiles Next.js app with React Compiler
-2. `node scripts/build-sw.mjs` - Builds service worker with esbuild + `@serwist/build` manifest
-3. Sentry source map upload (via `@sentry/nextjs` build plugin)
+**React Compiler:**
+- `babel-plugin-react-compiler ^1.0.0` - Babel plugin integration
 
 ## Platform Requirements
 
 **Development:**
-- Node.js 22+
-- pnpm 10+
-- Supabase project (URL + anon key minimum)
-- Stripe test keys for payment flows
-- Google Maps API key for geocoding/maps
+- Node.js 22, pnpm 10
+- Supabase CLI for local DB (API: 54321, DB: 54322, Studio: 54323)
+- Supabase extensions: pgTAP 1.3.1 (DB tests), plpgsql_check 1.2.3 (PL/pgSQL lint)
 
 **Production:**
-- Vercel (deployment target)
-- Supabase Cloud (Postgres + Auth + Storage + Realtime)
-- Stripe account (live keys)
-- Resend account (email delivery)
-- Sentry account (error tracking)
-- Google Cloud (Maps APIs)
-- Domain: `mandalaymorningstar.com`
+- Vercel (inferred from `vercel.json`, `@vercel/analytics`, `@vercel/speed-insights`, `VERCEL_ENV`/`VERCEL_GIT_COMMIT_SHA` env vars)
+- Sentry tunnel route `/monitoring` for ad-blocker bypass
 
 ## CI/CD
 
-**GitHub Actions:** `.github/workflows/ci.yml`
-- Trigger: push to main, PRs to main
-- Jobs (parallel): Lint & Format, Type Check, Unit Tests
-- Jobs (sequential): Build (after lint/typecheck/test pass)
-- Jobs (conditional): Lighthouse CI (PRs only, when `src/` changes detected)
-- Artifacts: Next.js build output uploaded for Lighthouse job
+**Pipeline:** GitHub Actions (`.github/workflows/ci.yml`)
+
+| Job | Trigger | Dependencies | Notes |
+|-----|---------|-------------|-------|
+| `changes` | push/PR to main | none | dorny/paths-filter detects src changes |
+| `lint` | push/PR to main | none | ESLint + Stylelint + Prettier |
+| `typecheck` | push/PR to main | none | tsc --noEmit |
+| `test` | push/PR to main | none | Vitest, 5min timeout with hang workaround |
+| `build` | push/PR to main | lint, typecheck, test | Produces `.next` artifact |
+| `lighthouse` | PR only, src changed | build | treosh/lighthouse-ci-action@v12 |
 
 ---
 
-*Stack analysis: 2026-03-14*
+*Stack analysis: 2026-03-18*
