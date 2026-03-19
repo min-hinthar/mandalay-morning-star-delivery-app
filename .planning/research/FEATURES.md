@@ -1,172 +1,243 @@
-# Feature Landscape
+# Feature Landscape: v2.2 Stability & Correctness
 
-**Domain:** Saturday meal delivery — route operations, driver execution, admin mobile UX
-**Researched:** 2026-03-14
-**Milestone:** v2.1 Route Operations & Admin Mobile
-**Confidence:** HIGH (existing codebase fully audited + industry patterns verified)
+**Domain:** Delivery app bug fixes -- route lifecycle, checkout validation, timezone correctness, rate limiting
+**Researched:** 2026-03-19
+**Mode:** Fix/correctness milestone (not greenfield features)
 
-## Existing Foundation (What's Already Built)
-
-| Component | State | Key Files |
-|-----------|-------|-----------|
-| Route creation (Leaflet map, greedy clustering) | Working | `RouteBuilderClient.tsx`, `RouteBuilderMap.tsx` |
-| Route detail (stats, map, timeline, driver assign) | Working | `RouteDetailClient.tsx`, `StopsList.tsx` |
-| Stop status change (admin) | Working | `RouteStopCard.tsx` — PATCH per stop |
-| Stop removal + reassignment to other routes | Working | `handleRemoveStop`, `handleReassign` in RouteDetailClient |
-| Optimization modal (before/after, Google Directions) | Working | `OptimizationModal.tsx` — POST to `/api/admin/routes/optimize` |
-| Add stops modal | Working | `AddStopsModal.tsx` |
-| Driver ActiveRouteView (progress bar, start/complete) | Working | `ActiveRouteView.tsx` — start/complete route APIs exist |
-| Driver SimpleStopView (photo-gated, one stop at a time) | Working | `SimpleStopView.tsx` — offline sync, photo upload |
-| DeliveryActions (arrived/delivered/skipped) | Working | `DeliveryActions.tsx` — offline queue, exception report |
-| Stop detail page (`/driver/route/[stopId]`) | Exists | `StopDetailView.tsx`, `StopDetail.tsx` |
-| Location tracker | Exists | `LocationTracker.tsx` |
-| Exception modal | Exists | `ExceptionModal.tsx` |
-| Order detail (header, items, customer, payment, timeline, email) | Working | `OrderDetailClient.tsx` — 2-column `lg:grid-cols-2` layout |
-| Driver simple mode toggle | Working | DB-backed `simple_mode` column |
-| Offline sync (IndexedDB queue) | Working | `useOfflineSync` hook |
-| Route stop status types | Defined | `pending | enroute | arrived | delivered | skipped` |
-| DB columns for tracking | Exist | `arrived_at`, `delivered_at`, `delivery_photo_url`, `delivery_notes` on `route_stops` |
+---
 
 ## Table Stakes
 
-Features the operator and drivers expect for Saturday route ops. Missing = broken workflow.
+Fixes without which the system is broken or produces incorrect behavior in production.
 
-| Feature | Why Expected | Complexity | Dependencies | Notes |
-|---------|--------------|------------|--------------|-------|
-| **Drag-reorder stops (admin)** | Every route planner has it; admin needs manual override after optimization | Medium | `@dnd-kit/sortable` (new dep) | `StopsList` renders sorted by `stop_index`; need DnD wrapper + PATCH to persist new indices. Desktop DnD + mobile move-up/down buttons |
-| **Remove stop from route** | Admin drops last-minute cancellations | **Already built** | -- | `handleRemoveStop` in RouteDetailClient works |
-| **Add stops to route** | Late orders need assignment | **Already built** | -- | `AddStopsModal` exists and works |
-| **Auto-sort by proximity** | Admin clicks "Optimize" and gets distance-sorted order | **Already built** | Google Directions API | `OptimizationModal` with before/after comparison exists |
-| **Driver status progression** | Core delivery workflow: pending -> arrived -> delivered | **Already built** | -- | `DeliveryActions.tsx` handles all transitions with offline fallback |
-| **Navigate to stop** | Drivers need turn-by-turn directions | **Already built** | -- | `SimpleStopView.openMaps()` deep-links Google Maps |
-| **Mark delivered with confirmation** | Prevent accidental taps | **Already built** | -- | `DeliveryConfirmDialog` exists |
-| **Photo proof of delivery** | Dispute resolution, accountability | **Already built** | Supabase Storage | `PhotoCapture.tsx` with offline queue |
-| **Auth routing fix** | Admin/driver must land on dashboard after login, not homepage | Low | `auth/callback/route.ts` | Role redirect logic exists but has edge cases — needs audit |
-| **Order detail: items with modifiers** | Admin needs full order breakdown during Saturday ops | Low | Existing `OrderItemsCard` | Verify modifier rendering; may need to add modifier display |
-| **Order detail: delivery address on detail page** | Admin needs address for phone support | **Already built** | -- | `CustomerInfoCard` renders address |
-| **Order detail: payment/tip visibility** | Admin needs to know COD vs paid, tip amount | Low | Existing `PaymentInfoCard`, `TotalsCard` | Verify tip_cents renders; add if missing |
-| **Manual tracking display (admin)** | Admin sees which stop driver is on + timestamps | Low | Existing `arrived_at`, `delivered_at` columns | Data already collected by driver actions; need admin-facing display in `RouteDetailClient` |
+### Route Lifecycle State Machine
+
+| Fix | Issue | Why Broken | Complexity | Files |
+|-----|-------|-----------|------------|-------|
+| Driver cannot start `assigned` route -- UI shows "Start" but API rejects | F | `start` endpoint allows `planned`/`accepted` but not `assigned`. Driver sees route via `active` query with `.in("status", ["assigned", "accepted", "planned", "in_progress"])`. No UI gate between "Accept" and "Start" CTAs. | Low | `active/route.ts:168`, driver route UI |
+| `updateRouteStats` counts `enroute` stop as `pending` | I | Dashboard shows 0 stops in-progress. `pending_stops: stops.filter(s => s.status === "pending" \|\| s.status === "enroute").length` conflates two distinct states. Admin sees misleading counts. | Low | `stops/[stopId]/route.ts:218-222` |
+| Missing `increment_driver_deliveries` RPC -- delivery count never incremented | J | `deliveries_count` stays 0 forever. Try/catch swallows the missing RPC. Badge eligibility calculated from single-route data only. | Low | `complete/route.ts:109-118`, new migration |
+| Race condition in next-stop promotion (SELECT then UPDATE) | 9 | Two parallel stop completions can both find same `pending` stop as "next". Rapid offline queue drain triggers this. Classic read-then-write race. | Med | `stops/[stopId]/route.ts:167-186` |
+| Admin route status override bypasses lifecycle guards | G | Admin PATCH can set `in_progress` on `planned`/`assigned` route without driver acceptance. Can set `planned` with driver still attached. No valid-transition check, no audit trail. | Med | `admin/routes/[id]/route.ts:340-366` |
+
+**Standard pattern (HIGH confidence):** Delivery/logistics systems enforce transitions via a declarative transition table -- every `(current_state, event)` pair maps to exactly one `next_state` or is rejected. The codebase already has this pattern for *stop* transitions (`VALID_STOP_TRANSITIONS` in `driver-api.ts`) but not for *route* transitions. Route status is checked via ad-hoc `if` statements scattered across 4 endpoints. A single `VALID_ROUTE_TRANSITIONS` map checked at every mutation point is the standard fix.
+
+**Race condition fix (HIGH confidence):** PostgreSQL atomic UPDATE with WHERE clause eliminates the read-then-write race. Instead of `SELECT id FROM route_stops WHERE status = 'pending' ORDER BY stop_index LIMIT 1` followed by `UPDATE route_stops SET status = 'enroute' WHERE id = $1`, use a single `UPDATE route_stops SET status = 'enroute' WHERE id = (SELECT id FROM route_stops WHERE route_id = $1 AND status = 'pending' ORDER BY stop_index LIMIT 1) RETURNING id`. This is a standard pattern documented in PostgreSQL concurrency guides. Alternatively, wrap in a Supabase RPC for cleaner application code.
+
+### Checkout Timezone & Date Validation
+
+| Fix | Issue | Why Broken | Complexity | Files |
+|-----|-------|-----------|------------|-------|
+| `scheduledDate` parsed with `T12:00:00` implicit UTC | A | `new Date("2026-03-19T12:00:00")` is noon UTC on Vercel. Works by accident because `getZonedParts` converts downstream. Breaks if server TZ changes or date is near midnight. | Low | `checkout/session/route.ts:53` |
+| COD email sends naive ISO strings (no timezone offset) | B | Email template receives `2026-03-19T11:00:00` without `-07:00` suffix. Email client may interpret as UTC, showing wrong delivery time to customer. DB stores correct TZ-aware strings; email path is inconsistent. | Low | `checkout/session/helpers.ts:119-120, 158-159` |
+| No future date upper bound on checkout | E | Customer can submit `scheduledDate` for 2028. Only regex validation `^\d{4}-\d{2}-\d{2}$`. No maximum days-ahead check. | Low | `checkout/session/route.ts`, Zod schema |
+| Delivery reminder cron uses UTC date, not LA date | 6 | `new Date().toISOString().split("T")[0]` computes UTC "today". Between midnight UTC and 7-8 AM LA, cron queries wrong date -- sends no reminders or yesterday's reminders. | Low | `cron/delivery-reminders/route.ts:60` |
+| `getAvailableDeliveryDatesMultiDay` includes cutoff-passed dates consuming slots | C | Past-cutoff dates consume the limited `count` slots (default 6). Customer sees fewer available dates. Auto-select `useEffect` flashes disabled then enabled. | Low | `delivery-dates.ts:283-312` |
+
+**Standard pattern (HIGH confidence):** Store UTC `timestamptz` in database. Compute "today" in the business timezone using `Intl.DateTimeFormat("en-CA", { timeZone: "America/Los_Angeles" })`. The codebase already has a correct `getTodayInTimezone()` helper in `active/route.ts:9-17` and uses `toISOWithTimezone()` for DB writes -- the cron endpoint and COD email path just don't use them. Fix is applying existing patterns consistently.
+
+**Date bounds (MEDIUM confidence):** Food delivery apps limit scheduling to 7-14 days ahead. WooCommerce delivery date plugins offer configurable min/max date bounds. For a weekly service with 4 delivery days, 21 days (3 weeks of dates shown in picker) is a reasonable upper bound. Add validation: `reject if scheduledDate > today + 21 days`.
+
+### Rate Limiting
+
+| Fix | Issue | Why Broken | Complexity | Files |
+|-----|-------|-----------|------------|-------|
+| All 13 rate limiters are null -- in-memory fallback per-instance | 3 | Every limiter exports `null`. Fallback is 15 req/min per serverless instance. Attacker hits N instances = N*15 req/min. Auth, checkout, refund endpoints effectively unprotected. | Med | `rate-limit/client.ts`, env config |
+
+**Standard pattern (HIGH confidence):** `@upstash/ratelimit` with Upstash Redis REST is the documented Next.js/Vercel serverless pattern. Vercel's own templates use it. The codebase already has the correct architecture (typed limiter exports, `checkRateLimit` wrapper, fail-open design). Setup is purely infrastructure: provision Upstash Redis instance, set `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` env vars, restore `Ratelimit` constructors with `Ratelimit.slidingWindow()`. The existing code was designed for this -- Redis provisioning was the blocker (Redis Cloud `redis://` URL incompatible with `@upstash/redis` REST client).
+
+### Data Integrity
+
+| Fix | Issue | Why Broken | Complexity | Files |
+|-----|-------|-----------|------------|-------|
+| `active/route` API missing `customer_name`/`customer_phone` fallback | 7 | Driver can't call COD customers whose profile lacks phone. Route-detail endpoint at `/api/driver/routes/[routeId]/route.ts:201` correctly falls back to `orders.customer_name`; active endpoint only reads `profiles`. | Low | `active/route.ts:193-204` |
+| Regenerate Supabase types for `delivery_zones` table | 4 | 3 files use `as any` casts. No type safety on zone queries -- wrong column names silently fail. Table exists in migration but not in generated types. | Low | `business-rules.ts:125`, `delivery-zones/route.ts` |
+| `revalidateTag` called with invalid `{ expire: 0 }` second argument | 5 | Next.js `revalidateTag(tag)` takes no options parameter. Second arg silently ignored. Intent was immediate expiry but that's the default behavior. | Low | 4 admin API files |
+
+---
 
 ## Differentiators
 
-Features that set the app apart. Not expected at 20-50 order scale, but high value.
+Improvements beyond the bare fix that raise correctness or observability quality.
 
-| Feature | Value Proposition | Complexity | Dependencies | Notes |
-|---------|-------------------|------------|--------------|-------|
-| **Split route** | Route overloaded; split stops into two routes | Medium | New API: POST `/api/admin/routes/{id}/split` | Admin selects stops -> new route created with those stops + new driver. Re-index remaining stops |
-| **Merge routes** | Two light routes combine when driver cancels | Medium | New API: POST `/api/admin/routes/merge` | Select source + target route -> move all stops -> delete empty source. Re-index combined stops |
-| **Driver route acceptance** | Driver explicitly accepts assigned route before starting | Low | New `accepted_at` column on `routes` + driver API | Current flow: admin assigns, driver sees route. Add intermediate "Accept Route" step in ActiveRouteView |
-| **Driver stop reordering** | Driver knows shortcuts; reorders remaining pending stops | Medium | `@dnd-kit/sortable` in driver UI | Advanced mode only (not simple mode); PATCH stop_index array |
-| **Admin mobile UX** | Solo operator runs Saturday kitchen from phone | High | Responsive audit of 20+ admin pages | Most admin pages use `p-8`, `lg:grid-cols-2`, wide tables. Need: stacked cards on mobile, collapsible sections, touch-friendly actions |
-| **Delivery notes per stop** | Driver adds context ("left at door", "gave to neighbor") | Low | Existing `delivery_notes` column on `route_stops` | Add text input in StopDetailView or DeliveryActions after marking delivered |
-| **Order detail: special instructions prominent** | Cooking/delivery instructions visible during ops | Low | Existing `special_instructions` column | Already in `StopDetail` type; ensure prominent rendering with visual callout |
-| **Route progress widget on ops dashboard** | Saturday ops shows route completion at a glance | Low | Existing ops dashboard polling | Add compact route cards: driver name + progress bar + delivered/total |
-| **Reassign driver mid-route** | Driver calls in sick mid-delivery; reassign remaining stops | Low | Existing `handleDriverChange` in RouteDetailClient | Already works for planned routes; verify it handles `in_progress` routes safely |
+| Feature | Value Proposition | Complexity | Notes |
+|---------|-------------------|------------|-------|
+| Centralized `VALID_ROUTE_TRANSITIONS` map | Single record of allowed `(from, to)` pairs used by both driver and admin endpoints. Prevents any future lifecycle bypass. Mirrors existing `VALID_STOP_TRANSITIONS`. | Low | New file in `validations/`, ~30 lines |
+| Admin status override audit log | Log overrides with `{ admin_id, route_id, from_status, to_status, timestamp }`. Essential for debugging Saturday ops. | Med | New migration for `route_audit_log` table + insert in admin PATCH |
+| Separate `enroute_stops` in route stats | Dashboard shows "1 in progress, 4 pending" instead of "5 pending". More accurate ops view. | Low | Add field to `RouteStats` type + update calculation |
+| Integration tests for driver route lifecycle | Full sequence: `assigned` -> accept -> start -> mark stops -> complete. Catches state machine regressions before production. | Med | New test file, mock Supabase client |
+| Atomic `promote_next_stop` RPC | PostgreSQL function wrapping the "find next pending + set enroute" into one atomic operation. Cleaner than inline subquery UPDATE. | Med | New migration, simpler application code |
+| Webhook `handlers.ts` file split | 529 lines with eslint-disable. Split into `handle-checkout-completed.ts`, `handle-payment-failed.ts`, etc. | Low | Mechanical refactor, zero logic change |
+
+---
 
 ## Anti-Features
 
-Features to explicitly NOT build.
+Things to deliberately NOT build during this correctness milestone.
 
 | Anti-Feature | Why Avoid | What to Do Instead |
 |--------------|-----------|-------------------|
-| **Real-time GPS tracking map** | Out of scope (PROJECT.md), overkill at 20-50 orders, battery drain, WebSocket complexity | Manual status updates (arrived/delivered) + timestamps displayed in admin |
-| **Auto-dispatch / auto-assignment** | Solo operator with 2-4 family drivers; manual control preferred and faster | Keep click-to-assign pattern from v1.9 |
-| **Cross-route drag-and-drop** | Complex multi-container DnD context; high misfire rate, error-prone | Use existing "Reassign" dropdown to move single stop to another route |
-| **Drag-reorder on mobile for admin** | Touch DnD on long scrollable lists causes misfires and frustration | Move-up/move-down buttons on mobile; DnD on desktop only |
-| **Complex TSP solver** | Over-engineered for 5-15 stops per route; Google Directions waypoint optimization is sufficient | Keep existing "Optimize" button using Google Directions API |
-| **Live ETA updates to customers** | Requires WebSocket + continuous driver location polling | Text-based status updates via email ("Out for delivery", "Delivered") |
-| **Driver chat / messaging system** | Family drivers; text/call handles communication fine | Keep "Call for Help" button + direct phone/SMS links |
-| **Offline map tiles** | Drivers in urban Southern California; cellular coverage is reliable | Google Maps deep-link handles offline navigation gracefully |
-| **Batch photo upload** | One photo per stop is sufficient for proof of delivery | Keep single photo capture per stop |
-| **Route scheduling (future dates)** | Saturday-only model; routes are created same-day or day-before | Keep single-date route creation workflow |
+| Per-day delivery time windows | Issue D notes global windows. Adding `startHour`/`endHour` per `DeliveryDayConfig` needs schema change + UI. Not a bug -- works correctly with uniform hours. | Document as future enhancement if business requests different hours per day. |
+| Real-time route status via Supabase Realtime | 5s polling is sufficient at 20-50 orders. Realtime channels are scope creep for a fix milestone. | Keep polling. Revisit at 200+ orders. |
+| Edge middleware rate limiting | Architecturally better to rate-limit at the edge. But refactoring from API-level to middleware is a separate project. | Restore Upstash at API level first. Edge migration is a separate milestone. |
+| Full idempotency system | Server-generated idempotency keys + dedup table is overkill at current scale. Stop transition validation already provides natural idempotency (re-submitting same transition returns 400). | Rely on transition validation for stops. Route start is naturally idempotent (400 if already `in_progress`). |
+| Realtime cache invalidation for business rules | Issue 8 notes 5-min stale window across instances. Realtime subscription would fix but adds complexity. | Accept 5-min TTL. Tag-based `revalidateTag` works at this scale. Operator rarely changes settings during active delivery. |
+| Retry queue for `increment_driver_deliveries` | Complex retry/queue for an RPC at 2-4 drivers is over-engineering. | Create the missing RPC. Simple call + log failure. Manual DB fix covers any missed increment. |
+| Route optimization algorithm | Explicitly deferred in PROJECT.md. Manual drag-reorder shipped in v2.1. | Keep existing Google Directions optimization + manual reorder. |
+| Comprehensive E2E test suite | Full Playwright E2E for all flows would take longer than the fixes themselves. | Targeted integration tests for the state machine. Unit tests for timezone helpers. E2E is a separate effort. |
+
+---
 
 ## Feature Dependencies
 
 ```
-Auth routing fix ─────────────────────────────> (independent, no deps)
-Order detail completeness ────────────────────> (independent, enhances existing cards)
+Fix 4 (regenerate types)         ── Do FIRST: enables type safety for all subsequent work
+  |
+  v
+Fix 5 (revalidateTag args)       ── Independent, trivial cleanup
+Fix 7 (customer contact fallback) ── Independent, trivial query change
 
-Manual tracking display ──────────────────────> (independent, render existing DB data)
-  └── enhanced by: Order detail completeness
+Fix A (timezone construction)    ─┐
+Fix B (COD email timezone)        ├── Timezone cluster: same pattern, test together
+Fix 6 (cron UTC date)            ─┘
+  |
+  v
+Fix C (cutoff date pre-filter)   ── Depends on timezone fixes being correct
+Fix E (future date bound)        ── Pairs naturally with checkout validation
 
-Drag-reorder stops (admin) ───────────────────> (independent, new DnD in StopsList)
-  └── requires: @dnd-kit/sortable install
+Fix F (assigned status gate)     ─┐
+Fix I (enroute stat counting)     ├── State machine cluster
+Fix G (admin override guards)    ─┘
+  |
+  v
+Integration tests                ── Must follow state machine fixes
 
-Split route ──────────────────────────────────> Drag-reorder stops (selecting stops for split)
-Merge routes ─────────────────────────────────> (independent, but test after split)
-
-Driver route acceptance ──────────────────────> (independent, new column + API)
-Driver execution flow audit ──────────────────> Driver route acceptance (accept first)
-Driver stop reordering ───────────────────────> Drag-reorder stops (same DnD lib + pattern)
-
-Delivery notes ───────────────────────────────> (independent, text input + existing column)
-
-Admin mobile UX ──────────────────────────────> ALL other features (responsive after final)
+Fix 9 (race condition)           ── Independent, DB-level atomic fix
+Fix J (missing RPC)              ── Independent, new migration
+Fix 3 (rate limiting)            ── Independent, infrastructure provisioning
 ```
 
-Build order:
+### Suggested Phase Ordering
+
 ```
-Phase 1: Auth fix + Order detail completeness + Delivery notes + Manual tracking display
-         (all independent, low risk, immediate ops value)
+Phase 1: Foundation
+  - Fix 4: Regenerate Supabase types
+  - Fix 5: Remove invalid revalidateTag args
+  - Fix 7: Add customer_name/phone fallback to active route
+  (Low risk, unblocks type safety)
 
-Phase 2: Drag-reorder stops (admin) + Route split/merge
-         (core route editing, needs @dnd-kit)
+Phase 2: Timezone correctness
+  - Fix A: Explicit timezone construction in checkout
+  - Fix B: TZ-aware strings in COD email
+  - Fix 6: LA timezone in delivery reminder cron
+  - Fix C: Pre-filter cutoff-passed dates
+  - Fix E: Add future date upper bound (21 days)
+  (All use same Intl.DateTimeFormat pattern)
 
-Phase 3: Driver acceptance + Driver execution flow audit + Driver stop reorder
-         (driver-facing changes, builds on Phase 2 DnD)
+Phase 3: Route lifecycle
+  - Fix F: Gate driver UI by assigned vs accepted status
+  - Fix I: Separate enroute from pending in stats
+  - Fix G: Add transition guards to admin PATCH
+  - Differentiator: VALID_ROUTE_TRANSITIONS centralized map
+  (State machine correctness cluster)
 
-Phase 4: Admin mobile UX
-         (responsive overhaul after all features are finalized)
+Phase 4: Data integrity
+  - Fix 9: Atomic next-stop promotion (RPC or subquery UPDATE)
+  - Fix J: Create increment_driver_deliveries migration
+  (Database-level fixes)
 
-Phase 5: Driver page audit
-         (end-to-end fix of all driver pages, integration testing)
+Phase 5: Security & infrastructure
+  - Fix 3: Provision Upstash Redis, restore rate limiters
+  (Infrastructure task, test in staging before production)
+
+Phase 6: Quality
+  - Integration tests for driver route lifecycle
+  - Split webhook handlers.ts
+  (Coverage and maintenance)
 ```
+
+---
 
 ## MVP Recommendation
 
-**Prioritize (immediate Saturday ops value):**
+**Must ship (table stakes):**
 
-1. **Auth routing fix** — Blocks every login; ~30 lines, highest ROI
-2. **Order detail completeness** — Add modifiers, tip, special instructions to existing cards; ~150 lines
-3. **Manual tracking display** — Show arrived_at/delivered_at in admin route detail; ~80 lines, data exists
-4. **Delivery notes** — Text input for driver per-stop notes; ~60 lines, column exists
-5. **Drag-reorder stops** — Admin manual override after optimization; ~200 lines + new dep
-6. **Driver page audit** — Fix broken/placeholder features end-to-end; ~400 lines
+1. Regenerate Supabase types (4) -- foundation for type safety
+2. Fix driver route start blocked by `assigned` status (F) -- driver-facing blocker
+3. Fix all timezone bugs (A, B, 6) -- correctness cluster, same pattern
+4. Create `increment_driver_deliveries` RPC (J) -- data integrity
+5. Fix race condition in next-stop promotion (9) -- concurrent safety
+6. Add future date upper bound on checkout (E) -- security
+7. Provision Upstash Redis rate limiting (3) -- security table stakes
+8. Fix `active/route` customer contact fallback (7) -- driver cannot call COD customers
+9. Fix `updateRouteStats` enroute counting (I) -- dashboard accuracy
+10. Fix `revalidateTag` args (5) -- code correctness
+11. Pre-filter cutoff-passed dates (C) -- customer UX
+12. Guard admin route status override (G) -- lifecycle integrity
+
+**Should ship (differentiators):**
+
+13. Centralized route transition map -- prevents future bypasses
+14. Split webhook `handlers.ts` -- tech debt, reduces file to <400 lines
+15. Integration tests for driver route lifecycle -- regression safety
 
 **Defer:**
 
-- **Split/merge routes** — Admin can manually create route + reassign stops (already possible via existing UI). Formal split/merge is convenience, not necessity
-- **Driver route acceptance** — Family drivers; operator texts them. Formal acceptance is overhead at 2-4 drivers
-- **Driver stop reordering** — Most drivers use simple mode. Optimization handles stop ordering
-- **Admin mobile UX** — High effort (~800 lines, 20+ pages). Build after features are stable, not before
+- Per-day time windows (Issue D), edge rate limiting, Realtime cache invalidation, full idempotency, comprehensive E2E suite, route optimization algorithm
+
+---
 
 ## Complexity Assessment
 
-| Feature | Est. Lines | New Dependencies | Risk | Touches |
-|---------|-----------|------------------|------|---------|
-| Auth routing fix | ~30 | None | Low | auth callback |
-| Order detail completeness | ~150 | None | Low | 3-4 existing card components |
-| Manual tracking display | ~80 | None | Low | RouteDetailClient, StopsList |
-| Delivery notes input | ~60 | None | Low | DeliveryActions or StopDetailView |
-| Drag-reorder stops | ~200 | `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities` | Medium | StopsList, new PATCH endpoint |
-| Split route | ~300 | None | Medium | New API + new modal component |
-| Merge routes | ~250 | None | Medium | New API + route selection UI |
-| Driver acceptance | ~150 | None | Low | New column, ActiveRouteView |
-| Driver page audit | ~400 | None | Medium | Multiple driver pages |
-| Admin mobile UX | ~800 | None | High | 20+ admin pages, regression risk |
+| Fix | Est. Lines Changed | New Dependencies | Risk | Category |
+|-----|-------------------|------------------|------|----------|
+| Types regen (4) | ~0 (generated) | None | Low | Foundation |
+| revalidateTag args (5) | ~4 | None | Low | Cleanup |
+| Customer contact fallback (7) | ~10 | None | Low | Query fix |
+| Timezone construction (A) | ~5 | None | Low | Pattern application |
+| COD email timezone (B) | ~10 | None | Low | Pattern application |
+| Cron UTC date (6) | ~5 | None | Low | Pattern application |
+| Cutoff pre-filter (C) | ~15 | None | Low | Logic fix |
+| Future date bound (E) | ~10 | None | Low | Validation add |
+| Status gate (F) | ~20 | None | Low | UI conditional |
+| Enroute stats (I) | ~15 | None | Low | Stats calculation |
+| Admin override guard (G) | ~40 | None | Med | Transition validation |
+| Race condition (9) | ~30 | None | Med | Atomic DB operation |
+| Missing RPC (J) | ~20 | None | Low | New migration |
+| Rate limiting (3) | ~30 | None (deps exist) | Med | Infrastructure + code |
+| Route transition map | ~40 | None | Low | New validation file |
+| Webhook split | ~50 | None | Low | Mechanical refactor |
+| Integration tests | ~200 | None | Med | New test file |
+| **Total** | **~505** | **None** | | |
+
+---
 
 ## Sources
 
-- Existing codebase audit — direct file reads of all route, driver, and admin components (HIGH confidence)
-- [EZRoutePlanner — Multi-Stop Route Planners 2026](https://www.ezrouteplanner.com/blog/best-free-multi-stop-route-planners)
-- [Track-POD — Delivery Driver App workflow](https://www.track-pod.com/delivery-driver-app/)
-- [DispatchTrack — 6 Features for Delivery Apps](https://www.dispatchtrack.com/blog/app-delivery-driver/)
-- [Appscrip — Workflow of a Delivery App](https://appscrip.com/blog/workflow-of-a-delivery-app-2/)
-- [Puck — Top 5 DnD Libraries for React 2026](https://puckeditor.com/blog/top-5-drag-and-drop-libraries-for-react)
-- [dnd-kit Sortable Docs](https://docs.dndkit.com/presets/sortable)
-- [Pencil & Paper — Dashboard UX Patterns](https://www.pencilandpaper.io/articles/ux-pattern-analysis-data-dashboards)
-- [Upper — Best Apps for Delivery Drivers 2026](https://www.upperinc.com/blog/best-apps-for-delivery-drivers/)
+### State Machine Patterns
+- [State Machine Design Pattern (LinkedIn)](https://www.linkedin.com/pulse/state-machine-design-pattern-concepts-examples-python-sajad-rahimi) -- MEDIUM confidence
+- [State Design Pattern (SourceMaking)](https://sourcemaking.com/design_patterns/state) -- HIGH confidence
+- [commercetools State Machines](https://docs.commercetools.com/learning-model-your-business-structure/state-machines/state-machines-page) -- HIGH confidence
+- Existing codebase `VALID_STOP_TRANSITIONS` in `driver-api.ts` -- HIGH confidence (proven pattern in same codebase)
+
+### Race Condition Prevention
+- [Preventing Postgres Race Conditions with SELECT FOR UPDATE](https://on-systems.tech/blog/128-preventing-read-committed-sql-concurrency-errors/) -- HIGH confidence
+- [Atomic read-then-write patterns](https://thomwright.co.uk/failure-patterns/atomic-read-then-write/) -- HIGH confidence
+- [Transaction Locking (sqlfordevs.com)](https://sqlfordevs.com/transaction-locking-prevent-race-condition) -- HIGH confidence
+
+### Timezone Handling
+- [Intl.DateTimeFormat (MDN)](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Intl/DateTimeFormat/DateTimeFormat) -- HIGH confidence
+- Existing codebase `getTodayInTimezone()` in `active/route.ts` and `toISOWithTimezone()` in `delivery-timezone.ts` -- HIGH confidence (proven helpers in same codebase)
+
+### Rate Limiting
+- [Upstash Rate Limiting Docs](https://upstash.com/docs/redis/sdks/ratelimit-ts/overview) -- HIGH confidence
+- [Rate Limiting Next.js API Routes (Upstash Blog)](https://upstash.com/blog/nextjs-ratelimiting) -- HIGH confidence
+- [Vercel Ratelimit Template](https://vercel.com/templates/next.js/ratelimit-with-upstash-redis) -- HIGH confidence
+
+### Delivery App UX
+- [Hyperlocal Delivery App Development (Appinventiv)](https://appinventiv.com/blog/hyperlocal-delivery-app-development/) -- MEDIUM confidence
+- [Delivery Date Scheduling (WooCommerce)](https://woocommerce.com/document/order-delivery-date-and-time-scheduler/) -- MEDIUM confidence
 
 ---
-*Feature research for: v2.1 Route Operations & Admin Mobile*
-*Researched: 2026-03-14*
+*Feature research for: v2.2 Stability & Correctness*
+*Researched: 2026-03-19*
