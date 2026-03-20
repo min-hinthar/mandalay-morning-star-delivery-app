@@ -12,12 +12,24 @@ import { DeliveryReminder } from "@/emails/DeliveryReminder";
 import { sendEmail } from "@/lib/email/send";
 import { createServiceClient } from "@/lib/supabase/server";
 import { apiError } from "@/lib/utils/api-error";
+import { toISOWithTimezone } from "@/lib/utils/delivery-timezone";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, webhookLimiter, getClientIp } from "@/lib/rate-limit";
+import { TIMEZONE } from "@/types/delivery";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 const STAGGER_DELAY_MS = 100;
 const FLOW_ID = "delivery-reminders";
+
+function getTodayInTimezone(): string {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: TIMEZONE,
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  return formatter.format(new Date());
+}
 
 // ===========================================
 // AUTH GUARD
@@ -57,7 +69,7 @@ export async function GET(request: Request) {
   if (rl.limited) return rl.response;
 
   const supabase = createServiceClient();
-  const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+  const today = getTodayInTimezone(); // YYYY-MM-DD in LA timezone
 
   // -----------------------------------------------
   // Step 1: Query qualifying orders for today
@@ -86,8 +98,8 @@ export async function GET(request: Request) {
       )
     `
     )
-    .gte("delivery_window_start", `${today}T00:00:00`)
-    .lt("delivery_window_start", `${today}T23:59:59`)
+    .gte("delivery_window_start", toISOWithTimezone(today, "00:00"))
+    .lt("delivery_window_start", toISOWithTimezone(today, "23:59"))
     .in("status", ["confirmed", "preparing"]);
 
   if (ordersError) {
@@ -117,7 +129,7 @@ export async function GET(request: Request) {
     .select("order_id")
     .in("order_id", orderIds)
     .eq("notification_type", "delivery_reminder")
-    .gte("created_at", `${today}T00:00:00`);
+    .gte("created_at", toISOWithTimezone(today, "00:00"));
 
   const alreadySentOrderIds = new Set((existingLogs ?? []).map((log) => log.order_id));
 
