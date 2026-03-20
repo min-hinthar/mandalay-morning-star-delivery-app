@@ -13,6 +13,7 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - 11 milestones complete: v1.0-v2.1 (103 phases, 406 plans, 18/18 v2.1 requirements at 100%)
 - Phase 104 complete: Type safety & API corrections — missing Supabase types added, `as any` casts removed, driver route customer contact + pending count fixed
 - Phase 105 complete: Route lifecycle guards — VALID_ROUTE_TRANSITIONS enforced on driver start + admin PATCH, Sentry audit on admin overrides, CHECK constraint prevents planned+driver_id
+- Phase 106 complete: Timezone correctness — checkout uses `toISOWithTimezone()`, COD emails show timezone offset, cron computes LA date, date picker pre-filters cutoff-passed dates, 30-day future validation added
 - Deployed to production at delivery.mandalaymorningstar.com
 - Full route lifecycle: drag-reorder stops (desktop DnD + mobile move buttons), split/merge routes, driver reassignment with confirmation
 - Route progress widget: real-time 5s polling ops dashboard showing per-route driver, status, delivered/total
@@ -290,4 +291,4 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 ---
 
-_Last updated: 2026-03-20 after Phase 105 completion_
+_Last updated: 2026-03-20 after Phase 106 completion_
