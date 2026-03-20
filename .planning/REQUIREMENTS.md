@@ -21,8 +21,8 @@
 
 ### Data Integrity
 
-- [ ] **DATA-01**: Route stop next-stop promotion uses atomic `UPDATE...WHERE status='pending' RETURNING` (or PostgreSQL RPC with `FOR UPDATE SKIP LOCKED`) -- eliminates race condition on rapid stop completions
-- [ ] **DATA-02**: Remove dead `increment_driver_deliveries` RPC call from route complete endpoint -- trigger `update_driver_deliveries_count` already handles this atomically per stop
+- [x] **DATA-01**: Route stop next-stop promotion uses atomic `UPDATE...WHERE status='pending' RETURNING` (or PostgreSQL RPC with `FOR UPDATE SKIP LOCKED`) -- eliminates race condition on rapid stop completions
+- [x] **DATA-02**: Remove dead `increment_driver_deliveries` RPC call from route complete endpoint -- trigger `update_driver_deliveries_count` already handles this atomically per stop
 
 ### Infrastructure
 
@@ -63,8 +63,8 @@
 | TZ-03 | Phase 106 | Complete |
 | TZ-04 | Phase 106 | Complete |
 | TZ-05 | Phase 106 | Complete |
-| DATA-01 | Phase 107 | Pending |
-| DATA-02 | Phase 107 | Pending |
+| DATA-01 | Phase 107 | Complete |
+| DATA-02 | Phase 107 | Complete |
 | INFRA-01 | Phase 108 | Pending |
 | INFRA-02 | Phase 104 | Complete |
 | API-01 | Phase 104 | Complete |
