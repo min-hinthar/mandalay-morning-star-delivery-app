@@ -9,6 +9,9 @@ import {
   createRouteSchema,
   splitRouteSchema,
   mergeRouteSchema,
+  VALID_ROUTE_TRANSITIONS,
+  isValidRouteTransition,
+  getValidRouteTransitions,
   type ReassignStopInput,
   type SplitRouteInput,
   type MergeRouteInput,
@@ -183,5 +186,91 @@ describe("mergeRouteSchema", () => {
     if (!result.success) {
       expect(result.error.issues[0].message).toContain("Invalid route ID");
     }
+  });
+});
+
+describe("VALID_ROUTE_TRANSITIONS", () => {
+  it("has exactly 5 keys matching RouteStatus values", () => {
+    const keys = Object.keys(VALID_ROUTE_TRANSITIONS);
+    expect(keys).toHaveLength(5);
+    expect(keys).toEqual(
+      expect.arrayContaining(["planned", "assigned", "accepted", "in_progress", "completed"])
+    );
+  });
+
+  it("completed has empty transitions array", () => {
+    expect(VALID_ROUTE_TRANSITIONS.completed).toEqual([]);
+  });
+
+  it("planned only has assigned", () => {
+    expect(VALID_ROUTE_TRANSITIONS.planned).toEqual(["assigned"]);
+  });
+
+  it("assigned can go to planned or accepted", () => {
+    expect(VALID_ROUTE_TRANSITIONS.assigned).toEqual(["planned", "accepted"]);
+  });
+
+  it("accepted can go to planned, assigned, or in_progress", () => {
+    expect(VALID_ROUTE_TRANSITIONS.accepted).toEqual(["planned", "assigned", "in_progress"]);
+  });
+
+  it("in_progress can only go to completed", () => {
+    expect(VALID_ROUTE_TRANSITIONS.in_progress).toEqual(["completed"]);
+  });
+});
+
+describe("isValidRouteTransition", () => {
+  // Valid transitions
+  it.each([
+    ["planned", "assigned"],
+    ["assigned", "planned"],
+    ["assigned", "accepted"],
+    ["accepted", "planned"],
+    ["accepted", "assigned"],
+    ["accepted", "in_progress"],
+    ["in_progress", "completed"],
+  ] as const)("allows %s -> %s", (from, to) => {
+    expect(isValidRouteTransition(from, to)).toBe(true);
+  });
+
+  // Invalid transitions
+  it.each([
+    ["planned", "accepted"],
+    ["planned", "in_progress"],
+    ["planned", "completed"],
+    ["assigned", "in_progress"],
+    ["assigned", "completed"],
+    ["accepted", "completed"],
+    ["in_progress", "planned"],
+    ["in_progress", "assigned"],
+    ["in_progress", "accepted"],
+    ["completed", "planned"],
+    ["completed", "assigned"],
+    ["completed", "accepted"],
+    ["completed", "in_progress"],
+  ] as const)("rejects %s -> %s", (from, to) => {
+    expect(isValidRouteTransition(from, to)).toBe(false);
+  });
+});
+
+describe("getValidRouteTransitions", () => {
+  it("returns ['assigned'] for planned", () => {
+    expect(getValidRouteTransitions("planned")).toEqual(["assigned"]);
+  });
+
+  it("returns ['planned', 'accepted'] for assigned", () => {
+    expect(getValidRouteTransitions("assigned")).toEqual(["planned", "accepted"]);
+  });
+
+  it("returns ['planned', 'assigned', 'in_progress'] for accepted", () => {
+    expect(getValidRouteTransitions("accepted")).toEqual(["planned", "assigned", "in_progress"]);
+  });
+
+  it("returns ['completed'] for in_progress", () => {
+    expect(getValidRouteTransitions("in_progress")).toEqual(["completed"]);
+  });
+
+  it("returns [] for completed", () => {
+    expect(getValidRouteTransitions("completed")).toEqual([]);
   });
 });
