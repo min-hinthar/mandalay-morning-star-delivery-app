@@ -91,7 +91,7 @@
 
 - [x] **Phase 104: Type Safety & API Corrections** (2 plans) - Add missing Supabase types, fix revalidateTag/active-route/stats bugs (completed 2026-03-20)
 - [x] **Phase 105: Route Lifecycle Guards** (2 plans) - Fix driver route start blocker and admin override bypass (completed 2026-03-20)
-- [ ] **Phase 106: Timezone Correctness** - Batch-fix all timezone bugs across checkout, email, cron, and date filtering
+- [ ] **Phase 106: Timezone Correctness** (2 plans) - Batch-fix all timezone bugs across checkout, email, cron, and date filtering
 - [ ] **Phase 107: Data Integrity** - Atomic stop promotion RPC and dead code removal
 - [ ] **Phase 108: Rate Limiting Restoration** - Provision Upstash REST Redis and restore all 13 rate limiters
 - [ ] **Phase 109: Quality & Maintenance** - Integration tests for route lifecycle, webhook handler file split
@@ -136,7 +136,10 @@ Plans:
   3. Delivery reminder cron at 12:00 UTC sends reminders for LA-date orders, not UTC-date orders -- correct between midnight UTC and 8AM LA
   4. Customer date picker shows only future dates with cutoff not yet passed -- no stale "today" slot when cutoff has elapsed
   5. Checkout API returns 400 for `scheduledDate` more than 30 days in the future
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 106-01-PLAN.md — Fix checkout date construction + cron LA date + date picker pre-filter + 30-day validation + hardcoded literals
+- [ ] 106-02-PLAN.md — Fix COD email timezone display + test DST hardcoding
 
 ### Phase 107: Data Integrity
 **Goal**: Route stop promotion is race-free and driver delivery counts are accurate
@@ -176,7 +179,7 @@ Phases execute in numeric order: 104 -> 105 -> 106 -> 107 -> 108 -> 109
 |-------|----------------|--------|-----------|
 | 104. Type Safety & API Corrections | 2/2 | Complete    | 2026-03-20 |
 | 105. Route Lifecycle Guards | 2/2 | Complete    | 2026-03-20 |
-| 106. Timezone Correctness | 0/TBD | Not started | - |
+| 106. Timezone Correctness | 0/2 | Not started | - |
 | 107. Data Integrity | 0/TBD | Not started | - |
 | 108. Rate Limiting Restoration | 0/TBD | Not started | - |
 | 109. Quality & Maintenance | 0/TBD | Not started | - |
