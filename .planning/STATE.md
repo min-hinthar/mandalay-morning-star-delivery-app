@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Stability & Correctness
 status: unknown
-stopped_at: Completed 106-01-PLAN.md
-last_updated: "2026-03-20T08:41:53.030Z"
+stopped_at: Completed 106-02-PLAN.md
+last_updated: "2026-03-20T08:49:34.843Z"
 progress:
   total_phases: 6
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 6
-  completed_plans: 5
+  completed_plans: 6
 ---
 
 # Project State
@@ -24,8 +24,8 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 106 (timezone-correctness) — EXECUTING
-Plan: 2 of 2
+Phase: 106 (timezone-correctness) — COMPLETE
+Plan: 2 of 2 (all complete)
 
 ## Performance Metrics
 
@@ -48,6 +48,7 @@ Plan: 2 of 2
 | Phase 105 P01 | 3min | 2 tasks | 3 files |
 | Phase 105 P02 | 8min | 3 tasks | 4 files |
 | Phase 106 P01 | 8min | 2 tasks | 5 files |
+| Phase 106 P02 | 17min | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,8 @@ Plan: 2 of 2
 - [Phase 106]: 30-day future validation uses LA timezone date comparison, not UTC
 - [Phase 106]: Pre-filter cutoff candidates at generation time rather than post-filter
 - [Phase 106]: TIMEZONE constant is single source of truth in types/delivery.ts
+- [Phase 106]: Used Intl.DateTimeFormat timeZoneName: short for dynamic PST/PDT abbreviation in email display
+- [Phase 106]: Test makePtDate uses Intl.DateTimeFormat shortOffset for DST-aware offset computation instead of hardcoded -08:00
 
 ### Pending Todos (Human Actions)
 
@@ -82,7 +85,7 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-20T08:41:53.023Z
-Stopped at: Completed 106-01-PLAN.md
+Last session: 2026-03-20T08:49:34.839Z
+Stopped at: Completed 106-02-PLAN.md
 Resume file: None
 Next action: Execute 106-02-PLAN.md
