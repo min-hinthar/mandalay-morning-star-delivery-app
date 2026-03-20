@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Stability & Correctness
 status: unknown
-stopped_at: Completed 104-01-PLAN.md
-last_updated: "2026-03-20T03:27:18.796Z"
+stopped_at: Completed 104-02-PLAN.md
+last_updated: "2026-03-20T03:35:18.406Z"
 progress:
   total_phases: 6
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 2
-  completed_plans: 1
+  completed_plans: 2
 ---
 
 # Project State
@@ -44,6 +44,7 @@ Plan: 2 of 2
 | v2.1      | 5      | 22    | 3 days   |
 | **Total** | **103** | **406** | **35 days** |
 | Phase 104 P01 | 9min | 2 tasks | 4 files |
+| Phase 104 P02 | 5min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -53,6 +54,8 @@ Plan: 2 of 2
 - All timezone bugs are inconsistent utility usage, not missing capability
 - Rate limiting deploy last with 2x initial limits for safety
 - [Phase 104]: revalidateTag kept as 2-arg call -- Next.js 16 requires (tag, profile) signature
+- [Phase 104]: Order-level customer_name/customer_phone take precedence over profile data for COD customer support
+- [Phase 104]: pending_stops counts only status=pending, matching SQL RPC semantics
 
 ### Pending Todos (Human Actions)
 
@@ -68,7 +71,7 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-20T03:27:18.791Z
-Stopped at: Completed 104-01-PLAN.md
+Last session: 2026-03-20T03:35:18.402Z
+Stopped at: Completed 104-02-PLAN.md
 Resume file: None
 Next action: `/gsd:plan-phase 104`
