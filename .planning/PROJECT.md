@@ -8,9 +8,10 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 **Every UI element is reliably clickable and the app feels delightfully alive with motion.** If overlays block clicks or animations feel janky, we've failed.
 
-## Current State (v2.1 Route Operations & Admin Mobile shipped)
+## Current State (v2.2 Stability & Correctness in progress)
 
 - 11 milestones complete: v1.0-v2.1 (103 phases, 406 plans, 18/18 v2.1 requirements at 100%)
+- Phase 104 complete: Type safety & API corrections — missing Supabase types added, `as any` casts removed, driver route customer contact + pending count fixed
 - Deployed to production at delivery.mandalaymorningstar.com
 - Full route lifecycle: drag-reorder stops (desktop DnD + mobile move buttons), split/merge routes, driver reassignment with confirmation
 - Route progress widget: real-time 5s polling ops dashboard showing per-route driver, status, delivered/total
