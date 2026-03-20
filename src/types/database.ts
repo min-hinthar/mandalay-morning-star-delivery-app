@@ -205,6 +205,7 @@ export type Database = {
           cutoff_day: number;
           cutoff_hour: number;
           delivery_fee_cents: number;
+          direction: string;
           display_order: number;
           created_at: string;
           updated_at: string;
@@ -216,6 +217,7 @@ export type Database = {
           cutoff_day: number;
           cutoff_hour: number;
           delivery_fee_cents?: number;
+          direction?: string;
           display_order?: number;
           created_at?: string;
           updated_at?: string;
@@ -227,7 +229,38 @@ export type Database = {
           cutoff_day?: number;
           cutoff_hour?: number;
           delivery_fee_cents?: number;
+          direction?: string;
           display_order?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      delivery_zones: {
+        Row: {
+          id: string;
+          direction: string;
+          bearing_start: number;
+          bearing_end: number;
+          reference_cities: string[];
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          direction: string;
+          bearing_start: number;
+          bearing_end: number;
+          reference_cities?: string[];
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          direction?: string;
+          bearing_start?: number;
+          bearing_end?: number;
+          reference_cities?: string[];
           created_at?: string;
           updated_at?: string;
         };
@@ -1015,6 +1048,9 @@ export type Database = {
           delivery_instructions: string | null;
           delivery_window_end: string | null;
           delivery_window_start: string | null;
+          customer_name: string | null;
+          customer_phone: string | null;
+          distance_miles: number | null;
           discount_cents: number;
           id: string;
           is_priority: boolean | null;
@@ -1050,6 +1086,9 @@ export type Database = {
           delivery_instructions?: string | null;
           delivery_window_end?: string | null;
           delivery_window_start?: string | null;
+          customer_name?: string | null;
+          customer_phone?: string | null;
+          distance_miles?: number | null;
           discount_cents?: number;
           id?: string;
           is_priority?: boolean | null;
@@ -1085,6 +1124,9 @@ export type Database = {
           delivery_instructions?: string | null;
           delivery_window_end?: string | null;
           delivery_window_start?: string | null;
+          customer_name?: string | null;
+          customer_phone?: string | null;
+          distance_miles?: number | null;
           discount_cents?: number;
           id?: string;
           is_priority?: boolean | null;
@@ -2330,6 +2372,10 @@ export type WebhookAuditLogsUpdate = Database["public"]["Tables"]["webhook_audit
 export type DeliveryDaysRow = Database["public"]["Tables"]["delivery_days"]["Row"];
 export type DeliveryDaysInsert = Database["public"]["Tables"]["delivery_days"]["Insert"];
 export type DeliveryDaysUpdate = Database["public"]["Tables"]["delivery_days"]["Update"];
+
+export type DeliveryZonesRow = Database["public"]["Tables"]["delivery_zones"]["Row"];
+export type DeliveryZonesInsert = Database["public"]["Tables"]["delivery_zones"]["Insert"];
+export type DeliveryZonesUpdate = Database["public"]["Tables"]["delivery_zones"]["Update"];
 
 // --- Generic types for dynamic table access ---
 
