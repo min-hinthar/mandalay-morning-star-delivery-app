@@ -8,7 +8,7 @@
 ### Route Lifecycle
 
 - [ ] **ROUTE-01**: Driver sees "Accept Route" CTA for `assigned` status, not "Start Route" -- tapping Start on an assigned route no longer returns 400
-- [ ] **ROUTE-02**: `updateRouteStats` counts `enroute` stop as "in progress", not "pending" -- admin dashboard reflects accurate current state
+- [x] **ROUTE-02**: `updateRouteStats` counts `enroute` stop as "in progress", not "pending" -- admin dashboard reflects accurate current state
 - [ ] **ROUTE-03**: Admin route status override enforces lifecycle guards -- cannot set `in_progress` without driver acceptance, audit trail on manual overrides
 
 ### Checkout & Timezone
@@ -31,7 +31,7 @@
 
 ### API Correctness
 
-- [ ] **API-01**: Driver `active/route` API includes `customer_name` and `customer_phone` from orders table with profile fallback -- COD customers' contact info visible to driver
+- [x] **API-01**: Driver `active/route` API includes `customer_name` and `customer_phone` from orders table with profile fallback -- COD customers' contact info visible to driver
 - [x] **API-02**: `revalidateTag` calls across 4 files remove invalid `{ expire: 0 }` second argument -- clean API usage
 
 ### Quality & Maintenance
@@ -56,7 +56,7 @@
 | Requirement | Phase | Status |
 |-------------|-------|--------|
 | ROUTE-01 | Phase 105 | Pending |
-| ROUTE-02 | Phase 104 | Pending |
+| ROUTE-02 | Phase 104 | Complete |
 | ROUTE-03 | Phase 105 | Pending |
 | TZ-01 | Phase 106 | Pending |
 | TZ-02 | Phase 106 | Pending |
@@ -67,7 +67,7 @@
 | DATA-02 | Phase 107 | Pending |
 | INFRA-01 | Phase 108 | Pending |
 | INFRA-02 | Phase 104 | Complete |
-| API-01 | Phase 104 | Pending |
+| API-01 | Phase 104 | Complete |
 | API-02 | Phase 104 | Complete |
 | QUAL-01 | Phase 109 | Pending |
 | QUAL-02 | Phase 109 | Pending |
