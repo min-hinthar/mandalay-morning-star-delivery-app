@@ -217,7 +217,7 @@ async function updateRouteStats(
 
   const stats: RouteStats = {
     total_stops: stops.length,
-    pending_stops: stops.filter((s) => s.status === "pending" || s.status === "enroute").length,
+    pending_stops: stops.filter((s) => s.status === "pending").length,
     delivered_stops: stops.filter((s) => s.status === "delivered").length,
     skipped_stops: stops.filter((s) => s.status === "skipped").length,
     completion_rate: 0,
