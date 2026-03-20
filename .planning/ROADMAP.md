@@ -107,7 +107,7 @@
   2. Driver active route API returns `customer_name` and `customer_phone` for every stop -- COD customers' contact info is visible
   3. `revalidateTag` calls across the codebase have no invalid second argument -- zero runtime warnings in server logs
   4. Admin ops dashboard shows correct in-progress count when a route has `enroute` stops (not counted as pending)
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 104-01-PLAN.md — Add missing Supabase types + remove as-any casts + fix revalidateTag
 - [ ] 104-02-PLAN.md — Fix active route customer contact + updateRouteStats pending count
@@ -171,7 +171,7 @@ Phases execute in numeric order: 104 -> 105 -> 106 -> 107 -> 108 -> 109
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 104. Type Safety & API Corrections | 0/2 | Not started | - |
+| 104. Type Safety & API Corrections | 1/2 | In Progress|  |
 | 105. Route Lifecycle Guards | 0/TBD | Not started | - |
 | 106. Timezone Correctness | 0/TBD | Not started | - |
 | 107. Data Integrity | 0/TBD | Not started | - |
