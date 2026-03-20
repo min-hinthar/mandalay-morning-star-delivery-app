@@ -166,10 +166,10 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     // Promote next stop atomically via RPC (prevents race condition on concurrent completions)
     let nextStop: { id: string; stopIndex: number } | null = null;
     if (newStatus === "delivered" || newStatus === "skipped") {
-      const { data: rpcData, error: promotionError } = await supabase.rpc(
-        "promote_next_stop",
-        { p_route_id: routeId, p_completed_stop_id: stopId }
-      );
+      const { data: rpcData, error: promotionError } = await supabase.rpc("promote_next_stop", {
+        p_route_id: routeId,
+        p_completed_stop_id: stopId,
+      });
       const promotionResult = rpcData as unknown as PromotionResult | null;
 
       if (promotionError) {
