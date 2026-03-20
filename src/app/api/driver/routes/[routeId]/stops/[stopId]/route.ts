@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import { updateStopStatusSchema, isValidStatusTransition } from "@/lib/validations/driver-api";
-import type { RouteStopStatus, RouteStats } from "@/types/driver";
+import type { RouteStopStatus } from "@/types/driver";
 
 interface RouteParams {
   params: Promise<{ routeId: string; stopId: string }>;
@@ -22,6 +21,11 @@ interface StopQueryResult {
   route_id: string;
   stop_index: number;
   order_id: string;
+}
+
+interface PromotionResult {
+  promoted_stop_id: string | null;
+  stop_index: number | null;
 }
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
@@ -159,30 +163,39 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Update route stats
-    await updateRouteStats(supabase, routeId);
-
-    // Find next stop if current is delivered/skipped
+    // Promote next stop atomically via RPC (prevents race condition on concurrent completions)
     let nextStop: { id: string; stopIndex: number } | null = null;
     if (newStatus === "delivered" || newStatus === "skipped") {
-      const { data: nextStopData } = await supabase
-        .from("route_stops")
-        .select("id, stop_index")
-        .eq("route_id", routeId)
-        .eq("status", "pending")
-        .order("stop_index", { ascending: true })
-        .limit(1)
-        .returns<{ id: string; stop_index: number }[]>()
-        .single();
+      const { data: rpcData, error: promotionError } = await supabase.rpc(
+        "promote_next_stop",
+        { p_route_id: routeId, p_completed_stop_id: stopId }
+      );
+      const promotionResult = rpcData as unknown as PromotionResult | null;
 
-      if (nextStopData) {
-        // Set next stop to enroute
-        await supabase.from("route_stops").update({ status: "enroute" }).eq("id", nextStopData.id);
-
+      if (promotionError) {
+        logger.warn("Stop promotion failed", {
+          api: "driver/routes/[routeId]/stops/[stopId]",
+          routeId,
+          stopId,
+          error: promotionError.message,
+        });
+      } else if (promotionResult?.promoted_stop_id) {
         nextStop = {
-          id: nextStopData.id,
-          stopIndex: nextStopData.stop_index,
+          id: promotionResult.promoted_stop_id,
+          stopIndex: promotionResult.stop_index as number,
         };
+        logger.info("Stop promoted to enroute", {
+          api: "driver/routes/[routeId]/stops/[stopId]",
+          routeId,
+          stopId,
+          promotedStopId: promotionResult.promoted_stop_id,
+          stopIndex: promotionResult.stop_index,
+        });
+      } else {
+        logger.info("No pending stops remaining", {
+          api: "driver/routes/[routeId]/stops/[stopId]",
+          routeId,
+        });
       }
     }
 
@@ -201,35 +214,4 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     logger.exception(error, { api: "driver/routes/[routeId]/stops/[stopId]" });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
-}
-
-async function updateRouteStats(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  routeId: string
-) {
-  // Get all stops for the route
-  const { data: stops } = await supabase
-    .from("route_stops")
-    .select("status")
-    .eq("route_id", routeId);
-
-  if (!stops) return;
-
-  const stats: RouteStats = {
-    total_stops: stops.length,
-    pending_stops: stops.filter((s) => s.status === "pending").length,
-    delivered_stops: stops.filter((s) => s.status === "delivered").length,
-    skipped_stops: stops.filter((s) => s.status === "skipped").length,
-    completion_rate: 0,
-  };
-
-  stats.completion_rate =
-    stats.total_stops > 0
-      ? Math.round(((stats.delivered_stops + stats.skipped_stops) / stats.total_stops) * 100)
-      : 0;
-
-  await supabase
-    .from("routes")
-    .update({ stats_json: stats as unknown as import("@/types/database").Json })
-    .eq("id", routeId);
 }
