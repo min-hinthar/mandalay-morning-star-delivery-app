@@ -121,8 +121,7 @@ async function fetchBusinessRules(): Promise<BusinessRules> {
         .order("display_order", { ascending: true })
         .returns<DeliveryDayRow[]>(),
       supabase
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .from("delivery_zones" as any)
+        .from("delivery_zones")
         .select("id, direction, bearing_start, bearing_end, reference_cities")
         .returns<DeliveryZoneRow[]>(),
     ]);
