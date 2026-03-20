@@ -1678,10 +1678,6 @@ export type Database = {
           total_ratings: number;
         }[];
       };
-      increment_driver_deliveries: {
-        Args: { p_driver_id: string; p_count: number };
-        Returns: undefined;
-      };
       get_driver_stats_admin: {
         Args: never;
         Returns: {
@@ -2005,6 +2001,13 @@ export type Database = {
               type: string;
             }[];
           };
+      promote_next_stop: {
+        Args: {
+          p_route_id: string;
+          p_completed_stop_id: string;
+        };
+        Returns: Json;
+      };
       reindex_route_stops: {
         Args: { p_route_id: string };
         Returns: undefined;
