@@ -24,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { getValidRouteTransitions } from "@/lib/validations/route";
 import type { RouteStatus } from "@/types/driver";
 import type { RouteDetailResponse } from "./types";
 import { RouteActionsMenu } from "./RouteActionsMenu";
@@ -96,6 +97,7 @@ export function RouteHeader({
   onDelete,
 }: RouteHeaderProps) {
   const statusConfig = STATUS_CONFIG[route.status];
+  const validTransitions = getValidRouteTransitions(route.status);
 
   return (
     <m.div
@@ -131,11 +133,17 @@ export function RouteHeader({
             <SelectValue placeholder="Change status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="planned">Planned</SelectItem>
-            <SelectItem value="assigned">Assigned</SelectItem>
-            <SelectItem value="accepted">Accepted</SelectItem>
-            <SelectItem value="in_progress">In Progress</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
+            {(["planned", "assigned", "accepted", "in_progress", "completed"] as RouteStatus[]).map(
+              (value) => (
+                <SelectItem
+                  key={value}
+                  value={value}
+                  disabled={value !== route.status && !validTransitions.includes(value)}
+                >
+                  {STATUS_CONFIG[value].label}
+                </SelectItem>
+              )
+            )}
           </SelectContent>
         </Select>
 
