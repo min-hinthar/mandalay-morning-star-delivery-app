@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Stability & Correctness
 status: unknown
-stopped_at: Phase 105 context gathered
-last_updated: "2026-03-20T04:53:00.353Z"
+stopped_at: Completed 105-01-PLAN.md
+last_updated: "2026-03-20T05:14:02.121Z"
 progress:
   total_phases: 6
   completed_phases: 1
-  total_plans: 2
-  completed_plans: 2
+  total_plans: 4
+  completed_plans: 3
 ---
 
 # Project State
@@ -20,11 +20,11 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
 **Current milestone:** v2.2 Stability & Correctness -- fix all critical bugs from codebase deep dive
-**Current focus:** Phase 104 — type-safety-api-corrections
+**Current focus:** Phase 105 — route-lifecycle-guards
 
 ## Current Position
 
-Phase: 104 (type-safety-api-corrections) — EXECUTING
+Phase: 105 (route-lifecycle-guards) — EXECUTING
 Plan: 2 of 2
 
 ## Performance Metrics
@@ -45,6 +45,7 @@ Plan: 2 of 2
 | **Total** | **103** | **406** | **35 days** |
 | Phase 104 P01 | 9min | 2 tasks | 4 files |
 | Phase 104 P02 | 5min | 2 tasks | 2 files |
+| Phase 105 P01 | 3min | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -56,6 +57,8 @@ Plan: 2 of 2
 - [Phase 104]: revalidateTag kept as 2-arg call -- Next.js 16 requires (tag, profile) signature
 - [Phase 104]: Order-level customer_name/customer_phone take precedence over profile data for COD customer support
 - [Phase 104]: pending_stops counts only status=pending, matching SQL RPC semantics
+- [Phase 105]: Transition map typed as Record<RouteStatus, RouteStatus[]> for compile-time safety
+- [Phase 105]: accepted can revert to planned/assigned for admin corrections
 
 ### Pending Todos (Human Actions)
 
@@ -71,7 +74,7 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-20T04:53:00.346Z
-Stopped at: Phase 105 context gathered
-Resume file: .planning/phases/105-route-lifecycle-guards/105-CONTEXT.md
+Last session: 2026-03-20T05:14:02.118Z
+Stopped at: Completed 105-01-PLAN.md
+Resume file: None
 Next action: `/gsd:plan-phase 104`
