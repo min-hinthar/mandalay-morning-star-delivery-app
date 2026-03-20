@@ -17,7 +17,25 @@ const formatDate = (date: Date) =>
     day: "2-digit",
   }).format(date);
 
-const makePtDate = (value: string) => new Date(`${value}-08:00`);
+/**
+ * Create a Date from an LA-local datetime string.
+ * Dynamically computes the correct UTC offset (PST=-08:00, PDT=-07:00)
+ * by probing Intl.DateTimeFormat for the target date.
+ */
+function makePtDate(value: string): Date {
+  const naive = new Date(`${value}Z`);
+  const formatter = new Intl.DateTimeFormat("en-US", {
+    timeZone: TIMEZONE,
+    timeZoneName: "shortOffset",
+  });
+  const parts = formatter.formatToParts(naive);
+  const tzName = parts.find((p) => p.type === "timeZoneName")?.value ?? "GMT-8";
+  const match = tzName.match(/GMT([+-]\d+)/);
+  const offsetHours = match ? parseInt(match[1], 10) : -8;
+  const sign = offsetHours >= 0 ? "+" : "-";
+  const abs = Math.abs(offsetHours).toString().padStart(2, "0");
+  return new Date(`${value}${sign}${abs}:00`);
+}
 
 // Default cutoff values matching old constants
 const CUTOFF_DAY = 5; // Friday
@@ -319,6 +337,37 @@ describe("delivery date utils", () => {
       const result = getDeliveryDate(friday, 4, 12);
       expect(result.isNextWeek).toBe(true);
       expect(result.dateString).toBe("2026-01-24");
+    });
+  });
+
+  describe("DST transitions", () => {
+    // March 8 2026: clocks spring forward (PST -> PDT)
+    // November 1 2026: clocks fall back (PDT -> PST)
+
+    it("handles spring-forward correctly (March 8 2026)", () => {
+      // Friday before spring-forward: should be PST (-08:00)
+      const fridayBeforeDST = makePtDate("2026-03-06T14:00:00");
+      const saturday = getNextSaturday(fridayBeforeDST);
+      // March 7 is Saturday
+      expect(formatDate(saturday)).toBe("2026-03-07");
+    });
+
+    it("handles fall-back correctly (November 1 2026)", () => {
+      // Friday before fall-back: should be PDT (-07:00)
+      const fridayBeforeFallback = makePtDate("2026-10-30T14:00:00");
+      const saturday = getNextSaturday(fridayBeforeFallback);
+      // October 31 is Saturday
+      expect(formatDate(saturday)).toBe("2026-10-31");
+    });
+
+    it("isPastCutoff works across spring-forward boundary", () => {
+      // March 8 2026 is Sunday (spring forward)
+      // Saturday March 7 delivery, cutoff Friday March 6 3PM PST
+      const saturdayMarch7 = makePtDate("2026-03-07T00:00:00");
+      const beforeCutoff = makePtDate("2026-03-06T14:00:00");
+      const afterCutoff = makePtDate("2026-03-06T16:00:00");
+      expect(isPastCutoff(saturdayMarch7, beforeCutoff, CUTOFF_DAY, CUTOFF_HOUR)).toBe(false);
+      expect(isPastCutoff(saturdayMarch7, afterCutoff, CUTOFF_DAY, CUTOFF_HOUR)).toBe(true);
     });
   });
 });
