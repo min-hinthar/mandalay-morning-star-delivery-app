@@ -55,8 +55,7 @@ export async function GET() {
   if (rl.limited) return rl.response;
 
   const { data, error } = await auth.supabase
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    .from("delivery_zones" as any)
+    .from("delivery_zones")
     .select("*")
     .order("direction", { ascending: true });
 
@@ -64,8 +63,7 @@ export async function GET() {
     return apiError("INTERNAL_ERROR", `Failed to fetch delivery zones: ${error.message}`, 500);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const zones: DeliveryZoneConfig[] = ((data as any[]) || []).map(rowToConfig);
+  const zones: DeliveryZoneConfig[] = (data || []).map(rowToConfig);
 
   return NextResponse.json({ data: { zones } });
 }
@@ -99,8 +97,7 @@ export async function PATCH(request: Request) {
 
   for (const zone of zones) {
     const { error } = await auth.supabase
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      .from("delivery_zones" as any)
+      .from("delivery_zones")
       .update({
         bearing_start: zone.bearingStart,
         bearing_end: zone.bearingEnd,
