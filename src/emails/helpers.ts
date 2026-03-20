@@ -1,6 +1,7 @@
 /**
  * Shared helpers for email templates.
  */
+import { TIMEZONE } from "@/types/delivery";
 
 export const FONT_STACK =
   "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
@@ -20,6 +21,7 @@ export function formatDate(isoString: string): string {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: TIMEZONE,
   });
 }
 

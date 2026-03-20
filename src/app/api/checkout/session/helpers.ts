@@ -5,6 +5,7 @@ import type { ModifierGroupWithItems, ValidatedCartItem } from "@/lib/utils/orde
 import type { ModifierGroupsRow, AddressesRow } from "@/types/database";
 import type { DeliveryDayConfig, DeliveryDirection } from "@/types/delivery";
 import type { DeliveryZoneConfig } from "@/types/delivery";
+import { toISOWithTimezone } from "@/lib/utils/delivery-timezone";
 import {
   getDirectionsForCoords,
   getDirectionLabel,
@@ -116,8 +117,8 @@ export async function sendCODOrderEmail(opts: {
         taxCents: opts.taxCents,
         tipCents: opts.tipCents,
         totalCents: opts.totalCents,
-        deliveryWindowStart: `${opts.scheduledDate}T${opts.timeWindowStart}:00`,
-        deliveryWindowEnd: `${opts.scheduledDate}T${opts.timeWindowEnd}:00`,
+        deliveryWindowStart: toISOWithTimezone(opts.scheduledDate, opts.timeWindowStart),
+        deliveryWindowEnd: toISOWithTimezone(opts.scheduledDate, opts.timeWindowEnd),
         address: opts.address,
         specialInstructions: opts.customerNotes,
         deliveryInstructions: opts.deliveryInstructions,
@@ -155,8 +156,8 @@ export async function sendCODOrderEmail(opts: {
           taxCents: opts.taxCents,
           tipCents: opts.tipCents,
           totalCents: opts.totalCents,
-          deliveryWindowStart: `${opts.scheduledDate}T${opts.timeWindowStart}:00`,
-          deliveryWindowEnd: `${opts.scheduledDate}T${opts.timeWindowEnd}:00`,
+          deliveryWindowStart: toISOWithTimezone(opts.scheduledDate, opts.timeWindowStart),
+          deliveryWindowEnd: toISOWithTimezone(opts.scheduledDate, opts.timeWindowEnd),
           address: opts.address,
           specialInstructions: opts.customerNotes,
           paymentMethod: "cod",

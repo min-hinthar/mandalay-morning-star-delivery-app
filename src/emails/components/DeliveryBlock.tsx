@@ -1,4 +1,5 @@
 import { Section, Text } from "@react-email/components";
+import { TIMEZONE } from "@/types/delivery";
 
 interface DeliveryAddress {
   line1: string;
@@ -23,6 +24,7 @@ function formatDeliveryDate(isoString: string): string {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: TIMEZONE,
   });
 }
 
@@ -32,7 +34,17 @@ function formatDeliveryTime(isoString: string): string {
     hour: "numeric",
     minute: "2-digit",
     hour12: true,
+    timeZone: TIMEZONE,
   });
+}
+
+function getTimezoneAbbr(isoString: string): string {
+  const date = new Date(isoString);
+  const parts = new Intl.DateTimeFormat("en-US", {
+    timeZone: TIMEZONE,
+    timeZoneName: "short",
+  }).formatToParts(date);
+  return parts.find((p) => p.type === "timeZoneName")?.value ?? "PT";
 }
 
 export function DeliveryBlock({
@@ -43,9 +55,10 @@ export function DeliveryBlock({
   driverName,
 }: DeliveryBlockProps) {
   const deliveryDate = windowStart ? formatDeliveryDate(windowStart) : null;
+  const tzAbbr = windowStart ? getTimezoneAbbr(windowStart) : null;
   const deliveryTimeRange =
     windowStart && windowEnd
-      ? `${formatDeliveryTime(windowStart)} - ${formatDeliveryTime(windowEnd)}`
+      ? `${formatDeliveryTime(windowStart)} - ${formatDeliveryTime(windowEnd)} ${tzAbbr}`
       : null;
 
   return (
