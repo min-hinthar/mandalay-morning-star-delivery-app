@@ -27,12 +27,12 @@
 ### Infrastructure
 
 - [ ] **INFRA-01**: Distributed rate limiting restored -- Upstash REST Redis provisioned, all 13 `Ratelimit` constructors enabled in `client.ts`, verified functional
-- [ ] **INFRA-02**: Supabase TypeScript types regenerated to include `delivery_zones` table -- all 3 `as any` casts removed with proper type safety
+- [x] **INFRA-02**: Supabase TypeScript types regenerated to include `delivery_zones` table -- all 3 `as any` casts removed with proper type safety
 
 ### API Correctness
 
 - [ ] **API-01**: Driver `active/route` API includes `customer_name` and `customer_phone` from orders table with profile fallback -- COD customers' contact info visible to driver
-- [ ] **API-02**: `revalidateTag` calls across 4 files remove invalid `{ expire: 0 }` second argument -- clean API usage
+- [x] **API-02**: `revalidateTag` calls across 4 files remove invalid `{ expire: 0 }` second argument -- clean API usage
 
 ### Quality & Maintenance
 
@@ -66,9 +66,9 @@
 | DATA-01 | Phase 107 | Pending |
 | DATA-02 | Phase 107 | Pending |
 | INFRA-01 | Phase 108 | Pending |
-| INFRA-02 | Phase 104 | Pending |
+| INFRA-02 | Phase 104 | Complete |
 | API-01 | Phase 104 | Pending |
-| API-02 | Phase 104 | Pending |
+| API-02 | Phase 104 | Complete |
 | QUAL-01 | Phase 109 | Pending |
 | QUAL-02 | Phase 109 | Pending |
 
