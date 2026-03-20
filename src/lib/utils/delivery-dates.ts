@@ -287,7 +287,10 @@ export function getAvailableDeliveryDatesMultiDay(
         if (!isPastCutoffForDay(now, day, now)) candidates.push({ date: now, dayConfig: day });
       } else {
         const deliveryDate = addZonedDays(now, daysUntil + weekOffset * 7);
-        candidates.push({ date: deliveryDate, dayConfig: day });
+        // TZ-04: Pre-filter cutoff-passed dates so all returned slots are orderable
+        if (!isPastCutoffForDay(deliveryDate, day, now)) {
+          candidates.push({ date: deliveryDate, dayConfig: day });
+        }
       }
     }
   }

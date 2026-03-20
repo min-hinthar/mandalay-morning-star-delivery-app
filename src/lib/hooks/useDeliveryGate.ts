@@ -10,7 +10,7 @@ import {
   getTimeUntilNextCutoff,
   getCutoffForDeliveryDay,
 } from "@/lib/utils/delivery-dates";
-import type { DeliveryDate, DeliveryDayConfig } from "@/types/delivery";
+import { TIMEZONE, type DeliveryDate, type DeliveryDayConfig } from "@/types/delivery";
 
 // ============================================
 // TYPES
@@ -45,7 +45,7 @@ function formatDateString(date: Date): string {
     weekday: "long",
     month: "long",
     day: "numeric",
-    timeZone: "America/Los_Angeles",
+    timeZone: TIMEZONE,
   }).format(date);
 }
 

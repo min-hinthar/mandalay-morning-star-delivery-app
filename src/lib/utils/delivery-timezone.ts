@@ -1,3 +1,5 @@
+import { TIMEZONE } from "@/types/delivery";
+
 /**
  * Build an ISO timestamp with the correct America/Los_Angeles UTC offset.
  * Handles DST automatically via Intl.DateTimeFormat.
@@ -5,7 +7,7 @@
 export function toISOWithTimezone(date: string, time: string): string {
   const dt = new Date(`${date}T${time}:00`);
   const laFormatter = new Intl.DateTimeFormat("en-US", {
-    timeZone: "America/Los_Angeles",
+    timeZone: TIMEZONE,
     timeZoneName: "shortOffset",
   });
   const parts = laFormatter.formatToParts(dt);
