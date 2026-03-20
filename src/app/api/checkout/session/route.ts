@@ -18,6 +18,7 @@ import { checkOrigin } from "@/lib/utils/origin-check";
 import { ensureProfile } from "@/lib/auth/role-redirect";
 import { createCODOrder } from "@/lib/services/cod-order";
 import type { AddressesRow, OrdersRow, OrderItemsRow, ProfilesRow } from "@/types/database";
+import { TIMEZONE } from "@/types/delivery";
 import { toISOWithTimezone } from "@/lib/utils/delivery-timezone";
 import { cleanupOrder, sendCODOrderEmail, resolveAddressDistance } from "./helpers";
 import {
@@ -26,6 +27,8 @@ import {
   buildRpcPayload,
   revalidateItemAvailability,
 } from "./validation";
+
+const MAX_DELIVERY_DAYS_FUTURE = 30;
 
 export async function POST(request: Request) {
   try {
@@ -50,8 +53,27 @@ export async function POST(request: Request) {
     );
     if (!isValidWindow)
       return errorResponse("VALIDATION_ERROR", "Invalid delivery time window", 400);
-    const scheduledDate = new Date(input.scheduledDate + "T12:00:00");
+    const scheduledDate = new Date(toISOWithTimezone(input.scheduledDate, "12:00"));
     const now = new Date();
+
+    // TZ-05: Reject dates more than 30 days in the future (LA timezone comparison)
+    const todayLA = new Intl.DateTimeFormat("en-CA", {
+      timeZone: TIMEZONE,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+    }).format(now);
+    const diffDays = Math.ceil(
+      (new Date(input.scheduledDate).getTime() - new Date(todayLA).getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
+    if (diffDays > MAX_DELIVERY_DAYS_FUTURE) {
+      return errorResponse(
+        "VALIDATION_ERROR",
+        "Delivery date cannot be more than 30 days in the future",
+        400
+      );
+    }
 
     const scheduledDayOfWeek = getZonedDayOfWeek(scheduledDate);
     const dayConfig = rules.deliveryDays.find(
