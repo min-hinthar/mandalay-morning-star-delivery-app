@@ -118,7 +118,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         .returns<{ deliveries_count: number; rating_avg: number }[]>()
         .single();
 
-      const totalDeliveries = (driverRecord?.deliveries_count ?? 0) + stats.delivered_stops;
+      // deliveries_count already includes this route's stops (trigger fires per-stop on delivery)
+      const totalDeliveries = driverRecord?.deliveries_count ?? 0;
       const ratingAvg: number = driverRecord?.rating_avg ?? 0;
 
       // Get current streak
