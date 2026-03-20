@@ -104,18 +104,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Failed to complete route" }, { status: 500 });
     }
 
-    // Update driver's delivery count
-    try {
-      await supabase.rpc("increment_driver_deliveries", {
-        p_driver_id: driverId,
-        p_count: stats.delivered_stops,
-      });
-    } catch {
-      // RPC might not exist yet, ignore
-      logger.info("increment_driver_deliveries RPC not available, skipping", {
-        api: "driver/routes/[routeId]/complete",
-      });
-    }
+    // Driver delivery count is handled by the update_driver_deliveries_count trigger
+    // (fires on route_stops status change to 'delivered')
 
     // Award badges based on updated stats (non-blocking)
     let newBadges: string[] = [];
