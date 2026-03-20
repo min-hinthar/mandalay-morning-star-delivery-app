@@ -9,7 +9,7 @@
 
 - [x] **ROUTE-01**: Driver sees "Accept Route" CTA for `assigned` status, not "Start Route" -- tapping Start on an assigned route no longer returns 400
 - [x] **ROUTE-02**: `updateRouteStats` counts `enroute` stop as "in progress", not "pending" -- admin dashboard reflects accurate current state
-- [ ] **ROUTE-03**: Admin route status override enforces lifecycle guards -- cannot set `in_progress` without driver acceptance, audit trail on manual overrides
+- [x] **ROUTE-03**: Admin route status override enforces lifecycle guards -- cannot set `in_progress` without driver acceptance, audit trail on manual overrides
 
 ### Checkout & Timezone
 
@@ -57,7 +57,7 @@
 |-------------|-------|--------|
 | ROUTE-01 | Phase 105 | Complete |
 | ROUTE-02 | Phase 104 | Complete |
-| ROUTE-03 | Phase 105 | Pending |
+| ROUTE-03 | Phase 105 | Complete |
 | TZ-01 | Phase 106 | Pending |
 | TZ-02 | Phase 106 | Pending |
 | TZ-03 | Phase 106 | Pending |
