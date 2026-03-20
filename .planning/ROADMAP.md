@@ -92,7 +92,7 @@
 - [x] **Phase 104: Type Safety & API Corrections** (2 plans) - Add missing Supabase types, fix revalidateTag/active-route/stats bugs (completed 2026-03-20)
 - [x] **Phase 105: Route Lifecycle Guards** (2 plans) - Fix driver route start blocker and admin override bypass (completed 2026-03-20)
 - [x] **Phase 106: Timezone Correctness** (2 plans) - Batch-fix all timezone bugs across checkout, email, cron, and date filtering (completed 2026-03-20)
-- [ ] **Phase 107: Data Integrity** (2 plans) - Atomic stop promotion RPC and dead code removal
+- [x] **Phase 107: Data Integrity** (2 plans) - Atomic stop promotion RPC and dead code removal (completed 2026-03-20)
 - [ ] **Phase 108: Rate Limiting Restoration** - Provision Upstash REST Redis and restore all 13 rate limiters
 - [ ] **Phase 109: Quality & Maintenance** - Integration tests for route lifecycle, webhook handler file split
 
@@ -148,7 +148,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Completing two stops in rapid succession (< 500ms apart) never promotes the same next stop twice -- atomic `FOR UPDATE SKIP LOCKED` prevents double-promotion
   2. `complete/route` endpoint does not call `increment_driver_deliveries` RPC -- the existing `update_driver_deliveries_count` trigger handles counts per stop, preventing double-counting
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [ ] 107-01-PLAN.md — Create promote_next_stop RPC migration + update database.ts types
 - [ ] 107-02-PLAN.md — Wire stop handler to RPC + remove dead code from complete handler
@@ -183,7 +183,7 @@ Phases execute in numeric order: 104 -> 105 -> 106 -> 107 -> 108 -> 109
 | 104. Type Safety & API Corrections | 2/2 | Complete    | 2026-03-20 |
 | 105. Route Lifecycle Guards | 2/2 | Complete    | 2026-03-20 |
 | 106. Timezone Correctness | 2/2 | Complete    | 2026-03-20 |
-| 107. Data Integrity | 1/2 | In Progress|  |
+| 107. Data Integrity | 2/2 | Complete   | 2026-03-20 |
 | 108. Rate Limiting Restoration | 0/TBD | Not started | - |
 | 109. Quality & Maintenance | 0/TBD | Not started | - |
 

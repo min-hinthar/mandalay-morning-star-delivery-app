@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Stability & Correctness
 status: unknown
-stopped_at: Completed 107-01-PLAN.md
-last_updated: "2026-03-20T10:39:14.021Z"
+stopped_at: Completed 107-02-PLAN.md
+last_updated: "2026-03-20T10:50:35.216Z"
 progress:
   total_phases: 6
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -24,8 +24,8 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 107 (data-integrity) — EXECUTING
-Plan: 2 of 2
+Phase: 107 (data-integrity) — COMPLETE
+Plan: 2 of 2 (all complete)
 
 ## Performance Metrics
 
@@ -50,6 +50,7 @@ Plan: 2 of 2
 | Phase 106 P01 | 8min | 2 tasks | 5 files |
 | Phase 106 P02 | 17min | 2 tasks | 7 files |
 | Phase 107 P01 | 4min | 2 tasks | 3 files |
+| Phase 107 P02 | 8min | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -72,6 +73,8 @@ Plan: 2 of 2
 - [Phase 106]: Used Intl.DateTimeFormat timeZoneName: short for dynamic PST/PDT abbreviation in email display
 - [Phase 106]: Test makePtDate uses Intl.DateTimeFormat shortOffset for DST-aware offset computation instead of hardcoded -08:00
 - [Phase 107]: Removed increment_driver_deliveries dead code from route complete handler (trigger handles it)
+- [Phase 107]: Badge totalDeliveries uses deliveries_count directly -- trigger is sole source of truth (no double-count)
+- [Phase 107]: RPC Json results cast via local interface for type safety
 
 ### Pending Todos (Human Actions)
 
@@ -87,7 +90,7 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-20T10:39:14.018Z
-Stopped at: Completed 107-01-PLAN.md
+Last session: 2026-03-20T10:50:35.213Z
+Stopped at: Completed 107-02-PLAN.md
 Resume file: None
 Next action: Execute 106-02-PLAN.md
