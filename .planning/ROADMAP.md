@@ -90,7 +90,7 @@
 **Milestone Goal:** Fix all critical bugs and correctness issues found in codebase deep dive -- driver route lifecycle blockers, checkout delivery window discrepancies, timezone bugs, missing RPCs, broken rate limiting, race conditions, and test coverage gaps.
 
 - [x] **Phase 104: Type Safety & API Corrections** (2 plans) - Add missing Supabase types, fix revalidateTag/active-route/stats bugs (completed 2026-03-20)
-- [ ] **Phase 105: Route Lifecycle Guards** - Fix driver route start blocker and admin override bypass
+- [ ] **Phase 105: Route Lifecycle Guards** (2 plans) - Fix driver route start blocker and admin override bypass
 - [ ] **Phase 106: Timezone Correctness** - Batch-fix all timezone bugs across checkout, email, cron, and date filtering
 - [ ] **Phase 107: Data Integrity** - Atomic stop promotion RPC and dead code removal
 - [ ] **Phase 108: Rate Limiting Restoration** - Provision Upstash REST Redis and restore all 13 rate limiters
@@ -121,7 +121,10 @@ Plans:
   2. Driver sees "Start Route" button only after accepting -- the start action transitions `accepted` to `in_progress`
   3. Admin route status override dropdown excludes states that violate lifecycle (cannot set `in_progress` without driver acceptance)
   4. Manual admin overrides are logged with timestamp and previous state for audit trail
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 105-01-PLAN.md — Add VALID_ROUTE_TRANSITIONS constant + fix driver start endpoint
+- [ ] 105-02-PLAN.md — Admin PATCH lifecycle guard + frontend dropdown + migration
 
 ### Phase 106: Timezone Correctness
 **Goal**: All date/time operations use LA timezone consistently -- customers see correct delivery windows, reminders fire on the right day, checkout rejects stale or far-future dates
@@ -172,7 +175,7 @@ Phases execute in numeric order: 104 -> 105 -> 106 -> 107 -> 108 -> 109
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 104. Type Safety & API Corrections | 2/2 | Complete    | 2026-03-20 |
-| 105. Route Lifecycle Guards | 0/TBD | Not started | - |
+| 105. Route Lifecycle Guards | 0/2 | Not started | - |
 | 106. Timezone Correctness | 0/TBD | Not started | - |
 | 107. Data Integrity | 0/TBD | Not started | - |
 | 108. Rate Limiting Restoration | 0/TBD | Not started | - |
