@@ -2,6 +2,7 @@ import { Button, Link, Section, Text } from "@react-email/components";
 import { DeliveryBlock } from "./components/DeliveryBlock";
 import { EmailLayout } from "./components/EmailLayout";
 import { APP_URL } from "./helpers";
+import { TIMEZONE } from "@/types/delivery";
 import { OrderItemsTable } from "./components/OrderItemsTable";
 import { OrderStatusTracker } from "./components/OrderStatusTracker";
 import { OrderTotalsTable } from "./components/OrderTotalsTable";
@@ -21,6 +22,7 @@ function formatDate(iso: string): string {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: TIMEZONE,
   });
 }
 
