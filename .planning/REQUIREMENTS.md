@@ -13,11 +13,11 @@
 
 ### Checkout & Timezone
 
-- [ ] **TZ-01**: Checkout `scheduledDate` uses explicit LA timezone construction via `toISOWithTimezone` instead of fragile `new Date(date + "T12:00:00")`
+- [x] **TZ-01**: Checkout `scheduledDate` uses explicit LA timezone construction via `toISOWithTimezone` instead of fragile `new Date(date + "T12:00:00")`
 - [ ] **TZ-02**: COD email delivery window strings include timezone offset (match Stripe path behavior) -- customers see correct times
-- [ ] **TZ-03**: Delivery reminder cron computes "today" in LA timezone, not UTC -- reminders go to correct day's orders between midnight UTC and 8AM LA
-- [ ] **TZ-04**: `getAvailableDeliveryDatesMultiDay` pre-filters cutoff-passed dates before filling candidate slots -- customers see maximum available future dates
-- [ ] **TZ-05**: Checkout API rejects `scheduledDate` more than 30 days in the future -- prevents accidental far-future orders
+- [x] **TZ-03**: Delivery reminder cron computes "today" in LA timezone, not UTC -- reminders go to correct day's orders between midnight UTC and 8AM LA
+- [x] **TZ-04**: `getAvailableDeliveryDatesMultiDay` pre-filters cutoff-passed dates before filling candidate slots -- customers see maximum available future dates
+- [x] **TZ-05**: Checkout API rejects `scheduledDate` more than 30 days in the future -- prevents accidental far-future orders
 
 ### Data Integrity
 
@@ -58,11 +58,11 @@
 | ROUTE-01 | Phase 105 | Complete |
 | ROUTE-02 | Phase 104 | Complete |
 | ROUTE-03 | Phase 105 | Complete |
-| TZ-01 | Phase 106 | Pending |
+| TZ-01 | Phase 106 | Complete |
 | TZ-02 | Phase 106 | Pending |
-| TZ-03 | Phase 106 | Pending |
-| TZ-04 | Phase 106 | Pending |
-| TZ-05 | Phase 106 | Pending |
+| TZ-03 | Phase 106 | Complete |
+| TZ-04 | Phase 106 | Complete |
+| TZ-05 | Phase 106 | Complete |
 | DATA-01 | Phase 107 | Pending |
 | DATA-02 | Phase 107 | Pending |
 | INFRA-01 | Phase 108 | Pending |
