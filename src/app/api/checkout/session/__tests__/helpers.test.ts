@@ -17,6 +17,10 @@ vi.mock("@/lib/supabase/server", () => ({
   })),
 }));
 
+vi.mock("@/lib/utils/delivery-timezone", () => ({
+  toISOWithTimezone: (date: string, time: string) => `${date}T${time}:00-08:00`,
+}));
+
 const TEST_DAYS: DeliveryDayConfig[] = [
   {
     id: "d1",
