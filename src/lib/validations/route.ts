@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import type { RouteStatus } from "@/types/driver";
+
 // Route status enum
 export const routeStatusSchema = z.enum([
   "planned",
@@ -8,6 +10,27 @@ export const routeStatusSchema = z.enum([
   "in_progress",
   "completed",
 ]);
+
+/**
+ * Valid route status transitions.
+ * Both frontend (dropdown filter) and backend (PATCH guard) enforce these rules.
+ * Pattern: mirrors VALID_STOP_TRANSITIONS in driver-api.ts
+ */
+export const VALID_ROUTE_TRANSITIONS: Record<RouteStatus, RouteStatus[]> = {
+  planned: ["assigned"],
+  assigned: ["planned", "accepted"],
+  accepted: ["planned", "assigned", "in_progress"],
+  in_progress: ["completed"],
+  completed: [],
+};
+
+export function isValidRouteTransition(from: RouteStatus, to: RouteStatus): boolean {
+  return VALID_ROUTE_TRANSITIONS[from]?.includes(to) ?? false;
+}
+
+export function getValidRouteTransitions(current: RouteStatus): RouteStatus[] {
+  return VALID_ROUTE_TRANSITIONS[current] ?? [];
+}
 
 // Route stop status enum
 export const routeStopStatusSchema = z.enum([
