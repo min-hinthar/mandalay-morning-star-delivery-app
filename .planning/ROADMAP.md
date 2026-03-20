@@ -121,7 +121,7 @@ Plans:
   2. Driver sees "Start Route" button only after accepting -- the start action transitions `accepted` to `in_progress`
   3. Admin route status override dropdown excludes states that violate lifecycle (cannot set `in_progress` without driver acceptance)
   4. Manual admin overrides are logged with timestamp and previous state for audit trail
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
 - [ ] 105-01-PLAN.md — Add VALID_ROUTE_TRANSITIONS constant + fix driver start endpoint
 - [ ] 105-02-PLAN.md — Admin PATCH lifecycle guard + frontend dropdown + migration
@@ -175,7 +175,7 @@ Phases execute in numeric order: 104 -> 105 -> 106 -> 107 -> 108 -> 109
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 104. Type Safety & API Corrections | 2/2 | Complete    | 2026-03-20 |
-| 105. Route Lifecycle Guards | 0/2 | Not started | - |
+| 105. Route Lifecycle Guards | 1/2 | In Progress|  |
 | 106. Timezone Correctness | 0/TBD | Not started | - |
 | 107. Data Integrity | 0/TBD | Not started | - |
 | 108. Rate Limiting Restoration | 0/TBD | Not started | - |
