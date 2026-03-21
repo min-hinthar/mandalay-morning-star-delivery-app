@@ -2,20 +2,21 @@
 
 ## What This Is
 
-A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. Eleven milestones shipped (v1.0-v2.1) across 103 phases and 406 plans. V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. Complete operator tooling: ops dashboard with route progress monitoring, route builder with Leaflet maps, full route editing (drag-reorder, split, merge, driver reassignment), configurable business rules, email reliability. Admin mobile UX with drawer navigation, card layouts, 44px touch targets — all ops runnable from a phone. Customer UX with Saturday-only delivery gate, cutoff countdown, and dynamic pricing. Driver experience with route accept/decline flow, stop-by-stop delivery, simple mode for non-technical family members, offline overlay, and guided onboarding. Production hardened with CSP headers, RLS on all tables, distributed rate limiting, composite indexes, and endpoint-specific error handling.
+A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. Twelve milestones shipped (v1.0-v2.2) across 109 phases and 418 plans. V8 component library with portal-based overlays, tokenized z-index system, and animation-first design using GSAP and Framer Motion. Complete operator tooling: ops dashboard with route progress monitoring, route builder with Leaflet maps, full route editing (drag-reorder, split, merge, driver reassignment), configurable business rules, email reliability. Admin mobile UX with drawer navigation, card layouts, 44px touch targets — all ops runnable from a phone. Customer UX with Saturday-only delivery gate, cutoff countdown, and dynamic pricing. Driver experience with route accept/decline flow, stop-by-stop delivery, simple mode for non-technical family members, offline overlay, and guided onboarding. Production hardened with CSP headers, RLS on all tables, distributed rate limiting, composite indexes, and endpoint-specific error handling.
 
 ## Core Value
 
 **Every UI element is reliably clickable and the app feels delightfully alive with motion.** If overlays block clicks or animations feel janky, we've failed.
 
-## Current State (v2.2 Stability & Correctness in progress)
+## Current State (v2.2 Stability & Correctness complete)
 
-- 11 milestones complete: v1.0-v2.1 (103 phases, 406 plans, 18/18 v2.1 requirements at 100%)
+- 12 milestones complete: v1.0-v2.2 (109 phases, 418 plans)
 - Phase 104 complete: Type safety & API corrections — missing Supabase types added, `as any` casts removed, driver route customer contact + pending count fixed
 - Phase 105 complete: Route lifecycle guards — VALID_ROUTE_TRANSITIONS enforced on driver start + admin PATCH, Sentry audit on admin overrides, CHECK constraint prevents planned+driver_id
 - Phase 106 complete: Timezone correctness — checkout uses `toISOWithTimezone()`, COD emails show timezone offset, cron computes LA date, date picker pre-filters cutoff-passed dates, 30-day future validation added
 - Phase 107 complete: Data integrity — atomic `promote_next_stop` RPC with `FOR UPDATE SKIP LOCKED` eliminates stop promotion race condition, dead `increment_driver_deliveries` call removed, badge double-count fixed
 - Phase 108 complete: Rate limiting restoration — 13 rate limiter exports restored via `createLimiter()` factory, server action fallback gap closed, health endpoint fixed with real Redis PING, 21 unit tests added
+- Phase 109 complete: Quality & maintenance — 12 driver route lifecycle integration tests with factories, webhook handlers.ts (529 lines) split into 4 per-event files + barrel, 851 tests passing
 - Deployed to production at delivery.mandalaymorningstar.com
 - Full route lifecycle: drag-reorder stops (desktop DnD + mobile move buttons), split/merge routes, driver reassignment with confirmation
 - Route progress widget: real-time 5s polling ops dashboard showing per-route driver, status, delivered/total
