@@ -1,5 +1,53 @@
 # Project Retrospectives
 
+## Milestone: v2.2 — Stability & Correctness
+
+**Shipped:** 2026-03-21
+**Phases:** 6 | **Plans:** 12 | **Requirements:** 16/16
+
+### What Was Built
+- Type safety restored: Supabase types regenerated with delivery_zones, all as-any casts removed, driver active route API returns customer contact
+- Route lifecycle guards: VALID_ROUTE_TRANSITIONS enforced on driver start + admin PATCH, Sentry audit trail, frontend dropdown disables invalid states
+- Timezone correctness: checkout/cron/email all use toISOWithTimezone + TIMEZONE constant, 30-day future validation, DST-aware tests
+- Atomic data integrity: promote_next_stop RPC with FOR UPDATE SKIP LOCKED, dead increment_driver_deliveries removed, badge double-count fixed
+- Rate limiting restoration: 13 limiters via createLimiter factory, server action fallback, health endpoint Redis PING, 21 unit tests
+- Quality: 12 lifecycle integration tests with factories, webhook handlers.ts split into 4 per-event files
+
+### What Worked
+- **Bug-fix milestone was fast** — 6 phases, 12 plans in 2 days. Clear problem definitions (from codebase deep dive) made planning/execution straightforward
+- **No gap closure phase needed** — first milestone that shipped without a cleanup phase. All 16 requirements passed on first audit
+- **Dependency ordering paid off** — types (104) → guards (105) → timezone (106) → data integrity (107) → infra (108) → tests (109) created clean build-up
+- **Plan-level verification caught deviations early** — revalidateTag 2-arg signature deviation was documented and verified correct before proceeding
+- **Integration checker confirmed all wiring** — 18/18 exports verified, 5/5 E2E flows complete, zero missing connections
+- **Focused scope** — purely correctness fixes, no feature work. Tight scope = tight execution
+
+### What Was Inefficient
+- **Nyquist validation only on 2/6 phases** — phases 104-107 skipped VALIDATION.md creation. Not a blocker but inconsistent
+- **SUMMARY frontmatter still lacks `requirements_completed`** — had to use `provides` field for cross-reference instead. Pattern hasn't been fixed since v2.1
+- **exception handler inconsistency surfaced but not fixed** — `exception/route.ts` enroute-as-pending bug was documented as tech debt but could have been fixed inline (2 lines)
+
+### Patterns Established
+- `createLimiter` factory pattern for tier-based rate limiter construction with null return for dev
+- `TIMEZONE` constant as single source of truth for all timezone references
+- `toISOWithTimezone` for all ISO string construction with explicit timezone offset
+- `Intl.DateTimeFormat` with `timeZoneName: "shortOffset"` for DST-aware test helpers
+- `FOR UPDATE SKIP LOCKED` for concurrent row locking without deadlocks
+- Barrel `handlers/index.ts` for file splitting that preserves directory index resolution
+
+### Key Lessons
+1. **Bug-fix milestones don't need gap closure** — when scope is correctness-only (no new features), the implementation matches the plan closely. Zero gap closure phases for the first time.
+2. **Codebase deep dive → requirements is efficient** — the v2.2 requirements came directly from a structured codebase analysis. Every requirement had a specific file + line number. No ambiguity.
+3. **Small plans execute faster per-task** — 2 plans per phase (vs 3-6 in v2.1) meant less context switching and faster verification. Sweet spot for focused fixes.
+4. **Integration check at milestone level catches cross-phase issues** — the exception handler enroute inconsistency was surfaced by integration checker, not phase-level verification.
+5. **Rate limiting needs infrastructure provisioning tracked separately** — code is ready but production requires manual Upstash setup. Should have a pre-milestone infrastructure checklist.
+
+### Cost Observations
+- Model mix: ~80% opus, ~20% sonnet (sonnet for verifier, integration checker)
+- Sessions: ~3 sessions across 2 days
+- Notable: Most efficient milestone yet — 12 plans in 2 days, no gap closure, no rework. Focused correctness scope was the key differentiator.
+
+---
+
 ## Milestone: v2.1 — Route Operations & Admin Mobile
 
 **Shipped:** 2026-03-17
