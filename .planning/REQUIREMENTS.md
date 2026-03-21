@@ -26,7 +26,7 @@
 
 ### Infrastructure
 
-- [ ] **INFRA-01**: Distributed rate limiting restored -- Upstash REST Redis provisioned, all 13 `Ratelimit` constructors enabled in `client.ts`, verified functional
+- [x] **INFRA-01**: Distributed rate limiting restored -- Upstash REST Redis provisioned, all 13 `Ratelimit` constructors enabled in `client.ts`, verified functional
 - [x] **INFRA-02**: Supabase TypeScript types regenerated to include `delivery_zones` table -- all 3 `as any` casts removed with proper type safety
 
 ### API Correctness
@@ -65,7 +65,7 @@
 | TZ-05 | Phase 106 | Complete |
 | DATA-01 | Phase 107 | Complete |
 | DATA-02 | Phase 107 | Complete |
-| INFRA-01 | Phase 108 | Pending |
+| INFRA-01 | Phase 108 | Complete |
 | INFRA-02 | Phase 104 | Complete |
 | API-01 | Phase 104 | Complete |
 | API-02 | Phase 104 | Complete |

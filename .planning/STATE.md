@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Stability & Correctness
 status: in-progress
-stopped_at: Completed 108-01-PLAN.md
-last_updated: "2026-03-21T07:24:12Z"
+stopped_at: Completed 108-02-PLAN.md
+last_updated: "2026-03-21T07:34:34Z"
 progress:
   total_phases: 6
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 10
-  completed_plans: 9
+  completed_plans: 10
 ---
 
 # Project State
@@ -24,8 +24,8 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 ## Current Position
 
-Phase: 108 (rate-limiting-restoration) — IN PROGRESS
-Plan: 1 of 2 complete
+Phase: 108 (rate-limiting-restoration) — COMPLETE
+Plan: 2 of 2 complete
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Plan: 1 of 2 complete
 | Phase 107 P01 | 4min | 2 tasks | 3 files |
 | Phase 107 P02 | 8min | 2 tasks | 2 files |
 | Phase 108 P01 | 2min | 2 tasks | 5 files |
+| Phase 108 P02 | 8min | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Plan: 1 of 2 complete
 - [Phase 108]: ephemeralCache + analytics enabled on all limiters for performance and observability
 - [Phase 108]: Webhook tier bumped from 30 to 60 req/min to handle Stripe/Resend burst patterns
 - [Phase 108]: Server action fallback mirrors checkRateLimit pattern exactly for consistency
+- [Phase 108]: Promise.race for 3s Redis PING timeout (AbortSignal not supported by @upstash/redis HTTP client)
+- [Phase 108]: Redis failure reports degraded, not down -- app works via in-memory fallback
 
 ### Pending Todos (Human Actions)
 
@@ -95,7 +98,7 @@ Plan: 1 of 2 complete
 
 ## Session Continuity
 
-Last session: 2026-03-21T07:24:12Z
-Stopped at: Completed 108-01-PLAN.md
+Last session: 2026-03-21T07:34:34Z
+Stopped at: Completed 108-02-PLAN.md
 Resume file: None
-Next action: Execute 108-02-PLAN.md
+Next action: Plan and execute Phase 109
