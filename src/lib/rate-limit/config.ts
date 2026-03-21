@@ -92,7 +92,7 @@ export const RATE_LIMITS: Record<RateLimitTier, RateLimitConfig> = {
     window: envStr("RATE_LIMIT_ADMIN_BULK_WINDOW", "1 m"),
   },
   webhook: {
-    max: envInt("RATE_LIMIT_WEBHOOK_MAX", 30),
+    max: envInt("RATE_LIMIT_WEBHOOK_MAX", 60),
     window: envStr("RATE_LIMIT_WEBHOOK_WINDOW", "1 m"),
   },
 };
