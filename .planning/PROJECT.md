@@ -8,15 +8,10 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 **Every UI element is reliably clickable and the app feels delightfully alive with motion.** If overlays block clicks or animations feel janky, we've failed.
 
-## Current State (v2.2 Stability & Correctness complete)
+## Current State (v2.2 shipped)
 
-- 12 milestones complete: v1.0-v2.2 (109 phases, 418 plans)
-- Phase 104 complete: Type safety & API corrections — missing Supabase types added, `as any` casts removed, driver route customer contact + pending count fixed
-- Phase 105 complete: Route lifecycle guards — VALID_ROUTE_TRANSITIONS enforced on driver start + admin PATCH, Sentry audit on admin overrides, CHECK constraint prevents planned+driver_id
-- Phase 106 complete: Timezone correctness — checkout uses `toISOWithTimezone()`, COD emails show timezone offset, cron computes LA date, date picker pre-filters cutoff-passed dates, 30-day future validation added
-- Phase 107 complete: Data integrity — atomic `promote_next_stop` RPC with `FOR UPDATE SKIP LOCKED` eliminates stop promotion race condition, dead `increment_driver_deliveries` call removed, badge double-count fixed
-- Phase 108 complete: Rate limiting restoration — 13 rate limiter exports restored via `createLimiter()` factory, server action fallback gap closed, health endpoint fixed with real Redis PING, 21 unit tests added
-- Phase 109 complete: Quality & maintenance — 12 driver route lifecycle integration tests with factories, webhook handlers.ts (529 lines) split into 4 per-event files + barrel, 851 tests passing
+- 12 milestones shipped: v1.0-v2.2 (109 phases, 418 plans)
+- v2.2 shipped 2026-03-21: 6 phases, 12 plans, 16/16 requirements, all bugs from codebase deep dive fixed
 - Deployed to production at delivery.mandalaymorningstar.com
 - Full route lifecycle: drag-reorder stops (desktop DnD + mobile move buttons), split/merge routes, driver reassignment with confirmation
 - Route progress widget: real-time 5s polling ops dashboard showing per-route driver, status, delivered/total
@@ -109,27 +104,26 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - ✓ Driver route flow (accept/decline → stop reordering in advanced mode) — v2.1
 - ✓ Admin mobile UX (drawer nav, card layouts, 44px touch targets, route progress widget) — v2.1
 - ✓ Driver page audit (all pages load real data, no empty/stub content) — v2.1
+- ✓ Driver route start requires accept-first guard (ROUTE-01) — v2.2
+- ✓ Correct pending_stops count excluding enroute (ROUTE-02) — v2.2
+- ✓ Admin route status override lifecycle guards + Sentry audit (ROUTE-03) — v2.2
+- ✓ Checkout scheduledDate via toISOWithTimezone (TZ-01) — v2.2
+- ✓ COD email timezone offset display (TZ-02) — v2.2
+- ✓ Cron delivery reminders in LA timezone (TZ-03) — v2.2
+- ✓ Date picker pre-filters cutoff-passed dates (TZ-04) — v2.2
+- ✓ 30-day future date checkout validation (TZ-05) — v2.2
+- ✓ Atomic stop promotion via FOR UPDATE SKIP LOCKED (DATA-01) — v2.2
+- ✓ Dead increment_driver_deliveries call removed (DATA-02) — v2.2
+- ✓ Distributed rate limiting restored via Upstash REST (INFRA-01) — v2.2
+- ✓ Supabase types include delivery_zones, as-any casts removed (INFRA-02) — v2.2
+- ✓ Driver active route customer contact fallback (API-01) — v2.2
+- ✓ revalidateTag valid 2-arg signature (API-02) — v2.2
+- ✓ Driver route lifecycle integration tests (QUAL-01) — v2.2
+- ✓ Webhook handlers split into per-event files (QUAL-02) — v2.2
 
 ### Active
 
-<!-- v2.2 Stability & Correctness -->
-
-- [ ] Fix driver route start blocked by `assigned` status mismatch (CONCERNS Issue F)
-- [ ] Fix COD email naive timestamps — use timezone-aware delivery window strings (Issue B)
-- [ ] Fix checkout `scheduledDate` fragile timezone parsing (Issue A)
-- [ ] Add future date upper bound validation on checkout (Issue E)
-- [ ] Fix delivery reminder cron UTC vs LA date bug (Issue 6)
-- [ ] Fix `active/route` API missing `customer_name`/`customer_phone` fallback (Issue 7)
-- [ ] Create `increment_driver_deliveries` RPC migration (Issue J)
-- [ ] Fix race condition in route stop next-stop promotion (Issue 9)
-- [ ] Fix `revalidateTag` invalid second argument (Issue 5)
-- [ ] Regenerate Supabase types to include `delivery_zones` table (Issue 4)
-- [x] Provision distributed rate limiting (Upstash REST) — Validated in Phase 108: Rate Limiting Restoration
-- [ ] Fix `updateRouteStats` counting `enroute` as `pending` (Issue I)
-- [ ] Pre-filter cutoff-passed dates in `getAvailableDeliveryDatesMultiDay` (Issue C)
-- [ ] Guard admin route status override to prevent lifecycle bypass (Issue G)
-- [ ] Add integration tests for driver route lifecycle (Test gap 1)
-- [ ] Split oversized `handlers.ts` webhook file (Tech debt)
+(No active requirements — next milestone TBD)
 
 ### Out of Scope
 
@@ -146,28 +140,13 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - Multi-restaurant marketplace — not part of Morning Star scope
 - Docker/Kubernetes — Vercel is serverless; containerization adds zero value
 
-## Current Milestone: v2.2 Stability & Correctness
+## Last Milestone: v2.2 Stability & Correctness (SHIPPED 2026-03-21)
 
-**Goal:** Fix all critical bugs and correctness issues found in codebase deep dive — driver route lifecycle blockers, checkout delivery window discrepancies, timezone bugs, missing RPCs, broken rate limiting, race conditions, and test coverage gaps.
+**Delivered:** All critical bugs from codebase deep dive fixed — driver route lifecycle, checkout timezone correctness, atomic stop promotion, distributed rate limiting, and integration test coverage. 16/16 requirements, 6 phases, 12 plans.
 
-**Target fixes:**
-- Driver cannot start/proceed with assigned routes (status state machine)
-- Checkout delivery window timezone discrepancies (COD emails, cron, date parsing)
-- Missing `increment_driver_deliveries` RPC (driver stats broken)
-- Non-functional distributed rate limiting (all 13 limiters null)
-- Race condition in stop next-stop promotion
-- Missing `delivery_zones` Supabase types
-- Cutoff-passed date pre-filtering
-- Admin route status override lifecycle guards
-- Integration test coverage for driver route lifecycle
-
-## Last Milestone: v2.1 Route Operations & Admin Mobile (SHIPPED 2026-03-17)
+## Previous Milestone: v2.1 Route Operations & Admin Mobile (SHIPPED 2026-03-17)
 
 **Delivered:** Full route lifecycle management — admins and drivers can plan, edit, optimize, and execute delivery routes entirely from their phones on Saturday. 18/18 requirements, 5 phases, 22 plans.
-
-## Previous Milestone: v2.0 Production-Grade Launch MVP (SHIPPED 2026-03-04)
-
-**Delivered:** Production-ready for real Saturday operations — solo operator triaging 20-50 orders with family/friend drivers. All 49 requirements satisfied across 12 phases.
 
 ## Context
 
@@ -193,13 +172,13 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - RESEND_WEBHOOK_SECRET env var needs configuration for webhook verification
 - Upstash Redis provisioning needed on Vercel Marketplace for production rate limiting
 - Sentry alert rule "Rate Limit Spike" needs manual dashboard creation
-- Timezone confirmation: Asia/Yangon vs America/Los_Angeles for customer-facing cutoff
+- `exception/route.ts` counts `enroute` as `pending` in stats_json (pre-existing inconsistency)
+- `OrderCancellation.tsx` missing `timeZone` param on `toLocaleDateString`
+- 3 rate limiters unwired (authSignUp, global, adminBulk — no endpoints exist)
 - Lighthouse CI gates at score 60 (target 70, conservative threshold)
 - Apple Sign-in deferred (no Apple Developer account)
 - Chromatic visual regression baselines deferred
-- SETT-04 language preference deferred
-- OrderDetailPanel composed wrapper unused in route detail context (subcomponents used directly)
-- Human verification outstanding for phases 101 (6 items) and 102 (9 items)
+- Human verification outstanding for phases 101, 102, 104, 105, 108
 
 **Deferred requirements (carried from v1.8):**
 
@@ -276,6 +255,22 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 | simple_mode default true for new drivers | Non-technical family members see simple UI by default | ✓ Good — safe default |
 | Gap closure via 4 additional phases (85-88) | Audit found verification + integration gaps after core 8 phases | ✓ Essential — 100% coverage |
 
+### v2.2 Decisions
+
+| Decision | Rationale | Outcome |
+|---|---|---|
+| revalidateTag kept as 2-arg call | Next.js 16 requires `(tag, CacheLifeConfig)` signature | ✓ Good — typecheck confirms |
+| Order-level customer fields over profile data | COD customers may not have profiles; order fields are authoritative | ✓ Good — fallback chain works |
+| Transition map as `Record<RouteStatus, RouteStatus[]>` | Compile-time safety; exhaustive coverage of all states | ✓ Good — no runtime surprises |
+| Sentry audit trail (not DB table) for admin overrides | Solo operator; DB audit table is overhead | ✓ Good — zero-maintenance |
+| TIMEZONE constant as single source of truth | Eliminates hardcoded `"America/Los_Angeles"` strings | ✓ Good — grep confirms zero hardcoded |
+| `Intl.DateTimeFormat` for dynamic PST/PDT abbreviation | Automatically handles DST transitions | ✓ Good — no hardcoded offsets |
+| `FOR UPDATE SKIP LOCKED` for stop promotion | Concurrent deliveries skip locked row instead of blocking | ✓ Good — race-free without deadlocks |
+| `createLimiter` factory with null return | Dev environments work without Redis; production needs provisioning | ✓ Good — fail-open pattern |
+| Webhook tier bumped from 30 to 60 req/min | Stripe/Resend burst patterns need headroom | ✓ Good — no false 429s |
+| `Promise.race` for Redis PING timeout | `AbortSignal` not supported by `@upstash/redis` HTTP client | ✓ Good — 3s timeout works |
+| Barrel `handlers/index.ts` for webhook split | Preserves `route.ts` import contract via directory index resolution | ✓ Good — zero consumer changes |
+
 ### v2.1 Decisions
 
 | Decision | Rationale | Outcome |
@@ -294,4 +289,4 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 ---
 
-_Last updated: 2026-03-20 after Phase 107 completion_
+_Last updated: 2026-03-21 after v2.2 milestone_

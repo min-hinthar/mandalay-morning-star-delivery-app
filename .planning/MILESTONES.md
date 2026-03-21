@@ -1,4 +1,38 @@
 # Project Milestones: Morning Star V8 UI Rewrite
+## v2.2 Stability & Correctness (Shipped: 2026-03-21)
+
+**Delivered:** All critical bugs from codebase deep dive fixed — driver route lifecycle, checkout timezone correctness, atomic stop promotion, distributed rate limiting, and integration test coverage. 16/16 requirements satisfied across 6 phases.
+
+**Phases completed:** 6 phases (104-109), 12 plans, 24 tasks
+
+**Key accomplishments:**
+
+- Type safety restored — Supabase types regenerated with `delivery_zones`, all `as any` casts removed, driver active route API returns customer contact with order-over-profile fallback
+- Route lifecycle guards — `VALID_ROUTE_TRANSITIONS` enforced on driver start (must accept first) and admin PATCH (cannot bypass states), Sentry audit trail on admin overrides, frontend dropdown disables invalid options
+- Timezone correctness — checkout uses `toISOWithTimezone()`, COD emails show PST/PDT offset, cron computes LA date, date picker pre-filters cutoff-passed slots, 30-day future validation added
+- Atomic data integrity — `promote_next_stop` RPC with `FOR UPDATE SKIP LOCKED` eliminates stop promotion race condition, dead `increment_driver_deliveries` call removed, badge double-count fixed
+- Rate limiting restoration — 13 rate limiter exports restored via `createLimiter()` factory, server action fallback gap closed, health endpoint reports real Redis PING status, 21 unit tests added
+- Quality & maintenance — 12 driver route lifecycle integration tests with factories, webhook `handlers.ts` (529 lines) split into 4 per-event files under 400-line limit
+
+**Stats:**
+
+- 6 phases (104-109), 12 plans, 24 tasks
+- 16/16 requirements satisfied (100%)
+- 75 commits, 99 files modified
+- +13,646 / -816 lines (net +12,830)
+- 2 days (2026-03-19 to 2026-03-21)
+
+**Tech debt remaining:**
+
+- `exception/route.ts` counts `enroute` as `pending` in stats_json (pre-existing inconsistency)
+- `OrderCancellation.tsx` missing `timeZone` param on `toLocaleDateString`
+- Upstash REST Redis provisioning needed in Vercel production env
+- 3 rate limiters intentionally unwired (authSignUp, global, adminBulk — no endpoints exist)
+
+**What's next:** TBD — notifications, advanced driver features, route optimization, or further quality improvements
+
+---
+
 ## v2.1 Route Operations & Admin Mobile (Shipped: 2026-03-17)
 
 **Delivered:** Full route lifecycle management — admins and drivers can plan, edit, optimize, and execute delivery routes entirely from their phones on Saturday. 18/18 requirements satisfied across 5 phases.
