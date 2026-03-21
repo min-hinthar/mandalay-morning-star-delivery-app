@@ -93,7 +93,7 @@
 - [x] **Phase 105: Route Lifecycle Guards** (2 plans) - Fix driver route start blocker and admin override bypass (completed 2026-03-20)
 - [x] **Phase 106: Timezone Correctness** (2 plans) - Batch-fix all timezone bugs across checkout, email, cron, and date filtering (completed 2026-03-20)
 - [x] **Phase 107: Data Integrity** (2 plans) - Atomic stop promotion RPC and dead code removal (completed 2026-03-20)
-- [ ] **Phase 108: Rate Limiting Restoration** - Provision Upstash REST Redis and restore all 13 rate limiters
+- [ ] **Phase 108: Rate Limiting Restoration** (2 plans) - Restore all 13 rate limiters, fix server action gap, fix health endpoint, add unit tests
 - [ ] **Phase 109: Quality & Maintenance** - Integration tests for route lifecycle, webhook handler file split
 
 ## Phase Details
@@ -161,7 +161,10 @@ Plans:
   1. Upstash REST Redis is provisioned and `UPSTASH_REDIS_REST_URL` / `UPSTASH_REDIS_REST_TOKEN` env vars are set
   2. All 13 `Ratelimit` constructors in `client.ts` return functional instances (not null)
   3. Exceeding rate limit on any endpoint returns 429 with appropriate `Retry-After` header
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 108-01-PLAN.md — Restore client.ts limiter constructors + fix server action fallback + config bump + env docs + CI vars
+- [ ] 108-02-PLAN.md — Fix health endpoint Redis reporting + unit tests for rate-limit module
 
 ### Phase 109: Quality & Maintenance
 **Goal**: Route lifecycle has integration test coverage and webhook handler file meets ESLint size limit
@@ -184,7 +187,7 @@ Phases execute in numeric order: 104 -> 105 -> 106 -> 107 -> 108 -> 109
 | 105. Route Lifecycle Guards | 2/2 | Complete    | 2026-03-20 |
 | 106. Timezone Correctness | 2/2 | Complete    | 2026-03-20 |
 | 107. Data Integrity | 2/2 | Complete    | 2026-03-20 |
-| 108. Rate Limiting Restoration | 0/TBD | Not started | - |
+| 108. Rate Limiting Restoration | 0/2 | Not started | - |
 | 109. Quality & Maintenance | 0/TBD | Not started | - |
 
 | Milestone              | Phases  | Plans | Shipped    |
