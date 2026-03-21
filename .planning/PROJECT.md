@@ -15,6 +15,7 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - Phase 105 complete: Route lifecycle guards — VALID_ROUTE_TRANSITIONS enforced on driver start + admin PATCH, Sentry audit on admin overrides, CHECK constraint prevents planned+driver_id
 - Phase 106 complete: Timezone correctness — checkout uses `toISOWithTimezone()`, COD emails show timezone offset, cron computes LA date, date picker pre-filters cutoff-passed dates, 30-day future validation added
 - Phase 107 complete: Data integrity — atomic `promote_next_stop` RPC with `FOR UPDATE SKIP LOCKED` eliminates stop promotion race condition, dead `increment_driver_deliveries` call removed, badge double-count fixed
+- Phase 108 complete: Rate limiting restoration — 13 rate limiter exports restored via `createLimiter()` factory, server action fallback gap closed, health endpoint fixed with real Redis PING, 21 unit tests added
 - Deployed to production at delivery.mandalaymorningstar.com
 - Full route lifecycle: drag-reorder stops (desktop DnD + mobile move buttons), split/merge routes, driver reassignment with confirmation
 - Route progress widget: real-time 5s polling ops dashboard showing per-route driver, status, delivered/total
@@ -122,7 +123,7 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - [ ] Fix race condition in route stop next-stop promotion (Issue 9)
 - [ ] Fix `revalidateTag` invalid second argument (Issue 5)
 - [ ] Regenerate Supabase types to include `delivery_zones` table (Issue 4)
-- [ ] Provision distributed rate limiting (Upstash REST or Vercel KV) (Issue 3)
+- [x] Provision distributed rate limiting (Upstash REST) — Validated in Phase 108: Rate Limiting Restoration
 - [ ] Fix `updateRouteStats` counting `enroute` as `pending` (Issue I)
 - [ ] Pre-filter cutoff-passed dates in `getAvailableDeliveryDatesMultiDay` (Issue C)
 - [ ] Guard admin route status override to prevent lifecycle bypass (Issue G)
