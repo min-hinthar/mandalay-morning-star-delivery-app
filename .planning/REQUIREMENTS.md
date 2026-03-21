@@ -36,7 +36,7 @@
 
 ### Quality & Maintenance
 
-- [ ] **QUAL-01**: Integration tests cover full driver route lifecycle: `assigned` -> accept -> start -> stop arrive -> stop deliver -> next-stop promoted -> route complete
+- [x] **QUAL-01**: Integration tests cover full driver route lifecycle: `assigned` -> accept -> start -> stop arrive -> stop deliver -> next-stop promoted -> route complete
 - [ ] **QUAL-02**: `handlers.ts` (529 lines) split into per-event-type handler files with barrel re-export -- each handler file under 400-line ESLint limit
 
 ## Out of Scope
@@ -69,7 +69,7 @@
 | INFRA-02 | Phase 104 | Complete |
 | API-01 | Phase 104 | Complete |
 | API-02 | Phase 104 | Complete |
-| QUAL-01 | Phase 109 | Pending |
+| QUAL-01 | Phase 109 | Complete |
 | QUAL-02 | Phase 109 | Pending |
 
 **Coverage:**
