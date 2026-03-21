@@ -57,7 +57,7 @@ export type RateLimitResult =
  * - `{ limited: true, response }` -- return the response immediately
  * - `{ limited: false, headers }` -- append headers to your response
  *
- * Fails open when limiter is null (Redis not configured) or on timeout.
+ * Falls back to conservative in-memory limiter (15 req/min) when Redis is unavailable.
  */
 export async function checkRateLimit(opts: RateLimitOptions): Promise<RateLimitResult> {
   if (!opts.limiter) {
@@ -161,23 +161,46 @@ export async function checkServerActionRateLimit(opts: {
   route: string;
 }): Promise<ServerActionRateLimitResult> {
   if (!opts.limiter) {
+    // H-05: In-memory fallback when Redis is not configured
+    const limited = inMemoryRateLimit(`${opts.route}:${opts.identifier}`);
+    if (limited) {
+      logger.warn("In-memory rate limit exceeded (Server Action)", {
+        api: opts.route,
+        flowId: "rate-limit-fallback",
+        role: opts.role,
+      });
+      return { limited: true, retryAfterSeconds: 60 };
+    }
     return { limited: false };
   }
 
-  const result = await opts.limiter.limit(opts.identifier);
-
-  if (!result.success) {
-    const retryAfterSeconds = Math.max(1, Math.ceil((result.reset - Date.now()) / 1000));
-
-    logger.warn("Rate limit exceeded", {
+  try {
+    const result = await opts.limiter.limit(opts.identifier);
+    if (!result.success) {
+      const retryAfterSeconds = Math.max(
+        1,
+        Math.ceil((result.reset - Date.now()) / 1000)
+      );
+      logger.warn("Rate limit exceeded (Server Action)", {
+        api: opts.route,
+        flowId: "rate-limit",
+        role: opts.role,
+        identifier: opts.identifier.substring(0, 8) + "...",
+      });
+      return { limited: true, retryAfterSeconds };
+    }
+    return { limited: false };
+  } catch (err) {
+    // H-05: Redis timeout/error -- use in-memory fallback
+    logger.error("Redis rate limiter error (Server Action)", {
       api: opts.route,
-      flowId: "rate-limit",
-      role: opts.role,
-      identifier: opts.identifier.substring(0, 8) + "...",
+      flowId: "rate-limit-fallback",
+      error: err instanceof Error ? err.message : "unknown",
     });
-
-    return { limited: true, retryAfterSeconds };
+    const limited = inMemoryRateLimit(`${opts.route}:${opts.identifier}`);
+    if (limited) {
+      return { limited: true, retryAfterSeconds: 60 };
+    }
+    return { limited: false };
   }
-
-  return { limited: false };
 }
