@@ -177,10 +177,7 @@ export async function checkServerActionRateLimit(opts: {
   try {
     const result = await opts.limiter.limit(opts.identifier);
     if (!result.success) {
-      const retryAfterSeconds = Math.max(
-        1,
-        Math.ceil((result.reset - Date.now()) / 1000)
-      );
+      const retryAfterSeconds = Math.max(1, Math.ceil((result.reset - Date.now()) / 1000));
       logger.warn("Rate limit exceeded (Server Action)", {
         api: opts.route,
         flowId: "rate-limit",
