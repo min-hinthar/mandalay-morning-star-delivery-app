@@ -1,0 +1,512 @@
+import { describe, expect, it, vi, beforeEach } from "vitest";
+import { NextRequest } from "next/server";
+import type { RoutesRow, RouteStopsRow } from "@/types/driver";
+import { createMockRoute, createMockStop } from "@/test/factories";
+
+// ── Module-level mocks (before handler imports) ──────────────────────
+
+vi.mock("@/lib/auth", () => ({ requireDriver: vi.fn() }));
+vi.mock("@/lib/rate-limit", () => ({
+  checkRateLimit: vi.fn().mockResolvedValue({ limited: false }),
+  driverActionLimiter: {},
+}));
+vi.mock("@/lib/utils/logger", () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), exception: vi.fn() },
+}));
+vi.mock("@/lib/badges", () => ({
+  checkAndAwardBadges: vi.fn().mockResolvedValue([]),
+}));
+vi.mock("@/lib/supabase/server", () => ({
+  createServiceClient: vi.fn(),
+}));
+
+// ── Imports after mocks ──────────────────────────────────────────────
+
+import { requireDriver } from "@/lib/auth";
+import { createServiceClient } from "@/lib/supabase/server";
+import { checkAndAwardBadges } from "@/lib/badges";
+
+// ── Constants ────────────────────────────────────────────────────────
+
+const DRIVER_ID = "driver-uuid";
+const ROUTE_ID = "route-uuid";
+
+// ── Handler imports (dynamic after mocks) ────────────────────────────
+
+const { POST: acceptRoute } = await import("../[routeId]/accept/route");
+const { POST: startRoute } = await import("../[routeId]/start/route");
+const { POST: completeRoute } = await import("../[routeId]/complete/route");
+const { PATCH: updateStop } = await import("../[routeId]/stops/[stopId]/route");
+
+// ── Shared mock state ────────────────────────────────────────────────
+
+let routeState: RoutesRow;
+let stopStates: RouteStopsRow[];
+
+// ── Mock RPC ─────────────────────────────────────────────────────────
+
+const mockRpc = vi.fn().mockImplementation((name: string) => {
+  if (name === "promote_next_stop") {
+    const nextPending = stopStates.find((s) => s.status === "pending");
+    if (nextPending) {
+      nextPending.status = "enroute";
+      return Promise.resolve({
+        data: { promoted_stop_id: nextPending.id, stop_index: nextPending.stop_index },
+        error: null,
+      });
+    }
+    return Promise.resolve({ data: { promoted_stop_id: null, stop_index: null }, error: null });
+  }
+  if (name === "calculate_driver_streak") {
+    return Promise.resolve({ data: 0, error: null });
+  }
+  return Promise.resolve({ data: null, error: null });
+});
+
+// ── Supabase chain mock ──────────────────────────────────────────────
+
+/** Track call count per table to distinguish chain shapes within a handler */
+const callCounts: Record<string, number> = {};
+
+function resetCallCounts() {
+  Object.keys(callCounts).forEach((k) => delete callCounts[k]);
+}
+
+function createChainTerminal(resolveValue: unknown) {
+  const terminal: Record<string, unknown> = {
+    single: () => Promise.resolve(resolveValue),
+    returns: () => terminal,
+    eq: () => terminal,
+    order: () => terminal,
+    limit: () => terminal,
+    in: () => terminal,
+    select: () => terminal,
+    // Make thenable so `await chain.eq(...)` resolves without .single()
+    then: (resolve: (v: unknown) => void) => resolve(resolveValue),
+  };
+  return terminal;
+}
+
+function fromMock(table: string) {
+  const key = table;
+  callCounts[key] = (callCounts[key] ?? 0) + 1;
+  const callNum = callCounts[key];
+
+  if (table === "routes") {
+    return {
+      select: (cols?: string) => {
+        // Complete handler chain 2: select("status").eq(...)
+        if (cols === "status") {
+          return createChainTerminal({ data: stopStates.map((s) => ({ status: s.status })), error: null });
+        }
+        // Route select → single chain (used by all handlers as chain 1)
+        return createChainTerminal({ data: routeState, error: null });
+      },
+      update: (data: Partial<RoutesRow>) => {
+        Object.assign(routeState, data);
+        // Accept handler chain 2 has .select("id") after .eq()
+        // Start/complete handler chain 2 has NO .select() — resolves directly on .eq()
+        const updateChain: Record<string, unknown> = {
+          eq: () => ({
+            // If .select() is called after .eq(), it's the accept pattern
+            select: () =>
+              Promise.resolve({ data: [{ id: routeState.id }], error: null }),
+            // Resolve directly for start/complete (no .select())
+            then: (resolve: (val: unknown) => void) =>
+              resolve({ error: null }),
+          }),
+        };
+        return updateChain;
+      },
+    };
+  }
+
+  if (table === "route_stops") {
+    return {
+      select: (cols?: string) => {
+        // Start handler chain 5: select("order_id").eq(...)
+        if (cols === "order_id") {
+          return createChainTerminal({
+            data: stopStates.map((s) => ({ order_id: s.order_id })),
+            error: null,
+          });
+        }
+        // Start handler chain 3: first stop select or stop handler chain 2: stop select
+        // Complete handler: select("status").eq(...)
+        if (cols === "status") {
+          return createChainTerminal({
+            data: stopStates.map((s) => ({ status: s.status })),
+            error: null,
+          });
+        }
+        // Stop handler: select("id, status, route_id, stop_index, order_id").eq().eq()
+        const selectChain: Record<string, unknown> = {
+          eq: (col: string, val: string) => {
+            if (col === "route_id") {
+              // Start handler: first stop by route_id then order/limit/single
+              return createChainTerminal({
+                data: stopStates.length > 0
+                  ? { id: stopStates[0].id, stop_index: stopStates[0].stop_index }
+                  : null,
+                error: stopStates.length > 0 ? null : { message: "not found" },
+              });
+            }
+            if (col === "id") {
+              // Stop handler: select by stop id, then chain .eq("route_id", ...)
+              const stop = stopStates.find((s) => s.id === val);
+              return {
+                eq: () => createChainTerminal({
+                  data: stop ?? null,
+                  error: stop ? null : { message: "not found" },
+                }),
+                returns: () => ({
+                  single: () => Promise.resolve({
+                    data: stop ?? null,
+                    error: stop ? null : { message: "not found" },
+                  }),
+                }),
+              };
+            }
+            return createChainTerminal({ data: null, error: null });
+          },
+          returns: () => selectChain,
+          single: () => {
+            const firstStop = stopStates.length > 0 ? stopStates[0] : null;
+            return Promise.resolve({
+              data: firstStop
+                ? { id: firstStop.id, stop_index: firstStop.stop_index }
+                : null,
+              error: firstStop ? null : { message: "not found" },
+            });
+          },
+        };
+        return selectChain;
+      },
+      update: (data: Record<string, string | null>) => {
+        return {
+          eq: (col: string, val: string) => {
+            if (col === "id") {
+              const stop = stopStates.find((s) => s.id === val);
+              if (stop) Object.assign(stop, data);
+            }
+            return Promise.resolve({ error: null });
+          },
+        };
+      },
+    };
+  }
+
+  if (table === "orders") {
+    return {
+      update: () => ({
+        in: () => ({
+          in: () => ({
+            select: () => Promise.resolve({ data: [{ id: "order-0-uuid" }], error: null }),
+          }),
+          select: () => Promise.resolve({ data: [{ id: "order-0-uuid" }], error: null }),
+        }),
+        eq: () => ({
+          eq: () => ({
+            select: () => Promise.resolve({ data: [{ id: "order-0-uuid" }], error: null }),
+          }),
+          select: () => Promise.resolve({ data: [{ id: "order-0-uuid" }], error: null }),
+        }),
+      }),
+    };
+  }
+
+  if (table === "drivers") {
+    return {
+      select: () =>
+        createChainTerminal({
+          data: { deliveries_count: 2, rating_avg: 5 },
+          error: null,
+        }),
+    };
+  }
+
+  return { select: () => createChainTerminal({ data: null, error: null }) };
+}
+
+const mockSupabase = { from: vi.fn(fromMock), rpc: mockRpc };
+
+// ── Auth setup helper ────────────────────────────────────────────────
+
+function setupAuth(opts?: { success?: boolean; driverId?: string; status?: number }) {
+  const success = opts?.success ?? true;
+  if (success) {
+    vi.mocked(requireDriver).mockResolvedValue({
+      success: true as const,
+      supabase: mockSupabase as never,
+      driverId: opts?.driverId ?? DRIVER_ID,
+      userId: "user-uuid",
+    });
+  } else {
+    vi.mocked(requireDriver).mockResolvedValue({
+      success: false as const,
+      error: "Unauthorized",
+      status: opts?.status ?? 401,
+    } as never);
+  }
+}
+
+// ── Request helpers ──────────────────────────────────────────────────
+
+function postRequest(path: string) {
+  return new NextRequest(`http://localhost/api/driver/routes/${path}`, { method: "POST" });
+}
+
+function patchRequest(path: string, body: Record<string, unknown>) {
+  return new NextRequest(`http://localhost/api/driver/routes/${path}`, {
+    method: "PATCH",
+    body: JSON.stringify(body),
+    headers: { "content-type": "application/json" },
+  });
+}
+
+function routeParams(routeId: string) {
+  return { params: Promise.resolve({ routeId }) };
+}
+
+function stopParams(routeId: string, stopId: string) {
+  return { params: Promise.resolve({ routeId, stopId }) };
+}
+
+// ── Tests ────────────────────────────────────────────────────────────
+
+describe("Driver Route Lifecycle Integration", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    resetCallCounts();
+    routeState = createMockRoute({ status: "assigned" });
+    stopStates = [
+      createMockStop({ id: "stop-0-uuid", stop_index: 0, order_id: "order-0-uuid" }),
+      createMockStop({ id: "stop-1-uuid", stop_index: 1, order_id: "order-1-uuid" }),
+    ];
+    setupAuth();
+    vi.mocked(createServiceClient).mockReturnValue(mockSupabase as never);
+  });
+
+  it("completes full lifecycle: accept -> start -> arrive -> deliver -> complete", async () => {
+    // ── Accept ──
+    const acceptRes = await acceptRoute(postRequest(`${ROUTE_ID}/accept`), routeParams(ROUTE_ID));
+    const acceptData = await acceptRes.json();
+    expect(acceptRes.status).toBe(200);
+    expect(acceptData.success).toBe(true);
+    expect(acceptData.acceptedAt).toBeDefined();
+    expect(routeState.status).toBe("accepted");
+
+    // ── Start ──
+    resetCallCounts();
+    const startRes = await startRoute(postRequest(`${ROUTE_ID}/start`), routeParams(ROUTE_ID));
+    const startData = await startRes.json();
+    expect(startRes.status).toBe(200);
+    expect(startData.success).toBe(true);
+    expect(startData.firstStopId).toBe("stop-0-uuid");
+    expect(startData.ordersTransitioned).toBe(2);
+    expect(routeState.status).toBe("in_progress");
+
+    // ── Stop 0: arrive ──
+    resetCallCounts();
+    const arriveRes = await updateStop(
+      patchRequest(`${ROUTE_ID}/stops/stop-0-uuid`, { status: "arrived" }),
+      stopParams(ROUTE_ID, "stop-0-uuid")
+    );
+    const arriveData = await arriveRes.json();
+    expect(arriveRes.status).toBe(200);
+    expect(arriveData.success).toBe(true);
+    expect(arriveData.stop.status).toBe("arrived");
+    expect(arriveData.stop.arrivedAt).toBeDefined();
+    // arrived is not terminal — no nextStop promotion
+    expect(arriveData.nextStop).toBeNull();
+
+    // ── Stop 0: deliver ──
+    resetCallCounts();
+    // Update stop state to reflect arrived (from previous step's mock mutation)
+    stopStates[0].status = "arrived";
+    const deliverRes = await updateStop(
+      patchRequest(`${ROUTE_ID}/stops/stop-0-uuid`, { status: "delivered" }),
+      stopParams(ROUTE_ID, "stop-0-uuid")
+    );
+    const deliverData = await deliverRes.json();
+    expect(deliverRes.status).toBe(200);
+    expect(deliverData.success).toBe(true);
+    expect(deliverData.stop.status).toBe("delivered");
+    expect(deliverData.orderUpdated).toBe(true);
+    // Next stop promoted
+    expect(deliverData.nextStop).toEqual({ id: "stop-1-uuid", stopIndex: 1 });
+    // promote_next_stop RPC was called
+    expect(mockRpc).toHaveBeenCalledWith("promote_next_stop", {
+      p_route_id: ROUTE_ID,
+      p_completed_stop_id: "stop-0-uuid",
+    });
+
+    // ── Complete ──
+    resetCallCounts();
+    stopStates[0].status = "delivered";
+    stopStates[1].status = "delivered";
+    const completeRes = await completeRoute(
+      postRequest(`${ROUTE_ID}/complete`),
+      routeParams(ROUTE_ID)
+    );
+    const completeData = await completeRes.json();
+    expect(completeRes.status).toBe(200);
+    expect(completeData.success).toBe(true);
+    expect(completeData.stats).toBeDefined();
+    expect(completeData.stats.delivered_stops).toBe(2);
+    expect(completeData.stats.total_stops).toBe(2);
+    expect(completeData.stats.completion_rate).toBe(100);
+    expect(completeData.newBadges).toEqual([]);
+    expect(routeState.status).toBe("completed");
+  });
+
+  // ── Stop skip path ──
+
+  it("skip triggers promote_next_stop and promotes next pending stop", async () => {
+    routeState.status = "in_progress";
+    stopStates[0].status = "enroute";
+
+    const skipRes = await updateStop(
+      patchRequest(`${ROUTE_ID}/stops/stop-0-uuid`, { status: "skipped" }),
+      stopParams(ROUTE_ID, "stop-0-uuid")
+    );
+    const skipData = await skipRes.json();
+    expect(skipRes.status).toBe(200);
+    expect(skipData.success).toBe(true);
+    expect(skipData.stop.status).toBe("skipped");
+    expect(skipData.nextStop).toEqual({ id: "stop-1-uuid", stopIndex: 1 });
+    expect(mockRpc).toHaveBeenCalledWith("promote_next_stop", {
+      p_route_id: ROUTE_ID,
+      p_completed_stop_id: "stop-0-uuid",
+    });
+  });
+
+  it("arrived status does NOT trigger promote_next_stop RPC", async () => {
+    routeState.status = "in_progress";
+    stopStates[0].status = "enroute";
+
+    await updateStop(
+      patchRequest(`${ROUTE_ID}/stops/stop-0-uuid`, { status: "arrived" }),
+      stopParams(ROUTE_ID, "stop-0-uuid")
+    );
+    expect(mockRpc).not.toHaveBeenCalled();
+  });
+
+  // ── Concurrent stop delivery (SKIP LOCKED) ──
+
+  it("concurrent delivery returns promoted_stop_id: null when SKIP LOCKED contention", async () => {
+    routeState.status = "in_progress";
+    stopStates[0].status = "arrived";
+
+    // Override RPC to simulate SKIP LOCKED contention (no row locked)
+    mockRpc.mockImplementationOnce(() =>
+      Promise.resolve({ data: { promoted_stop_id: null, stop_index: null }, error: null })
+    );
+
+    const res = await updateStop(
+      patchRequest(`${ROUTE_ID}/stops/stop-0-uuid`, { status: "delivered" }),
+      stopParams(ROUTE_ID, "stop-0-uuid")
+    );
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(data.nextStop).toBeNull();
+  });
+
+  // ── Error paths ──
+
+  describe("error paths", () => {
+    it("returns 401 when auth fails", async () => {
+      setupAuth({ success: false, status: 401 });
+      const res = await acceptRoute(postRequest(`${ROUTE_ID}/accept`), routeParams(ROUTE_ID));
+      expect(res.status).toBe(401);
+      const data = await res.json();
+      expect(data.error).toBe("Unauthorized");
+    });
+
+    it("returns 403 when driver does not own route", async () => {
+      setupAuth({ driverId: "other-driver-uuid" });
+      const res = await acceptRoute(postRequest(`${ROUTE_ID}/accept`), routeParams(ROUTE_ID));
+      expect(res.status).toBe(403);
+    });
+
+    it("returns 404 when route not found", async () => {
+      // Override fromMock to return null route
+      mockSupabase.from.mockImplementationOnce(() => ({
+        select: () => createChainTerminal({ data: null, error: { message: "not found" } }),
+      }));
+      const res = await acceptRoute(postRequest(`${ROUTE_ID}/accept`), routeParams(ROUTE_ID));
+      expect(res.status).toBe(404);
+    });
+
+    it("returns 400 for invalid status transition (accept already-accepted)", async () => {
+      routeState.status = "accepted";
+      const res = await acceptRoute(postRequest(`${ROUTE_ID}/accept`), routeParams(ROUTE_ID));
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toContain("Cannot accept route with status");
+    });
+
+    it("returns 400 for invalid stop transition", async () => {
+      routeState.status = "in_progress";
+      stopStates[0].status = "delivered"; // terminal
+
+      const res = await updateStop(
+        patchRequest(`${ROUTE_ID}/stops/stop-0-uuid`, { status: "arrived" }),
+        stopParams(ROUTE_ID, "stop-0-uuid")
+      );
+      expect(res.status).toBe(400);
+      const data = await res.json();
+      expect(data.error).toContain("Cannot transition from");
+    });
+
+    it("returns 500 when DB update fails", async () => {
+      // Override fromMock to return error on update
+      mockSupabase.from.mockImplementationOnce(() => ({
+        select: () => createChainTerminal({ data: routeState, error: null }),
+      }));
+      mockSupabase.from.mockImplementationOnce(() => ({
+        update: () => ({
+          eq: () => ({
+            select: () => Promise.resolve({ data: null, error: { message: "DB error" } }),
+            then: (resolve: (v: unknown) => void) => resolve({ error: { message: "DB error" } }),
+          }),
+        }),
+      }));
+
+      const res = await acceptRoute(postRequest(`${ROUTE_ID}/accept`), routeParams(ROUTE_ID));
+      expect(res.status).toBe(500);
+    });
+  });
+
+  // ── Badge failure resilience ──
+
+  it("route completion succeeds when badge check throws", async () => {
+    routeState.status = "in_progress";
+    stopStates[0].status = "delivered";
+    stopStates[1].status = "delivered";
+
+    vi.mocked(checkAndAwardBadges).mockRejectedValueOnce(new Error("Badge service down"));
+
+    const res = await completeRoute(postRequest(`${ROUTE_ID}/complete`), routeParams(ROUTE_ID));
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(data.newBadges).toEqual([]);
+    expect(routeState.status).toBe("completed");
+  });
+
+  // ── Route with no stops ──
+
+  it("start returns firstStopId null and ordersTransitioned 0 for route with no stops", async () => {
+    routeState.status = "accepted";
+    stopStates = []; // No stops
+
+    const res = await startRoute(postRequest(`${ROUTE_ID}/start`), routeParams(ROUTE_ID));
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(data.firstStopId).toBeNull();
+    expect(data.ordersTransitioned).toBe(0);
+  });
+});
