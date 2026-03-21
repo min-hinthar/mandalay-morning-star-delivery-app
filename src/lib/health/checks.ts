@@ -167,8 +167,45 @@ export async function checkSearchConsole(): Promise<ServiceStatus> {
 }
 
 export async function checkRedis(): Promise<ServiceStatus> {
-  // Redis-based rate limiting intentionally disabled (using in-memory fallback).
-  return { status: "healthy", configured: false };
+  const configured = Boolean(
+    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+  );
+
+  if (!configured) {
+    return { status: "down", configured: false };
+  }
+
+  const start = Date.now();
+  try {
+    const { getRedisClient } = await import("@/lib/rate-limit");
+    const client = getRedisClient();
+    if (!client) {
+      // Redis unavailable but app works via in-memory fallback
+      return { status: "degraded", configured: true, connected: false };
+    }
+    // 3-second timeout via Promise.race (AbortSignal not supported by @upstash/redis HTTP client)
+    await Promise.race([
+      client.ping(),
+      new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error("PING timeout (3s)")), 3000)
+      ),
+    ]);
+    return {
+      status: "healthy",
+      configured: true,
+      connected: true,
+      latency_ms: Date.now() - start,
+    };
+  } catch (err) {
+    // Redis down = degraded (not "down"), app still works via in-memory fallback
+    return {
+      status: "degraded",
+      configured: true,
+      connected: false,
+      latency_ms: Date.now() - start,
+      error: err instanceof Error ? err.message : "unknown",
+    };
+  }
 }
 
 // ---- Route reachability ----
