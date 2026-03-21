@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.2
 milestone_name: Stability & Correctness
-status: unknown
-stopped_at: Completed 107-02-PLAN.md
-last_updated: "2026-03-20T10:53:31.772Z"
+status: in-progress
+stopped_at: Completed 108-01-PLAN.md
+last_updated: "2026-03-21T07:24:12Z"
 progress:
   total_phases: 6
   completed_phases: 4
-  total_plans: 8
-  completed_plans: 8
+  total_plans: 10
+  completed_plans: 9
 ---
 
 # Project State
@@ -20,12 +20,12 @@ See: .planning/PROJECT.md (updated 2026-03-19)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
 **Current milestone:** v2.2 Stability & Correctness -- fix all critical bugs from codebase deep dive
-**Current focus:** Phase 107 — data-integrity
+**Current focus:** Phase 108 — rate-limiting-restoration
 
 ## Current Position
 
-Phase: 107 (data-integrity) — COMPLETE
-Plan: 2 of 2 (all complete)
+Phase: 108 (rate-limiting-restoration) — IN PROGRESS
+Plan: 1 of 2 complete
 
 ## Performance Metrics
 
@@ -51,6 +51,7 @@ Plan: 2 of 2 (all complete)
 | Phase 106 P02 | 17min | 2 tasks | 7 files |
 | Phase 107 P01 | 4min | 2 tasks | 3 files |
 | Phase 107 P02 | 8min | 2 tasks | 2 files |
+| Phase 108 P01 | 2min | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -75,6 +76,10 @@ Plan: 2 of 2 (all complete)
 - [Phase 107]: Removed increment_driver_deliveries dead code from route complete handler (trigger handles it)
 - [Phase 107]: Badge totalDeliveries uses deliveries_count directly -- trigger is sole source of truth (no double-count)
 - [Phase 107]: RPC Json results cast via local interface for type safety
+- [Phase 108]: createLimiter factory returns null when Redis env vars missing -- dev environments work without Redis
+- [Phase 108]: ephemeralCache + analytics enabled on all limiters for performance and observability
+- [Phase 108]: Webhook tier bumped from 30 to 60 req/min to handle Stripe/Resend burst patterns
+- [Phase 108]: Server action fallback mirrors checkRateLimit pattern exactly for consistency
 
 ### Pending Todos (Human Actions)
 
@@ -90,7 +95,7 @@ Plan: 2 of 2 (all complete)
 
 ## Session Continuity
 
-Last session: 2026-03-20T10:50:35.213Z
-Stopped at: Completed 107-02-PLAN.md
+Last session: 2026-03-21T07:24:12Z
+Stopped at: Completed 108-01-PLAN.md
 Resume file: None
-Next action: Execute 106-02-PLAN.md
+Next action: Execute 108-02-PLAN.md

@@ -187,7 +187,7 @@ Phases execute in numeric order: 104 -> 105 -> 106 -> 107 -> 108 -> 109
 | 105. Route Lifecycle Guards | 2/2 | Complete    | 2026-03-20 |
 | 106. Timezone Correctness | 2/2 | Complete    | 2026-03-20 |
 | 107. Data Integrity | 2/2 | Complete    | 2026-03-20 |
-| 108. Rate Limiting Restoration | 0/2 | Not started | - |
+| 108. Rate Limiting Restoration | 1/2 | In progress | - |
 | 109. Quality & Maintenance | 0/TBD | Not started | - |
 
 | Milestone              | Phases  | Plans | Shipped    |
