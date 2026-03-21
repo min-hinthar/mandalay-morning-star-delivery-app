@@ -94,7 +94,7 @@
 - [x] **Phase 106: Timezone Correctness** (2 plans) - Batch-fix all timezone bugs across checkout, email, cron, and date filtering (completed 2026-03-20)
 - [x] **Phase 107: Data Integrity** (2 plans) - Atomic stop promotion RPC and dead code removal (completed 2026-03-20)
 - [x] **Phase 108: Rate Limiting Restoration** (2 plans) - Restore all 13 rate limiters, fix server action gap, fix health endpoint, add unit tests (completed 2026-03-21)
-- [ ] **Phase 109: Quality & Maintenance** (2 plans) - Integration tests for route lifecycle, webhook handler file split
+- [x] **Phase 109: Quality & Maintenance** (2 plans) - Integration tests for route lifecycle, webhook handler file split (completed 2026-03-21)
 
 ## Phase Details
 
@@ -176,8 +176,8 @@ Plans:
   3. `pnpm test` passes with zero failures including the new integration tests
 **Plans:** 2 plans
 Plans:
-- [ ] 109-01-PLAN.md — Route/stop factories + driver lifecycle integration tests
-- [ ] 109-02-PLAN.md — Split webhook handlers.ts into per-event files with barrel re-export
+- [x] 109-01-PLAN.md — Route/stop factories + driver lifecycle integration tests
+- [x] 109-02-PLAN.md — Split webhook handlers.ts into per-event files with barrel re-export
 
 ## Progress
 
@@ -207,8 +207,8 @@ Phases execute in numeric order: 104 -> 105 -> 106 -> 107 -> 108 -> 109
 | v1.9 Launch-Ready MVP  | 77-88   | 38    | 2026-03-03 |
 | v2.0 Launch MVP        | 89-98   | 34    | 2026-03-04 |
 | v2.1 Route Ops & Mobile| 99-103  | 22    | 2026-03-17 |
-| v2.2 Stability         | 104-109 | 12    | -          |
-| **Total shipped**      | **103** | **406** |          |
+| v2.2 Stability         | 104-109 | 12    | 2026-03-21 |
+| **Total shipped**      | **109** | **418** |          |
 
 ---
 
