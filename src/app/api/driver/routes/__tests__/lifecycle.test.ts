@@ -90,14 +90,16 @@ function createChainTerminal(resolveValue: unknown) {
 function fromMock(table: string) {
   const key = table;
   callCounts[key] = (callCounts[key] ?? 0) + 1;
-  const callNum = callCounts[key];
 
   if (table === "routes") {
     return {
       select: (cols?: string) => {
         // Complete handler chain 2: select("status").eq(...)
         if (cols === "status") {
-          return createChainTerminal({ data: stopStates.map((s) => ({ status: s.status })), error: null });
+          return createChainTerminal({
+            data: stopStates.map((s) => ({ status: s.status })),
+            error: null,
+          });
         }
         // Route select → single chain (used by all handlers as chain 1)
         return createChainTerminal({ data: routeState, error: null });
@@ -109,11 +111,9 @@ function fromMock(table: string) {
         const updateChain: Record<string, unknown> = {
           eq: () => ({
             // If .select() is called after .eq(), it's the accept pattern
-            select: () =>
-              Promise.resolve({ data: [{ id: routeState.id }], error: null }),
+            select: () => Promise.resolve({ data: [{ id: routeState.id }], error: null }),
             // Resolve directly for start/complete (no .select())
-            then: (resolve: (val: unknown) => void) =>
-              resolve({ error: null }),
+            then: (resolve: (val: unknown) => void) => resolve({ error: null }),
           }),
         };
         return updateChain;
@@ -145,9 +145,10 @@ function fromMock(table: string) {
             if (col === "route_id") {
               // Start handler: first stop by route_id then order/limit/single
               return createChainTerminal({
-                data: stopStates.length > 0
-                  ? { id: stopStates[0].id, stop_index: stopStates[0].stop_index }
-                  : null,
+                data:
+                  stopStates.length > 0
+                    ? { id: stopStates[0].id, stop_index: stopStates[0].stop_index }
+                    : null,
                 error: stopStates.length > 0 ? null : { message: "not found" },
               });
             }
@@ -155,15 +156,17 @@ function fromMock(table: string) {
               // Stop handler: select by stop id, then chain .eq("route_id", ...)
               const stop = stopStates.find((s) => s.id === val);
               return {
-                eq: () => createChainTerminal({
-                  data: stop ?? null,
-                  error: stop ? null : { message: "not found" },
-                }),
-                returns: () => ({
-                  single: () => Promise.resolve({
+                eq: () =>
+                  createChainTerminal({
                     data: stop ?? null,
                     error: stop ? null : { message: "not found" },
                   }),
+                returns: () => ({
+                  single: () =>
+                    Promise.resolve({
+                      data: stop ?? null,
+                      error: stop ? null : { message: "not found" },
+                    }),
                 }),
               };
             }
@@ -173,9 +176,7 @@ function fromMock(table: string) {
           single: () => {
             const firstStop = stopStates.length > 0 ? stopStates[0] : null;
             return Promise.resolve({
-              data: firstStop
-                ? { id: firstStop.id, stop_index: firstStop.stop_index }
-                : null,
+              data: firstStop ? { id: firstStop.id, stop_index: firstStop.stop_index } : null,
               error: firstStop ? null : { message: "not found" },
             });
           },
@@ -466,6 +467,7 @@ describe("Driver Route Lifecycle Integration", () => {
         select: () => createChainTerminal({ data: routeState, error: null }),
       }));
       mockSupabase.from.mockImplementationOnce(() => ({
+        select: () => createChainTerminal({ data: null, error: { message: "DB error" } }),
         update: () => ({
           eq: () => ({
             select: () => Promise.resolve({ data: null, error: { message: "DB error" } }),
