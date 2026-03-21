@@ -3,6 +3,7 @@
  */
 
 import type { MenuItemsRow, ModifierOptionsRow, AddressesRow, OrdersRow } from "@/types/database";
+import type { RoutesRow, RouteStopsRow } from "@/types/driver";
 
 /**
  * Create a mock menu item
@@ -137,6 +138,71 @@ export function createValidatedCartItem(
     notes: "",
     lineTotalCents,
   };
+}
+
+/**
+ * Create a mock route
+ */
+export function createMockRoute(overrides?: Partial<RoutesRow>): RoutesRow {
+  return {
+    id: "route-uuid",
+    delivery_date: "2026-03-21",
+    driver_id: "driver-uuid",
+    status: "assigned",
+    optimized_polyline: null,
+    stats_json: null,
+    started_at: null,
+    completed_at: null,
+    accepted_at: null,
+    declined_at: null,
+    declined_reason: null,
+    declined_by: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    ...overrides,
+  };
+}
+
+/**
+ * Create a mock route stop
+ */
+export function createMockStop(overrides?: Partial<RouteStopsRow>): RouteStopsRow {
+  return {
+    id: "stop-uuid",
+    route_id: "route-uuid",
+    order_id: "order-uuid",
+    stop_index: 0,
+    eta: null,
+    status: "pending",
+    arrived_at: null,
+    delivered_at: null,
+    delivery_photo_url: null,
+    delivery_notes: null,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    ...overrides,
+  };
+}
+
+/**
+ * Create a mock route with N stops
+ */
+export function createMockRouteWithStops(
+  stopCount: number,
+  routeOverrides?: Partial<RoutesRow>,
+  stopOverrides?: Partial<RouteStopsRow>
+): { route: RoutesRow; stops: RouteStopsRow[] } {
+  const route = createMockRoute(routeOverrides);
+  const stops = Array.from({ length: stopCount }, (_, i) =>
+    createMockStop({
+      id: `stop-${i}-uuid`,
+      stop_index: i,
+      order_id: `order-${i}-uuid`,
+      route_id: route.id,
+      ...stopOverrides,
+    })
+  );
+  return { route, stops };
 }
 
 /**
