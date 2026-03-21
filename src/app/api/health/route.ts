@@ -53,8 +53,9 @@ export async function GET(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
   );
   const searchConsoleConfigured = Boolean(process.env.GOOGLE_SITE_VERIFICATION);
-  // Redis disabled — in-memory rate limiting active. Report healthy.
-  const redisConfigured = true;
+  const redisConfigured = Boolean(
+    process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN
+  );
 
   let services: HealthResponse["services"] = {
     supabase: configOnlyService(supabaseConfigured),
