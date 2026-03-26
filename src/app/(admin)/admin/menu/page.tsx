@@ -2,13 +2,14 @@
 
 import { useState, useEffect, useCallback } from "react";
 import { m } from "framer-motion";
-import { Plus, RefreshCw, UtensilsCrossed, CheckCircle, Package } from "lucide-react";
+import { RefreshCw, UtensilsCrossed, CheckCircle, Package } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToastV8";
 import { useAnimationPreference } from "@/lib/hooks";
 import { Button } from "@/components/ui/button";
 import { MenuFilterBar } from "./MenuFilterBar";
 import { MenuItemsTable, type MenuTableItem } from "./MenuItemsTable";
+import { AddMenuItemDialog } from "./AddMenuItemDialog";
 
 interface Category {
   id: string;
@@ -193,10 +194,7 @@ export default function AdminMenuPage() {
             <RefreshCw className={cn("mr-2 h-4 w-4", refreshing && "animate-spin")} />
             Refresh
           </Button>
-          <Button className="bg-primary hover:bg-primary-hover text-text-inverse shadow-sm">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Item
-          </Button>
+          <AddMenuItemDialog categories={categories} onItemCreated={handleRefresh} />
         </div>
       </m.div>
 
