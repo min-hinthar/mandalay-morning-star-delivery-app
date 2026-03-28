@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
-import { getResendClient, EMAIL_FROM, EMAIL_REPLY_TO, APP_URL } from "@/lib/email";
+import { getResendClient, EMAIL_CC, EMAIL_FROM, EMAIL_REPLY_TO, APP_URL } from "@/lib/email";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
@@ -136,6 +136,7 @@ export async function POST(request: Request) {
     const { data: sendResult, error: sendError } = await resend.emails.send({
       from: EMAIL_FROM,
       to: recipientEmail,
+      cc: EMAIL_CC,
       replyTo: EMAIL_REPLY_TO,
       subject,
       html: fullHtml,

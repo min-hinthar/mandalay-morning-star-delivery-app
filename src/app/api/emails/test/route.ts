@@ -1,7 +1,7 @@
 import { render } from "@react-email/render";
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
-import { getResendClient, EMAIL_FROM, buildEmailElement } from "@/lib/email";
+import { getResendClient, EMAIL_FROM, EMAIL_CC, buildEmailElement } from "@/lib/email";
 import type { EmailType } from "@/lib/email";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
@@ -72,6 +72,7 @@ export async function POST(request: Request) {
     const { data, error } = await resend.emails.send({
       from: EMAIL_FROM,
       to: recipientEmail,
+      cc: EMAIL_CC,
       subject: `[TEST] ${subject}`,
       html,
       headers: {

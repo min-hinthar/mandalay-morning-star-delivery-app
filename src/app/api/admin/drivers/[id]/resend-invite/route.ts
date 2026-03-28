@@ -5,7 +5,7 @@ import { render } from "@react-email/render";
 import { DriverInvite } from "@/emails/DriverInvite";
 import { requireAdmin } from "@/lib/auth";
 import { getResendClient } from "@/lib/email/client";
-import { EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
+import { EMAIL_CC, EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
 import { getAppUrl } from "@/lib/supabase/actions";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
@@ -142,6 +142,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     await resend.emails.send({
       from: EMAIL_FROM,
       to: invite.email,
+      cc: EMAIL_CC,
       replyTo: EMAIL_REPLY_TO,
       subject: "You're invited to drive for Mandalay Morning Star",
       html,

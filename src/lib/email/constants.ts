@@ -7,6 +7,9 @@ export const EMAIL_FROM =
 
 export const EMAIL_REPLY_TO = "admin@mandalaymorningstar.com";
 
+/** CC on every outbound email so admin has a copy */
+export const EMAIL_CC = ["min@mandalaymorningstar.com"];
+
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 
 // ===========================================

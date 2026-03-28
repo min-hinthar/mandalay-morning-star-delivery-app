@@ -7,6 +7,7 @@ import type { NotificationPrefs } from "@/components/ui/account/SettingsTab/sett
 import { getResendClient } from "./client";
 import {
   APP_URL,
+  EMAIL_CC,
   EMAIL_FROM,
   EMAIL_REPLY_TO,
   MAX_RETRY_ATTEMPTS,
@@ -124,6 +125,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       const { data, error } = await resend.emails.send({
         from: EMAIL_FROM,
         to: options.to,
+        cc: EMAIL_CC,
         replyTo: EMAIL_REPLY_TO,
         subject: options.subject,
         html,
