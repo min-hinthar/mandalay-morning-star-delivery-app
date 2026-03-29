@@ -4,6 +4,8 @@ import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import { OrderCancellation } from "@/emails/OrderCancellation";
 import { RefundNotification } from "@/emails/RefundNotification";
 import { DeliveryReminder } from "@/emails/DeliveryReminder";
+import { OutForDelivery } from "@/emails/OutForDelivery";
+import { OrderDelivered } from "@/emails/OrderDelivered";
 
 import type { EmailType } from "./types";
 
@@ -75,6 +77,29 @@ export function buildEmailElement(type: EmailType, orderData: any): React.ReactE
         address: orderData.address,
         specialInstructions: orderData.specialInstructions,
         driverName: orderData.driverName,
+      });
+
+    case "out_for_delivery":
+      return React.createElement(OutForDelivery, {
+        customerName: orderData.customerName,
+        orderId: orderData.orderId,
+        itemCount: orderData.itemCount,
+        itemNames: orderData.itemNames,
+        deliveryWindowStart: orderData.deliveryWindowStart,
+        deliveryWindowEnd: orderData.deliveryWindowEnd,
+        address: orderData.address,
+        specialInstructions: orderData.specialInstructions,
+        driverName: orderData.driverName,
+      });
+
+    case "delivered":
+      return React.createElement(OrderDelivered, {
+        customerName: orderData.customerName,
+        orderId: orderData.orderId,
+        itemCount: orderData.itemCount,
+        itemNames: orderData.itemNames,
+        totalCents: orderData.totalCents,
+        deliveredAt: orderData.deliveredAt,
       });
 
     default:
