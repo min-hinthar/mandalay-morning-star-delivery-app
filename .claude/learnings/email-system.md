@@ -65,3 +65,17 @@ sendEmail({ ..., userId: opts.orderId }) // orderId stored as userId
 ```
 
 **Apply when:** Building email wrapper functions that call `sendEmail()`.
+
+---
+
+## Status Email Coverage: All Transitions Must Send
+
+**Context:** `sendStatusEmail()` in the order status route only handled `order_confirmation` and `cancelled`. When admin changed status to `out_for_delivery` or `delivered`, code fell through to a log-only block — returned `false` without sending email. Admin UI showed "delivered" (from notification_logs), but Resend never received the request.
+
+**Learning:** When adding new order statuses or email types:
+- Every status transition that should notify the customer needs an explicit case in the status email sender
+- A missing case silently returns `false` — no error thrown, notification_log still written by caller
+- Test by checking Resend dashboard for actual delivery, not just DB logs
+- The `buildEmailElement()` switch in `src/lib/email/build.ts` must match all `CustomerEmailType` values
+
+**Apply when:** Adding new order statuses, modifying status transition logic, or debugging "email shows sent but not received".

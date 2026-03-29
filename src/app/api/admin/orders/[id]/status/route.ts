@@ -269,82 +269,90 @@ async function sendStatusEmail(
     return result.success;
   }
 
-  // For transitions with a known email type and template in buildEmailElement
-  if (emailType && emailType === "order_confirmation") {
-    // Fetch full order data for confirmation email
-    const { data: orderData } = await supabase
-      .from("orders")
-      .select(
-        `
-        total_cents, subtotal_cents, delivery_fee_cents, tax_cents,
-        special_instructions, delivery_window_start, delivery_window_end,
-        addresses (line_1, line_2, city, state, postal_code)
+  // Skip if no known email type for this transition
+  if (!emailType) {
+    return false;
+  }
+
+  // Fetch order data + items needed by all templates
+  const { data: orderData } = await supabase
+    .from("orders")
+    .select(
       `
-      )
-      .eq("id", orderId)
-      .single();
+      total_cents, subtotal_cents, delivery_fee_cents, tax_cents,
+      special_instructions, delivery_window_start, delivery_window_end,
+      addresses (line_1, line_2, city, state, postal_code)
+    `
+    )
+    .eq("id", orderId)
+    .single();
 
-    const { data: orderItems } = await supabase
-      .from("order_items")
-      .select("name_snapshot, base_price_snapshot, quantity, line_total_cents")
-      .eq("order_id", orderId);
+  const { data: orderItems } = await supabase
+    .from("order_items")
+    .select("name_snapshot, base_price_snapshot, quantity, line_total_cents")
+    .eq("order_id", orderId);
 
-    const react = buildEmailElement("order_confirmation", {
-      customerName: profile.full_name || "Valued Customer",
-      orderId,
-      items: (orderItems || []).map(
-        (item: {
-          name_snapshot: string;
-          base_price_snapshot: number;
-          quantity: number;
-          line_total_cents: number;
-        }) => ({
-          name: item.name_snapshot,
-          basePrice: item.base_price_snapshot,
-          quantity: item.quantity,
-          lineTotal: item.line_total_cents,
-        })
-      ),
-      subtotalCents: orderData?.subtotal_cents ?? 0,
-      deliveryFeeCents: orderData?.delivery_fee_cents ?? 0,
-      taxCents: orderData?.tax_cents ?? 0,
-      tipCents: 0,
-      totalCents: orderData?.total_cents ?? 0,
-      deliveryWindowStart: orderData?.delivery_window_start ?? null,
-      deliveryWindowEnd: orderData?.delivery_window_end ?? null,
-      address: orderData?.addresses
-        ? {
-            street: orderData.addresses.line_1,
-            apt: orderData.addresses.line_2,
-            city: orderData.addresses.city,
-            state: orderData.addresses.state,
-            zip: orderData.addresses.postal_code,
-          }
-        : null,
-      specialInstructions: orderData?.special_instructions ?? null,
-    });
+  const customerName = profile.full_name || "Valued Customer";
+  const items = (orderItems || []).map(
+    (item: {
+      name_snapshot: string;
+      base_price_snapshot: number;
+      quantity: number;
+      line_total_cents: number;
+    }) => ({
+      name: item.name_snapshot,
+      basePrice: item.base_price_snapshot,
+      quantity: item.quantity,
+      lineTotal: item.line_total_cents,
+    })
+  );
+  const address = orderData?.addresses
+    ? {
+        line1: orderData.addresses.line_1,
+        line2: orderData.addresses.line_2 ?? undefined,
+        city: orderData.addresses.city,
+        state: orderData.addresses.state,
+        postalCode: orderData.addresses.postal_code,
+      }
+    : null;
 
-    const result = await sendEmail({
-      to: profile.email,
-      subject: "Your order has been confirmed!",
-      react,
-      type: "order_confirmation",
-      orderId,
-      userId: orderUserId,
-      idempotencyKey: `status-confirmed-${orderId}-${Date.now()}`,
-    });
+  // Subject line per status
+  const shortId = orderId.slice(0, 8).toUpperCase();
+  const SUBJECT_MAP: Record<string, string> = {
+    order_confirmation: `Your order #${shortId} has been confirmed!`,
+    out_for_delivery: `Your order #${shortId} is on its way!`,
+    delivered: `Your order #${shortId} has been delivered!`,
+  };
+  const subject = SUBJECT_MAP[emailType] ?? `Update for order #${shortId}`;
 
-    return result.success;
-  }
+  const react = buildEmailElement(emailType, {
+    customerName,
+    orderId,
+    items,
+    subtotalCents: orderData?.subtotal_cents ?? 0,
+    deliveryFeeCents: orderData?.delivery_fee_cents ?? 0,
+    taxCents: orderData?.tax_cents ?? 0,
+    tipCents: 0,
+    totalCents: orderData?.total_cents ?? 0,
+    deliveryWindowStart: orderData?.delivery_window_start ?? null,
+    deliveryWindowEnd: orderData?.delivery_window_end ?? null,
+    address,
+    specialInstructions: orderData?.special_instructions ?? null,
+    // out_for_delivery / delivered specific fields
+    itemCount: items.length,
+    itemNames: items.map((i: { name: string }) => i.name),
+    deliveredAt: newStatus === "delivered" ? new Date().toISOString() : null,
+  });
 
-  // For other status transitions without dedicated templates, log and skip
-  if (emailType) {
-    logger.info("No email template available for status transition", {
-      orderId,
-      newStatus,
-      emailType,
-    });
-  }
+  const result = await sendEmail({
+    to: profile.email,
+    subject,
+    react,
+    type: emailType,
+    orderId,
+    userId: orderUserId,
+    idempotencyKey: `status-${newStatus}-${orderId}-${Date.now()}`,
+  });
 
-  return false;
+  return result.success;
 }

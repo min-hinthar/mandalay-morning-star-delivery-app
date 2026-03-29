@@ -11,6 +11,8 @@ const VALID_EMAIL_TYPES: EmailType[] = [
   "cancellation",
   "refund",
   "delivery_reminder",
+  "out_for_delivery",
+  "delivered",
 ];
 
 interface AddressRow {
@@ -73,9 +75,17 @@ export async function POST(request: Request) {
 
     const sendEmailSchema = z.object({
       orderId: z.string().uuid("orderId must be a valid UUID"),
-      emailType: z.enum(["order_confirmation", "cancellation", "refund", "delivery_reminder"], {
-        error: `Invalid emailType. Valid: ${VALID_EMAIL_TYPES.join(", ")}`,
-      }),
+      emailType: z.enum(
+        [
+          "order_confirmation",
+          "cancellation",
+          "refund",
+          "delivery_reminder",
+          "out_for_delivery",
+          "delivered",
+        ],
+        { error: `Invalid emailType. Valid: ${VALID_EMAIL_TYPES.join(", ")}` }
+      ),
     });
 
     const parsed = sendEmailSchema.safeParse(body);
@@ -170,11 +180,12 @@ export async function POST(request: Request) {
       refundMethod: "Original payment method",
       refundTimeline: "3-5 business days",
       processedAt: new Date().toISOString(),
-      // Delivery reminder-specific
+      // Delivery reminder / out_for_delivery / delivered specific
       itemCount: items.length,
       itemNames: items.map((item) => item.name),
       deliveryWindowStart: new Date().toISOString(),
       deliveryWindowEnd: new Date(Date.now() + 2 * 60 * 60 * 1000).toISOString(),
+      deliveredAt: new Date().toISOString(),
     };
 
     // Fetch real menu items for "you might also like" section (order_confirmation only)
@@ -236,6 +247,10 @@ function getSubjectForType(type: EmailType, orderId: string): string {
       return `Refund processed for order #${shortId}`;
     case "delivery_reminder":
       return `Your order #${shortId} is arriving today!`;
+    case "out_for_delivery":
+      return `Your order #${shortId} is on its way!`;
+    case "delivered":
+      return `Your order #${shortId} has been delivered!`;
     default:
       return `Update for order #${shortId}`;
   }
