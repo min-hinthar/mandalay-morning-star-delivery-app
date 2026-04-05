@@ -104,49 +104,49 @@ Deferred to future releases.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| CFIX-01 | TBD | Pending |
-| CFIX-02 | TBD | Pending |
-| CFIX-03 | TBD | Pending |
-| CFIX-04 | TBD | Pending |
-| CFIX-05 | TBD | Pending |
-| CFIX-06 | TBD | Pending |
-| CFIX-07 | TBD | Pending |
-| CFIX-08 | TBD | Pending |
-| CFIX-09 | TBD | Pending |
-| CFIX-10 | TBD | Pending |
-| CHKP-01 | TBD | Pending |
-| CHKP-02 | TBD | Pending |
-| CHKP-03 | TBD | Pending |
-| CHKP-04 | TBD | Pending |
-| TRAK-01 | TBD | Pending |
-| TRAK-02 | TBD | Pending |
-| TRAK-03 | TBD | Pending |
-| TRAK-04 | TBD | Pending |
-| A11Y-01 | TBD | Pending |
-| A11Y-02 | TBD | Pending |
-| A11Y-03 | TBD | Pending |
-| A11Y-04 | TBD | Pending |
-| LOAD-01 | TBD | Pending |
-| LOAD-02 | TBD | Pending |
-| LOAD-03 | TBD | Pending |
-| LOAD-04 | TBD | Pending |
-| LOAD-05 | TBD | Pending |
-| DATA-01 | TBD | Pending |
-| DATA-02 | TBD | Pending |
-| DATA-03 | TBD | Pending |
-| DATA-04 | TBD | Pending |
-| UXPL-01 | TBD | Pending |
-| UXPL-02 | TBD | Pending |
-| UXPL-03 | TBD | Pending |
-| UXPL-04 | TBD | Pending |
-| UXPL-05 | TBD | Pending |
-| UXPL-06 | TBD | Pending |
+| CFIX-01 | Phase 110 | Pending |
+| CFIX-02 | Phase 110 | Pending |
+| CFIX-03 | Phase 110 | Pending |
+| CFIX-04 | Phase 110 | Pending |
+| CFIX-05 | Phase 110 | Pending |
+| CFIX-06 | Phase 110 | Pending |
+| CFIX-07 | Phase 111 | Pending |
+| CFIX-08 | Phase 114 | Pending |
+| CFIX-09 | Phase 111 | Pending |
+| CFIX-10 | Phase 112 | Pending |
+| CHKP-01 | Phase 111 | Pending |
+| CHKP-02 | Phase 111 | Pending |
+| CHKP-03 | Phase 111 | Pending |
+| CHKP-04 | Phase 111 | Pending |
+| TRAK-01 | Phase 112 | Pending |
+| TRAK-02 | Phase 112 | Pending |
+| TRAK-03 | Phase 112 | Pending |
+| TRAK-04 | Phase 112 | Pending |
+| A11Y-01 | Phase 113 | Pending |
+| A11Y-02 | Phase 113 | Pending |
+| A11Y-03 | Phase 113 | Pending |
+| A11Y-04 | Phase 113 | Pending |
+| LOAD-01 | Phase 114 | Pending |
+| LOAD-02 | Phase 114 | Pending |
+| LOAD-03 | Phase 114 | Pending |
+| LOAD-04 | Phase 114 | Pending |
+| LOAD-05 | Phase 114 | Pending |
+| DATA-01 | Phase 115 | Pending |
+| DATA-02 | Phase 110 | Pending |
+| DATA-03 | Phase 115 | Pending |
+| DATA-04 | Phase 115 | Pending |
+| UXPL-01 | Phase 116 | Pending |
+| UXPL-02 | Phase 116 | Pending |
+| UXPL-03 | Phase 116 | Pending |
+| UXPL-04 | Phase 116 | Pending |
+| UXPL-05 | Phase 116 | Pending |
+| UXPL-06 | Phase 116 | Pending |
 
 **Coverage:**
 - v2.3 requirements: 37 total
-- Mapped to phases: 0 (pending roadmap)
-- Unmapped: 37
+- Mapped to phases: 37
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-04-04*
-*Last updated: 2026-04-04 after initial definition*
+*Last updated: 2026-04-04 after roadmap creation*
