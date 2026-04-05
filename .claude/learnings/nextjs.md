@@ -54,9 +54,9 @@ content.addEventListener("mouseleave", () => { marker.zIndex = undefined as unkn
 
 ## Google Maps: `@react-google-maps/api` Crashes SSR
 
-`@react-google-maps/api` accesses `window` at import time. Direct imports in `'use client'` components cause silent SSR crashes — the component and its parent tree fail to render.
+`@react-google-maps/api` accesses `window` at import time. Direct imports in `'use client'` components cause SSR crashes or Google Maps "Could not load onion" errors (internal module loading failure).
 
-The existing `CoverageRouteMap` works because it's inside `React.lazy()` (skips SSR). New map components must also skip SSR.
+**Parent `React.lazy()` is NOT sufficient** — each Google Maps component needs its own `dynamic(…, { ssr: false })` wrapper. A lazy parent defers loading but doesn't prevent the map from executing during hydration.
 
 ```tsx
 // BAD — crashes during SSR

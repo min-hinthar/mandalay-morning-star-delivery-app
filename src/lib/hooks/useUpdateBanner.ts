@@ -30,6 +30,7 @@ export interface UseUpdateBannerReturn {
   showBanner: boolean;
   countdown: number;
   isPaused: boolean;
+  isUpdating: boolean;
   canDismiss: boolean;
   version: string;
   /** 0-1 fraction for progress bar (countdown / TOTAL) */
@@ -265,17 +266,21 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
     setIsPaused(false);
   }, [dismissCount]);
 
+  const [isUpdating, setIsUpdating] = useState(false);
+
   const handleUpdateNow = useCallback(() => {
-    if (waitingWorkerRef.current) {
+    if (waitingWorkerRef.current && !isUpdating) {
+      setIsUpdating(true);
       sessionStorage.setItem(SESSION_KEY_UPDATED, "true");
       waitingWorkerRef.current.postMessage({ type: "SKIP_WAITING" });
     }
-  }, []);
+  }, [isUpdating]);
 
   return {
     showBanner,
     countdown,
     isPaused,
+    isUpdating,
     canDismiss,
     version,
     progress,

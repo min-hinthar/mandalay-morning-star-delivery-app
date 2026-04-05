@@ -16,4 +16,14 @@ Sentry.init({
       blockAllMedia: true,
     }),
   ],
+
+  // Filter out noise from browser extensions and third-party scripts
+  ignoreErrors: [
+    // iOS WebView bridge — not our code
+    /window\.webkit\.messageHandlers/,
+    // Older browser DOM API — triggered by Radix UI in legacy WebViews
+    /getRootNode/,
+    // Facebook Pixel / third-party script injection
+    /connect\.facebook\.net/,
+  ],
 });

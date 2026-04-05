@@ -152,14 +152,32 @@ export function computeDeliveryGateMultiDay(
 }
 
 // ============================================
+// HYDRATION-SAFE DEFAULT
+// ============================================
+
+// Static default that is identical on server and client, preventing hydration mismatches.
+// Real values are computed in useEffect (client-only).
+const HYDRATION_DEFAULT: DeliveryGateState = {
+  isOpen: true,
+  deliveryDate: {
+    date: new Date(0),
+    dateString: "",
+    displayDate: "",
+    isNextWeek: false,
+    cutoffPassed: false,
+  },
+  cutoffDate: new Date(0),
+  timeUntilCutoff: { hours: 0, minutes: 0, isPastCutoff: false },
+  urgency: "normal",
+};
+
+// ============================================
 // HOOKS
 // ============================================
 
 /** @deprecated Use useDeliveryGateMultiDay instead */
 export function useDeliveryGate(cutoffDay: number, cutoffHour: number): DeliveryGateState {
-  const [state, setState] = useState<DeliveryGateState>(() =>
-    computeDeliveryGate(cutoffDay, cutoffHour)
-  );
+  const [state, setState] = useState<DeliveryGateState>(HYDRATION_DEFAULT);
 
   useEffect(() => {
     setState(computeDeliveryGate(cutoffDay, cutoffHour));
@@ -183,9 +201,7 @@ export function useDeliveryGate(cutoffDay: number, cutoffHour: number): Delivery
 
 /** Multi-day delivery gate hook with dynamic polling */
 export function useDeliveryGateMultiDay(deliveryDays: DeliveryDayConfig[]): DeliveryGateState {
-  const [state, setState] = useState<DeliveryGateState>(() =>
-    computeDeliveryGateMultiDay(deliveryDays)
-  );
+  const [state, setState] = useState<DeliveryGateState>(HYDRATION_DEFAULT);
 
   useEffect(() => {
     setState(computeDeliveryGateMultiDay(deliveryDays));

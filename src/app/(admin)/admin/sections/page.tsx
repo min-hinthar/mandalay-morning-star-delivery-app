@@ -30,7 +30,7 @@ export default function AdminSectionsPage() {
       const response = await fetch("/api/admin/sections");
       if (!response.ok) throw new Error("Failed to fetch sections");
       const data = await response.json();
-      setSections(data);
+      setSections(Array.isArray(data) ? data : []);
     } catch {
       toast({ message: "Failed to fetch sections", type: "error" });
     } finally {
@@ -215,10 +215,11 @@ export default function AdminSectionsPage() {
     }
 
     const updatedItems = await response.json();
+    const items = Array.isArray(updatedItems) ? updatedItems : [];
 
     setSections((prev) =>
       prev.map((s) =>
-        s.id === sectionId ? { ...s, items: updatedItems, actualItemCount: updatedItems.length } : s
+        s.id === sectionId ? { ...s, items, actualItemCount: items.length } : s
       )
     );
   };

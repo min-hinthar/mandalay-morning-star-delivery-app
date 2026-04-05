@@ -43,15 +43,15 @@ const cspDirectives = [
   "default-src 'self'",
   // Google Maps requires *.googleapis.com, *.gstatic.com, *.google.com, blob:
   // See: https://developers.google.com/maps/documentation/javascript/content-security-policy
-  `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googleapis.com https://*.gstatic.com https://*.google.com blob:`,
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googleapis.com https://*.gstatic.com https://*.google.com https://connect.facebook.net blob:`,
   "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "img-src 'self' blob: data: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.googleusercontent.com",
+  "img-src 'self' blob: data: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.googleusercontent.com https://*.tile.openstreetmap.org",
   "font-src 'self' https://fonts.gstatic.com",
   // Google Maps: *.googleapis.com, *.google.com, *.gstatic.com, data:, blob:
   // Vercel Speed Insights: vitals.vercel-insights.com (fallback when not proxied)
   "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.ingest.us.sentry.io https://*.googleapis.com https://*.google.com https://*.gstatic.com https://vitals.vercel-insights.com data: blob:",
   "worker-src 'self' blob:",
-  "frame-src https://*.google.com",
+  "frame-src 'self' https://*.google.com",
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
