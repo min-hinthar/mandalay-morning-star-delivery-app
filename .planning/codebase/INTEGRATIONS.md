@@ -1,262 +1,184 @@
 # External Integrations
 
-**Analysis Date:** 2026-03-19
+**Analysis Date:** 2026-04-04
 
 ## APIs & External Services
 
 **Payment Processing:**
-- Stripe - Checkout sessions, customer management, refunds, promo/coupon codes
-  - SDK: `stripe: ^20.1.2` (server-only)
-  - Client: lazy singleton in `src/lib/stripe/server.ts`
-  - Auth: `STRIPE_SECRET_KEY` env var
+- Stripe - Checkout sessions, promo codes, refunds, customer management
+  - SDK: `stripe` v20 (Node SDK)
+  - Client: lazy singleton proxy in `src/lib/stripe/server.ts`
+  - Auth: `STRIPE_SECRET_KEY` (server), `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (client)
   - Webhook secret: `STRIPE_WEBHOOK_SECRET`
-  - Checkout mode: `payment` (not subscription); `payment_method_types: ["card"]`
-  - Session expires 30 min after creation
-  - Idempotency key: `checkout_${order.id}` on session creation
-  - Webhook events handled: `checkout.session.completed`, `checkout.session.expired`, `payment_intent.payment_failed`, `charge.refunded`
+  - Features used: `stripe.balance`, `stripe.promotionCodes`, `stripe.customers`, `stripe.webhooks.constructEvent`
 
 **Email Delivery:**
-- Resend - Transactional emails (order confirmation, COD approval, reminders, daily digests)
-  - SDK: `resend: ^6.9.1`
+- Resend - All transactional emails (order confirmation, delivery reminders, admin alerts, driver invites)
+  - SDK: `resend` v6.9
   - Client: singleton in `src/lib/email/client.ts`
-  - Auth: `RESEND_API_KEY` env var
-  - Templates: React Email components in `src/emails/` (12 templates: OrderConfirmation, OrderCancellation, RefundNotification, DeliveryReminder, AdminNewOrderAlert, AdminDailyDigest, AdminFeedbackAlert, DriverInvite, FeedbackConfirmation, RouteDeclineAlert)
-  - Webhook verification: Svix HMAC (`svix: ^1.86.0`) via `RESEND_WEBHOOK_SECRET`
+  - Auth: `RESEND_API_KEY`
+  - Webhook secret: `RESEND_WEBHOOK_SECRET` (verified via `svix`)
+  - From: `admin@mandalaymorningstar.com`; CC: `min@mandalaymorningstar.com` on every email
+  - Templates: 10 React Email templates in `src/emails/` (OrderConfirmation, OrderDelivered, OrderCancellation, DeliveryReminder, DriverInvite, FeedbackConfirmation, AdminNewOrderAlert, AdminDailyDigest, AdminFeedbackAlert + components)
+  - Retry: up to 3 attempts with exponential backoff (10s base delay)
 
-**Mapping & Geospatial:**
-- Google Maps Platform - Three distinct API uses:
-  1. Geocoding API (`https://maps.googleapis.com/maps/api/geocode/json`) - Address verification in `src/lib/services/geocoding.ts`; restricts to `country:US|administrative_area:CA`
-  2. Routes API v2 (`https://routes.googleapis.com/directions/v2:computeRoutes`) - Coverage distance checks in `src/lib/services/coverage.ts` AND route optimization in `src/lib/services/route-optimization/optimizer.ts`
-  3. Maps JS API (`@react-google-maps/api`) - Client-side map rendering; always SSR-disabled dynamic import
-  - Auth: `GOOGLE_MAPS_API_KEY` (server-side) and `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (client-side)
-  - Route optimization: Google Routes API with `TRAFFIC_AWARE` preference + nearest-neighbor fallback; 15s timeout; kitchen origin at Covina CA coords (`src/lib/constants/kitchen.ts`)
-  - Coverage check: `TRAFFIC_UNAWARE` preference, checks ≤50mi / ≤90min from kitchen
+**Maps & Geocoding:**
+- Google Maps Platform - Address autocomplete, geocoding, distance/routing
+  - SDK: `@react-google-maps/api` v2.20 (client-side, always `ssr: false`)
+  - Auth: `GOOGLE_MAPS_API_KEY` (server), `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` (client)
+  - APIs required: Geocoding API, Routes API (or Distance Matrix API), Places API
+  - Hook: `src/lib/hooks/usePlacesAutocomplete.ts` - uses new `AutocompleteSuggestion` API with legacy fallback
+  - Libraries loaded: `places`, `geometry`, `marker`
 
-**Error Monitoring:**
-- Sentry - Full-stack error capture and performance monitoring
-  - SDK: `@sentry/nextjs: ^10.38.0`
-  - Config files: `sentry.server.config.ts`, `sentry.client.config.ts`, `sentry.edge.config.ts`
-  - Tunnel route: `/monitoring` (bypasses ad blockers)
-  - Trace sample rate: 100% dev, 20% prod
-  - Auth: `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`
+**Error Tracking & Observability:**
+- Sentry - Error tracking, session replay, CSP violation reporting
+  - SDK: `@sentry/nextjs` v10
+  - Config: `sentry.client.config.ts`, `sentry.server.config.ts`, `sentry.edge.config.ts`
+  - Auth: `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN` (CI source maps upload)
+  - Traces sample rate: 1.0 dev / 0.2 prod; session replay: 0.1 sample / 1.0 on error
+  - Tunneled through `/monitoring` to bypass ad blockers
+  - Org: `mandalay-morning-star`, project: `mandalay-morning-star-delivery-app`
 
-**Performance & Analytics:**
-- Vercel Analytics + Speed Insights (`@vercel/analytics`, `@vercel/speed-insights`) - Zero-config page analytics
-- Lighthouse CI (`@lhci/cli: ^0.15.1`) - Automated performance auditing
-- Chromatic (`chromatic`) - Visual regression testing for Storybook
+**Analytics:**
+- Vercel Analytics - Page view tracking
+  - SDK: `@vercel/analytics` v1.6
+- Vercel Speed Insights - Core Web Vitals
+  - SDK: `@vercel/speed-insights` v1.3
+- Google Search Console - Site verification
+  - Auth: `GOOGLE_SITE_VERIFICATION` env var (config-only check in `/api/health`)
 
-**Rate Limiting (currently degraded):**
-- Upstash Redis + `@upstash/ratelimit` - Intended for distributed rate limiting
-- **Status: ALL limiters are null in `src/lib/rate-limit/client.ts`** — in-memory fallback (15 req/min) active
-- Fix requires Upstash REST API URL (NOT Redis Cloud `redis://` URL — `@upstash/redis` requires REST protocol)
-- Env vars needed: Upstash REST URL and token
+**Visual Testing:**
+- Chromatic - Storybook visual regression snapshots
+  - Auth: `CHROMATIC_PROJECT_TOKEN`
+  - Config: `chromatic.config.js`
+
+**Performance Testing:**
+- Lighthouse CI (`@lhci/cli`) - Automated performance budgets
+  - Config: `lighthouserc.js` (implied by `pnpm lighthouse`)
 
 ## Data Storage
 
 **Databases:**
-- Supabase (Postgres + RLS + Realtime)
-  - Connection: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-  - Client variants:
-    - `createClient()` in `src/lib/supabase/server.ts` - SSR client with cookie auth (`@supabase/ssr`), 5s fetch timeout
-    - `createPublicClient()` - Anon key, no cookie auth, 5s timeout
-    - `createServiceClient()` - Service role, bypasses RLS, 8s timeout, no session/refresh/URL detection
-  - Migrations: `supabase/migrations/` (numbered + dated SQL files, 37+ migrations)
-  - Key tables: `orders`, `order_items`, `order_item_modifiers`, `order_audit_log`, `profiles`, `addresses`, `routes`, `route_stops`, `location_updates`, `drivers`, `menu_items`, `menu_categories`, `menu_sections`, `delivery_days`, `delivery_zones`, `app_settings`, `webhook_events`, `webhook_audit_logs`, `notification_logs`, `promo_codes`, `feedback`
-  - RLS policies enforced on all tables; service client used in webhooks and admin API
-
-**Key Database Patterns:**
-- `create_order_with_items` RPC - Atomic order creation (Stripe and COD paths both use this)
-- `batch_update_stop_indices` RPC - Atomic route stop reordering
-- `increment_driver_deliveries` RPC - Driver stats increment on route completion
-- `calculate_driver_streak` RPC - Driver streak calculation for badges
-- `webhook_events` table with UNIQUE on `event_id` for Stripe webhook idempotency
-- `webhook_audit_logs` with Svix ID deduplication for Resend webhook idempotency
+- Supabase (hosted Postgres 15 + RLS + Auth + Storage)
+  - Connection: `NEXT_PUBLIC_SUPABASE_URL`
+  - Three client variants in `src/lib/supabase/`:
+    - `client.ts` (`createBrowserClient`) - Browser/client components
+    - `server.ts` (`createServerClient`) - Server components/actions; auto-reads cookies
+    - `server.ts` (`createServiceClient`) - Webhooks/cron; bypasses RLS; no session persistence
+    - `server.ts` (`createPublicClient`) - Health checks; no auth context
+  - 65 migration files in `supabase/migrations/` (initial schema through 2026-03-21)
+  - DB extensions: `plpgsql_check` 1.2.3, `pgtap` 1.3.1 (local dev/testing)
+  - Key tables (inferred from usage): `profiles`, `drivers`, `orders`, `app_settings`, `customer_settings`, `notification_logs`, `webhook_audit_logs`, `delivery_days`, `delivery_zones`, `routes`
 
 **File Storage:**
-- Supabase Storage - `menu-photos` bucket for menu item images
-  - Upload: via `src/lib/supabase/storage.ts`; server-side processing via `/api/admin/photos/process`
-  - Processing: `sharp` for server-side WebP conversion + 4:3 crop; Canvas API for client-side resize
-  - Max 10MB raw input → 2MB processed
-  - Delivery photos: separate bucket, signed URLs via `src/lib/supabase/delivery-photos.ts`
+- Supabase Storage - Menu photos in `menu-photos` bucket
+  - Upload: via server-side processing at `/api/admin/photos/process` (WebP conversion, 4:3 crop, `sharp`)
+  - Client: `src/lib/supabase/storage.ts` + `src/lib/supabase/driver-storage.ts`
+  - Accepted: JPEG, PNG, WebP; max 10MB input; processed to WebP, max 800px width, 85% quality
+  - Google Drive URLs also supported as image source (parsed client-side, verified server-side)
 
-**Caching:**
-- Next.js `unstable_cache` for business rules (`src/lib/settings/business-rules.ts`) — 300s TTL, `"business-rules"` cache tag
-- Tag-based invalidation: `revalidateTag("business-rules", { expire: 0 })` on admin delivery-days PATCH
-- IndexedDB (`idb-keyval`) - Offline cart persistence on customer mobile
+**Caching/Rate Limiting:**
+- Upstash Redis REST - Sliding window rate limiting
+  - SDK: `@upstash/ratelimit` v2 + `@upstash/redis` v1.36
+  - Auth: `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`
+  - 13 rate limiters in `src/lib/rate-limit/client.ts`: auth-signin, auth-signup, api-write, public-read, driver-location, driver-action, customer, admin, global, checkout, refund, admin-bulk, webhook
+  - Fallback: in-memory 15 req/min when Redis unconfigured (dev/missing env)
+  - Note: Production infrastructure memory indicates Redis Cloud (`redis://` URL) was used before; current config requires Upstash REST
+
+**Offline Storage:**
+- Browser IndexedDB via `idb-keyval` v6 - Cart persistence for PWA offline support
 
 ## Authentication & Identity
 
 **Auth Provider:**
-- Supabase Auth (Google OAuth + email/password)
-  - SSR cookie-based sessions via `@supabase/ssr`
-  - Auth callback: `/auth/callback` (reachable check in health endpoint)
-  - `auth.getUser()` used for server-side auth in API routes (NOT `auth.admin.getUserById()` — service client only)
-
-**Role System:**
-- Roles: `admin`, `driver`, `customer` stored in `profiles.role`
-- Auth guards:
-  - `requireAdmin()` in `src/lib/auth/admin.ts`
-  - `requireDriver()` in `src/lib/auth/` — returns `{ supabase, driverId }` tuple
-  - `ensureProfile()` in `src/lib/auth/role-redirect.ts` — upserts profile on first checkout
-
-## Delivery Scheduling / Business Rules
-
-**Source of Truth:**
-- `app_settings` table - Numeric settings (delivery hours, fees, thresholds, minimums)
-- `delivery_days` table - Per-day configs (dayOfWeek, isActive, cutoffDay, cutoffHour, deliveryFeeCents, direction)
-- `delivery_zones` table - Bearing ranges for East/West/South direction determination
-
-**Business Rules Loading:**
-- `getBusinessRules()` in `src/lib/settings/business-rules.ts` - `unstable_cache`d, 300s TTL
-- Fetches `app_settings` (delivery category) + `delivery_days` + `delivery_zones` in parallel
-- Defaults in `BUSINESS_RULES_DEFAULTS`: cutoffDay=5, cutoffHour=15, deliveryFeeCents=1500, freeDeliveryThreshold=$100, deliveryRadius=50mi, prepBuffer=30min
-
-**Delivery Window Generation:**
-- `generateTimeWindows()` in `src/lib/settings/generate-time-windows.ts` — 1-hour slots from start to end hour, shifted by prepTimeBufferMinutes
-
-**Cutoff Validation (checkout flow in `src/app/api/checkout/session/route.ts`):**
-1. Generate valid time windows from business rules
-2. Validate submitted time window exists in generated set
-3. Look up dayConfig from `deliveryDays` by dayOfWeek (via `getZonedDayOfWeek()`)
-4. If dayConfig found: `isPastCutoffForDay(scheduledDate, dayConfig, now)` — throws `CUTOFF_PASSED`
-5. If no dayConfig but deliveryDays is non-empty: returns `VALIDATION_ERROR` (not a delivery day)
-6. Legacy fallback: `isPastCutoff()` with global cutoffDay/cutoffHour
-
-**Timezone Handling:**
-- All delivery times stored as ISO with LA offset via `toISOWithTimezone()` in `src/lib/utils/delivery-timezone.ts`
-- Uses `Intl.DateTimeFormat` with `America/Los_Angeles` for DST-safe offset calculation
-- `getZonedDayOfWeek()` in `src/lib/utils/delivery-dates.ts` - Uses `Intl.DateTimeFormat` parts to get LA day-of-week (avoids `getUTCDay()` timezone bugs)
-- `TIMEZONE` constant referenced from `@/types/delivery`
-
-**Distance-Based Fee Tiers:**
-- `longDistanceThresholdMiles` (default 25mi): ≤25mi → standard fee ($15 or free if ≥$100); >25mi → flat $20, no free delivery
-- Coverage: 50mi / 90min driving from kitchen (Covina CA)
-
-**Delivery Directions:**
-- `delivery_zones` table: bearing_start, bearing_end define East/West/South zones
-- `getDirectionsForCoords()` computes bearing from kitchen to address
-- `delivery_days.direction` field: `east | west | south | all` — determines which days customer can order
-
-## Payment Processing Flow
-
-**Stripe (card) path:**
-1. `POST /api/checkout/session` validates cart, delivery window, address coverage
-2. `create_order_with_items` RPC creates order with `payment_method=stripe`, status=`pending`
-3. Stripe customer created/retrieved via `getOrCreateStripeCustomer()`
-4. `stripe.checkout.sessions.create()` with 30-min expiry, idempotency key
-5. `stripe_checkout_session_id` stored on order
-6. Client redirects to Stripe hosted checkout
-7. Stripe fires `checkout.session.completed` webhook to `/api/webhooks/stripe`
-8. Handler updates order status to `confirmed`, sends confirmation email
-
-**COD (Cash on Delivery) path:**
-1. `POST /api/checkout/session` with `paymentMethod: "cod"`, checks `rules.codEnabled`
-2. `createCODOrder()` in `src/lib/services/cod-order.ts` calls `create_order_with_items` with `payment_method=cod`
-3. RPC sets status to `pending_approval` automatically
-4. `after()` fires `sendCODOrderEmail()` (fire-and-forget, non-blocking)
-5. Admin reviews and calls `POST /api/admin/orders/[id]/approve-cod`
-6. Approval updates status to `confirmed`, sets `cod_approved_at` + `cod_approved_by`
-7. Optimistic lock: `.eq("status", "pending_approval")` + `.select("id")` verifies row was updated
-8. `after()` fires COD approval email with OrderConfirmation component
-
-**Webhook Idempotency (Stripe):**
-- `webhook_events` table with UNIQUE on `event_id`
-- Atomic upsert with `ignoreDuplicates: true` + `.select("id")` — zero rows returned = duplicate → skip
-- Returns 500 on DB errors to trigger Stripe retry
-
-## Driver Route Data Flow
-
-**Route States:** `planned` → `assigned` → `accepted` → `in_progress` → `completed`
-
-**Stop States:** `pending` → `enroute` → `arrived` → `delivered | skipped`
-
-**Route Lifecycle APIs:**
-- `GET /api/driver/routes/upcoming` - Driver's upcoming routes
-- `GET /api/driver/routes/active` - Current active route
-- `POST /api/driver/routes/[routeId]/accept` - `assigned` → `accepted`
-- `POST /api/driver/routes/[routeId]/start` - `planned|accepted` → `in_progress`; sets first stop to `enroute`; batch-transitions all route orders to `out_for_delivery`
-- `PATCH /api/driver/routes/[routeId]/stops/[stopId]` - Updates stop status with transition validation; on `delivered` → updates order to `delivered`; finds next pending stop → sets to `enroute`
-- `POST /api/driver/routes/[routeId]/complete` - `in_progress` → `completed`; calculates stats; calls `increment_driver_deliveries` RPC; checks/awards badges
-
-**Route Data Shape (GET /api/driver/routes/[routeId]):**
-- Fetches route + route_stops (ordered by stop_index) + orders + addresses + profiles (via `profiles!orders_user_id_fkey` FK hint)
-- Delivery window (`delivery_window_start`, `delivery_window_end`) passed through to driver
-- Photo URLs converted to signed URLs via `getDeliveryPhotoSignedUrl()`
-
-**Route Optimization (admin-only):**
-- `POST /api/admin/routes/optimize` triggers `optimizeRouteStops()` in `src/lib/services/route-optimization/optimizer.ts`
-- Primary: Google Routes API v2 (`computeRoutes`) with `TRAFFIC_AWARE`, `optimizeWaypointOrder: true`, kitchen as origin+destination (round-trip to allow all stops as intermediates)
-- Fallback: Nearest-neighbor with time-window urgency scoring
-- Results: stop reordering via `batch_update_stop_indices` RPC, polyline saved to `routes.optimized_polyline`
-- Time window violations reported but non-blocking
-
-**Location Tracking:**
-- `POST /api/driver/location` - Inserts into `location_updates` table
-- Fields: lat, lng, accuracy, heading, speed, route_id
-- Rate limited (in-memory fallback when Redis disabled)
-
-**Admin Route Management:**
-- `POST /api/admin/routes` - Create route (from admin route builder)
-- `GET /api/admin/routes/[id]` - Full route detail with stops, driver, exceptions
-- `PATCH /api/admin/routes/[id]` - Assign driver, change status, or reorder stops
-- `DELETE /api/admin/routes/[id]` - Delete planned/assigned routes only
+- Supabase Auth - OTP magic link (primary), Google OAuth (secondary)
+  - Implementation: `@supabase/ssr` cookie-based sessions; middleware in `src/lib/supabase/middleware.ts`
+  - Callback: `/auth/callback` route
+  - Roles: `customer` (default), `driver`, `admin` — stored in `profiles.role`
+  - Role routing: `src/lib/auth/role-redirect.ts` → `/menu` (customer), `/admin` (admin), `/driver` (driver)
+  - Driver sub-states: `active`, `inactive`, `no_record` → routes to `/driver`, `/driver/deactivated`, `/driver/onboard`
+  - Self-healing: auto-creates missing `profiles` row on first login
+  - Service role client used for admin user lookup (`auth.admin.getUserById`) — never `auth.getUser()` on service client
 
 ## Monitoring & Observability
 
 **Error Tracking:**
-- Sentry - All three runtimes configured (server, client, edge)
-- `logger` utility in `src/lib/utils/logger.ts` - Structured logging with `logger.info()`, `logger.warn()`, `logger.error()`, `logger.exception()`
-- Sentry tunnel at `/monitoring` routes requests through Next.js to bypass ad blockers
+- Sentry (see APIs section)
+
+**Health Check:**
+- `/api/health` - Deep health check endpoint in `src/lib/health/checks.ts`
+  - Checks: Supabase connectivity, Stripe balance, Resend domain list, Google OAuth config, Redis ping, Search Console config
+  - 30-second in-memory cache; secret redaction on all error messages
+  - Route reachability checks: `/auth/callback`, `/api/webhooks/stripe`
 
 **Logs:**
-- Structured JSON context on all logger calls (api, flowId, userId, orderId)
+- Structured logger in `src/lib/utils/logger.ts` - wraps `console.*` + Sentry breadcrumbs/exceptions
+  - Methods: `debug`, `info`, `warn`, `error`, `exception`
+  - Context fields: `userId`, `flowId`, `orderId`, `sessionId`, `api`
+  - Production: `console.*` removed except `error`/`warn` (Next.js `compiler.removeConsole`)
 
 ## CI/CD & Deployment
 
 **Hosting:**
-- Vercel (inferred from `vercel.json`, `@vercel/analytics`, `VERCEL_ENV`, `VERCEL_GIT_COMMIT_SHA`)
-- `VERCEL_GIT_COMMIT_SHA` used as Sentry release identifier and version in health endpoint
+- Vercel (inferred from `@vercel/analytics`, `vercel.json`, Sentry `NEXT_PUBLIC_VERCEL_ENV`)
+  - Image optimization: AVIF + WebP, 30-day CDN cache
+  - Server Actions body limit: 2MB
+
+**Cron Jobs (Vercel):**
+- `/api/cron/delivery-reminders` - Daily 8:00 AM PT (`0 15 * * *` UTC) - sends DeliveryReminder emails
+- `/api/cron/admin-daily-digest?period=morning` - Daily 6:00 AM PT (`0 14 * * *` UTC)
+- `/api/cron/admin-daily-digest?period=evening` - Daily 10:00 PM PT (`0 6 * * *` UTC)
+- All cron routes: auth via `CRON_SECRET` header, rate limited via `webhookLimiter`
 
 **CI Pipeline:**
-- `pnpm test:ci` - Bail-on-first-failure mode
-- Chromatic - Visual regression via `chromatic.config.js`
-- Lighthouse CI - `lighthouserc.js`
+- Not detected (no `.github/workflows/` or similar found); Sentry uses `SENTRY_AUTH_TOKEN` suggesting CI integration for source maps
 
-**Cron Jobs (`vercel.json`):**
-- `GET /api/cron/delivery-reminders` at `0 15 * * *` (15:00 UTC daily)
-- `GET /api/cron/admin-daily-digest?period=morning` at `0 14 * * *`
-- `GET /api/cron/admin-daily-digest?period=evening` at `0 6 * * *`
+## Webhooks & Callbacks
+
+**Incoming Webhooks:**
+- `POST /api/webhooks/stripe` - Stripe payment events
+  - Events handled: `checkout.session.completed`, `checkout.session.expired`, `payment_intent.payment_failed`, `charge.refunded`
+  - Verification: `stripe.webhooks.constructEvent` with `STRIPE_WEBHOOK_SECRET`
+  - Idempotency: atomic event claim via Postgres UNIQUE constraint before processing
+  - Error handling: returns 500 on DB errors (triggers Stripe retry); returns 200 only on success or duplicate
+- `POST /api/webhooks/resend` - Resend email delivery events
+  - Events handled: `email.delivered`, `email.opened`, `email.clicked`, `email.bounced`, `email.complained`
+  - Verification: Svix HMAC via `svix` package with `RESEND_WEBHOOK_SECRET`
+  - Deduplication: by `svix-id` header; logged to `webhook_audit_logs`
+  - Status priority: pending→sent→delivered→opened→clicked→bounced (never downgrade)
+  - Returns 200 always after verification to prevent Resend retries
+
+**Outgoing Webhooks/Callbacks:**
+- Supabase Realtime subscriptions (driver location tracking) - `src/lib/hooks/useTrackingSubscription.ts`
+- Sentry CSP violation reports - `report-uri` configured in CSP headers
 
 ## Environment Configuration
 
 **Required env vars:**
 - `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
-- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Supabase anon key
-- `SUPABASE_SERVICE_ROLE_KEY` - Supabase service role (server-only, bypasses RLS)
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Public Supabase anon key
+- `SUPABASE_SERVICE_ROLE_KEY` - Service role key (server-only, bypasses RLS)
+- `GOOGLE_MAPS_API_KEY` / `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` - Google Maps (see `.env.example` — only `GOOGLE_MAPS_API_KEY` shown but hook uses `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`)
 - `STRIPE_SECRET_KEY` - Stripe server key
-- `STRIPE_WEBHOOK_SECRET` - Stripe webhook signing secret
-- `RESEND_API_KEY` - Resend email API key
-- `RESEND_WEBHOOK_SECRET` - Resend webhook Svix secret
-- `GOOGLE_MAPS_API_KEY` - Server-side Maps/Routes/Geocoding API key
-- `NEXT_PUBLIC_APP_URL` - Full app URL for Stripe redirect URLs
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` - Stripe publishable key
+- `STRIPE_WEBHOOK_SECRET` - Stripe webhook HMAC secret
+- `RESEND_API_KEY` - Resend transactional email key
+- `NEXT_PUBLIC_SENTRY_DSN` - Sentry DSN
 
 **Optional env vars:**
-- `NEXT_PUBLIC_SENTRY_DSN` - Sentry DSN (disables Sentry if absent)
-- `SENTRY_AUTH_TOKEN` - Source map upload during build
-- `SENTRY_RELEASE` / `VERCEL_GIT_COMMIT_SHA` - Release identifier
+- `RESEND_WEBHOOK_SECRET` - Resend webhook Svix secret
+- `CRON_SECRET` - Secures cron endpoints
+- `SENTRY_AUTH_TOKEN` - CI source maps upload
+- `UPSTASH_REDIS_REST_URL` + `UPSTASH_REDIS_REST_TOKEN` - Rate limiting (falls back to in-memory)
+- `NEXT_PUBLIC_APP_URL` - Defaults to `https://mandalaymorningstar.com`
+- `NEXT_PUBLIC_OPERATOR_PHONE` - Driver "Call for Help" button
 - `GOOGLE_SITE_VERIFICATION` - Search Console verification
-- `CHROMATIC_PROJECT_TOKEN` - Visual regression testing
+- Rate limit overrides: `RATE_LIMIT_*_MAX` / `RATE_LIMIT_*_WINDOW` (13 configurable tiers)
 
-## Webhooks & Callbacks
-
-**Incoming:**
-- `POST /api/webhooks/stripe` - Stripe payment events; verified via `stripe.webhooks.constructEvent()`; idempotent via `webhook_events` table
-- `POST /api/webhooks/resend` - Email delivery events; verified via Svix HMAC; deduplicates on `svix_id`; updates `notification_logs`; always returns 200
-
-**Outgoing:**
-- Stripe hosted checkout: customer redirected to `session.url`, returns to `/orders/[id]/confirmation?session_id=...`
-- Cancel URL: `/checkout?cancelled=true`
+**Secrets location:**
+- `.env.local` (local dev, gitignored)
+- Vercel Dashboard environment variables (production)
 
 ---
 
-*Integration audit: 2026-03-19*
+*Integration audit: 2026-04-04*

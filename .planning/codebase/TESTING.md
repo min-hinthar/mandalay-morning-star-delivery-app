@@ -1,418 +1,355 @@
 # Testing Patterns
 
-**Analysis Date:** 2026-03-19
+**Analysis Date:** 2026-04-04
 
 ## Test Framework
 
-**Unit/Integration Runner:**
-- Vitest 4.0.17
+**Runner:**
+- Vitest `4.0.17`
 - Config: `vitest.config.ts`
 - Environment: `jsdom`
-- Setup: `src/test/setup.ts`
-- Globals: `true` (no need to import `describe`, `it`, `expect`)
-
-**E2E Runner:**
-- Playwright 1.57.0
-- Config: `playwright.config.ts`
-- Browsers: Chromium (Desktop Chrome), Mobile Chrome (Pixel 5)
-- Base URL: `http://localhost:3000`
+- Globals enabled (`globals: true`) — no need to import `describe`/`it`/`expect` in test files (but explicit imports are also used)
 
 **Assertion Library:**
-- Vitest built-in assertions + `@testing-library/jest-dom` (extended matchers)
-- `@testing-library/react` for hook and component tests
+- Vitest built-in (`expect`) + `@testing-library/jest-dom` `^6.9.1` (extended matchers like `toBeVisible`, `toHaveClass`)
+
+**React Testing:**
+- `@testing-library/react` `^16.3.1` — `render`, `screen`, `renderHook`, `act`
 
 **Run Commands:**
 ```bash
 pnpm test              # Run all unit tests (vitest run)
-pnpm test:ci           # CI mode: bail on first failure, no parallelism
-pnpm test:e2e          # Run all Playwright tests
-pnpm test:e2e:ui       # Playwright interactive UI
-pnpm test:a11y         # Accessibility specs only
-pnpm test:animations   # Animation specs only
-pnpm rls:test          # Supabase RLS isolation test (node script)
+pnpm test:ci           # CI mode — bail on first failure, no file parallelism
+pnpm test:e2e          # E2E tests (Playwright)
+pnpm test:e2e:ui       # Playwright with interactive UI
+pnpm test:a11y         # Accessibility E2E subset
+pnpm test:animations   # Animation E2E subset
 ```
 
 ## Test File Organization
 
-**Location:** Co-located `__tests__/` subdirectory adjacent to source file
+**Location:**
+- All unit tests live in `__tests__/` subdirectory co-located alongside source files
+- Never co-located as `foo.test.ts` next to `foo.ts` — always inside `__tests__/` folder
 
-**Naming:** `<SourceFileName>.test.ts` or `<SourceFileName>.test.tsx`
+**Naming:**
+- Mirrors source file name: `useAcceptRoute.ts` → `__tests__/useAcceptRoute.test.ts`
+- Component tests: `RouteStopCard.tsx` → `__tests__/RouteStopCard.test.tsx` (`.tsx` for JSX)
+- Concept tests not tied to one file: descriptive name (`lifecycle.test.ts`, `helpers.test.ts`)
 
 **Structure:**
 ```
-src/lib/utils/
-  delivery-dates.ts
-  __tests__/
-    delivery-dates.test.ts
-    delivery-dates-multiday.test.ts
-
 src/lib/hooks/
   useAcceptRoute.ts
+  useReorderStops.ts
   __tests__/
     useAcceptRoute.test.ts
+    useReorderStops.test.ts
 
 src/app/api/checkout/session/
   route.ts
   helpers.ts
   validation.ts
   __tests__/
-    route.test.ts        # Schema + business logic tests
-    helpers.test.ts      # Address distance + direction mismatch tests
+    route.test.ts
+    helpers.test.ts
 
-src/components/ui/admin/routes/
+src/components/ui/admin/orders/OrderDetailPanel/
+  OrderDetailPanel.tsx
   __tests__/
-    RouteStopCard.test.tsx
-    route-selection.test.ts
+    OrderDetailPanel.test.ts
 ```
 
 **E2E tests:**
-```
-e2e/
-  checkout-flow.spec.ts
-  driver-flow.spec.ts
-  admin-operations.spec.ts
-  happy-path.spec.ts
-  animations/
-    v7-motion.spec.ts
-
-supabase/tests/
-  00_rls_policies.test.sql    # pgTAP RLS policy tests
-  01_function_security.test.sql
-  02_materialized_views.test.sql
-```
+- All in `e2e/` directory at repo root
+- Named by user flow: `happy-path.spec.ts`, `checkout-flow.spec.ts`, `driver-flow.spec.ts`
+- Subdirectory for focused suites: `e2e/animations/`
 
 ## Test Structure
 
 **Suite Organization:**
 ```typescript
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
-describe("top-level domain (e.g., useAcceptRoute)", () => {
-  // Setup/teardown
-  beforeEach(() => { ... });
-  afterEach(() => { ... });
-
-  it("describes a specific behavior", async () => {
-    // arrange
-    // act
-    // assert
+describe("TopLevelFeature", () => {
+  beforeEach(() => {
+    // reset state / clear mocks
+    vi.clearAllMocks();
   });
 
-  describe("sub-group for related cases", () => {
-    it("specific edge case", () => { ... });
+  afterEach(() => {
+    // restore globals if patched
+    globalThis.fetch = originalFetch;
+  });
+
+  describe("specificBehavior", () => {
+    it("returns true when condition is met", () => {
+      expect(result).toBe(true);
+    });
+  });
+
+  describe("BUG-07: descriptive regression label", () => {
+    it("returns false 11 seconds before cutoff (outside buffer)", () => { ... });
   });
 });
-```
-
-**Delivery logic suites consistently use tagged sub-describes:**
-```typescript
-describe("BUG-07: cutoff safety buffer", () => { ... });
-describe("DST boundary tests (TST-04)", () => { ... });
-describe("parameterization", () => { ... });
 ```
 
 **Patterns:**
-- `beforeEach` resets mocks (`vi.clearAllMocks()`) and store state
-- `afterEach` restores originals (`globalThis.fetch = originalFetch`)
-- One assertion group per `it` — no multi-concern tests
-- Named constants for fixed timestamps instead of inline `new Date()`
+- Nested `describe` groups by method/behavior, not by file section
+- `it(...)` descriptions are plain English, present-tense, action-outcome: "returns this Saturday when called on Monday"
+- `should` prefix is NOT used — descriptions read as facts
+- Regression tests grouped in named `describe("BUG-XX: ...")` or `describe("DST boundary tests (TST-04)", ...)` suites
+- DST, edge case, and parameterization tests each get dedicated `describe` blocks
 
 ## Mocking
 
-**Framework:** Vitest `vi.mock()`, `vi.fn()`, `vi.stubEnv()`, `vi.stubGlobal()`
+**Framework:** Vitest `vi.*` API
 
-**Supabase mocking pattern (service layer tests):**
+**Module mocking (top of file, before imports):**
 ```typescript
-const mockFrom = vi.fn();
-vi.mock("@/lib/supabase/server", () => ({
-  createPublicClient: () => ({ from: mockFrom }),
-}));
-
-// Per-test: wire up chain
-mockFrom.mockImplementation((table: string) => {
-  if (table === "app_settings") {
-    return { select: () => ({ eq: () => ({ returns: mockSettingsReturns }) }) };
-  }
-  // ...
-});
-mockSettingsReturns.mockResolvedValue({ data: [...], error: null });
-```
-
-**Fetch mocking pattern (hook tests):**
-```typescript
-const originalFetch = globalThis.fetch;
-beforeEach(() => { globalThis.fetch = vi.fn(); vi.clearAllMocks(); });
-afterEach(() => { globalThis.fetch = originalFetch; });
-
-// Success mock
-(globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-  ok: true,
-  json: () => Promise.resolve({ newRouteId: "new-route-1" }),
-});
-
-// Error mock
-(globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
-  ok: false,
-  status: 400,
-  json: () => Promise.resolve({ error: "Bad request" }),
-});
-
-// Network error
-(globalThis.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error("Network error"));
-```
-
-**Loading-state pattern (pending promise trick):**
-```typescript
-let resolvePromise: (value: unknown) => void;
-const promise = new Promise((resolve) => { resolvePromise = resolve; });
-(globalThis.fetch as ReturnType<typeof vi.fn>).mockReturnValueOnce(promise);
-
-let actionPromise: Promise<void>;
-act(() => { actionPromise = result.current.acceptRoute(); });
-
-expect(result.current.isAccepting).toBe(true); // In-flight
-
-await act(async () => {
-  resolvePromise!({ ok: true, json: () => Promise.resolve({}) });
-  await actionPromise!;
-});
-
-expect(result.current.isAccepting).toBe(false); // Completed
-```
-
-**Toast mocking:**
-```typescript
-const mockToast = vi.fn();
 vi.mock("@/lib/hooks/useToastV8", () => ({
-  toast: (...args: unknown[]) => mockToast(...args),
+  toast: vi.fn(),
 }));
-// Assert
-expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
+
+vi.mock("@/lib/utils/logger", () => ({
+  logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), exception: vi.fn() },
+}));
+
+vi.mock("@/lib/supabase/server", () => ({
+  createServiceClient: vi.fn(),
+}));
 ```
 
-**Framer Motion mocking (component tests):**
+**Chained mock module with partial override:**
 ```typescript
-vi.mock("framer-motion", () => {
-  function createMotionComponent(tag: string) {
-    return ({ children, ...props }: Record<string, unknown>) => {
-      // Strip animation props; pass only DOM-safe props
-      const Tag = tag as unknown as React.ElementType;
-      return <Tag {...domProps}>{children as React.ReactNode}</Tag>;
-    };
-  }
-  const handler = { get: (_: unknown, prop: string) => createMotionComponent(prop) };
-  return { m: new Proxy({}, handler), motion: new Proxy({}, handler), AnimatePresence: ... };
-});
-```
-
-**Next.js mocking:**
-```typescript
-vi.mock("next/cache", () => ({ unstable_cache: (fn: (...args: any[]) => any) => fn }));
-vi.mock("next/headers", () => ({ headers: vi.fn().mockResolvedValue({ get: vi.fn() }) }));
 vi.mock("next/server", async (importOriginal) => {
   const mod = await importOriginal<typeof import("next/server")>();
-  return { ...mod, after: (cb: () => Promise<void>) => { void cb(); } };
+  return {
+    ...mod,
+    after: (cb: () => Promise<void>) => { void cb(); },  // execute immediately in tests
+  };
 });
+```
+
+**Fetch mocking pattern (globalThis):**
+```typescript
+const originalFetch = globalThis.fetch;
+beforeEach(() => {
+  globalThis.fetch = vi.fn();
+  vi.clearAllMocks();
+});
+afterEach(() => {
+  globalThis.fetch = originalFetch;
+});
+
+// In test:
+(globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+  ok: true,
+  json: () => Promise.resolve({ success: true }),
+});
+```
+
+**Supabase client mock (chained builder):**
+```typescript
+const mockFrom = vi.fn();
+const mockSelect = vi.fn().mockReturnThis();
+const mockEq = vi.fn().mockReturnThis();
+const mockSingle = vi.fn().mockResolvedValue({ data: mockRow, error: null });
+mockFrom.mockReturnValue({ select: mockSelect, eq: mockEq, single: mockSingle });
+vi.mocked(createServiceClient).mockReturnValue({ from: mockFrom } as never);
 ```
 
 **Environment variable mocking:**
 ```typescript
 vi.stubEnv("DELIVERY_TIMEZONE", "Asia/Yangon");
-vi.resetModules(); // Force re-import to pick up new env
+vi.resetModules();  // required when module caches env at import time
 const mod = await import("@/types/delivery");
 vi.unstubAllEnvs();
 ```
 
+**Framer Motion mock (for component tests):**
+```typescript
+vi.mock("framer-motion", () => {
+  function createMotionComponent(tag: string) {
+    return ({ children, ...props }) => {
+      // Strip animation props (initial, animate, transition, whileHover, whileTap, layout)
+      // Pass only DOM-safe props
+      const Tag = tag as React.ElementType;
+      return <Tag {...domProps}>{children}</Tag>;
+    };
+  }
+  const handler = { get: (_, prop: string) => createMotionComponent(prop) };
+  return {
+    m: new Proxy({}, handler),
+    motion: new Proxy({}, handler),
+    AnimatePresence: ({ children }) => children,
+  };
+});
+```
+
 **What to Mock:**
-- Supabase clients (`@/lib/supabase/server`, `@/lib/supabase/client`)
-- `globalThis.fetch` for hook tests
-- Toast notifications (`@/lib/hooks/useToastV8`)
-- Stripe (`@/lib/stripe/server`)
-- Framer Motion (animation props break jsdom)
-- `next/cache`, `next/headers`, `next/server`
-- Logger (`@/lib/utils/logger`) — no-op in tests
-- Email sender (`@/lib/email`) — no-op in tests
-- Rate limiter (`@/lib/rate-limit`) — mock as always-allowed
+- All external service clients (Supabase, Stripe, logger)
+- `next/headers`, `next/server` side effects (`after`, `cookies`)
+- `fetch` when testing hooks that call API endpoints directly
+- Framer Motion in component render tests
+- Rate limiters (`checkRateLimit` → always `{ limited: false }`)
+- Toast notifications (capture calls, verify type/message)
 
 **What NOT to Mock:**
-- Pure utility functions (`delivery-dates.ts`, `delivery-zones.ts`, `order.ts`, `price.ts`)
-- Zod validation schemas
-- Zustand stores (test against real store state)
-- `delivery-dates` module when testing DST boundaries (test real behavior)
+- Pure utility functions under test (delivery date math, analytics helpers)
+- Zod schemas (test them directly with `.safeParse()`)
+- `date-fns` / `Intl` — test real timezone behavior
 
 ## Fixtures and Factories
 
-**Factory functions (`src/test/factories/index.ts`):**
+**Test Data Factories (`src/test/factories/index.ts`):**
 ```typescript
-createMockMenuItem(overrides?: Partial<MenuItemsRow>): MenuItemsRow
-createMockModifierOption(overrides?: Partial<ModifierOptionsRow>): ModifierOptionsRow
-createMockAddress(overrides?: Partial<AddressesRow>): AddressesRow
-createMockOrder(overrides?: Partial<OrdersRow>): OrdersRow
-createValidatedCartItem(menuItem?, modifiers?, quantity?): ValidatedCartItem
-createCheckoutItemInput(menuItemId, quantity?, modifiers?): CheckoutItemInput
+// Override pattern — spread defaults then apply partial overrides
+export function createMockMenuItem(overrides?: Partial<MenuItemsRow>): MenuItemsRow {
+  return {
+    id: "menu-item-uuid",
+    name_en: "Test Menu Item",
+    base_price_cents: 1500,
+    is_active: true,
+    // ... all required fields
+    ...overrides,
+  };
+}
 ```
 
-**Usage pattern:**
+**Available factories:**
+- `createMockMenuItem(overrides?)` → `MenuItemsRow`
+- `createMockModifierOption(overrides?)` → `ModifierOptionsRow`
+- `createMockAddress(overrides?)` → `AddressesRow`
+- `createMockOrder(overrides?)` → `OrdersRow`
+- `createMockRoute(overrides?)` → `RoutesRow`
+- `createMockStop(overrides?)` → `RouteStopsRow`
+- `createMockRouteWithStops(count, routeOverrides?, stopOverrides?)` → `{ route, stops }`
+- `createValidatedCartItem(menuItem?, modifiers[], quantity?)` → validated cart item
+- `createCheckoutItemInput(menuItemId, quantity?, modifiers?)` → checkout input
+
+**Stripe mocks (`src/test/mocks/stripe.ts`):**
+- `createMockStripeClient()` — full mock with `checkout.sessions.create`, `customers.*`, `webhooks.constructEvent`
+- `createCheckoutCompletedEvent(orderId, userId, paymentIntentId?)` → `Stripe.Event`
+- `createCheckoutExpiredEvent(...)`, `createChargeRefundedEvent(...)`, `createPaymentFailedEvent(...)` — webhook event builders
+
+**Google Routes mocks (`src/test/mocks/google-routes.ts`):**
+- Fixture data for route optimization tests
+
+**Inline fixtures for simple cases:**
 ```typescript
-const menuItems = new Map<string, MenuItemsRow>([
-  ["item-1", createMockMenuItem({ id: "item-1", base_price_cents: 1500 })],
-]);
+const baseItem = {
+  menuItemId: "item-1",
+  basePriceCents: 1200,
+  quantity: 1,
+  modifiers: [],
+};
+
+// In tests, spread and override:
+store.addItem({ ...baseItem, quantity: 100 });
 ```
 
-**Delivery day fixtures (inline in test files):**
-```typescript
-const MOCK_DELIVERY_DAYS: DeliveryDayConfig[] = [
-  { id: "mon", dayOfWeek: 1, isActive: true, cutoffDay: 0, cutoffHour: 15, deliveryFeeCents: 500, displayOrder: 0 },
-  { id: "wed", dayOfWeek: 3, isActive: true, cutoffDay: 2, cutoffHour: 15, deliveryFeeCents: 500, displayOrder: 1 },
-  // ...
-];
-```
+**Location:** `src/test/` — shared across all test files via `@/test/factories` imports
 
-**Timestamp fixtures — named UTC constants for readability:**
-```typescript
-// Named timestamps as UTC Date objects
-const WEDNESDAY_10AM = new Date("2026-03-04T18:00:00.000Z"); // 10 AM PT (UTC-8)
-const FRIDAY_1PM = new Date("2026-03-06T21:00:00.000Z");     // 1 PM PT
-const FRIDAY_4PM = new Date("2026-03-07T00:00:00.000Z");     // 4 PM PT
+## Test Setup (`src/test/setup.ts`)
 
-// PT-offset helper for non-DST dates
-const makePtDate = (value: string) => new Date(`${value}-08:00`);
-```
-
-**Stripe mock factories (`src/test/mocks/stripe.ts`):**
-- `createCheckoutCompletedEvent(orderId, userId, paymentIntentId?)`
-- `createCheckoutExpiredEvent(...)`
-- `createChargeRefundedEvent(...)`
-- `createPaymentFailedEvent(...)`
-
-**Location:** `src/test/factories/index.ts`, `src/test/mocks/stripe.ts`, `src/test/mocks/google-routes.ts`
+Global setup applied via `vitest.config.ts` `setupFiles`:
+- `fake-indexeddb/auto` — IndexedDB polyfill for Zustand persist
+- `@testing-library/jest-dom` — extended DOM matchers
+- `ResizeObserver` stub
+- `localStorage` mock (returns null for all gets)
+- `matchMedia` mock (returns `matches: false`)
+- Test env vars: `GOOGLE_MAPS_API_KEY`, `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `NEXT_PUBLIC_SUPABASE_URL`, etc.
 
 ## Coverage
 
-**Requirements:** No enforced coverage threshold (no `coverage` config in `vitest.config.ts`)
+**Requirements:** Not enforced — no coverage thresholds configured in `vitest.config.ts`
 
 **View Coverage:**
 ```bash
-# Not in scripts — run manually:
 pnpm vitest run --coverage
 ```
 
 ## Test Types
 
-### Unit Tests (Vitest)
+**Unit Tests (Vitest, 49 test files):**
+- Pure utility functions: delivery date math, analytics helpers, clustering, zone checking
+- Zod schemas: validation rules via `.safeParse()` with valid and invalid inputs
+- Zustand stores: direct state manipulation, computed values, side effects
+- Custom hooks: `renderHook` + `act`, fetch/toast mocking
+- API route handlers: full request/response with mocked Supabase + Stripe
+- Component rendering: `render` + `screen` queries for conditional UI
 
-**Scope:** Pure functions, hooks, store state, Zod schemas, business logic utilities
+**Integration Tests (Vitest):**
+- Checkout session validation end-to-end logic (`helpers.test.ts`, `route.test.ts`)
+- Stripe webhook event handling with full DB mock chain
+- RLS edge cases: `src/lib/__tests__/rls-edge-cases.test.ts`
+- Route lifecycle: `src/app/api/driver/routes/__tests__/lifecycle.test.ts`
 
-**Delivery business logic (critical — high coverage):**
-- `src/lib/utils/__tests__/delivery-dates.test.ts` — cutoff calculations, DST boundaries, 10s safety buffer
-- `src/lib/utils/__tests__/delivery-dates-multiday.test.ts` — multi-day scheduling, direction filtering, week wrap
-- `src/lib/utils/__tests__/delivery-zones.test.ts` — bearing calculation, zone direction lookup, `filterDaysByDirection`
-- `src/lib/settings/__tests__/business-rules.test.ts` — DB → camelCase mapping, fallback defaults, partial data
-- `src/lib/settings/__tests__/generate-time-windows.test.ts` — time window generation, AM/PM formatting
-- `src/lib/utils/__tests__/delivery-schedule.test.ts` — schedule display formatting
-- `src/lib/hooks/__tests__/useDeliveryGate.test.ts` — gate open/closed, urgency thresholds, delivery date display
-
-**Checkout flow (high coverage):**
-- `src/app/api/checkout/session/__tests__/route.test.ts` — Zod schema, cart validation, order totals, Stripe line items, fee threshold, server-authoritative pricing, tip/discount logic
-- `src/app/api/checkout/session/__tests__/helpers.test.ts` — direction mismatch validation for address vs delivery day
-
-**Route management (admin operations):**
-- `src/lib/hooks/__tests__/useSplitRoute.test.ts` — split endpoint, empty stopIds rejection, loading state
-- `src/lib/hooks/__tests__/useMergeRoutes.test.ts` — merge endpoint, loading state, success toast
-- `src/lib/hooks/__tests__/useReassignDriver.test.ts` — planned vs in_progress confirmation flow
-- `src/lib/hooks/__tests__/useReorderStops.test.ts` — PATCH payload, `forceOverride` for in_progress routes, error rollback
-- `src/lib/validations/__tests__/route.test.ts` — `reassignStopSchema`, `createRouteSchema`, `splitRouteSchema`, `mergeRouteSchema`
-- `src/components/ui/admin/routes/__tests__/route-selection.test.ts` — stop selection toggle/select-all, split validation
-
-**Driver state transitions:**
-- `src/lib/hooks/__tests__/useAcceptRoute.test.ts` — accept flow, success/error toasts, loading state, network error
-- `src/lib/hooks/__tests__/useDeclineRoute.test.ts` — decline with reason, same patterns as accept
-- `src/lib/hooks/__tests__/useDriverReorderStops.test.ts` — driver-side reorder
-- `src/lib/stores/__tests__/driver-store.test.ts` — Zustand store: route, stop index, location, online status, reset
-
-**Price calculations:**
-- `src/lib/utils/__tests__/price.test.ts` — `calculateItemPrice`, `validateModifierSelection`
-- `src/lib/utils/__tests__/order.test.ts` — `calculateLineTotal`, `calculateDeliveryFee`, `calculateTax`, `calculateOrderTotals`, Stripe line items
-- `src/lib/utils/__tests__/refund-calc.test.ts` — refund calculations
-
-**Other:**
-- `src/lib/utils/__tests__/eta.test.ts` — Haversine distance, ETA calculation, arrival formatting
-- `src/lib/utils/__tests__/clustering.test.ts` — stop clustering for route optimization
-- `src/lib/services/__tests__/route-optimization.test.ts` — `validateStopsForOptimization`, Google Routes API integration
-- `src/lib/services/__tests__/coverage.test.ts` — delivery coverage check
-- `src/lib/stores/__tests__/cart-store.test.ts` — add/update/remove items, subtotal, delivery fee threshold, long-distance fee
-- `src/lib/auth/__tests__/role-redirect.test.ts` — role-based redirect logic
-- `src/lib/__tests__/rls-edge-cases.test.ts` — simulated RLS policy isolation
-- `src/lib/supabase/__tests__/delivery-photos.test.ts` — photo upload patterns
-- `src/app/api/webhooks/stripe/__tests__/route.test.ts` — Stripe event processing, order status updates
-- `src/app/api/tracking/__tests__/route.test.ts` — tracking endpoint
-
-### Integration Tests (Vitest)
-
-API route tests (in `__tests__/` under API directories) perform integration-style testing: they mock Supabase/Stripe/external services but test the full validation + business logic layer together.
-
-### E2E Tests (Playwright)
-
-**Active (run against live dev server):**
-- `e2e/happy-path.spec.ts` — full customer flow
-- `e2e/checkout-flow.spec.ts` — checkout page structure, address management, order summary, payment section
-- `e2e/cart-flow.spec.ts` — add to cart, quantity management
-- `e2e/authentication.spec.ts` — login/logout
-- `e2e/accessibility.spec.ts` — ARIA, keyboard nav
-- `e2e/visual-regression.spec.ts` — screenshot diffing
-- `e2e/admin-mobile.spec.ts` — admin mobile UI
-- `e2e/error-states.spec.ts` — 404, empty states
-
-**Skipped (require authenticated fixtures — not yet implemented):**
-- `test.describe.skip("Authenticated Driver Flow", ...)` in `e2e/driver-flow.spec.ts`
-- `test.describe.skip("Authenticated Analytics Flow", ...)` in `e2e/admin-analytics.spec.ts`
-- `test.describe.skip("Authenticated Feedback Flow", ...)` in `e2e/customer-feedback.spec.ts`
-- `test.describe.skip("Authenticated Tracking Flow", ...)` in `e2e/customer-tracking.spec.ts`
-- ~20 individual `test.skip(...)` tests in `e2e/admin-operations.spec.ts` (order/menu/analytics management)
-
-**Gap:** All authenticated admin/driver/tracking E2E flows are skipped — these rely on `storageState` fixtures that have not been created. The comment in `e2e/driver-flow.spec.ts` documents the intended pattern using `browser.newContext({ storageState: 'driver-auth-state.json' })`.
-
-### Database Tests (pgTAP SQL)
-
-- `supabase/tests/00_rls_policies.test.sql` — Row-level security policy tests
-- `supabase/tests/01_function_security.test.sql` — DB function security
-- `supabase/tests/02_materialized_views.test.sql` — Materialized view correctness
-
-Run via `pnpm rls:test` (node script wrapper).
+**E2E Tests (Playwright, 20 spec files):**
+- Browser: Chromium (Desktop Chrome) + Mobile Chrome (Pixel 5)
+- Flows: `happy-path`, `cart-flow`, `checkout-flow`, `authentication`, `driver-flow`, `admin-operations`, `admin-mobile`, `customer-tracking`
+- Accessibility: `accessibility.spec.ts`, `animations/v7-accessibility.spec.ts`
+- Visual regression: `v4-theme-parity.spec.ts`, `contrast-audit.spec.ts` (screenshot diff, `maxDiffPixels: 100`)
+- Hydration smoke: `hydration-smoke.spec.ts`
+- Retries on CI: 2 retries, 1 worker; local: parallel, 0 retries
+- Uses `data-testid` attributes as primary selectors (`[data-testid="menu-item"]`)
+- Role-based selectors as secondary (`getByRole("heading")`, `getByRole("tab")`)
 
 ## Common Patterns
 
-**Async Hook Testing:**
+**Async Testing (hooks):**
 ```typescript
-const { result } = renderHook(() => useSplitRoute({ onSuccess }));
+const { result } = renderHook(() => useAcceptRoute({ routeId: "route-1" }));
 
 await act(async () => {
-  await result.current.splitRoute("route-1", ["stop-a", "stop-b"], "driver-1");
+  await result.current.acceptRoute();
 });
 
-expect(globalThis.fetch).toHaveBeenCalledWith(...)
-expect(onSuccess).toHaveBeenCalledWith("new-route-1");
+expect(mockToast).toHaveBeenCalledWith(
+  expect.objectContaining({ message: "Route accepted!", type: "success" })
+);
 ```
 
-**Error Path Testing:**
+**Async Testing (loading state):**
 ```typescript
-it("shows error toast and does not call onSuccess on API error", async () => {
+let resolvePromise: (value: unknown) => void;
+const promise = new Promise((resolve) => { resolvePromise = resolve; });
+(globalThis.fetch as ReturnType<typeof vi.fn>).mockReturnValueOnce(promise);
+
+const { result } = renderHook(() => useAcceptRoute({ routeId: "route-1" }));
+expect(result.current.isAccepting).toBe(false);
+
+act(() => { acceptPromise = result.current.acceptRoute(); });
+expect(result.current.isAccepting).toBe(true);  // check mid-flight
+
+await act(async () => {
+  resolvePromise!({ ok: true, json: () => Promise.resolve({}) });
+  await acceptPromise!;
+});
+expect(result.current.isAccepting).toBe(false);
+```
+
+**Error Testing:**
+```typescript
+it("shows error toast on non-200 response", async () => {
   (globalThis.fetch as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
     ok: false,
-    json: () => Promise.resolve({ error: "Split failed" }),
+    status: 400,
+    json: () => Promise.resolve({ error: "Bad request" }),
   });
 
-  await act(async () => { await result.current.splitRoute("route-1", ["stop-a"]); });
+  await act(async () => { await result.current.acceptRoute(); });
 
   expect(onSuccess).not.toHaveBeenCalled();
-  expect(toast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
+  expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({ type: "error" }));
 });
 ```
 
-**Validation/Schema Testing:**
+**Zod Validation Testing:**
 ```typescript
-it("rejects invalid date format (MM-DD-YYYY)", () => {
-  const body = { ...validBody, scheduledDate: "01-18-2026" };
+it("rejects missing addressId", () => {
+  const { addressId: _addressId, ...body } = validBody;  // destructure to omit
   const result = createCheckoutSessionSchema.safeParse(body);
   expect(result.success).toBe(false);
 });
@@ -420,45 +357,24 @@ it("rejects invalid date format (MM-DD-YYYY)", () => {
 
 **Zustand Store Testing:**
 ```typescript
-beforeEach(() => { useDriverStore.getState().resetDriverState(); });
-
-it("should set current route", () => {
-  useDriverStore.getState().setCurrentRoute("test-route-123");
-  expect(useDriverStore.getState().currentRouteId).toBe("test-route-123");
+beforeEach(() => {
+  useCartStore.getState().clearCart();
+  useCartStore.persist.clearStorage?.();
+  __clearDebounceState();  // exported helper to reset internal debounce state
+  useCartStore.getState().setDeliverySettings(DELIVERY_FEE, FREE_DELIVERY_THRESHOLD);
 });
 ```
 
-**DST Boundary Testing:**
+**DST / Timezone Testing:**
 ```typescript
-// Use known UTC timestamps that correspond to precise PT times
-const springForwardSaturday = new Date("2026-03-07T08:00:00.000Z"); // March 7 midnight PST
-const beforeCutoff = new Date("2026-03-06T22:59:00.000Z");           // 2:59 PM PST
-const afterCutoff  = new Date("2026-03-06T23:00:01.000Z");           // 3:00:01 PM PST
+// Use makePtDate helper to create timezone-correct Date objects
+function makePtDate(value: string): Date {
+  // Dynamically computes PST/PDT offset for the target date
+}
+const wednesday = makePtDate("2026-01-14T10:00:00");
+expect(getDeliveryDate(wednesday, CUTOFF_DAY, CUTOFF_HOUR).dateString).toBe("2026-01-17");
 ```
-
-**10-Second Safety Buffer Testing:**
-```typescript
-const cutoff = getCutoffForSaturday(saturday, CUTOFF_DAY, CUTOFF_HOUR);
-const tenSecBefore = new Date(cutoff.getTime() - 10_000 + 1);
-expect(isPastCutoff(saturday, tenSecBefore, CUTOFF_DAY, CUTOFF_HOUR)).toBe(true);
-const elevenSecBefore = new Date(cutoff.getTime() - 11_000);
-expect(isPastCutoff(saturday, elevenSecBefore, CUTOFF_DAY, CUTOFF_HOUR)).toBe(false);
-```
-
-## Test Coverage Gaps
-
-**Checkout route full integration test is missing** — `src/app/api/checkout/session/__tests__/route.test.ts` has a comment: "Full API route testing with mocked Supabase/Stripe is complex. These tests focus on validation and business logic... Full flow testing is covered by E2E tests." The E2E checkout flow tests are unauthenticated and skip when redirected to login, meaning the complete order creation path has no automated coverage.
-
-**COD order creation flow untested** — `src/lib/services/cod-order.ts` and the COD branch in the checkout route (`createCODOrder`) have no dedicated unit tests. COD approval webhook flow also not covered.
-
-**Driver stop status transitions** — stop-level transitions (`pending` → `arrived` → `delivered`) and exception handling have no unit tests beyond the Zustand store state. The `src/app/api/driver/routes/[routeId]/stops/[stopId]/notes/__tests__/route.test.ts` only covers the notes endpoint.
-
-**Route optimization service with real API** — `src/lib/services/__tests__/route-optimization.test.ts` mocks `fetch` but does not test the fallback path when Google Routes API fails (network error → fallback ordering).
-
-**Long-distance fee tier** — `calculateDeliveryFee` with the `>25mi` flat $20 path tested in cart-store but not in the checkout session totals tests (`src/app/api/checkout/session/__tests__/route.test.ts`).
-
-**Admin order management E2E** — All authenticated admin E2E tests in `e2e/admin-operations.spec.ts` are `test.skip()`. Order status changes, driver assignment, and analytics are untested at E2E level.
 
 ---
 
-*Testing analysis: 2026-03-19*
+*Testing analysis: 2026-04-04*
