@@ -123,7 +123,7 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 ### Active
 
-(No active requirements — next milestone TBD)
+(Defined in REQUIREMENTS.md for v2.3)
 
 ### Out of Scope
 
@@ -134,11 +134,24 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 - Push notifications via service worker — email + text covers it
 - Customer loyalty/referral system — get first 50 regulars first
 - Multi-admin role system — solo operator for now
-- WCAG 2.1 AA compliance — deferred from original v1.9 plan
+- WCAG 2.1 AA compliance — partial coverage in v2.3 (touch targets, contrast); full audit deferred
 - Internationalization (Myanmar/English) — deferred from original v1.9 plan
 - Storybook/Chromatic visual regression — deferred from original v1.9 plan
 - Multi-restaurant marketplace — not part of Morning Star scope
 - Docker/Kubernetes — Vercel is serverless; containerization adds zero value
+
+## Current Milestone: v2.3 Customer UX Quality
+
+**Goal:** Elevate customer-facing UX from functional to polished — fix critical bugs, improve checkout conversion, overhaul order tracking, and close accessibility gaps.
+
+**Target features:**
+- Critical bug fixes (cart mobile flash, checkout race conditions, cutoff modal guard)
+- Checkout conversion polish (form state recovery, inline validation, price change detection)
+- Order tracking overhaul (mobile-first map layout, reconnection UX, mute toggle)
+- Accessibility & design system (44px touch targets, contrast ratios, focus indicators, dark mode)
+- Loading states & offline (skeletons for all pages, offline menu cache, cart sync)
+- Data layer reliability (API retry logic, optimistic updates, query key factory)
+- Micro-interactions & polish (undo delete, swipe preview, OG tags, animation guidelines)
 
 ## Last Milestone: v2.2 Stability & Correctness (SHIPPED 2026-03-21)
 
@@ -289,4 +302,4 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 ---
 
-_Last updated: 2026-03-21 after v2.2 milestone_
+_Last updated: 2026-04-04 after v2.3 milestone start_
