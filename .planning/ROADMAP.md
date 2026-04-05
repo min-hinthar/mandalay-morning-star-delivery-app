@@ -6,6 +6,7 @@
 - v2.0 Production-Grade Launch MVP: Shipped (10 phases, 34 plans)
 - v2.1 Route Operations & Admin Mobile: Shipped (5 phases, 22 plans)
 - v2.2 Stability & Correctness: Shipped (6 phases, 12 plans)
+- v2.3 Customer UX Quality: In progress (7 phases, 110-116)
 
 ## Phases
 
@@ -97,24 +98,117 @@
 
 </details>
 
+### v2.3 Customer UX Quality (Phases 110-116)
+
+- [ ] **Phase 110: Critical Fixes & Data Reliability** - Fix conversion-blocking bugs and establish query retry infrastructure
+- [ ] **Phase 111: Checkout Conversion** - Recover lost conversions with form resilience, inline validation, and price transparency
+- [ ] **Phase 112: Order Tracking Overhaul** - Redesign tracking from unusable to reliable on mobile
+- [ ] **Phase 113: Accessibility & Design System** - Fix WCAG violations and harmonize design tokens
+- [ ] **Phase 114: Loading States & Offline** - Replace spinners with skeletons, enable offline menu access
+- [ ] **Phase 115: Data Layer Optimization** - Optimistic updates, query deduplication, and pagination
+- [ ] **Phase 116: Micro-Interactions & Polish** - Undo actions, discoverable gestures, and share previews
+
+## Phase Details
+
+### Phase 110: Critical Fixes & Data Reliability
+**Goal**: Customers can complete cart-to-checkout without hitting broken states or silent failures
+**Depends on**: Nothing (first phase)
+**Requirements**: CFIX-01, CFIX-02, CFIX-03, CFIX-04, CFIX-05, CFIX-06, DATA-02
+**Success Criteria** (what must be TRUE):
+  1. Mobile cart page loads without white flash — no useEffect redirect flicker
+  2. Direct-linking to /checkout with empty cart shows immediate error, not spinner loop
+  3. Cutoff modal appearance disables the checkout submit button — no orders after cutoff
+  4. Stripe payment timeout shows a clear error with retry option — no silent failure
+  5. Cart validation that stalls beyond 30 seconds shows a fallback error UI
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 111: Checkout Conversion
+**Goal**: Customers complete checkout on first attempt even after payment errors or price changes
+**Depends on**: Phase 110
+**Requirements**: CFIX-07, CFIX-09, CHKP-01, CHKP-02, CHKP-03, CHKP-04
+**Success Criteria** (what must be TRUE):
+  1. Payment error preserves all form fields (address, time, contact) — user retries without re-entering
+  2. Address and payment fields show inline validation errors as user types, not only on submit
+  3. Price changes while cart is open show old-vs-new price explanation, not just "Dismiss"
+  4. Cutoff modal offers one-click reschedule to next available delivery date
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 112: Order Tracking Overhaul
+**Goal**: Customers can reliably track their delivery on mobile with a usable map and stable connection
+**Depends on**: Phase 110
+**Requirements**: CFIX-10, TRAK-01, TRAK-02, TRAK-03, TRAK-04
+**Success Criteria** (what must be TRUE):
+  1. Tracking page shows full-height map with collapsible info sheet on mobile — not 50/50 split
+  2. Connection drop shows visible "Reconnecting..." banner, reconnection uses exponential backoff (1s-30s)
+  3. Polling pauses when tab is hidden and resumes when user returns
+  4. Audio notifications have a visible mute toggle — no surprise sounds during calls
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 113: Accessibility & Design System
+**Goal**: All interactive elements are usable on mobile, visible in both themes, and navigable via keyboard
+**Depends on**: Phase 110
+**Requirements**: A11Y-01, A11Y-02, A11Y-03, A11Y-04
+**Success Criteria** (what must be TRUE):
+  1. Button sm and Input sm render at 44px minimum on mobile viewports
+  2. Text-muted color passes WCAG AA (4.5:1 contrast ratio) on all surface colors in both themes
+  3. Focus indicators use consistent ring+offset style across Button, Input, Card, Modal, and all interactive components
+  4. Dark mode has complete token coverage — no surface, text, or border color falls back to light-mode values
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 114: Loading States & Offline
+**Goal**: Customers see content-shaped previews while pages load and can browse the menu offline
+**Depends on**: Phase 110
+**Requirements**: LOAD-01, LOAD-02, LOAD-03, LOAD-04, LOAD-05, CFIX-08
+**Success Criteria** (what must be TRUE):
+  1. Orders list, order detail, and account pages show content-shaped skeletons (not generic spinners) while loading
+  2. Loading state hierarchy is enforced: skeleton for page loads, spinner for actions, timeout fallback after delay
+  3. Cold-start offline shows cached menu from IndexedDB — not "Coming Soon" placeholder
+  4. Cart items marked pendingSync actually sync when connectivity returns
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 115: Data Layer Optimization
+**Goal**: Cart interactions feel instant and repeated queries don't waste bandwidth
+**Depends on**: Phase 110
+**Requirements**: DATA-01, DATA-03, DATA-04
+**Success Criteria** (what must be TRUE):
+  1. Adding/removing cart items updates UI immediately — rollback only on confirmed server error
+  2. Rapid identical menu searches produce one API call, not one per keystroke
+  3. Orders list and menu search paginate — no unbounded fetch regardless of data volume
+**Plans**: TBD
+
+### Phase 116: Micro-Interactions & Polish
+**Goal**: Destructive actions are recoverable, gestures are discoverable, and shared links look professional
+**Depends on**: Phase 111, Phase 114
+**Requirements**: UXPL-01, UXPL-02, UXPL-03, UXPL-04, UXPL-05, UXPL-06
+**Success Criteria** (what must be TRUE):
+  1. Deleting a cart item or clearing the cart shows a 5-second undo toast — action is recoverable
+  2. Swipe-to-delete shows a visual preview indicator before the gesture commits
+  3. Dietary filter chips show a scroll indicator when content overflows the container
+  4. Order detail has a sticky reorder button visible without scrolling
+  5. Sharing an order link produces a rich preview (title, image, description) via Open Graph meta tags
+**Plans**: TBD
+**UI hint**: yes
+
 ## Progress
 
-| Milestone              | Phases  | Plans | Shipped    |
-| ---------------------- | ------- | ----- | ---------- |
-| v1.0 MVP               | 1-8     | 32    | 2026-01-23 |
-| v1.1 Tech Debt         | 9-14    | 21    | 2026-01-23 |
-| v1.2 Playful UI        | 15-24   | 29    | 2026-01-27 |
-| v1.3 Consolidation     | 25-34   | 53    | 2026-01-28 |
-| v1.4 Mobile            | 35-39   | 39    | 2026-02-05 |
-| v1.5 Performance       | 40-47   | 34    | 2026-02-07 |
-| v1.6 Polish            | 48-57   | 47    | 2026-02-13 |
-| v1.7 Deployment        | 58-66   | 32    | 2026-02-16 |
-| v1.8 Hardening         | 67-76   | 25    | 2026-02-26 |
-| v1.9 Launch-Ready MVP  | 77-88   | 38    | 2026-03-03 |
-| v2.0 Launch MVP        | 89-98   | 34    | 2026-03-04 |
-| v2.1 Route Ops & Mobile| 99-103  | 22    | 2026-03-17 |
-| v2.2 Stability         | 104-109 | 12    | 2026-03-21 |
-| **Total shipped**      | **109** | **418** |          |
+**Execution Order:**
+Phases execute in numeric order: 110 -> 111 -> 112 -> 113 -> 114 -> 115 -> 116
+Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes.
+
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 110. Critical Fixes & Data Reliability | v2.3 | 0/TBD | Not started | - |
+| 111. Checkout Conversion | v2.3 | 0/TBD | Not started | - |
+| 112. Order Tracking Overhaul | v2.3 | 0/TBD | Not started | - |
+| 113. Accessibility & Design System | v2.3 | 0/TBD | Not started | - |
+| 114. Loading States & Offline | v2.3 | 0/TBD | Not started | - |
+| 115. Data Layer Optimization | v2.3 | 0/TBD | Not started | - |
+| 116. Micro-Interactions & Polish | v2.3 | 0/TBD | Not started | - |
 
 ---
 
