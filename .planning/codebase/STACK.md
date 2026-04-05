@@ -1,152 +1,129 @@
 # Technology Stack
 
-**Analysis Date:** 2026-03-19
+**Analysis Date:** 2026-04-04
 
 ## Languages
 
 **Primary:**
-- TypeScript 5 (strict) - All application code in `src/`, strict mode with `noUnusedLocals`, `noUnusedParameters`
+- TypeScript 5 (strict) - All source files in `src/`, `scripts/`, config files
+- SQL - Supabase migrations in `supabase/migrations/` (65 migration files)
 
 **Secondary:**
-- JavaScript (ESM) - Build scripts in `scripts/*.mjs`, config files
-- CSS - Tailwind v4 utility classes + custom CSS in `src/`
+- JavaScript (ESM) - Build scripts in `scripts/build-sw.mjs`, `scripts/rls-isolation-test.mjs`
+- CSS - Tailwind v4 source in `src/app/globals.css` and component stylesheets
 
 ## Runtime
 
 **Environment:**
-- Node.js (version inferred from `@types/node: ^20`)
+- Node.js v24.14.0 (no `.nvmrc`; engine pinned implicitly by Vercel)
 
 **Package Manager:**
-- pnpm (workspace-aware, `pnpm-workspace.yaml` present)
-- Lockfile: `pnpm-lock.yaml` present
+- pnpm (lockfile: `pnpm-lock.yaml` present)
 
 ## Frameworks
 
 **Core:**
-- Next.js 16.1.2 (`next` package) - App Router, Server Components, Server Actions
-- React 19.2.3 (`react`, `react-dom`) - Concurrent features enabled
-- React Compiler (`babel-plugin-react-compiler: ^1.0.0`) - Auto-memoization, replaces manual useMemo/useCallback
+- Next.js 16.1.2 (App Router) - Full-stack framework; `src/app/` with route groups
+- React 19.2.3 - UI rendering; React Compiler enabled (`reactCompiler: true` in `next.config.ts`)
 
-**Styling:**
-- Tailwind CSS v4 (`tailwindcss: ^4`) with `@tailwindcss/postcss` - `@theme inline` is source of truth, not `tailwind.config.ts`
-- shadcn/ui pattern via `components.json` - Radix UI primitives with class-variance-authority
-- Radix UI - 9 packages (`@radix-ui/react-*`) for accessible headless components
-- tailwind-merge + clsx for conditional class merging
+**CSS/UI:**
+- Tailwind CSS v4 (`@tailwindcss/postcss` v4) - `@theme inline` is source of truth; `tailwind.config.ts` is dead code
+- shadcn/ui pattern (components at `src/components/ui/`, 70+ components)
+- Radix UI primitives (alert-dialog, checkbox, dialog, label, progress, radio-group, scroll-area, select, slot)
+- Framer Motion v12 - Page transitions, layout animations
+- GSAP 3.14 + `@gsap/react` - Fly-to-cart and hero animations; presets in `src/lib/gsap/`
+- Lucide React v0.562 - Icons (tree-shaken via `modularizeImports`)
 
-**Animation:**
-- Framer Motion 12.26.1 - Page/component transitions
-- GSAP 3.14.2 + `@gsap/react` - Complex scroll and timeline animations
-- `tailwindcss-animate` - CSS animation utilities
+**State Management:**
+- Zustand v5 - Client stores in `src/lib/stores/` (cart-store, checkout-store, driver-store, cart-animation-store)
+- TanStack React Query v5 - Server state, cache management
 
-**State:**
-- Zustand 5.0.10 - Client state: `cart-store.ts`, `checkout-store.ts`, `driver-store.ts`, `cart-animation-store.ts`
-- TanStack React Query 5.90.1 - Server state caching and synchronization
-
-**Forms:**
-- React Hook Form 7.71.1 + Zod 4.3.5 via `@hookform/resolvers`
+**Forms & Validation:**
+- React Hook Form v7 + Zod v4 - All forms; `@hookform/resolvers` bridges the two
 
 **Testing:**
-- Vitest 4.0.17 - Unit tests (`pnpm test`)
-- Playwright 1.57.0 - E2E tests (`pnpm test:e2e`)
-- Testing Library 16.3.1 - React component testing utilities
-- Storybook 10.1.11 (`@storybook/nextjs-vite`) - Component development and visual testing
+- Vitest 4.0.17 - Unit tests; jsdom environment; config in `vitest.config.ts`
+- Playwright v1.57 - E2E tests; config in `playwright.config.ts`; Chromium + Mobile Chrome
+- @testing-library/react v16 + @testing-library/jest-dom v6 - Assertion helpers
+- Storybook v10 - Component development; `@storybook/nextjs-vite`
+- Chromatic - Visual regression via `chromatic.config.js`
+- Lighthouse CI (`@lhci/cli`) - Performance budget enforcement
 
 **Build/Dev:**
-- Vite 7.3.1 - Used by Storybook and Vitest
-- esbuild 0.27.2 - Fast compilation support
-- tsx 4.19.2 - TypeScript script execution for seed/migration scripts
+- esbuild v0.27 - Compiles `src/app/sw.ts` → `public/sw.js` via `scripts/build-sw.mjs`
+- `@next/bundle-analyzer` - Bundle analysis via `ANALYZE=true pnpm build`
+- Husky v9 + lint-staged v16 - Pre-commit hooks (ESLint + Stylelint on staged files)
 
 ## Key Dependencies
 
 **Critical:**
-- `@supabase/ssr: ^0.8.0` - SSR-compatible Supabase client (cookie-based auth)
-- `@supabase/supabase-js: ^2.90.1` - Supabase JS client
-- `stripe: ^20.1.2` - Stripe server-side SDK
-- `resend: ^6.9.1` - Email delivery
-- `@react-email/components: ^1.0.7` + `@react-email/render: ^2.0.4` - React-based email templates
-- `svix: ^1.86.0` - Webhook signature verification (used for Resend webhook HMAC)
-- `@upstash/ratelimit: ^2.0.8` + `@upstash/redis: ^1.36.2` - Rate limiting packages (currently null/disabled, in-memory fallback active)
-- `@sentry/nextjs: ^10.38.0` - Error monitoring
-- `@serwist/next: ^9.5.4` - PWA service worker (built separately via `scripts/build-sw.mjs`)
-
-**Maps & Geospatial:**
-- `@react-google-maps/api: ^2.20.8` - Google Maps React integration (always `ssr: false`)
-- `leaflet: ^1.9.4` + `react-leaflet: ^5.0.0` - Alternative map rendering
-
-**Rich UI:**
-- `@tiptap/react: ^3.19.0` + starter-kit + extensions - Rich text editor
-- `@dnd-kit/core: ^6.3.1` + sortable + utilities - Drag-and-drop for route stop reordering
-- `recharts: ^3.6.0` - Analytics charts in admin dashboard
-- `fuse.js: ^7.1.0` - Client-side fuzzy search for menu
-- `cmdk: ^1.1.1` - Command palette component
-
-**Performance & PWA:**
-- `idb-keyval: ^6.2.2` - IndexedDB key-value store for offline cart persistence
-- `browser-image-compression: ^2.0.2` - Client-side image compression
-- `sharp: ^0.34.5` - Server-side image processing for menu photo upload
-- `react-easy-crop: ^5.5.6` - In-browser image cropping
+- `@supabase/supabase-js` v2.90 + `@supabase/ssr` v0.8 - Database client; three client variants in `src/lib/supabase/`
+- `stripe` v20 - Payment processing; lazy singleton in `src/lib/stripe/server.ts`
+- `resend` v6.9 - Transactional email; singleton in `src/lib/email/client.ts`
+- `@sentry/nextjs` v10 - Error tracking + session replay; wraps `next.config.ts`
+- `@serwist/next` v9.5 + `serwist` v9.5 - PWA service worker; built separately via esbuild
+- `@upstash/ratelimit` v2 + `@upstash/redis` v1.36 - Rate limiting; 13 limiters in `src/lib/rate-limit/client.ts`
 
 **Infrastructure:**
-- `date-fns: ^4.1.0` - Date manipulation
-- `uuid: ^13.0.0` - UUID generation
-- `yaml: ^2.8.2` - YAML parsing for menu seed data
-- `web-vitals: ^5.1.0` - Core Web Vitals tracking
-- `@vercel/analytics: ^1.6.1` + `@vercel/speed-insights: ^1.3.1` - Vercel platform analytics
+- `zod` v4 - Schema validation for API routes and form inputs
+- `date-fns` v4 - Date manipulation (delivery timezone logic)
+- `idb-keyval` v6 - IndexedDB for offline cart persistence
+- `svix` v1.86 - Resend webhook signature verification in `src/app/api/webhooks/resend/route.ts`
+- `sharp` v0.34 - Server-side image processing for menu photos (`/api/admin/photos/process`)
+- `browser-image-compression` v2 - Client-side image compression
+- `react-easy-crop` v5 - Image cropping UI
+- `@dnd-kit/core` v6 + `@dnd-kit/sortable` v10 - Drag-and-drop for admin menu ordering
+- `recharts` v3 - Admin analytics charts
+- `leaflet` v1.9 + `react-leaflet` v5 - Map rendering (driver interface)
+- `@react-google-maps/api` v2.20 - Google Maps for customer address autocomplete; always `ssr: false`
+- `fuse.js` v7 - Fuzzy search for order history
+- `cmdk` v1.1 - Command palette
+- `@tiptap/react` v3 + extensions - Rich text editor for admin emails
+- `framer-motion` v12 - Animations
+- `next-themes` v0.4 - Dark mode support
+- `uuid` v13 - UUID generation
+- `yaml` v2.8 - Menu seed parsing in `scripts/seed-menu.ts`
+- `@vercel/analytics` v1.6 + `@vercel/speed-insights` v1.3 - Web analytics
+
+**Dev-only:**
+- `knip` v5 - Dead code detection
+- `stylelint` v17 + `stylelint-config-standard` v40 - CSS linting
+- ESLint v9 + `eslint-config-next` v15.5 + `eslint-plugin-import-x` - Linting with 62+ design token rules
+- `prettier` v3.7 - Formatting
+- `tsx` v4.19 - TypeScript script runner for seed scripts
+- `fake-indexeddb` v6 - IndexedDB mock for tests
+- `jsdom` v27 - DOM environment for Vitest
+- `babel-plugin-react-compiler` v1 - React Compiler Babel transform
 
 ## Configuration
 
-**TypeScript:**
-- Target: ES2017; strict mode; path alias `@/*` → `./src/*`
-- Plugin: Next.js TS plugin for type inference
-- Types: `@serwist/next/typings` for service worker types
-
-**Next.js (`next.config.ts`):**
-- React Compiler enabled (`reactCompiler: true`) — auto-memoizes all client components
-- React Strict Mode enabled
-- PPR disabled (commented out)
-- `serverExternalPackages: ["@react-email/render"]` — prevents Turbopack bundling issues
-- Modular imports for lucide-react (tree-shaking)
-- `optimizePackageImports` list: lucide-react, framer-motion, all Radix UI, recharts, date-fns, @react-google-maps/api
-- Server Actions bodySizeLimit: 2MB
-- Images: AVIF + WebP, 30-day cache TTL, remote patterns for Supabase and Google Drive
-- Console.log removal in production (keep error/warn)
-- CSP headers: `unsafe-inline` + `unsafe-eval` required for Google Maps; Sentry tunnel at `/monitoring`
-
-**ESLint:**
-- Config at `eslint.config.mjs`; enforces 62+ design tokens (z-index, colors, spacing, shadows, blur)
-- Max-lines warning at 400 lines per file
-- `eslint-plugin-import-x` for import ordering
-
-**Styling:**
-- Prettier 3.7.4 for formatting
-- Stylelint 17 + `stylelint-config-standard` for CSS
-
-**Git Hooks:**
-- husky + lint-staged: ESLint on `src/**/*.{ts,tsx}`, Stylelint on `src/**/*.css`
-
-**PWA:**
-- Service worker built via `scripts/build-sw.mjs` (Serwist) — runs after `next build`
-- SW registration: `src/lib/hooks/useServiceWorker.ts`
-
 **Environment:**
-- Required: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`
-- Required: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`
-- Required: `RESEND_API_KEY`, `RESEND_WEBHOOK_SECRET`
-- Required: `GOOGLE_MAPS_API_KEY`
-- Optional: `NEXT_PUBLIC_SENTRY_DSN`, `SENTRY_AUTH_TOKEN`, `SENTRY_RELEASE`
-- Optional: `NEXT_PUBLIC_APP_URL`, `VERCEL_GIT_COMMIT_SHA`, `VERCEL_ENV`
-- Optional: `CHROMATIC_PROJECT_TOKEN`, `GOOGLE_SITE_VERIFICATION`
+- `.env.example` documents all required vars; `.env.local` for local dev (not committed)
+- Required: `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, `GOOGLE_MAPS_API_KEY`, `STRIPE_SECRET_KEY`, `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`, `RESEND_API_KEY`, `NEXT_PUBLIC_SENTRY_DSN`
+- Optional: `RESEND_WEBHOOK_SECRET`, `CRON_SECRET`, `SENTRY_AUTH_TOKEN`, `UPSTASH_REDIS_REST_URL`, `UPSTASH_REDIS_REST_TOKEN`, `NEXT_PUBLIC_APP_URL`, `NEXT_PUBLIC_OPERATOR_PHONE`, `GOOGLE_SITE_VERIFICATION`
+- App version injected at build: `NEXT_PUBLIC_APP_VERSION` (read from `package.json` in `next.config.ts`)
+
+**Build:**
+- `next.config.ts` - Main Next.js config; wraps `withSentryConfig` + `withBundleAnalyzer`
+- `postcss.config.mjs` - PostCSS with `@tailwindcss/postcss`
+- `tsconfig.json` - Strict TS; `@/*` path alias → `./src/*`; target ES2017
+- `scripts/build-sw.mjs` - esbuild pipeline for service worker; run after `next build`
+- `vercel.json` - Cron schedules (3 jobs)
+- CSP headers configured inline in `next.config.ts`; tunnels Sentry via `/monitoring`
 
 ## Platform Requirements
 
 **Development:**
-- Node.js 20+
-- pnpm workspace
+- Node.js 24+ (inferred from runtime)
+- pnpm (required; no npm/yarn scripts)
+- Supabase CLI for local DB (`supabase/config.toml`; local port 54321)
+- Stripe CLI for local webhook testing (`stripe listen --forward-to localhost:3000/api/webhooks/stripe`)
 
 **Production:**
-- Vercel (deployment platform, `vercel.json` present with cron jobs)
-- Cron jobs configured in `vercel.json`: delivery reminders (daily 15:00 UTC), admin digests (14:00 UTC morning, 06:00 UTC evening)
+- Vercel (inferred from `@vercel/analytics`, `vercel.json` crons, `NEXT_PUBLIC_VERCEL_ENV` in Sentry config)
+- Supabase hosted (Postgres 15 + Auth + Storage + RLS)
+- Upstash Redis REST (rate limiting; falls back to in-memory 15 req/min when unconfigured)
 
 ---
 
-*Stack analysis: 2026-03-19*
+*Stack analysis: 2026-04-04*

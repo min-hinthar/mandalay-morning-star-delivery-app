@@ -1,191 +1,180 @@
 # Coding Conventions
 
-**Analysis Date:** 2026-03-19
+**Analysis Date:** 2026-04-04
 
 ## Naming Patterns
 
 **Files:**
-- React components: `PascalCase.tsx` (`RouteStopCard.tsx`, `ItemDetailSheet.tsx`)
-- Hooks: `camelCase` prefixed with `use` (`useAcceptRoute.ts`, `useDeliveryGate.ts`)
-- Utilities: `kebab-case.ts` (`delivery-dates.ts`, `delivery-zones.ts`, `route-optimization.ts`)
-- Test directories: `__tests__/` co-located with the code under test
-- Test files: match source filename with `.test.ts` / `.test.tsx` suffix (`delivery-dates.test.ts`)
-- API routes: `route.ts` (Next.js convention), siblings named `helpers.ts`, `validation.ts`, `types.ts`, `schemas.ts`
+- React components: PascalCase (`OrderDetailPanel.tsx`, `RouteStopCard.tsx`)
+- Hooks: camelCase with `use` prefix (`useAcceptRoute.ts`, `useReorderStops.ts`)
+- Utilities/services: kebab-case (`delivery-dates.ts`, `cart-store.ts`, `origin-check.ts`)
+- API routes: `route.ts` (Next.js App Router convention)
+- Test files: `__tests__/` subfolder alongside source, same name as source + `.test.ts/.tsx`
 
 **Functions:**
-- Exported utilities: `camelCase` (`calculateDeliveryFee`, `getNextDeliveryDate`, `isPastCutoffForDay`)
-- Hooks: `usePascalCase` (`useAcceptRoute`, `useSplitRoute`)
-- Named exports only — no default exports for utilities or hooks
-- Factory helpers in tests: `createMock*` pattern (`createMockMenuItem`, `createMockAddress`, `createMockOrder`)
+- Exported named functions: PascalCase for components (`OrderDetailPanel`), camelCase for hooks/utils (`useAcceptRoute`, `calculateOrderTotals`)
+- Internal helpers: camelCase (`makePtDate`, `fromMock`, `buildRpcPayload`)
 
 **Variables:**
-- `camelCase` throughout
-- `SCREAMING_SNAKE_CASE` for module-level constants (`DELIVERY_FEE`, `FREE_THRESHOLD`, `MOCK_DELIVERY_DAYS`)
-- Underscore prefix for intentionally unused params: `_addressId`, `_i`, `_a` (enforced by ESLint `argsIgnorePattern: "^_"`)
+- camelCase (`deliveryFee`, `scheduledDate`, `isAccepting`)
+- Underscore prefix for intentionally unused: `_addressId`, `_i`, `_a` (ESLint enforced)
+- Constants: SCREAMING_SNAKE_CASE (`DELIVERY_FEE`, `MAX_ITEM_QUANTITY`, `CUTOFF_DAY`)
 
 **Types/Interfaces:**
-- `PascalCase` for types and interfaces (`DeliveryDayConfig`, `UseAcceptRouteOptions`, `CheckoutError`)
-- `type` preferred over `interface` in most cases
-- DB row types suffixed with `Row` (`MenuItemsRow`, `OrdersRow`, `ModifierOptionsRow`) — auto-generated from Supabase
-
-**DB/API:**
-- DB columns: `snake_case` (Supabase/Postgres convention)
-- Mapped to `camelCase` at the service/settings boundary (`day_of_week` → `dayOfWeek`, `is_active` → `isActive`)
-- Error codes: `SCREAMING_SNAKE_CASE` strings (`CUTOFF_PASSED`, `OUT_OF_COVERAGE`, `ITEM_UNAVAILABLE`, `INTERNAL_ERROR`)
+- `interface` for options/props bags (`UseAcceptRouteOptions`, `OrderDetailPanelProps`, `LogContext`)
+- `type` for aliases and unions (`SupabaseClient`, `LogLevel`, `OrderStatus`)
+- Database row types: `PascalCase` + `Row` suffix (`MenuItemsRow`, `OrdersRow`, `RouteStopsRow`)
+- Zod schemas: camelCase + `Schema` suffix (`createCheckoutSessionSchema`, `checkoutItemSchema`)
+- Inferred types from Zod: `z.infer<typeof schemaName>` (`CreateCheckoutSessionInput`, `CheckoutItemInput`)
 
 ## Code Style
 
 **Formatting (Prettier):**
-- `printWidth: 100`
-- `singleQuote: false` — double quotes
-- `semi: true`
-- `trailingComma: "es5"`
+- Double quotes (`singleQuote: false`)
+- Semicolons required (`semi: true`)
+- Print width: 100 characters
+- Trailing commas: ES5 style (`trailingComma: "es5"`)
 
-**Linting (ESLint flat config `eslint.config.mjs`):**
-- Extends `next/core-web-vitals`, `next/typescript`, `prettier`
-- `max-lines: 400` warning on all `src/**/*.ts(x)` except `src/types/**`, test files, Storybook stories
-- `import-x/no-cycle` error — circular dependencies blocked (maxDepth: 10)
-- `no-restricted-imports` error on all old component paths (consolidated to `@/components/ui/`)
-- Design token enforcement via `no-restricted-syntax` (colors, spacing, shadows, blur, z-index, typography, motion duration)
+**Linting (ESLint flat config via `eslint.config.mjs`):**
+- Extends: `next/core-web-vitals`, `next/typescript`, `prettier`
+- Unused vars: `warn` — underscore prefix exempts (`^_` pattern)
+- Max file lines: `warn` at 400 lines (excluding `src/types/**`, test files, stories)
+- Circular imports: `error` via `eslint-plugin-import-x` (max depth 10)
+- Old component paths blocked via `no-restricted-imports` (many consolidated dirs)
 
-**Path Aliases:**
-- `@/` → `src/` (configured in `vitest.config.ts` and `tsconfig.json`)
-- Import from barrel `index.ts` when available (`@/components/ui`, `@/lib/hooks`)
+**Design Token Enforcement (ESLint `no-restricted-syntax`, error-level):**
+- No hardcoded hex colors in Tailwind classes (`bg-[#xxx]`, `text-[#xxx]`)
+- No `text-white`/`text-black`/`bg-white`/`bg-black` — use semantic tokens
+- No arbitrary pixel font sizes (`text-[Npx]`) — use scale (`text-2xs` through `text-xl`)
+- No arbitrary pixel spacing (`p-[Npx]`, `m-[Npx]`, `gap-[Npx]`) — use scale
+- No inline `fontSize`/`fontWeight`/`zIndex` numeric style props — use Tailwind classes
+- No hardcoded `boxShadow`/`backdropFilter`/`filter` — use `var(--shadow-*)`, `var(--blur-*)`
+- No hardcoded `transitionDuration`/`duration-[Nms]` — use `var(--duration-*)` tokens
+- No `cssText` assignment — use individual `style.property` for CSP compatibility
 
 ## Import Organization
 
-**Order (enforced by Prettier/ESLint):**
-1. External packages (`react`, `next/server`, `vitest`)
-2. Internal aliased imports (`@/lib/...`, `@/types/...`, `@/components/...`)
-3. Relative imports (`./helpers`, `../delivery-dates`)
+**Order (no enforced auto-sort tool, but consistent in practice):**
+1. Framework/Next.js imports (`next/server`, `next/headers`, `react`)
+2. Third-party libraries (`stripe`, `date-fns`, `framer-motion`)
+3. Internal `@/` alias imports (lib, types, components)
+4. Relative `./` sibling imports (helpers, validation, types within same route folder)
 
-**Client Directive:**
-- `"use client"` required at top of any file using hooks, event handlers, or browser APIs
-- Every extracted subfolder file using hooks needs `"use client"` (enforced by project docs)
+**Path Aliases:**
+- `@/` maps to `src/` (configured in `tsconfig.json` and `vitest.config.ts`)
+- All internal imports use `@/` — no relative cross-directory imports
 
-**Barrel Exports:**
-- `index.ts` / `index.tsx` re-exports ALL original exports from the subfolder
-- `src/lib/hooks/index.ts` exports all 30+ hooks
-- Do not import from internal barrel of same directory — import siblings directly
+**`type` imports:**
+- `import type { Foo }` used consistently for type-only imports
+
+## Directive Placement
+
+- `"use client"` at top of file (line 1) for any file using hooks, state, events, or browser APIs
+- API route files (`src/app/api/**/route.ts`) are server-only — no `"use client"` directive
+- Server utility files (`src/lib/supabase/server.ts`) are server-only — no directive needed
+- Zustand stores: no `"use client"` directive (store files are module-level, not component files)
 
 ## Error Handling
 
-**API Routes pattern — `try/catch` wrapping entire handler:**
-```typescript
-export async function POST(request: Request) {
-  try {
-    // ...business logic
-    return NextResponse.json({ data }, { status: 200 });
-  } catch (error) {
-    logger.exception(error, { api: "route-name" });
-    if (error instanceof SpecificError) {
-      return errorResponse("STRIPE_ERROR", "Payment service error", 500);
-    }
-    return errorResponse("INTERNAL_ERROR", "An unexpected error occurred", 500);
-  }
-}
-```
+**API Routes:**
+- Consistent `errorResponse(code, message, status, details?)` helper pattern (defined per-route in `validation.ts` or `helpers.ts`)
+- Returns `NextResponse.json({ error: { code, message, details } }, { status })` shape
+- Try/catch wraps entire handler body; caught errors logged via `logger.exception()` and return 500
+- Webhook handlers return 500 (not 200) on DB errors to trigger provider retry
 
-**Typed error responses via `errorResponse` helper (`src/app/api/checkout/session/validation.ts`):**
-```typescript
-export function errorResponse(code: CheckoutErrorCode, message: string, status: number, details?: unknown) {
-  const error: CheckoutError = { code, message, details };
-  return NextResponse.json({ error }, { status });
-}
-```
+**Client Hooks:**
+- try/catch with `toast({ type: "error" })` for user-facing errors
+- Network errors caught separately from non-ok responses
+- Loading state via `useState` (`isAccepting`, `isLoading`) in `finally` block
 
-**Cleanup operations — each step independently try/caught:**
-```typescript
-// BUG-03 pattern: independent cleanup, failures logged not thrown
-try { await supabase.from("order_item_modifiers").delete()... } catch (e) { logger.exception(e, ctx); }
-try { await supabase.from("order_items").delete()... } catch (e) { logger.exception(e, ctx); }
-try { await supabase.from("orders").delete()... } catch (e) { logger.exception(e, ctx); }
-```
-
-**Client-side hooks — try/catch with toast error, finally clears loading:**
-```typescript
-const acceptRoute = useCallback(async () => {
-  setIsAccepting(true);
-  try {
-    const response = await fetch(...);
-    if (!response.ok) {
-      toast({ message: "...", type: "error" });
-      return;
-    }
-    toast({ message: "Route accepted!", type: "success" });
-    onSuccess?.();
-  } catch {
-    toast({ message: "...", type: "error" });
-  } finally {
-    setIsAccepting(false);
-  }
-}, [routeId, onSuccess]);
-```
-
-**Zod validation — `safeParse` + early return:**
-```typescript
-const parsed = createCheckoutSessionSchema.safeParse(body);
-if (!parsed.success)
-  return errorResponse("VALIDATION_ERROR", "Invalid request data", 400, parsed.error.issues);
-```
-
-**Webhook handlers — return 500 on DB errors for retry, never swallow into 200** (see `src/app/api/webhooks/stripe/handlers.ts`).
+**Zod Validation:**
+- `schema.safeParse(body)` — never `.parse()` directly in handlers
+- On failure: return `errorResponse("VALIDATION_ERROR", ..., 400, parsed.error.issues)`
 
 ## Logging
 
-**Framework:** `logger` from `@/lib/utils/logger` (Sentry-backed)
+**Framework:** Custom `logger` object in `src/lib/utils/logger.ts` — wraps Sentry.
 
-**Methods:** `logger.info()`, `logger.warn()`, `logger.error()`, `logger.exception(error, context)`
+**API:**
+```typescript
+logger.info("Order confirmed", { orderId, api: "stripe-webhook" });
+logger.error("Failed to update order", { orderId, userId, flowId: "checkout" });
+logger.exception(error, { userId, flowId, orderId });
+```
 
-**Patterns:**
-- `logger.exception(error, { api: "route-name", userId, flowId })` on caught errors
-- `logger.info("Action completed", { userId, orderId })` on success paths
-- `logger.warn()` for non-fatal issues (rate limits, missing optional data)
-- Tests mock logger with no-op: `vi.mock("@/lib/utils/logger", () => ({ logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), exception: vi.fn() } }))`
+**Context interface:**
+```typescript
+interface LogContext {
+  userId?: string;
+  flowId?: string;
+  orderId?: string;
+  sessionId?: string;
+  api?: string;
+  [key: string]: unknown;
+}
+```
+
+**Rules:**
+- Use `logger.*` (never `console.log/error`) in production server code
+- `console.*` only in development guards (`if (process.env.NODE_ENV === "development")`)
+- Test mocks always no-op: `vi.mock("@/lib/utils/logger", () => ({ logger: { info: vi.fn(), ... } }))`
 
 ## Comments
 
-**Bug fix comments:** `// BUG-XX FIX:` followed by explanation (e.g., `// BUG-03 FIX: Independent cleanup`)
-**Security comments:** `// CHKT-01: Server-authoritative pricing` labeling deliberate design decisions
-**Test labels:** `describe("BUG-07: cutoff safety buffer", ...)` tie tests to tracked bugs
-**TSDoc:** Used sparingly on exported utility functions; not required on hooks
+**When to Comment:**
+- Bug references: inline `// BUG-02: ...`, `// TZ-05: ...` for traceability
+- Architecture decisions: JSDoc block above non-obvious helpers
+- Separation sections: `// ── Section Name ───` dividers in large files
+- Test groups: `// ===================` section comments in large test files
+
+**JSDoc:**
+- Used on exported public API functions (`createMockMenuItem`, `logger.exception`)
+- Example in doc: `@example` tag used in `logger` JSDoc
+- Interface properties: not typically documented (names are self-describing)
 
 ## Function Design
 
-**Size:** Max 400 lines per file (ESLint warning). Hooks and utilities stay focused; split into subfolder when needed.
-
-**Parameters:** Options object pattern for hooks with multiple params:
-```typescript
-interface UseAcceptRouteOptions { routeId: string; onSuccess?: () => void; }
-export function useAcceptRoute({ routeId, onSuccess }: UseAcceptRouteOptions) { ... }
-```
-
+**Size:** Functions kept focused; files warned at 400 lines (ESLint)
+**Parameters:** Options object pattern for hooks (`useAcceptRoute({ routeId, onSuccess })`)
 **Return Values:**
-- Hooks return named object: `{ acceptRoute, isAccepting }`
-- Utilities return typed objects: `{ isOpen, urgency, deliveryDate, timeUntilCutoff, cutoffDate }`
-- Validation functions return `{ valid: boolean, errors: ..., items: ... }`
+- Hooks return named object (`{ acceptRoute, isAccepting }`)
+- Utilities return typed result objects (`{ isNextWeek, dateString }`)
+- API handlers return `NextResponse`
 
 ## Module Design
 
-**Exports:** Named exports throughout; no default exports for utilities, hooks, or components
-**Barrel Files:** Always present for directories with 3+ files (`src/lib/hooks/index.ts`, `src/components/ui/*/index.tsx`)
-**No circular imports:** `import-x/no-cycle` enforced at error level
+**Exports:**
+- Named exports only — no default exports except Next.js page/route files (`export async function POST`, `export default function Page`)
+- Barrel files (`index.ts`) for all major directories: `src/lib/hooks/index.ts`, `src/test/factories/index.ts`
+- Barrel must re-export ALL original exports (enforced by convention)
 
-## Validation Patterns
+**Component Subfolder Pattern (for files approaching 400-line limit):**
+```
+ComponentName/
+  index.tsx          # Barrel — re-exports everything
+  SubComponent.tsx   # PascalCase extracted pieces
+  useHook.ts         # camelCase, must have "use client"
+  helpers.ts         # camelCase pure helpers
+  types.ts           # shared types for the component
+```
+Example: `src/components/ui/admin/orders/OrderDetailPanel/` with `index.tsx`, `OrderDetailPanel.tsx`, `CustomerContactCard.tsx`, `DeliveryInfoCard.tsx`, `types.ts`
 
-**Server-side (Zod schemas in `src/lib/validations/`):**
-- Schema files named after domain: `checkout.ts`, `route.ts`, `driver-api.ts`, `analytics.ts`
-- Schema variable: `createXxxSchema`, `xxxSchema`
-- All UUIDs validated with `z.string().uuid()`
-- Dates validated as `YYYY-MM-DD` string regex
-- Times validated as `HH:MM` (24h) string regex
-- Client-submitted prices stripped (`basePriceCents`, `priceDeltaCents` — server authoritative)
+**API Route Subfolder Pattern:**
+```
+route-name/
+  route.ts           # Handler (POST/GET/etc)
+  helpers.ts         # DB helpers, email senders
+  validation.ts      # errorResponse helper, fetch+validate helpers
+  types.ts           # Request/response types
+  schemas.ts         # Zod schemas (or in validations/)
+  __tests__/         # Co-located tests
+```
+Example: `src/app/api/checkout/session/`
 
-**Delivery-specific validations:**
-- `isPastCutoffForDay(deliveryDate, dayConfig, now)` — includes 10s safety buffer
-- `isPastCutoff(deliveryDate, now, cutoffDay, cutoffHour)` — legacy single-day version
-- Time windows validated against `generateTimeWindows()` output before accepting checkout
+## React Compiler
+
+React Compiler is enabled — do NOT manually add `useMemo`, `useCallback`, or `React.memo`. The compiler auto-memoizes client components. `useCallback` appears in pre-compiler hooks but should not be added to new code.
 
 ---
 
-*Convention analysis: 2026-03-19*
+*Convention analysis: 2026-04-04*

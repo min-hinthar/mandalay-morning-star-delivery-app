@@ -1,409 +1,177 @@
 # Codebase Concerns
 
-**Analysis Date:** 2026-03-19
-
----
-
-## AREA 1: Customer Checkout Delivery Window Flow
-
-### Issue A: `scheduledDate` parsed as local time — potential off-by-one day
-
-**Files:** `src/app/api/checkout/session/route.ts:53`
-
-**Problem:**
-```ts
-const scheduledDate = new Date(input.scheduledDate + "T12:00:00");
-```
-`new Date("2026-03-19T12:00:00")` is parsed as **local server time**, not LA time. On Vercel (UTC), `"T12:00:00"` is noon UTC. This is used only for `getZonedDayOfWeek()` and `isPastCutoffForDay()`. Because `getZonedParts()` then converts to LA anyway, the resulting day-of-week is correct for midday UTC. However, this implicit assumption breaks if the server ever runs in a different timezone or if the input date is parsed near midnight. The `T12:00:00` hard-code is a fragile workaround for what should be explicit timezone construction.
-
-**Fix:** Construct with explicit LA offset via `toISOWithTimezone(input.scheduledDate, "12:00")`.
-
----
-
-### Issue B: COD email sends naive ISO strings for delivery window — no timezone offset
-
-**Files:** `src/app/api/checkout/session/helpers.ts:119-120`, `src/app/api/checkout/session/helpers.ts:158-159`
-
-**Problem:**
-The `sendCODOrderEmail` call and `AdminNewOrderAlert` receive:
-```ts
-deliveryWindowStart: `${opts.scheduledDate}T${opts.timeWindowStart}:00`,
-deliveryWindowEnd:   `${opts.scheduledDate}T${opts.timeWindowEnd}:00`,
-```
-These are **bare ISO strings without timezone**. The DB stores the properly timezone-offset version via `toISOWithTimezone()`, but the email template receives a naive string. If the email template formats this as-is, it may display an incorrect time to customers depending on how their client interprets it. The Stripe checkout path stores correct timezone-aware strings in the DB; COD email construction is inconsistent.
-
-**Fix:** Use `toISOWithTimezone(opts.scheduledDate, opts.timeWindowStart)` when building email props.
-
----
-
-### Issue C: `getAvailableDeliveryDatesMultiDay` includes cutoff-passed dates for driver-filtered list
-
-**Files:** `src/lib/utils/delivery-dates.ts:283-312`, `src/components/ui/checkout/TimeStepV8.tsx:111-115`
-
-**Problem:**
-`getAvailableDeliveryDatesMultiDay` adds all candidates from 3 weeks of offsets **without pre-filtering cutoff-passed ones**. It marks `cutoffPassed: true` on the returned object, and the `TimeSlotPicker` respects that and disables those pills. However, the auto-select `useEffect` in `TimeStepV8` (line 134) uses `availableDates.find((d) => !d.cutoffPassed)` to pick the first non-passed date. If `getAvailableDeliveryDatesMultiDay` returns a cutoff-passed date as the first candidate in the sorted list (possible if cutoff passed today for a same-day delivery), the auto-select skips it correctly — but downstream the `delivery` store state may briefly be `null` until the effect fires, causing the payment step's "Continue" button to flash disabled.
-
----
-
-### Issue D: Time windows are global — not per-day
-
-**Files:** `src/app/(customer)/checkout/page.tsx:6-10`, `src/app/api/checkout/session/route.ts:43-52`
-
-**Problem:**
-`generateTimeWindows(rules.deliveryStartHour, rules.deliveryEndHour, rules.prepTimeBufferMinutes)` generates a **single set of time windows** for all delivery days. If different delivery days have different operating hours (e.g., Saturday deliveries run 11–15, weekday deliveries run 11–19), there is no per-`DeliveryDayConfig` time window override — all days show the same windows. The checkout server also validates windows against this same global list. No bug currently since the app uses uniform hours, but this will break if per-day hours are needed.
-
----
-
-### Issue E: Server-side cutoff validation uses `scheduledDate + T12:00:00` and no date future-bound
-
-**Files:** `src/app/api/checkout/session/route.ts:53-81`
-
-**Problem:**
-The checkout API validates the scheduled date is not past cutoff, but does **not validate that the date is not too far in the future**. A customer can submit any future `scheduledDate` string. The `createCheckoutSessionSchema` only validates the regex `^\d{4}-\d{2}-\d{2}$`. An order could be placed for a date 2 years from now. No upper bound on schedulable dates.
-
-**Fix:** Add a 30-day (or configurable) upper bound check: reject `scheduledDate` more than N days in the future.
-
----
-
-## AREA 2: Driver Route Start/Proceed Flow
-
-### Issue F: `active/route` query accepts `assigned` status — driver sees route before accepting
-
-**Files:** `src/app/api/driver/routes/active/route.ts:168`
-
-**Problem:**
-```ts
-.in("status", ["assigned", "accepted", "planned", "in_progress"])
-```
-The active route query returns routes in `assigned` status (not yet accepted by driver). The driver's `/driver/route` page SSR also uses the same status list (line 77 of `src/app/(driver)/driver/route/page.tsx`). This means a driver sees a route in their dashboard before they have accepted it. The driver UI must handle this state correctly (shows "Accept Route" CTA). However, if the UI doesn't gate actions correctly, a driver could attempt to `start` a route that is `assigned` (not yet `accepted`). The `start` endpoint allows both `planned` and `accepted` statuses:
-
-```ts
-// src/app/api/driver/routes/[routeId]/start/route.ts:57
-if (route.status !== "planned" && route.status !== "accepted") {
-```
-
-**A route in `assigned` status cannot be started** — but the driver's active route view shows it. If the UI start button is visible for `assigned` status without first requiring acceptance, the driver gets a 400 error. This is likely the main cause of "driver cannot start route."
-
-**Impact:** Driver sees route, taps "Start", gets error, thinks app is broken.
-
-**Fix:** Ensure the driver route UI distinguishes `assigned` vs `accepted`/`planned` and shows "Accept Route" CTA for `assigned`, not "Start Route."
-
----
-
-### Issue G: Route `planned` status can be seen by driver via `active` endpoint
-
-**Files:** `src/app/api/driver/routes/active/route.ts:168`
-
-**Problem:**
-`planned` status (no driver assigned) is included in the active route query filter. A route with no `driver_id` would fail the `driver_id = driverId` equality check and not appear. But a route that is `planned` with a `driver_id` set (legacy behavior before the backfill migration) could appear in the driver's view. The backfill migration (`20260316_route_status_backfill.sql`) correctly updated old `planned` + `driver_id` rows to `assigned`. However, admin can manually assign status `planned` via PATCH `/api/admin/routes/[id]` when setting `status: "planned"` directly (line 341 of `src/app/api/admin/routes/[id]/route.ts`). This bypasses the lifecycle: admin could set a route to `planned` with a driver still attached, creating a confusing state.
-
----
-
-### Issue H: Stop progression skips `enroute` status for the current stop after start
-
-**Files:** `src/app/api/driver/routes/[routeId]/start/route.ts:89-91`
-
-**Problem:**
-On route start, only the **first stop** is set to `enroute`. After the driver marks stop 1 as `delivered`, the next-stop logic sets the following stop to `enroute`:
-```ts
-// stops/[stopId]/route.ts:180
-await supabase.from("route_stops").update({ status: "enroute" }).eq("id", nextStopData.id);
-```
-This is correct for sequential flow. However, the query for "next stop" only looks for `pending` stops:
-```ts
-.eq("status", "pending")
-```
-If a stop was manually set to `skipped` by admin while the driver is in-progress, a subsequent stop that is already `enroute` would be skipped by this query. The `pending` filter is correct for normal flow but does not account for admin-manipulated stops.
-
----
-
-### Issue I: `updateRouteStats` counts `enroute` as `pending` — misleading dashboard
-
-**Files:** `src/app/api/driver/routes/[routeId]/stops/[stopId]/route.ts:218-222`
-
-```ts
-pending_stops: stops.filter((s) => s.status === "pending" || s.status === "enroute").length,
-```
-The current stop (`enroute`) is counted as pending in stats, not as "in progress." The completion rate denominator is correct, but the admin operations dashboard shows `pending_stops` as if no stop is currently being served. Minor UX issue, not a blocker.
-
----
-
-### Issue J: Route complete endpoint silently ignores missing `increment_driver_deliveries` RPC
-
-**Files:** `src/app/api/driver/routes/[routeId]/complete/route.ts:109-118`
-
-```ts
-try {
-  await supabase.rpc("increment_driver_deliveries", { ... });
-} catch {
-  // RPC might not exist yet, ignore
-}
-```
-The `increment_driver_deliveries` RPC is **not present in any migration file** (confirmed by grep). This means driver delivery counts are never incremented from route completion. Badge eligibility (`checkAndAwardBadges`) reads `driverRecord?.deliveries_count` which is always 0 + `stats.delivered_stops`, making badge thresholds calculated from a single route's deliveries, not career totals. `calculate_driver_streak` exists in migrations but `increment_driver_deliveries` does not.
-
-**Impact:** Driver gamification metrics (delivery count, badges) are partially broken. `deliveries_count` in the `drivers` table is never updated.
-
-**Fix:** Create `increment_driver_deliveries` RPC migration or replace with a direct `UPDATE drivers SET deliveries_count = deliveries_count + $count WHERE id = $driver_id`.
-
----
-
-## AREA 3: Rate Limiting — Completely Non-Functional in Production
-
-**Files:** `src/lib/rate-limit/client.ts`
-
-**Problem:**
-```ts
-// All limiters are null — in-memory fallback handles rate limiting
-export const authSignInLimiter: Ratelimit | null = null;
-export const checkoutLimiter: Ratelimit | null = null;
-// ... all 13 limiters are null
-```
-Every rate limiter is null. The in-memory fallback (`IN_MEMORY_MAX_REQUESTS = 15` per minute) applies, but it is **per serverless function instance** — not distributed. On Vercel with multiple concurrent instances, each instance has its own bucket. A burst attacker can make 15 requests per instance × N instances = effectively unlimited.
-
-**Impact:** Auth endpoints, checkout, and refunds have no effective distributed rate limiting. The fallback comment in `MEMORY.md` confirms this is a known issue: "Redis Cloud URL incompatible with @upstash/redis."
-
-**Fix:** Provision Upstash REST-compatible Redis and restore `Ratelimit` constructors, or replace with Vercel KV.
-
----
-
-## AREA 4: `delivery_zones` Table Missing from Supabase TypeScript Types
-
-**Files:** `src/lib/settings/business-rules.ts:125`, `src/app/api/admin/delivery-zones/route.ts:59,103`
-
-**Problem:**
-```ts
-.from("delivery_zones" as any)
-```
-The `delivery_zones` table exists in the DB (migration `20260312_delivery_direction_zones.sql`) but is **not in the generated `@/types/database` types**. Three files suppress TypeScript using `as any`. This means no type safety for delivery zone queries — wrong column names or missing fields would silently return incorrect data.
-
-**Fix:** Regenerate Supabase types (`npx supabase gen types typescript`) to include `delivery_zones`.
-
----
-
-## AREA 5: `revalidateTag` Called with Invalid `{ expire: 0 }` Option
-
-**Files:**
-- `src/app/api/admin/delivery-days/route.ts:122`
-- `src/app/api/admin/delivery-zones/route.ts:116`
-- `src/app/api/admin/settings/route.ts:221`
-- `src/app/api/admin/settings/restore/route.ts:121`
-
-**Problem:**
-```ts
-revalidateTag("business-rules", { expire: 0 });
-```
-`revalidateTag` in Next.js does **not accept an options object**. The signature is `revalidateTag(tag: string): void`. The `{ expire: 0 }` argument is silently ignored. This means the intent (expire immediately) is not being expressed correctly. The actual effect is the same as `revalidateTag("business-rules")` — which still invalidates the cache correctly — so this is not a functional bug today, but it suggests the `expire` semantics were confused with `unstable_cache`'s `revalidate` option.
-
-**Fix:** Remove the second argument: `revalidateTag("business-rules")`.
-
----
-
-## AREA 6: Delivery Reminder Cron Uses UTC Date, Not LA Date
-
-**Files:** `src/app/api/cron/delivery-reminders/route.ts:60`
-
-**Problem:**
-```ts
-const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
-```
-This computes **UTC "today"**, not LA today. Delivery window timestamps in the DB are stored as LA-offset ISO strings (via `toISOWithTimezone`). The comparison:
-```ts
-.gte("delivery_window_start", `${today}T00:00:00`)
-.lt("delivery_window_start", `${today}T23:59:59`)
-```
-uses a naive string comparison against timezone-aware DB timestamps. PostgreSQL will compare the raw string, so a delivery window like `2026-03-19T11:00:00-07:00` would be treated as UTC `2026-03-19T11:00:00` for the string filter — which is **wrong**. Between midnight UTC and 7–8 AM LA, the cron would query for the wrong date's orders, potentially sending no reminders or yesterday's reminders.
-
-**Fix:** Use LA timezone for `today`:
-```ts
-const today = new Intl.DateTimeFormat("en-CA", {
-  timeZone: "America/Los_Angeles",
-  year: "numeric", month: "2-digit", day: "2-digit",
-}).format(new Date());
-```
-Then use proper timestamptz comparison with LA offset.
-
----
-
-## AREA 7: `active/route` Driver API — `customer_name` Not Fetched
-
-**Files:** `src/app/api/driver/routes/active/route.ts:193-204`
-
-**Problem:**
-The active route API returns customer info from `profiles!orders_user_id_fkey` but does **not fetch `customer_name` or `customer_phone`** from the `orders` table itself. Meanwhile, the route-detail endpoint (`/api/driver/routes/[routeId]/route.ts:201`) correctly falls back:
-```ts
-fullName: stop.orders!.customer_name ?? stop.orders!.profiles?.full_name ?? null,
-phone:    stop.orders!.customer_phone ?? stop.orders!.profiles?.phone ?? null,
-```
-The `active` endpoint (`route.ts`) only reads from `profiles`, missing the `customer_name`/`customer_phone` columns added in migration `20260310_order_contact_info.sql`. For COD orders, the profile may have no phone but `customer_phone` on the order does. Driver sees no phone number for some COD customers.
-
-**Impact:** Driver cannot call certain COD customers for delivery coordination.
-
-**Fix:** Add `customer_name` and `customer_phone` to the `orders (...)` select in the active route query.
-
----
-
-## AREA 8: Business Rules Cache — 5-Minute Stale Window During Operations
-
-**Files:** `src/lib/settings/business-rules.ts:190-193`
-
-```ts
-export const getBusinessRules = unstable_cache(fetchBusinessRules, ["business-rules"], {
-  tags: ["business-rules"],
-  revalidate: 300,
-});
-```
-The cache TTL is 5 minutes. Admin changes to delivery days, zones, or settings may not reflect for up to 5 minutes. `revalidateTag("business-rules")` is called on PATCH but **only affects the server instance that handles the PATCH request** in serverless deployments unless Vercel's data cache is properly configured. In development or single-instance deploys this works. Under production multi-instance load, stale cache entries on other instances persist for up to 5 minutes.
-
-**Impact:** Admin changes cutoff time close to actual cutoff; customers on other instances can still place orders for a closed window for up to 5 minutes.
-
----
-
-## AREA 9: Race Condition in Route Stop Next-Stop Promotion
-
-**Files:** `src/app/api/driver/routes/[routeId]/stops/[stopId]/route.ts:167-186`
-
-**Problem:**
-After marking a stop `delivered`, the API fetches the next `pending` stop and sets it to `enroute`. This is two separate DB operations (query + update) with no transaction or locking. If the driver rapidly marks two stops (e.g., offline queue drains fast), two parallel requests could both find the same `pending` stop as "next" and both set it to `enroute`. The idempotency comment in the code is incorrect — the duplicate request returns 400 (`Cannot transition from enroute to enroute`) for the second stop update, but the next-stop promotion is unprotected.
-
-**Fix:** Wrap the next-stop promotion in a DB function or use `WHERE status = 'pending'` UPDATE (single atomic update returning the row) instead of SELECT + UPDATE.
-
----
-
-## AREA 10: `ContactInfoSection` eslint-disable-next-line on fetchProfile Dependencies
-
-**Files:** `src/components/ui/checkout/ContactInfoSection.tsx:63,75`
-
-```ts
-// eslint-disable-next-line react-hooks/exhaustive-deps
-}, []);
-```
-`fetchProfile` reads `customerName` and `customerPhone` from store but is memoized via `useCallback` with an empty dep array. The second `useEffect` (line 66) depends on `fetchProfile` which is stable — this is correct pattern. However, the inner `fetchProfile` function closes over `customerName` and `customerPhone` from the outer scope of the component. Since `useCallback` has empty deps, stale closures could prevent auto-fill if the store already has values from a previous session. The practical effect is benign (user already has their data), but the `eslint-disable` hides a real stale-closure situation.
-
----
+**Analysis Date:** 2026-04-04
 
 ## Tech Debt
 
-### `delivery_zones` Type Missing from DB Types
-- Issue: `as any` casts in 3 locations
-- Files: `src/lib/settings/business-rules.ts`, `src/app/api/admin/delivery-zones/route.ts`
-- Fix: Run `npx supabase gen types typescript`
+**`customer_feedback` table missing from generated database types:**
+- Issue: Migration `supabase/migrations/20260314_customer_feedback.sql` was never followed by a `supabase gen types` run. The `customer_feedback` table does not appear in `src/types/database.ts`, forcing every query to use `as any` casts.
+- Files: `src/app/(admin)/admin/feedback/page.tsx:110`, `src/app/api/admin/feedback/route.ts:45`, `src/app/api/admin/feedback/[id]/route.ts:75`, `src/app/api/feedback/route.ts:112,159,249`
+- Impact: No compile-time safety on feedback table queries. Column renames or type changes fail silently at runtime.
+- Fix approach: Run `pnpm supabase gen types typescript --local > src/types/database.ts`, then remove all `as any` casts on `customer_feedback`.
 
-### Deprecated Legacy Gate Still in Use
-- `useDeliveryGate` (Saturday-only) and `computeDeliveryGate` are marked `@deprecated` but still instantiated in `CheckoutClient.tsx` as the fallback when `deliveryDays.length === 0`
-- Files: `src/app/(customer)/checkout/CheckoutClient.tsx:91-93`, `src/lib/hooks/useDeliveryGate.ts`
-- Impact: If `delivery_days` table is empty (e.g., misconfiguration), checkout silently falls back to legacy Saturday-only logic
+**`arriving_soon` email type declared but never implemented:**
+- Issue: `arriving_soon` is a member of `CustomerEmailType` in `src/lib/email/types.ts:14` and is present in the DB notification enum, but has no template in `src/emails/`, no case in `src/lib/email/build.ts`, and no trigger anywhere in API routes. The switch in `build.ts` would throw `Error: Unknown email type: arriving_soon` if ever called.
+- Files: `src/lib/email/types.ts`, `src/lib/email/build.ts`
+- Impact: If any code path reaches `buildEmailElement("arriving_soon", ...)` the function throws; currently safe only because no caller does so.
+- Fix approach: Either add an `ArrivingSoon` template and a trigger in the driver stop-update route, or remove the type from the enum and DB if the feature is not planned.
 
-### `handlers.ts` Exceeds Line Limit with eslint-disable
-- File: `src/app/api/webhooks/stripe/handlers.ts:1` (`/* eslint-disable max-lines */`)
-- 529 lines — needs split into separate handler files per event type
+**`buildEmailElement` uses `any` for order data:**
+- Issue: `src/lib/email/build.ts:17` declares `orderData: any`. All callers pass untyped objects; missing fields are silently undefined.
+- Files: `src/lib/email/build.ts`, `src/app/api/admin/emails/send/route.ts:199`, `src/app/api/admin/emails/[id]/resend/route.ts:178`, `src/app/api/admin/orders/[id]/status/route.ts:328`
+- Impact: Refactoring email templates risks silent property mismatches that only appear in sent email content.
+- Fix approach: Create a discriminated union `EmailPayload` per type, replace `any` with that union, and add a type assertion at each call site.
 
-### Per-Day Time Window Configuration Not Implemented
-- `DeliveryDayConfig` has no `startHour`/`endHour` fields
-- All delivery days share global `deliveryStartHour`/`deliveryEndHour` from `app_settings`
-- Adding different hours per day requires schema change + `generateTimeWindows` refactor
+**`mapApiResponse` in settings accepts `any`:**
+- Issue: `src/components/ui/admin/settings/SettingsClient/settings-defaults.ts:55` takes `data: any` and manually maps fields. No compile-time check that the API response matches `AllSettings`.
+- Files: `src/components/ui/admin/settings/SettingsClient/settings-defaults.ts`, `src/components/ui/admin/settings/SettingsClient/SettingsClient.tsx:87`
+- Impact: API response schema changes break settings silently.
+- Fix approach: Type the API response via Zod or a typed interface and remove the `any` param.
 
-### No Stripe Webhook Signature Secret Validation Failure Logging
-- File: `src/app/api/webhooks/stripe/route.ts`
-- Stripe signature verification failures should be logged with the raw event for debugging; currently just returns 400
+**`revalidatePath("/api/menu")` does not work for Route Handler cache:**
+- Issue: Next.js `revalidatePath` does not clear the cache of Route Handlers configured with `export const revalidate = 300` (segment config). Only `revalidateTag` with a matching tag clears that cache. The `GET /api/menu` route has `revalidate = 300` but no tag; admin menu edits call `revalidatePath("/api/menu")` which is a no-op.
+- Files: `src/app/api/admin/menu/[id]/route.ts:124,176`, `src/app/api/menu/route.ts:7`
+- Impact: After an admin edits a menu item, the public `/api/menu` endpoint may serve stale data for up to 5 minutes even if the admin expects immediate propagation.
+- Fix approach: Add `export const tags = ["menu"]` or use `unstable_cache` with a `"menu"` tag in the menu route handler, and replace `revalidatePath("/api/menu")` calls with `revalidateTag("menu")`.
 
-### `increment_driver_deliveries` RPC Does Not Exist
-- Referenced in `src/app/api/driver/routes/[routeId]/complete/route.ts:109`
-- Silently swallowed with `// RPC might not exist yet, ignore`
-- Driver `deliveries_count` is never incremented from route completion
+**`getRoleDashboard` catch block redirects to `/` not `/login?error=role_lookup_failed`:**
+- Issue: A known bug is documented in `src/lib/auth/__tests__/role-redirect.test.ts:146-158` — the test asserts that a DB error should redirect to `/login?error=role_lookup_failed`, but the implementation now returns that path (per the current code). However, the test comment still says "BUG: currently returns `{ path: '/', role: 'unknown' }`", which is stale. The test is passing against the fixed code but the comment creates confusion about current state.
+- Files: `src/lib/auth/__tests__/role-redirect.test.ts:146`, `src/lib/auth/role-redirect.ts:161-168`
+- Impact: Low — the fix is in place, but the stale BUG comment misleads future readers into thinking the bug is still open.
+- Fix approach: Update the test comment to reflect the current (fixed) behavior.
 
----
+**`payment_method` field is cast rather than typed from DB:**
+- Issue: Multiple files cast `order.payment_method` with `as "stripe" | "cod"` rather than having it typed from `database.ts`. Signals the DB type for this column is `string` (or untyped).
+- Files: `src/app/(admin)/admin/orders/page.tsx:96`, `src/app/api/admin/orders/[id]/details/route.ts:332`, `src/app/(customer)/orders/[id]/confirmation/page.tsx:162`, `src/app/(customer)/orders/[id]/page.tsx:207`
+- Impact: Adding a new payment method requires finding all cast sites manually.
+- Fix approach: Ensure `payment_method` is typed as an enum in `database.ts` and propagate the type, removing all casts.
+
+## Known Bugs
+
+**Role redirect on DB error sends to "unknown" with `role_lookup_failed` query param, but callers may not handle that param:**
+- Symptoms: Auth callback and confirm routes call `getRoleDashboard`, which on DB error returns `{ path: "/login?error=role_lookup_failed", role: "unknown" }`. The login page must read and display this error param, else users see a blank login with no explanation.
+- Files: `src/lib/auth/role-redirect.ts:167`, `src/app/auth/callback/route.ts:164`, `src/app/auth/confirm/route.ts:114`, `src/app/(auth)/login/LoginPageClient.tsx`
+- Trigger: Supabase DB timeout or connection error during auth flow.
+- Workaround: The error is logged to Sentry; user can retry.
+
+**`auth.admin.listUsers()` loads all users to find one by email (in resend-invite):**
+- Symptoms: `src/app/api/admin/drivers/[id]/resend-invite/route.ts:92` fetches all auth users then does an in-memory `find` by email. This is a known anti-pattern documented in `supabase-auth.md`.
+- Files: `src/app/api/admin/drivers/[id]/resend-invite/route.ts:92-94`
+- Trigger: Any admin resending a driver invite. Gets worse as user count grows.
+- Workaround: None currently; the lookup succeeds but is O(n) in auth users.
 
 ## Security Considerations
 
-### No Future Date Upper Bound on Checkout
-- Risk: Orders can be placed for any future date
-- Files: `src/app/api/checkout/session/route.ts`, `src/lib/validations/checkout.ts`
-- Current mitigation: None
-- Recommendation: Validate `scheduledDate <= today + 30 days`
+**Service client used in non-admin server components:**
+- Risk: `createServiceClient()` (bypasses RLS, uses `SUPABASE_SERVICE_ROLE_KEY`) is called in customer-facing server components and public pages. If business logic in those paths has a flaw, RLS is not a safety net.
+- Files: `src/app/(customer)/orders/[id]/page.tsx:143`, `src/app/(public)/orders/[id]/share/page.tsx:67`, `src/app/api/addresses/route.ts:121`, `src/app/api/checkout/session/route.ts:194,396`
+- Current mitigation: Auth checks (`requireAdmin`, `requireAuth`) are performed before service client queries; the service client is used only for specific sub-queries (joins that timeout with user client). Documented in code comments.
+- Recommendations: Audit each usage to confirm the service client is scoped to the minimum required columns. Consider adding a `createLimitedServiceClient()` wrapper that enforces column-level allowlists for non-admin usage.
 
-### Rate Limiting Bypass via Multiple Serverless Instances
-- Risk: In-memory fallback is per-instance; brute force auth/checkout possible
-- Files: `src/lib/rate-limit/client.ts`
-- Current mitigation: 15 req/min per instance (not distributed)
-- Recommendation: Provision Upstash REST Redis
+**Rate limiting falls back to in-memory (non-distributed) when Redis is unconfigured:**
+- Risk: In-memory buckets in `src/lib/rate-limit/check.ts` are per-serverless-instance. On Vercel, multiple instances run concurrently — the 15 req/min limit is per instance, not global. A distributed attacker can exceed rate limits by hitting different instances.
+- Files: `src/lib/rate-limit/check.ts:14-39`, `src/lib/rate-limit/client.ts:18-24`
+- Current mitigation: Upstash Redis env vars configured in production (per MEMORY.md). Fallback is only active if those vars are missing.
+- Recommendations: Add a health check alert if `UPSTASH_REDIS_REST_URL` is absent in production; treat missing Redis as a deployment error, not a silent fallback.
 
-### CRON_SECRET Must Be Configured
-- File: `src/app/api/cron/delivery-reminders/route.ts:26-35`
-- The cron endpoint fails CLOSED if `CRON_SECRET` is unset — this is correct behavior and well-guarded
-
----
+**`authSignUpLimiter`, `globalLimiter`, and `adminBulkLimiter` are created but never wired to any route:**
+- Risk: Three rate limiters exist in `src/lib/rate-limit/client.ts:48,55,58` with comments noting they are "Unwired" or "Reserved." Any route that was intended to use them is currently unprotected.
+- Files: `src/lib/rate-limit/client.ts:48,55,58`
+- Current mitigation: `authSignUpLimiter` is moot (OTP flow, no discrete signup endpoint). `globalLimiter` is a placeholder.
+- Recommendations: Remove or wire up. Dead exports create confusion about what is protected.
 
 ## Performance Bottlenecks
 
-### `getDeliveryPhotoSignedUrl` in `Promise.all` Per Stop
-- Problem: Signed URL generation is called for every stop in parallel on route detail fetch
-- Files: `src/app/api/driver/routes/[routeId]/route.ts:181-214`, `src/app/api/driver/routes/active/route.ts:181-215`
-- Cause: `Promise.all(route.route_stops.map(async (stop) => ({ deliveryPhotoUrl: await getDeliveryPhotoSignedUrl(...) })))`
-- With 10 stops, 10 parallel signed URL calls on every route detail fetch
-- Improvement: Cache signed URLs or batch generate
+**`auth.admin.listUsers()` to find one user by email:**
+- Problem: O(n) auth user scan in resend-invite path.
+- Files: `src/app/api/admin/drivers/[id]/resend-invite/route.ts:92`
+- Cause: Supabase admin API does not expose `getUserByEmail` directly; the workaround is `listUsers()`.
+- Improvement path: Use `supabase.auth.admin.listUsers({ filter: 'email=eq.' + email })` if supported by the Supabase version, or query the `profiles` table by email and use `getUserById()` as documented in `supabase-auth.md`.
 
-### Business Rules Fetched on Every Page Render
-- `getBusinessRules()` is called in multiple layout and page components, each triggering its own cache entry lookup
-- Files: Layout files `src/app/(customer)/layout.tsx`, `src/app/(public)/layout.tsx`, checkout page, order pages
-- The `unstable_cache` with 5-min TTL mitigates DB hits but not cache lookup overhead
-
----
+**`/api/menu` route handler has `revalidate = 300` but no cache tag — cannot be selectively invalidated:**
+- Problem: Menu updates by admin are not reflected until the 5-minute TTL expires. No early invalidation path exists.
+- Files: `src/app/api/menu/route.ts:7`, `src/app/api/admin/menu/[id]/route.ts:124,176`
+- Cause: `revalidatePath` does not clear segment-config caches; no `revalidateTag` wired.
+- Improvement path: Switch to `unstable_cache` with tag `"menu"` in the route handler; call `revalidateTag("menu")` on admin mutations.
 
 ## Fragile Areas
 
-### Admin Manual Route Status Override Bypasses Lifecycle
-- Files: `src/app/api/admin/routes/[id]/route.ts:340-366`
-- Admin PATCH can set `status: "in_progress"` or `status: "completed"` directly without going through driver accept flow
-- `check_route_completion` DB trigger guards against completing with non-terminal stops, but `in_progress` can be set on a `planned`/`assigned` route without driver action
-- Safe modification: Any admin status override should log an audit event
+**`src/lib/email/build.ts` — switch must be updated for every new email type:**
+- Files: `src/lib/email/build.ts`
+- Why fragile: `EmailType` union grows in `types.ts`, but `build.ts` switch is separate. A new type added to the union with no case in the switch throws at runtime (documented in `email-system.md` learning: "missing status case silently skips send").
+- Safe modification: After adding a new `EmailType`, immediately add a case to the `build.ts` switch and a corresponding template in `src/emails/`. TypeScript's `default: throw` pattern already guards against this if the switch is exhaustive, but `arriving_soon` is evidence this is not always done.
+- Test coverage: No unit test exercises `buildEmailElement` for all EmailType members.
 
-### `ignoreDuplicates` on Profile Upsert Won't Fill Null Columns
-- File: `src/app/api/checkout/session/route.ts:174-192`
-- `onConflict: "id", ignoreDuplicates: true` will not update `email` or `role` if the row exists with null values
-- The `CLAUDE.md` gotcha documents this: use `DO UPDATE WHERE col IS NULL`
-- Low risk since `ensureProfile` runs first and handles the primary path
+**`src/components/ui/admin/settings/SettingsClient/SettingsClient.tsx` — settings sync is a 5-file thread:**
+- Files: `src/app/(admin)/admin/layout.tsx`, `src/components/ui/admin/settings/SettingsClient/SettingsClient.tsx`, `src/lib/stores/` (settings store)
+- Why fragile: Documented in `state-management.md`: "settings sync pipeline requires full 5-file thread." Adding a new setting requires changes across layout, shell, sync component, store, and defaults — any broken link silently leaves the setting at its default value.
+- Safe modification: Follow the full 5-file thread checklist when adding settings. Do not shortcut by only updating the store.
 
-### `getAvailableDeliveryDatesMultiDay` Does Not Pre-Filter Cutoff-Passed Dates from Candidates
-- File: `src/lib/utils/delivery-dates.ts:283-312`
-- Cutoff-passed dates from the first week of iteration are included in results with `cutoffPassed: true`
-- Client respects this flag; however, if `count` is small (6), past-cutoff dates consume slots that could show future available dates
-- Impact: Customer may see fewer available dates than expected if multiple days have passed cutoff
+**Driver route FK hint requirement — any new FK to `drivers` breaks all existing joins:**
+- Files: `supabase/migrations/20260316_route_rpc_status_update.sql` and related, all routes querying `drivers` via `routes`
+- Why fragile: Documented in `data-schema.md`: "PostgREST FK hints: 2nd FK breaks ALL existing unqualified `drivers (` joins with PGRST201." Adding any new FK from `routes` → `drivers` requires updating every PostgREST query that joins drivers without an explicit `!fk_name` hint.
+- Safe modification: Use `!fk_name` hints on all existing `drivers (` joins before adding a new FK. Run `pnpm rls:test` after any schema change.
+- Test coverage: No automated test catches PGRST201 errors; they surface as runtime 500s.
 
-### Route Stop `enroute` → `delivered` Direct Transition (Simple Mode)
-- File: `src/lib/validations/driver-api.ts:50-56`
-- `pending → delivered` and `enroute → delivered` are valid to support "simple mode" drivers
-- This means a driver can skip the `arrived` step. The next-stop promotion in `stops/[stopId]/route.ts:167` only triggers on `delivered` or `skipped`, not on `enroute`, so the `arrived` → `delivered` path correctly does not double-promote
-- Correct behavior, but subtle interaction worth noting
+**`src/lib/rate-limit/check.ts` — `setInterval` for cache cleanup runs in serverless module scope:**
+- Files: `src/lib/rate-limit/check.ts:31-39`
+- Why fragile: The `setInterval` for `inMemoryBuckets` cleanup runs at module load time. In serverless (Vercel), function instances are cold-started frequently; the interval may never fire before the instance is recycled, causing unbounded `Map` growth within a single invocation window (bounded by instance lifetime, typically seconds to minutes).
+- Safe modification: The issue is self-limiting due to short serverless lifetimes, but under sustained load a single hot instance could accumulate entries. The cleanup interval is defensive but not guaranteed to run.
 
-### `getAvailableDeliveryDates` (Legacy) Uses `date.date.getTime()` for Week Offset
-- File: `src/components/ui/checkout/TimeSlotPicker/TimeSlotPicker.tsx:54-61`
-- `weekOffsets` computed using `Date.getTime()` difference / ms per day. If server and client have clock skew, the offset could be wrong by 1 day, incorrectly showing "Next Week" badge on today's date
+**`src/components/ui/checkout/ContactInfoSection.tsx` — suppressed exhaustive-deps:**
+- Files: `src/components/ui/checkout/ContactInfoSection.tsx:63,75`
+- Why fragile: Two `useEffect` hooks have `// eslint-disable-next-line react-hooks/exhaustive-deps` with empty dep arrays to enforce mount-only execution. With React Compiler enabled (which auto-memoizes), these suppressions interact with the compiler's dependency inference. Incorrect dependencies here could cause stale closures in the phone pre-fill logic.
+- Safe modification: Do not add dependencies to these effects without verifying the phone pre-fill logic in full checkout flow.
 
----
+## Scaling Limits
+
+**`inMemoryBuckets` rate limiter (fallback) is per-instance:**
+- Current capacity: 15 req/min per serverless instance.
+- Limit: With N concurrent Vercel instances, effective limit is N × 15 req/min globally. Not a real DDoS defense.
+- Scaling path: Ensure `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` are always set in production; the distributed Upstash limiter handles cross-instance coordination.
+
+**`src/app/api/menu/route.ts` — 5-minute CDN TTL, no push invalidation:**
+- Current capacity: Menu served fresh to all clients within 5 minutes of an admin change.
+- Limit: During a flash sale or item removal for safety, the 5-minute lag could serve invalid items to customers who proceed to checkout (caught at checkout validation, but causes friction).
+- Scaling path: Wire `revalidateTag("menu")` on admin mutations (see Performance Bottlenecks above).
+
+## Dependencies at Risk
+
+**`@upstash/ratelimit` + `@upstash/redis` — incompatible with a standard Redis Cloud instance:**
+- Risk: MEMORY.md records that "Production is Redis Cloud (`redis://` URL), NOT Upstash REST. `@upstash/redis` incompatible." The rate limit clients are null in production if standard Redis Cloud is used.
+- Impact: All rate limiters fall back to the in-memory 15 req/min per-instance fallback in production.
+- Migration plan: Either provision Upstash REST (separate service, different URL scheme), or swap the rate limit layer to `ioredis` + a custom sliding window implementation.
+
+## Missing Critical Features
+
+**`arriving_soon` email — no trigger exists:**
+- Problem: The email type is defined and has a DB enum value, but nothing sends it. Customers are not notified when the driver is ~10 minutes away.
+- Blocks: Real-time driver proximity notifications for customers.
+
+**`adminBulkLimiter` and `globalLimiter` — documented as unimplemented:**
+- Problem: Comments in `src/lib/rate-limit/client.ts:55,58` note these as "Reserved: per-IP safety net for future use" and "Unwired: no bulk admin endpoints exist." No per-IP global rate limit is applied to the app.
+- Blocks: Protection against distributed brute-force or scraping at the IP level.
 
 ## Test Coverage Gaps
 
-### No Integration Test for Driver Route Start → Stop Complete Flow
-- What's not tested: The full E2E sequence: route `assigned` → driver accept → route start → stop mark arrived → stop mark delivered → next stop promoted → route complete
-- Files: `src/app/api/driver/routes/[routeId]/start/route.ts`, `stops/[stopId]/route.ts`, `complete/route.ts`
-- Risk: Status state machine bugs (like Issue F above) would not be caught
-- Priority: High
+**Admin authenticated E2E flows — all skipped:**
+- What's not tested: 56 E2E tests across `e2e/admin-operations.spec.ts` and `e2e/admin-analytics.spec.ts` are marked `test.skip` or `describe.skip` because they require admin auth state in Playwright.
+- Files: `e2e/admin-operations.spec.ts:34-345`, `e2e/admin-analytics.spec.ts:43`
+- Risk: Admin order management, menu CRUD, driver assignment, and analytics views have no E2E coverage. Regressions in admin flows go undetected.
+- Priority: High — admin is the operational core of the business.
 
-### No Test for COD Email Timezone Bug (Issue B)
-- What's not tested: That `sendCODOrderEmail` passes timezone-aware delivery window strings
-- Files: `src/app/api/checkout/session/helpers.ts:119-120`
-- Priority: Medium
+**`buildEmailElement` switch — no exhaustiveness test:**
+- What's not tested: No test calls `buildEmailElement` for all values of `EmailType`. The `arriving_soon` gap (template missing, type exists) would not be caught by current tests.
+- Files: `src/lib/email/build.ts`, `src/lib/email/types.ts`
+- Risk: New email types added to the union without a build.ts case throw at runtime in production.
+- Priority: Medium — add a test that iterates all `EmailType` values with fixture data.
 
-### No Test for Delivery Reminder Cron UTC vs LA Date Bug (Issue 6)
-- What's not tested: That the cron computes today in LA timezone, not UTC
-- Files: `src/app/api/cron/delivery-reminders/route.ts:60`
-- Priority: Medium
-
-### `increment_driver_deliveries` Silently Not Tested
-- The `try/catch` swallow means no test would catch if the RPC was later removed or renamed
-- Files: `src/app/api/driver/routes/[routeId]/complete/route.ts:109-118`
-- Priority: Medium
+**Rate limiter behavior with null limiter (Redis unconfigured) — no integration test:**
+- What's not tested: The in-memory fallback path (`limiter: null`) in `checkRateLimit` is not exercised in any test.
+- Files: `src/lib/rate-limit/check.ts`, `src/lib/rate-limit/__tests__/`
+- Risk: Silent regression if fallback logic changes.
+- Priority: Low — the fallback is simple and well-isolated.
 
 ---
 
-*Concerns audit: 2026-03-19*
+*Concerns audit: 2026-04-04*
