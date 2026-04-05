@@ -164,7 +164,43 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const newItemIds = parsed.data.itemIds.filter((itemId) => !existingIds.has(itemId));
 
     if (newItemIds.length === 0) {
-      return NextResponse.json({ message: "All items already in section" });
+      // Return current items list (not a message object) so the client can safely use it as an array
+      const { data: currentItems } = await auth.supabase
+        .from("featured_section_items")
+        .select(
+          `
+          item_id,
+          sort_order,
+          menu_items (
+            id,
+            name_en,
+            name_my,
+            description_en,
+            image_url,
+            base_price_cents,
+            is_active,
+            is_sold_out
+          )
+        `
+        )
+        .eq("section_id", id)
+        .order("sort_order", { ascending: true })
+        .returns<SectionItem[]>();
+
+      const currentTransformed =
+        currentItems?.map((item) => ({
+          id: item.menu_items.id,
+          nameEn: item.menu_items.name_en,
+          nameMy: item.menu_items.name_my,
+          descriptionEn: item.menu_items.description_en,
+          imageUrl: item.menu_items.image_url,
+          basePriceCents: item.menu_items.base_price_cents,
+          isActive: item.menu_items.is_active,
+          isSoldOut: item.menu_items.is_sold_out,
+          sortOrder: item.sort_order,
+        })) ?? [];
+
+      return NextResponse.json(currentTransformed);
     }
 
     // Verify items exist

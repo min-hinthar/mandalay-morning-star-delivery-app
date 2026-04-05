@@ -2,6 +2,7 @@
 
 import { useState, useRef, useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
+import dynamic from "next/dynamic";
 import { m, AnimatePresence } from "framer-motion";
 import { MapPin, Loader2, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -9,9 +10,23 @@ import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCoverageCheck } from "@/lib/hooks/useCoverageCheck";
 import { usePlacesAutocomplete, type PlacePrediction } from "@/lib/hooks/usePlacesAutocomplete";
-import { CoverageRouteMap } from "@/components/ui/coverage/CoverageRouteMap";
 import { CoverageResult } from "./CoverageResult";
 import { dropdownItemVariants } from "./variants";
+
+// Dynamic import with ssr: false — Google Maps API crashes during SSR
+// and causes "Could not load onion" errors
+const CoverageRouteMap = dynamic(
+  () =>
+    import("@/components/ui/coverage/CoverageRouteMap").then((m) => ({
+      default: m.CoverageRouteMap,
+    })),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="h-72 md:h-96 lg:h-[28rem] rounded-2xl bg-surface-tertiary animate-pulse" />
+    ),
+  }
+);
 
 interface InteractiveCoverageCheckerProps {
   className?: string;

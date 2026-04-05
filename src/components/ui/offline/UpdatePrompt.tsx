@@ -22,6 +22,7 @@ export function UpdatePrompt() {
     showBanner,
     countdown,
     isPaused,
+    isUpdating,
     canDismiss,
     version,
     progress,
@@ -75,9 +76,10 @@ export function UpdatePrompt() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleUpdateNow}
-                  className="whitespace-nowrap rounded-full bg-overlay-light px-3 py-1 text-xs font-semibold transition-colors hover:bg-overlay"
+                  disabled={isUpdating}
+                  className="whitespace-nowrap rounded-full bg-overlay-light px-3 py-1 text-xs font-semibold transition-colors hover:bg-overlay disabled:opacity-60 disabled:cursor-not-allowed"
                 >
-                  Update Now
+                  {isUpdating ? "Updating…" : "Update Now"}
                 </button>
                 {canDismiss && (
                   <button
