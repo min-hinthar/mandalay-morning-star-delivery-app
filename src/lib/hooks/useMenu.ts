@@ -1,9 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import type { MenuResponse, MenuSearchResponse } from "@/types/menu";
+import { queryKeys } from "@/lib/queryKeys";
 
 export function useMenu() {
   return useQuery<MenuResponse>({
-    queryKey: ["menu"],
+    queryKey: queryKeys.menu.list(),
     queryFn: async () => {
       const res = await fetch("/api/menu");
       if (!res.ok) {
@@ -19,7 +20,7 @@ export function useMenuSearch(query: string) {
   const trimmedQuery = query.trim();
 
   return useQuery<MenuSearchResponse>({
-    queryKey: ["menu", "search", trimmedQuery],
+    queryKey: queryKeys.menu.search(trimmedQuery),
     queryFn: async () => {
       const res = await fetch(`/api/menu/search?q=${encodeURIComponent(trimmedQuery)}`);
       if (!res.ok) {
