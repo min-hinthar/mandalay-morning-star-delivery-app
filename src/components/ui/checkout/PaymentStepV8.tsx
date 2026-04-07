@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
 import { ArrowLeft, CreditCard, ShieldCheck, Lock, Banknote } from "lucide-react";
@@ -10,6 +10,8 @@ import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
+import { toast } from "@/lib/hooks/useToast";
+import { ClientErrorCodes } from "@/types/errors";
 import type { TimeWindow } from "@/types/delivery";
 import { TipSelector } from "./TipSelector";
 import { PromoCodeInput } from "./PromoCodeInput";
@@ -22,6 +24,13 @@ import { Label } from "@/components/ui/label";
 import { BrandedSpinner } from "@/components/ui/branded-spinner";
 import { DietarySummaryCard } from "./DietarySummaryCard";
 import { CheckoutErrorBanner, type CheckoutErrorData } from "./CheckoutErrorBanner";
+
+/**
+ * Phase 110 CFIX-04 — Stripe checkout session fetch timeout.
+ * Customer-perceived hang after ~6s; 10s gives Stripe a fair chance on
+ * slow networks without leaving the user staring at a spinner forever.
+ */
+const STRIPE_TIMEOUT_MS = 10000;
 
 const buttonEntry = {
   hidden: { opacity: 0, scale: 0.9 },
@@ -56,6 +65,28 @@ export function PaymentStepV8({
   const [isCreatingSession, setIsCreatingSession] = useState(false);
   const [error, setError] = useState<CheckoutErrorData | null>(null);
   const saveToProfileRef = useRef(false);
+
+  // Phase 110 CFIX-04 — Stripe timeout AbortController + setTimeout refs.
+  // Stored in refs so cleanup useEffect can abort in-flight fetches and
+  // clear pending timeouts when the component unmounts mid-request.
+  const stripeControllerRef = useRef<AbortController | null>(null);
+  const stripeTimeoutIdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Phase 110 D-15 — unmount cleanup. Empty deps means this runs once
+  // on mount and the return function runs once on unmount, preventing
+  // leaked fetches and orphaned setTimeouts.
+  useEffect(() => {
+    return () => {
+      if (stripeTimeoutIdRef.current !== null) {
+        clearTimeout(stripeTimeoutIdRef.current);
+        stripeTimeoutIdRef.current = null;
+      }
+      if (stripeControllerRef.current) {
+        stripeControllerRef.current.abort();
+        stripeControllerRef.current = null;
+      }
+    };
+  }, []);
 
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { items, itemsSubtotal } = useCart();
@@ -100,10 +131,26 @@ export function PaymentStepV8({
     setIsCreatingSession(true);
     setError(null);
 
+    // Phase 110 CFIX-04 — abort any stale in-flight request (customer
+    // double-click on Retry). New controller per attempt keeps
+    // idempotency_key=checkout_${order.id} stable on the server side.
+    if (stripeControllerRef.current) {
+      stripeControllerRef.current.abort();
+    }
+    if (stripeTimeoutIdRef.current !== null) {
+      clearTimeout(stripeTimeoutIdRef.current);
+    }
+    const controller = new AbortController();
+    stripeControllerRef.current = controller;
+    stripeTimeoutIdRef.current = setTimeout(() => {
+      controller.abort();
+    }, STRIPE_TIMEOUT_MS);
+
     try {
       const response = await fetch("/api/checkout/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        signal: controller.signal,
         body: JSON.stringify({
           addressId: address.id,
           scheduledDate: delivery.date,
@@ -126,6 +173,12 @@ export function PaymentStepV8({
           customerName,
         }),
       });
+
+      // Response received — clear the timeout before parsing body.
+      if (stripeTimeoutIdRef.current !== null) {
+        clearTimeout(stripeTimeoutIdRef.current);
+        stripeTimeoutIdRef.current = null;
+      }
 
       if (handleRateLimitResponse(response, { isOrderPlacement: true })) {
         setIsCreatingSession(false);
@@ -167,6 +220,35 @@ export function PaymentStepV8({
         window.location.href = data.data.sessionUrl;
       }
     } catch (err) {
+      // Phase 110 CFIX-04 — AbortError branch. The 10s timer (or manual
+      // retry) fired controller.abort() before the response arrived.
+      // Show a persistent toast + banner with a Retry button that
+      // re-invokes handleCheckout (preserving the idempotency key).
+      if (err instanceof Error && err.name === "AbortError") {
+        if (stripeTimeoutIdRef.current !== null) {
+          clearTimeout(stripeTimeoutIdRef.current);
+          stripeTimeoutIdRef.current = null;
+        }
+        setError({
+          code: ClientErrorCodes.CHECKOUT_NETWORK_TIMEOUT,
+          message:
+            "Payment is taking longer than expected. Your network may be slow. Please try again — your order has not been charged.",
+        });
+        toast({
+          title: "Checkout timed out",
+          description:
+            "We couldn't reach the payment service in time. Tap Retry to try again — you haven't been charged.",
+          variant: "destructive",
+          persistent: true,
+        });
+        setIsCreatingSession(false);
+        return;
+      }
+
+      if (stripeTimeoutIdRef.current !== null) {
+        clearTimeout(stripeTimeoutIdRef.current);
+        stripeTimeoutIdRef.current = null;
+      }
       setError({
         code: "INTERNAL_ERROR",
         message: err instanceof Error ? err.message : "An error occurred",

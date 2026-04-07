@@ -389,6 +389,19 @@ export async function POST(request: Request) {
       ...(validatedCouponId ? { discounts: [{ coupon: validatedCouponId }] } : {}),
     };
 
+    // Phase 110 CFIX-04 — TODO(Phase 111+): the idempotency key is keyed
+    // on `order.id`, which means a client retry after CHECKOUT_NETWORK_TIMEOUT
+    // will hit Stripe with the SAME key and return the cached session.
+    // This is the intended behavior today (customer retries safely, no
+    // duplicate charges). Risk: if the client-side retry path ever
+    // regenerates `order.id` before calling this endpoint, idempotency
+    // is broken and a second Stripe session may be created. Guardrails:
+    //   1. PaymentStepV8 retries the same `order.id` via handleCheckout
+    //      (no order re-creation).
+    //   2. Server-side order creation is memoized upstream of this call.
+    // If Phase 111 introduces client-side order regeneration, swap this
+    // to a request-level idempotency key (e.g., crypto.randomUUID() per
+    // clicked "Place Order") and de-dupe on the server.
     const session = await stripe.checkout.sessions.create(sessionParams, {
       idempotencyKey: `checkout_${order.id}`,
     });
