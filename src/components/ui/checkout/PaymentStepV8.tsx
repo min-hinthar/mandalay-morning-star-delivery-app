@@ -39,6 +39,8 @@ export interface PaymentStepV8Props {
   timeWindows?: TimeWindow[];
   onCutoffPassed?: () => void;
   codEnabled?: boolean;
+  /** Phase 110 CFIX-03 — defense-in-depth gate when CutoffModal is visible */
+  cutoffModalOpen?: boolean;
 }
 
 export function PaymentStepV8({
@@ -48,6 +50,7 @@ export function PaymentStepV8({
   timeWindows = [],
   onCutoffPassed,
   codEnabled = false,
+  cutoffModalOpen = false,
 }: PaymentStepV8Props) {
   const router = useRouter();
   const [isCreatingSession, setIsCreatingSession] = useState(false);
@@ -84,6 +87,14 @@ export function PaymentStepV8({
   const isCOD = paymentMethod === "cod";
 
   const handleCheckout = async () => {
+    // CFIX-03 D-07 — defense-in-depth: refuse to submit while CutoffModal
+    // is open. The HTML disabled attr below covers the visual + click path;
+    // this guard catches programmatic submission (e.g., keyboard Enter on
+    // a focused form input that may bypass the disabled attribute in some
+    // browsers). Server-side CUTOFF_PASSED check in /api/checkout/session
+    // is the third layer.
+    if (cutoffModalOpen) return;
+
     if (!address || !delivery || !canProceed) return;
 
     setIsCreatingSession(true);
@@ -365,7 +376,7 @@ export function PaymentStepV8({
             variant="success"
             size="lg"
             onClick={handleCheckout}
-            disabled={isCreatingSession || !canProceed}
+            disabled={isCreatingSession || !canProceed || cutoffModalOpen}
             isLoading={isCreatingSession}
             loadingText="Processing..."
             leftIcon={
