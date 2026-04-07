@@ -148,6 +148,22 @@ export function CheckoutErrorBanner({
             </Button>
           ) : null
         );
+      // Phase 110 CFIX-04 — Stripe checkout fetch timed out after 10s.
+      // Retry re-invokes handleCheckout which preserves the per-order
+      // idempotency key server-side (checkout_${order.id}).
+      case "CHECKOUT_NETWORK_TIMEOUT":
+        return renderWithAction(
+          <AlertTriangle className="w-4 h-4" />,
+          "Checkout Timed Out",
+          error.message,
+          "ငွေပေးချေမှု အချိန်ကုန်သွားပါသည်။ ထပ်မံ ကြိုးစားပါ။",
+          onRetry ? (
+            <Button variant="outline" size="sm" onClick={onRetry}>
+              <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
+              Try again
+            </Button>
+          ) : null
+        );
       case "PROFILE_ERROR":
         return renderWithAction(
           <UserX className="w-4 h-4" />,
