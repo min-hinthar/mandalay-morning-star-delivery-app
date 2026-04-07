@@ -31,9 +31,7 @@ test.describe("CFIX-05 cart validation timeout", () => {
     await expect(banner).toBeVisible({ timeout: 35000 });
 
     // Verify the description copy is present
-    await expect(
-      page.getByText(/we can't confirm item availability right now/i)
-    ).toBeVisible();
+    await expect(page.getByText(/we can't confirm item availability right now/i)).toBeVisible();
 
     // Proceed Anyway button must be actionable and >= 44px height for a11y
     const proceedButton = page.getByRole("button", { name: /proceed anyway/i });
@@ -46,9 +44,7 @@ test.describe("CFIX-05 cart validation timeout", () => {
     await expect(banner).not.toBeVisible({ timeout: 2000 });
   });
 
-  test("cart drawer shows timeout banner when opened over hanging /api/menu", async ({
-    page,
-  }) => {
+  test("cart drawer shows timeout banner when opened over hanging /api/menu", async ({ page }) => {
     test.skip(
       !process.env.PLAYWRIGHT_AUTH,
       "requires authenticated customer fixture + cart seeding helper"

@@ -74,7 +74,8 @@ describe("useToast persistent flag (Phase 110 D-32)", () => {
     act(() => {
       toast({
         title: "Payment service is slow to respond",
-        description: "We couldn't reach our payment provider. Your cart and address are still saved.",
+        description:
+          "We couldn't reach our payment provider. Your cart and address are still saved.",
         variant: "destructive",
         persistent: true,
       });
