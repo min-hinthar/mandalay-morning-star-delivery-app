@@ -58,9 +58,7 @@ describe("query-provider CFIX-06 retry policy", () => {
   describe("QueryProvider", () => {
     it("constructs a QueryClient with the expected defaults", () => {
       // Smoke test: provider renders without throwing.
-      expect(() =>
-        renderToStaticMarkup(<QueryProvider>{null}</QueryProvider>)
-      ).not.toThrow();
+      expect(() => renderToStaticMarkup(<QueryProvider>{null}</QueryProvider>)).not.toThrow();
     });
 
     it("manual QueryClient with same defaults exposes mutations.retry = false", () => {
