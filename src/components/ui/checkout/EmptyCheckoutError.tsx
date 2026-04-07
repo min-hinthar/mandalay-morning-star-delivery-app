@@ -31,9 +31,7 @@ export function EmptyCheckoutError() {
       <div className="mb-6">
         <ShoppingCart aria-hidden="true" className="h-16 w-16 text-text-muted" />
       </div>
-      <h1 className="mb-2 font-display text-xl font-bold text-text-primary">
-        Your cart is empty
-      </h1>
+      <h1 className="mb-2 font-display text-xl font-bold text-text-primary">Your cart is empty</h1>
       <p className="mb-8 max-w-sm font-body text-sm text-text-secondary">
         Start by browsing our menu — we&apos;ll get a fresh meal to your door on the next delivery
         day.
