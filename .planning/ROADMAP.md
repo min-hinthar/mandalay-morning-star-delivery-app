@@ -100,7 +100,7 @@
 
 ### v2.3 Customer UX Quality (Phases 110-116)
 
-- [ ] **Phase 110: Critical Fixes & Data Reliability** - Fix conversion-blocking bugs and establish query retry infrastructure
+- [x] **Phase 110: Critical Fixes & Data Reliability** - Fix conversion-blocking bugs and establish query retry infrastructure (completed 2026-04-07)
 - [ ] **Phase 111: Checkout Conversion** - Recover lost conversions with form resilience, inline validation, and price transparency
 - [ ] **Phase 112: Order Tracking Overhaul** - Redesign tracking from unusable to reliable on mobile
 - [ ] **Phase 113: Accessibility & Design System** - Fix WCAG violations and harmonize design tokens
@@ -121,9 +121,9 @@
   4. Stripe payment timeout shows a clear error with retry option — no silent failure
   5. Cart validation that stalls beyond 30 seconds shows a fallback error UI
 **Plans**: 3 plans
-  - [ ] 110-01-PLAN.md — Foundation: query key factory + React Query retry config (CFIX-06, DATA-02)
-  - [ ] 110-02-PLAN.md — Cart/checkout UI guards: mobile flash, empty checkout, cutoff disable (CFIX-01, CFIX-02, CFIX-03)
-  - [ ] 110-03-PLAN.md — Network timeout resilience: Stripe + cart validation timeouts (CFIX-04, CFIX-05)
+  - [x] 110-01-PLAN.md — Foundation: query key factory + React Query retry config (CFIX-06, DATA-02)
+  - [x] 110-02-PLAN.md — Cart/checkout UI guards: mobile flash, empty checkout, cutoff disable (CFIX-01, CFIX-02, CFIX-03)
+  - [x] 110-03-PLAN.md — Network timeout resilience: Stripe + cart validation timeouts (CFIX-04, CFIX-05)
 **UI hint**: yes
 
 ### Phase 111: Checkout Conversion
@@ -205,7 +205,7 @@ Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 110. Critical Fixes & Data Reliability | v2.3 | 0/3 | Planned | - |
+| 110. Critical Fixes & Data Reliability | v2.3 | 3/3 | Complete    | 2026-04-07 |
 | 111. Checkout Conversion | v2.3 | 0/TBD | Not started | - |
 | 112. Order Tracking Overhaul | v2.3 | 0/TBD | Not started | - |
 | 113. Accessibility & Design System | v2.3 | 0/TBD | Not started | - |
