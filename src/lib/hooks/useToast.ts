@@ -10,6 +10,12 @@ export type Toast = {
   title?: string;
   description?: string;
   variant?: ToastVariant;
+  /**
+   * Phase 110 D-32 — when true, the toast is NOT auto-dismissed.
+   * Reserved for CHECKOUT_NETWORK_TIMEOUT and CART_VALIDATION_TIMEOUT
+   * (forbidden anti-pattern: toast-then-vanish for critical errors).
+   */
+  persistent?: boolean;
 };
 
 type ToastAction =
@@ -82,6 +88,12 @@ interface ToastOptions {
   title?: string;
   description?: string;
   variant?: ToastVariant;
+  /**
+   * Phase 110 D-32 — when true, the toast is NOT auto-dismissed.
+   * Reserved for CHECKOUT_NETWORK_TIMEOUT and CART_VALIDATION_TIMEOUT
+   * (forbidden anti-pattern: toast-then-vanish for critical errors).
+   */
+  persistent?: boolean;
 }
 
 function toast(options: ToastOptions) {
@@ -92,8 +104,12 @@ function toast(options: ToastOptions) {
     toast: { id, ...options },
   });
 
-  // Auto-dismiss
-  addToRemoveQueue(id, dispatch);
+  // Phase 110 D-32 — persistent toasts never auto-dismiss. Customer must
+  // manually dismiss via the returned dismiss() function. Non-persistent
+  // toasts preserve the legacy TOAST_REMOVE_DELAY behavior.
+  if (!options.persistent) {
+    addToRemoveQueue(id, dispatch);
+  }
 
   return {
     id,
