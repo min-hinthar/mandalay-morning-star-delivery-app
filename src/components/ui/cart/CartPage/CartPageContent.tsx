@@ -15,6 +15,7 @@ import {
   ClearCartConfirmation,
   useClearCartConfirmation,
 } from "@/components/ui/cart/ClearCartConfirmation";
+import { CartValidationTimeoutBanner } from "@/components/ui/cart/CartValidationTimeoutBanner";
 import { ItemDetailSheet } from "@/components/ui/menu/ItemDetailSheet";
 import { toast } from "@/lib/hooks/useToastV8";
 import { CartPageHeader } from "./CartPageHeader";
@@ -287,6 +288,13 @@ export function CartPageContent() {
       {/* Left column: Items */}
       <div>
         <CartPageHeader itemCount={itemCount} onClearCart={openClearCart} showClear={!isEmpty} />
+
+        {/* Phase 110 CFIX-05 — cart validation timeout banner (PRIMARY consumer) */}
+        {validation.timedOut && (
+          <div className="mb-4">
+            <CartValidationTimeoutBanner onProceedAnyway={validation.proceedAnyway} />
+          </div>
+        )}
 
         {/* Attention section for problem items (AnimatePresence enables exit animation) */}
         <AnimatePresence>

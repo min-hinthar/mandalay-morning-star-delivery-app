@@ -25,6 +25,7 @@ import { Drawer } from "@/components/ui/Drawer";
 import { CartEmptyState } from "./CartEmptyState";
 import { ClearCartConfirmation, useClearCartConfirmation } from "./ClearCartConfirmation";
 import { CartHeader, CartItemsList, CartFooter } from "./CartDrawerParts";
+import { CartValidationTimeoutBanner } from "./CartValidationTimeoutBanner";
 import type { MenuItem } from "@/types/menu";
 
 // ============================================
@@ -110,6 +111,12 @@ function CartContent({ onClose, showFullCartLink }: CartContentProps) {
         <CartEmptyState onClose={onClose} />
       ) : (
         <>
+          {/* Phase 110 CFIX-05 — cart validation timeout banner (SECONDARY consumer) */}
+          {validation.timedOut && (
+            <div className="px-4 pt-2">
+              <CartValidationTimeoutBanner onProceedAnyway={validation.proceedAnyway} />
+            </div>
+          )}
           <CartItemsList
             onClose={onClose}
             validation={validation}
