@@ -9,11 +9,11 @@ import { CartPageContent } from "@/components/ui/cart/CartPage";
 /**
  * Phase 110 CFIX-01 — Mobile cart white flash fix.
  *
- * Removed the previous `useEffect` mobile redirect (D-01) which caused a
+ * Removed the previous effect-based mobile redirect (D-01) which caused a
  * blank-frame flash because Zustand+IDB hydration is async and the redirect
  * fired only after hydration completed. Replaced with CSS-only responsive
  * classes (D-02) — server and client render identical markup, zero JS
- * branching. Dropped `useMediaQuery` / `useIsMobile` from this page entirely
+ * branching. Dropped the media-query viewport check from this page entirely
  * (D-03).
  *
  * Both wrappers render the same CartPageContent with different paddings so
