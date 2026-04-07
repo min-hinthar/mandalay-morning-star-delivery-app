@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Address, AddressFormData } from "@/types/address";
+import { queryKeys } from "@/lib/queryKeys";
 
 interface AddressListResponse {
   data: Address[];
@@ -11,7 +12,7 @@ interface AddressResponse {
 
 export function useAddresses() {
   return useQuery<AddressListResponse>({
-    queryKey: ["addresses"],
+    queryKey: queryKeys.addresses.list(),
     queryFn: async () => {
       const res = await fetch("/api/addresses");
       if (!res.ok) {
@@ -25,7 +26,7 @@ export function useAddresses() {
 
 export function useAddress(id: string) {
   return useQuery<AddressResponse>({
-    queryKey: ["addresses", id],
+    queryKey: queryKeys.addresses.detail(id),
     queryFn: async () => {
       const res = await fetch(`/api/addresses/${id}`);
       if (!res.ok) {
@@ -55,7 +56,7 @@ export function useCreateAddress() {
       return payload as AddressResponse;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["addresses"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.addresses.all });
     },
   });
 }
@@ -77,7 +78,7 @@ export function useUpdateAddress() {
       return payload as AddressResponse;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["addresses"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.addresses.all });
     },
   });
 }
@@ -97,7 +98,7 @@ export function useDeleteAddress() {
       return payload as { data: { success: boolean } };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["addresses"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.addresses.all });
     },
   });
 }
@@ -117,7 +118,7 @@ export function useSetDefaultAddress() {
       return payload as AddressResponse;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["addresses"] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.addresses.all });
     },
   });
 }

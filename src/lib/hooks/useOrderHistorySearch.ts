@@ -4,6 +4,7 @@ import Fuse from "fuse.js";
 import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
+import { queryKeys } from "@/lib/queryKeys";
 
 /**
  * Lightweight representation of a past order item for search.
@@ -29,7 +30,7 @@ export interface OrderHistoryItem {
 export function useOrderHistorySearch(query: string, userId?: string): OrderHistoryItem[] {
   // Fetch order items for search (small dataset per user)
   const { data: orderItems } = useQuery({
-    queryKey: ["order-items-for-search", userId],
+    queryKey: queryKeys.orders.itemsForSearch(userId ?? ""),
     queryFn: async () => {
       const supabase = createClient();
       const { data, error } = await supabase
