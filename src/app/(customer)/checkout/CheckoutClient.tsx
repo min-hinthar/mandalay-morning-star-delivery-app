@@ -266,6 +266,7 @@ export default function CheckoutClient({
                       timeWindows={timeWindows}
                       onCutoffPassed={() => setShowCutoffModal(true)}
                       codEnabled={codEnabled}
+                      cutoffModalOpen={showCutoffModal}
                     />
                   </m.div>
                 )}
