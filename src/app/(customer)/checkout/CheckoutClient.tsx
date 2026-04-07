@@ -7,7 +7,6 @@ import { m, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useCart } from "@/lib/hooks/useCart";
 import { useNavigationGuard } from "@/lib/hooks/useNavigationGuard";
-import { toast } from "@/lib/hooks/useToastV8";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
@@ -20,6 +19,7 @@ import {
   TimeStep,
   PaymentStep,
   CheckoutSummary,
+  EmptyCheckoutError,
 } from "@/components/ui/checkout";
 import type { CheckoutStep } from "@/types/checkout";
 import type { DeliveryDayConfig, DeliveryZoneConfig, TimeWindow } from "@/types/delivery";
@@ -149,25 +149,28 @@ export default function CheckoutClient({
     }
   }, [user, authLoading, router]);
 
-  // Redirect if cart is empty (deep link to /checkout with no items)
-  useEffect(() => {
-    if (!authLoading && user && isEmpty) {
-      toast({ message: "Browse our menu to get started!", type: "info" });
-      router.replace("/menu");
-    }
-  }, [isEmpty, authLoading, user, router]);
+  // Phase 110 CFIX-02 D-04/D-05: render-time empty-cart guard below has
+  // replaced the previous useEffect + router redirect to /menu. The direct
+  // selector pattern `useCart((s) => s.items.length === 0)` returns the
+  // EmptyCheckoutError component synchronously with no spinner, no redirect,
+  // and no flash cycle.
 
   // Reset checkout state on unmount
   useEffect(() => {
     return () => reset();
   }, [reset]);
 
-  if (authLoading || !user || isEmpty) {
+  if (authLoading || !user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-background">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
+  }
+
+  // CFIX-02 D-05: synchronous render-time empty guard — no useEffect.
+  if (isEmpty) {
+    return <EmptyCheckoutError />;
   }
 
   const handleStepClick = (clickedStep: CheckoutStep) => {

@@ -48,3 +48,6 @@ export { OrderSummaryCard } from "./OrderSummaryCard";
 // Payment success
 export { PaymentSuccess } from "./PaymentSuccess";
 export type { PaymentSuccessProps } from "./PaymentSuccess";
+
+// Phase 110 CFIX-02 — empty cart render-time error
+export { EmptyCheckoutError } from "./EmptyCheckoutError";
