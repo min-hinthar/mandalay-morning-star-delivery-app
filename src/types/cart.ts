@@ -100,4 +100,18 @@ export interface CartValidationResult {
   suggestions: Map<string, MenuItem[]>;
   /** True if sold-out or unavailable items exist */
   hasBlockingIssues: boolean;
+  /**
+   * Phase 110 CFIX-05 D-17 — true when the 30s AbortController timeout fired
+   * while waiting for the menu refetch to complete. Exposed so consumers can
+   * render the "Validation taking longer than usual" banner (Proceed Anyway).
+   */
+  timedOut: boolean;
+  /**
+   * Phase 110 CFIX-05 D-19 — bypass the blocking validation gate WITHOUT
+   * re-validating. Customer agency: the customer explicitly acknowledges the
+   * trade-off. Server-side cart validation in /api/checkout/session is still
+   * authoritative (route.ts fetchAndValidateCart) — a "Proceed Anyway" click
+   * does NOT bypass server-side validation.
+   */
+  proceedAnyway: () => void;
 }

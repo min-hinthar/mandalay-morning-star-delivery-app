@@ -1,10 +1,24 @@
 "use client";
 
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { useMenu } from "@/lib/hooks/useMenu";
 import type { MenuItem, MenuCategory } from "@/types/menu";
 import type { CartItem, CartItemValidation, CartValidationResult } from "@/types/cart";
+
+// ============================================
+// PHASE 110 CFIX-05 CONSTANTS
+// ============================================
+
+/**
+ * Phase 110 CFIX-05 D-16 — Cart validation timeout.
+ *
+ * 30s catches true hangs only (p99 ~3s), avoids false positives on slow
+ * networks. When this fires, the hook exposes `timedOut: true` + a
+ * `proceedAnyway` action so the consumer can render a customer-agency banner.
+ * No auto-retry — silent recovery is a forbidden anti-pattern.
+ */
+const CART_VALIDATION_TIMEOUT_MS = 30000;
 
 // ============================================
 // useCartHydrated
@@ -108,7 +122,13 @@ function validateCartItem(
 // EMPTY RESULT
 // ============================================
 
-const EMPTY_RESULT: CartValidationResult = {
+/**
+ * Partial template — timedOut / proceedAnyway are assembled inside the hook
+ * because proceedAnyway needs access to component-scoped state setters.
+ */
+type PartialResult = Omit<CartValidationResult, "timedOut" | "proceedAnyway">;
+
+const EMPTY_RESULT: PartialResult = {
   status: "idle",
   validations: new Map(),
   soldOutIds: [],
@@ -118,7 +138,7 @@ const EMPTY_RESULT: CartValidationResult = {
   hasBlockingIssues: false,
 };
 
-const ERROR_RESULT: CartValidationResult = {
+const ERROR_RESULT: PartialResult = {
   ...EMPTY_RESULT,
   status: "error",
 };
@@ -143,8 +163,55 @@ export function useCartValidation(): CartValidationResult {
 
   // Force-refetch menu on mount for freshness
   const [hasRefetched, setHasRefetched] = useState(false);
+  // Phase 110 CFIX-05 D-17 — explicit timeout state surfaced to consumers
+  const [timedOut, setTimedOut] = useState(false);
+
+  // Phase 110 CFIX-05 D-15 / D-30 — cleanup refs.
+  // Every setTimeout + AbortController pair MUST be cleaned up in a useEffect
+  // return block (gotcha #9). We keep refs so the unmount-cleanup effect can
+  // reach into whichever controller/timeout was active at unmount time.
+  const timeoutIdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  /**
+   * Phase 110 CFIX-05 D-19 — customer-agency bypass. Clicking "Proceed
+   * Anyway" resets the timedOut state but does NOT trigger another refetch.
+   * The server-side /api/checkout/session still runs fetchAndValidateCart,
+   * so a sold-out item will still be blocked at checkout — this is the
+   * authoritative enforcement surface.
+   */
+  const proceedAnyway = useCallback(() => {
+    setTimedOut(false);
+  }, []);
+
   const triggerRefetch = useCallback(() => {
-    refetch().finally(() => setHasRefetched(true));
+    // Cancel any prior in-flight controller + timeout before starting a new one
+    abortControllerRef.current?.abort();
+    if (timeoutIdRef.current) {
+      clearTimeout(timeoutIdRef.current);
+      timeoutIdRef.current = null;
+    }
+
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    // 30s timeout — D-16. React Query's refetch() does not accept a signal
+    // directly, so we use the AbortController purely as a timeout state
+    // machine: when the timer fires, we set timedOut: true. The refetch()
+    // promise itself is allowed to resolve naturally in the background; we
+    // ignore its outcome once the timeout has fired.
+    timeoutIdRef.current = setTimeout(() => {
+      controller.abort();
+      setTimedOut(true);
+    }, CART_VALIDATION_TIMEOUT_MS);
+
+    refetch().finally(() => {
+      if (timeoutIdRef.current) {
+        clearTimeout(timeoutIdRef.current);
+        timeoutIdRef.current = null;
+      }
+      setHasRefetched(true);
+    });
   }, [refetch]);
 
   useEffect(() => {
@@ -153,21 +220,48 @@ export function useCartValidation(): CartValidationResult {
     }
   }, [hydrated, hasRefetched, triggerRefetch]);
 
-  return useMemo(() => {
-    // Not hydrated yet -- return idle
-    if (!hydrated) return EMPTY_RESULT;
+  // Phase 110 D-15 / D-30 — unmount cleanup MUST live in useEffect return.
+  // Without this, an AbortController + setTimeout pair outlives the component
+  // and fires setTimedOut on an unmounted consumer (React strict-mode warning
+  // + memory leak). Empty deps = run on mount, cleanup on unmount only.
+  useEffect(() => {
+    return () => {
+      if (timeoutIdRef.current) {
+        clearTimeout(timeoutIdRef.current);
+        timeoutIdRef.current = null;
+      }
+      abortControllerRef.current?.abort();
+      abortControllerRef.current = null;
+    };
+  }, []);
 
-    // Menu fetch error -- silent fail
-    if (isError) return ERROR_RESULT;
+  return useMemo<CartValidationResult>(() => {
+    // Not hydrated yet -- return idle
+    if (!hydrated) return { ...EMPTY_RESULT, timedOut, proceedAnyway };
+
+    // Menu fetch error -- silent fail (legacy behavior preserved)
+    if (isError) return { ...ERROR_RESULT, timedOut, proceedAnyway };
+
+    // Phase 110 CFIX-05 — explicit timeout state: surface "error" status so
+    // existing consumers that gate on status !== "done" will still block,
+    // while the new timedOut flag lets new consumers render the banner.
+    if (timedOut) {
+      return {
+        ...EMPTY_RESULT,
+        status: "error" as const,
+        timedOut: true,
+        proceedAnyway,
+      };
+    }
 
     // No menu data yet -- validating
     if (!menuData?.data?.categories) {
-      return { ...EMPTY_RESULT, status: "validating" };
+      return { ...EMPTY_RESULT, status: "validating", timedOut, proceedAnyway };
     }
 
     // No items in cart -- nothing to validate
     if (items.length === 0) {
-      return { ...EMPTY_RESULT, status: "done" };
+      return { ...EMPTY_RESULT, status: "done", timedOut, proceedAnyway };
     }
 
     const categories = menuData.data.categories;
@@ -213,7 +307,9 @@ export function useCartValidation(): CartValidationResult {
       priceChangedIds,
       suggestions,
       hasBlockingIssues: soldOutIds.length > 0 || unavailableIds.length > 0,
+      timedOut,
+      proceedAnyway,
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated, items, menuData, isError, dataUpdatedAt]);
+  }, [hydrated, items, menuData, isError, dataUpdatedAt, timedOut, proceedAnyway]);
 }

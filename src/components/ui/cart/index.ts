@@ -30,6 +30,10 @@ export { DeliverySettingsSync } from "./DeliverySettingsSync";
 export { CartNavigationGuard } from "./CartNavigationGuard";
 export type { CartNavigationGuardProps } from "./CartNavigationGuard";
 
+// Phase 110 CFIX-05 — cart validation timeout banner (Proceed Anyway)
+export { CartValidationTimeoutBanner } from "./CartValidationTimeoutBanner";
+export type { CartValidationTimeoutBannerProps } from "./CartValidationTimeoutBanner";
+
 // CartPage components
 export { AttentionSection } from "./CartPage";
 export { SuggestionRow } from "./CartPage";
