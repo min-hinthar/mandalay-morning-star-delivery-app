@@ -120,7 +120,10 @@
   3. Cutoff modal appearance disables the checkout submit button — no orders after cutoff
   4. Stripe payment timeout shows a clear error with retry option — no silent failure
   5. Cart validation that stalls beyond 30 seconds shows a fallback error UI
-**Plans**: TBD
+**Plans**: 3 plans
+  - [ ] 110-01-PLAN.md — Foundation: query key factory + React Query retry config (CFIX-06, DATA-02)
+  - [ ] 110-02-PLAN.md — Cart/checkout UI guards: mobile flash, empty checkout, cutoff disable (CFIX-01, CFIX-02, CFIX-03)
+  - [ ] 110-03-PLAN.md — Network timeout resilience: Stripe + cart validation timeouts (CFIX-04, CFIX-05)
 **UI hint**: yes
 
 ### Phase 111: Checkout Conversion
@@ -202,7 +205,7 @@ Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
-| 110. Critical Fixes & Data Reliability | v2.3 | 0/TBD | Not started | - |
+| 110. Critical Fixes & Data Reliability | v2.3 | 0/3 | Planned | - |
 | 111. Checkout Conversion | v2.3 | 0/TBD | Not started | - |
 | 112. Order Tracking Overhaul | v2.3 | 0/TBD | Not started | - |
 | 113. Accessibility & Design System | v2.3 | 0/TBD | Not started | - |
