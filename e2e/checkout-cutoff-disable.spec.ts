@@ -37,9 +37,9 @@ test.describe("CFIX-03 cutoff submit gate", () => {
     await page.goto("/checkout", { waitUntil: "domcontentloaded" });
 
     // Wait for CutoffModal to appear automatically (gate.isOpen === false).
-    await expect(
-      page.getByText(/cutoff/i).or(page.getByText(/closed for orders/i))
-    ).toBeVisible({ timeout: 5000 });
+    await expect(page.getByText(/cutoff/i).or(page.getByText(/closed for orders/i))).toBeVisible({
+      timeout: 5000,
+    });
 
     // Place Order button must be disabled.
     const submit = page.getByRole("button", { name: /place order/i });

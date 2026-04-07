@@ -36,9 +36,9 @@ test.describe("CFIX-02 empty checkout direct link", () => {
     await page.goto("/checkout", { waitUntil: "domcontentloaded" });
 
     // Empty state heading must be visible without any spinner → redirect loop.
-    await expect(
-      page.getByRole("heading", { name: /your cart is empty/i })
-    ).toBeVisible({ timeout: 2000 });
+    await expect(page.getByRole("heading", { name: /your cart is empty/i })).toBeVisible({
+      timeout: 2000,
+    });
 
     // Browse Menu CTA must be present and link to /menu.
     const cta = page.getByRole("link", { name: /browse the menu/i });
