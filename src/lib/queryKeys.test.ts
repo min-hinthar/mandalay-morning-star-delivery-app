@@ -22,11 +22,7 @@ describe("queryKeys factory", () => {
       expect(queryKeys.addresses.list()).toEqual(["addresses", "list"]);
     });
     it("addresses.detail('abc-123') returns ['addresses', 'detail', 'abc-123']", () => {
-      expect(queryKeys.addresses.detail("abc-123")).toEqual([
-        "addresses",
-        "detail",
-        "abc-123",
-      ]);
+      expect(queryKeys.addresses.detail("abc-123")).toEqual(["addresses", "detail", "abc-123"]);
     });
   });
 

@@ -218,9 +218,7 @@ export default function AdminSectionsPage() {
     const items = Array.isArray(updatedItems) ? updatedItems : [];
 
     setSections((prev) =>
-      prev.map((s) =>
-        s.id === sectionId ? { ...s, items, actualItemCount: items.length } : s
-      )
+      prev.map((s) => (s.id === sectionId ? { ...s, items, actualItemCount: items.length } : s))
     );
   };
 
