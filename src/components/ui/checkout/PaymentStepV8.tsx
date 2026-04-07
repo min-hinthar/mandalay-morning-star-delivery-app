@@ -1,17 +1,14 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import { m, AnimatePresence } from "framer-motion";
 import { ArrowLeft, CreditCard, ShieldCheck, Lock, Banknote } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
-import { handleRateLimitResponse } from "@/lib/hooks/useRateLimitToast";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
-import { toast } from "@/lib/hooks/useToast";
-import { ClientErrorCodes } from "@/types/errors";
 import type { TimeWindow } from "@/types/delivery";
 import { TipSelector } from "./TipSelector";
 import { PromoCodeInput } from "./PromoCodeInput";
@@ -23,14 +20,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { BrandedSpinner } from "@/components/ui/branded-spinner";
 import { DietarySummaryCard } from "./DietarySummaryCard";
-import { CheckoutErrorBanner, type CheckoutErrorData } from "./CheckoutErrorBanner";
-
-/**
- * Phase 110 CFIX-04 — Stripe checkout session fetch timeout.
- * Customer-perceived hang after ~6s; 10s gives Stripe a fair chance on
- * slow networks without leaving the user staring at a spinner forever.
- */
-const STRIPE_TIMEOUT_MS = 10000;
+import { CheckoutErrorBanner } from "./CheckoutErrorBanner";
+import { usePaymentSubmit } from "./usePaymentSubmit";
 
 const buttonEntry = {
   hidden: { opacity: 0, scale: 0.9 },
@@ -62,31 +53,7 @@ export function PaymentStepV8({
   cutoffModalOpen = false,
 }: PaymentStepV8Props) {
   const router = useRouter();
-  const [isCreatingSession, setIsCreatingSession] = useState(false);
-  const [error, setError] = useState<CheckoutErrorData | null>(null);
   const saveToProfileRef = useRef(false);
-
-  // Phase 110 CFIX-04 — Stripe timeout AbortController + setTimeout refs.
-  // Stored in refs so cleanup useEffect can abort in-flight fetches and
-  // clear pending timeouts when the component unmounts mid-request.
-  const stripeControllerRef = useRef<AbortController | null>(null);
-  const stripeTimeoutIdRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Phase 110 D-15 — unmount cleanup. Empty deps means this runs once
-  // on mount and the return function runs once on unmount, preventing
-  // leaked fetches and orphaned setTimeouts.
-  useEffect(() => {
-    return () => {
-      if (stripeTimeoutIdRef.current !== null) {
-        clearTimeout(stripeTimeoutIdRef.current);
-        stripeTimeoutIdRef.current = null;
-      }
-      if (stripeControllerRef.current) {
-        stripeControllerRef.current.abort();
-        stripeControllerRef.current = null;
-      }
-    };
-  }, []);
 
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { items, itemsSubtotal } = useCart();
@@ -117,145 +84,26 @@ export function PaymentStepV8({
   const handleBack = onBack || storePrevStep;
   const isCOD = paymentMethod === "cod";
 
-  const handleCheckout = async () => {
-    // CFIX-03 D-07 — defense-in-depth: refuse to submit while CutoffModal
-    // is open. The HTML disabled attr below covers the visual + click path;
-    // this guard catches programmatic submission (e.g., keyboard Enter on
-    // a focused form input that may bypass the disabled attribute in some
-    // browsers). Server-side CUTOFF_PASSED check in /api/checkout/session
-    // is the third layer.
-    if (cutoffModalOpen) return;
-
-    if (!address || !delivery || !canProceed) return;
-
-    setIsCreatingSession(true);
-    setError(null);
-
-    // Phase 110 CFIX-04 — abort any stale in-flight request (customer
-    // double-click on Retry). New controller per attempt keeps
-    // idempotency_key=checkout_${order.id} stable on the server side.
-    if (stripeControllerRef.current) {
-      stripeControllerRef.current.abort();
-    }
-    if (stripeTimeoutIdRef.current !== null) {
-      clearTimeout(stripeTimeoutIdRef.current);
-    }
-    const controller = new AbortController();
-    stripeControllerRef.current = controller;
-    stripeTimeoutIdRef.current = setTimeout(() => {
-      controller.abort();
-    }, STRIPE_TIMEOUT_MS);
-
-    try {
-      const response = await fetch("/api/checkout/session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        signal: controller.signal,
-        body: JSON.stringify({
-          addressId: address.id,
-          scheduledDate: delivery.date,
-          timeWindowStart: delivery.windowStart,
-          timeWindowEnd: delivery.windowEnd,
-          items: items.map((item) => ({
-            menuItemId: item.menuItemId,
-            quantity: item.quantity,
-            modifiers: item.modifiers.map((mod) => ({
-              optionId: mod.optionId,
-            })),
-            notes: item.notes || undefined,
-          })),
-          customerNotes: customerNotes || undefined,
-          tipCents,
-          promoCode: promoApplied ? promoCode : undefined,
-          deliveryInstructions: deliveryInstructions || undefined,
-          paymentMethod,
-          customerPhone,
-          customerName,
-        }),
-      });
-
-      // Response received — clear the timeout before parsing body.
-      if (stripeTimeoutIdRef.current !== null) {
-        clearTimeout(stripeTimeoutIdRef.current);
-        stripeTimeoutIdRef.current = null;
-      }
-
-      if (handleRateLimitResponse(response, { isOrderPlacement: true })) {
-        setIsCreatingSession(false);
-        return;
-      }
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        if (data.error?.code === "CUTOFF_PASSED" && onCutoffPassed) {
-          setIsCreatingSession(false);
-          onCutoffPassed();
-          return;
-        }
-        setError({
-          code: data.error?.code ?? "INTERNAL_ERROR",
-          message: data.error?.message ?? "Checkout failed",
-          details: data.error?.details,
-        });
-        setIsCreatingSession(false);
-        return;
-      }
-
-      if (saveToProfileRef.current) {
-        fetch("/api/account/profile", {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            fullName: customerName,
-            phone: customerPhone,
-          }),
-        }).catch(() => {});
-      }
-
-      disableGuard?.();
-      if (isCOD) {
-        router.push(`/orders/${data.data.orderId}/confirmation?cod=true`);
-      } else {
-        window.location.href = data.data.sessionUrl;
-      }
-    } catch (err) {
-      // Phase 110 CFIX-04 — AbortError branch. The 10s timer (or manual
-      // retry) fired controller.abort() before the response arrived.
-      // Show a persistent toast + banner with a Retry button that
-      // re-invokes handleCheckout (preserving the idempotency key).
-      if (err instanceof Error && err.name === "AbortError") {
-        if (stripeTimeoutIdRef.current !== null) {
-          clearTimeout(stripeTimeoutIdRef.current);
-          stripeTimeoutIdRef.current = null;
-        }
-        setError({
-          code: ClientErrorCodes.CHECKOUT_NETWORK_TIMEOUT,
-          message:
-            "Payment is taking longer than expected. Your network may be slow. Please try again — your order has not been charged.",
-        });
-        toast({
-          title: "Checkout timed out",
-          description:
-            "We couldn't reach the payment service in time. Tap Retry to try again — you haven't been charged.",
-          variant: "destructive",
-          persistent: true,
-        });
-        setIsCreatingSession(false);
-        return;
-      }
-
-      if (stripeTimeoutIdRef.current !== null) {
-        clearTimeout(stripeTimeoutIdRef.current);
-        stripeTimeoutIdRef.current = null;
-      }
-      setError({
-        code: "INTERNAL_ERROR",
-        message: err instanceof Error ? err.message : "An error occurred",
-      });
-      setIsCreatingSession(false);
-    }
-  };
+  // Phase 110 CFIX-04 — Stripe checkout submit with 10s AbortController
+  // timeout, unmount cleanup, and CHECKOUT_NETWORK_TIMEOUT retry path.
+  const { isCreatingSession, error, handleCheckout } = usePaymentSubmit({
+    addressId: address?.id,
+    delivery,
+    canProceed,
+    cutoffModalOpen,
+    items,
+    customerNotes,
+    tipCents,
+    promoCode,
+    promoApplied,
+    deliveryInstructions,
+    paymentMethod,
+    customerPhone,
+    customerName,
+    onCutoffPassed,
+    disableGuard,
+    saveToProfileRef,
+  });
 
   return (
     <m.div

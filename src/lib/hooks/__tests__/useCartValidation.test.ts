@@ -5,8 +5,7 @@ import { renderHook, act, waitFor } from "@testing-library/react";
 // Vitest hoists vi.mock() calls above top-of-file, so external references are
 // forbidden. We construct the store+persist shape inside the factory itself.
 vi.mock("@/lib/stores/cart-store", () => {
-  const core = ((selector: (s: { items: unknown[] }) => unknown) =>
-    selector({ items: [] })) as {
+  const core = ((selector: (s: { items: unknown[] }) => unknown) => selector({ items: [] })) as {
     (selector: (s: { items: unknown[] }) => unknown): unknown;
     persist: {
       hasHydrated: () => boolean;
