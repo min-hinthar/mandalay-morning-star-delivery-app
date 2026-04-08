@@ -159,7 +159,9 @@ const ERROR_RESULT: PartialResult = {
 export function useCartValidation(): CartValidationResult {
   const hydrated = useCartHydrated();
   const items = useCartStore((state) => state.items);
-  const { data: menuData, isError, refetch, dataUpdatedAt } = useMenu();
+  // Phase 111 CFIX-09 D-14 — opt into polling so menu refetches every
+  // 3 minutes while cart is non-empty, catching admin price edits early.
+  const { data: menuData, isError, refetch, dataUpdatedAt } = useMenu({ pollWhileNonEmpty: true });
 
   // Force-refetch menu on mount for freshness
   const [hasRefetched, setHasRefetched] = useState(false);
