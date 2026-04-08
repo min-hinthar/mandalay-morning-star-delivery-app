@@ -3,15 +3,15 @@ gsd_state_version: 1.0
 milestone: v2.3
 milestone_name: Customer UX Quality
 status: executing
-stopped_at: Phase 111 UI-SPEC approved
-last_updated: "2026-04-08T06:08:16.991Z"
-last_activity: 2026-04-08 -- Phase 111 planning complete
+stopped_at: Completed 111-03-PLAN.md
+last_updated: "2026-04-08T08:35:45.699Z"
+last_activity: 2026-04-08
 progress:
   total_phases: 7
   completed_phases: 1
   total_plans: 7
-  completed_plans: 3
-  percent: 43
+  completed_plans: 6
+  percent: 86
 ---
 
 # Project State
@@ -22,14 +22,14 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 
 **Core value:** Every UI element is reliably clickable and the app feels delightfully alive with motion.
 **Current milestone:** v2.3 Customer UX Quality
-**Current focus:** Phase 110 — Critical Fixes & Data Reliability
+**Current focus:** Phase 111 — Checkout Conversion
 
 ## Current Position
 
-Phase: 111
-Plan: Not started
+Phase: 111 (Checkout Conversion) — EXECUTING
+Plan: 4 of 4
 Status: Ready to execute
-Last activity: 2026-04-08 -- Phase 111 planning complete
+Last activity: 2026-04-08
 
 Progress: [░░░░░░░░░░] 0%
 
@@ -50,12 +50,17 @@ Progress: [░░░░░░░░░░] 0%
 | v2.1      | 5      | 22    | 3 days   |
 | v2.2      | 6      | 12    | 2 days   |
 | **Total** | **109** | **418** | **37 days** |
+| Phase 111 P03 | 140 | 3 tasks | 9 files |
 
 ## Accumulated Context
 
 ### Decisions
 
 See PROJECT.md Key Decisions for full list.
+
+- [Phase 111]: Plan 111-03 — useMenu accepts pollWhileNonEmpty?: boolean (default off, gates 3-min refetchInterval on cart-non-empty selector)
+- [Phase 111]: Plan 111-03 — menuQueryFn exported as canonical named const so Plan 04 prefetch shares fetch logic
+- [Phase 111]: Plan 111-03 — overallDirection 'up' if any item went up (safer warning default per UI-SPEC State Matrix)
 
 ### Pending Todos (Human Actions)
 
@@ -70,7 +75,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-08T05:07:51.851Z
-Stopped at: Phase 111 UI-SPEC approved
-Resume file: .planning/phases/111/111-UI-SPEC.md
+Last session: 2026-04-08T08:35:22.148Z
+Stopped at: Completed 111-03-PLAN.md
+Resume file: None
 Next action: `/gsd-plan-phase 110`
