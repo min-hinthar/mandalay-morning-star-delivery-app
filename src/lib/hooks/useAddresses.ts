@@ -10,17 +10,31 @@ interface AddressResponse {
   data: Address;
 }
 
+/**
+ * Phase 111 CHKP-03 D-22..D-26 — Canonical fetch function for /api/addresses.
+ *
+ * Exported as a named function so Plan 04's step-prefetch in CheckoutClient
+ * can call queryClient.prefetchQuery({ queryKey: queryKeys.addresses.list(),
+ * queryFn: addressesQueryFn }) using the SAME fetch implementation that
+ * useAddresses() uses. Without this export, the prefetch would need a
+ * duplicate inline queryFn that could drift from this hook's error handling
+ * / response shape (AddressListResponse wrapper preserved 1:1).
+ *
+ * Mirrors Plan 03's `menuQueryFn` pattern from `useMenu.ts`.
+ */
+export const addressesQueryFn = async (): Promise<AddressListResponse> => {
+  const res = await fetch("/api/addresses");
+  if (!res.ok) {
+    const error = await res.json().catch(() => null);
+    throw new Error(error?.error?.message ?? "Failed to fetch addresses");
+  }
+  return res.json();
+};
+
 export function useAddresses() {
   return useQuery<AddressListResponse>({
     queryKey: queryKeys.addresses.list(),
-    queryFn: async () => {
-      const res = await fetch("/api/addresses");
-      if (!res.ok) {
-        const error = await res.json().catch(() => null);
-        throw new Error(error?.error?.message ?? "Failed to fetch addresses");
-      }
-      return res.json();
-    },
+    queryFn: addressesQueryFn,
   });
 }
 
