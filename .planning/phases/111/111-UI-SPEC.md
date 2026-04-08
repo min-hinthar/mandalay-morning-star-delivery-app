@@ -57,6 +57,7 @@ Declared values (multiples of 4, Tailwind v4 default spacing). Phase 111 uses a 
 | Token | Value | Class | Phase 111 Usage |
 |-------|-------|-------|-----------------|
 | xs | 4px | `gap-1`, `p-1` | Icon wrapper padding, chip inner padding |
+| (inherited) | 6px | `p-1.5` | **Inherited Phase 110 exception** — icon container padding inside `CheckoutErrorBanner` (4 existing usages: lines 206, 268, 288, 322). Phase 111 PRICE_CHANGED case MUST mirror this exact value to stay visually consistent with existing direction-mismatch / Stripe / network / timeout cases. Not introduced by Phase 111. |
 | sm | 8px | `gap-2`, `p-2`, `py-2` | Compact row gap, button inline padding |
 | md | 12px | `gap-3`, `p-3` | Modal action row gap, button stack gap (existing CutoffModal pattern) |
 | md+ | 16px | `gap-4`, `p-4` | Banner outer padding (`CheckoutErrorBanner` existing), form row gap |
@@ -70,7 +71,8 @@ Declared values (multiples of 4, Tailwind v4 default spacing). Phase 111 uses a 
 - **Banner padding:** MUST reuse existing `p-4` outer padding from `CheckoutErrorBanner` (line 187).
 - **Price row gap:** `gap-2` between price label, old price, arrow, new price.
 
-**Exceptions:** None. Phase 111 introduces zero new spacing values.
+**Exceptions:**
+- `p-1.5` (6px) — **inherited Phase 110 exception**, NOT introduced by Phase 111. Used only inside `CheckoutErrorBanner` icon containers, where 4 existing usages (lines 206, 268, 288, 322) establish the visual rhythm for all banner cases (direction-mismatch, Stripe, network, timeout). Phase 111's new PRICE_CHANGED case MUST mirror this exact value to stay visually consistent. Replacing with `p-1` (4px) or `p-2` (8px) would introduce visual inconsistency between the new banner case and the four existing cases — strictly worse than preserving the existing precedent. No other 6px usages introduced.
 
 ---
 
