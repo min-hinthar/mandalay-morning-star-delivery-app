@@ -135,7 +135,11 @@
   2. Address and payment fields show inline validation errors as user types, not only on submit
   3. Price changes while cart is open show old-vs-new price explanation, not just "Dismiss"
   4. Cutoff modal offers one-click reschedule to next available delivery date
-**Plans**: TBD
+**Plans**: 4 plans
+  - [ ] 111-01-PLAN.md — reset() audit + CHKP-04 cutoff modal reschedule (CHKP-04)
+  - [ ] 111-02-PLAN.md — CFIX-07 form persistence + CHKP-01 onTouched validation + PRICE_CHANGED scaffold (CFIX-07, CHKP-01)
+  - [ ] 111-03-PLAN.md — CFIX-09 menu polling + CHKP-02 price-change banner (CFIX-09, CHKP-02)
+  - [ ] 111-04-PLAN.md — CHKP-03 step-transition prefetch (CHKP-03)
 **UI hint**: yes
 
 ### Phase 112: Order Tracking Overhaul
