@@ -49,6 +49,12 @@ export function AddressFormV8({
     control,
     formState: { errors, dirtyFields, touchedFields },
   } = useForm<AddressFormValues>({
+    // Phase 111 CHKP-01 D-05 D-07 — "onTouched" validates on first blur,
+    // then on every keystroke after. Canonical pattern for "inline
+    // validation as user types" without flashing errors on first character.
+    // getFieldState() helper (defined below) is already wired to the
+    // errors+touchedFields+dirtyFields triple; only the mode flag needed to change.
+    mode: "onTouched",
     resolver: zodResolver(addressFormSchema) as Resolver<AddressFormValues>,
     defaultValues: {
       label: defaultValues?.label ?? "Home",
