@@ -14,6 +14,16 @@
  * Phase 9 Plan 01
  */
 
+/**
+ * Phase 111 CHKP-01 D-06 — TimeStepV8 was inspected for react-hook-form
+ * usage during plan-phase revision. FINDING: no RHF hook, no controlled
+ * text inputs, no inline validation surface. D-06 "wire to RHF for
+ * consistency" only applies to forms with text inputs that need inline
+ * validation as the user types. TimeSlotPicker is a button-selection UI;
+ * canProceed (Zustand selector) gates the Continue button. No changes
+ * needed in this file for Phase 111.
+ */
+
 import { useCallback, useEffect, useMemo } from "react";
 import { m } from "framer-motion";
 import { Clock, ArrowLeft } from "lucide-react";
