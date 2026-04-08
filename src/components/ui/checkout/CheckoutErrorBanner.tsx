@@ -10,12 +10,15 @@ import {
   CreditCard,
   UserX,
   RefreshCw,
+  TrendingUp,
+  TrendingDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { ErrorShake } from "@/components/ui/error-shake";
 import { Button } from "@/components/ui/button";
+import { formatPrice } from "@/lib/utils/currency";
 
 /** Mirrors DirectionMismatchDetails from checkout session helpers (server-only) */
 interface DirectionMismatchDetails {
@@ -23,6 +26,18 @@ interface DirectionMismatchDetails {
   customerRouteLabel: string;
   selectedDayDirection: string;
   eligibleDayNames: string[];
+}
+
+/** Phase 111 CHKP-02 — Payload for PRICE_CHANGED case */
+interface PriceChangedDetails {
+  items: Array<{
+    name: string;
+    oldPriceCents: number;
+    newPriceCents: number;
+    direction: "up" | "down";
+  }>;
+  /** Dominant direction — "up" if any item went up, "down" only if all went down */
+  overallDirection: "up" | "down";
 }
 
 export interface CheckoutErrorData {
@@ -172,10 +187,26 @@ export function CheckoutErrorBanner({
           null,
           null
         );
+      // Phase 111 CHKP-02 D-15 — Price change detected via useCartValidation
+      // polling. Shows old → new per-item with direction-aware colors.
+      case "PRICE_CHANGED": {
+        const details = error.details as PriceChangedDetails | undefined;
+        if (!details || details.items.length === 0) {
+          return renderGenericError(error.message);
+        }
+        return renderPriceChange(details, onUpdateCart);
+      }
       default:
         return renderGenericError(error.message);
     }
   }, [error, onChangeAddress, onChangeDate, onUpdateCart, onRetry]);
+
+  // Phase 111 CHKP-02 D-18 — direction-aware outer wrapper classes for
+  // PRICE_CHANGED; other cases preserve the legacy error-colored shell.
+  const priceChangedOverallDirection =
+    error.code === "PRICE_CHANGED"
+      ? (error.details as PriceChangedDetails | undefined)?.overallDirection
+      : undefined;
 
   return (
     <ErrorShake shake={!!error}>
@@ -184,7 +215,17 @@ export function CheckoutErrorBanner({
         animate={shouldAnimate ? { opacity: 1, scale: 1, y: 0 } : undefined}
         exit={shouldAnimate ? { opacity: 0, scale: 0.95, y: -10 } : undefined}
         transition={getSpring(spring.default)}
-        className={cn("rounded-xl border border-status-error/20 bg-status-error-bg p-4", className)}
+        role={error.code === "PRICE_CHANGED" ? "status" : undefined}
+        aria-live={error.code === "PRICE_CHANGED" ? "polite" : undefined}
+        className={cn(
+          "rounded-xl border p-4",
+          error.code === "PRICE_CHANGED" && priceChangedOverallDirection === "down"
+            ? "border-status-success/20 bg-status-success-bg"
+            : error.code === "PRICE_CHANGED"
+              ? "border-status-warning/20 bg-status-warning-bg"
+              : "border-status-error/20 bg-status-error-bg",
+          className
+        )}
       >
         {content}
       </m.div>
@@ -323,6 +364,76 @@ function renderGenericError(message: string) {
         <AlertTriangle className="w-4 h-4 text-status-error" />
       </div>
       <p className="text-sm text-status-error">{message}</p>
+    </div>
+  );
+}
+
+/**
+ * Phase 111 CHKP-02 — Price change banner content.
+ * Direction-aware colors: warning for up, success for down. Per-item old → new
+ * price rows rendered through formatPrice (NOT raw cents/100 math) to match
+ * the rest of the checkout surface (CheckoutSummaryV8, TipSelector, etc.).
+ * Burmese companion string uses the declared text-xs token per UI-SPEC.
+ */
+function renderPriceChange(details: PriceChangedDetails, onUpdateCart?: () => void) {
+  const isUp = details.overallDirection === "up";
+  const Icon = isUp ? TrendingUp : TrendingDown;
+  const iconBgClass = isUp ? "bg-status-warning/10" : "bg-status-success/10";
+  const iconColorClass = isUp ? "text-status-warning" : "text-status-success";
+  const headlineClass = isUp ? "text-status-warning" : "text-status-success";
+  // Phase 111 CHKP-02 UI-SPEC §Copywriting
+  const headline = isUp ? "Heads up — prices changed" : "Good news — prices dropped";
+  // BURMESE-REVIEW Phase 111 D-40 — native-speaker sign-off pending
+  const headlineBurmese = isUp
+    ? "သတိပြုပါ — စျေးနှုန်း ပြောင်းလဲသွားပါသည်"
+    : "သတင်းကောင်း — စျေးနှုန်း လျှော့ချသွားပါသည်";
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-start gap-3">
+        <div className={cn("p-1.5 rounded-lg", iconBgClass)}>
+          <Icon className={cn("w-4 h-4", iconColorClass)} aria-hidden="true" />
+        </div>
+        <div className="flex-1 min-w-0 space-y-2">
+          <p className={cn("text-sm font-medium", headlineClass)}>{headline}</p>
+          {/* UI-SPEC §Typography — smallest declared token is text-xs (12px) */}
+          <p className="text-xs text-text-muted/70" lang="my">
+            {headlineBurmese}
+          </p>
+          <p className="text-xs text-text-muted">Since you added items to your cart:</p>
+          <ul className="space-y-1.5">
+            {details.items.map((it) => (
+              <li key={it.name} className="flex items-center gap-2 text-sm">
+                <span className="text-text-primary min-w-0 truncate">{it.name}:</span>
+                {/* Phase 111 CHKP-02 — formatPrice per UI-SPEC §Typography (canonical money helper) */}
+                <span className="text-text-muted line-through">
+                  {formatPrice(it.oldPriceCents)}
+                </span>
+                <span className="text-text-muted">→</span>
+                <span
+                  className={cn(
+                    "font-semibold",
+                    it.direction === "up" ? "text-status-warning" : "text-status-success"
+                  )}
+                >
+                  {formatPrice(it.newPriceCents)}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      {onUpdateCart && (
+        <div className="flex justify-end pt-2">
+          <button
+            type="button"
+            onClick={onUpdateCart}
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            Update cart
+          </button>
+        </div>
+      )}
     </div>
   );
 }
