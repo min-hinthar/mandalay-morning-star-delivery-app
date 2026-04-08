@@ -136,8 +136,14 @@ vi.mock("@/components/ui/cart/CartNavigationGuard", () => ({
   CartNavigationGuard: () => null,
 }));
 
+// Capture props passed to CutoffModal so reschedule wiring tests can assert
+// the composition and trigger onReschedule directly.
+const cutoffModalSpy = vi.fn();
 vi.mock("@/components/ui/delivery", () => ({
-  CutoffModal: () => null,
+  CutoffModal: (props: Record<string, unknown>) => {
+    cutoffModalSpy(props);
+    return null;
+  },
 }));
 
 import CheckoutClient from "../CheckoutClient";
@@ -281,5 +287,123 @@ describe("CFIX-07 D-03 — reset() gate on unmount", () => {
     // cleared it). The real Zustand persist middleware drives this in prod.
     expect(sessionStorage.getItem("checkout-store")).toBe(persistPayload);
     sessionStorage.removeItem("checkout-store");
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 111 CHKP-04 — CutoffModal reschedule wiring
+// ---------------------------------------------------------------------------
+
+describe("CHKP-04 — CutoffModal reschedule wiring", () => {
+  beforeEach(() => {
+    mockResetFn.mockClear();
+    mockSetStepFn.mockClear();
+    mockSetDeliveryFn.mockClear();
+    cutoffModalSpy.mockClear();
+    mockIsEmpty = false;
+  });
+
+  it("passes undefined rescheduleOption when deliveryDays is empty", () => {
+    render(<CheckoutClient timeWindows={[]} deliveryDays={[]} />);
+
+    // Last call captures the final props passed to CutoffModal
+    const lastCall = cutoffModalSpy.mock.calls.at(-1);
+    expect(lastCall).toBeDefined();
+    const props = lastCall![0] as Record<string, unknown>;
+    expect(props.rescheduleOption).toBeUndefined();
+    expect(typeof props.onReschedule).toBe("function");
+  });
+
+  it("computes rescheduleOption when deliveryDays + timeWindows are present", () => {
+    const deliveryDays = [
+      {
+        id: "day-saturday",
+        dayOfWeek: 6,
+        isActive: true,
+        cutoffDay: 5,
+        cutoffHour: 15,
+        deliveryFeeCents: 1500,
+        displayOrder: 0,
+        direction: "all" as const,
+      },
+    ];
+    const timeWindows = [{ start: "10:00", end: "12:00", label: "Morning" }];
+
+    render(<CheckoutClient timeWindows={timeWindows} deliveryDays={deliveryDays} />);
+
+    const lastCall = cutoffModalSpy.mock.calls.at(-1);
+    expect(lastCall).toBeDefined();
+    const props = lastCall![0] as {
+      rescheduleOption?: { dateString: string; displayDate: string };
+      onReschedule?: () => void;
+    };
+    expect(props.rescheduleOption).toBeDefined();
+    expect(typeof props.rescheduleOption?.dateString).toBe("string");
+    expect(props.rescheduleOption?.dateString).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    expect(typeof props.rescheduleOption?.displayDate).toBe("string");
+    expect(props.rescheduleOption?.displayDate.length).toBeGreaterThan(0);
+    expect(typeof props.onReschedule).toBe("function");
+  });
+
+  it("composes setDelivery + setStep('time') on reschedule click (D-31)", () => {
+    const deliveryDays = [
+      {
+        id: "day-saturday",
+        dayOfWeek: 6,
+        isActive: true,
+        cutoffDay: 5,
+        cutoffHour: 15,
+        deliveryFeeCents: 1500,
+        displayOrder: 0,
+        direction: "all" as const,
+      },
+    ];
+    const timeWindows = [{ start: "10:00", end: "12:00", label: "Morning" }];
+
+    render(<CheckoutClient timeWindows={timeWindows} deliveryDays={deliveryDays} />);
+
+    // Trigger reschedule directly via the prop the modal received
+    const lastCall = cutoffModalSpy.mock.calls.at(-1);
+    expect(lastCall).toBeDefined();
+    const props = lastCall![0] as {
+      rescheduleOption?: { dateString: string; displayDate: string };
+      onReschedule: () => void;
+    };
+
+    // Sanity-check the option exists before invoking the handler
+    expect(props.rescheduleOption).toBeDefined();
+    props.onReschedule();
+
+    // Assert all three composition steps fired
+    expect(mockSetDeliveryFn).toHaveBeenCalledTimes(1);
+    expect(mockSetDeliveryFn).toHaveBeenCalledWith({
+      date: props.rescheduleOption!.dateString,
+      windowStart: "10:00",
+      windowEnd: "12:00",
+    });
+    expect(mockSetStepFn).toHaveBeenCalledWith("time");
+  });
+
+  it("does NOT crash on reschedule when timeWindows is empty (defensive)", () => {
+    const deliveryDays = [
+      {
+        id: "day-saturday",
+        dayOfWeek: 6,
+        isActive: true,
+        cutoffDay: 5,
+        cutoffHour: 15,
+        deliveryFeeCents: 1500,
+        displayOrder: 0,
+        direction: "all" as const,
+      },
+    ];
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={deliveryDays} />);
+
+    const lastCall = cutoffModalSpy.mock.calls.at(-1);
+    const props = lastCall![0] as { onReschedule: () => void };
+    // Should be a no-op (early return), not throw
+    expect(() => props.onReschedule()).not.toThrow();
+    expect(mockSetDeliveryFn).not.toHaveBeenCalled();
   });
 });

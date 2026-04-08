@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
@@ -12,6 +12,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
 import { CartNavigationGuard } from "@/components/ui/cart/CartNavigationGuard";
 import { CutoffModal } from "@/components/ui/delivery";
+import { getNextDeliveryDate } from "@/lib/utils/delivery-dates";
 import { spring } from "@/lib/motion-tokens";
 import {
   CheckoutStepperV8,
@@ -83,7 +84,7 @@ export default function CheckoutClient({
   const router = useRouter();
   const { user, isLoading: authLoading } = useAuth();
   const { isEmpty } = useCart();
-  const { step, setStep, reset } = useCheckoutStore();
+  const { step, setStep, reset, setDelivery } = useCheckoutStore();
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
   // Use multi-day gate when delivery days are configured, legacy otherwise
@@ -93,6 +94,46 @@ export default function CheckoutClient({
   const gate = hasMultiDay ? multiDayGate : legacyGate;
 
   const [showCutoffModal, setShowCutoffModal] = useState(false);
+
+  // Phase 111 CHKP-04 D-30 — compute next available delivery for the
+  // cutoff modal reschedule action. Uses Phase 106 timezone-correct
+  // helper (NEVER use getUTCDay() — LA timezone bug).
+  const nextDelivery = useMemo(() => {
+    if (deliveryDays.length === 0) return undefined;
+    const next = getNextDeliveryDate(new Date(), deliveryDays);
+    if (!next) return undefined;
+    // Build local-date ISO string (YYYY-MM-DD) — NOT toISOString()
+    // (which would shift days near UTC midnight in LA timezone).
+    const year = next.getFullYear();
+    const month = String(next.getMonth() + 1).padStart(2, "0");
+    const day = String(next.getDate()).padStart(2, "0");
+    const dateString = `${year}-${month}-${day}`;
+    const displayDate = next.toLocaleDateString("en-US", {
+      weekday: "long",
+      month: "long",
+      day: "numeric",
+    });
+    return { dateString, displayDate };
+  }, [deliveryDays]);
+
+  // Phase 111 CHKP-04 D-31 — compose setDelivery + setStep("time") + close modal.
+  // Missing ANY of these three breaks the UX per D-31. D-32: auto-pick the
+  // first time window (mirrors TimeStepV8.tsx:135-140 default-selection
+  // pattern; DeliveryDayConfig has no per-day windows array — windows are
+  // global). D-33: navigate to "time" step (not payment) so customer reviews
+  // the new window before re-committing to payment.
+  const handleReschedule = useCallback(() => {
+    if (!nextDelivery) return;
+    if (timeWindows.length === 0) return;
+    const firstWindow = timeWindows[0];
+    setDelivery({
+      date: nextDelivery.dateString,
+      windowStart: firstWindow.start,
+      windowEnd: firstWindow.end,
+    });
+    setStep("time");
+    setShowCutoffModal(false);
+  }, [nextDelivery, timeWindows, setDelivery, setStep]);
 
   // Navigation guard: warn when leaving checkout with items in cart
   const {
@@ -307,6 +348,8 @@ export default function CheckoutClient({
         isOpen={showCutoffModal}
         onClose={() => setShowCutoffModal(false)}
         nextDeliveryDate={gate.deliveryDate.displayDate}
+        rescheduleOption={nextDelivery}
+        onReschedule={handleReschedule}
       />
     </div>
   );
