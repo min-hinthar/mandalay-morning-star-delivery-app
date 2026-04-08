@@ -118,6 +118,11 @@ vi.mock("@/lib/stores/checkout-store", () => ({
 // so the isolation tests below can render the genuine implementation.
 import { EmptyCheckoutError as RealEmptyCheckoutError } from "@/components/ui/checkout/EmptyCheckoutError";
 
+// Spy capturing props passed to CheckoutErrorBanner so the CHKP-02 wiring
+// tests can assert the synthesized PRICE_CHANGED error AND trigger
+// onUpdateCart directly without needing to render the full banner DOM.
+const checkoutErrorBannerSpy = vi.fn();
+
 vi.mock("@/components/ui/checkout", () => ({
   CheckoutStepperV8: () => <div data-testid="stepper" />,
   AddressStep: () => <div data-testid="address-step" />,
@@ -130,7 +135,83 @@ vi.mock("@/components/ui/checkout", () => ({
       <RealEmptyCheckoutError />
     </div>
   ),
+  // CHKP-02 — render the synthesized error.code as a testid + render an
+  // Update cart button that calls the onUpdateCart prop. Spy captures the
+  // full props payload so tests can assert the items array shape.
+  CheckoutErrorBanner: (props: {
+    error: { code: string; details?: { items?: unknown[]; overallDirection?: string } };
+    onUpdateCart?: () => void;
+  }) => {
+    checkoutErrorBannerSpy(props);
+    return (
+      <div
+        data-testid="checkout-error-banner"
+        data-code={props.error.code}
+        data-direction={props.error.details?.overallDirection}
+      >
+        Heads up — prices changed
+        <button type="button" onClick={props.onUpdateCart}>
+          Update cart
+        </button>
+      </div>
+    );
+  },
 }));
+
+// Phase 111 CHKP-02 — useCartValidation is mocked via a top-level mutable
+// ref so each test can control the priceChangedIds state.
+let mockCartValidationReturn: {
+  status: "idle" | "validating" | "done" | "error";
+  validations: Map<
+    string,
+    {
+      cartItemId: string;
+      status: "valid" | "sold-out" | "unavailable" | "price-changed";
+      newPriceCents?: number;
+      priceDirection?: "up" | "down";
+    }
+  >;
+  priceChangedIds: string[];
+  soldOutIds: string[];
+  unavailableIds: string[];
+  suggestions: Map<string, unknown[]>;
+  hasBlockingIssues: boolean;
+  timedOut: boolean;
+  proceedAnyway: () => void;
+} = {
+  status: "done",
+  validations: new Map(),
+  priceChangedIds: [],
+  soldOutIds: [],
+  unavailableIds: [],
+  suggestions: new Map(),
+  hasBlockingIssues: false,
+  timedOut: false,
+  proceedAnyway: vi.fn(),
+};
+
+vi.mock("@/lib/hooks/useCartValidation", () => ({
+  useCartValidation: () => mockCartValidationReturn,
+}));
+
+// Phase 111 CHKP-02 — useCartStore is consumed by CheckoutClient via a
+// selector to read items for name/oldPriceCents lookup. Mock with a
+// flip-switch ref so individual tests can populate the cart.
+let mockCartStoreItems: Array<{
+  cartItemId: string;
+  nameEn: string;
+  basePriceCents: number;
+}> = [];
+
+vi.mock("@/lib/stores/cart-store", () => {
+  const useCartStore = (
+    selector?: (s: { items: typeof mockCartStoreItems }) => unknown
+  ): unknown => {
+    const state = { items: mockCartStoreItems };
+    return selector ? selector(state) : state;
+  };
+  return { useCartStore };
+});
 
 vi.mock("@/components/ui/cart/CartNavigationGuard", () => ({
   CartNavigationGuard: () => null,
@@ -405,5 +486,147 @@ describe("CHKP-04 — CutoffModal reschedule wiring", () => {
     // Should be a no-op (early return), not throw
     expect(() => props.onReschedule()).not.toThrow();
     expect(mockSetDeliveryFn).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 111 CHKP-02 — CheckoutClient wires priceChangedIds to PRICE_CHANGED banner
+// ---------------------------------------------------------------------------
+
+describe("CHKP-02 — CheckoutClient wires priceChangedIds to PRICE_CHANGED banner", () => {
+  beforeEach(() => {
+    mockResetFn.mockClear();
+    mockSetStepFn.mockClear();
+    mockSetDeliveryFn.mockClear();
+    mockRouterPush.mockClear();
+    checkoutErrorBannerSpy.mockClear();
+    mockIsEmpty = false;
+
+    // Default: empty cart + no price changes — tests opt in by reassigning
+    mockCartStoreItems = [];
+    mockCartValidationReturn = {
+      status: "done",
+      validations: new Map(),
+      priceChangedIds: [],
+      soldOutIds: [],
+      unavailableIds: [],
+      suggestions: new Map(),
+      hasBlockingIssues: false,
+      timedOut: false,
+      proceedAnyway: vi.fn(),
+    };
+  });
+
+  it("renders CheckoutErrorBanner with PRICE_CHANGED copy when priceChangedIds is non-empty", () => {
+    // Seed cart + validation with one price-changed item (up direction)
+    mockCartStoreItems = [
+      {
+        cartItemId: "ci-1",
+        nameEn: "Tea Leaf Salad",
+        basePriceCents: 1200,
+      },
+    ];
+    mockCartValidationReturn = {
+      status: "done",
+      validations: new Map([
+        [
+          "ci-1",
+          {
+            cartItemId: "ci-1",
+            status: "price-changed",
+            newPriceCents: 1350,
+            priceDirection: "up",
+          },
+        ],
+      ]),
+      priceChangedIds: ["ci-1"],
+      soldOutIds: [],
+      unavailableIds: [],
+      suggestions: new Map(),
+      hasBlockingIssues: false,
+      timedOut: false,
+      proceedAnyway: vi.fn(),
+    };
+
+    render(<CheckoutClient timeWindows={[]} />);
+
+    // Banner appears with the headline copy from the mocked component
+    expect(screen.getByTestId("checkout-error-banner")).toBeTruthy();
+    expect(screen.getByText("Heads up — prices changed")).toBeInTheDocument();
+
+    // Spy captured the synthesized error payload
+    const lastCall = checkoutErrorBannerSpy.mock.calls.at(-1);
+    expect(lastCall).toBeDefined();
+    const props = lastCall![0] as {
+      error: {
+        code: string;
+        details: {
+          items: Array<{
+            name: string;
+            oldPriceCents: number;
+            newPriceCents: number;
+            direction: string;
+          }>;
+          overallDirection: string;
+        };
+      };
+    };
+    expect(props.error.code).toBe("PRICE_CHANGED");
+    expect(props.error.details.items).toHaveLength(1);
+    expect(props.error.details.items[0]).toEqual({
+      name: "Tea Leaf Salad",
+      oldPriceCents: 1200,
+      newPriceCents: 1350,
+      direction: "up",
+    });
+    expect(props.error.details.overallDirection).toBe("up");
+  });
+
+  it("calls router.push('/cart') when Update cart button in banner is clicked", () => {
+    mockCartStoreItems = [
+      {
+        cartItemId: "ci-1",
+        nameEn: "Mohinga",
+        basePriceCents: 1500,
+      },
+    ];
+    mockCartValidationReturn = {
+      status: "done",
+      validations: new Map([
+        [
+          "ci-1",
+          {
+            cartItemId: "ci-1",
+            status: "price-changed",
+            newPriceCents: 1300,
+            priceDirection: "down",
+          },
+        ],
+      ]),
+      priceChangedIds: ["ci-1"],
+      soldOutIds: [],
+      unavailableIds: [],
+      suggestions: new Map(),
+      hasBlockingIssues: false,
+      timedOut: false,
+      proceedAnyway: vi.fn(),
+    };
+
+    render(<CheckoutClient timeWindows={[]} />);
+
+    // Click the Update cart button rendered by the mocked banner
+    const updateBtn = screen.getByRole("button", { name: /update cart/i });
+    updateBtn.click();
+
+    expect(mockRouterPush).toHaveBeenCalledWith("/cart");
+  });
+
+  it("does NOT render the banner when priceChangedIds is empty", () => {
+    // Default beforeEach state: empty cart, empty priceChangedIds
+    render(<CheckoutClient timeWindows={[]} />);
+
+    expect(screen.queryByTestId("checkout-error-banner")).toBeNull();
+    expect(screen.queryByText("Heads up — prices changed")).toBeNull();
+    expect(checkoutErrorBannerSpy).not.toHaveBeenCalled();
   });
 });

@@ -6,6 +6,8 @@ import { Loader2 } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useCart } from "@/lib/hooks/useCart";
+import { useCartStore } from "@/lib/stores/cart-store";
+import { useCartValidation } from "@/lib/hooks/useCartValidation";
 import { useNavigationGuard } from "@/lib/hooks/useNavigationGuard";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -21,6 +23,7 @@ import {
   PaymentStep,
   CheckoutSummary,
   EmptyCheckoutError,
+  CheckoutErrorBanner,
 } from "@/components/ui/checkout";
 import type { CheckoutStep } from "@/types/checkout";
 import type { DeliveryDayConfig, DeliveryZoneConfig, TimeWindow } from "@/types/delivery";
@@ -134,6 +137,62 @@ export default function CheckoutClient({
     setStep("time");
     setShowCutoffModal(false);
   }, [nextDelivery, timeWindows, setDelivery, setStep]);
+
+  // Phase 111 CFIX-09 + CHKP-02 — Live menu validation detects price changes
+  // from polling. When non-empty, render PRICE_CHANGED banner explaining
+  // old vs new price per item. Dismissal navigates to /cart.
+  //
+  // CartItemValidation only carries { cartItemId, status, newPriceCents?,
+  // priceDirection? } — name + oldPriceCents come from the cart item itself
+  // (CartItem.nameEn / CartItem.basePriceCents). The map below joins the
+  // priceChangedIds list against the live cart items + validations.
+  const cartItems = useCartStore((s) => s.items);
+  const cartValidation = useCartValidation();
+  const hasPriceChanges =
+    cartValidation.status === "done" && cartValidation.priceChangedIds.length > 0;
+
+  const priceChangeError = useMemo(() => {
+    if (!hasPriceChanges || cartValidation.status !== "done") return null;
+    const items = cartValidation.priceChangedIds
+      .map((cartItemId) => {
+        const v = cartValidation.validations.get(cartItemId);
+        const cartItem = cartItems.find((ci) => ci.cartItemId === cartItemId);
+        if (
+          !v ||
+          !cartItem ||
+          v.newPriceCents == null ||
+          !v.priceDirection ||
+          v.status !== "price-changed"
+        ) {
+          return null;
+        }
+        return {
+          name: cartItem.nameEn,
+          oldPriceCents: cartItem.basePriceCents,
+          newPriceCents: v.newPriceCents,
+          direction: v.priceDirection,
+        };
+      })
+      .filter((x): x is NonNullable<typeof x> => x !== null);
+
+    if (items.length === 0) return null;
+
+    // Dominant direction: up if any item went up (safer default per UI-SPEC
+    // state matrix — "Multi item, mixed directions → Warning banner").
+    const overallDirection: "up" | "down" = items.some((it) => it.direction === "up")
+      ? "up"
+      : "down";
+
+    return {
+      code: "PRICE_CHANGED",
+      message: "Prices updated since you added items to your cart",
+      details: { items, overallDirection },
+    };
+  }, [hasPriceChanges, cartValidation, cartItems]);
+
+  const handleUpdateCart = useCallback(() => {
+    router.push("/cart");
+  }, [router]);
 
   // Navigation guard: warn when leaving checkout with items in cart
   const {
@@ -251,6 +310,13 @@ export default function CheckoutClient({
           onStepClick={handleStepClick}
           className="mb-6 sm:mb-8"
         />
+
+        {/* Phase 111 CHKP-02 — Price change banner, rendered above step content */}
+        {priceChangeError && (
+          <div className="mb-6">
+            <CheckoutErrorBanner error={priceChangeError} onUpdateCart={handleUpdateCart} />
+          </div>
+        )}
 
         <div className="grid grid-cols-1 gap-6 lg:gap-8 lg:grid-cols-3">
           {/* Main content - order form with animated transitions */}
