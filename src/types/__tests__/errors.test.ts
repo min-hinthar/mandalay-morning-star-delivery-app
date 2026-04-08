@@ -18,10 +18,15 @@ describe("ClientErrorCodes (Phase 110 D-33)", () => {
     expect(b).toBeDefined();
   });
 
-  it("object exposes exactly the two expected keys (no extras)", () => {
+  it("PRICE_CHANGED is the literal string (Phase 111 CHKP-02 / D-21)", () => {
+    expect(ClientErrorCodes.PRICE_CHANGED).toBe("PRICE_CHANGED");
+  });
+
+  it("object exposes exactly the three expected keys (no extras)", () => {
     expect(Object.keys(ClientErrorCodes).sort()).toEqual([
       "CART_VALIDATION_TIMEOUT",
       "CHECKOUT_NETWORK_TIMEOUT",
+      "PRICE_CHANGED",
     ]);
   });
 

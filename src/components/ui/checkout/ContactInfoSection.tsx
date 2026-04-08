@@ -165,11 +165,7 @@ export function ContactInfoSection({ saveToProfileRef }: ContactInfoSectionProps
             )}
           />
           {errors.customerName && (
-            <p
-              id="customerName-error"
-              role="alert"
-              className="font-body text-xs text-status-error"
-            >
+            <p id="customerName-error" role="alert" className="font-body text-xs text-status-error">
               {errors.customerName.message}
             </p>
           )}
