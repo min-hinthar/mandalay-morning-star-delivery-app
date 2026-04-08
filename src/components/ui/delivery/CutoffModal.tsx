@@ -14,6 +14,20 @@ export interface CutoffModalProps {
   isOpen: boolean;
   onClose: () => void;
   nextDeliveryDate: string;
+  /**
+   * Phase 111 CHKP-04 D-27 — When present, renders a primary
+   * "Reschedule to {displayDate}" button between "Got it" and
+   * "Browse Menu". Button is hidden (D-29) when this is undefined,
+   * preserving the legacy two-action layout.
+   */
+  rescheduleOption?: {
+    /** ISO date string for useCheckoutStore.setDelivery (e.g. "2026-04-11") */
+    dateString: string;
+    /** Display label (e.g. "Saturday, April 11") */
+    displayDate: string;
+  };
+  /** Phase 111 CHKP-04 — invoked when reschedule button clicked. Handler composes setDelivery + setStep + close. */
+  onReschedule?: () => void;
 }
 
 // ============================================
@@ -23,9 +37,18 @@ export interface CutoffModalProps {
 /**
  * Past-cutoff modal with warm, reassuring tone.
  * Cart items are NOT cleared — customers return to browse.
- * Two actions: "Got it" (dismiss) and "Browse Menu" (navigate to /menu).
+ *
+ * Two-action mode (legacy): "Got it" (dismiss) + "Browse Menu" (navigate).
+ * Three-action mode (Phase 111 CHKP-04): "Got it" + "Reschedule to {date}"
+ * primary CTA + "Browse Menu" outline. Triggered by passing rescheduleOption.
  */
-export function CutoffModal({ isOpen, onClose, nextDeliveryDate }: CutoffModalProps) {
+export function CutoffModal({
+  isOpen,
+  onClose,
+  nextDeliveryDate,
+  rescheduleOption,
+  onReschedule,
+}: CutoffModalProps) {
   return (
     <Modal isOpen={isOpen} onClose={onClose} title="Ordering is currently closed">
       <div className="flex flex-col items-center gap-6 px-2 pb-6 pt-2 text-center">
@@ -66,7 +89,32 @@ export function CutoffModal({ isOpen, onClose, nextDeliveryDate }: CutoffModalPr
           <Button variant="outline" size="md" onClick={onClose} className="sm:min-w-[120px]">
             Got it
           </Button>
-          <Button variant="primary" size="md" asChild className="sm:min-w-[140px]">
+
+          {/* Phase 111 CHKP-04 — Reschedule button between Got it and Browse Menu */}
+          {rescheduleOption && onReschedule && (
+            <>
+              <Button
+                variant="primary"
+                size="md"
+                onClick={onReschedule}
+                className="sm:min-w-[160px]"
+                aria-label={`Reschedule your delivery to ${rescheduleOption.displayDate}`}
+              >
+                Reschedule to {rescheduleOption.displayDate}
+              </Button>
+              {/* BURMESE-REVIEW Phase 111 D-40 — screen-reader-only Burmese label */}
+              <span className="sr-only" lang="my">
+                {rescheduleOption.displayDate} သို့ ပြောင်းမည်
+              </span>
+            </>
+          )}
+
+          <Button
+            variant={rescheduleOption ? "outline" : "primary"}
+            size="md"
+            asChild
+            className="sm:min-w-[140px]"
+          >
             <Link href="/menu" onClick={onClose}>
               Browse Menu
             </Link>
