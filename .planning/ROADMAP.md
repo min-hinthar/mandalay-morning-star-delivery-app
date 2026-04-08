@@ -136,9 +136,9 @@
   3. Price changes while cart is open show old-vs-new price explanation, not just "Dismiss"
   4. Cutoff modal offers one-click reschedule to next available delivery date
 **Plans**: 4 plans
-  - [ ] 111-01-PLAN.md — reset() audit + CHKP-04 cutoff modal reschedule (CHKP-04)
-  - [ ] 111-02-PLAN.md — CFIX-07 form persistence + CHKP-01 onTouched validation + PRICE_CHANGED scaffold (CFIX-07, CHKP-01)
-  - [ ] 111-03-PLAN.md — CFIX-09 menu polling + CHKP-02 price-change banner (CFIX-09, CHKP-02)
+  - [x] 111-01-PLAN.md — reset() audit + CHKP-04 cutoff modal reschedule (CHKP-04)
+  - [x] 111-02-PLAN.md — CFIX-07 form persistence + CHKP-01 onTouched validation + PRICE_CHANGED scaffold (CFIX-07, CHKP-01)
+  - [x] 111-03-PLAN.md — CFIX-09 menu polling + CHKP-02 price-change banner (CFIX-09, CHKP-02)
   - [ ] 111-04-PLAN.md — CHKP-03 step-transition prefetch (CHKP-03)
 **UI hint**: yes
 
@@ -210,7 +210,7 @@ Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 110. Critical Fixes & Data Reliability | v2.3 | 3/3 | Complete    | 2026-04-07 |
-| 111. Checkout Conversion | v2.3 | 0/TBD | Not started | - |
+| 111. Checkout Conversion | v2.3 | 3/4 | In Progress|  |
 | 112. Order Tracking Overhaul | v2.3 | 0/TBD | Not started | - |
 | 113. Accessibility & Design System | v2.3 | 0/TBD | Not started | - |
 | 114. Loading States & Offline | v2.3 | 0/TBD | Not started | - |

@@ -17,13 +17,13 @@ Requirements for Customer UX Quality milestone. Each maps to roadmap phases.
 - [ ] **CFIX-06**: React Query provider configures 3 retries with exponential backoff — transient failures recover
 - [ ] **CFIX-07**: Checkout form state persists across payment errors — user doesn't re-enter address/time/contact
 - [ ] **CFIX-08**: Offline cart items actually sync when back online — pendingSync flag honored
-- [ ] **CFIX-09**: Menu periodically refetches (2-5 min) while cart is non-empty — detects price/availability changes
+- [x] **CFIX-09**: Menu periodically refetches (2-5 min) while cart is non-empty — detects price/availability changes
 - [ ] **CFIX-10**: Tracking page audio notifications have mute toggle — no interruption on calls
 
 ### Checkout Polish
 
 - [ ] **CHKP-01**: Address and payment forms show inline validation errors as user types — not only on submit
-- [ ] **CHKP-02**: Price change alerts explain what changed (old price vs new) — not just "Dismiss"
+- [x] **CHKP-02**: Price change alerts explain what changed (old price vs new) — not just "Dismiss"
 - [ ] **CHKP-03**: Checkout prefetches next step's data while user fills current step — reduces perceived latency
 - [ ] **CHKP-04**: Cutoff modal suggests rescheduling to next available delivery date with one-click action
 
@@ -112,10 +112,10 @@ Deferred to future releases.
 | CFIX-06 | Phase 110 | Pending |
 | CFIX-07 | Phase 111 | Pending |
 | CFIX-08 | Phase 114 | Pending |
-| CFIX-09 | Phase 111 | Pending |
+| CFIX-09 | Phase 111 | Complete |
 | CFIX-10 | Phase 112 | Pending |
 | CHKP-01 | Phase 111 | Pending |
-| CHKP-02 | Phase 111 | Pending |
+| CHKP-02 | Phase 111 | Complete |
 | CHKP-03 | Phase 111 | Pending |
 | CHKP-04 | Phase 111 | Pending |
 | TRAK-01 | Phase 112 | Pending |
