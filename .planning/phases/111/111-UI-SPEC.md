@@ -1,10 +1,11 @@
 ---
 phase: 111
 slug: checkout-conversion
-status: draft
+status: approved
 shadcn_initialized: true
 preset: new-york (neutral base, lucide icons)
 created: 2026-04-07
+reviewed_at: 2026-04-07
 ---
 
 # Phase 111 — UI Design Contract
