@@ -155,9 +155,22 @@ export default function CheckoutClient({
   // EmptyCheckoutError component synchronously with no spinner, no redirect,
   // and no flash cycle.
 
-  // Reset checkout state on unmount
+  // Phase 111 CFIX-07 D-03 — Do NOT reset checkout state when the user is
+  // being redirected to Stripe. Stripe checkout uses same-tab navigation
+  // (usePaymentSubmit.ts:203: window.location.href = sessionUrl), which
+  // triggers React unmount synchronously BEFORE the browser navigates.
+  // Without this guard, reset() clears sessionStorage and breaks CFIX-07
+  // form persistence across payment errors / manual back-navigation from
+  // Stripe. Reset still fires on normal unmount paths (logout, /menu nav,
+  // tab close — though tab close also purges sessionStorage anyway).
   useEffect(() => {
-    return () => reset();
+    return () => {
+      if (typeof window === "undefined") return;
+      const isStripeRedirect = window.location.href.includes("checkout.stripe.com");
+      if (!isStripeRedirect) {
+        reset();
+      }
+    };
   }, [reset]);
 
   if (authLoading || !user) {
