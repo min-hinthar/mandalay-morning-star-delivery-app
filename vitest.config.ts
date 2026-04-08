@@ -26,7 +26,7 @@ export default defineConfig({
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
     globals: true,
-    exclude: ["**/node_modules/**", "**/e2e/**"],
+    exclude: ["**/node_modules/**", "**/e2e/**", "**/.claude/worktrees/**"],
     // Force exit after tests complete to avoid hanging on Windows
     teardownTimeout: 1000,
     testTimeout: 10000,
