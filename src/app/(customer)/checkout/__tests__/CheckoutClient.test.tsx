@@ -12,6 +12,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen } from "@testing-library/react";
 import React from "react";
+import { queryKeys } from "@/lib/queryKeys";
 
 // ---------------------------------------------------------------------------
 // Module mocks
@@ -26,6 +27,24 @@ vi.mock("next/navigation", () => ({
     replace: mockRouterReplace,
   }),
 }));
+
+// Phase 111 CHKP-03 — useQueryClient is mocked so the step-prefetch tests
+// can capture prefetchQuery calls with concrete assertions. Other TanStack
+// Query APIs are preserved via importActual so nothing downstream breaks.
+const prefetchQuerySpy = vi.fn();
+vi.mock("@tanstack/react-query", async () => {
+  const actual =
+    await vi.importActual<typeof import("@tanstack/react-query")>("@tanstack/react-query");
+  return {
+    ...actual,
+    useQueryClient: () => ({
+      prefetchQuery: prefetchQuerySpy,
+      getQueryData: vi.fn(),
+      setQueryData: vi.fn(),
+      invalidateQueries: vi.fn(),
+    }),
+  };
+});
 
 vi.mock("framer-motion", () => {
   function motionComp(tag: string) {
@@ -100,13 +119,15 @@ vi.mock("@/lib/hooks/useDeliveryGate", () => ({
   useDeliveryGateMultiDay: () => ({ isOpen: true, deliveryDate: { displayDate: "Saturday" } }),
 }));
 
-// Mock checkout store — stable fn identity + spy accessor for assertions
+// Mock checkout store — stable fn identity + spy accessor for assertions.
+// mockStep is a mutable ref so CHKP-03 prefetch tests can flip step per test.
+let mockStep: "address" | "time" | "payment" = "address";
 const mockResetFn = vi.fn();
 const mockSetStepFn = vi.fn();
 const mockSetDeliveryFn = vi.fn();
 vi.mock("@/lib/stores/checkout-store", () => ({
   useCheckoutStore: () => ({
-    step: "address",
+    step: mockStep,
     setStep: mockSetStepFn,
     reset: mockResetFn,
     setDelivery: mockSetDeliveryFn,
@@ -628,5 +649,109 @@ describe("CHKP-02 — CheckoutClient wires priceChangedIds to PRICE_CHANGED bann
     expect(screen.queryByTestId("checkout-error-banner")).toBeNull();
     expect(screen.queryByText("Heads up — prices changed")).toBeNull();
     expect(checkoutErrorBannerSpy).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Phase 111 CHKP-03 — step prefetch (D-22..D-26)
+// ---------------------------------------------------------------------------
+
+describe("CHKP-03 — step prefetch", () => {
+  beforeEach(() => {
+    prefetchQuerySpy.mockClear();
+    mockIsEmpty = false;
+    mockStep = "address";
+    // Reset cart validation + store items so the CHKP-02 banner path does
+    // not interfere with prefetch assertions.
+    mockCartStoreItems = [];
+    mockCartValidationReturn = {
+      status: "done",
+      validations: new Map(),
+      priceChangedIds: [],
+      soldOutIds: [],
+      unavailableIds: [],
+      suggestions: new Map(),
+      hasBlockingIssues: false,
+      timedOut: false,
+      proceedAnyway: vi.fn(),
+    };
+  });
+
+  afterEach(() => {
+    mockStep = "address";
+  });
+
+  it("prefetches menu.list() on step='address'", () => {
+    mockStep = "address";
+
+    render(<CheckoutClient timeWindows={[]} />);
+
+    // Expect a prefetch call with the menu.list() key and the shared queryFn
+    const menuCall = prefetchQuerySpy.mock.calls.find(
+      (c) =>
+        JSON.stringify((c[0] as { queryKey: unknown }).queryKey) ===
+        JSON.stringify(queryKeys.menu.list())
+    );
+    expect(menuCall).toBeDefined();
+    const args = menuCall![0] as {
+      queryKey: unknown;
+      queryFn: unknown;
+      staleTime?: number;
+    };
+    expect(args.queryKey).toEqual(queryKeys.menu.list());
+    expect(typeof args.queryFn).toBe("function");
+    expect(args.staleTime).toBe(5 * 60 * 1000);
+  });
+
+  it("prefetches addresses.list() on step='time'", () => {
+    mockStep = "time";
+
+    render(<CheckoutClient timeWindows={[]} />);
+
+    const addrCall = prefetchQuerySpy.mock.calls.find(
+      (c) =>
+        JSON.stringify((c[0] as { queryKey: unknown }).queryKey) ===
+        JSON.stringify(queryKeys.addresses.list())
+    );
+    expect(addrCall).toBeDefined();
+    const args = addrCall![0] as {
+      queryKey: unknown;
+      queryFn: unknown;
+      staleTime?: number;
+    };
+    expect(args.queryKey).toEqual(queryKeys.addresses.list());
+    expect(typeof args.queryFn).toBe("function");
+    expect(args.staleTime).toBe(5 * 60 * 1000);
+  });
+
+  it("does NOT prefetch on step='payment'", () => {
+    mockStep = "payment";
+
+    render(<CheckoutClient timeWindows={[]} />);
+
+    // Neither menu nor addresses prefetch should fire on the terminal step
+    const menuCall = prefetchQuerySpy.mock.calls.find(
+      (c) =>
+        JSON.stringify((c[0] as { queryKey: unknown } | undefined)?.queryKey) ===
+        JSON.stringify(queryKeys.menu.list())
+    );
+    const addrCall = prefetchQuerySpy.mock.calls.find(
+      (c) =>
+        JSON.stringify((c[0] as { queryKey: unknown } | undefined)?.queryKey) ===
+        JSON.stringify(queryKeys.addresses.list())
+    );
+    expect(menuCall).toBeUndefined();
+    expect(addrCall).toBeUndefined();
+  });
+
+  it("does NOT prefetch when cart is empty", () => {
+    mockIsEmpty = true;
+    mockStep = "address";
+
+    render(<CheckoutClient timeWindows={[]} />);
+
+    // Empty cart short-circuits to EmptyCheckoutError before any prefetch
+    // effect runs — but even if the effect ran, the isEmpty guard blocks it.
+    expect(prefetchQuerySpy).not.toHaveBeenCalled();
   });
 });

@@ -4,6 +4,8 @@ import { useEffect, useState, useRef, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
+import { useQueryClient } from "@tanstack/react-query";
+import { queryKeys } from "@/lib/queryKeys";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartStore } from "@/lib/stores/cart-store";
@@ -12,6 +14,8 @@ import { useNavigationGuard } from "@/lib/hooks/useNavigationGuard";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
+import { menuQueryFn } from "@/lib/hooks/useMenu";
+import { addressesQueryFn } from "@/lib/hooks/useAddresses";
 import { CartNavigationGuard } from "@/components/ui/cart/CartNavigationGuard";
 import { CutoffModal } from "@/components/ui/delivery";
 import { getNextDeliveryDate } from "@/lib/utils/delivery-dates";
@@ -85,6 +89,7 @@ export default function CheckoutClient({
   codEnabled = false,
 }: CheckoutClientProps) {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { user, isLoading: authLoading } = useAuth();
   const { isEmpty } = useCart();
   const { step, setStep, reset, setDelivery } = useCheckoutStore();
@@ -272,6 +277,43 @@ export default function CheckoutClient({
       }
     };
   }, [reset]);
+
+  // Phase 111 CHKP-03 D-22..D-26 — Silent background prefetch of next-step
+  // data. Uses the Phase 110 query key factory (D-26) and the useQueryClient()
+  // hook (D-23 — NEVER reach for the QueryClient ref directly; it is local
+  // useState in the provider, not a module export).
+  //
+  // CRITICAL: queryFn references MUST be the SAME named exports that the
+  // consumer hooks use (menuQueryFn from useMenu, addressesQueryFn from
+  // useAddresses). Divergent inline queryFns break the TanStack Query dedup
+  // contract and risk shape mismatches between cached prefetch result and
+  // consumer hook expectations.
+  //
+  // - step="address" → prefetch menu.list() (typing window: 30-120s)
+  // - step="time"    → prefetch addresses.list() (for payment step prefill)
+  // - step="payment" → no prefetch (terminal step)
+  //
+  // D-19 precedent: guard on isEmpty to avoid polling empty cart.
+  // D-24: no `void` prefix — Vercel kills fire-and-forget. The implicit
+  // promise return from prefetchQuery inside the effect callback is fine;
+  // prefetchQuery swallows errors silently (D-25 — benign background work).
+  useEffect(() => {
+    if (isEmpty) return;
+    if (step === "address") {
+      queryClient.prefetchQuery({
+        queryKey: queryKeys.menu.list(),
+        queryFn: menuQueryFn,
+        staleTime: 5 * 60 * 1000,
+      });
+    } else if (step === "time") {
+      queryClient.prefetchQuery({
+        queryKey: queryKeys.addresses.list(),
+        queryFn: addressesQueryFn,
+        staleTime: 5 * 60 * 1000,
+      });
+    }
+    // No prefetch on step === "payment" — terminal step per D-22.
+  }, [step, isEmpty, queryClient]);
 
   if (authLoading || !user) {
     return (
