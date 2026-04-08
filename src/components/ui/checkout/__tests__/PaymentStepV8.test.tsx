@@ -22,27 +22,49 @@ import React from "react";
 import { ContactInfoSection } from "@/components/ui/checkout/ContactInfoSection";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 
-// Mock framer-motion to avoid animation machinery in jsdom
+// Mock framer-motion to avoid animation machinery in jsdom.
+// Strip only the motion-specific animation props (initial/animate/exit/etc)
+// but pass EVERYTHING else through — id, type, value, onChange, onBlur, ref,
+// placeholder, maxLength are all needed for RHF Controller + label queries.
 vi.mock("framer-motion", () => {
+  const MOTION_ONLY_PROPS = new Set([
+    "initial",
+    "animate",
+    "exit",
+    "variants",
+    "transition",
+    "whileHover",
+    "whileTap",
+    "whileFocus",
+    "whileDrag",
+    "whileInView",
+    "layout",
+    "layoutId",
+    "drag",
+    "dragConstraints",
+    "dragElastic",
+    "onAnimationStart",
+    "onAnimationComplete",
+    "onViewportEnter",
+    "onViewportLeave",
+  ]);
   function motionComp(tag: string) {
-    const Comp = ({ children, ...props }: Record<string, unknown>) => {
-      const filtered: Record<string, unknown> = {};
-      for (const [k, v] of Object.entries(props)) {
-        if (
-          k === "className" ||
-          k === "style" ||
-          k === "onClick" ||
-          k === "role" ||
-          k === "disabled" ||
-          k.startsWith("data-") ||
-          k.startsWith("aria-")
-        ) {
-          filtered[k] = v;
+    const Comp = React.forwardRef(
+      ({ children, ...props }: Record<string, unknown>, ref: React.Ref<unknown>) => {
+        const filtered: Record<string, unknown> = {};
+        for (const [k, v] of Object.entries(props)) {
+          if (!MOTION_ONLY_PROPS.has(k)) {
+            filtered[k] = v;
+          }
         }
+        const Tag = tag as unknown as React.ElementType;
+        return (
+          <Tag ref={ref} {...filtered}>
+            {children as React.ReactNode}
+          </Tag>
+        );
       }
-      const Tag = tag as unknown as React.ElementType;
-      return <Tag {...filtered}>{children as React.ReactNode}</Tag>;
-    };
+    );
     Comp.displayName = `motion.${tag}`;
     return Comp;
   }
@@ -54,6 +76,25 @@ vi.mock("framer-motion", () => {
     useReducedMotion: () => false,
   };
 });
+
+// Mock the Input component to bypass framer-motion's m.input entirely.
+// The real Input wraps <m.input> from framer-motion, which in jsdom doesn't
+// reliably forward value/onChange/onBlur through to the underlying DOM node.
+// Since CHKP-01 tests the RHF Controller contract (not the Input visual chrome),
+// a plain forwardRef'd <input> is a valid stand-in that preserves ref + all props.
+vi.mock("@/components/ui/input", () => ({
+  // eslint-disable-next-line react/display-name
+  Input: React.forwardRef<
+    HTMLInputElement,
+    React.InputHTMLAttributes<HTMLInputElement> & {
+      error?: boolean;
+      helperText?: string;
+      variant?: string;
+    }
+  >(({ error: _error, helperText: _helperText, variant: _variant, ...props }, ref) => (
+    <input ref={ref} {...props} />
+  )),
+}));
 
 // Mock useAnimationPreference (no animations in tests)
 vi.mock("@/lib/hooks/useAnimationPreference", () => ({
