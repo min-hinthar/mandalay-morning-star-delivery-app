@@ -7,6 +7,8 @@ import type { MenuItem, MenuSearchResponse, ModifierGroup } from "@/types/menu";
 
 const searchSchema = z.object({
   q: z.string().trim().min(1).max(100),
+  limit: z.coerce.number().min(1).max(50).default(20),
+  offset: z.coerce.number().min(0).default(0),
 });
 
 type ModifierOptionRow = {
@@ -60,7 +62,11 @@ export async function GET(request: NextRequest) {
     if (rl.limited) return rl.response;
 
     const { searchParams } = new URL(request.url);
-    const result = searchSchema.safeParse({ q: searchParams.get("q") });
+    const result = searchSchema.safeParse({
+      q: searchParams.get("q"),
+      limit: searchParams.get("limit") ?? undefined,
+      offset: searchParams.get("offset") ?? undefined,
+    });
 
     if (!result.success) {
       return NextResponse.json(
@@ -69,10 +75,10 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const query = result.data.q;
+    const { q: query, limit, offset } = result.data;
     const supabase = createPublicClient();
 
-    const { data: items, error } = await supabase
+    const { data: items, error, count } = await supabase
       .from("menu_items")
       .select(
         `
@@ -106,11 +112,13 @@ export async function GET(request: NextRequest) {
             )
           )
         )
-      `
+      `,
+        { count: "exact" }
       )
       .eq("is_active", true)
       .or(`name_en.ilike.%${query}%,name_my.ilike.%${query}%,description_en.ilike.%${query}%`)
       .order("name_en")
+      .range(offset, offset + limit - 1)
       .returns<MenuItemRow[]>();
 
     if (error) {
@@ -157,11 +165,18 @@ export async function GET(request: NextRequest) {
       };
     });
 
+    const total = count ?? menuItems.length;
     const response: MenuSearchResponse = {
       data: {
         items: menuItems,
         query,
         count: menuItems.length,
+        pagination: {
+          limit,
+          offset,
+          total,
+          hasMore: offset + menuItems.length < total,
+        },
       },
       meta: {
         timestamp: new Date().toISOString(),
