@@ -28,7 +28,6 @@ export const queryKeys = {
   orders: {
     all: ["orders"] as const,
     history: () => [...queryKeys.orders.all, "history"] as const,
-    /** @param cursor - opaque cursor string for keyset pagination (default "initial") */
     list: (cursor?: string) =>
       [...queryKeys.orders.all, "list", cursor ?? "initial"] as const,
     itemsForSearch: (userId: string) =>
