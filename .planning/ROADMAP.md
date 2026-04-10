@@ -165,9 +165,9 @@
   4. Dark mode has complete token coverage — no surface, text, or border color falls back to light-mode values
 **Plans**: 3 plans
 Plans:
-  - [ ] 113-01-PLAN.md — Touch target sizing: Button/Input sm → 44px, xs escape hatch (A11Y-01)
-  - [ ] 113-02-PLAN.md — Focus ring harmonization + hardcoded ring color cleanup (A11Y-03, A11Y-04)
-  - [ ] 113-03-PLAN.md — Contrast regression guard + ESLint ring enforcement (A11Y-02, A11Y-04)
+  - [x] 113-01-PLAN.md — Touch target sizing: Button/Input sm → 44px, xs escape hatch (A11Y-01)
+  - [x] 113-02-PLAN.md — Focus ring harmonization + hardcoded ring color cleanup (A11Y-03, A11Y-04)
+  - [x] 113-03-PLAN.md — Contrast regression guard + ESLint ring enforcement (A11Y-02, A11Y-04)
 **UI hint**: yes
 
 ### Phase 114: Loading States & Offline
@@ -216,7 +216,7 @@ Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes.
 | 110. Critical Fixes & Data Reliability | v2.3 | 3/3 | Complete    | 2026-04-07 |
 | 111. Checkout Conversion | v2.3 | 3/4 | In Progress|  |
 | 112. Order Tracking Overhaul | v2.3 | 2/2 | Complete    | 2026-04-10 |
-| 113. Accessibility & Design System | v2.3 | 0/3 | Not started | - |
+| 113. Accessibility & Design System | v2.3 | 3/3 | Complete    | 2026-04-09 |
 | 114. Loading States & Offline | v2.3 | 0/TBD | Not started | - |
 | 115. Data Layer Optimization | v2.3 | 0/TBD | Not started | - |
 | 116. Micro-Interactions & Polish | v2.3 | 0/TBD | Not started | - |
