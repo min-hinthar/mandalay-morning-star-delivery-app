@@ -8,11 +8,12 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 **Every UI element is reliably clickable and the app feels delightfully alive with motion.** If overlays block clicks or animations feel janky, we've failed.
 
-## Current State (v2.2 shipped, v2.3 Phase 110 complete)
+## Current State (v2.2 shipped, v2.3 Phase 112 complete)
 
 - 12 milestones shipped: v1.0-v2.2 (109 phases, 418 plans)
 - v2.2 shipped 2026-03-21: 6 phases, 12 plans, 16/16 requirements, all bugs from codebase deep dive fixed
 - v2.3 Phase 110 (2026-04-07): query key factory, RQ retry config, mobile cart flash fix, empty checkout guard, cutoff submit gate, Stripe 10s + cart 30s timeouts (CFIX-01..06 + DATA-02)
+- v2.3 Phase 112 (2026-04-10): order tracking overhaul — mobile full-height map + collapsible bottom sheet, reconnecting banner with 2s debounce, mute toggle with localStorage persistence, exponential backoff (1s-30s), visibility-aware polling pause (CFIX-10, TRAK-01..04)
 - Deployed to production at delivery.mandalaymorningstar.com
 - Full route lifecycle: drag-reorder stops (desktop DnD + mobile move buttons), split/merge routes, driver reassignment with confirmation
 - Route progress widget: real-time 5s polling ops dashboard showing per-route driver, status, delivered/total
@@ -303,4 +304,4 @@ A production-ready Saturday meal delivery app for Morning Star Weekly Delivery. 
 
 ---
 
-_Last updated: 2026-04-07 after Phase 110 completion_
+_Last updated: 2026-04-10 after Phase 112 completion_
