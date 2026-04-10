@@ -139,7 +139,7 @@
   - [x] 111-01-PLAN.md — reset() audit + CHKP-04 cutoff modal reschedule (CHKP-04)
   - [x] 111-02-PLAN.md — CFIX-07 form persistence + CHKP-01 onTouched validation + PRICE_CHANGED scaffold (CFIX-07, CHKP-01)
   - [x] 111-03-PLAN.md — CFIX-09 menu polling + CHKP-02 price-change banner (CFIX-09, CHKP-02)
-  - [ ] 111-04-PLAN.md — CHKP-03 step-transition prefetch (CHKP-03)
+  - [x] 111-04-PLAN.md — CHKP-03 step-transition prefetch (CHKP-03)
 **UI hint**: yes
 
 ### Phase 112: Order Tracking Overhaul
@@ -194,7 +194,11 @@ Plans:
   1. Adding/removing cart items updates UI immediately — rollback only on confirmed server error
   2. Rapid identical menu searches produce one API call, not one per keystroke
   3. Orders list and menu search paginate — no unbounded fetch regardless of data volume
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+  - [ ] 115-01-PLAN.md — Pagination indexes + queryKeys extension + types (DATA-04)
+  - [ ] 115-02-PLAN.md — Orders cursor pagination API + hybrid SSR page + Load More (DATA-04)
+  - [ ] 115-03-PLAN.md — Menu search limit + cart optimistic formalization + search dedup (DATA-01, DATA-03, DATA-04)
 
 ### Phase 116: Micro-Interactions & Polish
 **Goal**: Destructive actions are recoverable, gestures are discoverable, and shared links look professional
@@ -218,11 +222,11 @@ Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes.
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
 | 110. Critical Fixes & Data Reliability | v2.3 | 3/3 | Complete    | 2026-04-07 |
-| 111. Checkout Conversion | v2.3 | 3/4 | In Progress|  |
+| 111. Checkout Conversion | v2.3 | 4/4 | Complete   | 2026-04-08 |
 | 112. Order Tracking Overhaul | v2.3 | 2/2 | Complete    | 2026-04-10 |
 | 113. Accessibility & Design System | v2.3 | 3/3 | Complete    | 2026-04-09 |
 | 114. Loading States & Offline | v2.3 | 3/3 | Complete   | 2026-04-10 |
-| 115. Data Layer Optimization | v2.3 | 0/TBD | Not started | - |
+| 115. Data Layer Optimization | v2.3 | 0/3 | Not started | - |
 | 116. Micro-Interactions & Polish | v2.3 | 0/TBD | Not started | - |
 
 ---
