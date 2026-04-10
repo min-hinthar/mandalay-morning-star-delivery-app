@@ -48,15 +48,15 @@ Exceptions: 44px minimum touch targets on all interactive elements (Phase 113 A1
 | Role | Size | Weight | Line Height |
 |------|------|--------|-------------|
 | Body | 14px | 400 (regular) | 1.5 |
-| Label | 12px | 500 (medium) | 1.4 |
+| Label | 12px | 400 (regular) | 1.4 |
 | Heading | 20px | 600 (semibold) | 1.2 |
-| Display | 28px | 700 (bold) | 1.2 |
+| Display | 28px | 600 (semibold) | 1.2 |
 
 Phase-specific typography usage:
 - **Skeleton text placeholders**: Match the height of their real-content counterparts exactly (18px for headings, 14px for body lines, 24px for status badges)
 - **Timeout message**: 14px regular, `text-text-muted` color
 - **Retry button label**: 14px, inherits Button ghost variant styling
-- **StaleBadge text**: 12px medium, amber status badge variant
+- **StaleBadge text**: 12px regular, amber status badge variant
 - **Cart sync toast**: 14px regular, standard toast component
 
 ---
@@ -210,7 +210,7 @@ StaleBadge placement: Single badge above menu grid, NOT per-item. Uses `Badge va
 
 | Element | Copy |
 |---------|------|
-| Primary CTA | "Retry" (LoadingWithTimeout retry button) |
+| Primary CTA | "Try Again" (LoadingWithTimeout retry button) |
 | Timeout heading | (none -- inline message only) |
 | Timeout message | "Taking longer than expected..." |
 | Stale cache badge | "Cached {N} ago" (e.g., "Cached 2 hours ago") |
