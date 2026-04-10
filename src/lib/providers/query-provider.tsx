@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useState } from "react";
+import { getBackoffDelay } from "@/lib/utils/backoff";
 
 interface QueryProviderProps {
   children: ReactNode;
@@ -16,9 +17,10 @@ interface QueryProviderProps {
  * Filter: 5xx + 429 + network errors only. Never 401/403/4xx-other (those are user-actionable).
  *
  * Honors checkoutLimiter (3/1m) — backoff respects 429.
+ *
+ * Phase 112 Plan 01: backoff math extracted to @/lib/utils/backoff
+ * so React Query retry AND useTrackingSubscription reconnect share one curve.
  */
-const RETRY_BACKOFF_BASE_MS = 1000;
-const RETRY_BACKOFF_MAX_MS = 30000;
 const QUERY_RETRY_ATTEMPTS = 3;
 
 interface RetryableError {
@@ -37,9 +39,12 @@ export function shouldRetryQuery(failureCount: number, error: unknown): boolean 
 
 /**
  * Exported for unit testing.
+ *
+ * Delegates to the shared `getBackoffDelay` util so the React Query retry curve
+ * stays aligned with the Realtime reconnect curve. Zero behavior change vs Phase 110.
  */
 export function queryRetryDelay(attemptIndex: number): number {
-  return Math.min(RETRY_BACKOFF_BASE_MS * 2 ** attemptIndex, RETRY_BACKOFF_MAX_MS);
+  return getBackoffDelay(attemptIndex);
 }
 
 export function QueryProvider({ children }: QueryProviderProps) {
