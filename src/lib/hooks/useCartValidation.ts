@@ -237,6 +237,25 @@ export function useCartValidation(): CartValidationResult {
     };
   }, []);
 
+  // Phase 115 D-20: Auto-update cart prices when validation detects changes.
+  // This closes the gap between "show PriceChangeBadge" and "fix the cart" --
+  // cart always reflects server truth after validation, reducing checkout friction.
+  const updateItemPrice = useCartStore((s) => s.updateItemPrice);
+
+  useEffect(() => {
+    if (!menuData?.data?.categories || items.length === 0) return;
+
+    const categories = menuData.data.categories;
+    const menuLookup = buildMenuLookup(categories);
+
+    for (const cartItem of items) {
+      const found = menuLookup.get(cartItem.menuItemId);
+      if (found && found.item.basePriceCents !== cartItem.basePriceCents) {
+        updateItemPrice(cartItem.cartItemId, found.item.basePriceCents);
+      }
+    }
+  }, [menuData, items, updateItemPrice]);
+
   return useMemo<CartValidationResult>(() => {
     // Not hydrated yet -- return idle
     if (!hydrated) return { ...EMPTY_RESULT, timedOut, proceedAnyway };
