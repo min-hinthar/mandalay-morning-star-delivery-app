@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Calendar } from "lucide-react";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
-import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
+import { SkeletonCrossfade } from "@/components/ui/SkeletonCrossfade";
 import { toast } from "@/lib/hooks/useToastV8";
 import { clusterOrders, estimateRouteDuration, getUnclusteredOrders } from "@/lib/utils/clustering";
 import { RouteBuilderMap } from "@/components/ui/admin/routes/RouteBuilderMap";

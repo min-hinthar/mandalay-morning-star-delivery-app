@@ -16,7 +16,7 @@ import {
   type CreateRouteData,
 } from "@/components/ui/admin/routes/CreateRouteModal";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
-import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
+import { SkeletonCrossfade } from "@/components/ui/SkeletonCrossfade";
 import { InlineErrorCard } from "@/components/ui/admin/InlineErrorCard";
 import { RoutesPageSkeleton } from "@/components/ui/admin/routes/RouteListTable/RoutesPageSkeleton";
 import type { RouteStatus } from "@/types/driver";

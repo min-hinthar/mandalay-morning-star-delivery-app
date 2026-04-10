@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { m } from "framer-motion";
 import { Scissors } from "lucide-react";
-import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
+import { SkeletonCrossfade } from "@/components/ui/SkeletonCrossfade";
 import { RouteDetailSkeleton, RouteErrorState } from "./RouteDetailSkeleton";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { RouteStatsBar } from "../RouteStatsBar";
