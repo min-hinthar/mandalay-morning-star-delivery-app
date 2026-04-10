@@ -188,7 +188,7 @@ export function FavoriteButton({
         ],
         "transition-colors duration-150",
         "focus-visible:outline-none focus-visible:ring-2",
-        "focus-visible:ring-red-500 focus-visible:ring-offset-2",
+        "focus-visible:ring-2 focus-visible:ring-status-error focus-visible:ring-offset-2",
         className
       )}
       whileHover={shouldAnimate ? { scale: 1.1 } : undefined}

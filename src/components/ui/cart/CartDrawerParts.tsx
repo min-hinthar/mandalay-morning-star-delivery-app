@@ -149,7 +149,7 @@ export function CartHeader({ itemCount, onClose, onClearClick, showClear }: Cart
               "bg-red-100 dark:bg-red-900/30 text-red-500 dark:text-red-400",
               "hover:bg-red-200 dark:hover:bg-red-900/50",
               "transition-colors duration-150",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error focus-visible:ring-offset-2"
             )}
             aria-label="Clear cart"
           >
