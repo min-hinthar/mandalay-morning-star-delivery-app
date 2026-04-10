@@ -96,8 +96,9 @@ export function SearchInput({
   // Search API hook
   const { data, isLoading } = useMenuSearch(debouncedQuery);
 
-  // Get search results
+  // Get search results and pagination metadata
   const searchResults = data?.data?.items ?? [];
+  const pagination = data?.data?.pagination ?? null;
 
   // Check if mobile on mount and resize
   useEffect(() => {
@@ -297,6 +298,7 @@ export function SearchInput({
         isOpen={showAutocomplete}
         onSelect={handleSelectItem}
         query={debouncedQuery}
+        pagination={pagination}
       />
     </div>
   );

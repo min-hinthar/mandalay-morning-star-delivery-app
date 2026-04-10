@@ -27,6 +27,8 @@ export interface SearchAutocompleteProps {
   query: string;
   /** Additional className */
   className?: string;
+  /** Phase 115 D-17: Pagination metadata for truncation indicator */
+  pagination?: { total: number; limit: number; hasMore: boolean } | null;
 }
 
 // ============================================
@@ -185,6 +187,7 @@ export function SearchAutocomplete({
   onSelect,
   query,
   className,
+  pagination,
 }: SearchAutocompleteProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
@@ -224,6 +227,14 @@ export function SearchAutocomplete({
                   shouldAnimate={shouldAnimate}
                 />
               ))}
+              {/* Phase 115 D-17: Truncation indicator */}
+              {pagination?.hasMore && (
+                <div className="px-3 py-2 text-center border-t border-border">
+                  <p className="text-xs text-text-muted">
+                    Showing {items.length} of {pagination.total} results
+                  </p>
+                </div>
+              )}
             </div>
           )}
         </m.div>

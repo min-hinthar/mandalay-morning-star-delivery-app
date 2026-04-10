@@ -48,13 +48,26 @@ export function useMenu(options?: UseMenuOptions) {
   });
 }
 
-export function useMenuSearch(query: string) {
+/**
+ * Phase 115 DATA-03 verification: Search deduplication is inherently satisfied by:
+ * 1. 300ms useDebounce in search input -- collapses rapid keystrokes to single query
+ * 2. React Query auto-dedup -- concurrent calls with same queryKey share one request
+ * 3. staleTime: 60s -- re-searching same term within 60s returns cached data
+ *
+ * No additional dedup code is needed. This chain guarantees one API call per
+ * typing burst and zero redundant calls for repeated searches.
+ *
+ * Phase 115 DATA-04: limit param caps server response size (default 20).
+ */
+export function useMenuSearch(query: string, limit: number = 20) {
   const trimmedQuery = query.trim();
 
   return useQuery<MenuSearchResponse>({
     queryKey: queryKeys.menu.search(trimmedQuery),
     queryFn: async () => {
-      const res = await fetch(`/api/menu/search?q=${encodeURIComponent(trimmedQuery)}`);
+      const res = await fetch(
+        `/api/menu/search?q=${encodeURIComponent(trimmedQuery)}&limit=${limit}`
+      );
       if (!res.ok) {
         throw new Error("Failed to search menu");
       }
