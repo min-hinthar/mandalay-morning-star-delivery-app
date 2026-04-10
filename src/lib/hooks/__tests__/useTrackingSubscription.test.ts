@@ -36,10 +36,7 @@ function createMockChannel(name: string): MockChannel {
     on: vi.fn().mockImplementation(function (this: MockChannel) {
       return this;
     }),
-    subscribe: vi.fn().mockImplementation(function (
-      this: MockChannel,
-      cb?: SubscribeCallback
-    ) {
+    subscribe: vi.fn().mockImplementation(function (this: MockChannel, cb?: SubscribeCallback) {
       if (cb) this.__subscribeCallbacks.push(cb);
       return this;
     }),
@@ -341,9 +338,18 @@ describe("Polling Fallback", () => {
 // Task 3 updates the reconnect delay constant and adds tests J-P.
 // ============================================================================
 describe("useTrackingSubscription — subscription lifecycle", () => {
-  // NOTE: Pre-backoff-refactor delay is 5000ms (RECONNECT_DELAY).
-  // Task 3 of plan 112-01 updates this to 1000ms (getBackoffDelay(0)).
-  const CURRENT_FIRST_RECONNECT_MS = 5000;
+  // Post-refactor: first reconnect uses getBackoffDelay(0) = 1000ms.
+  // Tests J/K/L/P assert the full exponential curve [1000, 2000, 4000, 8000, 16000, 30000...].
+  const CURRENT_FIRST_RECONNECT_MS = 1000;
+
+  function setVisibilityState(state: "visible" | "hidden") {
+    Object.defineProperty(document, "visibilityState", {
+      value: state,
+      configurable: true,
+      writable: true,
+    });
+    document.dispatchEvent(new Event("visibilitychange"));
+  }
 
   beforeEach(() => {
     vi.useFakeTimers();
@@ -375,9 +381,7 @@ describe("useTrackingSubscription — subscription lifecycle", () => {
 
   // Test A: Mount sets up tracking channel
   it("A: mount creates tracking channel and registers order + stop handlers", async () => {
-    renderHook(() =>
-      useTrackingSubscription({ orderId: "order-123", enabled: true })
-    );
+    renderHook(() => useTrackingSubscription({ orderId: "order-123", enabled: true }));
 
     await act(async () => {
       await Promise.resolve();
@@ -465,9 +469,7 @@ describe("useTrackingSubscription — subscription lifecycle", () => {
 
   // Test F: CHANNEL_ERROR status schedules reconnect (CURRENT = 5000ms delay)
   it("F: CHANNEL_ERROR schedules reconnect after CURRENT_FIRST_RECONNECT_MS", async () => {
-    renderHook(() =>
-      useTrackingSubscription({ orderId: "order-123", enabled: true })
-    );
+    renderHook(() => useTrackingSubscription({ orderId: "order-123", enabled: true }));
 
     await act(async () => {
       await Promise.resolve();
@@ -509,9 +511,7 @@ describe("useTrackingSubscription — subscription lifecycle", () => {
     unmount();
 
     // Should have called removeChannel for both channels created
-    expect(mockRemoveChannel.mock.calls.length).toBeGreaterThan(
-      preUnmountRemoveCalls
-    );
+    expect(mockRemoveChannel.mock.calls.length).toBeGreaterThan(preUnmountRemoveCalls);
   });
 
   // Test H: refresh() calls fetch with the right URL
@@ -535,7 +535,207 @@ describe("useTrackingSubscription — subscription lifecycle", () => {
 
   // Test I: Initial fetch happens on mount
   it("I: mount triggers an initial fetch for tracking data", async () => {
+    renderHook(() => useTrackingSubscription({ orderId: "order-123", enabled: true }));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith("/api/tracking/order-123");
+  });
+
+  // ==========================================================================
+  // Task 3: TRAK-03 + TRAK-04 tests (added AFTER Tests A-I safety net)
+  // ==========================================================================
+
+  // Test J (backoff curve): Successive CHANNEL_ERROR events follow exponential backoff
+  it("J: successive CHANNEL_ERRORs follow [1000, 2000, 4000] backoff", async () => {
+    renderHook(() => useTrackingSubscription({ orderId: "order-123", enabled: true }));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const errorChannel = () => {
+      const ch = mockChannels[mockChannels.length - 1];
+      act(() => {
+        ch.__subscribeCallbacks.forEach((cb) => cb("CHANNEL_ERROR"));
+      });
+    };
+
+    // Initial channel count = 1
+    expect(mockChannels.length).toBe(1);
+
+    // CHANNEL_ERROR #1 → advance 1000ms → reconnect fires (attempt 0)
+    errorChannel();
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+      await Promise.resolve();
+    });
+    expect(mockChannels.length).toBe(2);
+
+    // CHANNEL_ERROR #2 → advance 2000ms → reconnect fires (attempt 1)
+    errorChannel();
+    await act(async () => {
+      vi.advanceTimersByTime(2000);
+      await Promise.resolve();
+    });
+    expect(mockChannels.length).toBe(3);
+
+    // CHANNEL_ERROR #3 → advance 4000ms → reconnect fires (attempt 2)
+    errorChannel();
+    await act(async () => {
+      vi.advanceTimersByTime(4000);
+      await Promise.resolve();
+    });
+    expect(mockChannels.length).toBe(4);
+  });
+
+  // Test K (backoff cap): Attempt counter reaching 5 stays at 30000ms
+  it("K: 7 consecutive errors progress through 1s..30s and cap at 30s", async () => {
+    renderHook(() => useTrackingSubscription({ orderId: "order-123", enabled: true }));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const curve = [1000, 2000, 4000, 8000, 16000, 30000, 30000];
+
+    for (const delayMs of curve) {
+      const ch = mockChannels[mockChannels.length - 1];
+      act(() => {
+        ch.__subscribeCallbacks.forEach((cb) => cb("CHANNEL_ERROR"));
+      });
+      await act(async () => {
+        vi.advanceTimersByTime(delayMs);
+        await Promise.resolve();
+      });
+    }
+
+    // Initial + 7 reconnects = 8 channels
+    expect(mockChannels.length).toBe(8);
+  });
+
+  // Test L (attempt reset): Successful SUBSCRIBED resets attempt counter
+  it("L: SUBSCRIBED resets attempt counter so next CHANNEL_ERROR waits only 1000ms", async () => {
+    renderHook(() => useTrackingSubscription({ orderId: "order-123", enabled: true }));
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // First CHANNEL_ERROR at attempt 0 → 1000ms
+    act(() => {
+      mockChannels[0].__subscribeCallbacks.forEach((cb) => cb("CHANNEL_ERROR"));
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+      await Promise.resolve();
+    });
+    expect(mockChannels.length).toBe(2);
+
+    // Reconnect channel SUBSCRIBED → attempt counter resets
+    act(() => {
+      mockChannels[1].__subscribeCallbacks.forEach((cb) => cb("SUBSCRIBED"));
+    });
+
+    // Next CHANNEL_ERROR should wait only 1000ms (not 2000)
+    act(() => {
+      mockChannels[1].__subscribeCallbacks.forEach((cb) => cb("CHANNEL_ERROR"));
+    });
+    await act(async () => {
+      vi.advanceTimersByTime(1000);
+      await Promise.resolve();
+    });
+
+    // Should have a 3rd channel after only 1000ms (proving counter reset)
+    expect(mockChannels.length).toBe(3);
+  });
+
+  // Test M (visibility hidden): cleans up channels + polling + pending reconnect
+  it("M: visibilitychange→hidden removes BOTH channels, stops polling, clears reconnect", async () => {
     renderHook(() =>
+      useTrackingSubscription({
+        orderId: "order-123",
+        routeId: "route-456",
+        enabled: true,
+      })
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const preHiddenRemoveCalls = mockRemoveChannel.mock.calls.length;
+
+    // Trigger CHANNEL_ERROR so there's a pending reconnect timer to clear
+    act(() => {
+      const trackingCh = findChannel("tracking:order-123")!;
+      trackingCh.__subscribeCallbacks.forEach((cb) => cb("CHANNEL_ERROR"));
+    });
+
+    // Go hidden
+    act(() => {
+      setVisibilityState("hidden");
+    });
+
+    // Expect removeChannel called for tracking + location (2 more than before)
+    expect(mockRemoveChannel.mock.calls.length).toBeGreaterThanOrEqual(preHiddenRemoveCalls + 2);
+  });
+
+  // Test N (visibility visible): refresh + re-subscribe both channels
+  it("N: visibilitychange→visible re-subscribes tracking + location channels", async () => {
+    renderHook(() =>
+      useTrackingSubscription({
+        orderId: "order-123",
+        routeId: "route-456",
+        enabled: true,
+      })
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // Go hidden first
+    act(() => {
+      setVisibilityState("hidden");
+    });
+
+    const preVisibleTrackingCount = mockChannels.filter((c) =>
+      c.name.startsWith("tracking:")
+    ).length;
+    const preVisibleLocationCount = mockChannels.filter((c) =>
+      c.name.startsWith("location:")
+    ).length;
+
+    (global.fetch as ReturnType<typeof vi.fn>).mockClear();
+
+    // Go visible
+    await act(async () => {
+      setVisibilityState("visible");
+      await Promise.resolve();
+    });
+
+    // Expect immediate fetch (refresh on resume)
+    expect(global.fetch).toHaveBeenCalledWith("/api/tracking/order-123");
+
+    // Expect both channels re-created
+    const postVisibleTrackingCount = mockChannels.filter((c) =>
+      c.name.startsWith("tracking:")
+    ).length;
+    const postVisibleLocationCount = mockChannels.filter((c) =>
+      c.name.startsWith("location:")
+    ).length;
+    expect(postVisibleTrackingCount).toBeGreaterThan(preVisibleTrackingCount);
+    expect(postVisibleLocationCount).toBeGreaterThan(preVisibleLocationCount);
+  });
+
+  // Test O (listener cleanup): unmount removes visibilitychange listener
+  it("O: unmount removes the visibilitychange listener", async () => {
+    const removeSpy = vi.spyOn(document, "removeEventListener");
+
+    const { unmount } = renderHook(() =>
       useTrackingSubscription({ orderId: "order-123", enabled: true })
     );
 
@@ -543,6 +743,64 @@ describe("useTrackingSubscription — subscription lifecycle", () => {
       await Promise.resolve();
     });
 
-    expect(global.fetch).toHaveBeenCalledWith("/api/tracking/order-123");
+    unmount();
+
+    // Expect at least one removeEventListener call for "visibilitychange"
+    const visibilityCalls = removeSpy.mock.calls.filter(([event]) => event === "visibilitychange");
+    expect(visibilityCalls.length).toBeGreaterThanOrEqual(1);
+
+    removeSpy.mockRestore();
+  });
+
+  // Test P (race): rapid hidden/visible flip-flop does not leak channels
+  it("P: rapid hidden→visible→hidden→visible does not leak channels", async () => {
+    renderHook(() =>
+      useTrackingSubscription({
+        orderId: "order-123",
+        routeId: "route-456",
+        enabled: true,
+      })
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    // Initial: 1 tracking + 1 location
+    const initialTrackingCount = mockChannels.filter((c) => c.name.startsWith("tracking:")).length;
+    const initialLocationCount = mockChannels.filter((c) => c.name.startsWith("location:")).length;
+    expect(initialTrackingCount).toBe(1);
+    expect(initialLocationCount).toBe(1);
+
+    const removeCallsBefore = mockRemoveChannel.mock.calls.length;
+
+    // Flip: hidden → visible → hidden → visible
+    await act(async () => {
+      setVisibilityState("hidden");
+      await Promise.resolve();
+    });
+    await act(async () => {
+      setVisibilityState("visible");
+      await Promise.resolve();
+    });
+    await act(async () => {
+      setVisibilityState("hidden");
+      await Promise.resolve();
+    });
+    await act(async () => {
+      setVisibilityState("visible");
+      await Promise.resolve();
+    });
+
+    // Each "hidden" should call removeChannel at least twice (tracking + location)
+    // Each "visible" should create a new tracking + location channel
+    // Two hidden transitions → ≥4 more removeChannel calls
+    expect(mockRemoveChannel.mock.calls.length).toBeGreaterThanOrEqual(removeCallsBefore + 4);
+
+    // Two visible transitions → +2 tracking + +2 location channels
+    const finalTrackingCount = mockChannels.filter((c) => c.name.startsWith("tracking:")).length;
+    const finalLocationCount = mockChannels.filter((c) => c.name.startsWith("location:")).length;
+    expect(finalTrackingCount).toBeGreaterThanOrEqual(initialTrackingCount + 2);
+    expect(finalLocationCount).toBeGreaterThanOrEqual(initialLocationCount + 2);
   });
 });
