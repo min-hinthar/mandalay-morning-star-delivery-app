@@ -117,23 +117,16 @@ describe("useMenuCache (IDB-first)", () => {
       version: "v1",
     });
 
-    const freshCategories: MenuCategory[] = [
-      { ...testCategory, name: "Fresh Appetizers" },
-    ];
+    const freshCategories: MenuCategory[] = [{ ...testCategory, name: "Fresh Appetizers" }];
 
-    const { result, rerender } = renderHook(
-      (props) => useMenuCache(props),
-      {
-        initialProps: {
-          data: undefined as
-            | { data?: { categories?: MenuCategory[] } }
-            | undefined,
-          categories: [] as MenuCategory[],
-          error: null as unknown,
-          isLoading: true,
-        },
-      }
-    );
+    const { result, rerender } = renderHook((props) => useMenuCache(props), {
+      initialProps: {
+        data: undefined as { data?: { categories?: MenuCategory[] } } | undefined,
+        categories: [] as MenuCategory[],
+        error: null as unknown,
+        isLoading: true,
+      },
+    });
 
     // Wait for IDB cache to load
     await waitFor(() => {
