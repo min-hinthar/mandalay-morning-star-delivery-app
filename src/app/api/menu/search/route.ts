@@ -78,7 +78,11 @@ export async function GET(request: NextRequest) {
     const { q: query, limit, offset } = result.data;
     const supabase = createPublicClient();
 
-    const { data: items, error, count } = await supabase
+    const {
+      data: items,
+      error,
+      count,
+    } = await supabase
       .from("menu_items")
       .select(
         `
