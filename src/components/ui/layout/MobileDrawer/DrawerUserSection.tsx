@@ -69,7 +69,7 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
               className={cn(
                 "absolute -bottom-0.5 -right-0.5",
                 "w-3 h-3 rounded-full bg-green-500",
-                "ring-2 ring-white dark:ring-zinc-900"
+                "ring-2 ring-surface-primary"
               )}
             />
           </div>

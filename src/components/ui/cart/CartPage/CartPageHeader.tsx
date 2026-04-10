@@ -93,7 +93,7 @@ export function CartPageHeader({
               "dark:hover:bg-red-900/30 dark:hover:text-red-400",
               "transition-colors duration-150",
               "focus-visible:outline-none focus-visible:ring-2",
-              "focus-visible:ring-red-500 focus-visible:ring-offset-2"
+              "focus-visible:ring-2 focus-visible:ring-status-error focus-visible:ring-offset-2"
             )}
             aria-label="Clear cart"
           >

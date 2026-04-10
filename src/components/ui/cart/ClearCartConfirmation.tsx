@@ -149,7 +149,7 @@ export function ClearCartConfirmation({
               "transition-colors duration-150",
               "hover:bg-zinc-200 dark:hover:bg-zinc-700",
               "focus-visible:outline-none focus-visible:ring-2",
-              "focus-visible:ring-zinc-400 focus-visible:ring-offset-2"
+              "focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             )}
           >
             Cancel
@@ -169,7 +169,7 @@ export function ClearCartConfirmation({
               "transition-colors duration-150",
               "hover:bg-red-600",
               "focus-visible:outline-none focus-visible:ring-2",
-              "focus-visible:ring-red-500 focus-visible:ring-offset-2"
+              "focus-visible:ring-2 focus-visible:ring-status-error focus-visible:ring-offset-2"
             )}
           >
             <Trash2 className="h-4 w-4" />
