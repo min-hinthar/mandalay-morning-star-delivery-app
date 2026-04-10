@@ -103,7 +103,7 @@
 - [x] **Phase 110: Critical Fixes & Data Reliability** - Fix conversion-blocking bugs and establish query retry infrastructure (completed 2026-04-07)
 - [x] **Phase 111: Checkout Conversion** - Recover lost conversions with form resilience, inline validation, and price transparency (completed 2026-04-07)
 - [x] **Phase 112: Order Tracking Overhaul** - Redesign tracking from unusable to reliable on mobile (completed 2026-04-10)
-- [ ] **Phase 113: Accessibility & Design System** - Fix WCAG violations and harmonize design tokens
+- [x] **Phase 113: Accessibility & Design System** - Fix WCAG violations and harmonize design tokens (completed 2026-04-09)
 - [x] **Phase 114: Loading States & Offline** - Replace spinners with skeletons, enable offline menu access (completed 2026-04-10)
 - [ ] **Phase 115: Data Layer Optimization** - Optimistic updates, query deduplication, and pagination
 - [ ] **Phase 116: Micro-Interactions & Polish** - Undo actions, discoverable gestures, and share previews
