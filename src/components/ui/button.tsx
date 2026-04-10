@@ -16,7 +16,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
  * Playful pill-shaped buttons with spring animations
  * Deep Rich Red primary, Golden Yellow secondary
  *
- * Sizes: sm (36px), md (44px), lg (52px), xl (60px - driver)
+ * Sizes: xs (36px), sm (44px), md (44px), lg (52px), xl (60px - driver)
  * Variants: primary, secondary, ghost, danger, outline, link, success
  *
  * Motion: Press compresses with depth effect, hover lifts with spring physics
@@ -104,7 +104,8 @@ const buttonVariants = cva(
 
       size: {
         // V6 Sizes: Generous padding, pill radius
-        sm: "h-9 px-4 py-2 text-sm rounded-button [&_svg]:h-4 [&_svg]:w-4",
+        xs: "h-9 px-3 py-1.5 text-xs rounded-button [&_svg]:h-3.5 [&_svg]:w-3.5",
+        sm: "h-11 px-4 py-2.5 text-sm rounded-button [&_svg]:h-4 [&_svg]:w-4 min-h-11",
         md: "h-11 px-6 py-3 text-base rounded-button [&_svg]:h-4 [&_svg]:w-4",
         lg: "h-[52px] px-8 py-3.5 text-base rounded-button [&_svg]:h-5 [&_svg]:w-5",
         xl: "h-[60px] px-10 py-4 text-lg rounded-button [&_svg]:h-5 [&_svg]:w-5", // Driver size
@@ -112,6 +113,7 @@ const buttonVariants = cva(
         // Icon-only variants (square with pill radius)
         icon: "h-11 w-11 rounded-button [&_svg]:h-5 [&_svg]:w-5",
         "icon-sm": "h-9 w-9 rounded-button [&_svg]:h-4 [&_svg]:w-4",
+        "icon-xs": "h-9 w-9 rounded-button [&_svg]:h-3.5 [&_svg]:w-3.5",
         "icon-lg": "h-[52px] w-[52px] rounded-button [&_svg]:h-5 [&_svg]:w-5",
         "icon-xl": "h-[60px] w-[60px] rounded-button [&_svg]:h-6 [&_svg]:w-6", // Driver icon
 
