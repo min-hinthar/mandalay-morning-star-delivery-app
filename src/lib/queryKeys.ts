@@ -5,6 +5,9 @@
  * invalidation in Phase 111 (form recovery, price polling) and Phase 115
  * (optimistic cart updates) hits the right keys consistently.
  *
+ * Phase 115 / DATA-04: Extended with orders.list(cursor) for cursor pagination
+ * and menu.search(query, page) for paginated search results.
+ *
  * Convention: queryKeys.{namespace}.{operation}(args). Returns `as const`
  * tuples so TanStack's structural equality stays referentially correct.
  */
@@ -13,7 +16,9 @@ export const queryKeys = {
   menu: {
     all: ["menu"] as const,
     list: () => [...queryKeys.menu.all, "list"] as const,
-    search: (query: string) => [...queryKeys.menu.all, "search", query] as const,
+    /** @param query - search term; @param page - 1-indexed page (default 1) */
+    search: (query: string, page?: number) =>
+      [...queryKeys.menu.all, "search", query, page ?? 1] as const,
   },
   addresses: {
     all: ["addresses"] as const,
@@ -23,6 +28,9 @@ export const queryKeys = {
   orders: {
     all: ["orders"] as const,
     history: () => [...queryKeys.orders.all, "history"] as const,
+    /** @param cursor - opaque cursor string for keyset pagination (default "initial") */
+    list: (cursor?: string) =>
+      [...queryKeys.orders.all, "list", cursor ?? "initial"] as const,
     itemsForSearch: (userId: string) =>
       [...queryKeys.orders.all, "items-for-search", userId] as const,
   },
@@ -34,5 +42,6 @@ export type QueryKey = ReturnType<
   | typeof queryKeys.addresses.list
   | typeof queryKeys.addresses.detail
   | typeof queryKeys.orders.history
+  | typeof queryKeys.orders.list
   | typeof queryKeys.orders.itemsForSearch
 >;
