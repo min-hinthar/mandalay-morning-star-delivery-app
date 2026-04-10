@@ -1,10 +1,14 @@
 /**
  * TrackingPageClient - Split-view tracking page
  *
- * Split layout: map top 50% / info bottom 50% (mobile), side-by-side on desktop.
+ * Mobile (TRAK-01): full-height map + collapsible bottom sheet (Drawer).
+ * Desktop: existing lg:grid-cols-2 split (map left, info right).
  * Map visible in all order states (pre-delivery, en route, delivered).
  * StatusStepper at top of info section, StatusTimeline below as detail.
  * Browser tab title updates with live status.
+ * ReconnectingBanner (TRAK-02) auto-shows after 2s of disconnection.
+ * MuteToggle (CFIX-10) silences audio notifications globally.
+ * Audio gated by !isMuted && !document.hidden.
  * Delivered/Cancelled overlays, share button, nearby banner, status effects.
  */
 
@@ -15,6 +19,7 @@ import { m, AnimatePresence } from "framer-motion";
 import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
+import { Drawer } from "@/components/ui/Drawer";
 import { StatusTimeline } from "./StatusTimeline";
 import { StatusStepper } from "./StatusStepper";
 import { ETACountdown } from "./ETACountdown";
@@ -27,11 +32,14 @@ import { DeliveredScreen } from "./DeliveredScreen";
 import { CancelledOverlay } from "./CancelledOverlay";
 import { ShareButton } from "./ShareButton";
 import { NearbyBanner } from "./NearbyBanner";
+import { ReconnectingBanner } from "./ReconnectingBanner";
+import { MuteToggle } from "./MuteToggle";
 import {
   useTrackingSubscription,
   useShowLiveTracking,
   useLastUpdateDisplay,
 } from "@/lib/hooks/useTrackingSubscription";
+import { useMutePreference } from "@/lib/hooks/useMutePreference";
 import { calculateETA, calculateRemainingStops } from "@/lib/utils/eta";
 import type { TrackingData } from "@/types/tracking";
 import type { OrderStatus } from "@/types/database";
@@ -58,6 +66,12 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
   const [driverLocation, setDriverLocation] = useState(initialData.driverLocation);
   const [eta, setEta] = useState(initialData.eta);
 
+  // CFIX-10: mute preference for audio notifications (global, persists across orders)
+  const { isMuted, toggleMuted } = useMutePreference();
+
+  // TRAK-01: bottom sheet open state for mobile collapsible info pane
+  const [sheetOpen, setSheetOpen] = useState(false);
+
   // Track previous status for transition effects
   const prevStatusRef = useRef<OrderStatus>(orderStatus);
 
@@ -78,20 +92,22 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
     if (prevStatusRef.current === orderStatus) return;
     prevStatusRef.current = orderStatus;
 
-    // Haptic feedback on any status change
+    // Haptic feedback on any status change (silent + physical — never gated)
     if (typeof navigator !== "undefined" && navigator.vibrate) {
       navigator.vibrate(50);
     }
 
-    // Brief audio cue
-    try {
-      const audio = new Audio("/sounds/notification.mp3");
-      audio.volume = 0.2;
-      void audio.play().catch(() => {
-        // Sound file may not exist -- graceful failure
-      });
-    } catch {
-      // Audio creation failed -- skip
+    // CFIX-10: brief audio cue gated by mute preference AND tab visibility
+    if (!isMuted && typeof document !== "undefined" && !document.hidden) {
+      try {
+        const audio = new Audio("/sounds/notification.mp3");
+        audio.volume = 0.2;
+        void audio.play().catch(() => {
+          // Sound file may not exist or autoplay policy rejected -- graceful failure
+        });
+      } catch {
+        // Audio creation failed -- skip
+      }
     }
 
     // Delayed delivered screen appearance
@@ -101,7 +117,7 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
     } else {
       setShowDelivered(false);
     }
-  }, [orderStatus]);
+  }, [orderStatus, isMuted]);
 
   const subscription = useTrackingSubscription({
     orderId,
@@ -162,6 +178,161 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
 
   const isTerminalStatus = orderStatus === "delivered" || orderStatus === "cancelled";
 
+  // === Reusable content blocks shared between mobile and desktop branches ===
+
+  const mapContent = hasLocation ? (
+    <LazyDeliveryMap
+      customerLocation={{
+        lat: initialData.order.address.lat!,
+        lng: initialData.order.address.lng!,
+        address: `${initialData.order.address.line1}, ${initialData.order.address.city}`,
+      }}
+      driverLocation={
+        driverLocation
+          ? {
+              lat: driverLocation.latitude,
+              lng: driverLocation.longitude,
+              heading: driverLocation.heading,
+            }
+          : null
+      }
+      restaurantLocation={initialData.restaurantLocation}
+      orderStatus={orderStatus}
+      lastLocationUpdate={subscription.lastUpdate}
+      isLive={subscription.isConnected}
+      className="h-full rounded-none lg:rounded-none"
+    />
+  ) : null;
+
+  const cancelledOverlayContent = (
+    <AnimatePresence>
+      {orderStatus === "cancelled" && (
+        <CancelledOverlay
+          cancellationReason={initialData.order.cancellationReason}
+          orderId={orderId}
+        />
+      )}
+    </AnimatePresence>
+  );
+
+  const infoPaneContent = (
+    <div className="px-4 py-4 space-y-4">
+      {/* Nearby Banner */}
+      <NearbyBanner
+        etaMinutes={eta?.minMinutes ?? null}
+        isVisible={orderStatus === "out_for_delivery"}
+      />
+
+      {/* StatusStepper - horizontal progress */}
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+      >
+        <StatusStepper currentStatus={orderStatus} cancelledAt={initialData.order.cancelledAt} />
+      </m.div>
+
+      {/* ETA Countdown */}
+      {showLiveTracking && eta && (
+        <m.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
+          <ETACountdown
+            minMinutes={eta.minMinutes}
+            maxMinutes={eta.maxMinutes}
+            estimatedArrival={eta.estimatedArrival}
+            isNearby={eta.minMinutes <= 5}
+          />
+        </m.div>
+      )}
+
+      {/* Delivered Screen */}
+      <AnimatePresence>
+        {showDelivered && orderStatus === "delivered" && (
+          <DeliveredScreen
+            orderId={orderId}
+            initialRating={initialData.rating}
+            deliveryPhotoUrl={routeStop?.deliveryPhotoUrl}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Status Timeline (detailed vertical) */}
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3 }}
+      >
+        <StatusTimeline
+          currentStatus={orderStatus}
+          placedAt={initialData.order.placedAt}
+          confirmedAt={initialData.order.confirmedAt}
+          deliveredAt={initialData.order.deliveredAt}
+          isLive={showLiveTracking}
+        />
+      </m.div>
+
+      {/* Driver Card */}
+      {driverInfo && stopProgress && (
+        <m.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <DriverCard driver={driverInfo} stopProgress={stopProgress} />
+        </m.div>
+      )}
+
+      {/* Delivery Notes Editor */}
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.45 }}
+      >
+        <DeliveryNotesEditor
+          orderId={orderId}
+          initialNotes={initialData.order.specialInstructions}
+          isEditable={!isTerminalStatus}
+        />
+      </m.div>
+
+      {/* Order Summary */}
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5 }}
+      >
+        <OrderSummary
+          items={initialData.order.items}
+          subtotalCents={initialData.order.subtotalCents}
+          deliveryFeeCents={initialData.order.deliveryFeeCents}
+          taxCents={initialData.order.taxCents}
+          totalCents={initialData.order.totalCents}
+          deliveryWindow={{
+            start: initialData.order.deliveryWindowStart,
+            end: initialData.order.deliveryWindowEnd,
+          }}
+          deliveryAddress={{
+            line1: initialData.order.address.line1,
+            city: initialData.order.address.city,
+            state: initialData.order.address.state,
+          }}
+        />
+      </m.div>
+
+      {/* Support Actions */}
+      <m.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.6 }}
+      >
+        <SupportActions driverPhone={initialData.driver?.phone ?? null} orderStatus={orderStatus} />
+      </m.div>
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-cream">
       {/* Header */}
@@ -196,6 +367,7 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
                 <span className="text-charcoal-500 font-medium">&bull; {lastUpdateDisplay}</span>
               )}
               <ShareButton orderId={orderId} orderStatus={orderStatus} />
+              <MuteToggle isMuted={isMuted} onToggle={toggleMuted} />
               <button
                 onClick={() => subscription.refresh()}
                 className="p-1 hover:bg-charcoal-100 rounded-full transition-colors"
@@ -213,167 +385,66 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
         </div>
       </header>
 
-      {/* Split-view layout */}
-      <div className="mx-auto max-w-5xl lg:grid lg:grid-cols-2 lg:h-[calc(100vh-3.5rem)]">
-        {/* Map section: top 50vh mobile, left 50% desktop */}
+      {/* TRAK-02: Reconnecting banner with 2s debounce */}
+      <ReconnectingBanner isConnected={subscription.isConnected} />
+
+      {/* MOBILE: full-height map + collapsible bottom sheet (TRAK-01) */}
+      <div className="lg:hidden relative">
         {hasLocation && (
-          <div className="h-[50vh] lg:h-full relative">
-            <LazyDeliveryMap
-              customerLocation={{
-                lat: initialData.order.address.lat!,
-                lng: initialData.order.address.lng!,
-                address: `${initialData.order.address.line1}, ${initialData.order.address.city}`,
-              }}
-              driverLocation={
-                driverLocation
-                  ? {
-                      lat: driverLocation.latitude,
-                      lng: driverLocation.longitude,
-                      heading: driverLocation.heading,
-                    }
-                  : null
-              }
-              restaurantLocation={initialData.restaurantLocation}
-              orderStatus={orderStatus}
-              lastLocationUpdate={subscription.lastUpdate}
-              isLive={subscription.isConnected}
-              className="h-full rounded-none lg:rounded-none"
-            />
-            {/* Cancelled overlay on top of map */}
-            <AnimatePresence>
-              {orderStatus === "cancelled" && (
-                <CancelledOverlay
-                  cancellationReason={initialData.order.cancellationReason}
-                  orderId={orderId}
-                />
-              )}
-            </AnimatePresence>
+          <div className="h-[calc(100svh-3.5rem)] w-full relative">
+            {mapContent}
+            {cancelledOverlayContent}
           </div>
         )}
 
-        {/* Info section: bottom 50vh mobile (scrollable), right 50% desktop */}
-        <div className="h-[50vh] lg:h-full overflow-y-auto pb-24">
-          <div className="px-4 py-4 space-y-4">
-            {/* Nearby Banner */}
-            <NearbyBanner
-              etaMinutes={eta?.minMinutes ?? null}
-              isVisible={orderStatus === "out_for_delivery"}
-            />
+        {/* Peek bar: tap to open expanded sheet */}
+        {!sheetOpen && (
+          <button
+            type="button"
+            onClick={() => setSheetOpen(true)}
+            aria-label="Expand tracking details"
+            className="fixed bottom-0 inset-x-0 z-modal-backdrop h-[120px] bg-card border-t border-border-default rounded-t-3xl shadow-lg text-left"
+          >
+            <div className="flex justify-center pt-3 pb-2">
+              <div className="w-12 h-1.5 rounded-full bg-border-default" aria-hidden="true" />
+            </div>
+            <div className="px-4 pb-4 flex items-center gap-3">
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold truncate">
+                  {driverInfo?.fullName ?? "Finding your driver..."}
+                </p>
+                <p className="text-xs text-text-muted truncate">
+                  {eta
+                    ? `Arriving in ${eta.minMinutes}-${eta.maxMinutes} min`
+                    : "Calculating ETA..."}
+                </p>
+              </div>
+            </div>
+          </button>
+        )}
 
-            {/* StatusStepper - horizontal progress */}
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
-            >
-              <StatusStepper
-                currentStatus={orderStatus}
-                cancelledAt={initialData.order.cancelledAt}
-              />
-            </m.div>
+        {/* Expanded sheet: Drawer handles focus trap, body scroll lock, swipe-to-dismiss */}
+        <Drawer
+          isOpen={sheetOpen}
+          onClose={() => setSheetOpen(false)}
+          position="bottom"
+          height="full"
+          title="Tracking details"
+        >
+          {infoPaneContent}
+        </Drawer>
+      </div>
 
-            {/* ETA Countdown */}
-            {showLiveTracking && eta && (
-              <m.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-              >
-                <ETACountdown
-                  minMinutes={eta.minMinutes}
-                  maxMinutes={eta.maxMinutes}
-                  estimatedArrival={eta.estimatedArrival}
-                  isNearby={eta.minMinutes <= 5}
-                />
-              </m.div>
-            )}
-
-            {/* Delivered Screen */}
-            <AnimatePresence>
-              {showDelivered && orderStatus === "delivered" && (
-                <DeliveredScreen
-                  orderId={orderId}
-                  initialRating={initialData.rating}
-                  deliveryPhotoUrl={routeStop?.deliveryPhotoUrl}
-                />
-              )}
-            </AnimatePresence>
-
-            {/* Status Timeline (detailed vertical) */}
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-            >
-              <StatusTimeline
-                currentStatus={orderStatus}
-                placedAt={initialData.order.placedAt}
-                confirmedAt={initialData.order.confirmedAt}
-                deliveredAt={initialData.order.deliveredAt}
-                isLive={showLiveTracking}
-              />
-            </m.div>
-
-            {/* Driver Card */}
-            {driverInfo && stopProgress && (
-              <m.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.4 }}
-              >
-                <DriverCard driver={driverInfo} stopProgress={stopProgress} />
-              </m.div>
-            )}
-
-            {/* Delivery Notes Editor */}
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.45 }}
-            >
-              <DeliveryNotesEditor
-                orderId={orderId}
-                initialNotes={initialData.order.specialInstructions}
-                isEditable={!isTerminalStatus}
-              />
-            </m.div>
-
-            {/* Order Summary */}
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-            >
-              <OrderSummary
-                items={initialData.order.items}
-                subtotalCents={initialData.order.subtotalCents}
-                deliveryFeeCents={initialData.order.deliveryFeeCents}
-                taxCents={initialData.order.taxCents}
-                totalCents={initialData.order.totalCents}
-                deliveryWindow={{
-                  start: initialData.order.deliveryWindowStart,
-                  end: initialData.order.deliveryWindowEnd,
-                }}
-                deliveryAddress={{
-                  line1: initialData.order.address.line1,
-                  city: initialData.order.address.city,
-                  state: initialData.order.address.state,
-                }}
-              />
-            </m.div>
-
-            {/* Support Actions */}
-            <m.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-            >
-              <SupportActions
-                driverPhone={initialData.driver?.phone ?? null}
-                orderStatus={orderStatus}
-              />
-            </m.div>
-          </div>
+      {/* DESKTOP: existing lg:grid-cols-2 layout UNCHANGED */}
+      <div className="hidden lg:block">
+        <div className="mx-auto max-w-5xl lg:grid lg:grid-cols-2 lg:h-[calc(100vh-3.5rem)]">
+          {hasLocation && (
+            <div className="lg:h-full relative">
+              {mapContent}
+              {cancelledOverlayContent}
+            </div>
+          )}
+          <div className="lg:h-full overflow-y-auto pb-24">{infoPaneContent}</div>
         </div>
       </div>
     </div>
