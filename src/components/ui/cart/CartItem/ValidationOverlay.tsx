@@ -95,7 +95,7 @@ export const ValidationOverlay = memo(function ValidationOverlay({
             "bg-red-500/20 text-text-inverse border border-red-400/40",
             "hover:bg-red-500/30 active:bg-red-500/40",
             "transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error focus-visible:ring-offset-2"
           )}
         >
           <Trash2 className="w-4 h-4" />

@@ -69,7 +69,7 @@ export const CheckoutGate = memo(function CheckoutGate({
             "cursor-pointer",
             "hover:from-amber-600 hover:to-red-600",
             "transition-all",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2"
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-warning focus-visible:ring-offset-2"
           )}
         >
           <AlertTriangle className="w-5 h-5 flex-shrink-0" />

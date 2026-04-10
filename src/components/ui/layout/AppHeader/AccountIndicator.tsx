@@ -246,7 +246,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
             "absolute bottom-0 right-0",
             "w-2.5 h-2.5 rounded-full",
             "bg-green-500",
-            "ring-2 ring-white dark:ring-zinc-950"
+            "ring-2 ring-surface-primary"
           )}
           aria-hidden="true"
         />

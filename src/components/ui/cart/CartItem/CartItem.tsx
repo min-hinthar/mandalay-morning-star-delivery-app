@@ -233,7 +233,7 @@ export const CartItem = memo(function CartItem({
                       "w-8 h-8 rounded-full flex items-center justify-center",
                       "text-text-muted hover:text-red-500",
                       "hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors",
-                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-2"
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error focus-visible:ring-offset-2"
                     )}
                     whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
                     whileTap={shouldAnimate ? { scale: 0.9 } : undefined}
