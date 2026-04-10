@@ -116,9 +116,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch N+1 to detect hasMore without count query
-    const { data: rows, error: queryError } = await query
-      .limit(limit + 1)
-      .returns<OrderRow[]>();
+    const { data: rows, error: queryError } = await query.limit(limit + 1).returns<OrderRow[]>();
 
     if (queryError) {
       logger.exception(queryError, { api: "account/orders", flowId: "fetch" });

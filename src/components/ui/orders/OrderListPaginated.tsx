@@ -39,11 +39,7 @@ export function OrderListPaginated({
       {/* Load More button — 44px touch target via size="default" (h-11) */}
       {hasMore && !isFetchingMore && (
         <div className="mt-6 flex justify-center">
-          <Button
-            onClick={loadMore}
-            variant="outline"
-            size="default"
-          >
+          <Button onClick={loadMore} variant="outline" size="default">
             Load More Orders
           </Button>
         </div>
@@ -51,9 +47,7 @@ export function OrderListPaginated({
 
       {/* End of list indicator */}
       {!hasMore && orders.length > 0 && (
-        <p className="text-center text-sm text-text-muted mt-6">
-          All orders loaded
-        </p>
+        <p className="text-center text-sm text-text-muted mt-6">All orders loaded</p>
       )}
     </div>
   );
