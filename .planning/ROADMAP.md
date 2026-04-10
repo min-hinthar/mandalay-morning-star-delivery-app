@@ -105,7 +105,7 @@
 - [x] **Phase 112: Order Tracking Overhaul** - Redesign tracking from unusable to reliable on mobile (completed 2026-04-10)
 - [x] **Phase 113: Accessibility & Design System** - Fix WCAG violations and harmonize design tokens (completed 2026-04-09)
 - [x] **Phase 114: Loading States & Offline** - Replace spinners with skeletons, enable offline menu access (completed 2026-04-10)
-- [ ] **Phase 115: Data Layer Optimization** - Optimistic updates, query deduplication, and pagination
+- [x] **Phase 115: Data Layer Optimization** - Optimistic updates, query deduplication, and pagination (completed 2026-04-10)
 - [ ] **Phase 116: Micro-Interactions & Polish** - Undo actions, discoverable gestures, and share previews
 
 ## Phase Details
@@ -222,7 +222,7 @@ Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes.
 | 112. Order Tracking Overhaul | v2.3 | 2/2 | Complete    | 2026-04-10 |
 | 113. Accessibility & Design System | v2.3 | 3/3 | Complete    | 2026-04-09 |
 | 114. Loading States & Offline | v2.3 | 3/3 | Complete   | 2026-04-10 |
-| 115. Data Layer Optimization | v2.3 | 0/TBD | Not started | - |
+| 115. Data Layer Optimization | v2.3 | 1/1 | Complete   | 2026-04-10 |
 | 116. Micro-Interactions & Polish | v2.3 | 0/TBD | Not started | - |
 
 ---
