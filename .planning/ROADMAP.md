@@ -104,7 +104,7 @@
 - [x] **Phase 111: Checkout Conversion** - Recover lost conversions with form resilience, inline validation, and price transparency (completed 2026-04-07)
 - [x] **Phase 112: Order Tracking Overhaul** - Redesign tracking from unusable to reliable on mobile (completed 2026-04-10)
 - [ ] **Phase 113: Accessibility & Design System** - Fix WCAG violations and harmonize design tokens
-- [ ] **Phase 114: Loading States & Offline** - Replace spinners with skeletons, enable offline menu access
+- [x] **Phase 114: Loading States & Offline** - Replace spinners with skeletons, enable offline menu access (completed 2026-04-10)
 - [ ] **Phase 115: Data Layer Optimization** - Optimistic updates, query deduplication, and pagination
 - [ ] **Phase 116: Micro-Interactions & Polish** - Undo actions, discoverable gestures, and share previews
 
@@ -182,7 +182,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
   - [x] 114-01-PLAN.md — Content-shaped skeletons for orders list, order detail, account pages (LOAD-01, LOAD-02, LOAD-03)
-  - [ ] 114-02-PLAN.md — SkeletonCrossfade promotion + LoadingWithTimeout hierarchy enforcement + docs (LOAD-05)
+  - [x] 114-02-PLAN.md — SkeletonCrossfade promotion + LoadingWithTimeout hierarchy enforcement + docs (LOAD-05)
   - [x] 114-03-PLAN.md — IDB-first menu cache + real cart sync on reconnect (LOAD-04, CFIX-08)
 **UI hint**: yes
 
@@ -221,7 +221,7 @@ Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes.
 | 111. Checkout Conversion | v2.3 | 3/4 | In Progress|  |
 | 112. Order Tracking Overhaul | v2.3 | 2/2 | Complete    | 2026-04-10 |
 | 113. Accessibility & Design System | v2.3 | 3/3 | Complete    | 2026-04-09 |
-| 114. Loading States & Offline | v2.3 | 2/3 | In Progress|  |
+| 114. Loading States & Offline | v2.3 | 3/3 | Complete   | 2026-04-10 |
 | 115. Data Layer Optimization | v2.3 | 0/TBD | Not started | - |
 | 116. Micro-Interactions & Polish | v2.3 | 0/TBD | Not started | - |
 
