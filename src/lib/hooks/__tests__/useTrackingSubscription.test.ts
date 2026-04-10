@@ -8,9 +8,59 @@
 
 import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
-import { useShowLiveTracking, useLastUpdateDisplay } from "../useTrackingSubscription";
+import {
+  useShowLiveTracking,
+  useLastUpdateDisplay,
+  useTrackingSubscription,
+} from "../useTrackingSubscription";
 import type { OrderStatus } from "@/types/database";
 import type { DriverLocation } from "@/types/tracking";
+
+// ============================================================================
+// Subscription lifecycle mocks (shared across the lifecycle describe block)
+// ============================================================================
+type SubscribeCallback = (status: string) => void;
+interface MockChannel {
+  name: string;
+  on: ReturnType<typeof vi.fn>;
+  subscribe: ReturnType<typeof vi.fn>;
+  __subscribeCallbacks: SubscribeCallback[];
+}
+
+const mockChannels: MockChannel[] = [];
+const mockRemoveChannel = vi.fn();
+
+function createMockChannel(name: string): MockChannel {
+  const ch: MockChannel = {
+    name,
+    on: vi.fn().mockImplementation(function (this: MockChannel) {
+      return this;
+    }),
+    subscribe: vi.fn().mockImplementation(function (
+      this: MockChannel,
+      cb?: SubscribeCallback
+    ) {
+      if (cb) this.__subscribeCallbacks.push(cb);
+      return this;
+    }),
+    __subscribeCallbacks: [],
+  };
+  // Ensure `this` binds to the channel
+  ch.on = vi.fn().mockReturnValue(ch);
+  ch.subscribe = vi.fn((cb?: SubscribeCallback) => {
+    if (cb) ch.__subscribeCallbacks.push(cb);
+    return ch;
+  });
+  mockChannels.push(ch);
+  return ch;
+}
+
+vi.mock("@/lib/supabase/client", () => ({
+  createClient: () => ({
+    channel: vi.fn((name: string) => createMockChannel(name)),
+    removeChannel: mockRemoveChannel,
+  }),
+}));
 
 describe("useShowLiveTracking", () => {
   it("returns true when order is out_for_delivery and location exists", () => {
@@ -282,9 +332,217 @@ describe("Polling Fallback", () => {
     const POLLING_INTERVAL = 30000; // 30 seconds
     expect(POLLING_INTERVAL).toBe(30000);
   });
+});
 
-  it("uses correct reconnect delay", () => {
-    const RECONNECT_DELAY = 5000; // 5 seconds
-    expect(RECONNECT_DELAY).toBe(5000);
+// ============================================================================
+// Task 2: Baseline subscription lifecycle tests (CHKP-02)
+// Added BEFORE the Task 3 refactor per CONTEXT D-37 — these document the
+// CURRENT (pre-refactor) behavior and act as a regression safety net.
+// Task 3 updates the reconnect delay constant and adds tests J-P.
+// ============================================================================
+describe("useTrackingSubscription — subscription lifecycle", () => {
+  // NOTE: Pre-backoff-refactor delay is 5000ms (RECONNECT_DELAY).
+  // Task 3 of plan 112-01 updates this to 1000ms (getBackoffDelay(0)).
+  const CURRENT_FIRST_RECONNECT_MS = 5000;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+    mockChannels.length = 0;
+    mockRemoveChannel.mockClear();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: {
+            order: { status: "preparing" },
+            routeStop: null,
+            driverLocation: null,
+          },
+        }),
+      })
+    );
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  function findChannel(prefix: string): MockChannel | undefined {
+    return mockChannels.find((c) => c.name.startsWith(prefix));
+  }
+
+  // Test A: Mount sets up tracking channel
+  it("A: mount creates tracking channel and registers order + stop handlers", async () => {
+    renderHook(() =>
+      useTrackingSubscription({ orderId: "order-123", enabled: true })
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const trackingChannel = findChannel("tracking:order-123");
+    expect(trackingChannel).toBeDefined();
+    // Two .on() calls: orders + route_stops
+    expect(trackingChannel!.on).toHaveBeenCalledTimes(2);
+    expect(trackingChannel!.subscribe).toHaveBeenCalledTimes(1);
+  });
+
+  // Test B: Mount sets up location channel when routeId present
+  it("B: mount creates location channel when routeId is provided", async () => {
+    renderHook(() =>
+      useTrackingSubscription({
+        orderId: "order-123",
+        routeId: "route-456",
+        enabled: true,
+      })
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(findChannel("tracking:order-123")).toBeDefined();
+    expect(findChannel("location:route-456")).toBeDefined();
+  });
+
+  // Test C: Mount does not subscribe when enabled=false
+  it("C: disabled hook does not create any channels", async () => {
+    renderHook(() =>
+      useTrackingSubscription({
+        orderId: "order-123",
+        routeId: "route-456",
+        enabled: false,
+      })
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(mockChannels.length).toBe(0);
+  });
+
+  // Test D: SUBSCRIBED status sets isConnected=true
+  it("D: SUBSCRIBED status flips isConnected true and clears error", async () => {
+    const { result } = renderHook(() =>
+      useTrackingSubscription({ orderId: "order-123", enabled: true })
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const trackingChannel = findChannel("tracking:order-123")!;
+    act(() => {
+      trackingChannel.__subscribeCallbacks.forEach((cb) => cb("SUBSCRIBED"));
+    });
+
+    expect(result.current.isConnected).toBe(true);
+    expect(result.current.connectionError).toBeNull();
+  });
+
+  // Test E: CLOSED status sets isConnected=false and triggers polling + reconnect
+  it("E: CLOSED status sets isConnected false, sets error, schedules polling", async () => {
+    const { result } = renderHook(() =>
+      useTrackingSubscription({ orderId: "order-123", enabled: true })
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const trackingChannel = findChannel("tracking:order-123")!;
+    act(() => {
+      trackingChannel.__subscribeCallbacks.forEach((cb) => cb("CLOSED"));
+    });
+
+    expect(result.current.isConnected).toBe(false);
+    expect(result.current.connectionError).toBeTruthy();
+  });
+
+  // Test F: CHANNEL_ERROR status schedules reconnect (CURRENT = 5000ms delay)
+  it("F: CHANNEL_ERROR schedules reconnect after CURRENT_FIRST_RECONNECT_MS", async () => {
+    renderHook(() =>
+      useTrackingSubscription({ orderId: "order-123", enabled: true })
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const initialChannelCount = mockChannels.length;
+    const firstChannel = findChannel("tracking:order-123")!;
+
+    act(() => {
+      firstChannel.__subscribeCallbacks.forEach((cb) => cb("CHANNEL_ERROR"));
+    });
+
+    // Advance by pre-refactor RECONNECT_DELAY
+    await act(async () => {
+      vi.advanceTimersByTime(CURRENT_FIRST_RECONNECT_MS);
+      await Promise.resolve();
+    });
+
+    // A new tracking channel should have been created via setupSubscriptions
+    expect(mockChannels.length).toBeGreaterThan(initialChannelCount);
+  });
+
+  // Test G: Cleanup on unmount removes BOTH channels
+  it("G: unmount removes tracking + location channels and clears polling", async () => {
+    const { unmount } = renderHook(() =>
+      useTrackingSubscription({
+        orderId: "order-123",
+        routeId: "route-456",
+        enabled: true,
+      })
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const preUnmountRemoveCalls = mockRemoveChannel.mock.calls.length;
+
+    unmount();
+
+    // Should have called removeChannel for both channels created
+    expect(mockRemoveChannel.mock.calls.length).toBeGreaterThan(
+      preUnmountRemoveCalls
+    );
+  });
+
+  // Test H: refresh() calls fetch with the right URL
+  it("H: refresh() fetches /api/tracking/:orderId", async () => {
+    const { result } = renderHook(() =>
+      useTrackingSubscription({ orderId: "order-123", enabled: true })
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    (global.fetch as ReturnType<typeof vi.fn>).mockClear();
+
+    await act(async () => {
+      await result.current.refresh();
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith("/api/tracking/order-123");
+  });
+
+  // Test I: Initial fetch happens on mount
+  it("I: mount triggers an initial fetch for tracking data", async () => {
+    renderHook(() =>
+      useTrackingSubscription({ orderId: "order-123", enabled: true })
+    );
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith("/api/tracking/order-123");
   });
 });
