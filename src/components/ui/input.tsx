@@ -12,7 +12,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
  * V7 Input System - Pepper Aesthetic with Framer Motion
  * Rounded corners, animated focus glow, V6 color palette
  *
- * Height: 44px default, 12px border radius
+ * Height: xs=36px, sm=44px, default=44px, 12px border radius
  * Variants: default, error, success
  *
  * Motion: Focus animates contextual glow (amber/red/green)
@@ -33,7 +33,7 @@ const inputVariants = cva(
     // V6 Motion (CSS fallback for color transitions)
     "transition-colors duration-normal ease-default",
     // V6 Focus: Primary red ring (CSS fallback)
-    "focus-visible:outline-none focus-visible:border-primary",
+    "focus-visible:outline-none focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
     // Disabled state
     "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-surface-tertiary",
     // File input styling
@@ -43,7 +43,8 @@ const inputVariants = cva(
     variants: {
       size: {
         default: "h-11 px-4 py-3",
-        sm: "h-9 px-3 py-2 text-sm",
+        xs: "h-9 px-2.5 py-1.5 text-xs",
+        sm: "h-11 px-3 py-2.5 text-sm min-h-11",
         lg: "h-12 px-4 py-3",
         xl: "h-14 px-5 py-4 text-lg", // Driver size
       },
