@@ -275,6 +275,8 @@ export const useCartStore = create<CartStore>()(
       partialize: (state) => ({ items: state.items }),
       onRehydrateStorage: () => (state) => {
         state?._setHasHydrated(true);
+        // Purge stale pendingSync flags on hydration (per D-20)
+        purgeStalePendingSync();
       },
     }
   )
@@ -284,23 +286,183 @@ export const useCartStore = create<CartStore>()(
 // ONLINE SYNC LISTENER
 // ============================================
 
+let listenerSetup = false; // Guard against duplicate registration (per D-19)
+
+interface MenuItemLookup {
+  basePriceCents: number;
+  isActive: boolean;
+  isSoldOut: boolean;
+  modifiers: Map<string, number>; // optionId -> priceDeltaCents
+}
+
 /**
- * When the browser comes back online, clear pendingSync flags
- * and notify the user that their cart has been synced.
+ * Build a lookup map from /api/menu response for quick price/availability checks.
  */
-function setupOnlineListener() {
-  if (typeof window !== "undefined") {
-    window.addEventListener("online", () => {
-      const { items } = useCartStore.getState();
-      const hasPending = items.some((i) => i.pendingSync);
-      if (hasPending) {
-        useCartStore.setState({
-          items: items.map((i) => ({ ...i, pendingSync: false })),
-        });
-        toast({ message: "Cart synced!", type: "success" });
+function buildMenuLookup(menuData: {
+  data?: {
+    categories?: Array<{
+      items: Array<{
+        id: string;
+        basePriceCents: number;
+        isActive: boolean;
+        isSoldOut: boolean;
+        modifierGroups: Array<{
+          options: Array<{
+            id: string;
+            priceDeltaCents: number;
+            isActive: boolean;
+          }>;
+        }>;
+      }>;
+    }>;
+  };
+}): Map<string, MenuItemLookup> {
+  const lookup = new Map<string, MenuItemLookup>();
+  const categories = menuData?.data?.categories ?? [];
+  for (const category of categories) {
+    for (const item of category.items) {
+      const modifiers = new Map<string, number>();
+      for (const group of item.modifierGroups ?? []) {
+        for (const opt of group.options ?? []) {
+          if (opt.isActive) {
+            modifiers.set(opt.id, opt.priceDeltaCents);
+          }
+        }
       }
-    });
+      lookup.set(item.id, {
+        basePriceCents: item.basePriceCents,
+        isActive: item.isActive,
+        isSoldOut: item.isSoldOut,
+        modifiers,
+      });
+    }
   }
+  return lookup;
+}
+
+/**
+ * When browser comes back online, validate pendingSync cart items
+ * against fresh /api/menu data. Updates prices, removes unavailable items,
+ * and notifies user of changes.
+ */
+async function syncPendingCartItems(): Promise<void> {
+  const { items } = useCartStore.getState();
+  const pendingItems = items.filter((i) => i.pendingSync);
+  if (pendingItems.length === 0) return;
+
+  try {
+    const response = await fetch("/api/menu");
+    if (!response.ok) {
+      // Network recovered but API failed — clear flags, toast generic success
+      useCartStore.setState({
+        items: items.map((i) => ({ ...i, pendingSync: false })),
+      });
+      toast({ message: "Cart synced!", type: "success" });
+      return;
+    }
+
+    const menuData = await response.json();
+    const lookup = buildMenuLookup(menuData);
+
+    const updatedItems: CartItem[] = [];
+    const removedNames: string[] = [];
+    let priceChanges = 0;
+
+    for (const item of items) {
+      if (!item.pendingSync) {
+        updatedItems.push(item);
+        continue;
+      }
+
+      const menuItem = lookup.get(item.menuItemId);
+
+      // Item unavailable — remove from cart (per D-17)
+      if (!menuItem || !menuItem.isActive || menuItem.isSoldOut) {
+        removedNames.push(item.nameEn);
+        continue;
+      }
+
+      // Check base price change
+      let changed = false;
+      const updatedItem = { ...item, pendingSync: false };
+
+      if (menuItem.basePriceCents !== item.basePriceCents) {
+        updatedItem.basePriceCents = menuItem.basePriceCents;
+        changed = true;
+      }
+
+      // Check modifier price changes
+      const updatedModifiers = item.modifiers.map((mod) => {
+        const freshPrice = menuItem.modifiers.get(mod.optionId);
+        if (freshPrice != null && freshPrice !== mod.priceDeltaCents) {
+          changed = true;
+          return { ...mod, priceDeltaCents: freshPrice };
+        }
+        return mod;
+      });
+      updatedItem.modifiers = updatedModifiers;
+
+      if (changed) priceChanges++;
+      updatedItems.push(updatedItem);
+    }
+
+    useCartStore.setState({ items: updatedItems });
+
+    // Notifications (per D-18 CheckoutErrorBanner pattern)
+    if (removedNames.length > 0) {
+      for (const name of removedNames) {
+        toast({
+          message: `${name} is no longer available and was removed`,
+          type: "warning",
+          duration: 30_000, // Long-lived for visibility (no persistent field in ToastOptions)
+        });
+      }
+    }
+
+    if (priceChanges > 0) {
+      toast({
+        message: `${priceChanges} item(s) updated since you were offline`,
+        type: "info",
+      });
+    }
+
+    if (removedNames.length === 0 && priceChanges === 0) {
+      toast({ message: "Cart synced successfully", type: "success" });
+    }
+  } catch {
+    // Fetch failed entirely — clear flags to prevent infinite retry
+    useCartStore.setState({
+      items: items.map((i) => ({ ...i, pendingSync: false })),
+    });
+    toast({ message: "Cart synced!", type: "success" });
+  }
+}
+
+/**
+ * Purge pendingSync flags (per D-20).
+ * Called on store hydration and before checkout.
+ */
+export function purgeStalePendingSync(): void {
+  const { items } = useCartStore.getState();
+  const hasPending = items.some((i) => i.pendingSync);
+  if (!hasPending) return;
+
+  useCartStore.setState({
+    items: items.map((i) => ({ ...i, pendingSync: false })),
+  });
+}
+
+function setupOnlineListener(): void {
+  if (typeof window === "undefined") return;
+  if (listenerSetup) return; // Prevent duplicate listeners (per D-19)
+  listenerSetup = true;
+
+  window.addEventListener("online", () => {
+    // Use .catch() handler — void asyncFn() killed on Vercel (per D-21)
+    syncPendingCartItems().catch((err) => {
+      console.error("[cart-store] Sync failed:", err);
+    });
+  });
 }
 
 setupOnlineListener();
@@ -316,3 +478,11 @@ setupOnlineListener();
 export function __clearDebounceState(): void {
   recentAdditions.clear();
 }
+
+/** Reset listener guard — for testing only. */
+export function __resetListenerGuard(): void {
+  listenerSetup = false;
+}
+
+/** Exposed for testing — do not use in production. */
+export { syncPendingCartItems as __syncPendingCartItems };
