@@ -191,7 +191,7 @@ export function RefundDialog({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => toggleItem(item)}
-                          className="mt-1 h-4 w-4 rounded border-border text-primary focus:ring-primary/30"
+                          className="mt-1 h-4 w-4 rounded border-border text-primary focus-visible:ring-primary/30"
                           onClick={(e) => e.stopPropagation()}
                         />
                         <div>
@@ -223,7 +223,7 @@ export function RefundDialog({
                           onChange={(e) => updateQuantity(item.id, parseInt(e.target.value, 10))}
                           className={cn(
                             "rounded-md border border-border bg-surface-primary px-2 py-1 text-sm",
-                            "text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/30"
+                            "text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30"
                           )}
                         >
                           {Array.from({ length: remainingQty }, (_, i) => i + 1).map((q) => (
@@ -252,7 +252,7 @@ export function RefundDialog({
                   type="checkbox"
                   checked={refundShipping}
                   onChange={(e) => setRefundShipping(e.target.checked)}
-                  className="h-4 w-4 rounded border-border text-primary focus:ring-primary/30"
+                  className="h-4 w-4 rounded border-border text-primary focus-visible:ring-primary/30"
                 />
                 <span className="text-sm text-text-primary">
                   Refund shipping ({formatPrice(deliveryFeeCents)})
@@ -266,7 +266,7 @@ export function RefundDialog({
                 type="checkbox"
                 checked={notifyCustomer}
                 onChange={(e) => setNotifyCustomer(e.target.checked)}
-                className="h-4 w-4 rounded border-border text-primary focus:ring-primary/30"
+                className="h-4 w-4 rounded border-border text-primary focus-visible:ring-primary/30"
               />
               <span className="text-sm text-text-primary">Notify customer by email</span>
             </label>
@@ -288,7 +288,7 @@ export function RefundDialog({
                 className={cn(
                   "w-full rounded-lg border border-border bg-surface-primary px-3 py-2 text-sm",
                   "text-text-primary placeholder:text-text-muted",
-                  "focus:outline-none focus:ring-2 focus:ring-primary/30",
+                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
                   "resize-none"
                 )}
               />

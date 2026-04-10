@@ -120,7 +120,7 @@ export function DeliveryNotesEditor({
               className={cn(
                 "w-full rounded-lg border border-charcoal-200 bg-surface-primary p-3",
                 "text-sm text-charcoal placeholder:text-charcoal-400",
-                "focus:border-jade-400 focus:outline-none focus:ring-2 focus:ring-jade-100",
+                "focus:border-jade-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-jade-100",
                 "resize-none"
               )}
               rows={3}

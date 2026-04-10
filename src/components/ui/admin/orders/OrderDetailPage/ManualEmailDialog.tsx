@@ -164,7 +164,7 @@ export function ManualEmailDialog({
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Enter email subject..."
-              className="w-full text-sm text-text-primary bg-surface-primary border border-border-subtle rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-interactive-primary/30 focus:border-interactive-primary transition-colors"
+              className="w-full text-sm text-text-primary bg-surface-primary border border-border-subtle rounded px-3 py-2 focus:outline-none focus-visible:ring-2 focus-visible:ring-interactive-primary/30 focus:border-interactive-primary transition-colors"
               maxLength={200}
             />
           </div>

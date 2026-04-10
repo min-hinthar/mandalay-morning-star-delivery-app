@@ -231,7 +231,7 @@ export function UnassignedOrdersPanel({
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search by customer or address..."
-          className="w-full pl-9 pr-4 py-2 text-sm bg-surface-primary border border-border rounded-xl text-text-primary placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-accent-teal/30 focus:border-accent-teal/50"
+          className="w-full pl-9 pr-4 py-2 text-sm bg-surface-primary border border-border rounded-xl text-text-primary placeholder:text-text-muted focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal/30 focus:border-accent-teal/50"
         />
       </div>
 

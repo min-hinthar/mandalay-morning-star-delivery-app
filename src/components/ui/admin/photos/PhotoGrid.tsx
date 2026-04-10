@@ -55,7 +55,7 @@ const PhotoCard = memo(function PhotoCard({
         className={cn(
           "relative aspect-square w-full overflow-hidden rounded-card-sm",
           "border-2 transition-all duration-fast",
-          "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2",
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
           isSelected
             ? "border-primary ring-2 ring-primary/30"
             : "border-border hover:border-primary/50"

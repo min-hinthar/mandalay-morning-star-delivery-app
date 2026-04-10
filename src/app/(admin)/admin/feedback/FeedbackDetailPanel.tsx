@@ -127,7 +127,7 @@ export function FeedbackDetailPanel({ feedback, children }: FeedbackDetailPanelP
                       className={cn(
                         "w-full rounded-input border border-border-subtle px-3 py-2 text-sm",
                         "bg-surface-primary text-text-primary",
-                        "focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary"
+                        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus:border-primary"
                       )}
                     >
                       {STATUS_OPTIONS.map((opt) => (

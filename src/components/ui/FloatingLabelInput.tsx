@@ -64,7 +64,7 @@ export const FloatingLabelInput = forwardRef<HTMLInputElement, FloatingLabelInpu
               "peer w-full rounded-2xl border border-border bg-surface-secondary/50 pr-4 pt-6 pb-2 text-base text-text-primary",
               hasIcon ? "pl-11" : "pl-4",
               "transition-all duration-200",
-              "focus:border-accent-teal focus:bg-surface-primary focus:ring-2 focus:ring-accent-teal/20 focus:outline-none",
+              "focus:border-accent-teal focus:bg-surface-primary focus-visible:ring-2 focus-visible:ring-accent-teal/20 focus:outline-none",
               error && "border-status-error ring-2 ring-status-error/20",
               className
             )}

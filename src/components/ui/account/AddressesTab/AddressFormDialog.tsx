@@ -60,7 +60,9 @@ export function AddressFormDialog({
               placeholder="e.g., Home, Work, Office"
               aria-invalid={!!formErrors.label}
               aria-describedby={formErrors.label ? "label-error" : undefined}
-              className={formErrors.label ? "border-status-error focus:ring-status-error" : ""}
+              className={
+                formErrors.label ? "border-status-error focus-visible:ring-status-error" : ""
+              }
             />
             <AnimatePresence>
               {formErrors.label && (
@@ -92,7 +94,9 @@ export function AddressFormDialog({
               placeholder="Street address"
               aria-invalid={!!formErrors.line1}
               aria-describedby={formErrors.line1 ? "line1-error" : undefined}
-              className={formErrors.line1 ? "border-status-error focus:ring-status-error" : ""}
+              className={
+                formErrors.line1 ? "border-status-error focus-visible:ring-status-error" : ""
+              }
             />
             <AnimatePresence>
               {formErrors.line1 && (
@@ -140,7 +144,9 @@ export function AddressFormDialog({
               placeholder="City"
               aria-invalid={!!formErrors.city}
               aria-describedby={formErrors.city ? "city-error" : undefined}
-              className={formErrors.city ? "border-status-error focus:ring-status-error" : ""}
+              className={
+                formErrors.city ? "border-status-error focus-visible:ring-status-error" : ""
+              }
             />
             <AnimatePresence>
               {formErrors.city && (
@@ -174,7 +180,9 @@ export function AddressFormDialog({
                 maxLength={2}
                 aria-invalid={!!formErrors.state}
                 aria-describedby={formErrors.state ? "state-error" : undefined}
-                className={formErrors.state ? "border-status-error focus:ring-status-error" : ""}
+                className={
+                  formErrors.state ? "border-status-error focus-visible:ring-status-error" : ""
+                }
               />
               <AnimatePresence>
                 {formErrors.state && (
@@ -205,7 +213,7 @@ export function AddressFormDialog({
                 aria-invalid={!!formErrors.postalCode}
                 aria-describedby={formErrors.postalCode ? "postalCode-error" : undefined}
                 className={
-                  formErrors.postalCode ? "border-status-error focus:ring-status-error" : ""
+                  formErrors.postalCode ? "border-status-error focus-visible:ring-status-error" : ""
                 }
               />
               <AnimatePresence>
@@ -231,7 +239,7 @@ export function AddressFormDialog({
               id="isDefault"
               checked={formData.isDefault}
               onChange={(e) => onInputChange("isDefault", e.target.checked)}
-              className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+              className="h-4 w-4 rounded border-border text-primary focus-visible:ring-primary"
             />
             <label htmlFor="isDefault" className="text-sm font-medium text-text-primary">
               Set as default address

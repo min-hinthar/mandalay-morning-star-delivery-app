@@ -181,13 +181,13 @@ export const ValidatedInput = forwardRef<HTMLInputElement, ValidatedInputProps>(
       if (disabled) return "border-[var(--color-border)]";
       switch (state) {
         case "invalid":
-          return "border-[var(--color-status-error)] focus:border-[var(--color-status-error)] focus:ring-[var(--color-status-error)]/20";
+          return "border-[var(--color-status-error)] focus:border-[var(--color-status-error)] focus-visible:ring-[var(--color-status-error)]/20";
         case "valid":
           return showSuccess
-            ? "border-[var(--color-accent-secondary)] focus:border-[var(--color-accent-secondary)] focus:ring-[var(--color-accent-secondary)]/20"
-            : "border-[var(--color-border)] focus:border-[var(--color-accent-tertiary)] focus:ring-[var(--color-accent-tertiary)]/20";
+            ? "border-[var(--color-accent-secondary)] focus:border-[var(--color-accent-secondary)] focus-visible:ring-[var(--color-accent-secondary)]/20"
+            : "border-[var(--color-border)] focus:border-[var(--color-accent-tertiary)] focus-visible:ring-[var(--color-accent-tertiary)]/20";
         default:
-          return "border-[var(--color-border)] focus:border-[var(--color-accent-tertiary)] focus:ring-[var(--color-accent-tertiary)]/20";
+          return "border-[var(--color-border)] focus:border-[var(--color-accent-tertiary)] focus-visible:ring-[var(--color-accent-tertiary)]/20";
       }
     };
 
@@ -260,7 +260,7 @@ export const ValidatedInput = forwardRef<HTMLInputElement, ValidatedInputProps>(
               "w-full rounded-[var(--radius-md)] px-3 py-2.5",
               "text-[var(--color-text-primary)] text-base",
               "border-2 transition-all duration-[var(--duration-fast)]",
-              "focus:outline-none focus:ring-4",
+              "focus:outline-none focus-visible:ring-4",
               "placeholder:text-[var(--color-text-secondary)]",
               // Dynamic styles
               getBorderClass(),

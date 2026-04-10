@@ -106,7 +106,7 @@ export function MenuItemFormFields({
               "w-full px-3 py-2 rounded-input",
               "bg-surface-primary border border-border",
               "font-body text-text-primary",
-              "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus:border-primary"
             )}
             placeholder="Enter description (optional)"
           />
@@ -141,7 +141,7 @@ export function MenuItemFormFields({
                 "w-full px-3 py-2 rounded-input",
                 "bg-surface-primary border border-border",
                 "font-body text-text-primary",
-                "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus:border-primary"
               )}
             >
               {categories.map((cat) => (

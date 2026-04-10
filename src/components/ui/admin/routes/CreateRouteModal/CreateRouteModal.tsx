@@ -218,9 +218,9 @@ export function CreateRouteModal({ open, onOpenChange, onSubmit }: CreateRouteMo
               }}
               min={format(new Date(), "yyyy-MM-dd")}
               className={cn(
-                "bg-surface-primary border-border-v5 focus:border-interactive-primary focus:ring-interactive-primary/20",
+                "bg-surface-primary border-border-v5 focus:border-interactive-primary focus-visible:ring-interactive-primary/20",
                 errors.deliveryDate &&
-                  "border-status-error focus:border-status-error focus:ring-status-error/20"
+                  "border-status-error focus:border-status-error focus-visible:ring-status-error/20"
               )}
               disabled={isSubmitting}
             />

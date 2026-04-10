@@ -104,7 +104,7 @@ export function MagicLinkForm({ onSuccess, redirectTo }: MagicLinkFormProps) {
             className={cn(
               "peer w-full rounded-2xl border border-border bg-surface-secondary/50 pl-11 pr-4 pt-6 pb-2 text-base text-text-primary",
               "transition-all duration-200",
-              "focus:border-primary focus:bg-surface-primary focus:ring-2 focus:ring-primary/20 focus:shadow-[0_0_0_4px_rgba(164,16,52,0.08)] focus:outline-none",
+              "focus:border-primary focus:bg-surface-primary focus-visible:ring-2 focus-visible:ring-primary/20 focus:shadow-[0_0_0_4px_rgba(164,16,52,0.08)] focus:outline-none",
               "dark:focus:shadow-[0_0_0_4px_rgba(255,107,107,0.08)]",
               errorMessage && "border-status-error ring-2 ring-status-error/20"
             )}

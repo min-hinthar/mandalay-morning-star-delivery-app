@@ -18,24 +18,14 @@ import { describe, it, expect } from "vitest";
 
 function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace("#", "");
-  return [
-    parseInt(h.slice(0, 2), 16),
-    parseInt(h.slice(2, 4), 16),
-    parseInt(h.slice(4, 6), 16),
-  ];
+  return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
 }
 
 /**
  * Alpha-blend an RGBA color onto a solid background, returning effective hex.
  * Used to resolve status-*-bg tokens (rgba on surface).
  */
-function alphaBlend(
-  fgR: number,
-  fgG: number,
-  fgB: number,
-  alpha: number,
-  bgHex: string,
-): string {
+function alphaBlend(fgR: number, fgG: number, fgB: number, alpha: number, bgHex: string): string {
   const [bgR, bgG, bgB] = hexToRgb(bgHex);
   const r = Math.round(fgR * alpha + bgR * (1 - alpha));
   const g = Math.round(fgG * alpha + bgG * (1 - alpha));
@@ -164,24 +154,17 @@ describe("WCAG AA Contrast Audit - text-muted on surfaces", () => {
 
   // Light mode: all 10 surfaces
   describe("Light mode: text-muted (#5c5c5c)", () => {
-    it.each(lightSurfaces)(
-      "passes 4.5:1 on %s (%s)",
-      (_name: string, hex: string) => {
-        const ratio = contrastRatio(LIGHT_TEXT_MUTED, hex);
-        expect(ratio).toBeGreaterThanOrEqual(4.5);
-      },
-    );
+    it.each(lightSurfaces)("passes 4.5:1 on %s (%s)", (_name: string, hex: string) => {
+      const ratio = contrastRatio(LIGHT_TEXT_MUTED, hex);
+      expect(ratio).toBeGreaterThanOrEqual(4.5);
+    });
   });
 
   // Dark mode: all 10 surfaces
   describe("Dark mode: text-muted (#9a9794)", () => {
-    it.each(darkSurfaces)(
-      "passes 4.5:1 on %s (%s)",
-      (_name: string, hex: string) => {
-        const ratio = contrastRatio(DARK_TEXT_MUTED, hex);
-        expect(ratio).toBeGreaterThanOrEqual(4.5);
-      },
-    );
+    it.each(darkSurfaces)("passes 4.5:1 on %s (%s)", (_name: string, hex: string) => {
+      const ratio = contrastRatio(DARK_TEXT_MUTED, hex);
+      expect(ratio).toBeGreaterThanOrEqual(4.5);
+    });
   });
-
 });

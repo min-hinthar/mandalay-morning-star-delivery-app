@@ -220,7 +220,7 @@ export default function AdminDriversPage() {
                     placeholder="Search by name, email, or phone..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-surface-primary border-border focus:border-accent-teal focus:ring-accent-teal/20 rounded-input"
+                    className="pl-10 bg-surface-primary border-border focus:border-accent-teal focus-visible:ring-accent-teal/20 rounded-input"
                   />
                 </div>
               )}

@@ -215,7 +215,7 @@ export function AddMenuItemDialog({ categories, onItemCreated }: AddMenuItemDial
                   slug: generateSlug(name),
                 }));
               }}
-              className="bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input"
+              className="bg-surface-primary border-border focus:border-primary focus-visible:ring-primary/20 rounded-input"
             />
           </div>
 
@@ -232,7 +232,7 @@ export function AddMenuItemDialog({ categories, onItemCreated }: AddMenuItemDial
               placeholder="Optional"
               value={formData.name_my}
               onChange={(e) => setFormData((prev) => ({ ...prev, name_my: e.target.value }))}
-              className="bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input"
+              className="bg-surface-primary border-border focus:border-primary focus-visible:ring-primary/20 rounded-input"
             />
           </div>
 
@@ -251,7 +251,7 @@ export function AddMenuItemDialog({ categories, onItemCreated }: AddMenuItemDial
                   slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""),
                 }))
               }
-              className="bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input font-mono"
+              className="bg-surface-primary border-border focus:border-primary focus-visible:ring-primary/20 rounded-input font-mono"
             />
             <p className="text-xs font-body text-text-muted">
               URL-friendly identifier. Auto-generated from name.
@@ -275,7 +275,7 @@ export function AddMenuItemDialog({ categories, onItemCreated }: AddMenuItemDial
                 "w-full px-3 py-2 rounded-input text-sm",
                 "bg-surface-primary border border-border",
                 "font-body text-text-primary",
-                "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus:border-primary"
               )}
               placeholder="Optional description"
             />
@@ -299,7 +299,7 @@ export function AddMenuItemDialog({ categories, onItemCreated }: AddMenuItemDial
                   base_price_cents: Math.round(parseFloat(e.target.value || "0") * 100),
                 }));
               }}
-              className="bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input"
+              className="bg-surface-primary border-border focus:border-primary focus-visible:ring-primary/20 rounded-input"
             />
           </div>
 
@@ -314,7 +314,7 @@ export function AddMenuItemDialog({ categories, onItemCreated }: AddMenuItemDial
                   "w-full px-3 py-2 rounded-input text-sm",
                   "bg-surface-primary border border-border",
                   "font-body text-text-primary",
-                  "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+                  "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus:border-primary"
                 )}
               >
                 {categories.map((cat) => (

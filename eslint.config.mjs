@@ -357,6 +357,19 @@ const config = [
           selector: "Literal[value=/delay-\\[\\d+m?s\\]/]",
           message: "Use Tailwind delay scale or CSS variable instead of delay-[Nms].",
         },
+        // Hardcoded ring color enforcement (A11Y-03 regression guard)
+        {
+          selector:
+            "Literal[value=/\\bring-(red|zinc|blue|green|gray|amber|orange|purple|yellow|pink|slate|stone|neutral|emerald|teal|cyan|sky|indigo|violet|fuchsia|rose)-\\d/]",
+          message:
+            "Use semantic ring token (ring-primary, ring-status-error, ring-status-warning, ring-status-success, ring-surface-primary) instead of hardcoded Tailwind ring color.",
+        },
+        // focus: → focus-visible: enforcement for ring patterns (WCAG 2.4.7)
+        {
+          selector: "Literal[value=/\\bfocus:ring/]",
+          message:
+            "Use focus-visible:ring instead of focus:ring — mouse clicks should not show focus rings (WCAG 2.4.7).",
+        },
       ],
     },
   },

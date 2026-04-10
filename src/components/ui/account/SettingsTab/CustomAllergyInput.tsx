@@ -128,7 +128,7 @@ export function CustomAllergyInput({ customItems, onChange }: CustomAllergyInput
               "flex-1 px-3 py-1.5 text-sm rounded-pill",
               "border border-border bg-surface-primary",
               "placeholder:text-text-tertiary",
-              "focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary"
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary"
             )}
           />
         </div>

@@ -42,13 +42,13 @@ const KPI_CARDS: KPICardConfig[] = [
     status: "confirmed",
     label: "Confirmed",
     colorClasses: "bg-teal-50 text-teal-800 border-teal-200",
-    activeRing: "ring-teal-500",
+    activeRing: "ring-status-success",
   },
   {
     status: "preparing",
     label: "Preparing",
     colorClasses: "bg-purple-50 text-purple-800 border-purple-200",
-    activeRing: "ring-purple-500",
+    activeRing: "ring-primary",
   },
   {
     status: "out_for_delivery",

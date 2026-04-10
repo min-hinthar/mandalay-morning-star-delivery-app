@@ -243,7 +243,7 @@ export function RouteBuilderClient({ activeDays = [] }: RouteBuilderClientProps)
                   setDeliveryDate(e.target.value);
                   setSelectedOrderIds(new Set());
                 }}
-                className="w-full px-3 py-2 text-sm bg-surface-primary border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-accent-teal/30 focus:border-accent-teal/50"
+                className="w-full px-3 py-2 text-sm bg-surface-primary border border-border rounded-xl text-text-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal/30 focus:border-accent-teal/50"
               />
               {Object.keys(otherDateCounts).length > 0 && (
                 <p className="text-xs text-text-muted mt-1">
