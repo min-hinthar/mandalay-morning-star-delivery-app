@@ -51,9 +51,9 @@ Requirements for Customer UX Quality milestone. Each maps to roadmap phases.
 
 ### Data Layer
 
-- [ ] **DATA-01**: Cart add/remove uses optimistic updates with rollback on error — instant UI feedback
+- [x] **DATA-01**: Cart add/remove uses optimistic updates with rollback on error — instant UI feedback
 - [ ] **DATA-02**: Query key factory centralizes cache keys — consistent invalidation across hooks
-- [ ] **DATA-03**: Menu search deduplicates concurrent identical queries — no redundant API calls
+- [x] **DATA-03**: Menu search deduplicates concurrent identical queries — no redundant API calls
 - [x] **DATA-04**: Orders list and menu search support pagination — no unbounded fetches
 
 ### Micro-Interactions
@@ -131,9 +131,9 @@ Deferred to future releases.
 | LOAD-03 | Phase 114 | Complete |
 | LOAD-04 | Phase 114 | Complete |
 | LOAD-05 | Phase 114 | Complete |
-| DATA-01 | Phase 115 | Pending |
+| DATA-01 | Phase 115 | Complete |
 | DATA-02 | Phase 110 | Pending |
-| DATA-03 | Phase 115 | Pending |
+| DATA-03 | Phase 115 | Complete |
 | DATA-04 | Phase 115 | Complete |
 | UXPL-01 | Phase 116 | Pending |
 | UXPL-02 | Phase 116 | Pending |
