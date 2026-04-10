@@ -83,11 +83,19 @@ export const useCartStore = create<CartStore>()(
         set({ longDistanceFeeCents: fee, longDistanceThresholdMiles: threshold }),
 
       /**
-       * Add item to cart with deduplication and debounce protection.
+       * Optimistic cart add -- synchronous Zustand mutation.
        *
-       * - Same signature (menuItemId + modifiers + notes) → merge by incrementing quantity
-       * - Different signature → add as new item
-       * - Rapid-fire adds (< 300ms) → ignored
+       * Phase 115 DATA-01: This IS the optimistic update. No server round-trip on add.
+       * Item is immediately visible in UI (<16ms, one frame). IDB persistence is
+       * handled by zustand/persist middleware. Dedup signature prevents duplicate
+       * rapid-fire adds (300ms store-level debounce inside set() -- BUG-06 atomic fix).
+       *
+       * Rollback semantics (three layers):
+       * 1. useCartValidation polls menu every 3min -- detects price changes, sold-out
+       * 2. syncPendingCartItems on reconnect -- removes unavailable items
+       * 3. fetchAndValidateCart at checkout -- server-side authoritative validation
+       *
+       * @param item - Item to add (menuItemId + modifiers + notes + quantity)
        */
       addItem: (item) => {
         const signature = createItemSignature(item);
@@ -174,6 +182,12 @@ export const useCartStore = create<CartStore>()(
         });
       },
 
+      /**
+       * Optimistic quantity update -- synchronous Zustand mutation.
+       *
+       * Immediately updates quantity in state. Clamped to [1, MAX_ITEM_QUANTITY].
+       * No server round-trip. IDB persisted automatically.
+       */
       updateQuantity: (cartItemId, quantity) => {
         const clampedQty = Math.min(Math.max(1, quantity), MAX_ITEM_QUANTITY);
 
@@ -189,6 +203,12 @@ export const useCartStore = create<CartStore>()(
         }));
       },
 
+      /**
+       * Optimistic cart remove -- synchronous Zustand mutation.
+       *
+       * Immediately removes item from state and IDB. No server call.
+       * Phase 116 will add undo-delete with timer-based rollback on top of this.
+       */
       removeItem: (cartItemId) => {
         set((state) => ({
           items: state.items.filter((item) => item.cartItemId !== cartItemId),
@@ -261,6 +281,13 @@ export const useCartStore = create<CartStore>()(
         }));
       },
 
+      /**
+       * Updates cart item price to match server truth.
+       *
+       * Called by useCartValidation when price-change detected (Phase 115 D-20).
+       * Synchronous mutation -- cart always reflects latest server price after
+       * validation completes.
+       */
       updateItemPrice: (cartItemId, newPriceCents) => {
         set((state) => ({
           items: state.items.map((item) =>
@@ -341,9 +368,15 @@ function buildMenuLookup(menuData: {
 }
 
 /**
- * When browser comes back online, validate pendingSync cart items
- * against fresh /api/menu data. Updates prices, removes unavailable items,
- * and notifies user of changes.
+ * Rollback layer 2: Online reconnection sync.
+ *
+ * Triggered by browser "online" event. Validates all items with
+ * pendingSync: true against /api/menu. Removes unavailable items,
+ * updates changed prices, clears pendingSync flags. Shows toast
+ * for each change.
+ *
+ * Phase 115 DATA-01: This is the explicit rollback mechanism for
+ * offline-added items that are no longer valid on the server.
  */
 async function syncPendingCartItems(): Promise<void> {
   const { items } = useCartStore.getState();
