@@ -12,7 +12,7 @@ import { OrderCard } from "./OrderCard";
 import type { OrderStatus } from "@/types/order";
 import type { RefundStatus } from "@/types/database";
 
-interface Order {
+export interface OrderSummary {
   id: string;
   status: OrderStatus;
   refundStatus: RefundStatus;
@@ -23,7 +23,7 @@ interface Order {
 }
 
 interface OrderListAnimatedProps {
-  orders: Order[];
+  orders: OrderSummary[];
 }
 
 export function OrderListAnimated({ orders }: OrderListAnimatedProps) {
