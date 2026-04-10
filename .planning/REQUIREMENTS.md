@@ -16,7 +16,7 @@ Requirements for Customer UX Quality milestone. Each maps to roadmap phases.
 - [ ] **CFIX-05**: Cart validation has 30-second timeout with fallback error UI — no infinite spinner
 - [ ] **CFIX-06**: React Query provider configures 3 retries with exponential backoff — transient failures recover
 - [ ] **CFIX-07**: Checkout form state persists across payment errors — user doesn't re-enter address/time/contact
-- [ ] **CFIX-08**: Offline cart items actually sync when back online — pendingSync flag honored
+- [x] **CFIX-08**: Offline cart items actually sync when back online — pendingSync flag honored
 - [x] **CFIX-09**: Menu periodically refetches (2-5 min) while cart is non-empty — detects price/availability changes
 - [ ] **CFIX-10**: Tracking page audio notifications have mute toggle — no interruption on calls
 
@@ -46,7 +46,7 @@ Requirements for Customer UX Quality milestone. Each maps to roadmap phases.
 - [x] **LOAD-01**: Orders list page shows content-shaped skeleton while loading — not generic spinner
 - [x] **LOAD-02**: Order detail page shows content-shaped skeleton while loading
 - [x] **LOAD-03**: Account page shows tab-shaped skeleton while loading
-- [ ] **LOAD-04**: Menu cached in IndexedDB for offline cold-start — shows cached menu instead of "Coming Soon"
+- [x] **LOAD-04**: Menu cached in IndexedDB for offline cold-start — shows cached menu instead of "Coming Soon"
 - [ ] **LOAD-05**: Loading state hierarchy documented and enforced: skeleton > spinner > timeout fallback
 
 ### Data Layer
@@ -111,7 +111,7 @@ Deferred to future releases.
 | CFIX-05 | Phase 110 | Pending |
 | CFIX-06 | Phase 110 | Pending |
 | CFIX-07 | Phase 111 | Pending |
-| CFIX-08 | Phase 114 | Pending |
+| CFIX-08 | Phase 114 | Complete |
 | CFIX-09 | Phase 111 | Complete |
 | CFIX-10 | Phase 112 | Pending |
 | CHKP-01 | Phase 111 | Pending |
@@ -129,7 +129,7 @@ Deferred to future releases.
 | LOAD-01 | Phase 114 | Complete |
 | LOAD-02 | Phase 114 | Complete |
 | LOAD-03 | Phase 114 | Complete |
-| LOAD-04 | Phase 114 | Pending |
+| LOAD-04 | Phase 114 | Complete |
 | LOAD-05 | Phase 114 | Pending |
 | DATA-01 | Phase 115 | Pending |
 | DATA-02 | Phase 110 | Pending |
