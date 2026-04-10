@@ -196,9 +196,9 @@ export function InviteDriverModal({ open, onOpenChange, onSuccess }: InviteDrive
               value={email}
               onChange={(e) => handleEmailChange(e.target.value)}
               className={cn(
-                "bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input",
+                "bg-surface-primary border-border focus:border-primary focus-visible:ring-primary/20 rounded-input",
                 errors.email &&
-                  "border-status-error focus:border-status-error focus:ring-status-error/20"
+                  "border-status-error focus:border-status-error focus-visible:ring-status-error/20"
               )}
               disabled={isSubmitting}
               autoFocus

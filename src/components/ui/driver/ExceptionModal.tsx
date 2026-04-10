@@ -249,7 +249,7 @@ export function ExceptionModal({
                         "w-full rounded-input border border-border p-3",
                         "font-body text-text-primary",
                         "placeholder:text-text-muted",
-                        "focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20",
+                        "focus:border-primary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20",
                         "disabled:bg-surface-tertiary",
                         "transition-colors duration-fast"
                       )}

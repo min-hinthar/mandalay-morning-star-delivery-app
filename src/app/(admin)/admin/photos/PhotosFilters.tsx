@@ -45,7 +45,7 @@ export function PhotosFilters({
             placeholder="Search by item name..."
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input"
+            className="pl-10 bg-surface-primary border-border focus:border-primary focus-visible:ring-primary/20 rounded-input"
           />
         </div>
         <div className="flex flex-wrap gap-2">

@@ -398,7 +398,7 @@ export function SettingsNudgeBanner() {
                         "w-full px-3 py-2 text-sm rounded-lg",
                         "border border-amber-200 bg-surface-primary",
                         "placeholder:text-amber-400",
-                        "focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-amber-400"
+                        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-warning focus-visible:border-status-warning"
                       )}
                     />
                     <p className="mt-1.5 text-xs text-amber-600">Default delivery instructions</p>

@@ -59,7 +59,7 @@ export function ArchiveConfirmModal({
               "w-full px-3 py-2 rounded-input",
               "bg-surface-secondary border border-border",
               "font-body text-text-primary",
-              "focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus:border-primary"
             )}
             placeholder="Enter reason for archiving this driver"
           />

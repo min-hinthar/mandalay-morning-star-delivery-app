@@ -180,7 +180,9 @@ export function ProfileTab() {
                 placeholder="Enter your full name"
                 aria-invalid={!!errors.fullName}
                 aria-describedby={errors.fullName ? "fullName-error" : undefined}
-                className={errors.fullName ? "border-status-error focus:ring-status-error" : ""}
+                className={
+                  errors.fullName ? "border-status-error focus-visible:ring-status-error" : ""
+                }
               />
               <AnimatePresence>
                 {errors.fullName && (
@@ -213,7 +215,9 @@ export function ProfileTab() {
                 placeholder="Enter your phone number"
                 aria-invalid={!!errors.phone}
                 aria-describedby={errors.phone ? "phone-error" : undefined}
-                className={errors.phone ? "border-status-error focus:ring-status-error" : ""}
+                className={
+                  errors.phone ? "border-status-error focus-visible:ring-status-error" : ""
+                }
               />
               <AnimatePresence>
                 {errors.phone && (

@@ -284,7 +284,7 @@ export function ItemDetailSheet({
               "flex items-center justify-center",
               "text-text-inverse",
               "transition-colors duration-150",
-              "focus:outline-none focus:ring-2 focus:ring-surface-primary/50"
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-primary/50"
             )}
             aria-label="Close"
           >

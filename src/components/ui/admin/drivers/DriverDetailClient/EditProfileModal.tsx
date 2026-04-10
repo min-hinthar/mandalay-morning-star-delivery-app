@@ -84,7 +84,7 @@ export function EditProfileModal({
                 "w-full px-3 py-2 rounded-input",
                 "bg-surface-secondary border border-border",
                 "font-body text-text-primary",
-                "focus:outline-none focus:ring-2 focus:ring-accent-teal/20 focus:border-accent-teal"
+                "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal/20 focus:border-accent-teal"
               )}
             >
               <option value="">Select vehicle type</option>

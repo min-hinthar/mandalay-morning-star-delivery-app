@@ -112,7 +112,7 @@ export function AddCategoryDialog({ onCategoryCreated }: AddCategoryDialogProps)
                   slug: generateSlug(name),
                 });
               }}
-              className="bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input"
+              className="bg-surface-primary border-border focus:border-primary focus-visible:ring-primary/20 rounded-input"
             />
           </div>
           <div className="space-y-2">
@@ -129,7 +129,7 @@ export function AddCategoryDialog({ onCategoryCreated }: AddCategoryDialogProps)
                   slug: e.target.value.toLowerCase(),
                 }))
               }
-              className="bg-surface-primary border-border focus:border-primary focus:ring-primary/20 rounded-input font-mono"
+              className="bg-surface-primary border-border focus:border-primary focus-visible:ring-primary/20 rounded-input font-mono"
             />
             <p className="text-xs font-body text-text-muted">
               URL-friendly identifier. Lowercase, no spaces.

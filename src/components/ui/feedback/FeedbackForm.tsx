@@ -246,7 +246,7 @@ export function FeedbackForm({ onClose, prefillOrderId, prefillCategory }: Feedb
               className={cn(
                 "w-full rounded-input border px-3 py-2 text-sm",
                 "bg-surface-primary text-text-primary placeholder:text-text-muted",
-                "focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary",
+                "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus:border-primary",
                 errors.contactEmail ? "border-status-error" : "border-border-subtle"
               )}
             />
@@ -272,7 +272,7 @@ export function FeedbackForm({ onClose, prefillOrderId, prefillCategory }: Feedb
             className={cn(
               "w-full rounded-input border px-3 py-2 text-sm",
               "bg-surface-primary text-text-primary placeholder:text-text-muted",
-              "focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary",
+              "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus:border-primary",
               errors.subject ? "border-status-error" : "border-border-subtle"
             )}
           />

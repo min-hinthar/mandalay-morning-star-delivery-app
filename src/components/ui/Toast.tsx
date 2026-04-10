@@ -100,7 +100,7 @@ function ToastCard({ toast, onDismiss }: ToastCardProps) {
           "flex-shrink-0 p-1 rounded-full",
           "text-text-muted hover:text-text-primary hover:bg-surface-tertiary",
           "transition-colors",
-          "focus:outline-none focus:ring-2 focus:ring-accent-teal/30"
+          "focus:outline-none focus-visible:ring-2 focus-visible:ring-accent-teal/30"
         )}
         aria-label="Dismiss notification"
       >

@@ -52,7 +52,7 @@ export function PreferencesSection({ settings, updateField }: PreferencesSection
             maxLength={500}
             rows={3}
             placeholder="e.g. Leave at door, Ring doorbell twice"
-            className="w-full rounded-card-sm border border-border bg-surface-primary px-4 py-3 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary resize-none"
+            className="w-full rounded-card-sm border border-border bg-surface-primary px-4 py-3 text-sm text-text-primary placeholder:text-text-tertiary focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary resize-none"
           />
           <p className="mt-1 text-right text-xs text-text-tertiary">{charCount}/500</p>
         </div>
