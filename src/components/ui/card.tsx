@@ -32,7 +32,7 @@ const cardVariants = cva(
           "shadow-card cursor-pointer",
           "hover:shadow-card-hover hover:-translate-y-1 hover:scale-[1.01]",
           "active:shadow-md active:translate-y-0 active:scale-[0.99]",
-          "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+          "focus-visible:outline-none focus-visible:shadow-[var(--shadow-focus)]",
         ].join(" "),
 
         // Alert: Left border accent (exception cards)

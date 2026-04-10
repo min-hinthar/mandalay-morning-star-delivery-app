@@ -36,7 +36,7 @@ const KPI_CARDS: KPICardConfig[] = [
     status: "pending",
     label: "Pending",
     colorClasses: "bg-amber-50 text-amber-800 border-amber-200",
-    activeRing: "ring-amber-500",
+    activeRing: "ring-status-warning",
   },
   {
     status: "confirmed",
@@ -54,13 +54,13 @@ const KPI_CARDS: KPICardConfig[] = [
     status: "out_for_delivery",
     label: "Out for Delivery",
     colorClasses: "bg-blue-50 text-blue-800 border-blue-200",
-    activeRing: "ring-blue-500",
+    activeRing: "ring-primary",
   },
   {
     status: "delivered",
     label: "Delivered",
     colorClasses: "bg-green-50 text-green-800 border-green-200",
-    activeRing: "ring-green-500",
+    activeRing: "ring-status-success",
   },
 ];
 

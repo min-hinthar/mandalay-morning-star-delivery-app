@@ -118,7 +118,7 @@ export function CartIndicator({ className }: CartIndicatorProps) {
               "absolute -right-1 -top-1 flex items-center justify-center",
               "min-w-[20px] h-[20px] px-1 rounded-full",
               "bg-amber-500 text-xs font-bold text-text-inverse",
-              "shadow-lg ring-2 ring-white dark:ring-zinc-950"
+              "shadow-lg ring-2 ring-surface-primary"
             )}
           >
             {itemCount > 99 ? "99+" : itemCount}

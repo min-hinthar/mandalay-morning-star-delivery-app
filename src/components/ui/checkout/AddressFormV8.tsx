@@ -113,7 +113,7 @@ export function AddressFormV8({
             id="label"
             className={cn(
               "h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-sm",
-              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
               "transition-colors duration-150",
               errors.label && "border-destructive"
             )}
