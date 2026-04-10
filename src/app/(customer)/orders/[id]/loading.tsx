@@ -1,5 +1,5 @@
-import { RouteLoading } from "@/components/ui/RouteLoading";
+import { OrderDetailSkeleton } from "@/components/ui/orders/OrderDetailSkeleton";
 
 export default function OrderDetailPageLoading() {
-  return <RouteLoading message="Loading order..." />;
+  return <OrderDetailSkeleton />;
 }
