@@ -12,11 +12,13 @@ import { useCallback, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { m } from "framer-motion";
 import { User, Package, Settings, MessageSquare } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs } from "@/components/ui/Tabs";
 import { ProfileTab } from "./ProfileTab";
 import { OrdersTab } from "./OrdersTab";
 import { SettingsTab } from "./SettingsTab";
 import { FeedbackTab } from "./FeedbackTab";
+import { ProfileSkeleton } from "./ProfileTab/ProfileSkeleton";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 type AccountTab = "profile" | "orders" | "feedback" | "settings";
@@ -100,10 +102,14 @@ export function AccountClient() {
     <Suspense
       fallback={
         <main className="min-h-screen bg-gradient-to-b from-surface-secondary to-surface-primary pt-8 pb-32 px-4">
-          <div className="container max-w-4xl mx-auto">
-            <div className="h-10 w-48 bg-surface-secondary rounded-card-sm animate-pulse mb-6" />
-            <div className="h-12 bg-surface-secondary rounded-card-sm animate-pulse mb-6" />
-            <div className="h-64 bg-surface-secondary rounded-card-sm animate-pulse" />
+          <div className="container max-w-4xl mx-auto" aria-hidden="true">
+            <Skeleton height={28} width="50%" radius="sm" className="mb-6" />
+            <div className="flex gap-2 mb-6">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Skeleton key={i} height={36} width={80} radius="lg" />
+              ))}
+            </div>
+            <ProfileSkeleton />
           </div>
         </main>
       }
