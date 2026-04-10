@@ -1,5 +1,6 @@
+import { LoadingWithTimeout } from "@/components/ui/LoadingWithTimeout";
 import { AccountSkeleton } from "@/components/ui/account/AccountSkeleton";
 
 export default function AccountLoading() {
-  return <AccountSkeleton />;
+  return <LoadingWithTimeout skeleton={<AccountSkeleton />} timeoutMs={15000} />;
 }
