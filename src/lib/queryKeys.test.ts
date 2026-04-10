@@ -9,8 +9,11 @@ describe("queryKeys factory", () => {
     it("menu.list() returns ['menu', 'list']", () => {
       expect(queryKeys.menu.list()).toEqual(["menu", "list"]);
     });
-    it("menu.search('pizza') returns ['menu', 'search', 'pizza']", () => {
-      expect(queryKeys.menu.search("pizza")).toEqual(["menu", "search", "pizza"]);
+    it("menu.search('pizza') defaults page to 1", () => {
+      expect(queryKeys.menu.search("pizza")).toEqual(["menu", "search", "pizza", 1]);
+    });
+    it("menu.search('pizza', 3) includes page number", () => {
+      expect(queryKeys.menu.search("pizza", 3)).toEqual(["menu", "search", "pizza", 3]);
     });
   });
 
@@ -33,6 +36,12 @@ describe("queryKeys factory", () => {
     it("orders.history() returns ['orders', 'history']", () => {
       expect(queryKeys.orders.history()).toEqual(["orders", "history"]);
     });
+    it("orders.list() defaults cursor to 'initial'", () => {
+      expect(queryKeys.orders.list()).toEqual(["orders", "list", "initial"]);
+    });
+    it("orders.list('abc') includes cursor", () => {
+      expect(queryKeys.orders.list("abc")).toEqual(["orders", "list", "abc"]);
+    });
     it("orders.itemsForSearch('user-1') returns ['orders', 'items-for-search', 'user-1']", () => {
       expect(queryKeys.orders.itemsForSearch("user-1")).toEqual([
         "orders",
@@ -44,5 +53,6 @@ describe("queryKeys factory", () => {
 
   it("repeated calls produce value-equal tuples", () => {
     expect(queryKeys.menu.search("pizza")).toEqual(queryKeys.menu.search("pizza"));
+    expect(queryKeys.orders.list("cur1")).toEqual(queryKeys.orders.list("cur1"));
   });
 });

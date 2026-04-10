@@ -49,11 +49,21 @@ export interface MenuResponse {
   };
 }
 
+/** Phase 115 / DATA-04: Pagination metadata for paginated menu search */
+export interface MenuSearchPagination {
+  limit: number;
+  offset: number;
+  total: number;
+  hasMore: boolean;
+}
+
 export interface MenuSearchResponse {
   data: {
     items: MenuItem[];
     query: string;
     count: number;
+    /** Phase 115: Optional for backward compat — present when limit/offset params are used */
+    pagination?: MenuSearchPagination;
   };
   meta: {
     timestamp: string;
