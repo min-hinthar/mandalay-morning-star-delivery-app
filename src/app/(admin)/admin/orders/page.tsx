@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { OrdersTable, type AdminOrder } from "@/components/ui/admin/OrdersTable";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
-import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
+import { SkeletonCrossfade } from "@/components/ui/SkeletonCrossfade";
 import { InlineErrorCard } from "@/components/ui/admin/InlineErrorCard";
 import { OrdersPageSkeleton } from "@/components/ui/admin/orders/OrdersPageSkeleton";
 import { toast } from "@/lib/hooks/useToastV8";

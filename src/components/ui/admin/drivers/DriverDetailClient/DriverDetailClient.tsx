@@ -16,7 +16,7 @@ import { toast } from "@/lib/hooks/useToastV8";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
+import { SkeletonCrossfade } from "@/components/ui/SkeletonCrossfade";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { DriverStatsCards } from "../DriverStatsCards";
 import { PerformanceSection } from "./PerformanceSection";

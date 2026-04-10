@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToastV8";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
-import { SkeletonCrossfade } from "@/components/ui/admin/SkeletonCrossfade";
+import { SkeletonCrossfade } from "@/components/ui/SkeletonCrossfade";
 import { InlineErrorCard } from "@/components/ui/admin/InlineErrorCard";
 import { DriversPageSkeleton } from "@/components/ui/admin/drivers/DriverListTable/DriversPageSkeleton";
 import { DriverListTable, type AdminDriver } from "@/components/ui/admin/drivers/DriverListTable";
