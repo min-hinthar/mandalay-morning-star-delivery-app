@@ -181,7 +181,7 @@ Plans:
   4. Cart items marked pendingSync actually sync when connectivity returns
 **Plans**: 3 plans
 Plans:
-  - [ ] 114-01-PLAN.md — Content-shaped skeletons for orders list, order detail, account pages (LOAD-01, LOAD-02, LOAD-03)
+  - [x] 114-01-PLAN.md — Content-shaped skeletons for orders list, order detail, account pages (LOAD-01, LOAD-02, LOAD-03)
   - [ ] 114-02-PLAN.md — SkeletonCrossfade promotion + LoadingWithTimeout hierarchy enforcement + docs (LOAD-05)
   - [ ] 114-03-PLAN.md — IDB-first menu cache + real cart sync on reconnect (LOAD-04, CFIX-08)
 **UI hint**: yes
@@ -221,7 +221,7 @@ Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes.
 | 111. Checkout Conversion | v2.3 | 3/4 | In Progress|  |
 | 112. Order Tracking Overhaul | v2.3 | 2/2 | Complete    | 2026-04-10 |
 | 113. Accessibility & Design System | v2.3 | 3/3 | Complete    | 2026-04-09 |
-| 114. Loading States & Offline | v2.3 | 0/3 | Not started | - |
+| 114. Loading States & Offline | v2.3 | 1/3 | In Progress|  |
 | 115. Data Layer Optimization | v2.3 | 0/TBD | Not started | - |
 | 116. Micro-Interactions & Polish | v2.3 | 0/TBD | Not started | - |
 

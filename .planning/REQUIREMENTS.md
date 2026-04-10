@@ -43,9 +43,9 @@ Requirements for Customer UX Quality milestone. Each maps to roadmap phases.
 
 ### Loading States
 
-- [ ] **LOAD-01**: Orders list page shows content-shaped skeleton while loading — not generic spinner
-- [ ] **LOAD-02**: Order detail page shows content-shaped skeleton while loading
-- [ ] **LOAD-03**: Account page shows tab-shaped skeleton while loading
+- [x] **LOAD-01**: Orders list page shows content-shaped skeleton while loading — not generic spinner
+- [x] **LOAD-02**: Order detail page shows content-shaped skeleton while loading
+- [x] **LOAD-03**: Account page shows tab-shaped skeleton while loading
 - [ ] **LOAD-04**: Menu cached in IndexedDB for offline cold-start — shows cached menu instead of "Coming Soon"
 - [ ] **LOAD-05**: Loading state hierarchy documented and enforced: skeleton > spinner > timeout fallback
 
@@ -126,9 +126,9 @@ Deferred to future releases.
 | A11Y-02 | Phase 113 | Pending |
 | A11Y-03 | Phase 113 | Pending |
 | A11Y-04 | Phase 113 | Pending |
-| LOAD-01 | Phase 114 | Pending |
-| LOAD-02 | Phase 114 | Pending |
-| LOAD-03 | Phase 114 | Pending |
+| LOAD-01 | Phase 114 | Complete |
+| LOAD-02 | Phase 114 | Complete |
+| LOAD-03 | Phase 114 | Complete |
 | LOAD-04 | Phase 114 | Pending |
 | LOAD-05 | Phase 114 | Pending |
 | DATA-01 | Phase 115 | Pending |
