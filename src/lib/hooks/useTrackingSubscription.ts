@@ -14,6 +14,7 @@
 
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { createClient } from "@/lib/supabase/client";
+import { getBackoffDelay } from "@/lib/utils/backoff";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import type { OrderStatus } from "@/types/database";
 import type {
@@ -28,8 +29,8 @@ import type {
 // Polling interval in ms (fallback when Realtime unavailable)
 const POLLING_INTERVAL = 30000; // 30 seconds
 
-// Retry delay for reconnection attempts
-const RECONNECT_DELAY = 5000; // 5 seconds
+// Reconnect delay replaced by getBackoffDelay() — Phase 112 Plan 01 TRAK-04.
+// Curve: [1000, 2000, 4000, 8000, 16000, 30000, 30000, ...] vs linear 5000ms.
 
 interface UseTrackingSubscriptionOptions {
   orderId: string;
@@ -71,6 +72,10 @@ export function useTrackingSubscription({
   const locationChannelRef = useRef<RealtimeChannel | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // TRAK-04: attempt counter for exponential backoff (ref not state — avoids re-render storms)
+  const attemptRef = useRef<number>(0);
+  // TRAK-03: visibility handler stored in ref to avoid stale closures without useEffectEvent
+  const visibilityHandlerRef = useRef<() => void>(() => {});
 
   /**
    * Fetch current tracking data (for initial load and polling fallback)
@@ -214,6 +219,8 @@ export function useTrackingSubscription({
       )
       .subscribe((status) => {
         if (status === "SUBSCRIBED") {
+          // TRAK-04: reset attempt counter on successful connection
+          attemptRef.current = 0;
           setState((prev) => ({
             ...prev,
             isConnected: true,
@@ -224,16 +231,20 @@ export function useTrackingSubscription({
           setState((prev) => ({
             ...prev,
             isConnected: false,
-            connectionError: "Connection lost. Retrying...",
+            connectionError: "Reconnecting...",
           }));
           startPolling();
-          // Schedule reconnection attempt (clear first to prevent duplicates)
+          // Clear any pending reconnect before scheduling a new one (race protection)
           if (reconnectTimeoutRef.current) {
             clearTimeout(reconnectTimeoutRef.current);
+            reconnectTimeoutRef.current = null;
           }
+          // TRAK-04: exponential backoff (1s → 2s → 4s → 8s → 16s → 30s cap)
+          const delay = getBackoffDelay(attemptRef.current);
+          attemptRef.current += 1;
           reconnectTimeoutRef.current = setTimeout(() => {
             setupSubscriptions();
-          }, RECONNECT_DELAY);
+          }, delay);
         }
       });
 
@@ -286,8 +297,42 @@ export function useTrackingSubscription({
 
     // Setup Realtime subscriptions
     setupSubscriptions();
+    setupLocationSubscription();
+
+    // TRAK-03: visibility pause/resume — mutable ref pattern avoids stale closures
+    // without requiring React 19 `useEffectEvent` (locked assumption #1).
+    visibilityHandlerRef.current = () => {
+      if (document.visibilityState === "hidden") {
+        // Aggressive pause: remove BOTH channels, stop polling, clear reconnect
+        if (channelRef.current) {
+          supabase.removeChannel(channelRef.current);
+          channelRef.current = null;
+        }
+        if (locationChannelRef.current) {
+          supabase.removeChannel(locationChannelRef.current);
+          locationChannelRef.current = null;
+        }
+        stopPolling();
+        if (reconnectTimeoutRef.current) {
+          clearTimeout(reconnectTimeoutRef.current);
+          reconnectTimeoutRef.current = null;
+        }
+      } else {
+        // Resume: immediate refresh + re-subscribe both channels
+        void fetchTrackingData();
+        setupSubscriptions();
+        setupLocationSubscription();
+      }
+    };
+
+    // Stable listener reads ref.current — safe for empty-less deps
+    const visibilityListener = () => visibilityHandlerRef.current();
+    document.addEventListener("visibilitychange", visibilityListener);
 
     return () => {
+      // TRAK-03: remove visibility listener (no leak)
+      document.removeEventListener("visibilitychange", visibilityListener);
+
       // Cleanup on unmount
       if (channelRef.current) {
         supabase.removeChannel(channelRef.current);
@@ -300,25 +345,24 @@ export function useTrackingSubscription({
       stopPolling();
       if (reconnectTimeoutRef.current) {
         clearTimeout(reconnectTimeoutRef.current);
+        reconnectTimeoutRef.current = null;
       }
+      attemptRef.current = 0;
     };
-  }, [enabled, fetchTrackingData, setupSubscriptions, supabase, stopPolling]);
+  }, [
+    enabled,
+    fetchTrackingData,
+    setupSubscriptions,
+    setupLocationSubscription,
+    supabase,
+    stopPolling,
+  ]);
 
-  // Setup location subscription when routeId changes
-  useEffect(() => {
-    if (!enabled || !routeId) {
-      return;
-    }
-
-    setupLocationSubscription();
-
-    return () => {
-      if (locationChannelRef.current) {
-        supabase.removeChannel(locationChannelRef.current);
-        locationChannelRef.current = null;
-      }
-    };
-  }, [enabled, routeId, setupLocationSubscription, supabase]);
+  // NOTE: Location subscription is now handled by the main useEffect above
+  // (it depends on `setupLocationSubscription`, whose useCallback identity
+  // changes when `routeId` changes, so the main effect re-runs for routeId
+  // changes automatically). Removed the duplicate secondary effect in
+  // Phase 112 Plan 01 to prevent double-subscribing on mount.
 
   return {
     ...state,
