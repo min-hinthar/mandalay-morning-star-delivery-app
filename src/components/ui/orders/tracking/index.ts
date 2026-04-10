@@ -36,4 +36,10 @@ export { ShareButton } from "./ShareButton";
 
 export { NearbyBanner } from "./NearbyBanner";
 
+export { ReconnectingBanner } from "./ReconnectingBanner";
+export type { ReconnectingBannerProps } from "./ReconnectingBanner";
+
+export { MuteToggle } from "./MuteToggle";
+export type { MuteToggleProps } from "./MuteToggle";
+
 export { TrackingPageClient } from "./TrackingPageClient";
