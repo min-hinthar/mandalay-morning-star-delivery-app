@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v2.3
 milestone_name: Customer UX Quality
-status: verifying
-stopped_at: Completed 115-02-PLAN.md
-last_updated: "2026-04-10T12:35:08.965Z"
+status: executing
+stopped_at: Completed 115-03-PLAN.md
+last_updated: "2026-04-10T12:41:09.753Z"
 last_activity: 2026-04-10
 progress:
   total_phases: 7
   completed_phases: 6
-  total_plans: 16
-  completed_plans: 16
+  total_plans: 17
+  completed_plans: 17
   percent: 100
 ---
 
@@ -27,9 +27,9 @@ See: .planning/PROJECT.md (updated 2026-04-04)
 ## Current Position
 
 Phase: 115 (data-layer-optimization) — EXECUTING
-Plan: 1 of 3
-Status: Executing Phase 115
-Last activity: 2026-04-10 -- Phase 115 execution started
+Plan: 2 of 3
+Status: Ready to execute
+Last activity: 2026-04-10
 
 Progress: [██████████] 100%
 
@@ -56,7 +56,7 @@ Next: Phase 112 (Order Tracking Overhaul) — awaiting user trigger per --no-tra
 | Phase 114 P01 | 9min | 3 tasks | 7 files |
 | Phase 114 P03 | 12min | 2 tasks | 4 files |
 | Phase 114 P02 | 6min | 2 tasks | 12 files |
-| Phase 115 P02 | 8min | 2 tasks | 6 files |
+| Phase 115 P03 | 13min | 3 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -71,8 +71,9 @@ See PROJECT.md Key Decisions for full list.
 - [Phase 114]: Used 30s duration toast instead of persistent flag (ToastOptions lacks persistent field)
 - [Phase 114]: purgeStalePendingSync clears all flags unconditionally (no per-item timestamp)
 - [Phase 114]: D-09: SkeletonCrossfade promoted to shared ui/ path; D-10: LoadingWithTimeout wrapping at 15s; D-11: Loading hierarchy documented
-- [Phase 115]: customerLimiter for customer API routes (authenticatedLimiter doesn't exist)
-- [Phase 115]: queryKeys.orders.list(cursor) added inline since Plan 01 omitted it
+- [Phase 115]: queryKey does NOT include limit -- single default (20) everywhere, simpler cache identity
+- [Phase 115]: Auto-price-update via useEffect on menuData change -- closes show-badge-vs-fix-cart gap
+- [Phase 115]: Search dedup verified as already working (debounce + RQ dedup + staleTime) -- zero code changes for DATA-03
 
 ### Pending Todos (Human Actions)
 
@@ -87,7 +88,7 @@ None.
 
 ## Session Continuity
 
-Last session: 2026-04-10T12:35:08.959Z
-Stopped at: Completed 115-02-PLAN.md
+Last session: 2026-04-10T12:41:09.749Z
+Stopped at: Completed 115-03-PLAN.md
 Resume file: None
 Next action: `/gsd-plan-phase 110`
