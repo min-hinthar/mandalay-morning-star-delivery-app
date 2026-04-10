@@ -226,6 +226,12 @@ const config: Config = {
           "info-bg": "var(--color-status-info-bg)",
         },
       },
+      borderColor: {
+        // Phase 112 TRAK-02: explicit alias so border-status-warning resolves
+        // independent of the Tailwind color → border generator (defensive, since
+        // existing usages already work via the colors map).
+        "status-warning": "var(--color-status-warning)",
+      },
       fontFamily: {
         // Primary Typography (Nunito)
         display: ["var(--font-display)", "Nunito", "ui-rounded", "system-ui", "sans-serif"],
