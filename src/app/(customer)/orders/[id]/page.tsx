@@ -11,6 +11,7 @@ import { PendingOrderActions } from "@/components/ui/orders/PendingOrderActions"
 import { RatingBanner } from "./RatingBanner";
 import { ReorderButton } from "./ReorderButton";
 import { OrderShareButton } from "./OrderShareButton";
+import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
 import { isPastCutoff } from "@/lib/utils/delivery-dates";
@@ -233,7 +234,7 @@ export default async function OrderDetailPage({ params }: PageProps) {
       : "Time slot selected";
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-cream to-lotus/30 pt-8 pb-32 px-4">
+    <main className="min-h-screen bg-gradient-to-b from-cream to-lotus/30 pt-8 pb-20 px-4">
       <div className="mx-auto max-w-2xl">
         {/* Back + Share */}
         <div className="flex items-center justify-between mb-6">
@@ -418,10 +419,21 @@ export default async function OrderDetailPage({ params }: PageProps) {
               }
             />
           )}
+        </div>
 
-          <div className="flex justify-center">
-            <ReorderButton orderId={order.id} />
-          </div>
+        {/* Sticky Reorder (per D-24) */}
+        <div
+          className={cn(
+            "sticky bottom-0 z-20",
+            "bg-surface-primary border-t border-border",
+            "shadow-lg",
+            "px-4 py-3",
+            "-mx-4 mt-6",
+            "flex justify-center"
+          )}
+          style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+        >
+          <ReorderButton orderId={order.id} />
         </div>
       </div>
     </main>
