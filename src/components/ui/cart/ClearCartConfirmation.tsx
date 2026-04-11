@@ -128,8 +128,8 @@ export function ClearCartConfirmation({
           className="text-sm font-body text-text-secondary max-w-[260px] mb-6"
         >
           {itemCount > 0
-            ? `This will remove ${itemCount === 1 ? "1 item" : `all ${itemCount} items`} from your cart. This action cannot be undone.`
-            : "This will remove all items from your cart. This action cannot be undone."}
+            ? `This will remove ${itemCount === 1 ? "1 item" : `all ${itemCount} items`} from your cart. You can undo this for 5 seconds.`
+            : "This will remove all items from your cart. You can undo this for 5 seconds."}
         </m.p>
 
         {/* Actions */}

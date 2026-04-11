@@ -5,6 +5,7 @@ import type { CartItem, CartStore, SelectedModifier } from "@/types/cart";
 import { MAX_CART_ITEMS, MAX_ITEM_QUANTITY } from "@/types/cart";
 import { cartIDBStorage } from "@/lib/services/cart-idb-storage";
 import { toast } from "@/lib/hooks/useToastV8";
+import { triggerHaptic } from "@/lib/swipe-gestures/utils";
 import type { DeliveryDayConfig } from "@/types/delivery";
 
 // ============================================
@@ -204,19 +205,67 @@ export const useCartStore = create<CartStore>()(
       },
 
       /**
-       * Optimistic cart remove -- synchronous Zustand mutation.
+       * Optimistic cart remove with undo toast.
        *
-       * Immediately removes item from state and IDB. No server call.
-       * Phase 116 will add undo-delete with timer-based rollback on top of this.
+       * Snapshots item before removing, shows 5s undo toast.
+       * Undo restores exact item state (modifiers, quantity, notes).
        */
       removeItem: (cartItemId) => {
+        const snapshot = get().items.find((item) => item.cartItemId === cartItemId);
+        if (!snapshot) return;
+
         set((state) => ({
           items: state.items.filter((item) => item.cartItemId !== cartItemId),
         }));
+
+        toast({
+          message: `${snapshot.nameEn} removed`,
+          type: "info",
+          duration: 5000,
+          action: {
+            label: "Undo",
+            onClick: () => {
+              get().addItem({
+                menuItemId: snapshot.menuItemId,
+                menuItemSlug: snapshot.menuItemSlug,
+                nameEn: snapshot.nameEn,
+                nameMy: snapshot.nameMy,
+                imageUrl: snapshot.imageUrl,
+                basePriceCents: snapshot.basePriceCents,
+                modifiers: snapshot.modifiers,
+                notes: snapshot.notes,
+                quantity: snapshot.quantity,
+              });
+              triggerHaptic("success");
+            },
+          },
+        });
       },
 
+      /**
+       * Clear cart with undo toast.
+       *
+       * Snapshots all items before clearing, shows 5s undo toast.
+       * Undo restores full cart state.
+       */
       clearCart: () => {
+        const snapshot = [...get().items];
+        if (snapshot.length === 0) return;
+
         set({ items: [] });
+
+        toast({
+          message: `${snapshot.length} item${snapshot.length !== 1 ? "s" : ""} removed`,
+          type: "info",
+          duration: 5000,
+          action: {
+            label: "Undo",
+            onClick: () => {
+              set({ items: snapshot });
+              triggerHaptic("success");
+            },
+          },
+        });
       },
 
       getItemsSubtotal: () => {
