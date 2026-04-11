@@ -8,11 +8,14 @@
  * Position: top-right (per CONTEXT.md)
  */
 
+import { useState, useEffect } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { X, CheckCircle, XCircle, AlertTriangle, Info, Bell, AlertOctagon } from "lucide-react";
 import { zIndex } from "@/lib/design-system/tokens/z-index";
 import { cn } from "@/lib/utils/cn";
 import { Portal } from "./Portal";
+import { spring } from "@/lib/motion-tokens";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import {
   useToast,
   type Toast as ToastType,
@@ -71,6 +74,26 @@ interface ToastCardProps {
 function ToastCard({ toast, onDismiss }: ToastCardProps) {
   const config = toastConfig[toast.type];
   const Icon = config.icon;
+  const { shouldAnimate } = useAnimationPreference();
+
+  // Countdown bar state (only for toasts with action)
+  const [countdownPercent, setCountdownPercent] = useState(100);
+
+  useEffect(() => {
+    if (!toast.action || !toast.duration) return;
+    const start = performance.now();
+    const dur = toast.duration;
+    let rafId: number;
+
+    const tick = () => {
+      const elapsed = performance.now() - start;
+      const remaining = Math.max(0, 100 - (elapsed / dur) * 100);
+      setCountdownPercent(remaining);
+      if (remaining > 0) rafId = requestAnimationFrame(tick);
+    };
+    rafId = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafId);
+  }, [toast.action, toast.duration]);
 
   return (
     <m.div
@@ -82,7 +105,7 @@ function ToastCard({ toast, onDismiss }: ToastCardProps) {
       role="alert"
       aria-live="polite"
       className={cn(
-        "flex items-start gap-3 p-4 rounded-xl shadow-lg",
+        "relative flex items-start gap-3 p-4 rounded-xl shadow-lg",
         "bg-surface-primary border border-border border-l-4",
         "pointer-events-auto",
         "min-w-[280px] max-w-[380px]",
@@ -93,6 +116,31 @@ function ToastCard({ toast, onDismiss }: ToastCardProps) {
       <span className="flex-1 text-sm font-medium text-text-primary leading-snug">
         {toast.message}
       </span>
+
+      {/* Action button (e.g. Undo) */}
+      {toast.action && (
+        <m.button
+          type="button"
+          onClick={() => {
+            toast.action!.onClick();
+            onDismiss(toast.id);
+          }}
+          whileTap={shouldAnimate ? { scale: 0.97 } : undefined}
+          transition={spring.snappyButton}
+          className={cn(
+            "flex-shrink-0 h-11 px-4 rounded-lg",
+            "text-sm font-semibold",
+            "text-blue-600 dark:text-blue-400",
+            "hover:bg-blue-50 dark:hover:bg-blue-950/30",
+            "transition-colors",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+          )}
+          aria-label={toast.action.label}
+        >
+          {toast.action.label}
+        </m.button>
+      )}
+
       <button
         type="button"
         onClick={() => onDismiss(toast.id)}
@@ -106,6 +154,17 @@ function ToastCard({ toast, onDismiss }: ToastCardProps) {
       >
         <X className="w-4 h-4" />
       </button>
+
+      {/* Countdown progress bar */}
+      {toast.action && toast.duration && (
+        <div className="absolute bottom-0 left-0 right-0 h-[3px] overflow-hidden rounded-b-xl">
+          <div
+            className="h-full bg-blue-500 dark:bg-blue-400 transition-none"
+            style={{ width: `${countdownPercent}%` }}
+            aria-hidden="true"
+          />
+        </div>
+      )}
     </m.div>
   );
 }
