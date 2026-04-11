@@ -21,6 +21,8 @@ export interface CartItemProps {
   onEdit?: (item: CartItemType) => void;
   compact?: boolean;
   className?: string;
+  /** When true, shows a one-time swipe hint bounce animation */
+  isFirstItem?: boolean;
   // Validation props (optional -- only provided when validation is active)
   validationStatus?: CartItemValidationStatus;
   priceDirection?: "up" | "down";
@@ -41,6 +43,7 @@ export const CartItem = memo(function CartItem({
   onEdit,
   compact = false,
   className,
+  isFirstItem,
   validationStatus,
   priceDirection,
   onDismissPriceChange,
@@ -59,6 +62,37 @@ export const CartItem = memo(function CartItem({
   const [swipeValue, setSwipeValue] = useState(0);
   const [imgError, setImgError] = useState(false);
 
+  // Swipe hint state (one-time bounce on first cart item)
+  const [showSwipeHint, setShowSwipeHint] = useState(false);
+
+  useEffect(() => {
+    if (!isFirstItem || !shouldAnimate) return;
+
+    // One-time hint gated on localStorage flag
+    try {
+      if (localStorage.getItem("swipeHintSeen")) return;
+    } catch {
+      return; // SSR or storage blocked
+    }
+
+    // Delay 800ms after mount for discoverability
+    const timer = setTimeout(() => {
+      setShowSwipeHint(true);
+    }, 800);
+
+    return () => clearTimeout(timer);
+  }, [isFirstItem, shouldAnimate]);
+
+  // Mark hint as seen after animation completes
+  const handleSwipeHintComplete = useCallback(() => {
+    setShowSwipeHint(false);
+    try {
+      localStorage.setItem("swipeHintSeen", "1");
+    } catch {
+      // Storage blocked
+    }
+  }, []);
+
   useEffect(() => {
     const unsubscribe = swipeProgress.on("change", setSwipeValue);
     return unsubscribe;
@@ -70,6 +104,8 @@ export const CartItem = memo(function CartItem({
   const handleDragEnd = useCallback(
     (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
       setIsDragging(false);
+      // Guard against interrupted gestures
+      if (!info?.offset || !info?.velocity) return;
       if (info.offset.x < -100 || info.velocity.x < -500) {
         triggerHaptic("heavy");
         removeItem(item.cartItemId);
@@ -141,7 +177,11 @@ export const CartItem = memo(function CartItem({
           compact ? "p-3" : "p-4"
         )}
         whileHover={shouldAnimate && !isDragging && !isStale ? { scale: 1.02, y: -2 } : undefined}
-        transition={springConfig}
+        animate={showSwipeHint ? { x: [0, -30, 0] } : undefined}
+        transition={showSwipeHint ? spring.ultraBouncy : springConfig}
+        onAnimationComplete={() => {
+          if (showSwipeHint) handleSwipeHintComplete();
+        }}
       >
         {/* Validation overlay for sold-out/unavailable items */}
         {isStale && onRemoveStale && (

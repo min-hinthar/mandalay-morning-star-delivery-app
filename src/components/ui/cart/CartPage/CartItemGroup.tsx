@@ -62,7 +62,7 @@ export const CartItemGroup = memo(function CartItemGroup({
       {/* Items */}
       <ul className="space-y-3">
         <AnimatePresence mode="sync">
-          {items.map((item) => {
+          {items.map((item, index) => {
             const validation = validations.get(item.cartItemId);
             const itemSuggestions = suggestions.get(item.cartItemId) ?? [];
             const isSoldOutOrUnavailable =
@@ -82,6 +82,7 @@ export const CartItemGroup = memo(function CartItemGroup({
                 <div className="relative">
                   <CartItem
                     item={item}
+                    isFirstItem={index === 0}
                     onEdit={
                       !editableItemIds || editableItemIds.has(item.menuItemId)
                         ? onEditItem
