@@ -88,8 +88,7 @@ export async function generateMetadata({ params }: SharePageProps): Promise<Meta
   const itemCount = order.order_items.length;
   const totalFormatted = `$${(order.total_cents / 100).toFixed(2)}`;
 
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://delivery.mandalaymorningstar.com";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://delivery.mandalaymorningstar.com";
 
   return {
     title: `Order from Morning Star - ${dateStr}`,
