@@ -35,13 +35,81 @@ interface SharedOrder {
 // METADATA
 // ============================================
 
-export const metadata: Metadata = {
-  title: "Order from Morning Star Delivery",
-  openGraph: {
-    title: "Order from Morning Star Delivery",
-    description: "Check out this order from Morning Star Delivery!",
-  },
-};
+export async function generateMetadata({ params }: SharePageProps): Promise<Metadata> {
+  const { id: shareToken } = await params;
+  const supabase = createServiceClient();
+
+  const { data: order, error } = await supabase
+    .from("orders")
+    .select(
+      `
+      total_cents,
+      delivery_window_start,
+      order_items (
+        name_snapshot,
+        quantity
+      )
+    `
+    )
+    .eq("share_token", shareToken)
+    .returns<
+      Array<{
+        total_cents: number;
+        delivery_window_start: string | null;
+        order_items: Array<{ name_snapshot: string; quantity: number }>;
+      }>
+    >()
+    .single();
+
+  // Fallback to static metadata on error (per UI-SPEC State Matrix)
+  if (error || !order) {
+    return {
+      title: "Order from Morning Star Delivery",
+      openGraph: {
+        title: "Order from Morning Star Delivery",
+        description: "Check out this order from Morning Star Delivery!",
+        images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+      },
+    };
+  }
+
+  // Build dynamic values (per D-30)
+  const dateStr = order.delivery_window_start
+    ? new Date(order.delivery_window_start).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      })
+    : "Upcoming";
+
+  const itemList = order.order_items.map((i) => `${i.quantity}x ${i.name_snapshot}`).join(", ");
+  const description = itemList.length > 155 ? itemList.slice(0, 152) + "..." : itemList;
+
+  const itemCount = order.order_items.length;
+  const totalFormatted = `$${(order.total_cents / 100).toFixed(2)}`;
+
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://delivery.mandalaymorningstar.com";
+
+  return {
+    title: `Order from Morning Star - ${dateStr}`,
+    description,
+    openGraph: {
+      title: "Order from Morning Star Delivery",
+      description: `${itemCount} item${itemCount !== 1 ? "s" : ""} \u2014 ${totalFormatted}`,
+      url: `${siteUrl}/orders/${shareToken}/share`,
+      type: "website",
+      images: [{ url: `${siteUrl}/og-image.png`, width: 1200, height: 630 }],
+      siteName: "Mandalay Morning Star",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: `Order from Morning Star - ${dateStr}`,
+      description: `${itemCount} item${itemCount !== 1 ? "s" : ""} \u2014 ${totalFormatted}`,
+      images: [`${siteUrl}/og-image.png`],
+    },
+  };
+}
 
 // ============================================
 // HELPERS

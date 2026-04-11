@@ -38,6 +38,13 @@ export const metadata: Metadata = {
     template: "%s | Mandalay Morning Star",
   },
   description: "Authentic Burmese cuisine delivered fresh to your door.",
+  openGraph: {
+    type: "website",
+    siteName: "Mandalay Morning Star",
+    title: "Mandalay Morning Star",
+    description: "Authentic Burmese cuisine delivered fresh to your door.",
+    images: [{ url: "/og-image.png", width: 1200, height: 630 }],
+  },
   applicationName: "Mandalay Morning Star",
   manifest: "/manifest.json",
   appleWebApp: {
