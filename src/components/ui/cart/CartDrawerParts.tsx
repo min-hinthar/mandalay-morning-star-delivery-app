@@ -233,7 +233,7 @@ export function CartItemsList({
 
       <ul className="space-y-3">
         <AnimatePresence mode="sync">
-          {items.map((item) => {
+          {items.map((item, index) => {
             const itemValidation = validation.validations.get(item.cartItemId);
             const itemSuggestions = validation.suggestions.get(item.cartItemId);
 
@@ -253,6 +253,7 @@ export function CartItemsList({
               >
                 <CartItem
                   item={item}
+                  isFirstItem={index === 0}
                   validationStatus={itemValidation?.status}
                   priceDirection={itemValidation?.priceDirection}
                   newPriceCents={itemValidation?.newPriceCents}
