@@ -264,3 +264,15 @@ supabase
 The `.returns<T>()` provides type safety on the output. Remember to regenerate types and remove the cast after migration is applied.
 
 **Apply when:** Adding new tables or columns via migration before regenerating Supabase types.
+
+---
+
+## CREATE INDEX CONCURRENTLY Cannot Run Inside Supabase Migrations
+
+**Context:** Phase 115 migration `20260410_pagination_indexes.sql` used `CREATE INDEX CONCURRENTLY` to avoid table locks. Failed with `ERROR: 25001: CREATE INDEX CONCURRENTLY cannot run inside a transaction block`.
+
+**Learning:** Supabase migrations (both `supabase db push` and `supabase migration up`) wrap each migration file in a transaction. `CONCURRENTLY` requires running outside a transaction block — these are incompatible.
+
+**Fix:** Use plain `CREATE INDEX IF NOT EXISTS` (without `CONCURRENTLY`) in migration files. For small tables, the brief lock is negligible. For large production tables where lock-free index creation is critical, run the `CREATE INDEX CONCURRENTLY` statement manually via `psql` or Supabase SQL Editor outside of the migration system.
+
+**Apply when:** Writing Supabase migrations that create indexes. Never use `CONCURRENTLY` in migration files.
