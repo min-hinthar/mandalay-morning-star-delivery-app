@@ -22,6 +22,11 @@ import { useState, useEffect, useCallback } from "react";
 
 export type ToastType = "success" | "error" | "info" | "warning" | "order" | "exception";
 
+export interface ToastActionButton {
+  label: string;
+  onClick: () => void;
+}
+
 export interface Toast {
   id: string;
   message: string;
@@ -30,6 +35,8 @@ export interface Toast {
   duration?: number;
   /** Whether to play a chime sound (auto-set for order/exception types) */
   sound?: boolean;
+  /** Optional action button (e.g. Undo) */
+  action?: ToastActionButton;
 }
 
 interface ToastOptions {
@@ -37,9 +44,11 @@ interface ToastOptions {
   type?: ToastType;
   duration?: number;
   sound?: boolean;
+  /** Optional action button (e.g. Undo) */
+  action?: ToastActionButton;
 }
 
-type ToastAction =
+type ToastDispatchAction =
   | { type: "ADD_TOAST"; toast: Toast }
   | { type: "DISMISS_TOAST"; id: string }
   | { type: "REMOVE_TOAST"; id: string }
@@ -136,7 +145,7 @@ function genId(): string {
   return Math.random().toString(36).substring(2, 9);
 }
 
-function reducer(state: ToastState, action: ToastAction): ToastState {
+function reducer(state: ToastState, action: ToastDispatchAction): ToastState {
   switch (action.type) {
     case "ADD_TOAST":
       return {
@@ -169,7 +178,7 @@ function reducer(state: ToastState, action: ToastAction): ToastState {
   }
 }
 
-function dispatch(action: ToastAction) {
+function dispatch(action: ToastDispatchAction) {
   memoryState = reducer(memoryState, action);
   listeners.forEach((listener) => listener(memoryState));
 }
@@ -205,6 +214,7 @@ export function toast(options: ToastOptions) {
     type: toastType,
     duration,
     sound: shouldSound,
+    action: options.action,
   };
 
   dispatch({
@@ -242,6 +252,18 @@ export function toast(options: ToastOptions) {
           message: updateOptions.message ?? newToast.message,
         },
       });
+    },
+    triggerAction: () => {
+      if (options.action) {
+        options.action.onClick();
+        // Clear timer and dismiss after action
+        const timeout = toastTimeouts.get(id);
+        if (timeout) {
+          clearTimeout(timeout);
+          toastTimeouts.delete(id);
+        }
+        dispatch({ type: "REMOVE_TOAST", id });
+      }
     },
   };
 }
