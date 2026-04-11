@@ -16,7 +16,7 @@ Requirements for Customer UX Quality milestone. Each maps to roadmap phases.
 - [ ] **CFIX-05**: Cart validation has 30-second timeout with fallback error UI — no infinite spinner
 - [ ] **CFIX-06**: React Query provider configures 3 retries with exponential backoff — transient failures recover
 - [ ] **CFIX-07**: Checkout form state persists across payment errors — user doesn't re-enter address/time/contact
-- [x] **CFIX-08**: Offline cart items actually sync when back online — pendingSync flag honored
+- [ ] **CFIX-08**: Offline cart items actually sync when back online — pendingSync flag honored
 - [x] **CFIX-09**: Menu periodically refetches (2-5 min) while cart is non-empty — detects price/availability changes
 - [ ] **CFIX-10**: Tracking page audio notifications have mute toggle — no interruption on calls
 
@@ -43,18 +43,18 @@ Requirements for Customer UX Quality milestone. Each maps to roadmap phases.
 
 ### Loading States
 
-- [x] **LOAD-01**: Orders list page shows content-shaped skeleton while loading — not generic spinner
-- [x] **LOAD-02**: Order detail page shows content-shaped skeleton while loading
-- [x] **LOAD-03**: Account page shows tab-shaped skeleton while loading
-- [x] **LOAD-04**: Menu cached in IndexedDB for offline cold-start — shows cached menu instead of "Coming Soon"
-- [x] **LOAD-05**: Loading state hierarchy documented and enforced: skeleton > spinner > timeout fallback
+- [ ] **LOAD-01**: Orders list page shows content-shaped skeleton while loading — not generic spinner
+- [ ] **LOAD-02**: Order detail page shows content-shaped skeleton while loading
+- [ ] **LOAD-03**: Account page shows tab-shaped skeleton while loading
+- [ ] **LOAD-04**: Menu cached in IndexedDB for offline cold-start — shows cached menu instead of "Coming Soon"
+- [ ] **LOAD-05**: Loading state hierarchy documented and enforced: skeleton > spinner > timeout fallback
 
 ### Data Layer
 
-- [x] **DATA-01**: Cart add/remove uses optimistic updates with rollback on error — instant UI feedback
+- [ ] **DATA-01**: Cart add/remove uses optimistic updates with rollback on error — instant UI feedback
 - [ ] **DATA-02**: Query key factory centralizes cache keys — consistent invalidation across hooks
-- [x] **DATA-03**: Menu search deduplicates concurrent identical queries — no redundant API calls
-- [x] **DATA-04**: Orders list and menu search support pagination — no unbounded fetches
+- [ ] **DATA-03**: Menu search deduplicates concurrent identical queries — no redundant API calls
+- [ ] **DATA-04**: Orders list and menu search support pagination — no unbounded fetches
 
 ### Micro-Interactions
 
@@ -107,11 +107,11 @@ Deferred to future releases.
 | CFIX-01 | Phase 110 | Pending |
 | CFIX-02 | Phase 110 | Pending |
 | CFIX-03 | Phase 110 | Pending |
-| CFIX-04 | Phase 110 | Pending |
+| CFIX-04 | Phase 117 | Pending |
 | CFIX-05 | Phase 110 | Pending |
 | CFIX-06 | Phase 110 | Pending |
 | CFIX-07 | Phase 111 | Pending |
-| CFIX-08 | Phase 114 | Complete |
+| CFIX-08 | Phase 118 | Pending |
 | CFIX-09 | Phase 111 | Complete |
 | CFIX-10 | Phase 112 | Pending |
 | CHKP-01 | Phase 111 | Pending |
@@ -122,25 +122,25 @@ Deferred to future releases.
 | TRAK-02 | Phase 112 | Pending |
 | TRAK-03 | Phase 112 | Pending |
 | TRAK-04 | Phase 112 | Pending |
-| A11Y-01 | Phase 113 | Pending |
-| A11Y-02 | Phase 113 | Pending |
-| A11Y-03 | Phase 113 | Pending |
-| A11Y-04 | Phase 113 | Pending |
-| LOAD-01 | Phase 114 | Complete |
-| LOAD-02 | Phase 114 | Complete |
-| LOAD-03 | Phase 114 | Complete |
-| LOAD-04 | Phase 114 | Complete |
-| LOAD-05 | Phase 114 | Complete |
-| DATA-01 | Phase 115 | Complete |
+| A11Y-01 | Phase 118 | Pending |
+| A11Y-02 | Phase 118 | Pending |
+| A11Y-03 | Phase 118 | Pending |
+| A11Y-04 | Phase 118 | Pending |
+| LOAD-01 | Phase 118 | Pending |
+| LOAD-02 | Phase 118 | Pending |
+| LOAD-03 | Phase 118 | Pending |
+| LOAD-04 | Phase 118 | Pending |
+| LOAD-05 | Phase 118 | Pending |
+| DATA-01 | Phase 118 | Pending |
 | DATA-02 | Phase 110 | Pending |
-| DATA-03 | Phase 115 | Complete |
-| DATA-04 | Phase 115 | Complete |
+| DATA-03 | Phase 118 | Pending |
+| DATA-04 | Phase 118 | Pending |
 | UXPL-01 | Phase 116 | Pending |
 | UXPL-02 | Phase 116 | Pending |
 | UXPL-03 | Phase 116 | Pending |
 | UXPL-04 | Phase 116 | Pending |
 | UXPL-05 | Phase 116 | Pending |
-| UXPL-06 | Phase 116 | Pending |
+| UXPL-06 | Phase 117 | Pending |
 
 **Coverage:**
 - v2.3 requirements: 37 total
@@ -149,4 +149,4 @@ Deferred to future releases.
 
 ---
 *Requirements defined: 2026-04-04*
-*Last updated: 2026-04-04 after roadmap creation*
+*Last updated: 2026-04-10 after v2.3 milestone audit gap closure (Phase 117/118)*

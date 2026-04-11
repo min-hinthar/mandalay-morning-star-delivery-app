@@ -6,7 +6,7 @@
 - v2.0 Production-Grade Launch MVP: Shipped (10 phases, 34 plans)
 - v2.1 Route Operations & Admin Mobile: Shipped (5 phases, 22 plans)
 - v2.2 Stability & Correctness: Shipped (6 phases, 12 plans)
-- v2.3 Customer UX Quality: In progress (7 phases, 110-116)
+- v2.3 Customer UX Quality: In progress (9 phases, 110-118)
 
 ## Phases
 
@@ -98,7 +98,7 @@
 
 </details>
 
-### v2.3 Customer UX Quality (Phases 110-116)
+### v2.3 Customer UX Quality (Phases 110-118)
 
 - [x] **Phase 110: Critical Fixes & Data Reliability** - Fix conversion-blocking bugs and establish query retry infrastructure (completed 2026-04-07)
 - [x] **Phase 111: Checkout Conversion** - Recover lost conversions with form resilience, inline validation, and price transparency (completed 2026-04-07)
@@ -106,7 +106,9 @@
 - [x] **Phase 113: Accessibility & Design System** - Fix WCAG violations and harmonize design tokens (completed 2026-04-09)
 - [x] **Phase 114: Loading States & Offline** - Replace spinners with skeletons, enable offline menu access (completed 2026-04-10)
 - [x] **Phase 115: Data Layer Optimization** - Optimistic updates, query deduplication, and pagination (completed 2026-04-10)
-- [x] **Phase 116: Micro-Interactions & Polish** - Undo actions, discoverable gestures, and share previews (completed 2026-04-11)
+- [x] **Phase 116: Micro-Interactions & Polish** - Undo actions, discoverable gestures, and share previews (completed 2026-04-11)
+- [ ] **Phase 117: Integration & Asset Fixes** - Gap closure: fix CFIX-04 toast wiring + UXPL-06 OG image stub (v2.3 audit)
+- [ ] **Phase 118: Retroactive Verification & Nyquist Compliance** - Gap closure: generate missing VERIFICATION.md (113/114/115) + VALIDATION.md (111-116)
 
 ## Phase Details
 
@@ -213,11 +215,37 @@ Plans:
   - [x] 116-03-PLAN.md — Sticky reorder button + OG meta tags (UXPL-05, UXPL-06)
 **UI hint**: yes
 
+### Phase 117: Integration & Asset Fixes
+**Goal**: CFIX-04 persistent toast fires via correct toast store and UXPL-06 social previews render with brand image
+**Depends on**: Phase 116
+**Requirements**: CFIX-04, UXPL-06
+**Gap Closure**: Closes CFIX-04 dead-toast dispatch defect and UXPL-06 missing OG asset from v2.3 milestone audit
+**Success Criteria** (what must be TRUE):
+  1. Stripe 10s timeout fires a persistent error toast via useToastV8 (replaces dead useToast import in usePaymentSubmit.ts)
+  2. CheckoutErrorBanner retry flow still renders and recovers Stripe timeouts (no regression)
+  3. /public/og-image.png exists (1200x630, brand-appropriate) and /order/share/[token] OG meta tag resolves to a live image
+  4. Social crawler preview (Facebook debugger or equivalent) shows image thumbnail
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 118: Retroactive Verification & Nyquist Compliance
+**Goal**: Generate missing phase-level VERIFICATION.md for 113/114/115 and VALIDATION.md for 111-116 so v2.3 re-audit clears all BLOCKERS
+**Depends on**: Phase 117
+**Requirements**: A11Y-01, A11Y-02, A11Y-03, A11Y-04, LOAD-01, LOAD-02, LOAD-03, LOAD-04, LOAD-05, CFIX-08, DATA-01, DATA-03, DATA-04
+**Gap Closure**: Closes 13 verification-gap requirements from v2.3 audit (3 phases missing VERIFICATION.md, 6 phases missing Nyquist VALIDATION.md)
+**Success Criteria** (what must be TRUE):
+  1. 113-VERIFICATION.md aggregates A11Y-01..04 evidence from plan SUMMARYs + integration checker
+  2. 114-VERIFICATION.md aggregates LOAD-01..05 + CFIX-08 evidence
+  3. 115-VERIFICATION.md aggregates DATA-01, DATA-03, DATA-04 evidence
+  4. 111/112/113/114/115/116-VALIDATION.md all generated (Nyquist compliance per config.json)
+  5. /gsd-audit-milestone v2.3 re-run returns passed (or at minimum clears all BLOCKERS listed in v2.3-MILESTONE-AUDIT.md)
+**Plans**: TBD
+
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 110 -> 111 -> 112 -> 113 -> 114 -> 115 -> 116
-Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes.
+Phases execute in numeric order: 110 -> 111 -> 112 -> 113 -> 114 -> 115 -> 116 -> 117 -> 118
+Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes. Gap closure phases 117-118 run sequentially after 116.
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -228,6 +256,8 @@ Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes.
 | 114. Loading States & Offline | v2.3 | 3/3 | Complete   | 2026-04-10 |
 | 115. Data Layer Optimization | v2.3 | 3/3 | Complete   | 2026-04-10 |
 | 116. Micro-Interactions & Polish | v2.3 | 3/3 | Complete    | 2026-04-11 |
+| 117. Integration & Asset Fixes | v2.3 | 0/0 | Pending     |  |
+| 118. Retroactive Verification & Nyquist Compliance | v2.3 | 0/0 | Pending     |  |
 
 ---
 
