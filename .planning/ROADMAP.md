@@ -105,7 +105,7 @@
 - [x] **Phase 112: Order Tracking Overhaul** - Redesign tracking from unusable to reliable on mobile (completed 2026-04-10)
 - [x] **Phase 113: Accessibility & Design System** - Fix WCAG violations and harmonize design tokens (completed 2026-04-09)
 - [x] **Phase 114: Loading States & Offline** - Replace spinners with skeletons, enable offline menu access (completed 2026-04-10)
-- [x] **Phase 115: Data Layer Optimization** - Optimistic updates, query deduplication, and pagination (completed 2026-04-10)
+- [x] **Phase 115: Data Layer Optimization** - Optimistic updates, query deduplication, and pagination (completed 2026-04-10)
 - [ ] **Phase 116: Micro-Interactions & Polish** - Undo actions, discoverable gestures, and share previews
 
 ## Phase Details
@@ -206,7 +206,11 @@ Plans:
   3. Dietary filter chips show a scroll indicator when content overflows the container
   4. Order detail has a sticky reorder button visible without scrolling
   5. Sharing an order link produces a rich preview (title, image, description) via Open Graph meta tags
-**Plans**: TBD
+**Plans**: 3 plans
+Plans:
+  - [ ] 116-01-PLAN.md — Toast action extension + cart undo for remove/clear (UXPL-01, UXPL-02)
+  - [ ] 116-02-PLAN.md — Swipe hint bounce + dietary scroll indicators (UXPL-03, UXPL-04)
+  - [ ] 116-03-PLAN.md — Sticky reorder button + OG meta tags (UXPL-05, UXPL-06)
 **UI hint**: yes
 
 ## Progress
@@ -223,7 +227,7 @@ Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes.
 | 113. Accessibility & Design System | v2.3 | 3/3 | Complete    | 2026-04-09 |
 | 114. Loading States & Offline | v2.3 | 3/3 | Complete   | 2026-04-10 |
 | 115. Data Layer Optimization | v2.3 | 3/3 | Complete   | 2026-04-10 |
-| 116. Micro-Interactions & Polish | v2.3 | 0/TBD | Not started | - |
+| 116. Micro-Interactions & Polish | v2.3 | 0/3 | Not started | - |
 
 ---
 
