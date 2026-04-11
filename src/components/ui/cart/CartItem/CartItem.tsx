@@ -11,7 +11,6 @@ import { useCart } from "@/lib/hooks/useCart";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { QuantitySelector } from "../QuantitySelector";
 import type { CartItem as CartItemType, CartItemValidationStatus } from "@/types/cart";
-import { toast } from "@/lib/hooks/useToastV8";
 import { triggerHaptic, getFallbackEmoji } from "./helpers";
 import { SwipeDeleteIndicator } from "./SwipeDeleteIndicator";
 import { ValidationOverlay } from "./ValidationOverlay";
@@ -103,10 +102,10 @@ export const CartItem = memo(function CartItem({
         e.preventDefault();
         triggerHaptic("medium");
         removeItem(item.cartItemId);
-        toast({ message: `${item.nameEn} removed from cart`, type: "info" });
+        // Undo toast is now shown by removeItem in cart-store
       }
     },
-    [item.cartItemId, item.nameEn, removeItem]
+    [item.cartItemId, removeItem]
   );
 
   return (
