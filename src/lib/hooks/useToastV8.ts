@@ -42,6 +42,7 @@ export interface Toast {
 interface ToastOptions {
   message: string;
   type?: ToastType;
+  /** Auto-dismiss delay in ms. 0 = persistent (no auto-dismiss). Default: 5000 */
   duration?: number;
   sound?: boolean;
   /** Optional action button (e.g. Undo) */
@@ -227,8 +228,10 @@ export function toast(options: ToastOptions) {
     playChimeSound();
   }
 
-  // Auto-dismiss after duration
-  addToRemoveQueue(id, duration);
+  // Auto-dismiss after duration (skip for persistent toasts: duration <= 0 or non-finite)
+  if (duration > 0 && isFinite(duration)) {
+    addToRemoveQueue(id, duration);
+  }
 
   return {
     id,

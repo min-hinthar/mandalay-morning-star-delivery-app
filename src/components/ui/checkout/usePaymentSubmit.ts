@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect, useCallback, type MutableRefObject } from "react";
 import { useRouter } from "next/navigation";
 import { handleRateLimitResponse } from "@/lib/hooks/useRateLimitToast";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 import { ClientErrorCodes } from "@/types/errors";
 import type { CheckoutErrorData } from "./CheckoutErrorBanner";
 import type { CartItem } from "@/types/cart";
@@ -218,11 +218,9 @@ export function usePaymentSubmit(args: UsePaymentSubmitArgs): UsePaymentSubmitRe
             "Payment is taking longer than expected. Your network may be slow. Please try again — your order has not been charged.",
         });
         toast({
-          title: "Checkout timed out",
-          description:
-            "We couldn't reach the payment service in time. Tap Retry to try again — you haven't been charged.",
-          variant: "destructive",
-          persistent: true,
+          message: "Checkout timed out",
+          type: "error",
+          duration: 0,
         });
         setIsCreatingSession(false);
         return;
