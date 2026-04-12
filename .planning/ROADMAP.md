@@ -225,7 +225,10 @@ Plans:
   2. CheckoutErrorBanner retry flow still renders and recovers Stripe timeouts (no regression)
   3. /public/og-image.png exists (1200x630, brand-appropriate) and /order/share/[token] OG meta tag resolves to a live image
   4. Social crawler preview (Facebook debugger or equivalent) shows image thumbnail
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+  - [ ] 117-01-PLAN.md — Toast V8 guard clause + usePaymentSubmit wiring + legacy cleanup (CFIX-04)
+  - [ ] 117-02-PLAN.md — OG image asset generation (UXPL-06)
 **UI hint**: yes
 
 ### Phase 118: Retroactive Verification & Nyquist Compliance
@@ -256,7 +259,7 @@ Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes. Gap
 | 114. Loading States & Offline | v2.3 | 3/3 | Complete   | 2026-04-10 |
 | 115. Data Layer Optimization | v2.3 | 3/3 | Complete   | 2026-04-10 |
 | 116. Micro-Interactions & Polish | v2.3 | 3/3 | Complete    | 2026-04-11 |
-| 117. Integration & Asset Fixes | v2.3 | 0/0 | Pending     |  |
+| 117. Integration & Asset Fixes | v2.3 | 0/2 | In Progress |  |
 | 118. Retroactive Verification & Nyquist Compliance | v2.3 | 0/0 | Pending     |  |
 
 ---
