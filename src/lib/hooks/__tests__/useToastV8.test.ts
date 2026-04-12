@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 
 // Reset module state between tests
 let toastFn: typeof import("../useToastV8").toast;
@@ -64,5 +64,31 @@ describe("useToastV8 action support", () => {
 
     result.triggerAction();
     expect(onClick).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("useToastV8 persistent toast (duration: 0)", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("does not schedule a remove timer when duration is 0", () => {
+    vi.useFakeTimers();
+    const timersBefore = vi.getTimerCount();
+    toastFn({ message: "Persistent error", type: "error", duration: 0 });
+    const timersAfter = vi.getTimerCount();
+
+    // No new timer should be created for duration: 0
+    expect(timersAfter).toBe(timersBefore);
+  });
+
+  it("schedules a remove timer when duration is positive (e.g. 5000)", () => {
+    vi.useFakeTimers();
+    const timersBefore = vi.getTimerCount();
+    toastFn({ message: "Temporary", type: "success", duration: 5000 });
+    const timersAfter = vi.getTimerCount();
+
+    // A timer should be created for auto-dismiss
+    expect(timersAfter).toBe(timersBefore + 1);
   });
 });
