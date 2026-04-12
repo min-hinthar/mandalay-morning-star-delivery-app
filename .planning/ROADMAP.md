@@ -107,7 +107,7 @@
 - [x] **Phase 114: Loading States & Offline** - Replace spinners with skeletons, enable offline menu access (completed 2026-04-10)
 - [x] **Phase 115: Data Layer Optimization** - Optimistic updates, query deduplication, and pagination (completed 2026-04-10)
 - [x] **Phase 116: Micro-Interactions & Polish** - Undo actions, discoverable gestures, and share previews (completed 2026-04-11)
-- [ ] **Phase 117: Integration & Asset Fixes** - Gap closure: fix CFIX-04 toast wiring + UXPL-06 OG image stub (v2.3 audit)
+- [x] **Phase 117: Integration & Asset Fixes** - Gap closure: fix CFIX-04 toast wiring + UXPL-06 OG image stub (v2.3 audit) (completed 2026-04-12)
 - [ ] **Phase 118: Retroactive Verification & Nyquist Compliance** - Gap closure: generate missing VERIFICATION.md (113/114/115) + VALIDATION.md (111-116)
 
 ## Phase Details
@@ -227,8 +227,8 @@ Plans:
   4. Social crawler preview (Facebook debugger or equivalent) shows image thumbnail
 **Plans**: 2 plans
 Plans:
-  - [ ] 117-01-PLAN.md — Toast V8 guard clause + usePaymentSubmit wiring + legacy cleanup (CFIX-04)
-  - [ ] 117-02-PLAN.md — OG image asset generation (UXPL-06)
+  - [x] 117-01-PLAN.md — Toast V8 guard clause + usePaymentSubmit wiring + legacy cleanup (CFIX-04)
+  - [x] 117-02-PLAN.md — OG image asset generation (UXPL-06)
 **UI hint**: yes
 
 ### Phase 118: Retroactive Verification & Nyquist Compliance
@@ -259,7 +259,7 @@ Phases 111, 112, 113, 114 can execute in parallel after Phase 110 completes. Gap
 | 114. Loading States & Offline | v2.3 | 3/3 | Complete   | 2026-04-10 |
 | 115. Data Layer Optimization | v2.3 | 3/3 | Complete   | 2026-04-10 |
 | 116. Micro-Interactions & Polish | v2.3 | 3/3 | Complete    | 2026-04-11 |
-| 117. Integration & Asset Fixes | v2.3 | 0/2 | In Progress |  |
+| 117. Integration & Asset Fixes | v2.3 | 2/2 | Complete    | 2026-04-12 |
 | 118. Retroactive Verification & Nyquist Compliance | v2.3 | 0/0 | Pending     |  |
 
 ---
