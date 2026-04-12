@@ -30,19 +30,25 @@ vi.mock("@/lib/hooks/useRateLimitToast", () => ({
   handleRateLimitResponse: () => false,
 }));
 
-// Spy on the named `toast` export from useToast.
+// Spy on the named `toast` export from useToastV8.
 // We intercept it via the module so callers inside usePaymentSubmit.ts see the mock.
-vi.mock("@/lib/hooks/useToast", () => {
+vi.mock("@/lib/hooks/useToastV8", () => {
   const toastSpy = vi.fn();
   return {
     toast: toastSpy,
-    useToast: () => ({ toasts: [], dismiss: vi.fn(), toast: toastSpy }),
+    useToast: () => ({
+      toasts: [],
+      dismiss: vi.fn(),
+      toast: toastSpy,
+      expanded: false,
+      toggleExpanded: vi.fn(),
+    }),
   };
 });
 
 import { usePaymentSubmit, STRIPE_TIMEOUT_MS } from "../usePaymentSubmit";
 import { ClientErrorCodes } from "@/types/errors";
-import { toast } from "@/lib/hooks/useToast";
+import { toast } from "@/lib/hooks/useToastV8";
 
 // ---------------------------------------------------------------------------
 // Shared test fixtures
@@ -197,7 +203,7 @@ describe("usePaymentSubmit CFIX-04 (Phase 110 D-23..D-27)", () => {
   // -------------------------------------------------------------------------
   // 4. AbortError branch — toast called with persistent: true + destructive
   // -------------------------------------------------------------------------
-  it("calls toast with persistent: true and variant: destructive on AbortError", async () => {
+  it("calls toast with duration: 0 and type: error on AbortError", async () => {
     fetchSpy.mockImplementation(
       (_url: string, init: RequestInit) =>
         new Promise((_resolve, reject) => {
@@ -226,8 +232,8 @@ describe("usePaymentSubmit CFIX-04 (Phase 110 D-23..D-27)", () => {
     });
 
     const toastCall = vi.mocked(toast).mock.calls[0][0];
-    expect(toastCall.persistent).toBe(true);
-    expect(toastCall.variant).toBe("destructive");
+    expect(toastCall.duration).toBe(0);
+    expect(toastCall.type).toBe("error");
   });
 
   // -------------------------------------------------------------------------
