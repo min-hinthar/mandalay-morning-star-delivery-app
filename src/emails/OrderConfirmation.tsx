@@ -34,10 +34,12 @@ interface OrderItemModifier {
 
 interface OrderItem {
   name: string;
+  nameMy?: string | null;
   quantity: number;
   lineTotalCents: number;
   category?: string;
   modifiers?: OrderItemModifier[];
+  notes?: string | null;
 }
 
 interface DeliveryAddress {
@@ -246,6 +248,46 @@ export function OrderConfirmation({
 
       {/* ── Items Table ──────────────────────────────── */}
       <OrderItemsTable items={items} />
+
+      {/* ── Preparation Notes Summary (per-item) ──────── */}
+      {items.some((i) => i.notes && i.notes.trim().length > 0) && (
+        <Section
+          style={{
+            margin: "16px 24px 0 24px",
+            padding: "12px 16px",
+            backgroundColor: "#FFFBEB",
+            borderRadius: "8px",
+            border: "1px solid #FDE68A",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: "13px",
+              fontFamily: SANS,
+              fontWeight: 700,
+              color: "#92400E",
+              margin: "0 0 4px 0",
+            }}
+          >
+            {"👨‍🍳"} Preparation Notes
+          </Text>
+          {items
+            .filter((i) => i.notes && i.notes.trim().length > 0)
+            .map((i, idx) => (
+              <Text
+                key={`prep-${idx}`}
+                style={{
+                  fontSize: "13px",
+                  fontFamily: SANS,
+                  color: "#78350F",
+                  margin: "0 0 2px 0",
+                }}
+              >
+                <strong>{i.name}:</strong> {i.notes}
+              </Text>
+            ))}
+        </Section>
+      )}
 
       {/* ── Special Instructions Callout ──────────────── */}
       {specialInstructions && (

@@ -36,6 +36,8 @@ export function buildEmailElement(type: EmailType, orderData: any): React.ReactE
         dietaryRestrictions: orderData.dietaryRestrictions,
         placedAt: orderData.placedAt,
         suggestedItems: orderData.suggestedItems,
+        isPendingApproval: orderData.isPendingApproval,
+        isExtendedRange: orderData.isExtendedRange,
       });
 
     case "cancellation":

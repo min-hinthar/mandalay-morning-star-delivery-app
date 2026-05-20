@@ -25,5 +25,11 @@ Sentry.init({
     /getRootNode/,
     // Facebook Pixel / third-party script injection
     /connect\.facebook\.net/,
+    // Google Maps tile loader internal errors (iOS Mobile Safari)
+    /Could not load "onion"/i,
+    /maps-api-v3/i,
+    // WebGL context creation failures (browser/driver, not app code)
+    /Error creating WebGL context/i,
   ],
+  denyUrls: [/maps\.googleapis\.com/i, /maps\.gstatic\.com/i],
 });

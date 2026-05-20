@@ -13,6 +13,7 @@ export {
 } from "./constants";
 export { sendEmail } from "./send";
 export { fetchSuggestedItems, type SuggestedItem } from "./suggestions";
+export { fetchDietaryRestrictions } from "./fetch-dietary-restrictions";
 export {
   MANDATORY_EMAIL_TYPES,
   mapTypeToPrefKey,

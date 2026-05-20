@@ -23,7 +23,7 @@ export function SocialLoginButtons({ onOAuthStart, redirectTo }: SocialLoginButt
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(redirectTo || "/login")}`,
+          redirectTo: `${window.location.origin.replace(/^(https?:\/\/)www\./i, "$1")}/auth/callback?next=${encodeURIComponent(redirectTo || "/login")}`,
           queryParams: { access_type: "offline", prompt: "consent" },
           scopes: "openid email profile",
         },
