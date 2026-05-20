@@ -13,7 +13,12 @@ import {
 } from "@/lib/utils/delivery-zones";
 import { checkCoverage } from "@/lib/services/coverage";
 import { logger } from "@/lib/utils/logger";
-import { sendEmail, fetchSuggestedItems, getAdminEmails } from "@/lib/email";
+import {
+  sendEmail,
+  fetchSuggestedItems,
+  fetchDietaryRestrictions,
+  getAdminEmails,
+} from "@/lib/email";
 import { AdminNewOrderAlert } from "@/emails/AdminNewOrderAlert";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 
@@ -91,7 +96,21 @@ export async function sendCODOrderEmail(opts: {
     // Fetch real menu items for "you might also like" section
     const serviceClient = createServiceClient();
     const orderedNames = opts.validatedItems.map((item) => item.menuItem.name_en);
-    const suggestedItems = await fetchSuggestedItems(serviceClient, orderedNames);
+    const [suggestedItems, dietaryRestrictions] = await Promise.all([
+      fetchSuggestedItems(serviceClient, orderedNames),
+      fetchDietaryRestrictions(serviceClient, opts.userId),
+    ]);
+    const sharedItems = opts.validatedItems.map((item) => ({
+      name: item.menuItem.name_en,
+      nameMy: item.menuItem.name_my,
+      quantity: item.quantity,
+      lineTotalCents: item.lineTotalCents,
+      notes: item.notes ?? null,
+      modifiers: item.modifiers?.map((m) => ({
+        name: m.name,
+        priceDelta: m.price_delta_cents,
+      })),
+    }));
 
     await sendEmail({
       to: opts.userEmail,
@@ -103,15 +122,7 @@ export async function sendCODOrderEmail(opts: {
       react: React.createElement(OrderConfirmation, {
         customerName: opts.customerName,
         orderId: opts.orderId,
-        items: opts.validatedItems.map((item) => ({
-          name: item.menuItem.name_en,
-          quantity: item.quantity,
-          lineTotalCents: item.lineTotalCents,
-          modifiers: item.modifiers?.map((m) => ({
-            name: m.name,
-            priceDelta: m.price_delta_cents,
-          })),
-        })),
+        items: sharedItems,
         subtotalCents: opts.subtotalCents,
         deliveryFeeCents: opts.deliveryFeeCents,
         taxCents: opts.taxCents,
@@ -122,6 +133,7 @@ export async function sendCODOrderEmail(opts: {
         address: opts.address,
         specialInstructions: opts.customerNotes,
         deliveryInstructions: opts.deliveryInstructions,
+        dietaryRestrictions: dietaryRestrictions.length > 0 ? dietaryRestrictions : undefined,
         paymentMethod: "cod",
         isPendingApproval: true,
         placedAt: new Date().toISOString(),
@@ -142,15 +154,7 @@ export async function sendCODOrderEmail(opts: {
           orderId: opts.orderId,
           customerName: opts.customerName,
           customerEmail: opts.userEmail,
-          items: opts.validatedItems.map((item) => ({
-            name: item.menuItem.name_en,
-            quantity: item.quantity,
-            lineTotalCents: item.lineTotalCents,
-            modifiers: item.modifiers?.map((m) => ({
-              name: m.name,
-              priceDelta: m.price_delta_cents,
-            })),
-          })),
+          items: sharedItems,
           subtotalCents: opts.subtotalCents,
           deliveryFeeCents: opts.deliveryFeeCents,
           taxCents: opts.taxCents,
@@ -160,6 +164,8 @@ export async function sendCODOrderEmail(opts: {
           deliveryWindowEnd: toISOWithTimezone(opts.scheduledDate, opts.timeWindowEnd),
           address: opts.address,
           specialInstructions: opts.customerNotes,
+          deliveryInstructions: opts.deliveryInstructions,
+          dietaryRestrictions: dietaryRestrictions.length > 0 ? dietaryRestrictions : undefined,
           paymentMethod: "cod",
           isPendingApproval: true,
           placedAt: new Date().toISOString(),

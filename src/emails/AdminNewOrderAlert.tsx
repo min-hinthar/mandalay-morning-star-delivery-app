@@ -13,9 +13,11 @@ interface OrderItemModifier {
 
 interface OrderItem {
   name: string;
+  nameMy?: string | null;
   quantity: number;
   lineTotalCents: number;
   modifiers?: OrderItemModifier[];
+  notes?: string | null;
 }
 
 interface DeliveryAddress {
@@ -40,6 +42,8 @@ export interface AdminNewOrderAlertProps {
   deliveryWindowEnd?: string;
   address: DeliveryAddress;
   specialInstructions?: string;
+  deliveryInstructions?: string;
+  dietaryRestrictions?: string[];
   paymentMethod?: string;
   isPendingApproval?: boolean;
   placedAt: string;
@@ -61,6 +65,8 @@ export function AdminNewOrderAlert({
   deliveryWindowEnd,
   address,
   specialInstructions,
+  deliveryInstructions,
+  dietaryRestrictions,
   paymentMethod,
   isPendingApproval,
   placedAt,
@@ -240,11 +246,80 @@ export function AdminNewOrderAlert({
           address={address}
           windowStart={deliveryWindowStart}
           windowEnd={deliveryWindowEnd}
+          instructions={deliveryInstructions}
         />
       </Section>
 
+      {/* ── Dietary Restrictions Callout ──────────────── */}
+      {dietaryRestrictions && dietaryRestrictions.length > 0 && (
+        <Section
+          style={{
+            margin: "0 24px 16px 24px",
+            padding: "12px 16px",
+            backgroundColor: "#FFFBEB",
+            borderRadius: "8px",
+            border: "1px solid #FDE68A",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: "13px",
+              fontFamily: FONT_STACK,
+              fontWeight: 700,
+              color: "#92400E",
+              margin: "0 0 4px 0",
+            }}
+          >
+            {"⚠️"} Dietary Restrictions
+          </Text>
+          <Text style={{ fontSize: "13px", fontFamily: FONT_STACK, color: "#78350F", margin: "0" }}>
+            {dietaryRestrictions.join(", ")}
+          </Text>
+        </Section>
+      )}
+
       {/* ── Items Table ──────────────────────────────── */}
       <OrderItemsTable items={items} />
+
+      {/* ── Preparation Notes Summary (per-item) ──────── */}
+      {items.some((i) => i.notes && i.notes.trim().length > 0) && (
+        <Section
+          style={{
+            margin: "16px 24px 0 24px",
+            padding: "12px 16px",
+            backgroundColor: "#FFFBEB",
+            borderRadius: "8px",
+            border: "1px solid #FDE68A",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: "13px",
+              fontFamily: FONT_STACK,
+              fontWeight: 700,
+              color: "#92400E",
+              margin: "0 0 4px 0",
+            }}
+          >
+            {"👨‍🍳"} Preparation Notes
+          </Text>
+          {items
+            .filter((i) => i.notes && i.notes.trim().length > 0)
+            .map((i, idx) => (
+              <Text
+                key={`prep-${idx}`}
+                style={{
+                  fontSize: "13px",
+                  fontFamily: FONT_STACK,
+                  color: "#78350F",
+                  margin: "0 0 2px 0",
+                }}
+              >
+                <strong>{i.name}:</strong> {i.notes}
+              </Text>
+            ))}
+        </Section>
+      )}
 
       {/* ── Special Instructions ──────────────────────── */}
       {specialInstructions && (

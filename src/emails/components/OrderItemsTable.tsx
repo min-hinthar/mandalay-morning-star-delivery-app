@@ -7,10 +7,12 @@ interface OrderItemModifier {
 
 interface OrderItem {
   name: string;
+  nameMy?: string | null;
   quantity: number;
   lineTotalCents: number;
   category?: string;
   modifiers?: OrderItemModifier[];
+  notes?: string | null;
 }
 
 interface OrderItemsTableProps {
@@ -126,6 +128,19 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
                     >
                       {item.name}
                     </Text>
+                    {item.nameMy && (
+                      <Text
+                        style={{
+                          fontSize: "12px",
+                          fontWeight: 500,
+                          color: "#8B4513",
+                          margin: "2px 0 0 0",
+                          fontFamily: "Georgia, 'Palatino Linotype', serif",
+                        }}
+                      >
+                        {item.nameMy}
+                      </Text>
+                    )}
                     {item.modifiers && item.modifiers.length > 0 && (
                       <Text
                         style={{
@@ -143,6 +158,21 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
                           )
                           .join(", ")}
                         )
+                      </Text>
+                    )}
+                    {item.notes && (
+                      <Text
+                        style={{
+                          fontSize: "12px",
+                          fontStyle: "italic" as const,
+                          color: "#92400E",
+                          margin: "4px 0 0 0",
+                          fontFamily:
+                            "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                        }}
+                      >
+                        {"📝 "}
+                        {item.notes}
                       </Text>
                     )}
                   </td>
