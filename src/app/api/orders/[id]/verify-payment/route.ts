@@ -2,7 +2,7 @@ import React from "react";
 import { after, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe/server";
-import { sendEmail, fetchSuggestedItems } from "@/lib/email";
+import { sendEmail, fetchSuggestedItems, fetchDietaryRestrictions } from "@/lib/email";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
@@ -136,12 +136,12 @@ export async function POST(request: Request, { params }: RouteParams) {
     .from("orders")
     .select(
       `
-      id, user_id, subtotal_cents, delivery_fee_cents, tax_cents, total_cents,
-      delivery_window_start, delivery_window_end, special_instructions, placed_at,
+      id, user_id, subtotal_cents, delivery_fee_cents, tax_cents, tip_cents, total_cents,
+      delivery_window_start, delivery_window_end, special_instructions, delivery_instructions, placed_at,
       profiles!orders_user_id_fkey ( email, full_name ),
       addresses ( line_1, line_2, city, state, postal_code ),
       order_items (
-        name_snapshot, quantity, line_total_cents,
+        name_snapshot, name_my_snapshot, special_instructions, quantity, line_total_cents,
         order_item_modifiers ( name_snapshot, price_delta_snapshot )
       )
     `
@@ -164,6 +164,8 @@ export async function POST(request: Request, { params }: RouteParams) {
     const items =
       (orderData.order_items as unknown as Array<{
         name_snapshot: string;
+        name_my_snapshot: string | null;
+        special_instructions: string | null;
         quantity: number;
         line_total_cents: number;
         order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }>;
@@ -179,7 +181,10 @@ export async function POST(request: Request, { params }: RouteParams) {
         try {
           // Fetch real menu items for "you might also like" section
           const orderedNames = items.map((item) => item.name_snapshot);
-          const suggestedItems = await fetchSuggestedItems(serviceClient, orderedNames);
+          const [suggestedItems, dietaryRestrictions] = await Promise.all([
+            fetchSuggestedItems(serviceClient, orderedNames),
+            fetchDietaryRestrictions(serviceClient, emailUserId),
+          ]);
 
           await sendEmail({
             to: customerEmail,
@@ -189,8 +194,10 @@ export async function POST(request: Request, { params }: RouteParams) {
               orderId: emailOrderId,
               items: items.map((item) => ({
                 name: item.name_snapshot,
+                nameMy: item.name_my_snapshot,
                 quantity: item.quantity,
                 lineTotalCents: item.line_total_cents,
+                notes: item.special_instructions,
                 modifiers: item.order_item_modifiers?.map((m) => ({
                   name: m.name_snapshot,
                   priceDelta: m.price_delta_snapshot,
@@ -199,6 +206,7 @@ export async function POST(request: Request, { params }: RouteParams) {
               subtotalCents: orderData.subtotal_cents,
               deliveryFeeCents: orderData.delivery_fee_cents,
               taxCents: orderData.tax_cents,
+              tipCents: orderData.tip_cents ?? undefined,
               totalCents: orderData.total_cents,
               deliveryWindowStart: orderData.delivery_window_start ?? undefined,
               deliveryWindowEnd: orderData.delivery_window_end ?? undefined,
@@ -212,6 +220,8 @@ export async function POST(request: Request, { params }: RouteParams) {
                   }
                 : { line1: "Address on file", city: "", state: "", postalCode: "" },
               specialInstructions: orderData.special_instructions ?? undefined,
+              deliveryInstructions: orderData.delivery_instructions ?? undefined,
+              dietaryRestrictions: dietaryRestrictions.length > 0 ? dietaryRestrictions : undefined,
               placedAt: orderData.placed_at,
               suggestedItems,
             }),

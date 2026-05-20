@@ -11,22 +11,27 @@ export interface ActionResult {
   success?: string;
 }
 
+function stripWww(url: string): string {
+  return url.replace(/^(https?:\/\/)www\./i, "$1");
+}
+
 export async function getAppUrl(): Promise<string> {
   const envUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (envUrl) {
-    return envUrl.replace(/\/$/, "");
+    return stripWww(envUrl.replace(/\/$/, ""));
   }
 
   const headerList = await headers();
   const origin = headerList.get("origin");
   if (origin) {
-    return origin;
+    return stripWww(origin);
   }
 
   const host = headerList.get("x-forwarded-host") ?? headerList.get("host");
   if (host) {
     const proto = headerList.get("x-forwarded-proto") ?? "https";
-    return `${proto}://${host}`;
+    const normalizedHost = host.replace(/^www\./i, "");
+    return `${proto}://${normalizedHost}`;
   }
 
   return "http://localhost:3000";

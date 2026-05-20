@@ -1,7 +1,12 @@
 import { after, NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
-import { sendEmail, buildEmailElement, fetchSuggestedItems } from "@/lib/email";
+import {
+  sendEmail,
+  buildEmailElement,
+  fetchSuggestedItems,
+  fetchDietaryRestrictions,
+} from "@/lib/email";
 import type { EmailType, SuggestedItem } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
@@ -40,6 +45,8 @@ interface OrderRow {
 
 interface OrderItemRow {
   name_snapshot: string;
+  name_my_snapshot: string | null;
+  special_instructions: string | null;
   quantity: number;
   line_total_cents: number;
 }
@@ -118,10 +125,13 @@ export async function POST(request: Request) {
     // Fetch order items
     const { data: orderItems } = (await supabase
       .from("order_items")
-      .select("name_snapshot, quantity, line_total_cents")
+      .select("name_snapshot, name_my_snapshot, special_instructions, quantity, line_total_cents")
       .eq("order_id", orderId)) as {
       data: OrderItemRow[] | null;
     };
+
+    // Fetch dietary restrictions for customer
+    const dietaryRestrictions = await fetchDietaryRestrictions(supabase, order.user_id);
 
     // Fetch customer profile
     const { data: profile } = await supabase
@@ -138,8 +148,10 @@ export async function POST(request: Request) {
     const customerName = profile.full_name || "Valued Customer";
     const items = (orderItems || []).map((item) => ({
       name: item.name_snapshot,
+      nameMy: item.name_my_snapshot,
       quantity: item.quantity,
       lineTotalCents: item.line_total_cents,
+      notes: item.special_instructions,
     }));
 
     const address = order.addresses;
@@ -163,6 +175,7 @@ export async function POST(request: Request) {
       },
       specialInstructions: order.special_instructions,
       deliveryInstructions: order.delivery_instructions,
+      dietaryRestrictions: dietaryRestrictions.length > 0 ? dietaryRestrictions : undefined,
       placedAt: order.created_at,
       // Cancellation-specific
       cancellationReason: "Manually triggered by admin",
