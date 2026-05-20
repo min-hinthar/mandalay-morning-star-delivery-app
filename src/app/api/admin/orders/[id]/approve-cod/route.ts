@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
-import { sendEmail, fetchSuggestedItems } from "@/lib/email";
+import { sendEmail, fetchSuggestedItems, fetchDietaryRestrictions } from "@/lib/email";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import type { OrderStatus } from "@/types/database";
 
@@ -104,7 +104,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
           .from("orders")
           .select(
             `*, addresses(line_1,line_2,city,state,postal_code),
-             order_items(name_snapshot,quantity,line_total_cents,
+             order_items(name_snapshot,name_my_snapshot,special_instructions,quantity,line_total_cents,
                order_item_modifiers(name_snapshot,price_delta_snapshot))`
           )
           .eq("id", approvedOrderId)
@@ -131,6 +131,8 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
         const items =
           (fullOrder.order_items as Array<{
             name_snapshot: string;
+            name_my_snapshot: string | null;
+            special_instructions: string | null;
             quantity: number;
             line_total_cents: number;
             order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }>;
@@ -140,7 +142,10 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
         // Fetch real menu items for "you might also like" section
         const orderedNames = items.map((item) => item.name_snapshot);
-        const suggestedItems = await fetchSuggestedItems(approvedSupabase, orderedNames);
+        const [suggestedItems, dietaryRestrictions] = await Promise.all([
+          fetchSuggestedItems(approvedSupabase, orderedNames),
+          fetchDietaryRestrictions(approvedSupabase, fullOrder.user_id),
+        ]);
 
         await sendEmail({
           to: profile.email,
@@ -154,8 +159,10 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
             orderId: approvedOrderId,
             items: items.map((item) => ({
               name: item.name_snapshot,
+              nameMy: item.name_my_snapshot,
               quantity: item.quantity,
               lineTotalCents: item.line_total_cents,
+              notes: item.special_instructions,
               modifiers: item.order_item_modifiers?.map((m) => ({
                 name: m.name_snapshot,
                 priceDelta: m.price_delta_snapshot,
@@ -178,6 +185,8 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
                 }
               : { line1: "Address on file", city: "", state: "", postalCode: "" },
             specialInstructions: fullOrder.special_instructions ?? undefined,
+            deliveryInstructions: fullOrder.delivery_instructions ?? undefined,
+            dietaryRestrictions: dietaryRestrictions.length > 0 ? dietaryRestrictions : undefined,
             paymentMethod: "cod",
             isPendingApproval: false,
             placedAt: fullOrder.placed_at,

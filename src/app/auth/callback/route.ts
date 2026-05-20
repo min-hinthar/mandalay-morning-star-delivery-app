@@ -27,7 +27,8 @@ function isSafeRedirect(path: string): boolean {
  * 5. Redirect to /driver/onboard
  */
 export async function GET(request: Request): Promise<NextResponse> {
-  const { searchParams, origin } = new URL(request.url);
+  const { searchParams, origin: rawOrigin } = new URL(request.url);
+  const origin = rawOrigin.replace(/^(https?:\/\/)www\./i, "$1");
   const code = searchParams.get("code");
   const rawNext = searchParams.get("next") ?? "/";
   const next = isSafeRedirect(rawNext) ? rawNext : "/";

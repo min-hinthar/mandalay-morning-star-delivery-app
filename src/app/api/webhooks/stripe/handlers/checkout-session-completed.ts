@@ -1,7 +1,12 @@
 import React from "react";
 import { after } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
-import { sendEmail, fetchSuggestedItems, getAdminEmails } from "@/lib/email";
+import {
+  sendEmail,
+  fetchSuggestedItems,
+  fetchDietaryRestrictions,
+  getAdminEmails,
+} from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import { AdminNewOrderAlert } from "@/emails/AdminNewOrderAlert";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
@@ -101,12 +106,12 @@ export async function handleCheckoutSessionCompleted(
     .from("orders")
     .select(
       `
-      id, user_id, subtotal_cents, delivery_fee_cents, tax_cents, total_cents,
-      delivery_window_start, delivery_window_end, special_instructions, placed_at,
+      id, user_id, subtotal_cents, delivery_fee_cents, tax_cents, tip_cents, total_cents,
+      delivery_window_start, delivery_window_end, special_instructions, delivery_instructions, placed_at,
       profiles!orders_user_id_fkey ( email, full_name ),
       addresses ( line_1, line_2, city, state, postal_code ),
       order_items (
-        name_snapshot, quantity, line_total_cents,
+        name_snapshot, name_my_snapshot, special_instructions, quantity, line_total_cents,
         order_item_modifiers ( name_snapshot, price_delta_snapshot )
       )
     `
@@ -137,6 +142,8 @@ export async function handleCheckoutSessionCompleted(
   const items =
     (orderData.order_items as unknown as Array<{
       name_snapshot: string;
+      name_my_snapshot: string | null;
+      special_instructions: string | null;
       quantity: number;
       line_total_cents: number;
       order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }>;
@@ -159,7 +166,22 @@ export async function handleCheckoutSessionCompleted(
     try {
       // Fetch real menu items for "you might also like" section
       const orderedNames = items.map((item) => item.name_snapshot);
-      const suggestedItems = await fetchSuggestedItems(supabase, orderedNames);
+      const [suggestedItems, dietaryRestrictions] = await Promise.all([
+        fetchSuggestedItems(supabase, orderedNames),
+        fetchDietaryRestrictions(supabase, orderData.user_id),
+      ]);
+
+      const mappedItems = items.map((item) => ({
+        name: item.name_snapshot,
+        nameMy: item.name_my_snapshot,
+        quantity: item.quantity,
+        lineTotalCents: item.line_total_cents,
+        notes: item.special_instructions,
+        modifiers: item.order_item_modifiers?.map((m) => ({
+          name: m.name_snapshot,
+          priceDelta: m.price_delta_snapshot,
+        })),
+      }));
 
       await sendEmail({
         to: customerEmail,
@@ -167,18 +189,11 @@ export async function handleCheckoutSessionCompleted(
         react: React.createElement(OrderConfirmation, {
           customerName: profile?.full_name || "Valued Customer",
           orderId,
-          items: items.map((item) => ({
-            name: item.name_snapshot,
-            quantity: item.quantity,
-            lineTotalCents: item.line_total_cents,
-            modifiers: item.order_item_modifiers?.map((m) => ({
-              name: m.name_snapshot,
-              priceDelta: m.price_delta_snapshot,
-            })),
-          })),
+          items: mappedItems,
           subtotalCents: orderData.subtotal_cents,
           deliveryFeeCents: orderData.delivery_fee_cents,
           taxCents: orderData.tax_cents,
+          tipCents: orderData.tip_cents ?? undefined,
           totalCents: orderData.total_cents,
           deliveryWindowStart: orderData.delivery_window_start ?? undefined,
           deliveryWindowEnd: orderData.delivery_window_end ?? undefined,
@@ -192,6 +207,8 @@ export async function handleCheckoutSessionCompleted(
               }
             : { line1: "Address on file", city: "", state: "", postalCode: "" },
           specialInstructions: orderData.special_instructions ?? undefined,
+          deliveryInstructions: orderData.delivery_instructions ?? undefined,
+          dietaryRestrictions: dietaryRestrictions.length > 0 ? dietaryRestrictions : undefined,
           placedAt: orderData.placed_at,
           suggestedItems,
         }),
@@ -214,6 +231,18 @@ export async function handleCheckoutSessionCompleted(
     try {
       const admins = await getAdminEmails();
       const STAGGER_MS = 100;
+      const adminDietary = await fetchDietaryRestrictions(supabase, orderData.user_id);
+      const adminItems = items.map((item) => ({
+        name: item.name_snapshot,
+        nameMy: item.name_my_snapshot,
+        quantity: item.quantity,
+        lineTotalCents: item.line_total_cents,
+        notes: item.special_instructions,
+        modifiers: item.order_item_modifiers?.map((m) => ({
+          name: m.name_snapshot,
+          priceDelta: m.price_delta_snapshot,
+        })),
+      }));
 
       for (let i = 0; i < admins.length; i++) {
         const admin = admins[i];
@@ -224,18 +253,11 @@ export async function handleCheckoutSessionCompleted(
             orderId,
             customerName: profile?.full_name || "Unknown Customer",
             customerEmail: customerEmail,
-            items: items.map((item) => ({
-              name: item.name_snapshot,
-              quantity: item.quantity,
-              lineTotalCents: item.line_total_cents,
-              modifiers: item.order_item_modifiers?.map((m) => ({
-                name: m.name_snapshot,
-                priceDelta: m.price_delta_snapshot,
-              })),
-            })),
+            items: adminItems,
             subtotalCents: orderData.subtotal_cents,
             deliveryFeeCents: orderData.delivery_fee_cents,
             taxCents: orderData.tax_cents,
+            tipCents: orderData.tip_cents ?? undefined,
             totalCents: orderData.total_cents,
             deliveryWindowStart: orderData.delivery_window_start ?? undefined,
             deliveryWindowEnd: orderData.delivery_window_end ?? undefined,
@@ -249,6 +271,8 @@ export async function handleCheckoutSessionCompleted(
                 }
               : { line1: "Address on file", city: "", state: "", postalCode: "" },
             specialInstructions: orderData.special_instructions ?? undefined,
+            deliveryInstructions: orderData.delivery_instructions ?? undefined,
+            dietaryRestrictions: adminDietary.length > 0 ? adminDietary : undefined,
             paymentMethod: "stripe",
             placedAt: orderData.placed_at,
           }),

@@ -24,6 +24,15 @@ Sentry.init({
   replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: 1.0,
   debug: process.env.SENTRY_DEBUG === "true",
+  ignoreErrors: [
+    /window\.webkit\.messageHandlers/,
+    /getRootNode/,
+    /connect\.facebook\.net/,
+    /Could not load "onion"/i,
+    /maps-api-v3/i,
+    /Error creating WebGL context/i,
+  ],
+  denyUrls: [/maps\.googleapis\.com/i, /maps\.gstatic\.com/i],
 });
 
 export const onRouterTransitionStart = Sentry.captureRouterTransitionStart;
