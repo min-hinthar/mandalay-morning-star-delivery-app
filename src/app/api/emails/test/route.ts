@@ -167,6 +167,11 @@ function getFixtureDataForType(type: EmailType): Record<string, unknown> {
         deliveryWindowEnd: s.delivery.windowEnd,
         address: s.delivery.address,
         specialInstructions: s.delivery.instructions,
+        items: s.items,
+        subtotalCents: s.totals.subtotalCents,
+        deliveryFeeCents: s.totals.deliveryFeeCents,
+        taxCents: s.totals.taxCents,
+        totalCents: s.totals.totalCents,
       };
     }
     default:

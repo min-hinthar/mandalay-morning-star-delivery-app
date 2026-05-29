@@ -144,9 +144,15 @@ export async function GET(request: Request) {
     .from("orders")
     .select(
       `
-      id, status, total_cents, payment_method, user_id, placed_at,
-      profiles!orders_user_id_fkey ( full_name ),
-      order_items ( id )
+      id, status, total_cents, subtotal_cents, delivery_fee_cents, tax_cents, tip_cents,
+      payment_method, user_id, placed_at, special_instructions,
+      delivery_window_start, delivery_window_end,
+      profiles!orders_user_id_fkey ( full_name, phone ),
+      addresses ( line_1, line_2, city, state, postal_code ),
+      order_items (
+        name_snapshot, name_my_snapshot, special_instructions, quantity, line_total_cents,
+        order_item_modifiers ( name_snapshot, price_delta_snapshot )
+      )
     `
     )
     .gte("placed_at", start)
@@ -173,8 +179,18 @@ export async function GET(request: Request) {
 
   // -----------------------------------------------
   // Step 3: Build aggregate stats
+  // Revenue counts confirmed orders only — cancelled orders are excluded
+  // (their details are still shown in the digest for visibility).
   // -----------------------------------------------
-  const totalRevenueCents = orders.reduce((sum, o) => sum + (o.total_cents ?? 0), 0);
+  const isCancelled = (status: string | null) => status === "cancelled";
+
+  const totalRevenueCents = orders
+    .filter((o) => !isCancelled(o.status))
+    .reduce((sum, o) => sum + (o.total_cents ?? 0), 0);
+
+  const cancelledList = orders.filter((o) => isCancelled(o.status));
+  const cancelledOrders = cancelledList.length;
+  const cancelledRevenueCents = cancelledList.reduce((sum, o) => sum + (o.total_cents ?? 0), 0);
 
   const statusBreakdown: Record<string, number> = {
     pending_approval: 0,
@@ -189,16 +205,67 @@ export async function GET(request: Request) {
     statusBreakdown[status] = (statusBreakdown[status] ?? 0) + 1;
   }
 
+  interface DigestItemRow {
+    name_snapshot: string;
+    name_my_snapshot: string | null;
+    special_instructions: string | null;
+    quantity: number;
+    line_total_cents: number;
+    order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }> | null;
+  }
+  interface DigestAddressRow {
+    line_1: string;
+    line_2: string | null;
+    city: string;
+    state: string;
+    postal_code: string;
+  }
+
   const orderSummaries = orders.map((order) => {
-    const profile = order.profiles as unknown as { full_name: string | null } | null;
-    const items = order.order_items as unknown as Array<{ id: string }> | null;
+    const profile = order.profiles as unknown as {
+      full_name: string | null;
+      phone: string | null;
+    } | null;
+    const rawItems = (order.order_items as unknown as DigestItemRow[] | null) ?? [];
+    const addr = order.addresses as unknown as DigestAddressRow | null;
+
+    const items = rawItems.map((item) => ({
+      name: item.name_snapshot,
+      nameMy: item.name_my_snapshot,
+      quantity: item.quantity,
+      lineTotalCents: item.line_total_cents,
+      notes: item.special_instructions,
+      modifiers: (item.order_item_modifiers ?? []).map((m) => ({
+        name: m.name_snapshot,
+        priceDelta: m.price_delta_snapshot,
+      })),
+    }));
+
     return {
       id: order.id,
       customerName: profile?.full_name ?? "Unknown Customer",
+      customerPhone: profile?.phone ?? null,
       totalCents: order.total_cents ?? 0,
+      subtotalCents: order.subtotal_cents ?? undefined,
+      deliveryFeeCents: order.delivery_fee_cents ?? undefined,
+      taxCents: order.tax_cents ?? undefined,
+      tipCents: order.tip_cents ?? undefined,
       status: order.status ?? "unknown",
       paymentMethod: order.payment_method ?? "stripe",
-      itemCount: items?.length ?? 0,
+      itemCount: items.reduce((sum, item) => sum + item.quantity, 0),
+      items,
+      deliveryWindowStart: order.delivery_window_start ?? null,
+      deliveryWindowEnd: order.delivery_window_end ?? null,
+      specialInstructions: order.special_instructions ?? null,
+      address: addr
+        ? {
+            line1: addr.line_1,
+            line2: addr.line_2,
+            city: addr.city,
+            state: addr.state,
+            postalCode: addr.postal_code,
+          }
+        : null,
     };
   });
 
@@ -226,6 +293,8 @@ export async function GET(request: Request) {
         dateLabel: label,
         totalOrders: orders.length,
         totalRevenueCents,
+        cancelledOrders,
+        cancelledRevenueCents,
         statusBreakdown: statusBreakdown as AdminDailyDigestProps["statusBreakdown"],
         orders: orderSummaries,
       }),

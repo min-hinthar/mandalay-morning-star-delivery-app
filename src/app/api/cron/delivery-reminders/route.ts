@@ -84,6 +84,12 @@ export async function GET(request: Request) {
       special_instructions,
       user_id,
       assigned_driver_id,
+      subtotal_cents,
+      delivery_fee_cents,
+      tax_cents,
+      tip_cents,
+      total_cents,
+      payment_method,
       profiles!orders_user_id_fkey!inner (
         id,
         full_name,
@@ -134,21 +140,37 @@ export async function GET(request: Request) {
   const alreadySentOrderIds = new Set((existingLogs ?? []).map((log) => log.order_id));
 
   // -----------------------------------------------
-  // Step 3: Fetch order items for each qualifying order
+  // Step 3: Fetch full order items (with modifiers) for each qualifying order
   // -----------------------------------------------
   const { data: allOrderItems } = await supabase
     .from("order_items")
-    .select("order_id, name_snapshot, quantity")
+    .select(
+      `order_id, name_snapshot, name_my_snapshot, special_instructions, quantity, line_total_cents,
+       order_item_modifiers ( name_snapshot, price_delta_snapshot )`
+    )
     .in("order_id", orderIds);
 
-  const orderItemsMap = new Map<string, { name_snapshot: string; quantity: number }[]>();
-  for (const item of allOrderItems ?? []) {
-    const existing = orderItemsMap.get(item.order_id) ?? [];
+  interface ReminderItem {
+    name_snapshot: string;
+    name_my_snapshot: string | null;
+    special_instructions: string | null;
+    quantity: number;
+    line_total_cents: number;
+    order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }> | null;
+  }
+
+  const orderItemsMap = new Map<string, ReminderItem[]>();
+  for (const raw of (allOrderItems ?? []) as Array<ReminderItem & { order_id: string }>) {
+    const existing = orderItemsMap.get(raw.order_id) ?? [];
     existing.push({
-      name_snapshot: item.name_snapshot,
-      quantity: item.quantity,
+      name_snapshot: raw.name_snapshot,
+      name_my_snapshot: raw.name_my_snapshot,
+      special_instructions: raw.special_instructions,
+      quantity: raw.quantity,
+      line_total_cents: raw.line_total_cents,
+      order_item_modifiers: raw.order_item_modifiers,
     });
-    orderItemsMap.set(item.order_id, existing);
+    orderItemsMap.set(raw.order_id, existing);
   }
 
   // -----------------------------------------------
@@ -242,9 +264,20 @@ export async function GET(request: Request) {
         };
 
     // Build item data
-    const items = orderItemsMap.get(order.id) ?? [];
-    const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
-    const itemNames = items.slice(0, 3).map((item) => item.name_snapshot);
+    const rawItems = orderItemsMap.get(order.id) ?? [];
+    const itemCount = rawItems.reduce((sum, item) => sum + item.quantity, 0);
+    const itemNames = rawItems.slice(0, 3).map((item) => item.name_snapshot);
+    const items = rawItems.map((item) => ({
+      name: item.name_snapshot,
+      nameMy: item.name_my_snapshot,
+      quantity: item.quantity,
+      lineTotalCents: item.line_total_cents,
+      notes: item.special_instructions,
+      modifiers: (item.order_item_modifiers ?? []).map((m) => ({
+        name: m.name_snapshot,
+        priceDelta: m.price_delta_snapshot,
+      })),
+    }));
 
     // Get driver name if assigned
     const driverName = order.assigned_driver_id
@@ -265,6 +298,13 @@ export async function GET(request: Request) {
         address,
         specialInstructions: order.special_instructions ?? undefined,
         driverName,
+        items,
+        subtotalCents: order.subtotal_cents ?? undefined,
+        deliveryFeeCents: order.delivery_fee_cents ?? undefined,
+        taxCents: order.tax_cents ?? undefined,
+        tipCents: order.tip_cents ?? undefined,
+        totalCents: order.total_cents ?? undefined,
+        paymentMethod: order.payment_method ?? undefined,
       }),
       type: "delivery_reminder",
       orderId: order.id,
