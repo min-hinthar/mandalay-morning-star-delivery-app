@@ -11,6 +11,8 @@ import {
 } from "@react-email/components";
 import { DeliveryBlock } from "./components/DeliveryBlock";
 import { EmailLayout } from "./components/EmailLayout";
+import { OrderItemsTable } from "./components/OrderItemsTable";
+import { OrderTotalsTable } from "./components/OrderTotalsTable";
 import { APP_URL, FONT_STACK, SERIF_STACK } from "./helpers";
 
 // ============================================
@@ -25,6 +27,21 @@ interface DeliveryAddress {
   postalCode: string;
 }
 
+interface OrderItemModifier {
+  name: string;
+  priceDelta?: number;
+}
+
+interface OrderItem {
+  name: string;
+  nameMy?: string | null;
+  quantity: number;
+  lineTotalCents: number;
+  category?: string;
+  modifiers?: OrderItemModifier[];
+  notes?: string | null;
+}
+
 export interface DeliveryReminderProps {
   customerName: string;
   orderId: string;
@@ -35,6 +52,15 @@ export interface DeliveryReminderProps {
   address: DeliveryAddress;
   specialInstructions?: string;
   driverName?: string;
+  /** Full line items — when present, a detailed order breakdown is rendered. */
+  items?: OrderItem[];
+  subtotalCents?: number;
+  deliveryFeeCents?: number;
+  taxCents?: number;
+  tipCents?: number;
+  totalCents?: number;
+  paymentMethod?: string;
+  isExtendedRange?: boolean;
 }
 
 // ============================================
@@ -71,7 +97,17 @@ export function DeliveryReminder({
   address,
   specialInstructions,
   driverName,
+  items,
+  subtotalCents,
+  deliveryFeeCents,
+  taxCents,
+  tipCents,
+  totalCents,
+  paymentMethod,
+  isExtendedRange,
 }: DeliveryReminderProps) {
+  const detailItems = items ?? [];
+  const prepNotes = detailItems.filter((i) => i.notes && i.notes.trim().length > 0);
   const itemPreview = buildItemPreview(itemNames);
   const previewText = `\uD83C\uDF5C Your ${itemNames[0] || "order"} & more are coming today!`;
   const fullAddress = buildFullAddress(address);
@@ -181,6 +217,92 @@ export function DeliveryReminder({
           </Link>
         </Text>
       </Section>
+
+      {/* Full Order Details — so the customer knows exactly what's arriving */}
+      {detailItems.length > 0 && (
+        <>
+          <Section style={{ padding: "8px 24px 0 24px" }}>
+            <Hr style={{ borderColor: "#E5E7EB", margin: "0 0 12px 0" }} />
+            <Text
+              style={{
+                fontSize: "16px",
+                fontWeight: 700,
+                color: "#8B4513",
+                fontFamily: SERIF_STACK,
+                margin: "0 0 4px 0",
+              }}
+            >
+              Your Order ({itemCount} item{itemCount !== 1 ? "s" : ""})
+            </Text>
+            <Text
+              style={{
+                fontSize: "13px",
+                color: "#6B7280",
+                fontFamily: FONT_STACK,
+                margin: "0",
+              }}
+            >
+              Order #{orderId.slice(0, 8).toUpperCase()} — here&apos;s everything you ordered.
+            </Text>
+          </Section>
+
+          <OrderItemsTable items={detailItems} />
+
+          {/* Per-item preparation notes */}
+          {prepNotes.length > 0 && (
+            <Section
+              style={{
+                margin: "16px 24px 0 24px",
+                padding: "12px 16px",
+                backgroundColor: "#FFFBEB",
+                borderRadius: "8px",
+                border: "1px solid #FDE68A",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: "13px",
+                  fontFamily: FONT_STACK,
+                  fontWeight: 700,
+                  color: "#92400E",
+                  margin: "0 0 4px 0",
+                }}
+              >
+                {"👨‍🍳"} Preparation Notes
+              </Text>
+              {prepNotes.map((i, idx) => (
+                <Text
+                  key={`prep-${idx}`}
+                  style={{
+                    fontSize: "13px",
+                    fontFamily: FONT_STACK,
+                    color: "#78350F",
+                    margin: "0 0 2px 0",
+                  }}
+                >
+                  <strong>{i.name}:</strong> {i.notes}
+                </Text>
+              ))}
+            </Section>
+          )}
+
+          {totalCents != null && (
+            <OrderTotalsTable
+              subtotalCents={subtotalCents ?? 0}
+              deliveryFeeCents={deliveryFeeCents ?? 0}
+              taxCents={taxCents ?? 0}
+              tipCents={tipCents}
+              totalCents={totalCents}
+              paymentMethod={paymentMethod}
+              isExtendedRange={isExtendedRange}
+            />
+          )}
+
+          <Section style={{ padding: "16px 24px 0 24px" }}>
+            <Hr style={{ borderColor: "#E5E7EB", margin: "0" }} />
+          </Section>
+        </>
+      )}
 
       {/* Action Links */}
       <Section style={{ padding: "8px 24px 0 24px" }}>

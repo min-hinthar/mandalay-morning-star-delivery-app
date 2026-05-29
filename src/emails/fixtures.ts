@@ -167,4 +167,33 @@ export const SAMPLE_DELIVERY_REMINDER = {
 
   // Highlight items for the excitement header
   highlightItems: ["Mohinga", "Shan Noodles", "Tea Leaf Salad", "Samosa"],
+
+  // Full line items + totals for the detailed order breakdown
+  items: [
+    {
+      name: "Mohinga",
+      nameMy: "မုန့်ဟင်းခါး",
+      quantity: 2,
+      lineTotalCents: 2800,
+      category: "Soups",
+      modifiers: [{ name: "Extra Fish Cake", priceDelta: 200 }, { name: "Spicy Level: Medium" }],
+    },
+    {
+      name: "Shan Noodles",
+      nameMy: "ရှမ်းခေါက်ဆွဲ",
+      quantity: 1,
+      lineTotalCents: 1500,
+      category: "Noodles",
+      modifiers: [{ name: "No Onions" }],
+      notes: "Please pack sauce on the side.",
+    },
+    { name: "Tea Leaf Salad", nameMy: "လက်ဖက်သုပ်", quantity: 1, lineTotalCents: 1200 },
+    { name: "Samosa (4 pcs)", quantity: 1, lineTotalCents: 800 },
+  ],
+  totals: {
+    subtotalCents: 6300,
+    deliveryFeeCents: 500,
+    taxCents: 535,
+    totalCents: 7335,
+  },
 };
