@@ -6,6 +6,15 @@ export const REFERRAL_CODE_LENGTH = 7;
 /** Referrer reward (cents) issued when a referred friend places their first order. */
 export const REFERRAL_REWARD_CENTS = 1000;
 
+/** Auto-applied discount (cents) on a NEW referred customer's first order. */
+export const REFEREE_DISCOUNT_CENTS = 1000;
+
+/** Auto-applied discount (cents) on a NEW non-referred customer's first order. */
+export const WELCOME_DISCOUNT_CENTS = 500;
+
+/** Minimum cart subtotal (cents) required for a first-order auto-discount. */
+export const FIRST_ORDER_MIN_SUBTOTAL_CENTS = 5000;
+
 /** A random, shareable referral code. Uniqueness is enforced by the DB. */
 export function generateReferralCode(): string {
   let code = "";

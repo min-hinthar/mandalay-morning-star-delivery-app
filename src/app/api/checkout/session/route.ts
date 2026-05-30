@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { validatePromoCode } from "@/lib/stripe/promo";
+import { resolveFirstOrderDiscount } from "@/lib/referrals/first-order-discount";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
 import { calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
 import {
@@ -174,6 +175,19 @@ export async function POST(request: Request) {
     if (promoPercentOff !== null) {
       const subtotal = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
       discountCents = Math.round((subtotal * promoPercentOff) / 100);
+    }
+
+    // Auto-apply a first-order discount when the customer didn't enter a code
+    // ($10 for referred customers, $5 welcome otherwise). Rides the same
+    // discount path so order totals + the Stripe charge stay consistent, and
+    // Stripe allows only one discount per session — never stacks with a code.
+    if (!input.promoCode) {
+      const subtotal = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
+      const autoDiscount = await resolveFirstOrderDiscount(supabase, user.id, subtotal);
+      if (autoDiscount) {
+        validatedCouponId = autoDiscount.couponId;
+        discountCents = autoDiscount.discountCents;
+      }
     }
 
     const baseDeliveryFeeCents = dayConfig?.deliveryFeeCents ?? rules.deliveryFeeCents;
