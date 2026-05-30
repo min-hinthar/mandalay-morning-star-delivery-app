@@ -14,7 +14,7 @@ import { NextResponse } from "next/server";
 
 import { AbandonedCart } from "@/emails/AbandonedCart";
 import { getResendClient } from "@/lib/email/client";
-import { EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
+import { EMAIL_CC, EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
 import { getAppUrl } from "@/lib/supabase/actions";
 import { createServiceClient } from "@/lib/supabase/server";
 import { apiError } from "@/lib/utils/api-error";
@@ -154,6 +154,7 @@ export async function GET(request: Request) {
       await resend.emails.send({
         from: EMAIL_FROM,
         to: profile.email,
+        cc: EMAIL_CC,
         replyTo: EMAIL_REPLY_TO,
         subject: "Your Burmese feast is waiting 🍜",
         html,
