@@ -35,7 +35,10 @@ export function calculateMetricsSummary(
   }
 
   const totalOrders = metrics.reduce((sum, m) => sum + m.totalOrders, 0);
+  const confirmedOrders = metrics.reduce((sum, m) => sum + m.confirmedOrders, 0);
+  const cancelledOrders = metrics.reduce((sum, m) => sum + m.cancelledOrders, 0);
   const totalRevenueCents = metrics.reduce((sum, m) => sum + m.totalRevenueCents, 0);
+  const cancelledRevenueCents = metrics.reduce((sum, m) => sum + m.cancelledRevenueCents, 0);
   const totalDeliveries = metrics.reduce((sum, m) => sum + m.deliveredCount, 0);
   const totalSkipped = metrics.reduce((sum, m) => sum + m.skippedCount, 0);
   const totalExceptions = metrics.reduce((sum, m) => sum + m.totalExceptions, 0);
@@ -74,8 +77,12 @@ export function calculateMetricsSummary(
     startDate: startDate.toISOString().split("T")[0],
     endDate: endDate.toISOString().split("T")[0],
     totalOrders,
+    confirmedOrders,
+    cancelledOrders,
     totalRevenueCents,
-    avgOrderValueCents: totalOrders > 0 ? Math.round(totalRevenueCents / totalOrders) : 0,
+    cancelledRevenueCents,
+    // Average order value is revenue per confirmed (non-cancelled) order
+    avgOrderValueCents: confirmedOrders > 0 ? Math.round(totalRevenueCents / confirmedOrders) : 0,
     totalDeliveries,
     totalSkipped,
     deliverySuccessRate: Math.round(avgSuccessRate * 10) / 10,
@@ -105,7 +112,10 @@ function createEmptyMetricsSummary(period: MetricsPeriod): DeliveryMetricsSummar
     startDate: startDate.toISOString().split("T")[0],
     endDate: endDate.toISOString().split("T")[0],
     totalOrders: 0,
+    confirmedOrders: 0,
+    cancelledOrders: 0,
     totalRevenueCents: 0,
+    cancelledRevenueCents: 0,
     avgOrderValueCents: 0,
     totalDeliveries: 0,
     totalSkipped: 0,

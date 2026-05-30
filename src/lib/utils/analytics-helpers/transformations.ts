@@ -56,7 +56,10 @@ export function transformDeliveryMetrics(row: DeliveryMetricsMvRow): DeliveryMet
   return {
     date: row.delivery_date,
     totalOrders: Number(row.total_orders) || 0,
+    confirmedOrders: Number(row.confirmed_orders) || 0,
+    cancelledOrders: Number(row.cancelled_orders) || 0,
     totalRevenueCents: Number(row.total_revenue_cents) || 0,
+    cancelledRevenueCents: Number(row.cancelled_revenue_cents) || 0,
     avgOrderCents: Number(row.avg_order_cents) || 0,
     deliveredCount: Number(row.delivered_count) || 0,
     skippedCount: Number(row.skipped_count) || 0,

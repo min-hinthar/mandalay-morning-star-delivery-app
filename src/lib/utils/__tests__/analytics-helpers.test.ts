@@ -468,7 +468,10 @@ describe("Analytics Helpers", () => {
       const row: DeliveryMetricsMvRow = {
         delivery_date: "2026-01-15",
         total_orders: 50,
+        confirmed_orders: 48,
+        cancelled_orders: 2,
         total_revenue_cents: 500000,
+        cancelled_revenue_cents: 18000,
         avg_order_cents: 10000,
         delivered_count: 48,
         skipped_count: 2,
@@ -485,7 +488,10 @@ describe("Analytics Helpers", () => {
 
       expect(metrics.date).toBe("2026-01-15");
       expect(metrics.totalOrders).toBe(50);
+      expect(metrics.confirmedOrders).toBe(48);
+      expect(metrics.cancelledOrders).toBe(2);
       expect(metrics.totalRevenueCents).toBe(500000);
+      expect(metrics.cancelledRevenueCents).toBe(18000);
       expect(metrics.deliverySuccessRate).toBe(96);
       expect(metrics.avgRouteDurationMinutes).toBe(120.5);
     });
@@ -550,6 +556,27 @@ describe("Analytics Helpers", () => {
       expect(summary.ordersTrend).toBe(25); // (100-80)/80 * 100
       expect(summary.revenueTrend).toBe(25);
     });
+
+    it("excludes cancelled orders from revenue and averages over confirmed only", () => {
+      const metrics: DeliveryMetrics[] = [
+        createMockDeliveryMetrics({
+          totalOrders: 10,
+          confirmedOrders: 8,
+          cancelledOrders: 2,
+          totalRevenueCents: 80000, // confirmed-only revenue
+          cancelledRevenueCents: 20000,
+        }),
+      ];
+
+      const summary = calculateMetricsSummary(metrics, "week");
+
+      expect(summary.totalRevenueCents).toBe(80000);
+      expect(summary.confirmedOrders).toBe(8);
+      expect(summary.cancelledOrders).toBe(2);
+      expect(summary.cancelledRevenueCents).toBe(20000);
+      // Average order value = confirmed revenue / confirmed orders (not total)
+      expect(summary.avgOrderValueCents).toBe(10000);
+    });
   });
 });
 
@@ -598,7 +625,10 @@ function createMockDeliveryMetrics(overrides: Partial<DeliveryMetrics> = {}): De
   return {
     date: "2026-01-15",
     totalOrders: 50,
+    confirmedOrders: 50,
+    cancelledOrders: 0,
     totalRevenueCents: 500000,
+    cancelledRevenueCents: 0,
     avgOrderCents: 10000,
     deliveredCount: 48,
     skippedCount: 2,
