@@ -157,6 +157,11 @@ export function DeliveryMetricsDashboard() {
         <MetricCard
           title="Total Orders"
           value={summary?.totalOrders ?? 0}
+          subtitle={
+            summary && summary.cancelledOrders > 0
+              ? `${summary.confirmedOrders} confirmed · ${summary.cancelledOrders} cancelled`
+              : undefined
+          }
           icon={<Package className="h-5 w-5" />}
           trend={
             summary?.ordersTrend !== undefined
@@ -175,6 +180,11 @@ export function DeliveryMetricsDashboard() {
           title="Total Revenue"
           value={summary?.totalRevenueCents ?? 0}
           format="currency"
+          subtitle={
+            summary && summary.cancelledOrders > 0
+              ? `Confirmed only · excl. ${formatPrice(summary.cancelledRevenueCents)} cancelled`
+              : undefined
+          }
           icon={<DollarSign className="h-5 w-5" />}
           trend={
             summary?.revenueTrend !== undefined

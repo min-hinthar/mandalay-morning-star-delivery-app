@@ -2,8 +2,31 @@
 import { Button, Hr, Link, Section, Text } from "@react-email/components";
 import { EmailLayout } from "./components/EmailLayout";
 import { APP_URL, FONT_STACK, SERIF_STACK, formatPrice, shortOrderId } from "./helpers";
+import { TIMEZONE } from "@/types/delivery";
 
 // ─── Types ────────────────────────────────────────────────
+interface OrderItemModifier {
+  name: string;
+  priceDelta?: number;
+}
+
+interface DigestOrderItem {
+  name: string;
+  nameMy?: string | null;
+  quantity: number;
+  lineTotalCents: number;
+  modifiers?: OrderItemModifier[];
+  notes?: string | null;
+}
+
+interface DigestAddress {
+  line1: string;
+  line2?: string | null;
+  city: string;
+  state: string;
+  postalCode: string;
+}
+
 interface OrderSummary {
   id: string;
   customerName: string;
@@ -11,6 +34,17 @@ interface OrderSummary {
   status: string;
   paymentMethod: string;
   itemCount: number;
+  /** Full line items — when present, a per-order breakdown is rendered. */
+  items?: DigestOrderItem[];
+  subtotalCents?: number;
+  deliveryFeeCents?: number;
+  taxCents?: number;
+  tipCents?: number;
+  deliveryWindowStart?: string | null;
+  deliveryWindowEnd?: string | null;
+  address?: DigestAddress | null;
+  specialInstructions?: string | null;
+  customerPhone?: string | null;
 }
 
 interface StatusBreakdown {
@@ -27,7 +61,12 @@ export interface AdminDailyDigestProps {
   period: "morning" | "evening";
   dateLabel: string;
   totalOrders: number;
+  /** Confirmed revenue — excludes cancelled orders. */
   totalRevenueCents: number;
+  /** Number of cancelled orders excluded from revenue (for transparency). */
+  cancelledOrders?: number;
+  /** Total value of cancelled orders, excluded from revenue. */
+  cancelledRevenueCents?: number;
   statusBreakdown: StatusBreakdown;
   orders: OrderSummary[];
 }
@@ -50,12 +89,281 @@ function statusColor(status: string): string {
   return STATUS_LABELS[status]?.color ?? "#6B7280";
 }
 
+function formatTimeRange(start?: string | null, end?: string | null): string | null {
+  if (!start) return null;
+  const opts: Intl.DateTimeFormatOptions = {
+    hour: "numeric",
+    minute: "2-digit",
+    timeZone: TIMEZONE,
+  };
+  const startStr = new Date(start).toLocaleTimeString("en-US", opts);
+  if (!end) return startStr;
+  return `${startStr} – ${new Date(end).toLocaleTimeString("en-US", opts)}`;
+}
+
+function formatAddress(addr?: DigestAddress | null): string | null {
+  if (!addr) return null;
+  return [addr.line1, addr.line2, `${addr.city}, ${addr.state} ${addr.postalCode}`.trim()]
+    .filter((p) => p && p.trim().length > 0)
+    .join(", ");
+}
+
+function modifiersLabel(modifiers?: OrderItemModifier[]): string | null {
+  if (!modifiers || modifiers.length === 0) return null;
+  return modifiers
+    .map((m) => (m.priceDelta ? `${m.name} +${formatPrice(m.priceDelta)}` : m.name))
+    .join(", ");
+}
+
+// ─── Per-order detail card (kitchen/driver-ready) ─────────
+function DigestOrderCard({ order }: { order: OrderSummary }) {
+  const isCancelled = order.status === "cancelled";
+  const windowLabel = formatTimeRange(order.deliveryWindowStart, order.deliveryWindowEnd);
+  const addressLabel = formatAddress(order.address);
+  const items = order.items ?? [];
+
+  return (
+    <table
+      cellPadding="0"
+      cellSpacing="0"
+      style={{
+        width: "100%",
+        borderCollapse: "collapse" as const,
+        border: `1px solid ${isCancelled ? "#FECACA" : "#E5E7EB"}`,
+        borderRadius: "8px",
+        marginBottom: "12px",
+        backgroundColor: isCancelled ? "#FEF2F2" : "#FFFFFF",
+      }}
+    >
+      <tbody>
+        {/* Header: order # + status + total */}
+        <tr>
+          <td style={{ padding: "12px 14px 6px 14px" }}>
+            <Link
+              href={`${APP_URL}/admin/orders/${order.id}`}
+              style={{
+                fontSize: "14px",
+                fontFamily: FONT_STACK,
+                color: "#D4A017",
+                textDecoration: "underline",
+                fontWeight: 700,
+              }}
+            >
+              #{shortOrderId(order.id)}
+            </Link>
+            <span
+              style={{
+                fontSize: "12px",
+                fontFamily: FONT_STACK,
+                color: statusColor(order.status),
+                fontWeight: 700,
+                marginLeft: "8px",
+              }}
+            >
+              {statusLabel(order.status)}
+            </span>
+          </td>
+          <td style={{ padding: "12px 14px 6px 14px", textAlign: "right" as const }}>
+            <span
+              style={{
+                fontSize: "15px",
+                fontFamily: FONT_STACK,
+                color: isCancelled ? "#9CA3AF" : "#111111",
+                fontWeight: 700,
+                textDecoration: isCancelled ? "line-through" : "none",
+              }}
+            >
+              {formatPrice(order.totalCents)}
+            </span>
+          </td>
+        </tr>
+
+        {/* Customer + payment + window */}
+        <tr>
+          <td colSpan={2} style={{ padding: "0 14px 8px 14px" }}>
+            <Text
+              style={{
+                fontSize: "13px",
+                fontFamily: FONT_STACK,
+                color: "#374151",
+                margin: "0",
+                fontWeight: 600,
+              }}
+            >
+              {order.customerName}
+              <span style={{ color: "#9CA3AF", fontWeight: 400 }}>
+                {"  ·  "}
+                {order.itemCount} item{order.itemCount !== 1 ? "s" : ""}
+                {"  ·  "}
+                {order.paymentMethod === "cod" ? "Cash on Delivery" : "Paid (Stripe)"}
+              </span>
+            </Text>
+            {windowLabel && (
+              <Text
+                style={{
+                  fontSize: "12px",
+                  fontFamily: FONT_STACK,
+                  color: "#6B7280",
+                  margin: "2px 0 0 0",
+                }}
+              >
+                {"🕒 "}
+                {windowLabel}
+                {order.customerPhone ? `  ·  📞 ${order.customerPhone}` : ""}
+              </Text>
+            )}
+            {addressLabel && (
+              <Text
+                style={{
+                  fontSize: "12px",
+                  fontFamily: FONT_STACK,
+                  color: "#6B7280",
+                  margin: "2px 0 0 0",
+                }}
+              >
+                {"📍 "}
+                {addressLabel}
+              </Text>
+            )}
+          </td>
+        </tr>
+
+        {/* Line items */}
+        {items.length > 0 && (
+          <tr>
+            <td colSpan={2} style={{ padding: "4px 14px 8px 14px" }}>
+              {items.map((item, idx) => {
+                const mods = modifiersLabel(item.modifiers);
+                return (
+                  <div
+                    key={`${order.id}-item-${idx}`}
+                    style={{ borderTop: "1px solid #F3F4F6", padding: "6px 0" }}
+                  >
+                    <table
+                      cellPadding="0"
+                      cellSpacing="0"
+                      style={{ width: "100%", borderCollapse: "collapse" as const }}
+                    >
+                      <tbody>
+                        <tr>
+                          <td style={{ verticalAlign: "top" as const }}>
+                            <Text
+                              style={{
+                                fontSize: "13px",
+                                fontFamily: FONT_STACK,
+                                color: "#111111",
+                                margin: "0",
+                                fontWeight: 600,
+                              }}
+                            >
+                              <span style={{ color: "#8B4513", fontWeight: 700 }}>
+                                {item.quantity}×
+                              </span>{" "}
+                              {item.name}
+                              {item.nameMy ? (
+                                <span
+                                  style={{
+                                    color: "#8B4513",
+                                    fontWeight: 500,
+                                    fontFamily: "Georgia, 'Palatino Linotype', serif",
+                                  }}
+                                >
+                                  {"  "}
+                                  {item.nameMy}
+                                </span>
+                              ) : null}
+                            </Text>
+                            {mods && (
+                              <Text
+                                style={{
+                                  fontSize: "12px",
+                                  fontFamily: FONT_STACK,
+                                  color: "#6B7280",
+                                  margin: "1px 0 0 0",
+                                }}
+                              >
+                                ({mods})
+                              </Text>
+                            )}
+                            {item.notes && (
+                              <Text
+                                style={{
+                                  fontSize: "12px",
+                                  fontStyle: "italic" as const,
+                                  fontFamily: FONT_STACK,
+                                  color: "#92400E",
+                                  margin: "1px 0 0 0",
+                                }}
+                              >
+                                {"📝 "}
+                                {item.notes}
+                              </Text>
+                            )}
+                          </td>
+                          <td
+                            style={{
+                              textAlign: "right" as const,
+                              verticalAlign: "top" as const,
+                              whiteSpace: "nowrap" as const,
+                              paddingLeft: "8px",
+                            }}
+                          >
+                            <Text
+                              style={{
+                                fontSize: "13px",
+                                fontFamily: FONT_STACK,
+                                color: "#374151",
+                                margin: "0",
+                              }}
+                            >
+                              {formatPrice(item.lineTotalCents)}
+                            </Text>
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+                );
+              })}
+            </td>
+          </tr>
+        )}
+
+        {/* Special instructions */}
+        {order.specialInstructions && (
+          <tr>
+            <td colSpan={2} style={{ padding: "0 14px 10px 14px" }}>
+              <Text
+                style={{
+                  fontSize: "12px",
+                  fontFamily: FONT_STACK,
+                  color: "#92400E",
+                  margin: "0",
+                  backgroundColor: "#FFFBEB",
+                  border: "1px solid #FDE68A",
+                  borderRadius: "6px",
+                  padding: "6px 8px",
+                }}
+              >
+                {"📋 "}
+                <strong>Order note:</strong> {order.specialInstructions}
+              </Text>
+            </td>
+          </tr>
+        )}
+      </tbody>
+    </table>
+  );
+}
+
 // ─── Component ────────────────────────────────────────────
 export function AdminDailyDigest({
   period,
   dateLabel,
   totalOrders,
   totalRevenueCents,
+  cancelledOrders = 0,
+  cancelledRevenueCents = 0,
   statusBreakdown,
   orders,
 }: AdminDailyDigestProps) {
@@ -160,8 +468,20 @@ export function AdminDailyDigest({
                     margin: "4px 0 0 0",
                   }}
                 >
-                  Total Revenue
+                  Confirmed Revenue
                 </Text>
+                {cancelledOrders > 0 && (
+                  <Text
+                    style={{
+                      fontSize: "11px",
+                      fontFamily: FONT_STACK,
+                      color: "#9CA3AF",
+                      margin: "2px 0 0 0",
+                    }}
+                  >
+                    excl. {cancelledOrders} cancelled ({formatPrice(cancelledRevenueCents)})
+                  </Text>
+                )}
               </td>
             </tr>
           </tbody>
@@ -231,7 +551,7 @@ export function AdminDailyDigest({
 
       <Hr style={{ borderColor: "#E5E7EB", margin: "0 24px 24px 24px" }} />
 
-      {/* ── Individual Orders ──────────────────────── */}
+      {/* ── Individual Orders (full detail) ──────────── */}
       {orders.length > 0 && (
         <Section style={{ padding: "0 24px", marginBottom: "24px" }}>
           <Text
@@ -245,165 +565,9 @@ export function AdminDailyDigest({
           >
             Order Details
           </Text>
-          <table
-            cellPadding="0"
-            cellSpacing="0"
-            style={{ width: "100%", borderCollapse: "collapse" as const }}
-          >
-            <thead>
-              <tr>
-                <td style={{ padding: "8px 4px", borderBottom: "2px solid #E5E7EB" }}>
-                  <Text
-                    style={{
-                      fontSize: "11px",
-                      fontFamily: FONT_STACK,
-                      color: "#6B7280",
-                      margin: "0",
-                      fontWeight: 700,
-                      textTransform: "uppercase" as const,
-                    }}
-                  >
-                    Order
-                  </Text>
-                </td>
-                <td style={{ padding: "8px 4px", borderBottom: "2px solid #E5E7EB" }}>
-                  <Text
-                    style={{
-                      fontSize: "11px",
-                      fontFamily: FONT_STACK,
-                      color: "#6B7280",
-                      margin: "0",
-                      fontWeight: 700,
-                      textTransform: "uppercase" as const,
-                    }}
-                  >
-                    Customer
-                  </Text>
-                </td>
-                <td
-                  style={{
-                    padding: "8px 4px",
-                    borderBottom: "2px solid #E5E7EB",
-                    textAlign: "right" as const,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: "11px",
-                      fontFamily: FONT_STACK,
-                      color: "#6B7280",
-                      margin: "0",
-                      fontWeight: 700,
-                      textTransform: "uppercase" as const,
-                    }}
-                  >
-                    Total
-                  </Text>
-                </td>
-                <td
-                  style={{
-                    padding: "8px 4px",
-                    borderBottom: "2px solid #E5E7EB",
-                    textAlign: "right" as const,
-                  }}
-                >
-                  <Text
-                    style={{
-                      fontSize: "11px",
-                      fontFamily: FONT_STACK,
-                      color: "#6B7280",
-                      margin: "0",
-                      fontWeight: 700,
-                      textTransform: "uppercase" as const,
-                    }}
-                  >
-                    Status
-                  </Text>
-                </td>
-              </tr>
-            </thead>
-            <tbody>
-              {orders.map((order) => (
-                <tr key={order.id}>
-                  <td style={{ padding: "8px 4px", borderBottom: "1px solid #F3F4F6" }}>
-                    <Link
-                      href={`${APP_URL}/admin/orders/${order.id}`}
-                      style={{
-                        fontSize: "13px",
-                        fontFamily: FONT_STACK,
-                        color: "#D4A017",
-                        textDecoration: "underline",
-                        fontWeight: 600,
-                      }}
-                    >
-                      #{shortOrderId(order.id)}
-                    </Link>
-                  </td>
-                  <td style={{ padding: "8px 4px", borderBottom: "1px solid #F3F4F6" }}>
-                    <Text
-                      style={{
-                        fontSize: "13px",
-                        fontFamily: FONT_STACK,
-                        color: "#374151",
-                        margin: "0",
-                      }}
-                    >
-                      {order.customerName}
-                    </Text>
-                    <Text
-                      style={{
-                        fontSize: "11px",
-                        fontFamily: FONT_STACK,
-                        color: "#9CA3AF",
-                        margin: "0",
-                      }}
-                    >
-                      {order.itemCount} item{order.itemCount !== 1 ? "s" : ""} &middot;{" "}
-                      {order.paymentMethod === "cod" ? "COD" : "Stripe"}
-                    </Text>
-                  </td>
-                  <td
-                    style={{
-                      padding: "8px 4px",
-                      borderBottom: "1px solid #F3F4F6",
-                      textAlign: "right" as const,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: "13px",
-                        fontFamily: FONT_STACK,
-                        color: "#111111",
-                        margin: "0",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {formatPrice(order.totalCents)}
-                    </Text>
-                  </td>
-                  <td
-                    style={{
-                      padding: "8px 4px",
-                      borderBottom: "1px solid #F3F4F6",
-                      textAlign: "right" as const,
-                    }}
-                  >
-                    <Text
-                      style={{
-                        fontSize: "12px",
-                        fontFamily: FONT_STACK,
-                        color: statusColor(order.status),
-                        margin: "0",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {statusLabel(order.status)}
-                    </Text>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          {orders.map((order) => (
+            <DigestOrderCard key={order.id} order={order} />
+          ))}
         </Section>
       )}
 
