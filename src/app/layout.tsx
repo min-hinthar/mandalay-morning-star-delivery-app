@@ -7,6 +7,7 @@ import "./globals.css";
 import { HeaderWrapper } from "@/components/ui/layout/HeaderWrapper";
 import { Providers } from "@/app/providers";
 import { ToastProvider } from "@/components/ui/ToastProvider";
+import { AuthLandingRecovery } from "@/components/ui/auth/AuthLandingRecovery";
 import { WebVitalsReporter } from "@/lib/web-vitals";
 import { OfflineIndicator, ServiceWorkerRegistration, UpdatePrompt } from "@/components/ui/offline";
 
@@ -87,6 +88,7 @@ export default function RootLayout({
         className={`${inter.variable} ${playfair.variable} font-body bg-background text-foreground antialiased`}
       >
         <Providers>
+          <AuthLandingRecovery />
           <ServiceWorkerRegistration />
           <ToastProvider>
             <OfflineIndicator />

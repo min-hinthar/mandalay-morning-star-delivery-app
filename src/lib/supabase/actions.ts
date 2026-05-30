@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { checkServerActionRateLimit, authSignInLimiter } from "@/lib/rate-limit";
+import { logger } from "@/lib/utils/logger";
 
 export interface ActionResult {
   error?: string;
@@ -15,9 +16,34 @@ function stripWww(url: string): string {
   return url.replace(/^(https?:\/\/)www\./i, "$1");
 }
 
+/**
+ * Auth redirect URLs are normalized to the canonical apex host (no www, no
+ * trailing slash). If NEXT_PUBLIC_APP_URL isn't already canonical, the
+ * normalized host MUST be the one allow-listed in Supabase — otherwise magic
+ * links silently fall back to the Site URL. Surface that drift in logs.
+ */
+function warnIfAppUrlNotCanonical(envUrl: string): void {
+  const issues: string[] = [];
+  if (/^https?:\/\/www\./i.test(envUrl)) issues.push("www-host");
+  if (/\/$/.test(envUrl)) issues.push("trailing-slash");
+  try {
+    new URL(envUrl);
+  } catch {
+    issues.push("invalid-url");
+  }
+  if (issues.length > 0) {
+    logger.warn(
+      "NEXT_PUBLIC_APP_URL is not canonical; auth redirects use the normalized apex host. " +
+        "Ensure the Supabase redirect allow-list matches it or magic links fall back to the Site URL.",
+      { flowId: "auth", api: "auth/app-url", issues }
+    );
+  }
+}
+
 export async function getAppUrl(): Promise<string> {
   const envUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (envUrl) {
+    warnIfAppUrlNotCanonical(envUrl);
     return stripWww(envUrl.replace(/\/$/, ""));
   }
 
