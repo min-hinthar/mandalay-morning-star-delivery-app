@@ -2,11 +2,60 @@ import { Hr, Link, Section, Text } from "@react-email/components";
 
 interface BrandFooterProps {
   unsubscribeUrl: string;
+  /** When set, shows a warm bilingual "refer a friend" nudge. */
+  referralUrl?: string;
 }
 
-export function BrandFooter({ unsubscribeUrl }: BrandFooterProps) {
+export function BrandFooter({ unsubscribeUrl, referralUrl }: BrandFooterProps) {
   return (
     <Section style={{ padding: "0 24px 24px 24px" }}>
+      {/* Referral nudge — every customer email quietly invites a share */}
+      {referralUrl && (
+        <Section
+          style={{
+            backgroundColor: "#FFF9E6",
+            border: "1px solid #F3E2B3",
+            borderRadius: "12px",
+            padding: "16px 20px",
+            margin: "0 0 24px 0",
+            textAlign: "center" as const,
+          }}
+        >
+          <Text
+            style={{
+              fontSize: "14px",
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+              color: "#8B4513",
+              fontWeight: 700,
+              margin: "0 0 2px 0",
+            }}
+          >
+            {"💛"} Love it? Tell a friend — you both get $10
+          </Text>
+          <Text
+            style={{
+              fontSize: "13px",
+              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+              color: "#92400E",
+              margin: "0 0 10px 0",
+            }}
+          >
+            ချစ်ရင် ပြောပြလိုက်ပါနော် — နှစ်ယောက်စလုံး $၁၀ စီရမယ် {"😘"}
+          </Text>
+          <Link
+            href={referralUrl}
+            style={{
+              fontSize: "13px",
+              fontWeight: 700,
+              color: "#A41034",
+              textDecoration: "underline",
+            }}
+          >
+            Share your link · မိတ်ဆွေကို မျှဝေမယ်
+          </Link>
+        </Section>
+      )}
+
       <Hr
         style={{
           borderColor: "#E5E7EB",

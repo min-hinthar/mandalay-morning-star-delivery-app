@@ -18,6 +18,7 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
   return (
     <EmailLayout
       emailType="confirmation"
+      showReferral={false}
       previewText="Your secure sign-in link for Mandalay Morning Star"
     >
       {/* Greeting */}

@@ -15,6 +15,7 @@ export function DriverInvite({ driverEmail, magicLink, expiresIn }: DriverInvite
   return (
     <EmailLayout
       emailType="confirmation"
+      showReferral={false}
       previewText="You're invited to drive for Mandalay Morning Star"
     >
       {/* Greeting */}

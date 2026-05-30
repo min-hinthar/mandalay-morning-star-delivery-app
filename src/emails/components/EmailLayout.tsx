@@ -17,6 +17,8 @@ interface EmailLayoutProps {
   children: React.ReactNode;
   previewText: string;
   emailType?: EmailType;
+  /** Show the "refer a friend" nudge in the footer. Off for admin/driver mail. */
+  showReferral?: boolean;
 }
 
 const TAILWIND_CONFIG = {
@@ -40,6 +42,7 @@ export function EmailLayout({
   children,
   previewText,
   emailType = "confirmation",
+  showReferral = true,
 }: EmailLayoutProps) {
   return (
     <Html lang="en" dir="ltr">
@@ -90,7 +93,12 @@ export function EmailLayout({
             {/* Main Content */}
             {children}
 
-            <BrandFooter unsubscribeUrl={`${APP_URL}/account?tab=settings`} />
+            <BrandFooter
+              unsubscribeUrl={`${APP_URL}/account?tab=settings`}
+              referralUrl={
+                showReferral ? `${APP_URL}/account?tab=settings&src=email_footer` : undefined
+              }
+            />
           </Container>
         </Body>
       </Tailwind>
