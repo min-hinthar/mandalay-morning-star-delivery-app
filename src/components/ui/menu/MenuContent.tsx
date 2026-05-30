@@ -34,6 +34,7 @@ import type { SelectedModifier } from "@/lib/utils/price";
 
 import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
 import { DeliveryBanner } from "@/components/ui/delivery";
+import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import { MenuHeader } from "./MenuHeader";
 import { CategoryTabs } from "./CategoryTabs";
 import { MenuSection } from "./MenuSection";
@@ -308,6 +309,11 @@ export function MenuContent({ className, cutoffDay, cutoffHour, deliveryDays }: 
         cutoffHour={cutoffHour ?? 15}
         deliveryDays={deliveryDays}
       />
+
+      {/* Welcome + referral offers */}
+      <div className="px-4 pt-3">
+        <OfferBanner source="menu" />
+      </div>
 
       {/* Category Tabs */}
       <CategoryTabs categories={tabCategories} />
