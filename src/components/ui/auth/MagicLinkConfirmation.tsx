@@ -161,7 +161,7 @@ export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkCo
       <div className="space-y-2 text-center">
         <h2 className="text-xl font-display font-bold text-text-primary">Check your email</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          We sent a sign-in link and a 6-digit code to{" "}
+          We sent a sign-in link and a one-time code to{" "}
           <strong className="text-text-primary font-medium">{email}</strong>.
         </p>
       </div>
