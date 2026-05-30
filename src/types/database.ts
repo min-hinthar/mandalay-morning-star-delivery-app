@@ -1411,6 +1411,9 @@ export type Database = {
           active_drivers: number | null;
           avg_order_cents: number | null;
           avg_route_duration_minutes: number | null;
+          cancelled_orders: number | null;
+          cancelled_revenue_cents: number | null;
+          confirmed_orders: number | null;
           delivered_count: number | null;
           delivery_date: string | null;
           delivery_success_rate: number | null;
@@ -1639,6 +1642,9 @@ export type Database = {
           active_drivers: number | null;
           avg_order_cents: number | null;
           avg_route_duration_minutes: number | null;
+          cancelled_orders: number | null;
+          cancelled_revenue_cents: number | null;
+          confirmed_orders: number | null;
           delivered_count: number | null;
           delivery_date: string | null;
           delivery_success_rate: number | null;

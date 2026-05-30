@@ -79,6 +79,14 @@ export function buildEmailElement(type: EmailType, orderData: any): React.ReactE
         address: orderData.address,
         specialInstructions: orderData.specialInstructions,
         driverName: orderData.driverName,
+        items: orderData.items,
+        subtotalCents: orderData.subtotalCents,
+        deliveryFeeCents: orderData.deliveryFeeCents,
+        taxCents: orderData.taxCents,
+        tipCents: orderData.tipCents,
+        totalCents: orderData.totalCents,
+        paymentMethod: orderData.paymentMethod,
+        isExtendedRange: orderData.isExtendedRange,
       });
 
     case "out_for_delivery":

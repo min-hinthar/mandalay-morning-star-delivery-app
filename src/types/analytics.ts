@@ -209,7 +209,14 @@ export interface DriverStatsMvRow {
 export interface DeliveryMetrics {
   date: string;
   totalOrders: number;
+  /** Non-cancelled orders — the basis for revenue. */
+  confirmedOrders: number;
+  /** Cancelled orders, excluded from revenue (shown for visibility). */
+  cancelledOrders: number;
+  /** Revenue from confirmed orders only (excludes cancelled). */
   totalRevenueCents: number;
+  /** Revenue lost to cancelled orders (excluded from totalRevenueCents). */
+  cancelledRevenueCents: number;
   avgOrderCents: number;
   deliveredCount: number;
   skippedCount: number;
@@ -225,7 +232,10 @@ export interface DeliveryMetrics {
 export interface DeliveryMetricsMvRow {
   delivery_date: string;
   total_orders: number;
+  confirmed_orders: number;
+  cancelled_orders: number;
   total_revenue_cents: number;
+  cancelled_revenue_cents: number;
   avg_order_cents: number;
   delivered_count: number;
   skipped_count: number;
@@ -247,7 +257,14 @@ export interface DeliveryMetricsSummary {
 
   // Totals
   totalOrders: number;
+  /** Non-cancelled orders across the period. */
+  confirmedOrders: number;
+  /** Cancelled orders across the period (excluded from revenue). */
+  cancelledOrders: number;
+  /** Revenue from confirmed orders only. */
   totalRevenueCents: number;
+  /** Revenue lost to cancelled orders. */
+  cancelledRevenueCents: number;
   avgOrderValueCents: number;
   totalDeliveries: number;
   totalSkipped: number;
@@ -420,6 +437,8 @@ export interface MetricCardProps {
   value: number | string;
   previousValue?: number;
   format?: "number" | "currency" | "percent" | "duration";
+  /** Optional muted line under the value (e.g. "excl. 2 cancelled"). */
+  subtitle?: string;
   icon?: React.ReactNode;
   trend?: "up" | "down" | "stable";
   trendValue?: number;
