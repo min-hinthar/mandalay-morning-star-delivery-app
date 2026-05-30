@@ -57,6 +57,7 @@ export function MetricCard({
   value,
   previousValue,
   format = "number",
+  subtitle,
   icon,
   trend,
   trendValue,
@@ -138,6 +139,8 @@ export function MetricCard({
               {formatValue(value)}
             </span>
           </div>
+
+          {subtitle && <p className="mt-1 text-xs font-body text-text-muted">{subtitle}</p>}
 
           {/* V6 Trend indicator */}
           {calculatedTrend && calculatedTrendValue !== undefined && (
