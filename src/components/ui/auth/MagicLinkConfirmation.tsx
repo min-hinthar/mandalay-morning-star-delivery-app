@@ -7,6 +7,7 @@ import { signInWithMagicLink } from "@/lib/supabase/actions";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/hooks/useToastV8";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { OtpCodeForm } from "./OtpCodeForm";
 
 interface MagicLinkConfirmationProps {
   email: string;
@@ -160,10 +161,21 @@ export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkCo
       <div className="space-y-2 text-center">
         <h2 className="text-xl font-display font-bold text-text-primary">Check your email</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          We sent a magic link to <strong className="text-text-primary font-medium">{email}</strong>
-          .
-          <br />
-          Click the link to sign in instantly.
+          We sent a sign-in link and a 6-digit code to{" "}
+          <strong className="text-text-primary font-medium">{email}</strong>.
+        </p>
+      </div>
+
+      {/* In-tab code entry — finishing here keeps the cart (no browser switch) */}
+      <div className="space-y-3">
+        <div className="flex items-center gap-3" aria-hidden="true">
+          <div className="h-px flex-1 bg-border" />
+          <span className="text-xs text-muted-foreground">enter the code to stay here</span>
+          <div className="h-px flex-1 bg-border" />
+        </div>
+        <OtpCodeForm email={email} redirectTo={redirectTo} />
+        <p className="text-xs text-muted-foreground text-center leading-relaxed">
+          Prefer the link? Tap it in the email — just note it may open a new browser.
         </p>
       </div>
 
