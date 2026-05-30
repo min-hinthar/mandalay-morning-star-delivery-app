@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { CartOverlays } from "@/components/ui/cart/CartOverlays";
 import { DeliverySettingsSync } from "@/components/ui/cart/DeliverySettingsSync";
+import { CartServerSync } from "@/components/ui/cart/CartServerSync";
 import { OfflineBanner } from "@/components/ui/customer";
 import { SiteFooter } from "@/components/ui/homepage/SiteFooter";
 import { FeedbackFAB, FeedbackSheet } from "@/components/ui/feedback";
@@ -41,6 +42,7 @@ export function PublicShell({
         longDistanceFeeCents={longDistanceFeeCents}
         longDistanceThresholdMiles={longDistanceThresholdMiles}
       />
+      <CartServerSync />
       {children}
       <SiteFooter />
       <CartOverlays />
