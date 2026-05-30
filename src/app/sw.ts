@@ -173,4 +173,64 @@ self.addEventListener("message", (event: MessageEvent) => {
   }
 });
 
+// ── Web Push: order-status notifications ──────────────────
+interface PushNotificationPayload {
+  title?: string;
+  body?: string;
+  url?: string;
+  tag?: string;
+}
+
+(self as unknown as ServiceWorkerGlobalScope).addEventListener("push", (event: PushEvent) => {
+  if (!event.data) return;
+
+  let payload: PushNotificationPayload = {};
+  try {
+    payload = event.data.json() as PushNotificationPayload;
+  } catch {
+    payload = { body: event.data.text() };
+  }
+
+  const title = payload.title || "Mandalay Morning Star";
+  event.waitUntil(
+    (self as unknown as ServiceWorkerGlobalScope).registration.showNotification(title, {
+      body: payload.body || "",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/icon-192.png",
+      tag: payload.tag,
+      data: { url: payload.url || "/" },
+    })
+  );
+});
+
+(self as unknown as ServiceWorkerGlobalScope).addEventListener(
+  "notificationclick",
+  (event: NotificationEvent) => {
+    event.notification.close();
+    const target = (event.notification.data as { url?: string } | undefined)?.url || "/";
+
+    event.waitUntil(
+      (async () => {
+        const swScope = self as unknown as ServiceWorkerGlobalScope;
+        const windows = await swScope.clients.matchAll({
+          type: "window",
+          includeUncontrolled: true,
+        });
+        for (const client of windows) {
+          await client.focus();
+          if ("navigate" in client) {
+            try {
+              await (client as WindowClient).navigate(target);
+            } catch {
+              // Cross-origin or navigation blocked — focus is enough.
+            }
+          }
+          return;
+        }
+        if (swScope.clients.openWindow) await swScope.clients.openWindow(target);
+      })()
+    );
+  }
+);
+
 serwist.addEventListeners();
