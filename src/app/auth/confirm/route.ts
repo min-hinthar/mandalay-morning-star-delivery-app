@@ -17,6 +17,27 @@ function isSafeRedirect(path: string): boolean {
 }
 
 /**
+ * Resolve where to send the user after a verified magic link.
+ * - Driver invites always go to onboarding.
+ * - Standard logins ("/" or "/login") go to the role's home dashboard.
+ * - A deep-link `next` is honored only when the role is authorized for it
+ *   (mirrors the OAuth callback so a magic link can't jump to a higher-privilege
+ *   area).
+ */
+function resolveConfirmRedirect(
+  inviteId: string | null,
+  next: string,
+  rolePath: string,
+  role: string
+): string {
+  if (inviteId) return "/driver/onboard";
+  if (next === "/" || next === "/login" || role === "unknown") return rolePath;
+  if (next.startsWith("/admin") && role !== "admin") return rolePath;
+  if (next.startsWith("/driver") && role !== "driver") return rolePath;
+  return next;
+}
+
+/**
  * GET /auth/confirm
  *
  * Server-side token verification for magic links generated via
@@ -112,10 +133,9 @@ export async function GET(request: Request): Promise<NextResponse> {
   } = await supabase.auth.getUser();
   const roleResult = confirmedUser
     ? await getRoleDashboard(roleClient, confirmedUser.id, confirmedUser.email)
-    : { path: next };
+    : { path: next, role: "unknown" as const };
 
-  // For driver invites, always go to /driver/onboard
-  const finalPath = inviteId ? "/driver/onboard" : roleResult.path;
+  const finalPath = resolveConfirmRedirect(inviteId, next, roleResult.path, roleResult.role);
 
   return NextResponse.redirect(`${origin}${finalPath}`, { status: 302 });
 }
