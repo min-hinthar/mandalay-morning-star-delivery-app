@@ -8,7 +8,7 @@ import { EMAIL_CC, EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
 import { ReferralReward } from "@/emails/ReferralReward";
 import { logger } from "@/lib/utils/logger";
 import type { Database } from "@/types/database";
-import { generateReferralCode, REFERRAL_REWARD_CENTS } from ".";
+import { FIRST_ORDER_MIN_SUBTOTAL_CENTS, generateReferralCode, REFERRAL_REWARD_CENTS } from ".";
 
 /**
  * If this user was referred and hasn't been rewarded yet, complete the referral
@@ -40,17 +40,26 @@ export async function maybeRewardReferral(
 
   try {
     const promoCode = `THANKS-${generateReferralCode()}`;
-    const coupon = await stripe.coupons.create({
-      amount_off: REFERRAL_REWARD_CENTS,
-      currency: "usd",
-      duration: "once",
-      name: "Referral reward",
-      max_redemptions: 1,
-    });
+    // Reuse the configured $10 coupon (PC6weyTH); fall back to minting one so
+    // the flow still works if the env var isn't set yet.
+    const couponId =
+      process.env.STRIPE_REFERRAL_COUPON_ID ??
+      (
+        await stripe.coupons.create({
+          amount_off: REFERRAL_REWARD_CENTS,
+          currency: "usd",
+          duration: "once",
+          name: "Referral reward",
+        })
+      ).id;
     await stripe.promotionCodes.create({
-      promotion: { type: "coupon", coupon: coupon.id },
+      promotion: { type: "coupon", coupon: couponId },
       code: promoCode,
       max_redemptions: 1,
+      restrictions: {
+        minimum_amount: FIRST_ORDER_MIN_SUBTOTAL_CENTS,
+        minimum_amount_currency: "usd",
+      },
     });
 
     await service
