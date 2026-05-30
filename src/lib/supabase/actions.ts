@@ -160,9 +160,13 @@ export interface VerifyOtpResult extends ActionResult {
 }
 
 /**
- * Verify the 6-digit code from the sign-in email. Lets the customer finish
+ * Verify the one-time code from the sign-in email. Lets the customer finish
  * logging in WITHOUT clicking the link / leaving their tab — so their cart
  * (per-origin IndexedDB) is never lost to a mail-app browser switch.
+ *
+ * Length is not hard-coded: Supabase's email OTP length is a project setting
+ * (commonly 6, sometimes 8). We sanity-check digits only and let verifyOtp be
+ * the authority on correctness.
  */
 export async function verifyEmailOtp(formData: FormData): Promise<VerifyOtpResult> {
   const email = (formData.get("email") as string)?.trim();
@@ -170,10 +174,10 @@ export async function verifyEmailOtp(formData: FormData): Promise<VerifyOtpResul
   const redirectTo = (formData.get("redirectTo") as string) || "/menu";
 
   if (!email || !code) {
-    return { error: "Enter the 6-digit code from your email." };
+    return { error: "Enter the code from your email." };
   }
-  if (code.length !== 6) {
-    return { error: "The code is 6 digits." };
+  if (code.length < 4 || code.length > 12) {
+    return { error: "That code doesn't look right — check your email and try again." };
   }
 
   const rateCheck = await checkServerActionRateLimit({
