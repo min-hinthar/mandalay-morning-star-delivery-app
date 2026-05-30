@@ -1,11 +1,17 @@
 "use server";
 
+import React from "react";
+import { render } from "@react-email/render";
+
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { checkServerActionRateLimit, authSignInLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
+import { getResendClient } from "@/lib/email/client";
+import { EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
+import { MagicLinkLogin } from "@/emails/MagicLinkLogin";
 
 export interface ActionResult {
   error?: string;
@@ -14,6 +20,11 @@ export interface ActionResult {
 
 function stripWww(url: string): string {
   return url.replace(/^(https?:\/\/)www\./i, "$1");
+}
+
+/** Safe internal redirect path (no open-redirect / off-site jumps). */
+function isSafeRedirect(path: string): boolean {
+  return path.startsWith("/") && !path.startsWith("//") && !path.includes("://");
 }
 
 /**
@@ -64,9 +75,8 @@ export async function getAppUrl(): Promise<string> {
 }
 
 export async function signInWithMagicLink(formData: FormData): Promise<ActionResult> {
-  const supabase = await createClient();
-  const email = formData.get("email") as string;
-  const redirectTo = (formData.get("redirectTo") as string) || "/login";
+  const email = (formData.get("email") as string)?.trim();
+  const redirectTo = (formData.get("redirectTo") as string) || "/menu";
 
   if (!email) {
     return { error: "Email is required" };
@@ -85,17 +95,55 @@ export async function signInWithMagicLink(formData: FormData): Promise<ActionRes
   }
 
   const appUrl = await getAppUrl();
-  const callbackNext = encodeURIComponent(redirectTo);
-  const { error } = await supabase.auth.signInWithOtp({
+
+  // Generate the magic link with the admin API and deliver it ourselves via
+  // our own /auth/confirm route (token_hash + verifyOtp). Unlike signInWithOtp,
+  // the link is fully app-controlled — it can't silently fall back to the
+  // Supabase Site URL — and it verifies cross-browser (no PKCE verifier cookie
+  // tied to the device that requested it).
+  const serviceClient = createServiceClient();
+  const { data: linkData, error: linkError } = await serviceClient.auth.admin.generateLink({
+    type: "magiclink",
     email,
-    options: {
-      emailRedirectTo: `${appUrl}/auth/callback?next=${callbackNext}`,
-      shouldCreateUser: true,
-    },
   });
 
-  if (error) {
-    return { error: error.message };
+  if (linkError || !linkData?.properties?.hashed_token) {
+    logger.exception(linkError ?? new Error("generateLink returned no hashed_token"), {
+      flowId: "auth",
+      api: "auth/magic-link",
+    });
+    return { error: "We couldn't send your sign-in link. Please try again." };
+  }
+
+  const confirmUrl = new URL(`${appUrl}/auth/confirm`);
+  confirmUrl.searchParams.set("token_hash", linkData.properties.hashed_token);
+  confirmUrl.searchParams.set("type", "magiclink");
+  if (isSafeRedirect(redirectTo)) {
+    confirmUrl.searchParams.set("next", redirectTo);
+  }
+
+  try {
+    const emailComponent = React.createElement(MagicLinkLogin, {
+      email,
+      magicLink: confirmUrl.toString(),
+      expiresIn: "1 hour",
+    });
+    const [html, text] = await Promise.all([
+      render(emailComponent),
+      render(emailComponent, { plainText: true }),
+    ]);
+
+    await getResendClient().emails.send({
+      from: EMAIL_FROM,
+      to: email,
+      replyTo: EMAIL_REPLY_TO,
+      subject: "Your sign-in link for Mandalay Morning Star",
+      html,
+      text,
+    });
+  } catch (sendError) {
+    logger.exception(sendError, { flowId: "auth", api: "auth/magic-link" });
+    return { error: "We couldn't send your sign-in link. Please try again." };
   }
 
   return { success: "Check your email for a magic link to sign in" };
