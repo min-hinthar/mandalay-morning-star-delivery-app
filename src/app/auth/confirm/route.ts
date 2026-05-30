@@ -1,8 +1,9 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import type { EmailOtpType } from "@supabase/supabase-js";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { getRoleDashboard } from "@/lib/auth/role-redirect";
+import { maybeSendWelcomeEmail } from "@/lib/email/welcome";
 import { logger } from "@/lib/utils/logger";
 
 interface DriverInviteRow {
@@ -136,6 +137,12 @@ export async function GET(request: Request): Promise<NextResponse> {
     : { path: next, role: "unknown" as const };
 
   const finalPath = resolveConfirmRedirect(inviteId, next, roleResult.path, roleResult.role);
+
+  // Fire-and-forget the one-time welcome email (skips driver invites, existing
+  // customers, and anyone already welcomed — all enforced inside the helper).
+  if (!inviteId && confirmedUser) {
+    after(() => maybeSendWelcomeEmail(roleClient, confirmedUser.id));
+  }
 
   return NextResponse.redirect(`${origin}${finalPath}`, { status: 302 });
 }
