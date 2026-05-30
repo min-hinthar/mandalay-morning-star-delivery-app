@@ -79,7 +79,7 @@ function DeliveryProgress({
         {/* Static sparkle icon - removed infinite animation to prevent mobile crashes */}
         <Sparkles className="w-3.5 h-3.5 text-amber-500" />
         <span className="text-xs font-medium text-text-money">
-          ${(amountToFreeDelivery / 100).toFixed(2)} to free delivery
+          ${(amountToFreeDelivery / 100).toFixed(2)} to free local delivery
         </span>
       </div>
 
@@ -130,7 +130,7 @@ function FreeDeliveryBanner() {
       <div className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full bg-gradient-delivery-success">
         {/* Static truck icon - removed infinite animation to prevent mobile crashes */}
         <Truck className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-        <span className="text-xs font-semibold text-text-money">Free Delivery!</span>
+        <span className="text-xs font-semibold text-text-money">Free local delivery!</span>
       </div>
     </div>
   );
