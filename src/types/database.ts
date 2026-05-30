@@ -1224,6 +1224,7 @@ export type Database = {
           email: string | null;
           full_name: string | null;
           id: string;
+          notification_prefs: Json;
           phone: string | null;
           role: string;
           updated_at: string;
@@ -1233,6 +1234,7 @@ export type Database = {
           email?: string | null;
           full_name?: string | null;
           id: string;
+          notification_prefs?: Json;
           phone?: string | null;
           role?: string;
           updated_at?: string;
@@ -1242,6 +1244,7 @@ export type Database = {
           email?: string | null;
           full_name?: string | null;
           id?: string;
+          notification_prefs?: Json;
           phone?: string | null;
           role?: string;
           updated_at?: string;
