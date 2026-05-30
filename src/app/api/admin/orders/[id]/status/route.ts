@@ -9,6 +9,37 @@ import { OrderCancellation } from "@/emails/OrderCancellation";
 import type { OrderStatus, Json } from "@/types/database";
 import type { EmailType } from "@/lib/email/types";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
+import { createServiceClient } from "@/lib/supabase/server";
+import { sendPushToUser } from "@/lib/push/send";
+
+// Live order updates worth a phone buzz. No-op without VAPID keys configured.
+const STATUS_PUSH: Partial<Record<OrderStatus, { title: string; body: string }>> = {
+  confirmed: {
+    title: "Order confirmed ✅",
+    body: "We've got your order — we'll ping you when it's on the way.",
+  },
+  out_for_delivery: {
+    title: "Your order is on its way! 🚗",
+    body: "Your Mandalay Morning Star feast is out for delivery.",
+  },
+  delivered: { title: "Delivered! 🍜", body: "Your order has arrived — enjoy your meal!" },
+};
+
+async function sendStatusPush(
+  userId: string,
+  orderId: string,
+  newStatus: OrderStatus
+): Promise<void> {
+  const message = STATUS_PUSH[newStatus];
+  if (!message) return;
+  // Service client: the customer's subscriptions are RLS-scoped to them.
+  await sendPushToUser(createServiceClient(), userId, {
+    title: message.title,
+    body: message.body,
+    url: `/orders/${orderId}/tracking`,
+    tag: `order-${orderId}`,
+  });
+}
 
 const updateStatusSchema = z.object({
   status: z.enum([
@@ -181,6 +212,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
           logger.exception(emailError, {
             api: "admin/orders/[id]/status",
             message: "Email notification failed",
+          });
+        }
+        try {
+          await sendStatusPush(order.user_id, orderId, newStatus);
+        } catch (pushError) {
+          logger.exception(pushError, {
+            api: "admin/orders/[id]/status",
+            message: "Push notification failed",
           });
         }
       });
