@@ -8,6 +8,7 @@
 
 import { Package, Megaphone, Bell } from "lucide-react";
 import { NotificationCard } from "./NotificationCard";
+import { PushNotificationToggle } from "./PushNotificationToggle";
 import { NOTIFICATION_GROUPS } from "./settings-types";
 import type { NotificationPrefs } from "./settings-types";
 
@@ -46,6 +47,9 @@ export function NotificationsSection({ notificationPrefs, onUpdate }: Notificati
           />
         ))}
       </div>
+
+      {/* Per-device push — renders only when supported + a VAPID key is set */}
+      <PushNotificationToggle />
     </div>
   );
 }
