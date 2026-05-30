@@ -70,6 +70,36 @@ export type Database = {
           },
         ];
       };
+      carts: {
+        Row: {
+          created_at: string;
+          item_count: number;
+          items: Json;
+          reminded_at: string | null;
+          subtotal_cents: number;
+          updated_at: string;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          item_count?: number;
+          items?: Json;
+          reminded_at?: string | null;
+          subtotal_cents?: number;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          item_count?: number;
+          items?: Json;
+          reminded_at?: string | null;
+          subtotal_cents?: number;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       app_settings: {
         Row: {
           category: string;
