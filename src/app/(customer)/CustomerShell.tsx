@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { CartOverlays } from "@/components/ui/cart/CartOverlays";
 import { DeliverySettingsSync } from "@/components/ui/cart/DeliverySettingsSync";
 import { CartServerSync } from "@/components/ui/cart/CartServerSync";
+import { ReferralCapture } from "@/components/ui/referrals/ReferralCapture";
 import { OfflineBanner } from "@/components/ui/customer";
 import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
 import { FeedbackFAB, FeedbackSheet } from "@/components/ui/feedback";
@@ -43,6 +44,7 @@ export function CustomerShell({
         longDistanceThresholdMiles={longDistanceThresholdMiles}
       />
       <CartServerSync />
+      <ReferralCapture />
       {children}
       <CartOverlays />
       <FeedbackFAB />
