@@ -1,6 +1,7 @@
 import React from "react";
 import { after } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
+import { maybeRewardReferral } from "@/lib/referrals/reward";
 import {
   sendEmail,
   fetchSuggestedItems,
@@ -291,6 +292,19 @@ export async function handleCheckoutSessionCompleted(
       logger.error("Failed to send admin new-order alert", {
         orderId,
         error: adminEmailErr instanceof Error ? adminEmailErr.message : String(adminEmailErr),
+      });
+    }
+  });
+
+  // Referral reward (best-effort): if this customer was referred, reward the
+  // referrer on this first confirmed order. Never affects the order itself.
+  after(async () => {
+    try {
+      await maybeRewardReferral(supabase, orderData.user_id);
+    } catch (referralErr) {
+      logger.error("Referral reward failed", {
+        orderId,
+        error: referralErr instanceof Error ? referralErr.message : String(referralErr),
       });
     }
   });

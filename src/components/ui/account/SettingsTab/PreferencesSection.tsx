@@ -8,6 +8,7 @@
 
 import { DietaryChipPicker } from "./DietaryChipPicker";
 import { CustomAllergyInput } from "./CustomAllergyInput";
+import { ReferAFriendCard } from "@/components/ui/referrals/ReferAFriendCard";
 import type { CustomerSettings } from "./settings-types";
 
 interface PreferencesSectionProps {
@@ -20,6 +21,9 @@ export function PreferencesSection({ settings, updateField }: PreferencesSection
 
   return (
     <div className="space-y-8">
+      {/* Refer a friend */}
+      <ReferAFriendCard />
+
       {/* Dietary Restrictions */}
       <section>
         <h3 className="text-base font-semibold text-text-primary">Dietary Restrictions</h3>
