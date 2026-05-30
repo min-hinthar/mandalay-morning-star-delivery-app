@@ -29,6 +29,7 @@ import {
   EmptyCheckoutError,
   CheckoutErrorBanner,
 } from "@/components/ui/checkout";
+import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import type { CheckoutStep } from "@/types/checkout";
 import type { DeliveryDayConfig, DeliveryZoneConfig, TimeWindow } from "@/types/delivery";
 
@@ -352,6 +353,9 @@ export default function CheckoutClient({
           onStepClick={handleStepClick}
           className="mb-6 sm:mb-8"
         />
+
+        {/* Welcome + referral offers (first-order discount auto-applies at payment) */}
+        <OfferBanner source="checkout" className="mb-6" />
 
         {/* Phase 111 CHKP-02 — Price change banner, rendered above step content */}
         {priceChangeError && (

@@ -1,9 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Gift, Copy, Check } from "lucide-react";
+import { Gift, Copy, Check, MessageCircle, Send, Share2 } from "lucide-react";
 
 import { formatPrice } from "@/lib/utils/currency";
+
+const SHARE_MESSAGE =
+  "I love Mandalay Morning Star — real Burmese food delivered across LA 🍜 Use my link for $10 off your first order (I get $10 too)! ချစ်ရင် ပြောပြလိုက်တာပါနော် 😘";
+
+/** Append a channel source for attribution. shareUrl already carries ?ref=. */
+function withSrc(shareUrl: string, src: string): string {
+  return `${shareUrl}${shareUrl.includes("?") ? "&" : "?"}src=${src}`;
+}
 
 interface ReferralData {
   code: string;
@@ -48,6 +56,26 @@ export function ReferAFriendCard() {
     }
   };
 
+  const shareText = (src: string) => `${SHARE_MESSAGE} ${withSrc(data.shareUrl, src)}`;
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(shareText("whatsapp"))}`;
+  const viberUrl = `viber://forward?text=${encodeURIComponent(shareText("viber"))}`;
+
+  const nativeShare = async () => {
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share({
+          title: "Mandalay Morning Star",
+          text: SHARE_MESSAGE,
+          url: withSrc(data.shareUrl, "share"),
+        });
+      } catch {
+        // user cancelled
+      }
+    } else {
+      void copy();
+    }
+  };
+
   return (
     <section className="rounded-card bg-gradient-to-br from-primary/5 to-secondary/5 border border-primary/15 p-5">
       <div className="flex items-start gap-3">
@@ -78,6 +106,31 @@ export function ReferAFriendCard() {
             >
               {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               {copied ? "Copied" : "Copy"}
+            </button>
+          </div>
+
+          {/* Share to the apps the LA Burmese community actually uses */}
+          <div className="mt-3 flex flex-wrap gap-2">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-primary px-3 py-1.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface-secondary"
+            >
+              <MessageCircle className="h-4 w-4 text-green" /> WhatsApp
+            </a>
+            <a
+              href={viberUrl}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-primary px-3 py-1.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface-secondary"
+            >
+              <Send className="h-4 w-4 text-purple-600" /> Viber
+            </a>
+            <button
+              type="button"
+              onClick={nativeShare}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-surface-primary px-3 py-1.5 text-sm font-medium text-text-primary transition-colors hover:bg-surface-secondary"
+            >
+              <Share2 className="h-4 w-4 text-primary" /> More
             </button>
           </div>
 
