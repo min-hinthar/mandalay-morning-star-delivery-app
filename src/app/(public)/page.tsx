@@ -8,6 +8,7 @@ import { HomepageMenuSection } from "@/components/ui/homepage/HomepageMenuSectio
 import { Hero } from "@/components/ui/homepage/Hero";
 import { TestimonialsCarousel } from "@/components/ui/homepage/TestimonialsCarousel";
 import { CTABanner } from "@/components/ui/homepage/CTABanner";
+import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import { FooterCTA } from "@/components/ui/homepage/FooterCTA";
 import { SettingsNudgeBanner } from "@/components/ui/homepage/SettingsNudgeBanner";
 import type { FeaturedSectionWithItems } from "@/types/featured-sections";
@@ -124,6 +125,11 @@ export default async function HomePage(): Promise<ReactElement> {
 
         {/* Settings Nudge Banner - client component (auth check, inline saves) */}
         <SettingsNudgeBanner />
+
+        {/* Welcome + referral offers */}
+        <div className="mx-auto max-w-3xl px-4 py-4">
+          <OfferBanner source="homepage" />
+        </div>
 
         {/* How It Works Section - lazy loaded to defer Google Maps */}
         <Suspense fallback={<HowItWorksSkeleton />}>
