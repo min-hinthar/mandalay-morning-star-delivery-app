@@ -372,7 +372,11 @@ export async function POST(request: Request) {
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: stripeCustomerId,
       mode: "payment",
-      payment_method_types: ["card"],
+      // Omit payment_method_types so Checkout uses the dynamic methods enabled
+      // in the Stripe Dashboard. On hosted Checkout this surfaces one-tap
+      // wallets (Apple Pay, Google Pay) and Link automatically on supported
+      // devices — maximizing checkout completion — while still only showing
+      // methods activated for the account.
       line_items: lineItems,
       metadata: {
         order_id: order.id,
