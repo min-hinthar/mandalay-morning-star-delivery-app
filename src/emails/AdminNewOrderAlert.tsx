@@ -79,6 +79,7 @@ export function AdminNewOrderAlert({
   return (
     <EmailLayout
       emailType="confirmation"
+      showReferral={false}
       previewText={`New order #${shortId} from ${customerName}`}
     >
       {/* ── Header ─────────────────────────────────── */}

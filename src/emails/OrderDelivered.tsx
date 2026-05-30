@@ -1,6 +1,7 @@
 import { Button, Column, Heading, Row, Section, Text } from "@react-email/components";
 import { EmailLayout } from "./components/EmailLayout";
 import { OrderStatusTracker } from "./components/OrderStatusTracker";
+import { ReferralCallout } from "./components/ReferralCallout";
 import { SupportSection } from "./components/SupportSection";
 import { APP_URL, FONT_STACK, SERIF_STACK, shortOrderId } from "./helpers";
 
@@ -33,7 +34,7 @@ export function OrderDelivered({
   const formattedTotal = `$${(totalCents / 100).toFixed(2)}`;
 
   return (
-    <EmailLayout emailType="confirmation" previewText={previewText}>
+    <EmailLayout emailType="confirmation" previewText={previewText} showReferral={false}>
       {/* Hero */}
       <Section
         style={{
@@ -146,6 +147,9 @@ export function OrderDelivered({
           </Column>
         </Row>
       </Section>
+
+      {/* Peak goodwill — invite a referral */}
+      <ReferralCallout source="email_delivered" />
 
       <SupportSection />
     </EmailLayout>

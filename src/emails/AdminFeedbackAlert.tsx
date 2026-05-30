@@ -43,6 +43,7 @@ export function AdminFeedbackAlert({
   return (
     <EmailLayout
       emailType="confirmation"
+      showReferral={false}
       previewText={`[Feedback] ${CATEGORY_LABELS[category]}: ${subject}`}
     >
       {/* Header */}
