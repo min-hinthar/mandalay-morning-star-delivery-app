@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { freeDeliveryQualifier, localRangeLabel } from "@/lib/utils/delivery-promo";
 
 // ============================================
 // TYPES
@@ -41,6 +42,12 @@ export function FreeDeliveryProgress({
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const freeDeliveryThresholdCents = useCartStore((state) => state.freeDeliveryThresholdCents);
   const longDistanceFeeCents = useCartStore((state) => state.longDistanceFeeCents);
+  const longDistanceThresholdMiles = useCartStore((state) => state.longDistanceThresholdMiles);
+  const promoOpts = {
+    freeDeliveryThresholdCents,
+    longDistanceFeeCents,
+    longDistanceThresholdMiles,
+  };
 
   const progressPercent = Math.min(
     100,
@@ -159,6 +166,11 @@ export function FreeDeliveryProgress({
               Free at ${(freeDeliveryThresholdCents / 100).toFixed(0)}
             </span>
           </div>
+
+          {/* Honest qualifier — free delivery applies to local orders only */}
+          <p className="mt-1.5 text-2xs text-amber-700/70 dark:text-amber-400/70 leading-snug">
+            Free {freeDeliveryQualifier(promoOpts)}
+          </p>
         </m.div>
       )}
 
@@ -194,7 +206,7 @@ export function FreeDeliveryProgress({
                 <PartyPopper className="w-4 h-4 text-green-500" />
               </div>
               <span className="text-xs text-green-600/80 dark:text-green-400/80">
-                You&apos;ve hit the ${(freeDeliveryThresholdCents / 100).toFixed(0)} threshold
+                On local delivery {localRangeLabel(promoOpts)}
               </span>
             </div>
           </div>

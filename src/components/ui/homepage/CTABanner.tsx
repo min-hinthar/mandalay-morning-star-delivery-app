@@ -5,6 +5,7 @@ import { m } from "framer-motion";
 import { Truck } from "lucide-react";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { spring, easing } from "@/lib/motion-tokens";
+import { freeDeliveryHeadline, localRangeLabel } from "@/lib/utils/delivery-promo";
 
 interface CTABannerProps {
   id?: string;
@@ -67,12 +68,13 @@ export function CTABanner({ id }: CTABannerProps) {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.5 }}
             transition={{ delay: 0.1, ...spring.default }}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/20 text-secondary rounded-pill mb-6"
+            className="inline-flex flex-wrap items-center justify-center gap-x-2 px-4 py-2 bg-secondary/20 text-secondary rounded-pill mb-6"
           >
-            <Truck className="w-4 h-4" />
+            <Truck className="w-4 h-4 shrink-0" />
             <span className="text-sm font-body font-semibold">
-              Free delivery over $100 · $၁၀၀ အထက်ဆို အခမဲ့ပို့ပေးတယ်
+              {freeDeliveryHeadline()} {localRangeLabel()}
             </span>
+            <span className="text-xs font-body opacity-80">၂၅ မိုင်အတွင်း $၁၀၀ အထက် အခမဲ့ပို့</span>
           </m.div>
 
           {/* EN Headline */}
