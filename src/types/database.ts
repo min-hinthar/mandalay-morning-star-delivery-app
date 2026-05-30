@@ -1224,6 +1224,7 @@ export type Database = {
           email: string | null;
           full_name: string | null;
           id: string;
+          last_winback_at: string | null;
           notification_prefs: Json;
           phone: string | null;
           role: string;
@@ -1234,6 +1235,7 @@ export type Database = {
           email?: string | null;
           full_name?: string | null;
           id: string;
+          last_winback_at?: string | null;
           notification_prefs?: Json;
           phone?: string | null;
           role?: string;
@@ -1244,6 +1246,7 @@ export type Database = {
           email?: string | null;
           full_name?: string | null;
           id?: string;
+          last_winback_at?: string | null;
           notification_prefs?: Json;
           phone?: string | null;
           role?: string;
@@ -1715,6 +1718,15 @@ export type Database = {
           total_deliveries: number;
           total_exceptions: number;
           total_ratings: number;
+        }[];
+      };
+      get_lapsed_customers: {
+        Args: { p_limit?: number };
+        Returns: {
+          user_id: string;
+          email: string;
+          full_name: string;
+          last_order_at: string;
         }[];
       };
       get_driver_stats_admin: {
