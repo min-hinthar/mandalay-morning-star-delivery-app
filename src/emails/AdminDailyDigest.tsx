@@ -372,6 +372,7 @@ export function AdminDailyDigest({
   return (
     <EmailLayout
       emailType="confirmation"
+      showReferral={false}
       previewText={`${title}: ${totalOrders} orders, ${formatPrice(totalRevenueCents)} revenue`}
     >
       {/* ── Header ─────────────────────────────────── */}

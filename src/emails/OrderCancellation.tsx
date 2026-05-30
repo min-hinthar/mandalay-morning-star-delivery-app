@@ -59,7 +59,11 @@ export function OrderCancellation({
   const orderUrl = `${APP_URL}/orders/${orderId}`;
 
   return (
-    <EmailLayout emailType="cancellation" previewText={`Your order #${shortId} has been cancelled`}>
+    <EmailLayout
+      emailType="cancellation"
+      showReferral={false}
+      previewText={`Your order #${shortId} has been cancelled`}
+    >
       {/* ── Greeting ─────────────────────────────────── */}
       <Section style={{ padding: "32px 24px 0 24px" }}>
         <Text
