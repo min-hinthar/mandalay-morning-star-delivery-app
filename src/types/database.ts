@@ -1227,6 +1227,7 @@ export type Database = {
           last_winback_at: string | null;
           notification_prefs: Json;
           phone: string | null;
+          referral_code: string | null;
           role: string;
           updated_at: string;
         };
@@ -1238,6 +1239,7 @@ export type Database = {
           last_winback_at?: string | null;
           notification_prefs?: Json;
           phone?: string | null;
+          referral_code?: string | null;
           role?: string;
           updated_at?: string;
         };
@@ -1249,8 +1251,42 @@ export type Database = {
           last_winback_at?: string | null;
           notification_prefs?: Json;
           phone?: string | null;
+          referral_code?: string | null;
           role?: string;
           updated_at?: string;
+        };
+        Relationships: [];
+      };
+      referrals: {
+        Row: {
+          completed_at: string | null;
+          created_at: string;
+          id: string;
+          referee_id: string;
+          referrer_id: string;
+          reward_cents: number;
+          reward_code: string | null;
+          status: string;
+        };
+        Insert: {
+          completed_at?: string | null;
+          created_at?: string;
+          id?: string;
+          referee_id: string;
+          referrer_id: string;
+          reward_cents?: number;
+          reward_code?: string | null;
+          status?: string;
+        };
+        Update: {
+          completed_at?: string | null;
+          created_at?: string;
+          id?: string;
+          referee_id?: string;
+          referrer_id?: string;
+          reward_cents?: number;
+          reward_code?: string | null;
+          status?: string;
         };
         Relationships: [];
       };
