@@ -12,6 +12,7 @@ import { logger } from "@/lib/utils/logger";
 import { getResendClient } from "@/lib/email/client";
 import { EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
 import { MagicLinkLogin } from "@/emails/MagicLinkLogin";
+import { getRoleDashboard } from "@/lib/auth/role-redirect";
 
 export interface ActionResult {
   error?: string;
@@ -126,6 +127,10 @@ export async function signInWithMagicLink(formData: FormData): Promise<ActionRes
     const emailComponent = React.createElement(MagicLinkLogin, {
       email,
       magicLink: confirmUrl.toString(),
+      // One-time code so the customer can finish signing in WITHOUT leaving
+      // their tab (preserves their cart). generateLink returns this alongside
+      // the hashed token.
+      code: linkData.properties.email_otp,
       expiresIn: "1 hour",
     });
     const [html, text] = await Promise.all([
@@ -147,6 +152,62 @@ export async function signInWithMagicLink(formData: FormData): Promise<ActionRes
   }
 
   return { success: "Check your email for a magic link to sign in" };
+}
+
+export interface VerifyOtpResult extends ActionResult {
+  /** Where the client should navigate after a successful verification. */
+  redirectPath?: string;
+}
+
+/**
+ * Verify the 6-digit code from the sign-in email. Lets the customer finish
+ * logging in WITHOUT clicking the link / leaving their tab — so their cart
+ * (per-origin IndexedDB) is never lost to a mail-app browser switch.
+ */
+export async function verifyEmailOtp(formData: FormData): Promise<VerifyOtpResult> {
+  const email = (formData.get("email") as string)?.trim();
+  const code = (formData.get("code") as string)?.replace(/\D/g, "");
+  const redirectTo = (formData.get("redirectTo") as string) || "/menu";
+
+  if (!email || !code) {
+    return { error: "Enter the 6-digit code from your email." };
+  }
+  if (code.length !== 6) {
+    return { error: "The code is 6 digits." };
+  }
+
+  const rateCheck = await checkServerActionRateLimit({
+    limiter: authSignInLimiter,
+    identifier: email.toLowerCase(),
+    role: "anon",
+    route: "auth/verifyOtp",
+  });
+  if (rateCheck.limited) {
+    return {
+      error: `Too many attempts. Please try again in ${rateCheck.retryAfterSeconds} seconds.`,
+    };
+  }
+
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.verifyOtp({ email, token: code, type: "email" });
+
+  if (error || !data.session) {
+    return { error: "That code is invalid or expired. Request a new one and try again." };
+  }
+
+  // Session cookie is now set. Resolve where this user should land.
+  const roleResult = await getRoleDashboard(
+    createServiceClient(),
+    data.session.user.id,
+    data.session.user.email ?? email
+  );
+
+  const redirectPath =
+    redirectTo !== "/menu" && redirectTo !== "/login" && isSafeRedirect(redirectTo)
+      ? redirectTo
+      : roleResult.path;
+
+  return { success: "Signed in", redirectPath };
 }
 
 export async function resendDriverInvite(inviteId: string): Promise<ActionResult> {

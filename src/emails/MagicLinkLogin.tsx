@@ -8,11 +8,13 @@ const SANS =
 export interface MagicLinkLoginProps {
   email: string;
   magicLink: string;
+  /** Optional 6-digit code — lets the customer finish login in their tab. */
+  code?: string;
   /** Human-readable expiry, e.g. "1 hour". */
   expiresIn: string;
 }
 
-export function MagicLinkLogin({ email, magicLink, expiresIn }: MagicLinkLoginProps) {
+export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkLoginProps) {
   return (
     <EmailLayout
       emailType="confirmation"
@@ -91,6 +93,39 @@ export function MagicLinkLogin({ email, magicLink, expiresIn }: MagicLinkLoginPr
           Sign in to Mandalay Morning Star
         </Button>
       </Section>
+
+      {/* One-time code (lets you finish in the same tab) */}
+      {code && (
+        <Section style={{ padding: "20px 24px 0 24px", textAlign: "center" as const }}>
+          <Text
+            style={{
+              fontSize: "13px",
+              fontFamily: SANS,
+              color: "#6B7280",
+              margin: "0 0 8px 0",
+            }}
+          >
+            Or enter this code on the sign-in screen:
+          </Text>
+          <Text
+            style={{
+              fontSize: "30px",
+              fontFamily: SANS,
+              fontWeight: 700,
+              letterSpacing: "8px",
+              color: "#8B4513",
+              backgroundColor: "#FFF9E6",
+              border: "1px solid #F3E2B3",
+              borderRadius: "10px",
+              padding: "14px 0",
+              margin: "0",
+              display: "block",
+            }}
+          >
+            {code}
+          </Text>
+        </Section>
+      )}
 
       {/* Fallback link */}
       <Section style={{ padding: "16px 24px 0 24px" }}>
