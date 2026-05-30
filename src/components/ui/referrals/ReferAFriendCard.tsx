@@ -56,11 +56,11 @@ export function ReferAFriendCard() {
         </div>
         <div className="flex-1">
           <h3 className="text-base font-semibold text-text-primary">
-            Refer a friend, get {reward}
+            Give {reward}, get {reward}
           </h3>
           <p className="mt-1 text-sm text-text-secondary">
-            Share your link. When a friend places their first order, we&apos;ll email you {reward}{" "}
-            off your next meal.
+            Share your link — your friend gets {reward} off their first order ($50+), and you get{" "}
+            {reward} off your next meal when they order.
           </p>
 
           <div className="mt-4 flex items-center gap-2">
