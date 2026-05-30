@@ -46,7 +46,7 @@ export function RefundNotification({
   const accentBg = isPartialRefund ? "#FFFBEB" : "#F0FFF4";
 
   return (
-    <EmailLayout emailType="refund" previewText={previewText}>
+    <EmailLayout emailType="refund" previewText={previewText} showReferral={false}>
       {/* Greeting */}
       <Section style={{ padding: "32px 24px 0 24px" }}>
         <Text

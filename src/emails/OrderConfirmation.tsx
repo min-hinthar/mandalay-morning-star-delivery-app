@@ -8,6 +8,7 @@ import { OrderStatusTracker } from "./components/OrderStatusTracker";
 import { OrderTotalsTable } from "./components/OrderTotalsTable";
 import { SuggestedItems } from "./components/SuggestedItems";
 import type { SuggestedItem } from "@/lib/email/suggestions";
+import { ReferralCallout } from "./components/ReferralCallout";
 import { SupportSection } from "./components/SupportSection";
 
 const SERIF = "Georgia, 'Palatino Linotype', serif";
@@ -103,6 +104,7 @@ export function OrderConfirmation({
   return (
     <EmailLayout
       emailType="confirmation"
+      showReferral={false}
       previewText={
         isCODPending
           ? `\uD83C\uDF5C Mingalabar! Your order #${shortId} has been received`
@@ -365,6 +367,9 @@ export function OrderConfirmation({
 
       {/* ── You Might Also Like ──────────────────────── */}
       <SuggestedItems items={suggestedItems} />
+
+      {/* ── Refer a friend ───────────────────────────── */}
+      <ReferralCallout source="email_confirmation" />
 
       {/* ── Need Help ────────────────────────────────── */}
       <SupportSection />

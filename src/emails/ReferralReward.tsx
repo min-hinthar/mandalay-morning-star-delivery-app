@@ -22,6 +22,7 @@ export function ReferralReward({
   return (
     <EmailLayout
       emailType="confirmation"
+      showReferral={false}
       previewText={`Your friend ordered — here's ${amount} off 🎉`}
     >
       {/* Hero */}
