@@ -12,6 +12,7 @@ import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { staggerContainer, staggerItem, spring } from "@/lib/motion-tokens";
+import { localRangeLabel, extendedFeeNote } from "@/lib/utils/delivery-promo";
 import type { MenuItem } from "@/types/menu";
 import type { FeaturedSectionWithItems } from "@/types/featured-sections";
 import type { SelectedModifier } from "@/types/cart";
@@ -217,12 +218,13 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
           transition={spring.gentle}
           className="mt-16 text-center"
         >
-          <div className="inline-flex items-center gap-3 px-6 py-4 bg-surface-primary rounded-card shadow-card border border-border">
-            <ShoppingCart className="w-5 h-5 text-green" />
+          <div className="inline-flex items-center gap-3 px-6 py-4 bg-surface-primary rounded-card shadow-card border border-border text-left">
+            <ShoppingCart className="w-5 h-5 text-green shrink-0" />
             <span className="font-body text-text-primary">
-              <strong className="text-green">Free delivery</strong> on orders over $100!
+              <strong className="text-green">Free delivery</strong> on $100+ orders{" "}
+              {localRangeLabel()}
               <span className="block text-sm text-text-secondary mt-0.5">
-                $၁၀၀ အထက်ဆို အခမဲ့ပို့ပေးတယ်
+                {extendedFeeNote()} 25 mi · ၂၅ မိုင်အတွင်း $၁၀၀ အထက် အခမဲ့ပို့
               </span>
             </span>
           </div>
