@@ -2,6 +2,7 @@ import React from "react";
 import { after } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { maybeRewardReferral } from "@/lib/referrals/reward";
+import { maybeIssueMilestoneReward } from "@/lib/loyalty/reward";
 import {
   sendEmail,
   fetchSuggestedItems,
@@ -305,6 +306,19 @@ export async function handleCheckoutSessionCompleted(
       logger.error("Referral reward failed", {
         orderId,
         error: referralErr instanceof Error ? referralErr.message : String(referralErr),
+      });
+    }
+  });
+
+  // Loyalty milestone (best-effort): if this order lands the customer on a
+  // milestone (every Nth order), issue a $5 Kyay-Zu-Par! reward. Idempotent.
+  after(async () => {
+    try {
+      await maybeIssueMilestoneReward(supabase, orderData.user_id);
+    } catch (loyaltyErr) {
+      logger.error("Loyalty milestone reward failed", {
+        orderId,
+        error: loyaltyErr instanceof Error ? loyaltyErr.message : String(loyaltyErr),
       });
     }
   });
