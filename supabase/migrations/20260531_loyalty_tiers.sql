@@ -39,6 +39,7 @@ BEGIN
     p.full_name,
     (EXTRACT(YEAR FROM la_today) - EXTRACT(YEAR FROM fo.first_at))::INTEGER AS years
   FROM profiles p
+  LEFT JOIN customer_settings cs ON cs.user_id = p.id
   JOIN (
     SELECT o.user_id, MIN(o.placed_at AT TIME ZONE 'America/Los_Angeles') AS first_at
     FROM orders o
@@ -47,7 +48,7 @@ BEGIN
   ) fo ON fo.user_id = p.id
   WHERE p.email IS NOT NULL
     AND p.role = 'customer'
-    AND COALESCE((p.notification_prefs->>'marketing')::boolean, true) = true
+    AND COALESCE((cs.notification_prefs->>'marketing')::boolean, true) = true
     -- Anniversary day (month + day) matches today...
     AND EXTRACT(MONTH FROM fo.first_at) = EXTRACT(MONTH FROM la_today)
     AND EXTRACT(DAY FROM fo.first_at) = EXTRACT(DAY FROM la_today)

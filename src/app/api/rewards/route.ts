@@ -30,6 +30,8 @@ interface WalletItem {
   amountCents: number;
   label: string;
   createdAt: string;
+  /** ISO expiry (loyalty rewards only); null = no expiry (referral). */
+  expiresAt: string | null;
 }
 
 /**
@@ -65,7 +67,9 @@ export async function GET() {
       ensureReferralCode(service, user.id),
       service
         .from("loyalty_rewards")
-        .select("id, reward_code, reward_cents, kind, milestone, created_at, acknowledged_at")
+        .select(
+          "id, reward_code, reward_cents, kind, milestone, created_at, acknowledged_at, expires_at, redeemed_at"
+        )
         .eq("user_id", user.id)
         .not("reward_code", "is", null)
         .order("created_at", { ascending: false }),
@@ -84,9 +88,12 @@ export async function GET() {
 
     const tier = tierForOrders(stars);
     const upcomingTier = nextTier(stars);
+    const nowMs = Date.now();
+    const isUsable = (r: { redeemed_at: string | null; expires_at: string | null }): boolean =>
+      !r.redeemed_at && (!r.expires_at || new Date(r.expires_at).getTime() > nowMs);
 
-    // Most recent reward the customer hasn't seen celebrated in-app yet.
-    const fresh = loyaltyRows.find((r) => r.reward_code && !r.acknowledged_at);
+    // Most recent usable reward the customer hasn't seen celebrated in-app yet.
+    const fresh = loyaltyRows.find((r) => r.reward_code && !r.acknowledged_at && isUsable(r));
     const justUnlocked = fresh
       ? {
           code: fresh.reward_code as string,
@@ -101,10 +108,10 @@ export async function GET() {
       return "Loyalty thank-you";
     };
 
-    // Build the coupon wallet from loyalty rewards + earned referral rewards.
+    // Build the coupon wallet — only usable codes (unredeemed, unexpired).
     const wallet: WalletItem[] = [];
     for (const r of loyaltyRows) {
-      if (!r.reward_code) continue;
+      if (!r.reward_code || !isUsable(r)) continue;
       wallet.push({
         id: r.id,
         code: r.reward_code,
@@ -112,6 +119,7 @@ export async function GET() {
         amountCents: r.reward_cents,
         label: loyaltyLabel(r.kind, r.milestone),
         createdAt: r.created_at,
+        expiresAt: r.expires_at,
       });
     }
     for (const r of completed) {
@@ -123,6 +131,7 @@ export async function GET() {
         amountCents: r.reward_cents,
         label: "Referral reward",
         createdAt: r.completed_at ?? r.created_at,
+        expiresAt: null,
       });
     }
     wallet.sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));

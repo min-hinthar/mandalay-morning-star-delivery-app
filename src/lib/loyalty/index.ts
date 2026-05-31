@@ -19,6 +19,26 @@ export const LOYALTY_MILESTONE_STEP = 5;
 /** Minimum cart subtotal (cents) required to redeem a loyalty reward. */
 export const LOYALTY_MIN_SUBTOTAL_CENTS = 5000;
 
+/** Days a loyalty reward stays valid after issue — creates gentle urgency. */
+export const LOYALTY_REWARD_TTL_DAYS = 60;
+
+/** Within this many days of expiry, the wallet flags a reward "expiring soon". */
+export const LOYALTY_EXPIRING_SOON_DAYS = 7;
+
+/** Expiry timestamp (ISO) for a reward issued now, or for an explicit issue date. */
+export function rewardExpiryISO(from: Date = new Date()): string {
+  const expires = new Date(from);
+  expires.setDate(expires.getDate() + LOYALTY_REWARD_TTL_DAYS);
+  return expires.toISOString();
+}
+
+/** Whole days until `expiresAt` (rounded up), or null if no expiry. Past due → 0. */
+export function daysUntilExpiry(expiresAt: string | null, now: Date = new Date()): number | null {
+  if (!expiresAt) return null;
+  const ms = new Date(expiresAt).getTime() - now.getTime();
+  return ms <= 0 ? 0 : Math.ceil(ms / 86_400_000);
+}
+
 /** Order statuses that count as a real (Star-earning) order. */
 export const STAR_EARNING_STATUSES = [
   "confirmed",

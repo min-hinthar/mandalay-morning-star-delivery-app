@@ -43,8 +43,11 @@ export async function maybeIssueMilestoneReward(
     if (!claimed || claimed.length === 0) return;
     const rewardId = claimed[0].id;
 
-    const promoCode = await mintLoyaltyPromoCode(rewardCents);
-    await service.from("loyalty_rewards").update({ reward_code: promoCode }).eq("id", rewardId);
+    const { code: promoCode, expiresAt } = await mintLoyaltyPromoCode(rewardCents);
+    await service
+      .from("loyalty_rewards")
+      .update({ reward_code: promoCode, expires_at: expiresAt })
+      .eq("id", rewardId);
 
     const amount = formatPrice(rewardCents);
 

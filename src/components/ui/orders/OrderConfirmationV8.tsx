@@ -9,6 +9,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { formatPrice } from "@/lib/utils/currency";
 import { useConfetti } from "@/components/ui/Confetti";
+import { OrderRewardsTeaser } from "@/components/ui/orders/OrderRewardsTeaser";
 import { SuccessCheckmark } from "@/components/ui/success-checkmark";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -239,6 +240,13 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                 <Link href="/menu">Continue Shopping</Link>
               </Button>
             </m.div>
+
+            {/* Rewards nudge — skip while a COD order awaits approval (no Star yet) */}
+            {!isPendingApproval && (
+              <m.div variants={shouldAnimate ? staggerItem : undefined}>
+                <OrderRewardsTeaser />
+              </m.div>
+            )}
           </m.div>
 
           {/* Contact Info */}

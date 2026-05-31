@@ -59,6 +59,7 @@ BEGIN
   RETURN QUERY
   SELECT p.id, p.email, p.full_name, oc.cnt
   FROM profiles p
+  LEFT JOIN customer_settings cs ON cs.user_id = p.id
   JOIN (
     SELECT o.user_id, COUNT(*) AS cnt
     FROM orders o
@@ -67,7 +68,7 @@ BEGIN
   ) oc ON oc.user_id = p.id
   WHERE p.email IS NOT NULL
     AND p.role = 'customer'
-    AND COALESCE((p.notification_prefs->>'marketing')::boolean, true) = true
+    AND COALESCE((cs.notification_prefs->>'marketing')::boolean, true) = true
     AND p.loyalty_thanked_at IS NULL
   ORDER BY oc.cnt DESC
   LIMIT p_limit;
