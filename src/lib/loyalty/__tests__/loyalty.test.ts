@@ -2,6 +2,8 @@ import { describe, expect, it } from "vitest";
 
 import {
   LOYALTY_MILESTONE_STEP,
+  LOYALTY_REWARD_TTL_DAYS,
+  daysUntilExpiry,
   milestoneReached,
   nextMilestone,
   nextRewardCents,
@@ -10,6 +12,7 @@ import {
   ordersToNextTier,
   progressInCycle,
   rewardCentsForOrders,
+  rewardExpiryISO,
   tierForOrders,
 } from "..";
 
@@ -97,6 +100,27 @@ describe("loyalty helpers", () => {
       expect(nextRewardCents(8)).toBe(800); // next milestone 10 → Jade
       expect(nextRewardCents(23)).toBe(1000); // next milestone 25 → Ruby
       expect(nextRewardCents(48)).toBe(1200); // next milestone 50 → Gold
+    });
+  });
+
+  describe("rewardExpiryISO", () => {
+    it("adds the TTL window to the issue date", () => {
+      const from = new Date("2026-01-01T00:00:00.000Z");
+      const expiry = new Date(rewardExpiryISO(from));
+      const days = Math.round((expiry.getTime() - from.getTime()) / 86_400_000);
+      expect(days).toBe(LOYALTY_REWARD_TTL_DAYS);
+    });
+  });
+
+  describe("daysUntilExpiry", () => {
+    const now = new Date("2026-01-10T12:00:00.000Z");
+    it("rounds up whole days remaining", () => {
+      expect(daysUntilExpiry("2026-01-17T12:00:00.000Z", now)).toBe(7);
+      expect(daysUntilExpiry("2026-01-11T00:00:00.000Z", now)).toBe(1);
+    });
+    it("clamps past-due to 0 and passes through null", () => {
+      expect(daysUntilExpiry("2026-01-09T12:00:00.000Z", now)).toBe(0);
+      expect(daysUntilExpiry(null, now)).toBeNull();
     });
   });
 });

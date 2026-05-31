@@ -2,8 +2,7 @@ import { after, NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
-import { validatePromoCode } from "@/lib/stripe/promo";
-import { resolveFirstOrderDiscount } from "@/lib/referrals/first-order-discount";
+import { resolveCheckoutDiscount } from "./discount";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
 import { calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
 import {
@@ -154,41 +153,30 @@ export async function POST(request: Request) {
       );
     }
 
-    let discountCents = 0;
-    let validatedCouponId: string | null = null;
-    let promoPercentOff: number | null = null;
-
-    if (input.promoCode) {
-      const promoResult = await validatePromoCode(input.promoCode);
-      if (!promoResult.valid) {
-        return errorResponse("VALIDATION_ERROR", promoResult.message, 400);
-      }
-      discountCents = promoResult.discountCents;
-      validatedCouponId = promoResult.couponId;
-      promoPercentOff = promoResult.percentOff;
-    }
-
     const cartResult = await fetchAndValidateCart(supabase, input.items);
     if (!cartResult.ok) return cartResult.response;
     const validatedItems = cartResult.items;
     const tipCents = input.tipCents ?? 0;
-    if (promoPercentOff !== null) {
-      const subtotal = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
-      discountCents = Math.round((subtotal * promoPercentOff) / 100);
-    }
+    const subtotalCents = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
 
-    // Auto-apply a first-order discount when the customer didn't enter a code
-    // ($10 for referred customers, $5 welcome otherwise). Rides the same
-    // discount path so order totals + the Stripe charge stay consistent, and
-    // Stripe allows only one discount per session — never stacks with a code.
-    if (!input.promoCode) {
-      const subtotal = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
-      const autoDiscount = await resolveFirstOrderDiscount(supabase, user.id, subtotal);
-      if (autoDiscount) {
-        validatedCouponId = autoDiscount.couponId;
-        discountCents = autoDiscount.discountCents;
-      }
+    // Resolve the discount: a customer-entered code (applied as a promotion
+    // code so Stripe enforces max_redemptions / minimum_amount / expires_at) or
+    // the server-gated first-order auto-discount (bare coupon, no code). Stripe
+    // allows one discount per session, so these never stack.
+    const discountResult = await resolveCheckoutDiscount(
+      supabase,
+      user.id,
+      subtotalCents,
+      input.promoCode
+    );
+    if (!discountResult.ok) {
+      return errorResponse("VALIDATION_ERROR", discountResult.message, 400);
     }
+    const {
+      discountCents,
+      couponId: validatedCouponId,
+      promotionCodeId: validatedPromotionCodeId,
+    } = discountResult.discount;
 
     const baseDeliveryFeeCents = dayConfig?.deliveryFeeCents ?? rules.deliveryFeeCents;
     const isExtendedRange =
@@ -404,7 +392,14 @@ export async function POST(request: Request) {
       success_url: `${baseUrl}/orders/${order.id}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/checkout?cancelled=true`,
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-      ...(validatedCouponId ? { discounts: [{ coupon: validatedCouponId }] } : {}),
+      // Customer-entered codes apply as a promotion_code (Stripe enforces
+      // max_redemptions / minimum_amount / expires_at); the server-gated
+      // first-order discount applies as a bare coupon.
+      ...(validatedPromotionCodeId
+        ? { discounts: [{ promotion_code: validatedPromotionCodeId }] }
+        : validatedCouponId
+          ? { discounts: [{ coupon: validatedCouponId }] }
+          : {}),
     };
 
     // Phase 110 CFIX-04 — TODO(Phase 111+): the idempotency key is keyed

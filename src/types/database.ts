@@ -1270,9 +1270,12 @@ export type Database = {
         Row: {
           acknowledged_at: string | null;
           created_at: string;
+          expires_at: string | null;
           id: string;
           kind: string;
           milestone: number | null;
+          reminded_at: string | null;
+          redeemed_at: string | null;
           reward_cents: number;
           reward_code: string | null;
           user_id: string;
@@ -1280,9 +1283,12 @@ export type Database = {
         Insert: {
           acknowledged_at?: string | null;
           created_at?: string;
+          expires_at?: string | null;
           id?: string;
           kind?: string;
           milestone?: number | null;
+          reminded_at?: string | null;
+          redeemed_at?: string | null;
           reward_cents?: number;
           reward_code?: string | null;
           user_id: string;
@@ -1290,9 +1296,12 @@ export type Database = {
         Update: {
           acknowledged_at?: string | null;
           created_at?: string;
+          expires_at?: string | null;
           id?: string;
           kind?: string;
           milestone?: number | null;
+          reminded_at?: string | null;
+          redeemed_at?: string | null;
           reward_cents?: number;
           reward_code?: string | null;
           user_id?: string;
@@ -1853,6 +1862,26 @@ export type Database = {
           email: string;
           full_name: string;
           years: number;
+        }[];
+      };
+      get_loyalty_tier_distribution: {
+        Args: never;
+        Returns: {
+          tier: string;
+          customers: number;
+          orders: number;
+        }[];
+      };
+      get_expiring_loyalty_rewards: {
+        Args: { p_days?: number; p_limit?: number };
+        Returns: {
+          id: string;
+          user_id: string;
+          email: string;
+          full_name: string;
+          reward_code: string;
+          reward_cents: number;
+          expires_at: string;
         }[];
       };
       get_driver_stats_admin: {

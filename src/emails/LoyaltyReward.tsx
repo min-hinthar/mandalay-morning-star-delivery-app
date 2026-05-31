@@ -10,12 +10,14 @@ export interface LoyaltyRewardProps {
   promoCode: string;
   menuUrl: string;
   /** "milestone" celebrates an order count; "thankyou" is the loyalty blast;
-   * "anniversary" marks a year with the kitchen. */
-  variant?: "milestone" | "thankyou" | "anniversary";
+   * "anniversary" marks a year with the kitchen; "expiring" nudges before TTL. */
+  variant?: "milestone" | "thankyou" | "anniversary" | "expiring";
   /** Completed-order count for the milestone variant (e.g. 5, 10). */
   milestone?: number;
   /** Years with the kitchen, for the anniversary variant. */
   years?: number;
+  /** Whole days until the reward expires, for the expiring variant. */
+  daysLeft?: number;
   /** Tier reached on this milestone (Burmese name + English gloss + emoji). */
   tierName?: string;
   tierEnglish?: string;
@@ -30,6 +32,7 @@ export function LoyaltyReward({
   variant = "thankyou",
   milestone,
   years,
+  daysLeft,
   tierName,
   tierEnglish,
   tierEmoji,
@@ -37,15 +40,24 @@ export function LoyaltyReward({
   const amount = formatPrice(rewardCents);
   const isMilestone = variant === "milestone" && typeof milestone === "number";
   const isAnniversary = variant === "anniversary" && typeof years === "number";
+  const isExpiring = variant === "expiring";
   const showTier = isMilestone && tierName && tierEmoji;
+  const dayLabel = daysLeft === 1 ? "tomorrow" : `in ${daysLeft} days`;
 
-  const heading = isAnniversary
-    ? `Happy ${years}-year anniversary! 🎉`
-    : isMilestone
-      ? `${milestone} orders in — Kyay-Zu-Par! 🙏`
-      : "Kyay-Zu-Par! Thank you for being with us 🙏";
+  const heading = isExpiring
+    ? `Don't let your ${amount} slip away! ⏳`
+    : isAnniversary
+      ? `Happy ${years}-year anniversary! 🎉`
+      : isMilestone
+        ? `${milestone} orders in — Kyay-Zu-Par! 🙏`
+        : "Kyay-Zu-Par! Thank you for being with us 🙏";
 
-  const intro = isAnniversary ? (
+  const intro = isExpiring ? (
+    <>
+      Your <strong>{amount} off</strong> Kyay-Zu-Par! reward expires <strong>{dayLabel}</strong>.
+      Treat yourself to a Burmese feast before it&apos;s gone — we saved you a seat at the table.
+    </>
+  ) : isAnniversary ? (
     <>
       It&apos;s been <strong>{years} year(s)</strong> since your first order with us — what a
       journey to share. Here&apos;s <strong>{amount} off</strong> to celebrate, with our whole
@@ -63,14 +75,13 @@ export function LoyaltyReward({
     </>
   );
 
-  const heroEmoji = isAnniversary ? "🎉" : "🙏";
+  const heroEmoji = isExpiring ? "⏳" : isAnniversary ? "🎉" : "🙏";
+  const previewText = isExpiring
+    ? `Your ${amount} Kyay-Zu-Par! reward expires ${dayLabel} ⏳`
+    : `Kyay-Zu-Par! Here's ${amount} off, with love 💛`;
 
   return (
-    <EmailLayout
-      emailType="confirmation"
-      showReferral={false}
-      previewText={`Kyay-Zu-Par! Here's ${amount} off, with love 💛`}
-    >
+    <EmailLayout emailType="confirmation" showReferral={false} previewText={previewText}>
       {/* Hero */}
       <Section style={{ padding: "32px 24px 8px 24px", textAlign: "center" as const }}>
         <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{heroEmoji}</Text>

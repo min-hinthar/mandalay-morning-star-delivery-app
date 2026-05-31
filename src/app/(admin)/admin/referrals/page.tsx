@@ -7,13 +7,14 @@
  */
 
 import { redirect } from "next/navigation";
-import { Gift, Users, DollarSign, Clock, Star } from "lucide-react";
+import { Gift, Users, DollarSign, Clock, Star, BadgeCheck } from "lucide-react";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
 import type { ProfileRole } from "@/types/database";
+import { TierDistribution, type TierRow } from "./TierDistribution";
 
 export const metadata = {
   title: "Referrals | Mandalay Morning Star",
@@ -37,6 +38,7 @@ interface ReferralRow {
 interface LoyaltyRow {
   reward_cents: number;
   reward_code: string | null;
+  redeemed_at: string | null;
 }
 
 interface ProfileLite {
@@ -83,7 +85,7 @@ export default async function ReferralsPage() {
   // Service client — admin already verified, bypass RLS for aggregates.
   const service = createServiceClient();
 
-  const [{ data: rows }, { data: loyaltyRows }] = await Promise.all([
+  const [{ data: rows }, { data: loyaltyRows }, { data: tierRows }] = await Promise.all([
     service
       .from("referrals")
       .select("id, referrer_id, referee_id, status, reward_cents, created_at, completed_at")
@@ -91,9 +93,10 @@ export default async function ReferralsPage() {
       .returns<ReferralRow[]>(),
     service
       .from("loyalty_rewards")
-      .select("reward_cents, reward_code")
+      .select("reward_cents, reward_code, redeemed_at")
       .not("reward_code", "is", null)
       .returns<LoyaltyRow[]>(),
+    service.rpc("get_loyalty_tier_distribution").returns<TierRow[]>(),
   ]);
 
   const referrals = rows ?? [];
@@ -103,10 +106,12 @@ export default async function ReferralsPage() {
   const rewardCents = completed.reduce((sum, r) => sum + (r.reward_cents ?? 0), 0);
   const conversion = total > 0 ? Math.round((completed.length / total) * 100) : 0;
 
-  // Loyalty (Kyay-Zu-Par!) rewards issued.
+  // Loyalty (Kyay-Zu-Par!) rewards issued + redeemed.
   const loyalty = loyaltyRows ?? [];
   const loyaltyCount = loyalty.length;
   const loyaltyCents = loyalty.reduce((sum, r) => sum + (r.reward_cents ?? 0), 0);
+  const loyaltyRedeemed = loyalty.filter((r) => r.redeemed_at).length;
+  const redemptionRate = loyaltyCount > 0 ? Math.round((loyaltyRedeemed / loyaltyCount) * 100) : 0;
 
   // Resolve names for the recent slice.
   const recent = referrals.slice(0, 50);
@@ -158,6 +163,12 @@ export default async function ReferralsPage() {
       icon: Gift,
       tint: "text-primary",
     },
+    {
+      label: "Loyalty redeemed",
+      value: `${loyaltyRedeemed} · ${redemptionRate}%`,
+      icon: BadgeCheck,
+      tint: "text-jade",
+    },
   ];
 
   return (
@@ -185,6 +196,9 @@ export default async function ReferralsPage() {
           </Card>
         ))}
       </div>
+
+      {/* Loyalty tier distribution */}
+      <TierDistribution rows={tierRows ?? []} />
 
       {/* Recent activity */}
       {recent.length === 0 ? (
