@@ -1227,7 +1227,6 @@ export type Database = {
           last_anniversary_at: string | null;
           last_winback_at: string | null;
           loyalty_thanked_at: string | null;
-          notification_prefs: Json;
           phone: string | null;
           referral_code: string | null;
           role: string;
@@ -1242,7 +1241,6 @@ export type Database = {
           last_anniversary_at?: string | null;
           last_winback_at?: string | null;
           loyalty_thanked_at?: string | null;
-          notification_prefs?: Json;
           phone?: string | null;
           referral_code?: string | null;
           role?: string;
@@ -1257,7 +1255,6 @@ export type Database = {
           last_anniversary_at?: string | null;
           last_winback_at?: string | null;
           loyalty_thanked_at?: string | null;
-          notification_prefs?: Json;
           phone?: string | null;
           referral_code?: string | null;
           role?: string;
