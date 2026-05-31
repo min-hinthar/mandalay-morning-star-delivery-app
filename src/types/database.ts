@@ -1224,6 +1224,7 @@ export type Database = {
           email: string | null;
           full_name: string | null;
           id: string;
+          last_anniversary_at: string | null;
           last_winback_at: string | null;
           loyalty_thanked_at: string | null;
           notification_prefs: Json;
@@ -1238,6 +1239,7 @@ export type Database = {
           email?: string | null;
           full_name?: string | null;
           id: string;
+          last_anniversary_at?: string | null;
           last_winback_at?: string | null;
           loyalty_thanked_at?: string | null;
           notification_prefs?: Json;
@@ -1252,6 +1254,7 @@ export type Database = {
           email?: string | null;
           full_name?: string | null;
           id?: string;
+          last_anniversary_at?: string | null;
           last_winback_at?: string | null;
           loyalty_thanked_at?: string | null;
           notification_prefs?: Json;
@@ -1265,6 +1268,7 @@ export type Database = {
       };
       loyalty_rewards: {
         Row: {
+          acknowledged_at: string | null;
           created_at: string;
           id: string;
           kind: string;
@@ -1274,6 +1278,7 @@ export type Database = {
           user_id: string;
         };
         Insert: {
+          acknowledged_at?: string | null;
           created_at?: string;
           id?: string;
           kind?: string;
@@ -1283,6 +1288,7 @@ export type Database = {
           user_id: string;
         };
         Update: {
+          acknowledged_at?: string | null;
           created_at?: string;
           id?: string;
           kind?: string;
@@ -1838,6 +1844,15 @@ export type Database = {
           email: string;
           full_name: string;
           order_count: number;
+        }[];
+      };
+      get_anniversary_customers: {
+        Args: { p_limit?: number };
+        Returns: {
+          user_id: string;
+          email: string;
+          full_name: string;
+          years: number;
         }[];
       };
       get_driver_stats_admin: {

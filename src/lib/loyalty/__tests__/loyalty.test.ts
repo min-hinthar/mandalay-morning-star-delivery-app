@@ -4,8 +4,13 @@ import {
   LOYALTY_MILESTONE_STEP,
   milestoneReached,
   nextMilestone,
+  nextRewardCents,
+  nextTier,
   ordersToNextMilestone,
+  ordersToNextTier,
   progressInCycle,
+  rewardCentsForOrders,
+  tierForOrders,
 } from "..";
 
 describe("loyalty helpers", () => {
@@ -50,6 +55,48 @@ describe("loyalty helpers", () => {
       expect(progressInCycle(2)).toBe(2);
       expect(progressInCycle(5)).toBe(0);
       expect(progressInCycle(7)).toBe(2);
+    });
+  });
+
+  describe("tierForOrders", () => {
+    it("maps order count to the Burmese-gem ladder", () => {
+      expect(tierForOrders(0).id).toBe("new");
+      expect(tierForOrders(9).id).toBe("new");
+      expect(tierForOrders(10).id).toBe("jade");
+      expect(tierForOrders(24).id).toBe("jade");
+      expect(tierForOrders(25).id).toBe("ruby");
+      expect(tierForOrders(49).id).toBe("ruby");
+      expect(tierForOrders(50).id).toBe("gold");
+      expect(tierForOrders(120).id).toBe("gold");
+    });
+  });
+
+  describe("nextTier / ordersToNextTier", () => {
+    it("points to the next gem, null at the top", () => {
+      expect(nextTier(0)?.id).toBe("jade");
+      expect(ordersToNextTier(0)).toBe(10);
+      expect(nextTier(23)?.id).toBe("ruby");
+      expect(ordersToNextTier(23)).toBe(2);
+      expect(nextTier(50)).toBeNull();
+      expect(ordersToNextTier(50)).toBeNull();
+    });
+  });
+
+  describe("rewardCentsForOrders (tier-scaled coupons)", () => {
+    it("grows the milestone coupon by tier", () => {
+      expect(rewardCentsForOrders(5)).toBe(500); // New Friend
+      expect(rewardCentsForOrders(10)).toBe(800); // Jade
+      expect(rewardCentsForOrders(25)).toBe(1000); // Ruby
+      expect(rewardCentsForOrders(50)).toBe(1200); // Gold
+    });
+  });
+
+  describe("nextRewardCents", () => {
+    it("is the coupon size at the upcoming milestone's tier", () => {
+      expect(nextRewardCents(3)).toBe(500); // next milestone 5 → New Friend
+      expect(nextRewardCents(8)).toBe(800); // next milestone 10 → Jade
+      expect(nextRewardCents(23)).toBe(1000); // next milestone 25 → Ruby
+      expect(nextRewardCents(48)).toBe(1200); // next milestone 50 → Gold
     });
   });
 });

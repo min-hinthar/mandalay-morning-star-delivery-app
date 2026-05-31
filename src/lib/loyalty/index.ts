@@ -1,13 +1,17 @@
 /**
- * Morning Star Rewards — loyalty constants and pure helpers.
+ * Morning Star Rewards — loyalty constants, tiers, and pure helpers.
  *
  * Stars are simply the customer's completed-order count (no stored counter, so
- * nothing can drift). Every Nth order crosses a milestone and auto-issues a $5
- * "Kyay-Zu-Par!" thank-you coupon.
+ * nothing can drift). Every Nth order crosses a milestone and auto-issues a
+ * tier-sized "Kyay-Zu-Par!" thank-you coupon. Tiers are the Burmese-gem ladder
+ * (Mandalay, the Golden City): New Friend → Jade → Ruby → Gold.
  */
 
-/** Loyalty thank-you discount (cents) — the "Kyay-Zu-Par!" reward. */
+/** Base loyalty thank-you discount (cents) — the New Friend "Kyay-Zu-Par!". */
 export const LOYALTY_REWARD_CENTS = 500;
+
+/** One-time anniversary thank-you discount (cents). Flat across tiers. */
+export const LOYALTY_ANNIVERSARY_CENTS = 1000;
 
 /** A reward is issued every Nth completed order. */
 export const LOYALTY_MILESTONE_STEP = 5;
@@ -24,6 +28,61 @@ export const STAR_EARNING_STATUSES = [
   "pending_approval",
 ] as const;
 
+export type LoyaltyTierId = "new" | "jade" | "ruby" | "gold";
+
+export interface LoyaltyTier {
+  id: LoyaltyTierId;
+  /** Burmese name, e.g. "Kyauk Sein". */
+  name: string;
+  /** English gloss, e.g. "Jade". */
+  english: string;
+  emoji: string;
+  /** Lifetime orders required to reach this tier. */
+  minOrders: number;
+  /** Milestone coupon size (cents) earned while in this tier. */
+  rewardCents: number;
+}
+
+/** The Burmese-gem tier ladder, ascending. */
+export const LOYALTY_TIERS: LoyaltyTier[] = [
+  {
+    id: "new",
+    name: "New Friend",
+    english: "New Friend",
+    emoji: "⭐",
+    minOrders: 0,
+    rewardCents: 500,
+  },
+  { id: "jade", name: "Kyauk Sein", english: "Jade", emoji: "💚", minOrders: 10, rewardCents: 800 },
+  { id: "ruby", name: "Padamya", english: "Ruby", emoji: "❤️", minOrders: 25, rewardCents: 1000 },
+  { id: "gold", name: "Shwe", english: "Gold", emoji: "💛", minOrders: 50, rewardCents: 1200 },
+];
+
+/** The customer's current tier for a given lifetime order count. */
+export function tierForOrders(orderCount: number): LoyaltyTier {
+  let current = LOYALTY_TIERS[0];
+  for (const tier of LOYALTY_TIERS) {
+    if (orderCount >= tier.minOrders) current = tier;
+  }
+  return current;
+}
+
+/** The next tier up, or null if already at the top. */
+export function nextTier(orderCount: number): LoyaltyTier | null {
+  return LOYALTY_TIERS.find((t) => t.minOrders > orderCount) ?? null;
+}
+
+/** Orders remaining until the next tier, or null at the top. */
+export function ordersToNextTier(orderCount: number): number | null {
+  const next = nextTier(orderCount);
+  return next ? next.minOrders - orderCount : null;
+}
+
+/** Milestone coupon size (cents) for the tier at a given order count. */
+export function rewardCentsForOrders(orderCount: number): number {
+  return tierForOrders(orderCount).rewardCents;
+}
+
 /** The next milestone (multiple of the step) strictly above `stars`. */
 export function nextMilestone(stars: number): number {
   return (Math.floor(stars / LOYALTY_MILESTONE_STEP) + 1) * LOYALTY_MILESTONE_STEP;
@@ -32,6 +91,11 @@ export function nextMilestone(stars: number): number {
 /** Orders remaining until the next reward unlocks. */
 export function ordersToNextMilestone(stars: number): number {
   return nextMilestone(stars) - stars;
+}
+
+/** The coupon size (cents) the customer will earn at their next milestone. */
+export function nextRewardCents(stars: number): number {
+  return rewardCentsForOrders(nextMilestone(stars));
 }
 
 /**
