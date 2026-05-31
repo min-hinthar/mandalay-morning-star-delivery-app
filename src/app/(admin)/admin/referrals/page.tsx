@@ -7,7 +7,7 @@
  */
 
 import { redirect } from "next/navigation";
-import { Gift, Users, DollarSign, Clock } from "lucide-react";
+import { Gift, Users, DollarSign, Clock, Star } from "lucide-react";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,6 +32,11 @@ interface ReferralRow {
   reward_cents: number;
   created_at: string;
   completed_at: string | null;
+}
+
+interface LoyaltyRow {
+  reward_cents: number;
+  reward_code: string | null;
 }
 
 interface ProfileLite {
@@ -78,11 +83,18 @@ export default async function ReferralsPage() {
   // Service client — admin already verified, bypass RLS for aggregates.
   const service = createServiceClient();
 
-  const { data: rows } = await service
-    .from("referrals")
-    .select("id, referrer_id, referee_id, status, reward_cents, created_at, completed_at")
-    .order("created_at", { ascending: false })
-    .returns<ReferralRow[]>();
+  const [{ data: rows }, { data: loyaltyRows }] = await Promise.all([
+    service
+      .from("referrals")
+      .select("id, referrer_id, referee_id, status, reward_cents, created_at, completed_at")
+      .order("created_at", { ascending: false })
+      .returns<ReferralRow[]>(),
+    service
+      .from("loyalty_rewards")
+      .select("reward_cents, reward_code")
+      .not("reward_code", "is", null)
+      .returns<LoyaltyRow[]>(),
+  ]);
 
   const referrals = rows ?? [];
   const total = referrals.length;
@@ -90,6 +102,11 @@ export default async function ReferralsPage() {
   const pending = total - completed.length;
   const rewardCents = completed.reduce((sum, r) => sum + (r.reward_cents ?? 0), 0);
   const conversion = total > 0 ? Math.round((completed.length / total) * 100) : 0;
+
+  // Loyalty (Kyay-Zu-Par!) rewards issued.
+  const loyalty = loyaltyRows ?? [];
+  const loyaltyCount = loyalty.length;
+  const loyaltyCents = loyalty.reduce((sum, r) => sum + (r.reward_cents ?? 0), 0);
 
   // Resolve names for the recent slice.
   const recent = referrals.slice(0, 50);
@@ -128,6 +145,18 @@ export default async function ReferralsPage() {
       value: String(pending),
       icon: Clock,
       tint: "text-accent-teal",
+    },
+    {
+      label: "Loyalty rewards",
+      value: String(loyaltyCount),
+      icon: Star,
+      tint: "text-accent-orange",
+    },
+    {
+      label: "Loyalty value",
+      value: formatPrice(loyaltyCents),
+      icon: Gift,
+      tint: "text-primary",
     },
   ];
 
