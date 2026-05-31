@@ -13,7 +13,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
-import { User, LogOut, Package, UserCircle } from "lucide-react";
+import { User, LogOut, Package, UserCircle, Star } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,6 +22,8 @@ import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useRewardsSummary } from "@/lib/hooks/useRewardsSummary";
+import { tierAccent } from "@/components/ui/account/RewardsTab/tierStyle";
 import { zClass } from "@/lib/design-system/tokens/z-index";
 
 export interface AccountIndicatorProps {
@@ -106,6 +108,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  const { data: rewards } = useRewardsSummary(!!user);
 
   const [isOpen, setIsOpen] = useState(false);
   const [avatarError, setAvatarError] = useState(false);
@@ -213,6 +216,11 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
           "relative flex h-10 w-10 items-center justify-center rounded-full",
           "transition-shadow duration-150",
           "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2",
+          // Tier ring as an always-visible status signal (earned tiers only).
+          !isOpen &&
+            rewards &&
+            rewards.tier.id !== "new" &&
+            cn("ring-2 ring-offset-2", tierAccent(rewards.tier.id).ring),
           isOpen && "ring-2 ring-primary/30 ring-offset-2",
           className
         )}
@@ -297,6 +305,33 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
               >
                 <UserCircle className="h-4 w-4 text-text-muted" />
                 Profile
+              </Link>
+
+              <Link
+                href="/account?tab=rewards"
+                onClick={() => setIsOpen(false)}
+                className={cn(
+                  "flex items-center justify-between gap-2 px-3 py-2",
+                  "text-sm text-text-primary",
+                  "hover:bg-surface-secondary",
+                  "transition-colors duration-150"
+                )}
+                role="menuitem"
+              >
+                <span className="flex items-center gap-2">
+                  <Star
+                    className={cn(
+                      "h-4 w-4",
+                      rewards ? tierAccent(rewards.tier.id).text : "text-text-muted"
+                    )}
+                  />
+                  Rewards
+                </span>
+                {rewards && (
+                  <span className="text-xs font-medium text-text-secondary">
+                    {rewards.stars} ⭐ · {rewards.tier.name}
+                  </span>
+                )}
               </Link>
 
               <Link

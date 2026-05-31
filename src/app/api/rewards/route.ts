@@ -7,11 +7,14 @@ import { referralShareUrl, REFERRAL_REWARD_CENTS } from "@/lib/referrals";
 import { ensureReferralCode } from "@/lib/referrals/code";
 import {
   LOYALTY_MILESTONE_STEP,
-  LOYALTY_REWARD_CENTS,
   STAR_EARNING_STATUSES,
   nextMilestone,
+  nextRewardCents,
+  nextTier,
   ordersToNextMilestone,
+  ordersToNextTier,
   progressInCycle,
+  tierForOrders,
 } from "@/lib/loyalty";
 import type { OrderStatus } from "@/types/database";
 
@@ -62,7 +65,7 @@ export async function GET() {
       ensureReferralCode(service, user.id),
       service
         .from("loyalty_rewards")
-        .select("id, reward_code, reward_cents, kind, milestone, created_at")
+        .select("id, reward_code, reward_cents, kind, milestone, created_at, acknowledged_at")
         .eq("user_id", user.id)
         .not("reward_code", "is", null)
         .order("created_at", { ascending: false }),
@@ -77,17 +80,37 @@ export async function GET() {
     const stars = orderCountRes.count ?? 0;
     const referrals = referralRes.data ?? [];
     const completed = referrals.filter((r) => r.status === "completed");
+    const loyaltyRows = loyaltyRes.data ?? [];
+
+    const tier = tierForOrders(stars);
+    const upcomingTier = nextTier(stars);
+
+    // Most recent reward the customer hasn't seen celebrated in-app yet.
+    const fresh = loyaltyRows.find((r) => r.reward_code && !r.acknowledged_at);
+    const justUnlocked = fresh
+      ? {
+          code: fresh.reward_code as string,
+          amountCents: fresh.reward_cents,
+          kind: fresh.kind,
+        }
+      : null;
+
+    const loyaltyLabel = (kind: string, milestone: number | null): string => {
+      if (kind === "anniversary") return "Anniversary thank-you";
+      if (kind === "milestone") return `${milestone}-order thank-you`;
+      return "Loyalty thank-you";
+    };
 
     // Build the coupon wallet from loyalty rewards + earned referral rewards.
     const wallet: WalletItem[] = [];
-    for (const r of loyaltyRes.data ?? []) {
+    for (const r of loyaltyRows) {
       if (!r.reward_code) continue;
       wallet.push({
         id: r.id,
         code: r.reward_code,
         kind: "loyalty",
         amountCents: r.reward_cents,
-        label: r.kind === "milestone" ? `${r.milestone}-order thank-you` : "Loyalty thank-you",
+        label: loyaltyLabel(r.kind, r.milestone),
         createdAt: r.created_at,
       });
     }
@@ -111,7 +134,19 @@ export async function GET() {
         nextMilestone: nextMilestone(stars),
         ordersToNext: ordersToNextMilestone(stars),
         progressInCycle: progressInCycle(stars),
-        loyaltyRewardCents: LOYALTY_REWARD_CENTS,
+        nextRewardCents: nextRewardCents(stars),
+        tier: { id: tier.id, name: tier.name, english: tier.english, emoji: tier.emoji },
+        nextTier: upcomingTier
+          ? {
+              id: upcomingTier.id,
+              name: upcomingTier.name,
+              english: upcomingTier.english,
+              emoji: upcomingTier.emoji,
+              minOrders: upcomingTier.minOrders,
+            }
+          : null,
+        ordersToNextTier: ordersToNextTier(stars),
+        justUnlocked,
         wallet,
         referral: {
           code,
