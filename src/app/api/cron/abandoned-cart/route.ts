@@ -111,14 +111,22 @@ export async function GET(request: Request) {
       continue;
     }
 
-    // Recipient + marketing opt-in
+    // Recipient (profiles) + marketing opt-in (customer_settings — prefs live
+    // there, not on profiles). Missing settings row = opted in (new-customer
+    // default), matching email/send.ts and the loyalty/win-back cron readers.
     const { data: profile } = await supabase
       .from("profiles")
-      .select("email, full_name, notification_prefs")
+      .select("email, full_name")
       .eq("id", cart.user_id)
       .maybeSingle();
 
-    const prefs = (profile?.notification_prefs as { marketing?: boolean } | null) ?? null;
+    const { data: settings } = await supabase
+      .from("customer_settings")
+      .select("notification_prefs")
+      .eq("user_id", cart.user_id)
+      .maybeSingle();
+
+    const prefs = (settings?.notification_prefs as { marketing?: boolean } | null) ?? null;
     if (!profile?.email || prefs?.marketing === false) {
       skipped++;
       continue;
