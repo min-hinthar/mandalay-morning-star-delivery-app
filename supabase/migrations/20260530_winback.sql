@@ -21,6 +21,7 @@ BEGIN
   RETURN QUERY
   SELECT p.id, p.email, p.full_name, last_orders.last_order_at
   FROM profiles p
+  LEFT JOIN customer_settings cs ON cs.user_id = p.id
   JOIN (
     SELECT o.user_id, MAX(o.placed_at) AS last_order_at
     FROM orders o
@@ -29,7 +30,7 @@ BEGIN
   ) last_orders ON last_orders.user_id = p.id
   WHERE p.email IS NOT NULL
     AND p.role = 'customer'
-    AND COALESCE((p.notification_prefs->>'marketing')::boolean, true) = true
+    AND COALESCE((cs.notification_prefs->>'marketing')::boolean, true) = true
     AND last_orders.last_order_at < NOW() - INTERVAL '30 days'
     AND last_orders.last_order_at > NOW() - INTERVAL '90 days'
     AND (p.last_winback_at IS NULL OR p.last_winback_at < NOW() - INTERVAL '60 days')
