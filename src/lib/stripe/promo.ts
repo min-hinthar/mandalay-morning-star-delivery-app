@@ -4,10 +4,18 @@ import { logger } from "@/lib/utils/logger";
 export interface PromoValidationResult {
   valid: true;
   discountCents: number;
-  /** Stripe coupon ID — pass to session discounts param */
+  /** Stripe coupon ID (the underlying discount). */
   couponId: string;
+  /**
+   * Stripe promotion code ID (e.g. promo_123) — pass this to the session
+   * `discounts` param so Stripe natively enforces the code's restrictions
+   * (max_redemptions, minimum_amount, expires_at). Null only for malformed data.
+   */
+  promotionCodeId: string;
   /** Whether discount is percentage-based (needs subtotal to compute) */
   percentOff: number | null;
+  /** Minimum order subtotal (cents) required by the promo code, if any. */
+  minimumAmountCents: number | null;
 }
 
 export interface PromoValidationError {
@@ -45,12 +53,17 @@ export async function validatePromoCode(
       return { valid: false, message: "Invalid promo code configuration" };
     }
 
+    // The code's per-redemption minimum lives in restrictions.minimum_amount.
+    const minimumAmountCents = promo.restrictions?.minimum_amount ?? null;
+
     if (coupon.amount_off) {
       return {
         valid: true,
         discountCents: coupon.amount_off,
         couponId: coupon.id,
+        promotionCodeId: promo.id,
         percentOff: null,
+        minimumAmountCents,
       };
     }
 
@@ -59,7 +72,9 @@ export async function validatePromoCode(
         valid: true,
         discountCents: 0, // Caller computes from subtotal
         couponId: coupon.id,
+        promotionCodeId: promo.id,
         percentOff: coupon.percent_off,
+        minimumAmountCents,
       };
     }
 

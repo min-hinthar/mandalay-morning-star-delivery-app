@@ -3,6 +3,7 @@ import { after } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import { maybeRewardReferral } from "@/lib/referrals/reward";
 import { maybeIssueMilestoneReward } from "@/lib/loyalty/reward";
+import { markLoyaltyRedeemed } from "@/lib/loyalty/redeem";
 import {
   sendEmail,
   fetchSuggestedItems,
@@ -108,7 +109,7 @@ export async function handleCheckoutSessionCompleted(
     .from("orders")
     .select(
       `
-      id, user_id, subtotal_cents, delivery_fee_cents, tax_cents, tip_cents, total_cents,
+      id, user_id, subtotal_cents, delivery_fee_cents, tax_cents, tip_cents, total_cents, promo_code,
       delivery_window_start, delivery_window_end, special_instructions, delivery_instructions, placed_at,
       profiles!orders_user_id_fkey ( email, full_name ),
       addresses ( line_1, line_2, city, state, postal_code ),
@@ -319,6 +320,19 @@ export async function handleCheckoutSessionCompleted(
       logger.error("Loyalty milestone reward failed", {
         orderId,
         error: loyaltyErr instanceof Error ? loyaltyErr.message : String(loyaltyErr),
+      });
+    }
+  });
+
+  // Loyalty redemption (best-effort): if a Kyay-Zu-Par! code was used on this
+  // order, mark it redeemed so the wallet + admin show live state.
+  after(async () => {
+    try {
+      await markLoyaltyRedeemed(supabase, orderData.promo_code);
+    } catch (redeemErr) {
+      logger.error("Loyalty redemption marking failed", {
+        orderId,
+        error: redeemErr instanceof Error ? redeemErr.message : String(redeemErr),
       });
     }
   });

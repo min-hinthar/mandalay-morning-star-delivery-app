@@ -29,13 +29,14 @@ export async function issueLoyaltyAnniversary(
   recipient: AnniversaryRecipient,
   appUrl: string
 ): Promise<void> {
-  const promoCode = await mintLoyaltyPromoCode(LOYALTY_ANNIVERSARY_CENTS);
+  const { code: promoCode, expiresAt } = await mintLoyaltyPromoCode(LOYALTY_ANNIVERSARY_CENTS);
 
   await service.from("loyalty_rewards").insert({
     user_id: recipient.userId,
     kind: "anniversary",
     reward_cents: LOYALTY_ANNIVERSARY_CENTS,
     reward_code: promoCode,
+    expires_at: expiresAt,
   });
 
   const amount = formatPrice(LOYALTY_ANNIVERSARY_CENTS);

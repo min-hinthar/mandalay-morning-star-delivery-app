@@ -70,4 +70,39 @@ describe("LoyaltyReward email", () => {
     expect(html).toContain("KYAYZU-XYZ7890");
     expect(html).toContain("family");
   });
+
+  it("renders the expiring nudge with the day count", async () => {
+    const html = visibleText(
+      await render(
+        <LoyaltyReward
+          customerName="Ko"
+          rewardCents={800}
+          promoCode="KYAYZU-EXP1234"
+          menuUrl="https://mandalaymorningstar.com/menu"
+          variant="expiring"
+          daysLeft={3}
+        />
+      )
+    );
+    expect(html).toContain("Ko");
+    expect(html).toContain("KYAYZU-EXP1234");
+    expect(html).toContain("expires");
+    expect(html).toContain("in 3 days");
+  });
+
+  it("expiring nudge says 'tomorrow' at 1 day", async () => {
+    const html = visibleText(
+      await render(
+        <LoyaltyReward
+          customerName="Ko"
+          rewardCents={800}
+          promoCode="KYAYZU-EXP1235"
+          menuUrl="https://mandalaymorningstar.com/menu"
+          variant="expiring"
+          daysLeft={1}
+        />
+      )
+    );
+    expect(html).toContain("tomorrow");
+  });
 });
