@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Check, Ticket, Gift } from "lucide-react";
+import Link from "next/link";
+import { Copy, Check, Ticket, Gift, ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
@@ -46,15 +47,27 @@ function WalletCard({ item }: { item: WalletItem }) {
         </p>
         <p className="truncate font-mono text-xs tracking-wider text-text-secondary">{item.code}</p>
       </div>
-      <button
-        type="button"
-        onClick={copy}
-        aria-label={`Copy code ${item.code}`}
-        className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-text-inverse transition-colors hover:bg-primary-hover"
-      >
-        {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
-        {copied ? "Copied" : "Copy"}
-      </button>
+      <div className="flex shrink-0 items-center gap-1.5">
+        <button
+          type="button"
+          onClick={copy}
+          aria-label={`Copy code ${item.code}`}
+          className="inline-flex h-9 w-9 items-center justify-center rounded-xl border border-border text-text-secondary transition-colors hover:bg-surface-secondary hover:text-text-primary"
+        >
+          {copied ? (
+            <Check className="h-4 w-4 text-status-success" />
+          ) : (
+            <Copy className="h-4 w-4" />
+          )}
+        </button>
+        <Link
+          href={`/checkout?promo=${encodeURIComponent(item.code)}`}
+          className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-sm font-semibold text-text-inverse transition-colors hover:bg-primary-hover"
+        >
+          Use
+          <ArrowRight className="h-4 w-4" />
+        </Link>
+      </div>
     </div>
   );
 }

@@ -23,6 +23,10 @@
     {
       "path": "/api/cron/loyalty-thankyou",
       "schedule": "30 17 * * *"
+    },
+    {
+      "path": "/api/cron/loyalty-anniversary",
+      "schedule": "0 16 * * *"
     }
   ]
 }

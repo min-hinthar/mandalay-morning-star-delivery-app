@@ -6,7 +6,7 @@
  * Shows applied discount badge or error state.
  */
 
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { Tag, X, Check, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -42,33 +42,61 @@ export function PromoCodeInput({ className }: PromoCodeInputProps) {
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleApply = async () => {
-    if (!promoCode.trim()) return;
+  // Validate + apply a code. `silent` suppresses error UI for the auto-apply
+  // path (e.g. arriving from a wallet "Use" link before the cart hits $50).
+  const applyCode = useCallback(
+    async (raw: string, silent = false) => {
+      const code = raw.trim();
+      if (!code) return;
 
-    setIsValidating(true);
-    setError(null);
+      setIsValidating(true);
+      if (!silent) setError(null);
 
-    try {
-      const response = await fetch("/api/checkout/validate-promo", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ code: promoCode.trim() }),
-      });
+      try {
+        const response = await fetch("/api/checkout/validate-promo", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ code }),
+        });
 
-      const data = await response.json();
+        const data = await response.json();
 
-      if (!response.ok || !data.valid) {
-        setError(data.error ?? "Invalid promo code");
-        return;
+        if (!response.ok || !data.valid) {
+          if (!silent) setError(data.error ?? "Invalid promo code");
+          return;
+        }
+
+        applyPromo(data.discountCents ?? 0, data.label ?? "Discount applied");
+      } catch {
+        if (!silent) setError("Failed to validate promo code");
+      } finally {
+        setIsValidating(false);
       }
+    },
+    [applyPromo]
+  );
 
-      applyPromo(data.discountCents ?? 0, data.label ?? "Discount applied");
-    } catch {
-      setError("Failed to validate promo code");
-    } finally {
-      setIsValidating(false);
-    }
-  };
+  const handleApply = () => applyCode(promoCode);
+
+  // Deep-link from the Rewards wallet: /checkout?promo=CODE pre-fills, expands,
+  // and tries to apply the reward automatically. Reads the param off the URL
+  // (no Suspense needed) and strips it so a refresh won't re-fire.
+  useEffect(() => {
+    if (promoApplied) return;
+    const params = new URLSearchParams(window.location.search);
+    const fromUrl = params.get("promo");
+    if (!fromUrl) return;
+
+    setIsExpanded(true);
+    setPromoCode(fromUrl.toUpperCase());
+    void applyCode(fromUrl, true);
+
+    params.delete("promo");
+    const qs = params.toString();
+    window.history.replaceState(null, "", qs ? `?${qs}` : window.location.pathname);
+    // Run once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleRemove = () => {
     clearPromo();
