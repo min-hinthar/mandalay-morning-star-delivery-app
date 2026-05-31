@@ -20,28 +20,36 @@ interface ReferralData {
   stats: { pending: number; completed: number; earnedCents: number };
 }
 
+interface ReferAFriendCardProps {
+  /** Pre-fetched referral data (e.g. from the Rewards hub). When omitted, the
+   * card self-fetches from /api/referrals. */
+  data?: ReferralData;
+}
+
 /**
  * "Refer a friend" card — shows the customer's share link, a copy button, and
  * their referral stats. Renders nothing until the API responds, so it never
  * flashes a broken state.
  */
-export function ReferAFriendCard() {
-  const [data, setData] = useState<ReferralData | null>(null);
+export function ReferAFriendCard({ data: dataProp }: ReferAFriendCardProps = {}) {
+  const [fetched, setFetched] = useState<ReferralData | null>(null);
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
+    if (dataProp) return; // provided by parent — skip the fetch
     let active = true;
     fetch("/api/referrals", { credentials: "include" })
       .then((r) => (r.ok ? r.json() : null))
       .then((json) => {
-        if (active) setData(json?.data ?? null);
+        if (active) setFetched(json?.data ?? null);
       })
       .catch(() => {});
     return () => {
       active = false;
     };
-  }, []);
+  }, [dataProp]);
 
+  const data = dataProp ?? fetched;
   if (!data) return null;
 
   const reward = formatPrice(data.rewardCents);
