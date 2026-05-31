@@ -11,10 +11,11 @@ A Progressive Web App for ordering authentic Burmese cuisine with multi-day deli
 
 ## Overview
 
-Mandalay Morning Star is a full-featured food delivery platform serving the Southern California Burmese community. Customers browse a bilingual menu (English/Burmese), place orders via Stripe or Cash on Delivery, and receive delivery on configurable days (Mon/Wed/Thu/Sat) with direction-based routing (East/West/South) and distance-tiered fees. The app includes admin dashboards, a delivery ops command center, driver management with GPS tracking, real-time order tracking, and full offline PWA support.
+Mandalay Morning Star is a full-featured food delivery platform serving the Southern California Burmese community. Customers browse a bilingual menu (English/Burmese), place orders via Stripe or Cash on Delivery, and receive delivery on configurable days (Mon/Wed/Thu/Sat) with direction-based routing (East/West/South) and distance-tiered fees. The app includes admin dashboards, a delivery ops command center, driver management with GPS tracking, real-time order tracking, a Burmese-gem loyalty & referral program, lifecycle marketing automation, and full offline PWA support.
 
 **Current version:** v1.9 (Launch-Ready MVP)
 **Status:** 86 phases, 335+ plans across 10 milestones (v1.0-v1.9) — 9 milestones shipped
+**Post-launch:** Growth & retention layer (loyalty, referrals, lifecycle email/push) — see [Loyalty & Growth](#loyalty--growth).
 
 ## Features
 
@@ -31,8 +32,25 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 - Real-time order tracking with live driver map, ETA, and polling indicators
 - Shareable order tracking links (token-based, no auth required)
 - Order history, reorder, feedback/ratings (1-5 stars), address management
+- **Morning Star Rewards**: Stars (1/order), Burmese-gem tiers, coupon wallet, in-app celebration — see [Loyalty & Growth](#loyalty--growth)
+- **Refer-a-friend**: share link, give $10 / get $10, WhatsApp/Viber/native share, attribution stats
 - Customer settings: dietary preferences, notification opt-outs, display preferences
 - PWA: installable, offline menu browsing, push notifications
+
+### Loyalty & Growth
+
+A retention layer that turns one-time buyers into regulars, built on Stripe promotion codes (so every reward is natively single-use, minimum-gated, and expiring) and lifecycle email + web push.
+
+- **Morning Star Rewards** — earn 1 Star per completed order; every 5th order auto-issues a **"Kyay-Zu-Par!"** thank-you coupon, sized by tier
+- **Burmese-gem tiers** — New Friend ⭐ → Kyauk Sein 💚 (Jade, 10 orders) → Padamya ❤️ (Ruby, 25) → Shwe 💛 (Gold, 50); milestone reward scales $5 → $8 → $10 → $12
+- **Rewards hub** (`/account?tab=rewards`) — animated Stars ring, tier badge + climb, coupon wallet with one-tap copy and "Use →" checkout deep-link, expiry countdowns
+- **In-app celebration** — confetti + banner when a reward unlocks (fires once), plus web push; push click-through lands on the rewards hub
+- **Refer-a-friend** — give $10 / get $10, one-time code per referee, attribution + reward stats, share to WhatsApp/Viber/native
+- **First-order auto-discount** — $10 for referred customers, $5 welcome otherwise (server-gated, no shareable code)
+- **Lifecycle automation (cron)** — one-time loyalty thank-you blast, milestone rewards, 1-year anniversary gift, "reward expiring soon" nudges, win-back (lapsed 30–90 days), abandoned-cart recovery
+- **Reward lifecycle** — 60-day expiry (Stripe-enforced), redemption tracking, "expiring soon" wallet flags
+- **Admin insight** (`/admin/referrals`) — referral funnel + reward $, loyalty rewards issued/redeemed (count + %), and a tier-distribution strip (customers + orders per gem tier)
+- Bilingual reward emails (English + Burmese), all CC'd to admin
 
 ### Admin Dashboard
 
@@ -65,9 +83,11 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 - Exception reporting per stop (customer not home, wrong address, etc.)
 - Route start/complete lifecycle with status tracking
 
-### Transactional Email System
+### Transactional & Lifecycle Email System
 
-- 4+ branded email templates: order confirmation, cancellation, refund, delivery reminder
+- 18 branded email templates across two tracks:
+  - **Transactional:** order confirmation, cancellation, refund, delivery reminder, admin new-order alert
+  - **Lifecycle / marketing:** welcome offer, referral reward, loyalty reward (milestone / anniversary / expiring variants), win-back, abandoned-cart
 - React Email + Resend for rendering and delivery
 - Stripe webhook idempotency (prevents duplicate sends on retries)
 - Customer notification preferences (opt-out per email type)
@@ -205,17 +225,23 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Optional
 
-| Variable                         | Description                                                    | Default                 |
-| -------------------------------- | -------------------------------------------------------------- | ----------------------- |
-| `NEXT_PUBLIC_APP_URL`            | Application URL                                                | `http://localhost:3000` |
-| `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` | Google Maps Map ID (for custom styling/AdvancedMarkerElement)  | None                    |
-| `NEXT_PUBLIC_OPERATOR_PHONE`     | Operator phone for driver "Call for Help" button               | None                    |
-| `RESEND_WEBHOOK_SECRET`          | Resend webhook signing secret (for open/click/bounce tracking) | None                    |
-| `CRON_SECRET`                    | Secret to secure `/api/cron/*` endpoints                       | None                    |
-| `SENTRY_AUTH_TOKEN`              | Sentry auth token for source map uploads (CI only)             | None                    |
-| `SENTRY_DEBUG`                   | Enable Sentry debug mode                                       | `false`                 |
-| `UPSTASH_REDIS_REST_URL`         | Upstash Redis REST URL (for distributed rate limiting)         | Falls back to in-memory |
-| `UPSTASH_REDIS_REST_TOKEN`       | Upstash Redis REST token                                       | Falls back to in-memory |
+| Variable                         | Description                                                      | Default                 |
+| -------------------------------- | ---------------------------------------------------------------- | ----------------------- |
+| `NEXT_PUBLIC_APP_URL`            | Application URL                                                  | `http://localhost:3000` |
+| `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` | Google Maps Map ID (for custom styling/AdvancedMarkerElement)    | None                    |
+| `NEXT_PUBLIC_OPERATOR_PHONE`     | Operator phone for driver "Call for Help" button                 | None                    |
+| `RESEND_WEBHOOK_SECRET`          | Resend webhook signing secret (for open/click/bounce tracking)   | None                    |
+| `CRON_SECRET`                    | Secret to secure `/api/cron/*` endpoints                         | None                    |
+| `STRIPE_WELCOME_COUPON_ID`       | Stripe coupon for the $5 first-order welcome discount            | Mints on demand         |
+| `STRIPE_REFERRAL_COUPON_ID`      | Stripe coupon for the $10 referral / referred first-order reward | Mints on demand         |
+| `STRIPE_LOYALTY_COUPON_ID`       | $5 loyalty coupon (New Friend milestone + thank-you blast)       | Mints on demand         |
+| `STRIPE_LOYALTY_COUPON_ID_800`   | $8 loyalty coupon (Jade tier milestone)                          | Mints on demand         |
+| `STRIPE_LOYALTY_COUPON_ID_1000`  | $10 loyalty coupon (Ruby tier milestone + anniversary)           | Mints on demand         |
+| `STRIPE_LOYALTY_COUPON_ID_1200`  | $12 loyalty coupon (Gold tier milestone)                         | Mints on demand         |
+| `SENTRY_AUTH_TOKEN`              | Sentry auth token for source map uploads (CI only)               | None                    |
+| `SENTRY_DEBUG`                   | Enable Sentry debug mode                                         | `false`                 |
+| `UPSTASH_REDIS_REST_URL`         | Upstash Redis REST URL (for distributed rate limiting)           | Falls back to in-memory |
+| `UPSTASH_REDIS_REST_TOKEN`       | Upstash Redis REST token                                         | Falls back to in-memory |
 
 ### Rate Limiting (Optional Overrides)
 
@@ -252,16 +278,16 @@ src/
 │   ├── (customer)/              # Menu, cart, checkout, orders, tracking, account
 │   ├── (admin)/                 # Admin dashboard (menu, orders, drivers, routes, emails, ops center)
 │   ├── (driver)/                # Driver mobile (routes, stops, location, photos, earnings)
-│   ├── api/                     # 103 API route handlers
+│   ├── api/                     # 125 API route handlers
 │   ├── auth/                    # Auth callback handlers
 │   └── contexts/                # React context providers
-├── emails/                      # 16 React Email templates + shared components
+├── emails/                      # 18 React Email templates + shared components
 │   ├── components/              # EmailLayout, BrandHeader, BrandFooter, etc.
-│   ├── OrderConfirmation.tsx
-│   ├── OrderCancellation.tsx
-│   ├── RefundNotification.tsx
-│   └── DeliveryReminder.tsx
-├── components/ui/               # 470+ React components
+│   ├── OrderConfirmation.tsx    # + cancellation, refund, delivery reminder
+│   ├── WelcomeOffer.tsx         # + ReferralReward, LoyaltyReward (loyalty/growth)
+│   ├── WinBack.tsx              # + AbandonedCart (lifecycle)
+│   └── AdminNewOrderAlert.tsx
+├── components/ui/               # 529 React components
 │   ├── admin/                   # Admin: orders, drivers, routes, analytics, ops center
 │   ├── auth/                    # Login/signup forms
 │   ├── cart/                    # Cart drawer, items, summary
@@ -280,7 +306,9 @@ src/
 │   ├── constants/               # Kitchen coordinates, config
 │   ├── email/                   # Email service (Resend client, sendEmail, types)
 │   ├── design-system/           # Design tokens, animations
-│   ├── hooks/                   # 56 custom React hooks
+│   ├── hooks/                   # 78 custom React hooks
+│   ├── loyalty/                 # Stars/tiers, reward minting, milestone/anniversary/expiring, redemption
+│   ├── referrals/               # Referral codes, first-order discount, reward issuance
 │   ├── queries/                 # React Query definitions
 │   ├── services/                # Business logic (coverage, geocoding, route optimization)
 │   ├── settings/                # Business rules (cached, admin-configurable)
@@ -292,7 +320,7 @@ src/
 └── test/                        # Test fixtures and mocks
 
 supabase/
-├── migrations/                  # 56 database migrations
+├── migrations/                  # 77 database migrations
 └── functions/                   # Edge functions (legacy)
 
 docs/                            # Documentation
@@ -305,88 +333,98 @@ public/                          # Static assets (logos, icons, images)
 .github/                         # CI/CD workflows
 ```
 
-## API Routes (103 endpoints)
+## API Routes (125 endpoints)
 
-| Domain           | Endpoints                                                        | Purpose                                          |
-| ---------------- | ---------------------------------------------------------------- | ------------------------------------------------ |
-| Menu             | `/api/menu`, `/api/menu/search`                                  | Menu browsing, search                            |
-| Sections         | `/api/sections`                                                  | Featured sections                                |
-| Addresses        | `/api/addresses[/id][/default]`                                  | Address CRUD, geocoding, default selection       |
-| Checkout         | `/api/checkout/session`, `/validate-promo`                       | Stripe session creation, promo validation        |
-| Coverage         | `/api/coverage/check`                                            | Delivery area validation with direction/fee info |
-| Orders           | `/api/orders/[id]/[cancel\|rating\|notes\|status]`               | Order management, feedback, share tokens         |
-| Orders           | `/api/orders/[id]/[retry-payment\|verify-payment]`               | Payment retry and verification                   |
-| Orders           | `/api/orders/[id]/share-token`                                   | Shareable tracking links                         |
-| Tracking         | `/api/tracking/[orderId]`                                        | Real-time order tracking (auth or share token)   |
-| Health           | `/api/health`                                                    | Service health check                             |
-| Analytics        | `/api/analytics/vitals`                                          | Web Vitals reporting                             |
-| Webhooks         | `/api/webhooks/stripe`                                           | Payment + email triggers (idempotent)            |
-| Webhooks         | `/api/webhooks/resend`                                           | Email delivery status (signature-verified)       |
-| Cron             | `/api/cron/delivery-reminders`                                   | Morning-of delivery reminder emails              |
-| Cron             | `/api/cron/admin-daily-digest`                                   | Admin morning/evening digest emails              |
-| Account          | `/api/account/[profile\|settings]`                               | Customer profile and preferences                 |
-| Account          | `/api/account/orders/[id]/[cancel\|reorder]`                     | Customer order actions                           |
-| Admin Menu       | `/api/admin/menu[/id][/photo]`                                   | Menu item management with photos                 |
-| Admin Categories | `/api/admin/categories[/id]`                                     | Category CRUD                                    |
-| Admin Orders     | `/api/admin/orders[/id]/[status\|cancel\|refund]`                | Order management                                 |
-| Admin Orders     | `/api/admin/orders/[id]/[approve-cod\|priority]`                 | COD approval, priority flagging                  |
-| Admin Orders     | `/api/admin/orders/[id]/[contact\|details\|items]`               | Order details, contact info, line items          |
-| Admin Orders     | `/api/admin/orders/[id]/driver`                                  | Driver assignment per order                      |
-| Admin Drivers    | `/api/admin/drivers[/id][/routes][/ratings]`                     | Driver CRUD, route history, ratings              |
-| Admin Drivers    | `/api/admin/drivers/[id]/[archive\|resend-invite]`               | Archive/restore, re-invite                       |
-| Admin Drivers    | `/api/admin/drivers/invite[s]`                                   | Driver invite system                             |
-| Admin Routes     | `/api/admin/routes[/id]`                                         | Route CRUD                                       |
-| Admin Routes     | `/api/admin/routes/[id]/stops[/stopId][/reassign]`               | Stop management, reassignment                    |
-| Admin Routes     | `/api/admin/routes/[id]/exceptions/[exceptionId]`                | Exception management                             |
-| Admin Routes     | `/api/admin/routes/[optimize\|builder-orders]`                   | Route optimization, order selection              |
-| Admin Sections   | `/api/admin/sections[/id][/items]`                               | Featured section management                      |
-| Admin Sections   | `/api/admin/sections/[publish\|reorder]`                         | Publish/reorder workflow                         |
-| Admin Sections   | `/api/admin/sections/most-popular/suggest`                       | Auto-suggest popular items                       |
-| Admin Analytics  | `/api/admin/analytics/[delivery\|drivers]`                       | Dashboard analytics                              |
-| Admin Settings   | `/api/admin/settings[/restore]`                                  | Business rules, app settings, restore defaults   |
-| Admin Profile    | `/api/admin/profile[/notifications\|stats]`                      | Admin profile, notification prefs                |
-| Admin Delivery   | `/api/admin/delivery-days`, `/delivery-zones`                    | Multi-day schedule and zone config               |
-| Admin Emails     | `/api/admin/emails[/id][/resend]`                                | Email log, resend                                |
-| Admin Emails     | `/api/admin/emails/[send\|compose\|stats]`                       | Send, compose, delivery stats                    |
-| Admin Photos     | `/api/admin/photos[/id][/process][/verify-drive]`                | Photo pipeline management                        |
-| Driver           | `/api/driver/[me\|location\|availability\|earnings]`             | Driver profile, GPS, scheduling                  |
-| Driver           | `/api/driver/[onboard\|profile][/photo]`                         | Onboarding, profile photo                        |
-| Driver Routes    | `/api/driver/routes/[active\|upcoming\|history]`                 | Route lists                                      |
-| Driver Routes    | `/api/driver/routes/[routeId]/[start\|complete]`                 | Route lifecycle                                  |
-| Driver Routes    | `/api/driver/routes/[routeId]/stops/[stopId]`                    | Stop updates                                     |
-| Driver Routes    | `/api/driver/routes/[routeId]/stops/[stopId]/[photo\|exception]` | Delivery proof, exceptions                       |
-| Test Email       | `/api/emails/test`                                               | Send test emails from admin settings             |
+| Domain           | Endpoints                                                        | Purpose                                            |
+| ---------------- | ---------------------------------------------------------------- | -------------------------------------------------- |
+| Menu             | `/api/menu`, `/api/menu/search`                                  | Menu browsing, search                              |
+| Sections         | `/api/sections`                                                  | Featured sections                                  |
+| Addresses        | `/api/addresses[/id][/default]`                                  | Address CRUD, geocoding, default selection         |
+| Checkout         | `/api/checkout/session`, `/validate-promo`                       | Stripe session creation, promo validation          |
+| Rewards          | `/api/rewards[/summary\|/acknowledge]`                           | Stars/tier/wallet, header pill, celebration ack    |
+| Referrals        | `/api/referrals[/claim]`                                         | Referral code + stats, attribution claim           |
+| Coverage         | `/api/coverage/check`                                            | Delivery area validation with direction/fee info   |
+| Orders           | `/api/orders/[id]/[cancel\|rating\|notes\|status]`               | Order management, feedback, share tokens           |
+| Orders           | `/api/orders/[id]/[retry-payment\|verify-payment]`               | Payment retry and verification                     |
+| Orders           | `/api/orders/[id]/share-token`                                   | Shareable tracking links                           |
+| Tracking         | `/api/tracking/[orderId]`                                        | Real-time order tracking (auth or share token)     |
+| Health           | `/api/health`                                                    | Service health check                               |
+| Analytics        | `/api/analytics/vitals`                                          | Web Vitals reporting                               |
+| Webhooks         | `/api/webhooks/stripe`                                           | Payment + email triggers (idempotent)              |
+| Webhooks         | `/api/webhooks/resend`                                           | Email delivery status (signature-verified)         |
+| Cron             | `/api/cron/delivery-reminders`                                   | Morning-of delivery reminder emails                |
+| Cron             | `/api/cron/admin-daily-digest`                                   | Admin morning/evening digest emails                |
+| Cron             | `/api/cron/[abandoned-cart\|win-back]`                           | Cart recovery, lapsed-customer re-engagement       |
+| Cron             | `/api/cron/loyalty-[thankyou\|anniversary\|expiring]`            | Loyalty thank-you blast, anniversary, expiry nudge |
+| Account          | `/api/account/[profile\|settings]`                               | Customer profile and preferences                   |
+| Account          | `/api/account/orders/[id]/[cancel\|reorder]`                     | Customer order actions                             |
+| Admin Menu       | `/api/admin/menu[/id][/photo]`                                   | Menu item management with photos                   |
+| Admin Categories | `/api/admin/categories[/id]`                                     | Category CRUD                                      |
+| Admin Orders     | `/api/admin/orders[/id]/[status\|cancel\|refund]`                | Order management                                   |
+| Admin Orders     | `/api/admin/orders/[id]/[approve-cod\|priority]`                 | COD approval, priority flagging                    |
+| Admin Orders     | `/api/admin/orders/[id]/[contact\|details\|items]`               | Order details, contact info, line items            |
+| Admin Orders     | `/api/admin/orders/[id]/driver`                                  | Driver assignment per order                        |
+| Admin Drivers    | `/api/admin/drivers[/id][/routes][/ratings]`                     | Driver CRUD, route history, ratings                |
+| Admin Drivers    | `/api/admin/drivers/[id]/[archive\|resend-invite]`               | Archive/restore, re-invite                         |
+| Admin Drivers    | `/api/admin/drivers/invite[s]`                                   | Driver invite system                               |
+| Admin Routes     | `/api/admin/routes[/id]`                                         | Route CRUD                                         |
+| Admin Routes     | `/api/admin/routes/[id]/stops[/stopId][/reassign]`               | Stop management, reassignment                      |
+| Admin Routes     | `/api/admin/routes/[id]/exceptions/[exceptionId]`                | Exception management                               |
+| Admin Routes     | `/api/admin/routes/[optimize\|builder-orders]`                   | Route optimization, order selection                |
+| Admin Sections   | `/api/admin/sections[/id][/items]`                               | Featured section management                        |
+| Admin Sections   | `/api/admin/sections/[publish\|reorder]`                         | Publish/reorder workflow                           |
+| Admin Sections   | `/api/admin/sections/most-popular/suggest`                       | Auto-suggest popular items                         |
+| Admin Analytics  | `/api/admin/analytics/[delivery\|drivers]`                       | Dashboard analytics                                |
+| Admin Referrals  | `/admin/referrals` (page)                                        | Referral funnel, loyalty issued/redeemed, tiers    |
+| Admin Settings   | `/api/admin/settings[/restore]`                                  | Business rules, app settings, restore defaults     |
+| Admin Profile    | `/api/admin/profile[/notifications\|stats]`                      | Admin profile, notification prefs                  |
+| Admin Delivery   | `/api/admin/delivery-days`, `/delivery-zones`                    | Multi-day schedule and zone config                 |
+| Admin Emails     | `/api/admin/emails[/id][/resend]`                                | Email log, resend                                  |
+| Admin Emails     | `/api/admin/emails/[send\|compose\|stats]`                       | Send, compose, delivery stats                      |
+| Admin Photos     | `/api/admin/photos[/id][/process][/verify-drive]`                | Photo pipeline management                          |
+| Driver           | `/api/driver/[me\|location\|availability\|earnings]`             | Driver profile, GPS, scheduling                    |
+| Driver           | `/api/driver/[onboard\|profile][/photo]`                         | Onboarding, profile photo                          |
+| Driver Routes    | `/api/driver/routes/[active\|upcoming\|history]`                 | Route lists                                        |
+| Driver Routes    | `/api/driver/routes/[routeId]/[start\|complete]`                 | Route lifecycle                                    |
+| Driver Routes    | `/api/driver/routes/[routeId]/stops/[stopId]`                    | Stop updates                                       |
+| Driver Routes    | `/api/driver/routes/[routeId]/stops/[stopId]/[photo\|exception]` | Delivery proof, exceptions                         |
+| Test Email       | `/api/emails/test`                                               | Send test emails from admin settings               |
 
 ## Database
 
-56 migrations with Row-Level Security on all tables:
+77 migrations with Row-Level Security on all tables:
 
-| Table                    | Purpose                                                     |
-| ------------------------ | ----------------------------------------------------------- |
-| `profiles`               | User profiles (customer/admin/driver roles)                 |
-| `addresses`              | Customer delivery addresses (geocoded, with distance)       |
-| `menu_categories`        | Menu categories with sort order                             |
-| `menu_items`             | Menu items with modifiers, pricing, Burmese names           |
-| `orders` / `order_items` | Orders and line items (COD + Stripe, priority flag)         |
-| `drivers`                | Driver profiles, vehicle info                               |
-| `driver_invites`         | Magic link driver onboarding                                |
-| `routes` / `route_stops` | Delivery routes and stops                                   |
-| `route_exceptions`       | Route-level exception tracking                              |
-| `delivery_photos`        | Proof of delivery photos                                    |
-| `delivery_exceptions`    | Delivery issue tracking                                     |
-| `driver_ratings`         | Customer feedback (1-5 stars)                               |
-| `driver_pay_rate`        | Driver compensation rates                                   |
-| `driver_availability`    | Driver scheduling and availability                          |
-| `delivery_days`          | Multi-day delivery schedule (day, cutoff, fee, direction)   |
-| `delivery_zones`         | Direction-based zone configs (bearing ranges, ref cities)   |
-| `notification_logs`      | Email notification tracking (status, delivery events)       |
-| `webhook_events`         | Stripe webhook idempotency (prevents duplicate processing)  |
-| `customer_settings`      | Dietary, notification, display preferences                  |
-| `app_settings`           | Admin-configurable settings (email kill switch, fees, etc.) |
-| `featured_sections`      | Dynamic homepage sections with draft/publish                |
-| `order_audit_log`        | Order status change audit trail                             |
+| Table                    | Purpose                                                                      |
+| ------------------------ | ---------------------------------------------------------------------------- |
+| `profiles`               | User profiles (customer/admin/driver roles)                                  |
+| `addresses`              | Customer delivery addresses (geocoded, with distance)                        |
+| `menu_categories`        | Menu categories with sort order                                              |
+| `menu_items`             | Menu items with modifiers, pricing, Burmese names                            |
+| `orders` / `order_items` | Orders and line items (COD + Stripe, priority flag)                          |
+| `drivers`                | Driver profiles, vehicle info                                                |
+| `driver_invites`         | Magic link driver onboarding                                                 |
+| `routes` / `route_stops` | Delivery routes and stops                                                    |
+| `route_exceptions`       | Route-level exception tracking                                               |
+| `delivery_photos`        | Proof of delivery photos                                                     |
+| `delivery_exceptions`    | Delivery issue tracking                                                      |
+| `driver_ratings`         | Customer feedback (1-5 stars)                                                |
+| `driver_pay_rate`        | Driver compensation rates                                                    |
+| `driver_availability`    | Driver scheduling and availability                                           |
+| `delivery_days`          | Multi-day delivery schedule (day, cutoff, fee, direction)                    |
+| `delivery_zones`         | Direction-based zone configs (bearing ranges, ref cities)                    |
+| `notification_logs`      | Email notification tracking (status, delivery events)                        |
+| `webhook_events`         | Stripe webhook idempotency (prevents duplicate processing)                   |
+| `customer_settings`      | Dietary, notification (marketing/order/reminders), display prefs             |
+| `app_settings`           | Admin-configurable settings (email kill switch, fees, etc.)                  |
+| `featured_sections`      | Dynamic homepage sections with draft/publish                                 |
+| `order_audit_log`        | Order status change audit trail                                              |
+| `referrals`              | Referral attribution + issued reward codes                                   |
+| `carts`                  | Server-synced carts (abandoned-cart targeting)                               |
+| `loyalty_rewards`        | Issued loyalty rewards (milestone/thank-you/anniversary), expiry, redemption |
 
-**Security:** RLS enabled on all tables, `is_admin()` / `is_driver()` / `get_my_driver_id()` SECURITY DEFINER functions, all FK columns indexed. Full RLS audit completed in v1.8.
+**Security:** RLS enabled on all tables, `is_admin()` / `is_driver()` / `get_my_driver_id()` SECURITY DEFINER functions, all FK columns indexed. Full RLS audit completed in v1.8. Cron/marketing reader functions (`get_lapsed_customers`, `get_loyalty_thankyou_candidates`, `get_anniversary_customers`, `get_expiring_loyalty_rewards`, `get_loyalty_tier_distribution`) are `SECURITY DEFINER` with pinned `search_path` and granted to `service_role` only (they return customer PII for cron use).
+
+> **Note:** marketing opt-in lives in `customer_settings.notification_prefs` (not `profiles`). Migration 019 moved it; reader functions and consumers all read from `customer_settings` (a v1.9 fix corrected lingering `profiles.notification_prefs` references).
 
 ## Scripts
 
@@ -399,7 +437,7 @@ public/                          # Static assets (logos, icons, images)
 | `pnpm lint:css`        | Run Stylelint                               |
 | `pnpm typecheck`       | TypeScript type checking                    |
 | `pnpm format:check`    | Prettier format check                       |
-| `pnpm test`            | Unit tests (Vitest, 634 tests)              |
+| `pnpm test`            | Unit tests (Vitest, 1095 tests)             |
 | `pnpm test:ci`         | CI tests (bail on first failure)            |
 | `pnpm test:e2e`        | E2E tests (Playwright)                      |
 | `pnpm test:a11y`       | Accessibility tests                         |
@@ -437,6 +475,28 @@ pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test &
 | v1.8     | Post-Launch Hardening             | 67-76  | 25    | 2026-02-26  |
 | **v1.9** | **Launch-Ready MVP**              | 77-86  | 23+   | In Progress |
 
+### Post-launch growth layer (shipped after v1.9)
+
+| Area                 | What                                                                                     |
+| -------------------- | ---------------------------------------------------------------------------------------- |
+| Referrals + welcome  | Give $10 / get $10, $5 welcome auto-discount, admin funnel                               |
+| Morning Star Rewards | Stars, Burmese-gem tiers, tiered Kyay-Zu-Par! coupons, wallet, in-app celebration        |
+| Lifecycle marketing  | Win-back, abandoned-cart, loyalty thank-you, anniversary, expiry-nudge crons             |
+| Reward integrity     | Stripe `promotion_code` enforcement (single-use / minimum / expiry), redemption tracking |
+
+## Roadmap & Potential Improvements
+
+Ideas and known follow-ups, roughly by leverage:
+
+- **Reward integrity hardening** — bind a redeemed promo code to the redeeming user at checkout (defense-in-depth beyond Stripe's single-use enforcement); currently a high-entropy code is the only gate against cross-account use.
+- **Loyalty analytics** — track issued → redeemed → reorder conversion per reward kind/tier; surface redemption rate and incremental revenue in the admin dashboard.
+- **Tier perks beyond coupons** — free delivery or priority windows for Ruby/Gold (touches the distance-fee logic; intentionally deferred).
+- **Generated DB types** — replace the hand-maintained `src/types/database.ts` with `supabase gen types` in CI to prevent schema drift (the `notification_prefs` drift fixed in v1.9 was a symptom).
+- **Notification preference granularity** — let customers opt into transactional but out of loyalty/marketing push separately (today push respects marketing opt-in broadly).
+- **E2E coverage for rewards** — Playwright flows for earn → unlock → wallet → checkout redemption.
+- **Coupon stacking** — Stripe allows one discount per session today; evaluate whether loyalty + referral should ever combine.
+- **A/B testing hooks** — experiment on reward size, milestone cadence, and email copy.
+
 ## Deployment
 
 ### Vercel
@@ -460,22 +520,24 @@ supabase link --project-ref your-project-ref
 supabase db push
 ```
 
-56 migrations will be applied. Key migrations:
+77 migrations will be applied. Key migrations:
 
-| Migration         | Purpose                                                                                  |
-| ----------------- | ---------------------------------------------------------------------------------------- |
-| 000-005           | Core schema, functions, RLS, analytics, storage, testing, indexes                        |
-| 006-008           | Menu seed, photos, featured sections                                                     |
-| 010-020           | App settings, audit log, driver invites, customer settings, email system                 |
-| 021-026           | Driver gamification, RLS hardening, admin contact, driver photos, pay rate, availability |
-| 027-028           | Atomic order creation, refund status                                                     |
-| 029-032           | Configurable business rules, email reliability, driver simple mode, production indexes   |
-| 033-037           | Photo pipeline, checkout hardening, rating/share tokens, session tracking                |
-| 20260214          | Order priority flagging                                                                  |
-| 20260302-20260305 | Driver defaults, index cleanup, profile policies, atomic refund                          |
-| 20260307          | Multi-day delivery + Cash on Delivery support                                            |
-| 20260308-20260311 | Launch reset, menu photo URLs, order contact info, Burmese item names                    |
-| 20260312          | Delivery direction zones (bearing-based routing)                                         |
+| Migration         | Purpose                                                                                        |
+| ----------------- | ---------------------------------------------------------------------------------------------- |
+| 000-005           | Core schema, functions, RLS, analytics, storage, testing, indexes                              |
+| 006-008           | Menu seed, photos, featured sections                                                           |
+| 010-020           | App settings, audit log, driver invites, customer settings, email system                       |
+| 021-026           | Driver gamification, RLS hardening, admin contact, driver photos, pay rate, availability       |
+| 027-028           | Atomic order creation, refund status                                                           |
+| 029-032           | Configurable business rules, email reliability, driver simple mode, production indexes         |
+| 033-037           | Photo pipeline, checkout hardening, rating/share tokens, session tracking                      |
+| 20260214          | Order priority flagging                                                                        |
+| 20260302-20260305 | Driver defaults, index cleanup, profile policies, atomic refund                                |
+| 20260307          | Multi-day delivery + Cash on Delivery support                                                  |
+| 20260308-20260311 | Launch reset, menu photo URLs, order contact info, Burmese item names                          |
+| 20260312          | Delivery direction zones (bearing-based routing)                                               |
+| 20260530          | Referrals, server-synced carts, push subscriptions, win-back, welcome offer                    |
+| 20260531          | Loyalty rewards + tiers + engagement (expiry/redemption/tier distribution), prefs-source fixes |
 
 ### Stripe Webhook
 
@@ -532,29 +594,30 @@ Configured in `vercel.json`:
 ```json
 {
   "crons": [
-    {
-      "path": "/api/cron/delivery-reminders",
-      "schedule": "0 15 * * *"
-    },
-    {
-      "path": "/api/cron/admin-daily-digest?period=morning",
-      "schedule": "0 14 * * *"
-    },
-    {
-      "path": "/api/cron/admin-daily-digest?period=evening",
-      "schedule": "0 6 * * *"
-    }
+    { "path": "/api/cron/delivery-reminders", "schedule": "0 15 * * *" },
+    { "path": "/api/cron/admin-daily-digest?period=morning", "schedule": "0 14 * * *" },
+    { "path": "/api/cron/admin-daily-digest?period=evening", "schedule": "0 6 * * *" },
+    { "path": "/api/cron/abandoned-cart", "schedule": "0 23 * * *" },
+    { "path": "/api/cron/win-back", "schedule": "0 17 * * 1" },
+    { "path": "/api/cron/loyalty-thankyou", "schedule": "30 17 * * *" },
+    { "path": "/api/cron/loyalty-anniversary", "schedule": "0 16 * * *" },
+    { "path": "/api/cron/loyalty-expiring", "schedule": "0 18 * * *" }
   ]
 }
 ```
 
-| Cron                 | Schedule (UTC) | Local (PT) | Purpose                             |
-| -------------------- | -------------- | ---------- | ----------------------------------- |
-| Delivery reminders   | Daily 3 PM UTC | 7 AM PT    | Morning-of delivery reminder emails |
-| Admin morning digest | Daily 2 PM UTC | 6 AM PT    | Morning order summary for admin     |
-| Admin evening digest | Daily 6 AM UTC | 10 PM PT   | Evening wrap-up for admin           |
+| Cron                 | Schedule (UTC) | Purpose                                                 |
+| -------------------- | -------------- | ------------------------------------------------------- |
+| Delivery reminders   | Daily 15:00    | Morning-of delivery reminder emails                     |
+| Admin morning digest | Daily 14:00    | Morning order summary for admin                         |
+| Admin evening digest | Daily 06:00    | Evening wrap-up for admin                               |
+| Abandoned cart       | Daily 23:00    | Recover carts left 2–72h, marketing opted-in            |
+| Win-back             | Mondays 17:00  | Re-engage customers lapsed 30–90 days                   |
+| Loyalty thank-you    | Daily 17:30    | One-time thank-you blast to existing customers (drains) |
+| Loyalty anniversary  | Daily 16:00    | 1-year first-order anniversary gift (LA-time, once/yr)  |
+| Loyalty expiring     | Daily 18:00    | "Reward expires soon" nudge (≤7 days, once per reward)  |
 
-Set `CRON_SECRET` in Vercel env vars to secure these endpoints.
+Set `CRON_SECRET` in Vercel env vars to secure these endpoints. The loyalty thank-you and win-back crons are self-draining (eligibility + dedupe live in SQL + stamp columns), so re-runs are safe and naturally taper off.
 
 ### Production Checklist
 
@@ -563,8 +626,9 @@ Set `CRON_SECRET` in Vercel env vars to secure these endpoints.
 - [ ] `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` set (client-side maps)
 - [ ] `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` set (optional, for custom map styling)
 - [ ] Supabase auth callback URL configured (`https://your-domain/auth/callback`)
-- [ ] All 56 Supabase migrations applied (`supabase db push`)
+- [ ] All 77 Supabase migrations applied (`supabase db push`)
 - [ ] Stripe using LIVE keys (not test keys)
+- [ ] Stripe loyalty/referral/welcome coupons created and IDs set (`STRIPE_*_COUPON_ID*`) — live-mode coupons require live `STRIPE_SECRET_KEY`
 - [ ] Stripe webhook endpoint verified with all required events
 - [ ] Google Maps API keys restricted to production domain
 - [ ] Google Maps APIs enabled: Geocoding, Routes, Maps JavaScript, Places
