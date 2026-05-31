@@ -9,10 +9,17 @@ export interface LoyaltyRewardProps {
   /** One-time promo code to enter at checkout. */
   promoCode: string;
   menuUrl: string;
-  /** "milestone" celebrates an order count; "thankyou" is the loyalty blast. */
-  variant?: "milestone" | "thankyou";
+  /** "milestone" celebrates an order count; "thankyou" is the loyalty blast;
+   * "anniversary" marks a year with the kitchen. */
+  variant?: "milestone" | "thankyou" | "anniversary";
   /** Completed-order count for the milestone variant (e.g. 5, 10). */
   milestone?: number;
+  /** Years with the kitchen, for the anniversary variant. */
+  years?: number;
+  /** Tier reached on this milestone (Burmese name + English gloss + emoji). */
+  tierName?: string;
+  tierEnglish?: string;
+  tierEmoji?: string;
 }
 
 export function LoyaltyReward({
@@ -22,15 +29,29 @@ export function LoyaltyReward({
   menuUrl,
   variant = "thankyou",
   milestone,
+  years,
+  tierName,
+  tierEnglish,
+  tierEmoji,
 }: LoyaltyRewardProps) {
   const amount = formatPrice(rewardCents);
   const isMilestone = variant === "milestone" && typeof milestone === "number";
+  const isAnniversary = variant === "anniversary" && typeof years === "number";
+  const showTier = isMilestone && tierName && tierEmoji;
 
-  const heading = isMilestone
-    ? `${milestone} orders in — Kyay-Zu-Par! 🙏`
-    : "Kyay-Zu-Par! Thank you for being with us 🙏";
+  const heading = isAnniversary
+    ? `Happy ${years}-year anniversary! 🎉`
+    : isMilestone
+      ? `${milestone} orders in — Kyay-Zu-Par! 🙏`
+      : "Kyay-Zu-Par! Thank you for being with us 🙏";
 
-  const intro = isMilestone ? (
+  const intro = isAnniversary ? (
+    <>
+      It&apos;s been <strong>{years} year(s)</strong> since your first order with us — what a
+      journey to share. Here&apos;s <strong>{amount} off</strong> to celebrate, with our whole
+      heart.
+    </>
+  ) : isMilestone ? (
     <>
       You&apos;ve ordered with us <strong>{milestone} times</strong> — that means the world to a
       small kitchen. Here&apos;s <strong>{amount} off</strong> your next feast as a thank-you.
@@ -42,6 +63,8 @@ export function LoyaltyReward({
     </>
   );
 
+  const heroEmoji = isAnniversary ? "🎉" : "🙏";
+
   return (
     <EmailLayout
       emailType="confirmation"
@@ -50,7 +73,7 @@ export function LoyaltyReward({
     >
       {/* Hero */}
       <Section style={{ padding: "32px 24px 8px 24px", textAlign: "center" as const }}>
-        <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{"🙏"}</Text>
+        <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{heroEmoji}</Text>
         <Text
           style={{
             fontSize: "22px",
@@ -63,6 +86,24 @@ export function LoyaltyReward({
         >
           {heading}
         </Text>
+        {showTier && (
+          <Text
+            style={{
+              fontSize: "13px",
+              fontFamily: FONT_STACK,
+              fontWeight: 700,
+              color: "#8B4513",
+              backgroundColor: "#FFF9E6",
+              border: "1px solid #F3E2B3",
+              borderRadius: "999px",
+              padding: "5px 14px",
+              margin: "0 0 10px 0",
+              display: "inline-block",
+            }}
+          >
+            {tierEmoji} {tierName} · {tierEnglish} tier
+          </Text>
+        )}
         <Text
           style={{
             fontSize: "15px",

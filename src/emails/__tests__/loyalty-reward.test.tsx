@@ -8,25 +8,50 @@ function visibleText(html: string): string {
 }
 
 describe("LoyaltyReward email", () => {
-  it("celebrates a milestone with the code and amount", async () => {
+  it("celebrates a milestone with the code, amount, and tier badge", async () => {
     const html = visibleText(
       await render(
         <LoyaltyReward
           customerName="Aung"
-          rewardCents={500}
+          rewardCents={800}
           promoCode="KYAYZU-ABC2345"
           menuUrl="https://mandalaymorningstar.com/menu"
           variant="milestone"
-          milestone={5}
+          milestone={10}
+          tierName="Kyauk Sein"
+          tierEnglish="Jade"
+          tierEmoji="💚"
         />
       )
     );
     expect(html).toContain("Aung");
     expect(html).toContain("KYAYZU-ABC2345");
     expect(html).toContain("Kyay-Zu-Par!");
-    expect(html).toContain("5 times");
+    expect(html).toContain("10 times");
+    // Tier badge
+    expect(html).toContain("Kyauk Sein");
+    expect(html).toContain("Jade tier");
     // Warm, casual Burmese line
     expect(html).toContain("ကျေးဇူး");
+  });
+
+  it("renders the anniversary variant", async () => {
+    const html = visibleText(
+      await render(
+        <LoyaltyReward
+          customerName="Thiri"
+          rewardCents={1000}
+          promoCode="KYAYZU-ANNI567"
+          menuUrl="https://mandalaymorningstar.com/menu"
+          variant="anniversary"
+          years={2}
+        />
+      )
+    );
+    expect(html).toContain("Thiri");
+    expect(html).toContain("KYAYZU-ANNI567");
+    expect(html).toContain("anniversary");
+    expect(html).toContain("2 year");
   });
 
   it("renders the thank-you variant", async () => {
