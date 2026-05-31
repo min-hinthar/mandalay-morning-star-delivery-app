@@ -26,13 +26,14 @@ export async function issueLoyaltyThankYou(
   recipient: ThankYouRecipient,
   appUrl: string
 ): Promise<void> {
-  const promoCode = await mintLoyaltyPromoCode();
+  const { code: promoCode, expiresAt } = await mintLoyaltyPromoCode();
 
   await service.from("loyalty_rewards").insert({
     user_id: recipient.userId,
     kind: "thank_you",
     reward_cents: LOYALTY_REWARD_CENTS,
     reward_code: promoCode,
+    expires_at: expiresAt,
   });
 
   const emailComponent = React.createElement(LoyaltyReward, {

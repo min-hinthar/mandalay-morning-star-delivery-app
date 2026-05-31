@@ -2,10 +2,11 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { Copy, Check, Ticket, Gift, ArrowRight } from "lucide-react";
+import { Copy, Check, Ticket, Gift, ArrowRight, Clock } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
+import { daysUntilExpiry, LOYALTY_EXPIRING_SOON_DAYS } from "@/lib/loyalty";
 
 export interface WalletItem {
   id: string;
@@ -14,6 +15,7 @@ export interface WalletItem {
   amountCents: number;
   label: string;
   createdAt: string;
+  expiresAt: string | null;
 }
 
 function WalletCard({ item }: { item: WalletItem }) {
@@ -28,6 +30,9 @@ function WalletCard({ item }: { item: WalletItem }) {
       // Clipboard unavailable — the code is still visible to type manually.
     }
   };
+
+  const daysLeft = daysUntilExpiry(item.expiresAt);
+  const expiringSoon = daysLeft != null && daysLeft <= LOYALTY_EXPIRING_SOON_DAYS;
 
   return (
     <div className="flex items-center gap-3 rounded-xl border border-border bg-surface-primary p-3">
@@ -46,6 +51,21 @@ function WalletCard({ item }: { item: WalletItem }) {
           {formatPrice(item.amountCents)} off · {item.label}
         </p>
         <p className="truncate font-mono text-xs tracking-wider text-text-secondary">{item.code}</p>
+        {daysLeft != null && (
+          <p
+            className={cn(
+              "mt-0.5 inline-flex items-center gap-1 text-xs",
+              expiringSoon ? "font-medium text-status-warning" : "text-text-muted"
+            )}
+          >
+            <Clock className="h-3 w-3" />
+            {daysLeft === 0
+              ? "Expires today"
+              : daysLeft === 1
+                ? "Expires tomorrow"
+                : `Expires in ${daysLeft} days`}
+          </p>
+        )}
       </div>
       <div className="flex shrink-0 items-center gap-1.5">
         <button
