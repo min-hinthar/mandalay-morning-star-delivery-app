@@ -1225,6 +1225,7 @@ export type Database = {
           full_name: string | null;
           id: string;
           last_winback_at: string | null;
+          loyalty_thanked_at: string | null;
           notification_prefs: Json;
           phone: string | null;
           referral_code: string | null;
@@ -1238,6 +1239,7 @@ export type Database = {
           full_name?: string | null;
           id: string;
           last_winback_at?: string | null;
+          loyalty_thanked_at?: string | null;
           notification_prefs?: Json;
           phone?: string | null;
           referral_code?: string | null;
@@ -1251,12 +1253,43 @@ export type Database = {
           full_name?: string | null;
           id?: string;
           last_winback_at?: string | null;
+          loyalty_thanked_at?: string | null;
           notification_prefs?: Json;
           phone?: string | null;
           referral_code?: string | null;
           role?: string;
           updated_at?: string;
           welcomed_at?: string | null;
+        };
+        Relationships: [];
+      };
+      loyalty_rewards: {
+        Row: {
+          created_at: string;
+          id: string;
+          kind: string;
+          milestone: number | null;
+          reward_cents: number;
+          reward_code: string | null;
+          user_id: string;
+        };
+        Insert: {
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          milestone?: number | null;
+          reward_cents?: number;
+          reward_code?: string | null;
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          id?: string;
+          kind?: string;
+          milestone?: number | null;
+          reward_cents?: number;
+          reward_code?: string | null;
+          user_id?: string;
         };
         Relationships: [];
       };
@@ -1796,6 +1829,15 @@ export type Database = {
           email: string;
           full_name: string;
           last_order_at: string;
+        }[];
+      };
+      get_loyalty_thankyou_candidates: {
+        Args: { p_limit?: number };
+        Returns: {
+          user_id: string;
+          email: string;
+          full_name: string;
+          order_count: number;
         }[];
       };
       get_driver_stats_admin: {
