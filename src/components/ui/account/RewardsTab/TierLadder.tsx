@@ -5,6 +5,7 @@ import { m } from "framer-motion";
 
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { formatPrice } from "@/lib/utils/currency";
 import { LOYALTY_TIERS, TIER_PERKS, type LoyaltyTierId, type LoyaltyPerk } from "@/lib/loyalty";
 import { tierAccent } from "./tierStyle";
 
@@ -100,7 +101,7 @@ export function TierLadder({ currentTierId }: { currentTierId: LoyaltyTierId }) 
               </div>
               <p className="mt-0.5 text-xs text-text-muted">
                 {tier.english}
-                {tier.minOrders > 0 && ` · ${tier.minOrders} orders`}
+                {tier.minSpendCents > 0 && ` · ${formatPrice(tier.minSpendCents)} spent`}
                 {isCurrent && (
                   <span className={cn("ml-1 font-semibold", accent.text)}>· You&apos;re here</span>
                 )}

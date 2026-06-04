@@ -4,16 +4,17 @@ import {
   LOYALTY_MILESTONE_STEP,
   LOYALTY_REWARD_TTL_DAYS,
   daysUntilExpiry,
-  milestoneReached,
+  milestonesReached,
   nextMilestone,
   nextRewardCents,
   nextTier,
   ordersToNextMilestone,
-  ordersToNextTier,
+  spendToNextTierCents,
+  orderSpendCents,
   progressInCycle,
-  rewardCentsForOrders,
+  rewardCentsForSpend,
   rewardExpiryISO,
-  tierForOrders,
+  tierForSpend,
   hasEarlyAccess,
   tierPerks,
   TIER_PERKS,
@@ -45,14 +46,14 @@ describe("loyalty helpers", () => {
     });
   });
 
-  describe("milestoneReached", () => {
-    it("returns the count only on a milestone boundary", () => {
-      expect(milestoneReached(0)).toBeNull();
-      expect(milestoneReached(4)).toBeNull();
-      expect(milestoneReached(5)).toBe(5);
-      expect(milestoneReached(6)).toBeNull();
-      expect(milestoneReached(10)).toBe(10);
-      expect(milestoneReached(15)).toBe(15);
+  describe("milestonesReached (back-fill)", () => {
+    it("returns every milestone at or below the order count", () => {
+      expect(milestonesReached(0)).toEqual([]);
+      expect(milestonesReached(4)).toEqual([]);
+      expect(milestonesReached(5)).toEqual([5]);
+      expect(milestonesReached(6)).toEqual([5]); // count jumped 4→6, still issues 5
+      expect(milestonesReached(12)).toEqual([5, 10]);
+      expect(milestonesReached(15)).toEqual([5, 10, 15]);
     });
   });
 
@@ -65,45 +66,53 @@ describe("loyalty helpers", () => {
     });
   });
 
-  describe("tierForOrders", () => {
-    it("maps order count to the Burmese-gem ladder", () => {
-      expect(tierForOrders(0).id).toBe("new");
-      expect(tierForOrders(9).id).toBe("new");
-      expect(tierForOrders(10).id).toBe("jade");
-      expect(tierForOrders(24).id).toBe("jade");
-      expect(tierForOrders(25).id).toBe("ruby");
-      expect(tierForOrders(49).id).toBe("ruby");
-      expect(tierForOrders(50).id).toBe("gold");
-      expect(tierForOrders(120).id).toBe("gold");
+  describe("orderSpendCents", () => {
+    it("is subtotal minus discount, floored at 0", () => {
+      expect(orderSpendCents(5000, 0)).toBe(5000);
+      expect(orderSpendCents(5000, 800)).toBe(4200);
+      expect(orderSpendCents(800, 1000)).toBe(0); // discount > subtotal → 0
     });
   });
 
-  describe("nextTier / ordersToNextTier", () => {
-    it("points to the next gem, null at the top", () => {
+  describe("tierForSpend", () => {
+    it("maps lifetime net spend to the Burmese-gem ladder", () => {
+      expect(tierForSpend(0).id).toBe("new");
+      expect(tierForSpend(24999).id).toBe("new");
+      expect(tierForSpend(25000).id).toBe("jade"); // $250
+      expect(tierForSpend(74999).id).toBe("jade");
+      expect(tierForSpend(75000).id).toBe("ruby"); // $750
+      expect(tierForSpend(149999).id).toBe("ruby");
+      expect(tierForSpend(150000).id).toBe("gold"); // $1500
+      expect(tierForSpend(500000).id).toBe("gold");
+    });
+  });
+
+  describe("nextTier / spendToNextTierCents", () => {
+    it("points to the next gem by spend, null at the top", () => {
       expect(nextTier(0)?.id).toBe("jade");
-      expect(ordersToNextTier(0)).toBe(10);
-      expect(nextTier(23)?.id).toBe("ruby");
-      expect(ordersToNextTier(23)).toBe(2);
-      expect(nextTier(50)).toBeNull();
-      expect(ordersToNextTier(50)).toBeNull();
+      expect(spendToNextTierCents(0)).toBe(25000);
+      expect(nextTier(70000)?.id).toBe("ruby");
+      expect(spendToNextTierCents(70000)).toBe(5000);
+      expect(nextTier(150000)).toBeNull();
+      expect(spendToNextTierCents(150000)).toBeNull();
     });
   });
 
-  describe("rewardCentsForOrders (tier-scaled coupons)", () => {
-    it("grows the milestone coupon by tier", () => {
-      expect(rewardCentsForOrders(5)).toBe(500); // New Friend
-      expect(rewardCentsForOrders(10)).toBe(800); // Jade
-      expect(rewardCentsForOrders(25)).toBe(1000); // Ruby
-      expect(rewardCentsForOrders(50)).toBe(1200); // Gold
+  describe("rewardCentsForSpend (tier-scaled coupons)", () => {
+    it("grows the milestone coupon by spend tier", () => {
+      expect(rewardCentsForSpend(0)).toBe(500); // New Friend
+      expect(rewardCentsForSpend(25000)).toBe(800); // Jade
+      expect(rewardCentsForSpend(75000)).toBe(1000); // Ruby
+      expect(rewardCentsForSpend(150000)).toBe(1200); // Gold
     });
   });
 
   describe("nextRewardCents", () => {
-    it("is the coupon size at the upcoming milestone's tier", () => {
-      expect(nextRewardCents(3)).toBe(500); // next milestone 5 → New Friend
-      expect(nextRewardCents(8)).toBe(800); // next milestone 10 → Jade
-      expect(nextRewardCents(23)).toBe(1000); // next milestone 25 → Ruby
-      expect(nextRewardCents(48)).toBe(1200); // next milestone 50 → Gold
+    it("is the coupon size at the customer's current spend tier", () => {
+      expect(nextRewardCents(0)).toBe(500);
+      expect(nextRewardCents(30000)).toBe(800);
+      expect(nextRewardCents(80000)).toBe(1000);
+      expect(nextRewardCents(200000)).toBe(1200);
     });
   });
 
@@ -129,24 +138,24 @@ describe("loyalty helpers", () => {
   });
 
   describe("hasEarlyAccess", () => {
-    it("is true only at Ruby tier and above", () => {
+    it("is true only at Ruby tier and above (by spend)", () => {
       expect(hasEarlyAccess(0)).toBe(false); // New Friend
-      expect(hasEarlyAccess(9)).toBe(false);
-      expect(hasEarlyAccess(10)).toBe(false); // Jade
-      expect(hasEarlyAccess(24)).toBe(false);
-      expect(hasEarlyAccess(25)).toBe(true); // Ruby
-      expect(hasEarlyAccess(49)).toBe(true);
-      expect(hasEarlyAccess(50)).toBe(true); // Gold
-      expect(hasEarlyAccess(200)).toBe(true);
+      expect(hasEarlyAccess(24999)).toBe(false);
+      expect(hasEarlyAccess(25000)).toBe(false); // Jade
+      expect(hasEarlyAccess(74999)).toBe(false);
+      expect(hasEarlyAccess(75000)).toBe(true); // Ruby
+      expect(hasEarlyAccess(149999)).toBe(true);
+      expect(hasEarlyAccess(150000)).toBe(true); // Gold
+      expect(hasEarlyAccess(500000)).toBe(true);
     });
   });
 
   describe("tierPerks / TIER_PERKS", () => {
-    it("returns the perks for the tier at a given order count", () => {
+    it("returns the perks for the tier at a given lifetime spend", () => {
       expect(tierPerks(0)).toBe(TIER_PERKS.new);
-      expect(tierPerks(10)).toBe(TIER_PERKS.jade);
-      expect(tierPerks(25)).toBe(TIER_PERKS.ruby);
-      expect(tierPerks(50)).toBe(TIER_PERKS.gold);
+      expect(tierPerks(25000)).toBe(TIER_PERKS.jade);
+      expect(tierPerks(75000)).toBe(TIER_PERKS.ruby);
+      expect(tierPerks(150000)).toBe(TIER_PERKS.gold);
     });
 
     it("defines bilingual perks for every tier", () => {
