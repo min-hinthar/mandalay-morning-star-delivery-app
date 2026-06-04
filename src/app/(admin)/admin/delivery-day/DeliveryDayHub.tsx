@@ -8,8 +8,10 @@
  */
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { m } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { OpsCountdownBar } from "@/components/ui/admin/ops/OpsCountdownBar";
 import { OpsDriverPanel } from "@/components/ui/admin/ops/OpsDriverPanel";
@@ -38,6 +40,7 @@ interface DeliveryDayHubProps {
 
 export function DeliveryDayHub({ rules, dateOptions, initialDate }: DeliveryDayHubProps) {
   const [selectedDate, setSelectedDate] = useState(initialDate);
+  const { shouldAnimate } = useAnimationPreference();
 
   // Resolve cutoff config for the selected date's weekday (falls back to the
   // global default when that weekday isn't a configured delivery day).
@@ -107,8 +110,8 @@ export function DeliveryDayHub({ rules, dateOptions, initialDate }: DeliveryDayH
               Live Fleet
             </h2>
             <m.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+              animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
               className="h-[440px] overflow-hidden rounded-card-sm border border-border shadow-sm"
             >
               <LazyDeliveryDayMap locations={locations} />
@@ -125,7 +128,7 @@ export function DeliveryDayHub({ rules, dateOptions, initialDate }: DeliveryDayH
         <RouteProgressWidget date={selectedDate} />
 
         {/* Unassigned orders shortcut */}
-        <a
+        <Link
           href="/admin/ops"
           className="flex items-center justify-between rounded-card-sm border border-border bg-surface-primary p-4 shadow-sm transition-colors hover:border-border-strong"
         >
@@ -143,7 +146,7 @@ export function DeliveryDayHub({ rules, dateOptions, initialDate }: DeliveryDayH
             Ops Center
             <ArrowUpRight className="h-4 w-4" />
           </span>
-        </a>
+        </Link>
       </div>
     </div>
   );

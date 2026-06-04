@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
-import { getZonedDateString } from "@/lib/utils/delivery-dates";
+import { getZonedDateString, getZonedDayRangeUtc } from "@/lib/utils/delivery-dates";
 
 // ============================================
 // TYPES
@@ -60,6 +60,7 @@ export async function GET(request: Request) {
     const { supabase } = auth;
     const { searchParams } = new URL(request.url);
     const date = searchParams.get("date") || getZonedDateString();
+    const { startUtc, endUtc } = getZonedDayRangeUtc(date);
 
     // Drivers assigned to a route on this date (with name). The qualified FK hint
     // `routes_driver_id_fkey` is required — routes has a 2nd FK to drivers
@@ -98,9 +99,11 @@ export async function GET(request: Request) {
       return NextResponse.json([]);
     }
 
-    // Latest fix per driver. The (driver_id, recorded_at DESC) index makes each
-    // single-row lookup cheap; driver count per day is small, so parallel
-    // per-driver queries avoid a DISTINCT ON / RPC (and a migration).
+    // Latest fix per driver, bounded to the selected delivery day so a future
+    // date shows nothing (no pings yet) and a past date shows that day's last
+    // positions — not each driver's last-ever ping. The (driver_id,
+    // recorded_at DESC) index makes each single-row lookup cheap; driver count
+    // per day is small, so parallel per-driver queries avoid a DISTINCT ON / RPC.
     const now = Date.now();
     const results = await Promise.all(
       driverIds.map(async (driverId) => {
@@ -108,6 +111,8 @@ export async function GET(request: Request) {
           .from("location_updates")
           .select("driver_id, route_id, latitude, longitude, heading, recorded_at")
           .eq("driver_id", driverId)
+          .gte("recorded_at", startUtc)
+          .lt("recorded_at", endUtc)
           .order("recorded_at", { ascending: false })
           .limit(1)
           .returns<LocationRow[]>()
