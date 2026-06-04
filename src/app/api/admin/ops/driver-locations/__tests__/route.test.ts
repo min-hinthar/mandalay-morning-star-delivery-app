@@ -54,24 +54,26 @@ function buildSupabase(opts: {
   return {
     from: vi.fn((table: string) => {
       if (table === "routes") return routesChain;
-      // location_updates: capture driver id from eq
+      // location_updates: capture driver id from eq, then date-range filters.
       let capturedDriver = "";
+      const terminal = () => ({
+        order: vi.fn().mockReturnValue({
+          limit: vi.fn().mockReturnValue({
+            returns: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({
+                data: opts.locationByDriver?.[capturedDriver] ?? null,
+                error: null,
+              }),
+            }),
+          }),
+        }),
+      });
       return {
         select: vi.fn().mockReturnValue({
           eq: vi.fn((_col: string, val: string) => {
             capturedDriver = val;
-            return {
-              order: vi.fn().mockReturnValue({
-                limit: vi.fn().mockReturnValue({
-                  returns: vi.fn().mockReturnValue({
-                    maybeSingle: vi.fn().mockResolvedValue({
-                      data: opts.locationByDriver?.[capturedDriver] ?? null,
-                      error: null,
-                    }),
-                  }),
-                }),
-              }),
-            };
+            // chain: .eq().gte().lt().order()...
+            return { gte: vi.fn().mockReturnValue({ lt: vi.fn(terminal) }) };
           }),
         }),
       };

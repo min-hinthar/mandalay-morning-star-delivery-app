@@ -17,7 +17,7 @@ interface DeliveryDateSelectorProps {
 export function DeliveryDateSelector({ options, value, onChange }: DeliveryDateSelectorProps) {
   return (
     <div
-      role="tablist"
+      role="group"
       aria-label="Delivery date"
       className="flex items-center gap-2 overflow-x-auto pb-1"
     >
@@ -26,8 +26,8 @@ export function DeliveryDateSelector({ options, value, onChange }: DeliveryDateS
         return (
           <button
             key={opt.dateString}
-            role="tab"
-            aria-selected={isActive}
+            type="button"
+            aria-pressed={isActive}
             onClick={() => onChange(opt.dateString)}
             className={cn(
               "relative shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-colors duration-fast",
