@@ -21,9 +21,34 @@ import { requireAdmin } from "@/lib/auth";
  * Tests auth, success response shape, and DB error handling.
  */
 
+function makeRequest(date?: string): Request {
+  const url = date
+    ? `http://localhost/api/admin/ops/routes-progress?date=${date}`
+    : "http://localhost/api/admin/ops/routes-progress";
+  return new Request(url);
+}
+
 describe("GET /api/admin/ops/routes-progress", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  it("filters by the requested delivery date", async () => {
+    const eqSpy = vi.fn().mockReturnValue({
+      neq: vi.fn().mockReturnValue({
+        neq: vi.fn().mockResolvedValue({ data: [], error: null }),
+      }),
+    });
+    vi.mocked(requireAdmin).mockResolvedValue({
+      success: true,
+      userId: "admin-1",
+      supabase: {
+        from: vi.fn(() => ({ select: vi.fn().mockReturnValue({ eq: eqSpy }) })),
+      },
+    } as never);
+
+    await GET(makeRequest("2026-03-20"));
+    expect(eqSpy).toHaveBeenCalledWith("delivery_date", "2026-03-20");
   });
 
   it("returns 401 when not authenticated", async () => {
@@ -33,7 +58,7 @@ describe("GET /api/admin/ops/routes-progress", () => {
       status: 401,
     } as never);
 
-    const response = await GET();
+    const response = await GET(makeRequest());
     const body = await response.json();
     expect(response.status).toBe(401);
     expect(body.error).toBe("Unauthorized");
@@ -67,7 +92,7 @@ describe("GET /api/admin/ops/routes-progress", () => {
       },
     } as never);
 
-    const response = await GET();
+    const response = await GET(makeRequest());
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(Array.isArray(body)).toBe(true);
@@ -101,7 +126,7 @@ describe("GET /api/admin/ops/routes-progress", () => {
       },
     } as never);
 
-    const response = await GET();
+    const response = await GET(makeRequest());
     expect(response.status).toBe(500);
     const body = await response.json();
     expect(body.error).toBe("Failed to fetch route progress");
@@ -135,7 +160,7 @@ describe("GET /api/admin/ops/routes-progress", () => {
       },
     } as never);
 
-    const response = await GET();
+    const response = await GET(makeRequest());
     const body = await response.json();
     expect(body[0].driver_name).toBe("Bob");
   });
@@ -157,7 +182,7 @@ describe("GET /api/admin/ops/routes-progress", () => {
       },
     } as never);
 
-    const response = await GET();
+    const response = await GET(makeRequest());
     const body = await response.json();
     expect(body).toEqual([]);
   });
@@ -190,7 +215,7 @@ describe("GET /api/admin/ops/routes-progress", () => {
       },
     } as never);
 
-    const response = await GET();
+    const response = await GET(makeRequest());
     const body = await response.json();
     expect(body[0].driver_name).toBeNull();
   });

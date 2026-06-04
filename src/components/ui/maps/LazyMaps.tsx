@@ -29,6 +29,28 @@ export const LazyRouteMap = dynamic(
 );
 
 /**
+ * Lazy-loaded DeliveryDayMap for the admin Delivery Day hub (live fleet view).
+ * SSR disabled — Google Maps touches `window` on import.
+ */
+export const LazyDeliveryDayMap = dynamic(
+  () =>
+    importWithRetry(
+      () => import("@/components/ui/admin/ops/DeliveryDayMap").then((mod) => mod.DeliveryDayMap),
+      "DeliveryDayMap"
+    ),
+  {
+    loading: () => (
+      <LoadingWithTimeout
+        skeleton={<MapSkeleton height={400} />}
+        timeoutMs={15000}
+        timeoutMessage="Map taking longer than expected"
+      />
+    ),
+    ssr: false,
+  }
+);
+
+/**
  * Lazy-loaded DeliveryMap for tracking page (eager load -- map IS the content).
  * Uses importWithRetry (3 retries, exponential backoff, Sentry logging)
  * and LoadingWithTimeout (15s timeout for mobile networks).
