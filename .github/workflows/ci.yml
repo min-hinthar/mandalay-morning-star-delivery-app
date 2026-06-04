@@ -83,6 +83,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Guard against a stale local stack holding the DB port (54322) — e.g. a
+      # superseded run cancelled mid `db start` by cancel-in-progress can leave
+      # its container behind on a non-ephemeral runner.
+      - name: Clean up any stale Supabase stack
+        run: |
+          pnpm exec supabase stop --no-backup 2>/dev/null || true
+          docker rm -f $(docker ps -aq --filter "name=supabase_") 2>/dev/null || true
+
       # Spin up the local Supabase stack and apply ALL migrations — this both
       # proves the migrations apply cleanly AND gives us a schema to generate
       # from. No production credentials: everything is local Docker.
