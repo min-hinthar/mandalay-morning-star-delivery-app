@@ -7,7 +7,7 @@
  * are muted. Reuses the app's shared Maps loader config.
  */
 
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
 import { Loader2, MapPin, Navigation } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -35,6 +35,8 @@ function minutesAgo(iso: string): number {
 
 export function DeliveryDayMap({ locations, className }: DeliveryDayMapProps) {
   const [map, setMap] = useState<google.maps.Map | null>(null);
+  const lastSigRef = useRef("");
+  const userMovedRef = useRef(false);
 
   const { isLoaded, loadError } = useJsApiLoader({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "",
@@ -51,18 +53,42 @@ export function DeliveryDayMap({ locations, className }: DeliveryDayMapProps) {
   const onLoad = useCallback((m: google.maps.Map) => setMap(m), []);
   const onUnmount = useCallback(() => setMap(null), []);
 
-  // Fit bounds to kitchen + all drivers whenever the set of points changes.
+  // Once the admin pans/zooms, stop auto-fitting so polling refreshes don't yank
+  // the viewport back. (Marker positions still update live every poll.)
+  useEffect(() => {
+    if (!map) return;
+    const drag = map.addListener("dragend", () => {
+      userMovedRef.current = true;
+    });
+    const zoom = map.addListener("zoom_changed", () => {
+      userMovedRef.current = true;
+    });
+    return () => {
+      google.maps.event.removeListener(drag);
+      google.maps.event.removeListener(zoom);
+    };
+  }, [map]);
+
+  // Fit to kitchen + drivers only when the actual set of positions changes (not
+  // on every poll's new array identity) and the user hasn't taken over the view.
   useEffect(() => {
     if (!map || !isLoaded) return;
-    const bounds = new google.maps.LatLngBounds();
-    bounds.extend(origin);
-    validLocations.forEach((l) => bounds.extend({ lat: l.lat, lng: l.lng }));
+    const sig = validLocations
+      .map((l) => `${l.driverId}:${l.lat.toFixed(5)}:${l.lng.toFixed(5)}`)
+      .sort()
+      .join("|");
+    if (sig === lastSigRef.current) return;
+    lastSigRef.current = sig;
+    if (userMovedRef.current) return;
     if (validLocations.length === 0) {
       map.setCenter(origin);
       map.setZoom(11);
-    } else {
-      map.fitBounds(bounds, { top: 56, bottom: 56, left: 56, right: 56 });
+      return;
     }
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend(origin);
+    validLocations.forEach((l) => bounds.extend({ lat: l.lat, lng: l.lng }));
+    map.fitBounds(bounds, { top: 56, bottom: 56, left: 56, right: 56 });
   }, [map, isLoaded, origin, validLocations]);
 
   if (!isLoaded) {
