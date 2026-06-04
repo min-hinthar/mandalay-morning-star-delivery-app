@@ -17,6 +17,7 @@ export type Database = {
         Row: {
           city: string;
           created_at: string;
+          distance_miles: number | null;
           formatted_address: string | null;
           id: string;
           is_default: boolean;
@@ -34,6 +35,7 @@ export type Database = {
         Insert: {
           city: string;
           created_at?: string;
+          distance_miles?: number | null;
           formatted_address?: string | null;
           id?: string;
           is_default?: boolean;
@@ -51,6 +53,7 @@ export type Database = {
         Update: {
           city?: string;
           created_at?: string;
+          distance_miles?: number | null;
           formatted_address?: string | null;
           id?: string;
           is_default?: boolean;
@@ -69,6 +72,44 @@ export type Database = {
           {
             foreignKeyName: "addresses_user_id_fkey";
             columns: ["user_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      app_settings: {
+        Row: {
+          category: string;
+          description: string | null;
+          id: string;
+          key: string;
+          updated_at: string | null;
+          updated_by: string | null;
+          value: Json;
+        };
+        Insert: {
+          category: string;
+          description?: string | null;
+          id?: string;
+          key: string;
+          updated_at?: string | null;
+          updated_by?: string | null;
+          value: Json;
+        };
+        Update: {
+          category?: string;
+          description?: string | null;
+          id?: string;
+          key?: string;
+          updated_at?: string | null;
+          updated_by?: string | null;
+          value?: Json;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "app_settings_updated_by_fkey";
+            columns: ["updated_by"];
             isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
@@ -105,40 +146,70 @@ export type Database = {
         };
         Relationships: [];
       };
-      app_settings: {
+      customer_feedback: {
         Row: {
-          category: string;
-          description: string | null;
+          admin_notes: string | null;
+          category: Database["public"]["Enums"]["feedback_category"];
+          contact_email: string | null;
+          created_at: string;
           id: string;
-          key: string;
-          updated_at: string | null;
-          updated_by: string | null;
-          value: Json;
+          message: string;
+          order_id: string | null;
+          page_url: string | null;
+          resolved_at: string | null;
+          screenshot_path: string | null;
+          screenshot_url: string | null;
+          sentry_event_id: string | null;
+          status: Database["public"]["Enums"]["feedback_status"];
+          subject: string;
+          updated_at: string;
+          user_agent: string | null;
+          user_id: string | null;
         };
         Insert: {
-          category: string;
-          description?: string | null;
+          admin_notes?: string | null;
+          category: Database["public"]["Enums"]["feedback_category"];
+          contact_email?: string | null;
+          created_at?: string;
           id?: string;
-          key: string;
-          updated_at?: string | null;
-          updated_by?: string | null;
-          value: Json;
+          message: string;
+          order_id?: string | null;
+          page_url?: string | null;
+          resolved_at?: string | null;
+          screenshot_path?: string | null;
+          screenshot_url?: string | null;
+          sentry_event_id?: string | null;
+          status?: Database["public"]["Enums"]["feedback_status"];
+          subject: string;
+          updated_at?: string;
+          user_agent?: string | null;
+          user_id?: string | null;
         };
         Update: {
-          category?: string;
-          description?: string | null;
+          admin_notes?: string | null;
+          category?: Database["public"]["Enums"]["feedback_category"];
+          contact_email?: string | null;
+          created_at?: string;
           id?: string;
-          key?: string;
-          updated_at?: string | null;
-          updated_by?: string | null;
-          value?: Json;
+          message?: string;
+          order_id?: string | null;
+          page_url?: string | null;
+          resolved_at?: string | null;
+          screenshot_path?: string | null;
+          screenshot_url?: string | null;
+          sentry_event_id?: string | null;
+          status?: Database["public"]["Enums"]["feedback_status"];
+          subject?: string;
+          updated_at?: string;
+          user_agent?: string | null;
+          user_id?: string | null;
         };
         Relationships: [
           {
-            foreignKeyName: "app_settings_updated_by_fkey";
-            columns: ["updated_by"];
+            foreignKeyName: "customer_feedback_order_id_fkey";
+            columns: ["order_id"];
             isOneToOne: false;
-            referencedRelation: "profiles";
+            referencedRelation: "orders";
             referencedColumns: ["id"];
           },
         ];
@@ -180,6 +251,45 @@ export type Database = {
             referencedColumns: ["id"];
           },
         ];
+      };
+      delivery_days: {
+        Row: {
+          created_at: string;
+          cutoff_day: number;
+          cutoff_hour: number;
+          day_of_week: number;
+          delivery_fee_cents: number;
+          direction: string;
+          display_order: number;
+          id: string;
+          is_active: boolean;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          cutoff_day: number;
+          cutoff_hour?: number;
+          day_of_week: number;
+          delivery_fee_cents?: number;
+          direction?: string;
+          display_order?: number;
+          id?: string;
+          is_active?: boolean;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          cutoff_day?: number;
+          cutoff_hour?: number;
+          day_of_week?: number;
+          delivery_fee_cents?: number;
+          direction?: string;
+          display_order?: number;
+          id?: string;
+          is_active?: boolean;
+          updated_at?: string;
+        };
+        Relationships: [];
       };
       delivery_exceptions: {
         Row: {
@@ -232,72 +342,33 @@ export type Database = {
           },
         ];
       };
-      delivery_days: {
-        Row: {
-          id: string;
-          day_of_week: number;
-          is_active: boolean;
-          cutoff_day: number;
-          cutoff_hour: number;
-          delivery_fee_cents: number;
-          direction: string;
-          display_order: number;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          day_of_week: number;
-          is_active?: boolean;
-          cutoff_day: number;
-          cutoff_hour: number;
-          delivery_fee_cents?: number;
-          direction?: string;
-          display_order?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          day_of_week?: number;
-          is_active?: boolean;
-          cutoff_day?: number;
-          cutoff_hour?: number;
-          delivery_fee_cents?: number;
-          direction?: string;
-          display_order?: number;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
       delivery_zones: {
         Row: {
-          id: string;
-          direction: string;
-          bearing_start: number;
           bearing_end: number;
+          bearing_start: number;
+          created_at: string | null;
+          direction: string;
+          id: string;
           reference_cities: string[];
-          created_at: string;
-          updated_at: string;
+          updated_at: string | null;
         };
         Insert: {
-          id?: string;
-          direction: string;
-          bearing_start: number;
           bearing_end: number;
+          bearing_start: number;
+          created_at?: string | null;
+          direction: string;
+          id?: string;
           reference_cities?: string[];
-          created_at?: string;
-          updated_at?: string;
+          updated_at?: string | null;
         };
         Update: {
-          id?: string;
-          direction?: string;
-          bearing_start?: number;
           bearing_end?: number;
+          bearing_start?: number;
+          created_at?: string | null;
+          direction?: string;
+          id?: string;
           reference_cities?: string[];
-          created_at?: string;
-          updated_at?: string;
+          updated_at?: string | null;
         };
         Relationships: [];
       };
@@ -694,6 +765,48 @@ export type Database = {
           },
         ];
       };
+      loyalty_rewards: {
+        Row: {
+          acknowledged_at: string | null;
+          created_at: string;
+          expires_at: string | null;
+          id: string;
+          kind: string;
+          milestone: number | null;
+          redeemed_at: string | null;
+          reminded_at: string | null;
+          reward_cents: number;
+          reward_code: string | null;
+          user_id: string;
+        };
+        Insert: {
+          acknowledged_at?: string | null;
+          created_at?: string;
+          expires_at?: string | null;
+          id?: string;
+          kind?: string;
+          milestone?: number | null;
+          redeemed_at?: string | null;
+          reminded_at?: string | null;
+          reward_cents?: number;
+          reward_code?: string | null;
+          user_id: string;
+        };
+        Update: {
+          acknowledged_at?: string | null;
+          created_at?: string;
+          expires_at?: string | null;
+          id?: string;
+          kind?: string;
+          milestone?: number | null;
+          redeemed_at?: string | null;
+          reminded_at?: string | null;
+          reward_cents?: number;
+          reward_code?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       menu_categories: {
         Row: {
           created_at: string;
@@ -1074,25 +1187,25 @@ export type Database = {
         Row: {
           address_id: string | null;
           assigned_driver_id: string | null;
+          cod_approved_at: string | null;
+          cod_approved_by: string | null;
           confirmed_at: string | null;
           contacted_at: string | null;
           contacted_by: string | null;
           created_at: string;
+          customer_name: string | null;
+          customer_phone: string | null;
           delivered_at: string | null;
           delivery_fee_cents: number;
           delivery_instructions: string | null;
           delivery_window_end: string | null;
           delivery_window_start: string | null;
-          customer_name: string | null;
-          customer_phone: string | null;
-          distance_miles: number | null;
           discount_cents: number;
+          distance_miles: number | null;
           id: string;
           is_priority: boolean | null;
           needs_contact: boolean | null;
-          payment_method: Database["public"]["Enums"]["payment_method"];
-          cod_approved_at: string | null;
-          cod_approved_by: string | null;
+          payment_method: string;
           placed_at: string;
           promo_code: string | null;
           rating_dismissed: boolean;
@@ -1112,25 +1225,25 @@ export type Database = {
         Insert: {
           address_id?: string | null;
           assigned_driver_id?: string | null;
+          cod_approved_at?: string | null;
+          cod_approved_by?: string | null;
           confirmed_at?: string | null;
           contacted_at?: string | null;
           contacted_by?: string | null;
           created_at?: string;
+          customer_name?: string | null;
+          customer_phone?: string | null;
           delivered_at?: string | null;
           delivery_fee_cents?: number;
           delivery_instructions?: string | null;
           delivery_window_end?: string | null;
           delivery_window_start?: string | null;
-          customer_name?: string | null;
-          customer_phone?: string | null;
-          distance_miles?: number | null;
           discount_cents?: number;
+          distance_miles?: number | null;
           id?: string;
           is_priority?: boolean | null;
           needs_contact?: boolean | null;
-          payment_method?: Database["public"]["Enums"]["payment_method"];
-          cod_approved_at?: string | null;
-          cod_approved_by?: string | null;
+          payment_method?: string;
           placed_at?: string;
           promo_code?: string | null;
           rating_dismissed?: boolean;
@@ -1150,25 +1263,25 @@ export type Database = {
         Update: {
           address_id?: string | null;
           assigned_driver_id?: string | null;
+          cod_approved_at?: string | null;
+          cod_approved_by?: string | null;
           confirmed_at?: string | null;
           contacted_at?: string | null;
           contacted_by?: string | null;
           created_at?: string;
+          customer_name?: string | null;
+          customer_phone?: string | null;
           delivered_at?: string | null;
           delivery_fee_cents?: number;
           delivery_instructions?: string | null;
           delivery_window_end?: string | null;
           delivery_window_start?: string | null;
-          customer_name?: string | null;
-          customer_phone?: string | null;
-          distance_miles?: number | null;
           discount_cents?: number;
+          distance_miles?: number | null;
           id?: string;
           is_priority?: boolean | null;
           needs_contact?: boolean | null;
-          payment_method?: Database["public"]["Enums"]["payment_method"];
-          cod_approved_at?: string | null;
-          cod_approved_by?: string | null;
+          payment_method?: string;
           placed_at?: string;
           promo_code?: string | null;
           rating_dismissed?: boolean;
@@ -1205,6 +1318,13 @@ export type Database = {
             columns: ["assigned_driver_id"];
             isOneToOne: false;
             referencedRelation: "drivers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "orders_cod_approved_by_fkey";
+            columns: ["cod_approved_by"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
           {
@@ -1268,44 +1388,32 @@ export type Database = {
         };
         Relationships: [];
       };
-      loyalty_rewards: {
+      push_subscriptions: {
         Row: {
-          acknowledged_at: string | null;
+          auth: string;
           created_at: string;
-          expires_at: string | null;
+          endpoint: string;
           id: string;
-          kind: string;
-          milestone: number | null;
-          reminded_at: string | null;
-          redeemed_at: string | null;
-          reward_cents: number;
-          reward_code: string | null;
+          p256dh: string;
+          user_agent: string | null;
           user_id: string;
         };
         Insert: {
-          acknowledged_at?: string | null;
+          auth: string;
           created_at?: string;
-          expires_at?: string | null;
+          endpoint: string;
           id?: string;
-          kind?: string;
-          milestone?: number | null;
-          reminded_at?: string | null;
-          redeemed_at?: string | null;
-          reward_cents?: number;
-          reward_code?: string | null;
+          p256dh: string;
+          user_agent?: string | null;
           user_id: string;
         };
         Update: {
-          acknowledged_at?: string | null;
+          auth?: string;
           created_at?: string;
-          expires_at?: string | null;
+          endpoint?: string;
           id?: string;
-          kind?: string;
-          milestone?: number | null;
-          reminded_at?: string | null;
-          redeemed_at?: string | null;
-          reward_cents?: number;
-          reward_code?: string | null;
+          p256dh?: string;
+          user_agent?: string | null;
           user_id?: string;
         };
         Relationships: [];
@@ -1340,36 +1448,6 @@ export type Database = {
           reward_cents?: number;
           reward_code?: string | null;
           status?: string;
-        };
-        Relationships: [];
-      };
-      push_subscriptions: {
-        Row: {
-          auth: string;
-          created_at: string;
-          endpoint: string;
-          id: string;
-          p256dh: string;
-          user_agent: string | null;
-          user_id: string;
-        };
-        Insert: {
-          auth: string;
-          created_at?: string;
-          endpoint: string;
-          id?: string;
-          p256dh: string;
-          user_agent?: string | null;
-          user_id: string;
-        };
-        Update: {
-          auth?: string;
-          created_at?: string;
-          endpoint?: string;
-          id?: string;
-          p256dh?: string;
-          user_agent?: string | null;
-          user_id?: string;
         };
         Relationships: [];
       };
@@ -1435,8 +1513,12 @@ export type Database = {
       };
       routes: {
         Row: {
+          accepted_at: string | null;
           completed_at: string | null;
           created_at: string;
+          declined_at: string | null;
+          declined_by: string | null;
+          declined_reason: string | null;
           delivery_date: string;
           driver_id: string | null;
           id: string;
@@ -1444,15 +1526,15 @@ export type Database = {
           started_at: string | null;
           stats_json: Json | null;
           status: Database["public"]["Enums"]["route_status"];
-          accepted_at: string | null;
-          declined_at: string | null;
-          declined_reason: string | null;
-          declined_by: string | null;
           updated_at: string;
         };
         Insert: {
+          accepted_at?: string | null;
           completed_at?: string | null;
           created_at?: string;
+          declined_at?: string | null;
+          declined_by?: string | null;
+          declined_reason?: string | null;
           delivery_date: string;
           driver_id?: string | null;
           id?: string;
@@ -1460,15 +1542,15 @@ export type Database = {
           started_at?: string | null;
           stats_json?: Json | null;
           status?: Database["public"]["Enums"]["route_status"];
-          accepted_at?: string | null;
-          declined_at?: string | null;
-          declined_reason?: string | null;
-          declined_by?: string | null;
           updated_at?: string;
         };
         Update: {
+          accepted_at?: string | null;
           completed_at?: string | null;
           created_at?: string;
+          declined_at?: string | null;
+          declined_by?: string | null;
+          declined_reason?: string | null;
           delivery_date?: string;
           driver_id?: string | null;
           id?: string;
@@ -1476,13 +1558,23 @@ export type Database = {
           started_at?: string | null;
           stats_json?: Json | null;
           status?: Database["public"]["Enums"]["route_status"];
-          accepted_at?: string | null;
-          declined_at?: string | null;
-          declined_reason?: string | null;
-          declined_by?: string | null;
           updated_at?: string;
         };
         Relationships: [
+          {
+            foreignKeyName: "routes_declined_by_fkey";
+            columns: ["declined_by"];
+            isOneToOne: false;
+            referencedRelation: "driver_stats_mv";
+            referencedColumns: ["driver_id"];
+          },
+          {
+            foreignKeyName: "routes_declined_by_fkey";
+            columns: ["declined_by"];
+            isOneToOne: false;
+            referencedRelation: "drivers";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "routes_driver_id_fkey";
             columns: ["driver_id"];
@@ -1715,8 +1807,12 @@ export type Database = {
       _table_privs: { Args: never; Returns: unknown[] };
       _temptypes: { Args: { "": string }; Returns: string };
       _todo: { Args: never; Returns: string };
+      apply_item_refunds: {
+        Args: { p_items: Json; p_order_id: string; p_refund_shipping?: boolean };
+        Returns: Json;
+      };
       batch_update_stop_indices: {
-        Args: { p_stop_ids: string[]; p_indices: number[] };
+        Args: { p_indices: number[]; p_stop_ids: string[] };
         Returns: undefined;
       };
       calculate_driver_streak: {
@@ -1764,10 +1860,6 @@ export type Database = {
             };
             Returns: string;
           };
-      apply_item_refunds: {
-        Args: { p_order_id: string; p_items: Json; p_refund_shipping: boolean };
-        Returns: Json;
-      };
       create_order_with_items: {
         Args: { p_items: Json; p_modifiers?: Json; p_order: Json };
         Returns: Json;
@@ -1791,6 +1883,15 @@ export type Database = {
       fail: { Args: never; Returns: string } | { Args: { "": string }; Returns: string };
       findfuncs: { Args: { "": string }; Returns: string[] };
       finish: { Args: { exception_on_failure?: boolean }; Returns: string[] };
+      get_anniversary_customers: {
+        Args: { p_limit?: number };
+        Returns: {
+          email: string;
+          full_name: string;
+          user_id: string;
+          years: number;
+        }[];
+      };
       get_delivery_metrics_admin: {
         Args: never;
         Returns: {
@@ -1839,53 +1940,6 @@ export type Database = {
           total_ratings: number;
         }[];
       };
-      get_lapsed_customers: {
-        Args: { p_limit?: number };
-        Returns: {
-          user_id: string;
-          email: string;
-          full_name: string;
-          last_order_at: string;
-        }[];
-      };
-      get_loyalty_thankyou_candidates: {
-        Args: { p_limit?: number };
-        Returns: {
-          user_id: string;
-          email: string;
-          full_name: string;
-          order_count: number;
-        }[];
-      };
-      get_anniversary_customers: {
-        Args: { p_limit?: number };
-        Returns: {
-          user_id: string;
-          email: string;
-          full_name: string;
-          years: number;
-        }[];
-      };
-      get_loyalty_tier_distribution: {
-        Args: never;
-        Returns: {
-          tier: string;
-          customers: number;
-          orders: number;
-        }[];
-      };
-      get_expiring_loyalty_rewards: {
-        Args: { p_days?: number; p_limit?: number };
-        Returns: {
-          id: string;
-          user_id: string;
-          email: string;
-          full_name: string;
-          reward_code: string;
-          reward_cents: number;
-          expires_at: string;
-        }[];
-      };
       get_driver_stats_admin: {
         Args: never;
         Returns: {
@@ -1924,6 +1978,44 @@ export type Database = {
           isSetofReturn: true;
         };
       };
+      get_expiring_loyalty_rewards: {
+        Args: { p_days?: number; p_limit?: number };
+        Returns: {
+          email: string;
+          expires_at: string;
+          full_name: string;
+          id: string;
+          reward_cents: number;
+          reward_code: string;
+          user_id: string;
+        }[];
+      };
+      get_lapsed_customers: {
+        Args: { p_limit?: number };
+        Returns: {
+          email: string;
+          full_name: string;
+          last_order_at: string;
+          user_id: string;
+        }[];
+      };
+      get_loyalty_thankyou_candidates: {
+        Args: { p_limit?: number };
+        Returns: {
+          email: string;
+          full_name: string;
+          order_count: number;
+          user_id: string;
+        }[];
+      };
+      get_loyalty_tier_distribution: {
+        Args: never;
+        Returns: {
+          customers: number;
+          orders: number;
+          tier: string;
+        }[];
+      };
       get_my_driver_id: { Args: never; Returns: string };
       has_unique: { Args: { "": string }; Returns: string };
       in_todo: { Args: never; Returns: boolean };
@@ -1932,6 +2024,10 @@ export type Database = {
       is_empty: { Args: { "": string }; Returns: string };
       isnt_empty: { Args: { "": string }; Returns: string };
       lives_ok: { Args: { "": string }; Returns: string };
+      merge_routes: {
+        Args: { p_destination_route_id: string; p_source_route_id: string };
+        Returns: number;
+      };
       no_plan: { Args: never; Returns: boolean[] };
       num_failed: { Args: never; Returns: number };
       os_name: { Args: never; Returns: string };
@@ -2210,21 +2306,23 @@ export type Database = {
             }[];
           };
       promote_next_stop: {
-        Args: {
-          p_route_id: string;
-          p_completed_stop_id: string;
-        };
+        Args: { p_completed_stop_id: string; p_route_id: string };
         Returns: Json;
       };
-      reindex_route_stops: {
-        Args: { p_route_id: string };
-        Returns: undefined;
-      };
       refresh_analytics_views: { Args: never; Returns: undefined };
+      reindex_route_stops: { Args: { p_route_id: string }; Returns: undefined };
       runtests: { Args: never; Returns: string[] } | { Args: { "": string }; Returns: string[] };
       skip:
         | { Args: { "": string }; Returns: string }
         | { Args: { how_many: number; why: string }; Returns: string };
+      split_route: {
+        Args: {
+          p_new_driver_id?: string;
+          p_source_route_id: string;
+          p_stop_ids: string[];
+        };
+        Returns: string;
+      };
       throws_ok: { Args: { "": string }; Returns: string };
       todo:
         | { Args: { how_many: number }; Returns: boolean[] }
@@ -2235,25 +2333,7 @@ export type Database = {
       todo_start:
         | { Args: never; Returns: boolean[] }
         | { Args: { "": string }; Returns: boolean[] };
-      update_route_stats: {
-        Args: { p_route_id: string };
-        Returns: Json;
-      };
-      split_route: {
-        Args: {
-          p_source_route_id: string;
-          p_stop_ids: string[];
-          p_new_driver_id?: string;
-        };
-        Returns: string;
-      };
-      merge_routes: {
-        Args: {
-          p_destination_route_id: string;
-          p_source_route_id: string;
-        };
-        Returns: number;
-      };
+      update_route_stats: { Args: { p_route_id: string }; Returns: Json };
     };
     Enums: {
       delivery_exception_type:
@@ -2263,6 +2343,8 @@ export type Database = {
         | "refused_delivery"
         | "damaged_order"
         | "other";
+      feedback_category: "bug_report" | "order_issue" | "suggestion" | "general";
+      feedback_status: "new" | "in_review" | "resolved" | "dismissed";
       notification_status:
         | "pending"
         | "sent"
@@ -2288,8 +2370,7 @@ export type Database = {
         | "out_for_delivery"
         | "delivered"
         | "cancelled";
-      payment_method: "stripe" | "cod";
-      route_status: "planned" | "assigned" | "accepted" | "in_progress" | "completed";
+      route_status: "planned" | "in_progress" | "completed" | "assigned" | "accepted";
       route_stop_status: "pending" | "enroute" | "arrived" | "delivered" | "skipped";
       vehicle_type: "car" | "motorcycle" | "bicycle" | "van" | "truck";
     };
@@ -2427,6 +2508,8 @@ export const Constants = {
         "damaged_order",
         "other",
       ],
+      feedback_category: ["bug_report", "order_issue", "suggestion", "general"],
+      feedback_status: ["new", "in_review", "resolved", "dismissed"],
       notification_status: [
         "pending",
         "sent",
@@ -2455,8 +2538,7 @@ export const Constants = {
         "delivered",
         "cancelled",
       ],
-      payment_method: ["stripe", "cod"],
-      route_status: ["planned", "assigned", "accepted", "in_progress", "completed"],
+      route_status: ["planned", "in_progress", "completed", "assigned", "accepted"],
       route_stop_status: ["pending", "enroute", "arrived", "delivered", "skipped"],
       vehicle_type: ["car", "motorcycle", "bicycle", "van", "truck"],
     },

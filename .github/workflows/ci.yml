@@ -64,16 +64,12 @@ jobs:
     name: DB types match migrations
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # NON-BLOCKING until two things are resolved (this job already surfaced both):
-    #   1. Legacy migrations don't apply cleanly from scratch — 000_initial_schema
-    #      and 001_schema both CREATE TYPE order_status (collision), and some
-    #      historical files predate the strict <timestamp>_name.sql naming. These
-    #      need a migration-history cleanup (out of scope here).
-    #   2. The committed database.generated.ts was hand-maintained, so the first
-    #      real `supabase gen types --local` will differ (formatting/ordering).
-    # To arm as a required check: clean up the migration history so the local
-    # stack starts, run `pnpm gen:types`, commit the baseline, then remove this line.
-    continue-on-error: true
+    # BLOCKING. The entangled migration lineages were squashed to a single
+    # live-schema baseline (supabase/migrations/00000000000000_baseline.sql;
+    # legacy files preserved in supabase/migrations_archive/), so the local
+    # stack starts cleanly, and database.generated.ts was regenerated from that
+    # schema. This job now fails the build if a migration changes the schema
+    # without a matching `pnpm gen:types`.
     steps:
       - uses: actions/checkout@v4
 
