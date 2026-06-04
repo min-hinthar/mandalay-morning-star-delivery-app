@@ -6,11 +6,6 @@
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.1";
-  };
   public: {
     Tables: {
       addresses: {
@@ -1804,6 +1799,7 @@ export type Database = {
       _prokind: { Args: { p_oid: unknown }; Returns: unknown };
       _query: { Args: { "": string }; Returns: string };
       _refine_vol: { Args: { "": string }; Returns: string };
+      _retval: { Args: { "": string }; Returns: string };
       _table_privs: { Args: never; Returns: unknown[] };
       _temptypes: { Args: { "": string }; Returns: string };
       _todo: { Args: never; Returns: string };
@@ -1883,6 +1879,7 @@ export type Database = {
       fail: { Args: never; Returns: string } | { Args: { "": string }; Returns: string };
       findfuncs: { Args: { "": string }; Returns: string[] };
       finish: { Args: { exception_on_failure?: boolean }; Returns: string[] };
+      format_type_string: { Args: { "": string }; Returns: string };
       get_anniversary_customers: {
         Args: { p_limit?: number };
         Returns: {
