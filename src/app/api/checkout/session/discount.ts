@@ -33,12 +33,34 @@ export async function resolveCheckoutDiscount(
   supabase: SupabaseClient<Database>,
   userId: string,
   subtotalCents: number,
-  promoCode: string | undefined
+  promoCode: string | undefined,
+  /** Service-role client, used ONLY for the loyalty-code ownership lookup (must
+   * see rows the customer doesn't own to reject cross-account use). */
+  serviceClient: SupabaseClient<Database>
 ): Promise<ResolveDiscountResult> {
   if (promoCode) {
     const promo = await validatePromoCode(promoCode);
     if (!promo.valid) {
       return { ok: false, message: promo.message };
+    }
+    // Loyalty codes (KYAYZU-) are issued to one customer. Stripe's
+    // max_redemptions:1 already blocks reuse, but bind the code to its owner
+    // here so a leaked code can't be redeemed by another account and the
+    // customer gets a clear message before paying. Referral codes are
+    // intentionally shareable, so they're exempt. Uses the service client so
+    // RLS doesn't hide another account's row (which would mask the real cause).
+    if (promoCode.toUpperCase().startsWith("KYAYZU-")) {
+      const { data: reward } = await serviceClient
+        .from("loyalty_rewards")
+        .select("user_id")
+        .eq("reward_code", promoCode)
+        .maybeSingle();
+      if (!reward) {
+        return { ok: false, message: "Invalid or expired promo code" };
+      }
+      if (reward.user_id !== userId) {
+        return { ok: false, message: "This reward is linked to a different account." };
+      }
     }
     if (promo.minimumAmountCents !== null && subtotalCents < promo.minimumAmountCents) {
       return {

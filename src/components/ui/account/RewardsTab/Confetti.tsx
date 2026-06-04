@@ -5,6 +5,7 @@ import { m } from "framer-motion";
 
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { easing } from "@/lib/motion-tokens";
 
 // Brand + tier palette (token classes only).
 const COLORS = [
@@ -33,8 +34,9 @@ function makePieces(): Piece[] {
     const size = 6 + Math.round(Math.random() * 6);
     return {
       left: Math.random() * 100,
-      delay: Math.random() * 0.25,
-      duration: 1.6 + Math.random() * 1.3,
+      delay: Math.random() * 0.2,
+      // Tighter spread (1.8–2.4s) so the burst has a clear, shared end.
+      duration: 1.8 + Math.random() * 0.6,
       xDrift: (Math.random() - 0.5) * 180,
       rotate: Math.random() * 720 - 360,
       color: COLORS[i % COLORS.length],
@@ -64,7 +66,7 @@ export function Confetti() {
           style={{ left: `${p.left}%`, width: p.width, height: p.height }}
           initial={{ y: -24, opacity: 0, rotate: 0 }}
           animate={{ y: "130%", x: p.xDrift, rotate: p.rotate, opacity: [0, 1, 1, 0] }}
-          transition={{ duration: p.duration, delay: p.delay, ease: "easeIn" }}
+          transition={{ duration: p.duration, delay: p.delay, ease: easing.in }}
         />
       ))}
     </div>

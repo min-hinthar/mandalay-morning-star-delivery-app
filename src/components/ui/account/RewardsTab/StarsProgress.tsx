@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { formatPrice } from "@/lib/utils/currency";
 import type { LoyaltyTierId } from "@/lib/loyalty";
+import { ordersToReward, ordersToTier } from "@/lib/loyalty/copy";
 import { tierAccent } from "./tierStyle";
 
 interface TierInfo {
@@ -50,13 +51,18 @@ export function StarsProgress({
   const offset = CIRCUMFERENCE * (1 - fraction);
   const reward = formatPrice(nextRewardCents);
   const accent = tierAccent(tier.id);
+  const progressCopy = ordersToReward(ordersToNext, reward);
+  const ringLabel = `${stars} Stars. ${progressCopy.en}. Current tier: ${tier.english}.`;
 
   return (
-    <section className="rounded-card bg-gradient-to-br from-primary/5 to-accent-orange/10 border border-primary/15 p-6">
+    <section
+      aria-label="Morning Star Rewards progress"
+      className="rounded-card bg-gradient-to-br from-primary/5 to-accent-orange/10 border border-primary/15 p-6"
+    >
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
-        {/* Ring */}
-        <div className="relative h-36 w-36 shrink-0">
-          <svg className="h-full w-full -rotate-90" viewBox="0 0 128 128">
+        {/* Ring — exposed to AT as a single labeled image */}
+        <div className="relative h-36 w-36 shrink-0" role="img" aria-label={ringLabel}>
+          <svg className="h-full w-full -rotate-90" viewBox="0 0 128 128" aria-hidden="true">
             <circle
               className="stroke-current text-border-subtle"
               cx="64"
@@ -76,10 +82,13 @@ export function StarsProgress({
               strokeDasharray={CIRCUMFERENCE}
               initial={shouldAnimate ? { strokeDashoffset: CIRCUMFERENCE } : false}
               animate={{ strokeDashoffset: offset }}
-              transition={{ duration: 1, ease: "easeOut" }}
+              transition={{ duration: 1, ease: [0, 0.7, 0.2, 1] }}
             />
           </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <div
+            className="absolute inset-0 flex flex-col items-center justify-center"
+            aria-hidden="true"
+          >
             <Star className={cn("h-5 w-5 fill-current", accent.text)} />
             <span className="mt-0.5 text-3xl font-bold leading-none text-text-primary">
               {stars}
@@ -122,20 +131,23 @@ export function StarsProgress({
               </>
             )}
           </p>
-          <p className="mt-1 text-sm text-accent-orange">
-            နောက်ထပ် {ordersToNext} ခါ မှာရင် {reward} ပြန်ရမယ်နော် 💛
+          <p lang="my" className="mt-1 text-sm text-accent-orange">
+            {progressCopy.my} 💛
           </p>
 
           {/* Climb to the next tier */}
           {nextTier && ordersToNextTier != null && (
             <p className="mt-2 text-xs text-text-muted">
-              {ordersToNextTier} more {ordersToNextTier === 1 ? "order" : "orders"} to{" "}
-              <span aria-hidden="true">{nextTier.emoji}</span> {nextTier.name} ({nextTier.english})
+              <span aria-hidden="true">{nextTier.emoji} </span>
+              {ordersToTier(ordersToNextTier, `${nextTier.name} (${nextTier.english})`).en}
             </p>
           )}
 
-          {/* Milestone dots */}
-          <div className="mt-3 flex items-center justify-center gap-1 sm:justify-start">
+          {/* Milestone dots — decorative; the ring's aria-label conveys progress */}
+          <div
+            className="mt-3 flex items-center justify-center gap-1 sm:justify-start"
+            aria-hidden="true"
+          >
             {Array.from({ length: milestoneStep }).map((_, i) => (
               <Star
                 key={i}
