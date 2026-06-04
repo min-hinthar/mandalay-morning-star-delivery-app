@@ -11,6 +11,7 @@ import {
   ordersToNextMilestone,
   spendToNextTierCents,
   orderSpendCents,
+  orderRefundedCents,
   progressInCycle,
   rewardCentsForSpend,
   rewardExpiryISO,
@@ -71,6 +72,45 @@ describe("loyalty helpers", () => {
       expect(orderSpendCents(5000, 0)).toBe(5000);
       expect(orderSpendCents(5000, 800)).toBe(4200);
       expect(orderSpendCents(800, 1000)).toBe(0); // discount > subtotal → 0
+    });
+
+    it("subtracts refunded value (refund → spend loophole closed)", () => {
+      expect(orderSpendCents(5000, 0, 5000)).toBe(0); // full refund → 0
+      expect(orderSpendCents(5000, 0, 2000)).toBe(3000); // partial refund
+      expect(orderSpendCents(5000, 800, 1000)).toBe(3200); // discount + refund
+      expect(orderSpendCents(5000, 0, 9999)).toBe(0); // over-refund floors at 0
+      expect(orderSpendCents(5000, 0, -100)).toBe(5000); // negative refund ignored
+    });
+  });
+
+  describe("orderRefundedCents", () => {
+    it("sums refunded value proportionally per item", () => {
+      // 2 @ $20 line ($40), 1 refunded → $20
+      expect(
+        orderRefundedCents([{ line_total_cents: 4000, quantity: 2, refunded_quantity: 1 }])
+      ).toBe(2000);
+      // fully refunded single item
+      expect(
+        orderRefundedCents([{ line_total_cents: 1500, quantity: 1, refunded_quantity: 1 }])
+      ).toBe(1500);
+      // multiple items, mixed
+      expect(
+        orderRefundedCents([
+          { line_total_cents: 4000, quantity: 2, refunded_quantity: 2 },
+          { line_total_cents: 1000, quantity: 1, refunded_quantity: 0 },
+        ])
+      ).toBe(4000);
+    });
+
+    it("is null-safe and ignores over-refund / zero-qty", () => {
+      expect(orderRefundedCents([])).toBe(0);
+      expect(
+        orderRefundedCents([{ line_total_cents: null, quantity: null, refunded_quantity: null }])
+      ).toBe(0);
+      // refunded_quantity capped at quantity
+      expect(
+        orderRefundedCents([{ line_total_cents: 2000, quantity: 2, refunded_quantity: 5 }])
+      ).toBe(2000);
     });
   });
 
