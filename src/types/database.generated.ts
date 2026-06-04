@@ -1709,100 +1709,8 @@ export type Database = {
           },
         ];
       };
-      pg_all_foreign_keys: {
-        Row: {
-          fk_columns: unknown[] | null;
-          fk_constraint_name: unknown;
-          fk_schema_name: unknown;
-          fk_table_name: unknown;
-          fk_table_oid: unknown;
-          is_deferrable: boolean | null;
-          is_deferred: boolean | null;
-          match_type: string | null;
-          on_delete: string | null;
-          on_update: string | null;
-          pk_columns: unknown[] | null;
-          pk_constraint_name: unknown;
-          pk_index_name: unknown;
-          pk_schema_name: unknown;
-          pk_table_name: unknown;
-          pk_table_oid: unknown;
-        };
-        Relationships: [];
-      };
-      tap_funky: {
-        Row: {
-          args: string | null;
-          is_definer: boolean | null;
-          is_strict: boolean | null;
-          is_visible: boolean | null;
-          kind: unknown;
-          langoid: unknown;
-          name: unknown;
-          oid: unknown;
-          owner: unknown;
-          returns: string | null;
-          returns_set: boolean | null;
-          schema: unknown;
-          volatility: string | null;
-        };
-        Relationships: [];
-      };
     };
     Functions: {
-      __plpgsql_show_dependency_tb:
-        | {
-            Args: {
-              anycompatiblerangetype?: unknown;
-              anycompatibletype?: unknown;
-              anyelememttype?: unknown;
-              anyenumtype?: unknown;
-              anyrangetype?: unknown;
-              funcoid: unknown;
-              relid?: unknown;
-            };
-            Returns: {
-              name: string;
-              oid: unknown;
-              params: string;
-              schema: string;
-              type: string;
-            }[];
-          }
-        | {
-            Args: {
-              anycompatiblerangetype?: unknown;
-              anycompatibletype?: unknown;
-              anyelememttype?: unknown;
-              anyenumtype?: unknown;
-              anyrangetype?: unknown;
-              name: string;
-              relid?: unknown;
-            };
-            Returns: {
-              name: string;
-              oid: unknown;
-              params: string;
-              schema: string;
-              type: string;
-            }[];
-          };
-      _cleanup: { Args: never; Returns: boolean };
-      _contract_on: { Args: { "": string }; Returns: unknown };
-      _currtest: { Args: never; Returns: number };
-      _db_privs: { Args: never; Returns: unknown[] };
-      _extensions: { Args: never; Returns: unknown[] };
-      _get: { Args: { "": string }; Returns: number };
-      _get_latest: { Args: { "": string }; Returns: number[] };
-      _get_note: { Args: { "": string }; Returns: string };
-      _is_verbose: { Args: never; Returns: boolean };
-      _prokind: { Args: { p_oid: unknown }; Returns: unknown };
-      _query: { Args: { "": string }; Returns: string };
-      _refine_vol: { Args: { "": string }; Returns: string };
-      _retval: { Args: { "": string }; Returns: string };
-      _table_privs: { Args: never; Returns: unknown[] };
-      _temptypes: { Args: { "": string }; Returns: string };
-      _todo: { Args: never; Returns: string };
       apply_item_refunds: {
         Args: { p_items: Json; p_order_id: string; p_refund_shipping?: boolean };
         Returns: Json;
@@ -1820,66 +1728,11 @@ export type Database = {
         Returns: number;
       };
       calculate_route_stats: { Args: { p_route_id: string }; Returns: Json };
-      col_is_null:
-        | {
-            Args: {
-              column_name: unknown;
-              description?: string;
-              schema_name: unknown;
-              table_name: unknown;
-            };
-            Returns: string;
-          }
-        | {
-            Args: {
-              column_name: unknown;
-              description?: string;
-              table_name: unknown;
-            };
-            Returns: string;
-          };
-      col_not_null:
-        | {
-            Args: {
-              column_name: unknown;
-              description?: string;
-              schema_name: unknown;
-              table_name: unknown;
-            };
-            Returns: string;
-          }
-        | {
-            Args: {
-              column_name: unknown;
-              description?: string;
-              table_name: unknown;
-            };
-            Returns: string;
-          };
       create_order_with_items: {
         Args: { p_items: Json; p_modifiers?: Json; p_order: Json };
         Returns: Json;
       };
       delivery_date: { Args: { ts: string }; Returns: string };
-      diag:
-        | {
-            Args: { msg: unknown };
-            Returns: {
-              error: true;
-            } & "Could not choose the best candidate function between: public.diag(msg => text), public.diag(msg => anyelement). Try renaming the parameters or the function itself in the database so function overloading can be resolved";
-          }
-        | {
-            Args: { msg: string };
-            Returns: {
-              error: true;
-            } & "Could not choose the best candidate function between: public.diag(msg => text), public.diag(msg => anyelement). Try renaming the parameters or the function itself in the database so function overloading can be resolved";
-          };
-      diag_test_name: { Args: { "": string }; Returns: string };
-      do_tap: { Args: never; Returns: string[] } | { Args: { "": string }; Returns: string[] };
-      fail: { Args: never; Returns: string } | { Args: { "": string }; Returns: string };
-      findfuncs: { Args: { "": string }; Returns: string[] };
-      finish: { Args: { exception_on_failure?: boolean }; Returns: string[] };
-      format_type_string: { Args: { "": string }; Returns: string };
       get_anniversary_customers: {
         Args: { p_limit?: number };
         Returns: {
@@ -2014,304 +1867,18 @@ export type Database = {
         }[];
       };
       get_my_driver_id: { Args: never; Returns: string };
-      has_unique: { Args: { "": string }; Returns: string };
-      in_todo: { Args: never; Returns: boolean };
       is_admin: { Args: never; Returns: boolean };
       is_driver: { Args: never; Returns: boolean };
-      is_empty: { Args: { "": string }; Returns: string };
-      isnt_empty: { Args: { "": string }; Returns: string };
-      lives_ok: { Args: { "": string }; Returns: string };
       merge_routes: {
         Args: { p_destination_route_id: string; p_source_route_id: string };
         Returns: number;
       };
-      no_plan: { Args: never; Returns: boolean[] };
-      num_failed: { Args: never; Returns: number };
-      os_name: { Args: never; Returns: string };
-      pass: { Args: never; Returns: string } | { Args: { "": string }; Returns: string };
-      pg_version: { Args: never; Returns: string };
-      pg_version_num: { Args: never; Returns: number };
-      pgtap_version: { Args: never; Returns: number };
-      plpgsql_check_function:
-        | {
-            Args: {
-              all_warnings?: boolean;
-              anycompatiblerangetype?: unknown;
-              anycompatibletype?: unknown;
-              anyelememttype?: unknown;
-              anyenumtype?: unknown;
-              anyrangetype?: unknown;
-              compatibility_warnings?: boolean;
-              constant_tracing?: boolean;
-              extra_warnings?: boolean;
-              fatal_errors?: boolean;
-              format?: string;
-              funcoid: unknown;
-              incomment_options_usage_warning?: boolean;
-              newtable?: unknown;
-              oldtable?: unknown;
-              other_warnings?: boolean;
-              performance_warnings?: boolean;
-              relid?: unknown;
-              security_warnings?: boolean;
-              use_incomment_options?: boolean;
-              without_warnings?: boolean;
-            };
-            Returns: string[];
-          }
-        | {
-            Args: {
-              all_warnings?: boolean;
-              anycompatiblerangetype?: unknown;
-              anycompatibletype?: unknown;
-              anyelememttype?: unknown;
-              anyenumtype?: unknown;
-              anyrangetype?: unknown;
-              compatibility_warnings?: boolean;
-              constant_tracing?: boolean;
-              extra_warnings?: boolean;
-              fatal_errors?: boolean;
-              format?: string;
-              incomment_options_usage_warning?: boolean;
-              name: string;
-              newtable?: unknown;
-              oldtable?: unknown;
-              other_warnings?: boolean;
-              performance_warnings?: boolean;
-              relid?: unknown;
-              security_warnings?: boolean;
-              use_incomment_options?: boolean;
-              without_warnings?: boolean;
-            };
-            Returns: string[];
-          };
-      plpgsql_check_function_tb:
-        | {
-            Args: {
-              all_warnings?: boolean;
-              anycompatiblerangetype?: unknown;
-              anycompatibletype?: unknown;
-              anyelememttype?: unknown;
-              anyenumtype?: unknown;
-              anyrangetype?: unknown;
-              compatibility_warnings?: boolean;
-              constant_tracing?: boolean;
-              extra_warnings?: boolean;
-              fatal_errors?: boolean;
-              funcoid: unknown;
-              incomment_options_usage_warning?: boolean;
-              newtable?: unknown;
-              oldtable?: unknown;
-              other_warnings?: boolean;
-              performance_warnings?: boolean;
-              relid?: unknown;
-              security_warnings?: boolean;
-              use_incomment_options?: boolean;
-              without_warnings?: boolean;
-            };
-            Returns: {
-              context: string;
-              detail: string;
-              functionid: unknown;
-              hint: string;
-              level: string;
-              lineno: number;
-              message: string;
-              position: number;
-              query: string;
-              sqlstate: string;
-              statement: string;
-            }[];
-          }
-        | {
-            Args: {
-              all_warnings?: boolean;
-              anycompatiblerangetype?: unknown;
-              anycompatibletype?: unknown;
-              anyelememttype?: unknown;
-              anyenumtype?: unknown;
-              anyrangetype?: unknown;
-              compatibility_warnings?: boolean;
-              constant_tracing?: boolean;
-              extra_warnings?: boolean;
-              fatal_errors?: boolean;
-              incomment_options_usage_warning?: boolean;
-              name: string;
-              newtable?: unknown;
-              oldtable?: unknown;
-              other_warnings?: boolean;
-              performance_warnings?: boolean;
-              relid?: unknown;
-              security_warnings?: boolean;
-              use_incomment_options?: boolean;
-              without_warnings?: boolean;
-            };
-            Returns: {
-              context: string;
-              detail: string;
-              functionid: unknown;
-              hint: string;
-              level: string;
-              lineno: number;
-              message: string;
-              position: number;
-              query: string;
-              sqlstate: string;
-              statement: string;
-            }[];
-          };
-      plpgsql_check_pragma: { Args: { name: string[] }; Returns: number };
-      plpgsql_check_profiler: { Args: { enable?: boolean }; Returns: boolean };
-      plpgsql_check_tracer: {
-        Args: { enable?: boolean; verbosity?: string };
-        Returns: boolean;
-      };
-      plpgsql_coverage_branches:
-        | { Args: { funcoid: unknown }; Returns: number }
-        | { Args: { name: string }; Returns: number };
-      plpgsql_coverage_statements:
-        | { Args: { funcoid: unknown }; Returns: number }
-        | { Args: { name: string }; Returns: number };
-      plpgsql_profiler_function_statements_tb:
-        | {
-            Args: { funcoid: unknown };
-            Returns: {
-              avg_time: number;
-              block_num: number;
-              exec_stmts: number;
-              exec_stmts_err: number;
-              lineno: number;
-              max_time: number;
-              parent_note: string;
-              parent_stmtid: number;
-              processed_rows: number;
-              queryid: number;
-              stmtid: number;
-              stmtname: string;
-              total_time: number;
-            }[];
-          }
-        | {
-            Args: { name: string };
-            Returns: {
-              avg_time: number;
-              block_num: number;
-              exec_stmts: number;
-              exec_stmts_err: number;
-              lineno: number;
-              max_time: number;
-              parent_note: string;
-              parent_stmtid: number;
-              processed_rows: number;
-              queryid: number;
-              stmtid: number;
-              stmtname: string;
-              total_time: number;
-            }[];
-          };
-      plpgsql_profiler_function_tb:
-        | {
-            Args: { funcoid: unknown };
-            Returns: {
-              avg_time: number;
-              cmds_on_row: number;
-              exec_stmts: number;
-              exec_stmts_err: number;
-              lineno: number;
-              max_time: number[];
-              processed_rows: number[];
-              queryids: number[];
-              source: string;
-              stmt_lineno: number;
-              total_time: number;
-            }[];
-          }
-        | {
-            Args: { name: string };
-            Returns: {
-              avg_time: number;
-              cmds_on_row: number;
-              exec_stmts: number;
-              exec_stmts_err: number;
-              lineno: number;
-              max_time: number[];
-              processed_rows: number[];
-              queryids: number[];
-              source: string;
-              stmt_lineno: number;
-              total_time: number;
-            }[];
-          };
-      plpgsql_profiler_functions_all: {
-        Args: never;
-        Returns: {
-          avg_time: number;
-          exec_count: number;
-          exec_stmts_err: number;
-          funcoid: unknown;
-          max_time: number;
-          min_time: number;
-          stddev_time: number;
-          total_time: number;
-        }[];
-      };
-      plpgsql_profiler_install_fake_queryid_hook: {
-        Args: never;
-        Returns: undefined;
-      };
-      plpgsql_profiler_remove_fake_queryid_hook: {
-        Args: never;
-        Returns: undefined;
-      };
-      plpgsql_profiler_reset: { Args: { funcoid: unknown }; Returns: undefined };
-      plpgsql_profiler_reset_all: { Args: never; Returns: undefined };
-      plpgsql_show_dependency_tb:
-        | {
-            Args: {
-              anycompatiblerangetype?: unknown;
-              anycompatibletype?: unknown;
-              anyelememttype?: unknown;
-              anyenumtype?: unknown;
-              anyrangetype?: unknown;
-              fnname: string;
-              relid?: unknown;
-            };
-            Returns: {
-              name: string;
-              oid: unknown;
-              params: string;
-              schema: string;
-              type: string;
-            }[];
-          }
-        | {
-            Args: {
-              anycompatiblerangetype?: unknown;
-              anycompatibletype?: unknown;
-              anyelememttype?: unknown;
-              anyenumtype?: unknown;
-              anyrangetype?: unknown;
-              funcoid: unknown;
-              relid?: unknown;
-            };
-            Returns: {
-              name: string;
-              oid: unknown;
-              params: string;
-              schema: string;
-              type: string;
-            }[];
-          };
       promote_next_stop: {
         Args: { p_completed_stop_id: string; p_route_id: string };
         Returns: Json;
       };
       refresh_analytics_views: { Args: never; Returns: undefined };
       reindex_route_stops: { Args: { p_route_id: string }; Returns: undefined };
-      runtests: { Args: never; Returns: string[] } | { Args: { "": string }; Returns: string[] };
-      skip:
-        | { Args: { "": string }; Returns: string }
-        | { Args: { how_many: number; why: string }; Returns: string };
       split_route: {
         Args: {
           p_new_driver_id?: string;
@@ -2320,16 +1887,6 @@ export type Database = {
         };
         Returns: string;
       };
-      throws_ok: { Args: { "": string }; Returns: string };
-      todo:
-        | { Args: { how_many: number }; Returns: boolean[] }
-        | { Args: { how_many: number; why: string }; Returns: boolean[] }
-        | { Args: { why: string }; Returns: boolean[] }
-        | { Args: { how_many: number; why: string }; Returns: boolean[] };
-      todo_end: { Args: never; Returns: boolean[] };
-      todo_start:
-        | { Args: never; Returns: boolean[] }
-        | { Args: { "": string }; Returns: boolean[] };
       update_route_stats: { Args: { p_route_id: string }; Returns: Json };
     };
     Enums: {
@@ -2372,9 +1929,7 @@ export type Database = {
       vehicle_type: "car" | "motorcycle" | "bicycle" | "van" | "truck";
     };
     CompositeTypes: {
-      _time_trial_type: {
-        a_time: number | null;
-      };
+      [_ in never]: never;
     };
   };
 };

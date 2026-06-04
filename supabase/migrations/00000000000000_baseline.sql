@@ -16,10 +16,15 @@ SET search_path = public, extensions;
 -- Extensions ------------------------------------------------------------------
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA extensions;
 CREATE EXTENSION IF NOT EXISTS pgcrypto WITH SCHEMA extensions;
--- Test/diagnostic extensions live in public on prod and surface in generated
--- types; recreate them so `supabase gen types` matches the live schema.
-CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA public;
-CREATE EXTENSION IF NOT EXISTS plpgsql_check WITH SCHEMA public;
+-- Test/diagnostic extensions. On prod these sit in `public`, but here they go
+-- in `extensions` so they stay OUT of the `public` type surface — otherwise
+-- `gen types --schema public` would pull ~50 pgtap/plpgsql_check functions into
+-- database.generated.ts, and their signatures drift by extension version
+-- (prod build vs local Docker build), permanently breaking the drift guard.
+-- This affects only the local/CI stack used for type generation; prod is
+-- unchanged.
+CREATE EXTENSION IF NOT EXISTS pgtap WITH SCHEMA extensions;
+CREATE EXTENSION IF NOT EXISTS plpgsql_check WITH SCHEMA extensions;
 
 -- Enum types ------------------------------------------------------------------
 CREATE TYPE delivery_exception_type AS ENUM ('customer_not_home','wrong_address','access_issue','refused_delivery','damaged_order','other');
