@@ -310,6 +310,11 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
               <Link
                 href="/account?tab=rewards"
                 onClick={() => setIsOpen(false)}
+                aria-label={
+                  rewards
+                    ? `Rewards: ${rewards.stars} Stars, ${rewards.tier.english} tier`
+                    : "Rewards"
+                }
                 className={cn(
                   "flex items-center justify-between gap-2 px-3 py-2",
                   "text-sm text-text-primary",
@@ -324,11 +329,12 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
                       "h-4 w-4",
                       rewards ? tierAccent(rewards.tier.id).text : "text-text-muted"
                     )}
+                    aria-hidden="true"
                   />
                   Rewards
                 </span>
                 {rewards && (
-                  <span className="text-xs font-medium text-text-secondary">
+                  <span className="text-xs font-medium text-text-secondary" aria-hidden="true">
                     {rewards.stars} ⭐ · {rewards.tier.name}
                   </span>
                 )}
