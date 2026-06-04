@@ -3,7 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   expiryLabel,
   ordersToReward,
-  ordersToTier,
+  spendToTier,
   unlockedAnnounce,
   WALLET_EMPTY,
   WALLET_USE_HINT,
@@ -32,11 +32,11 @@ describe("loyalty bilingual copy", () => {
     });
   });
 
-  describe("ordersToTier", () => {
-    it("includes count and tier name, bilingual", () => {
-      const t = ordersToTier(2, "Padamya (Ruby)");
-      expect(t.en).toBe("2 more orders to Padamya (Ruby)");
-      expect(ordersToTier(1, "Jade").en).toBe("1 more order to Jade");
+  describe("spendToTier", () => {
+    it("includes the spend amount and tier name, bilingual", () => {
+      const t = spendToTier("$120.00", "Padamya (Ruby)");
+      expect(t.en).toBe("$120.00 more to reach Padamya (Ruby)");
+      expect(t.my).toContain("$120.00");
       expect(t.my.length).toBeGreaterThan(0);
     });
   });

@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { formatPrice } from "@/lib/utils/currency";
 import type { LoyaltyTierId } from "@/lib/loyalty";
-import { ordersToReward, ordersToTier } from "@/lib/loyalty/copy";
+import { ordersToReward, spendToTier } from "@/lib/loyalty/copy";
 import { TierBadge } from "@/components/ui/TierBadge";
 import { tierAccent } from "./tierStyle";
 
@@ -25,8 +25,9 @@ interface StarsProgressProps {
   progressInCycle: number;
   nextRewardCents: number;
   tier: TierInfo;
-  nextTier: (TierInfo & { minOrders: number }) | null;
-  ordersToNextTier: number | null;
+  nextTier: (TierInfo & { minSpendCents: number }) | null;
+  /** Net spend (cents) remaining to the next tier, or null at the top. */
+  spendToNextTierCents: number | null;
 }
 
 const RADIUS = 54;
@@ -45,7 +46,7 @@ export function StarsProgress({
   nextRewardCents,
   tier,
   nextTier,
-  ordersToNextTier,
+  spendToNextTierCents,
 }: StarsProgressProps) {
   const { shouldAnimate } = useAnimationPreference();
   const fraction = progressInCycle / milestoneStep;
@@ -124,11 +125,16 @@ export function StarsProgress({
             {progressCopy.my} 💛
           </p>
 
-          {/* Climb to the next tier */}
-          {nextTier && ordersToNextTier != null && (
+          {/* Climb to the next tier (spend-based) */}
+          {nextTier && spendToNextTierCents != null && (
             <p className="mt-2 text-xs text-text-muted">
               <span aria-hidden="true">{nextTier.emoji} </span>
-              {ordersToTier(ordersToNextTier, `${nextTier.name} (${nextTier.english})`).en}
+              {
+                spendToTier(
+                  formatPrice(spendToNextTierCents),
+                  `${nextTier.name} (${nextTier.english})`
+                ).en
+              }
             </p>
           )}
 
