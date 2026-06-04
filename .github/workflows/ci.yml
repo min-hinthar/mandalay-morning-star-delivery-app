@@ -1,0 +1,97 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same ref.
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Lint · Typecheck · Test · Build
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Build reads NEXT_PUBLIC_* lazily (inside functions), but provide safe
+    # placeholders so nothing trips on a missing var. No real secrets needed.
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder-anon-key
+      SUPABASE_SERVICE_ROLE_KEY: placeholder-service-key
+      NEXT_PUBLIC_APP_URL: http://localhost:3000
+      NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: pk_test_placeholder
+      STRIPE_SECRET_KEY: sk_test_placeholder
+      STRIPE_WEBHOOK_SECRET: whsec_placeholder
+      NEXT_PUBLIC_GOOGLE_MAPS_API_KEY: placeholder
+      GOOGLE_MAPS_API_KEY: placeholder
+      RESEND_API_KEY: re_placeholder
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Stylelint
+        run: pnpm lint:css
+
+      - name: Format check
+        run: pnpm format:check
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Unit tests
+        run: pnpm test:ci
+
+      - name: Build
+        run: pnpm build
+
+  db-drift:
+    name: DB types match migrations
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # NON-BLOCKING until the generated types are baselined: the committed
+    # database.generated.ts was hand-maintained, so the first real
+    # `supabase gen types --local` output will differ (formatting/ordering).
+    # To baseline: run `pnpm gen:types` against the local stack, commit the
+    # result, then remove this line to make drift a required, blocking check.
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # Spin up the local Supabase stack and apply ALL migrations — this both
+      # proves the migrations apply cleanly AND gives us a schema to generate
+      # from. No production credentials: everything is local Docker.
+      - name: Start Supabase (local) + apply migrations
+        run: pnpm exec supabase db start
+
+      - name: Check generated types match the schema
+        run: pnpm gen:types:check
+
+      - name: Stop Supabase
+        if: always()
+        run: pnpm exec supabase stop --no-backup || true
