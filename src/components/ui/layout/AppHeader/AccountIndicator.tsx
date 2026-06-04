@@ -336,6 +336,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
                 {rewards && (
                   <span className="text-xs font-medium text-text-secondary" aria-hidden="true">
                     {rewards.stars} ⭐ · {rewards.tier.name}
+                    {rewards.earlyAccess && <span className="ml-1">✨</span>}
                   </span>
                 )}
               </Link>

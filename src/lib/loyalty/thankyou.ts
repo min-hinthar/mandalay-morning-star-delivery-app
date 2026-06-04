@@ -8,6 +8,7 @@ import { EMAIL_CC, EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
 import type { Database } from "@/types/database";
 import { LOYALTY_REWARD_CENTS } from ".";
 import { mintLoyaltyPromoCode } from "./mint";
+import { tierForUser } from "./tier";
 
 interface ThankYouRecipient {
   userId: string;
@@ -36,12 +37,16 @@ export async function issueLoyaltyThankYou(
     expires_at: expiresAt,
   });
 
+  const tier = await tierForUser(service, recipient.userId);
   const emailComponent = React.createElement(LoyaltyReward, {
     customerName: recipient.fullName?.split(" ")[0] || "friend",
     rewardCents: LOYALTY_REWARD_CENTS,
     promoCode,
     menuUrl: `${appUrl}/menu?src=loyalty_thankyou`,
     variant: "thankyou",
+    tierName: tier.name,
+    tierEnglish: tier.english,
+    tierEmoji: tier.emoji,
   });
   const [html, text] = await Promise.all([
     render(emailComponent),
