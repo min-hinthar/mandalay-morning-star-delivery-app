@@ -48,6 +48,16 @@ docs/<short>          → docs/api-contracts
 - Screenshots/GIFs for UI changes
 - Test evidence required
 
+### Collaborative PR Review (cross-session)
+
+PRs are the shared unit of work across Claude sessions. At session start,
+reconcile in-flight PRs (CI + unresolved threads), `subscribe_pr_activity` to
+those you watch, review others' PRs adversarially against their real base, and
+keep the live registry current.
+
+- Process: [collaborative-pr-review.md](./collaborative-pr-review.md)
+- Live registry: [open-prs.md](./open-prs.md)
+
 ---
 
 ## Implementation Status
