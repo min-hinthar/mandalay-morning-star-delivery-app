@@ -106,7 +106,8 @@ A retention layer that turns one-time buyers into regulars, built on Stripe prom
 - Rate limiting with 10 configurable tiers (in-memory fallback when Redis unavailable)
 - RLS audit and hardening across all tables
 - Role-based auth redirects (customer/admin/driver)
-- CI/CD pipeline with lint, typecheck, test, and build gates
+- **GitHub Actions CI** (`.github/workflows/ci.yml`) — two blocking jobs: `verify` (lint, lint:css, format, typecheck, test, build) and `db-drift` (spins up a local Supabase stack, applies the baseline, fails if `database.generated.ts` doesn't match the schema)
+- **Generated DB types + schema-drift guard** — `pnpm gen:types` regenerates `src/types/database.generated.ts` from the local stack; CI enforces it stays in sync
 - Husky + lint-staged pre-commit hooks
 - Health check endpoint (`/api/health`)
 
@@ -392,7 +393,13 @@ public/                          # Static assets (logos, icons, images)
 
 ## Database
 
-77 migrations with Row-Level Security on all tables:
+Migration history is squashed to a **single live-schema baseline**
+(`supabase/migrations/00000000000000_baseline.sql`); superseded historical
+migrations are preserved in `supabase/migrations_archive/`. New schema changes
+are added as `<timestamp>_name.sql` on top of the baseline, after which
+`pnpm gen:types` must be run so the blocking `db-drift` CI job passes.
+
+Row-Level Security on all tables:
 
 | Table                    | Purpose                                                                      |
 | ------------------------ | ---------------------------------------------------------------------------- |
@@ -428,31 +435,33 @@ public/                          # Static assets (logos, icons, images)
 
 ## Scripts
 
-| Command                | Description                                 |
-| ---------------------- | ------------------------------------------- |
-| `pnpm dev`             | Start development server                    |
-| `pnpm build`           | Production build (Next.js + service worker) |
-| `pnpm start`           | Start production server                     |
-| `pnpm lint`            | Run ESLint                                  |
-| `pnpm lint:css`        | Run Stylelint                               |
-| `pnpm typecheck`       | TypeScript type checking                    |
-| `pnpm format:check`    | Prettier format check                       |
-| `pnpm test`            | Unit tests (Vitest, 1095 tests)             |
-| `pnpm test:ci`         | CI tests (bail on first failure)            |
-| `pnpm test:e2e`        | E2E tests (Playwright)                      |
-| `pnpm test:a11y`       | Accessibility tests                         |
-| `pnpm test:animations` | Animation tests                             |
-| `pnpm audit:tokens`    | Design token audit                          |
-| `pnpm storybook`       | Storybook dev server (port 6006)            |
-| `pnpm build-storybook` | Build static Storybook                      |
-| `pnpm chromatic`       | Visual regression testing                   |
-| `pnpm analyze`         | Bundle analysis                             |
-| `pnpm lighthouse`      | Lighthouse CI audit                         |
-| `pnpm seed:menu`       | Seed menu data from YAML                    |
-| `pnpm verify:menu`     | Verify menu data integrity                  |
-| `pnpm rls:test`        | Test RLS policy isolation                   |
-| `pnpm launch:check`    | Pre-launch readiness check                  |
-| `pnpm dry-run`         | Dry run validation                          |
+| Command                | Description                                       |
+| ---------------------- | ------------------------------------------------- |
+| `pnpm dev`             | Start development server                          |
+| `pnpm build`           | Production build (Next.js + service worker)       |
+| `pnpm start`           | Start production server                           |
+| `pnpm lint`            | Run ESLint                                        |
+| `pnpm lint:css`        | Run Stylelint                                     |
+| `pnpm typecheck`       | TypeScript type checking                          |
+| `pnpm format:check`    | Prettier format check                             |
+| `pnpm test`            | Unit tests (Vitest, 1125 tests)                   |
+| `pnpm gen:types`       | Regenerate DB types from the local Supabase stack |
+| `pnpm gen:types:check` | Fail if committed DB types drift from the schema  |
+| `pnpm test:ci`         | CI tests (bail on first failure)                  |
+| `pnpm test:e2e`        | E2E tests (Playwright)                            |
+| `pnpm test:a11y`       | Accessibility tests                               |
+| `pnpm test:animations` | Animation tests                                   |
+| `pnpm audit:tokens`    | Design token audit                                |
+| `pnpm storybook`       | Storybook dev server (port 6006)                  |
+| `pnpm build-storybook` | Build static Storybook                            |
+| `pnpm chromatic`       | Visual regression testing                         |
+| `pnpm analyze`         | Bundle analysis                                   |
+| `pnpm lighthouse`      | Lighthouse CI audit                               |
+| `pnpm seed:menu`       | Seed menu data from YAML                          |
+| `pnpm verify:menu`     | Verify menu data integrity                        |
+| `pnpm rls:test`        | Test RLS policy isolation                         |
+| `pnpm launch:check`    | Pre-launch readiness check                        |
+| `pnpm dry-run`         | Dry run validation                                |
 
 **Verification command (run before committing):**
 
@@ -477,25 +486,42 @@ pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test &
 
 ### Post-launch growth layer (shipped after v1.9)
 
-| Area                 | What                                                                                     |
-| -------------------- | ---------------------------------------------------------------------------------------- |
-| Referrals + welcome  | Give $10 / get $10, $5 welcome auto-discount, admin funnel                               |
-| Morning Star Rewards | Stars, Burmese-gem tiers, tiered Kyay-Zu-Par! coupons, wallet, in-app celebration        |
-| Lifecycle marketing  | Win-back, abandoned-cart, loyalty thank-you, anniversary, expiry-nudge crons             |
-| Reward integrity     | Stripe `promotion_code` enforcement (single-use / minimum / expiry), redemption tracking |
+| Area                 | What                                                                                                                         |
+| -------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Referrals + welcome  | Give $10 / get $10, $5 welcome auto-discount, admin funnel                                                                   |
+| Morning Star Rewards | Stars, Burmese-gem tiers, tiered Kyay-Zu-Par! coupons, wallet, tier ladder, in-app celebration                               |
+| Lifecycle marketing  | Win-back, abandoned-cart, loyalty thank-you, anniversary, expiry-nudge crons                                                 |
+| Reward integrity     | Stripe `promotion_code` enforcement (single-use / minimum / expiry), per-user code binding, redemption tracking              |
+| Loyalty fairness     | Tiers by lifetime **net spend** (subtotal − discount − refunds); unpaid-COD excluded; milestone back-fill; COD earns rewards |
+| Tier status + a11y   | `<TierBadge>` everywhere, early-access flag, bilingual EN/Burmese, WCAG-AA rewards UI                                        |
+| Platform foundation  | First CI pipeline + generated DB types + schema-drift guard; migration history squashed to one baseline                      |
 
 ## Roadmap & Potential Improvements
 
-Ideas and known follow-ups, roughly by leverage:
+### Next up — Driver Portal overhaul
 
-- **Reward integrity hardening** — bind a redeemed promo code to the redeeming user at checkout (defense-in-depth beyond Stripe's single-use enforcement); currently a high-entropy code is the only gate against cross-account use.
-- **Loyalty analytics** — track issued → redeemed → reorder conversion per reward kind/tier; surface redemption rate and incremental revenue in the admin dashboard.
-- **Tier perks beyond coupons** — free delivery or priority windows for Ruby/Gold (touches the distance-fee logic; intentionally deferred).
-- **Generated DB types** — replace the hand-maintained `src/types/database.ts` with `supabase gen types` in CI to prevent schema drift (the `notification_prefs` drift fixed in v1.9 was a symptom).
-- **Notification preference granularity** — let customers opt into transactional but out of loyalty/marketing push separately (today push respects marketing opt-in broadly).
+The driver portal (`src/app/(driver)/`) has features that are partially working
+or unreliable and is the next focus area. Scope to be confirmed at kickoff, but
+candidates: route/stop lifecycle correctness, live GPS + ETA reliability, proof-
+of-delivery photo capture, offline sync (IndexedDB + SW), earnings accuracy,
+availability scheduling, and the onboarding/invite flow. See the kickoff prompt
+in `docs/driver-overhaul-kickoff.md`.
+
+### Other follow-ups (by leverage)
+
+- **Loyalty analytics** — issued → redeemed → reorder conversion per reward kind/tier; redemption rate + incremental revenue in the admin dashboard.
+- **Tier perks beyond coupons** — free delivery or priority windows for Ruby/Gold (touches the distance-fee logic; intentionally deferred — conservative scope chosen).
+- **Notification preference granularity** — opt into transactional but out of loyalty/marketing push separately (today push respects marketing opt-in broadly).
 - **E2E coverage for rewards** — Playwright flows for earn → unlock → wallet → checkout redemption.
+- **Storybook stories** for the rewards components (deferred from the UI/UX pass).
 - **Coupon stacking** — Stripe allows one discount per session today; evaluate whether loyalty + referral should ever combine.
 - **A/B testing hooks** — experiment on reward size, milestone cadence, and email copy.
+- **Arm `verify`/`db-drift` as required checks** in branch protection now that both are green and blocking.
+
+### Recently shipped (was on this list)
+
+- ✅ Reward-integrity hardening — per-user promo-code binding at checkout.
+- ✅ Generated DB types + schema-drift CI guard (replaced the hand-maintained `database.ts`).
 
 ## Deployment
 
@@ -516,28 +542,20 @@ npm install -g supabase
 # Link to your project
 supabase link --project-ref your-project-ref
 
-# Push all migrations
+# Push migrations
 supabase db push
 ```
 
-77 migrations will be applied. Key migrations:
+The schema is a **single squashed baseline** (`00000000000000_baseline.sql`,
+dumped from the live schema), plus any newer `<timestamp>_name.sql` migrations
+on top. Production's `supabase_migrations.schema_migrations` is reconciled to the
+baseline, so `db push` applies only post-baseline migrations. Historical
+migrations are kept (read-only) in `supabase/migrations_archive/`.
 
-| Migration         | Purpose                                                                                        |
-| ----------------- | ---------------------------------------------------------------------------------------------- |
-| 000-005           | Core schema, functions, RLS, analytics, storage, testing, indexes                              |
-| 006-008           | Menu seed, photos, featured sections                                                           |
-| 010-020           | App settings, audit log, driver invites, customer settings, email system                       |
-| 021-026           | Driver gamification, RLS hardening, admin contact, driver photos, pay rate, availability       |
-| 027-028           | Atomic order creation, refund status                                                           |
-| 029-032           | Configurable business rules, email reliability, driver simple mode, production indexes         |
-| 033-037           | Photo pipeline, checkout hardening, rating/share tokens, session tracking                      |
-| 20260214          | Order priority flagging                                                                        |
-| 20260302-20260305 | Driver defaults, index cleanup, profile policies, atomic refund                                |
-| 20260307          | Multi-day delivery + Cash on Delivery support                                                  |
-| 20260308-20260311 | Launch reset, menu photo URLs, order contact info, Burmese item names                          |
-| 20260312          | Delivery direction zones (bearing-based routing)                                               |
-| 20260530          | Referrals, server-synced carts, push subscriptions, win-back, welcome offer                    |
-| 20260531          | Loyalty rewards + tiers + engagement (expiry/redemption/tier distribution), prefs-source fixes |
+The baseline covers: extensions, 9 enums, 33 tables, FKs, materialized views,
+34 functions, triggers, RLS + policies (public + storage), grants, and storage
+buckets. After any schema change, run `pnpm gen:types` and commit
+`database.generated.ts` (the blocking `db-drift` CI job enforces this).
 
 ### Stripe Webhook
 
@@ -626,7 +644,7 @@ Set `CRON_SECRET` in Vercel env vars to secure these endpoints. The loyalty than
 - [ ] `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` set (client-side maps)
 - [ ] `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` set (optional, for custom map styling)
 - [ ] Supabase auth callback URL configured (`https://your-domain/auth/callback`)
-- [ ] All 77 Supabase migrations applied (`supabase db push`)
+- [ ] Supabase schema applied — baseline + post-baseline migrations (`supabase db push`); `schema_migrations` reconciled to the baseline
 - [ ] Stripe using LIVE keys (not test keys)
 - [ ] Stripe loyalty/referral/welcome coupons created and IDs set (`STRIPE_*_COUPON_ID*`) — live-mode coupons require live `STRIPE_SECRET_KEY`
 - [ ] Stripe webhook endpoint verified with all required events
@@ -722,10 +740,30 @@ Common causes: missing env vars, TypeScript errors, ESLint violations
 
 ## Contributing
 
-1. Branch: `git checkout -b feat/feature-name`
-2. Develop with checks: `pnpm lint && pnpm typecheck && pnpm build`
-3. Commit: conventional commits (`feat:`, `fix:`, `refactor:`, etc.)
-4. Push and create PR
+1. Branch: `git checkout -b feat/feature-name` (never push to `main`)
+2. Develop with the full check suite: `pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test && pnpm build`
+3. If you changed the schema: add a `<timestamp>_name.sql` migration, then `pnpm gen:types` and commit `database.generated.ts`
+4. Commit: conventional commits (`feat:`, `fix:`, `refactor:`, etc.)
+5. Push and open a PR — merge only when both CI jobs (`verify`, `db-drift`) are green
+
+### Collaborative AI-session workflow (standard)
+
+This project is developed collaboratively across Claude Code sessions, and that
+review-driven loop is the quality bar — **new sessions pick this up automatically
+from `.claude/CLAUDE.md`**. The pattern:
+
+- **Branch + PR per task**, never direct-to-`main`; full verification before every PR.
+- **Adversarial self-review** on non-trivial work (auth / payments / RLS / money /
+  migrations): a subagent audits the area before building and reviews the diff
+  before pushing (or run the `security-review` / `code-review` skills). This has
+  caught real bugs (cross-account coupon use, schema drift, a COD loophole) pre-merge.
+- **Cross-session handoff**: when blocked on an external dependency or spanning
+  sessions, write the plan to `docs/<task>-plan.md`, leave the branch + open PR,
+  and have the next session continue — **reviewing each other's PRs**: pull CI
+  logs, diagnose, post a root-cause + fix as a PR comment, and finish it if able.
+- **CI failures are the task, not noise** — kick → diagnose from job logs → re-kick.
+
+Full details live in [`.claude/CLAUDE.md`](./.claude/CLAUDE.md) (Workflow section).
 
 ## License
 
