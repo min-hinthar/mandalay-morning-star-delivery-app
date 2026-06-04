@@ -13,7 +13,7 @@
     "audit:tokens": "node scripts/audit-tokens.js",
     "format:check": "prettier --check .",
     "typecheck": "tsc --noEmit",
-    "gen:types": "supabase gen types typescript --local --schema public > src/types/database.generated.ts && prettier --write src/types/database.generated.ts",
+    "gen:types": "node scripts/gen-types.mjs",
     "gen:types:check": "node scripts/check-types-drift.mjs",
     "test": "vitest run",
     "test:ci": "vitest run --bail 1 --no-file-parallelism",

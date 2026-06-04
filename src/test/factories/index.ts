@@ -66,6 +66,7 @@ export function createMockAddress(overrides?: Partial<AddressesRow>): AddressesR
     lng: -118.2437,
     is_default: true,
     is_verified: true,
+    distance_miles: null,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     ...overrides,
