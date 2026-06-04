@@ -628,7 +628,7 @@ CREATE MATERIALIZED VIEW delivery_metrics_mv AS
      LEFT JOIN delivery_exceptions de ON rs.id = de.route_stop_id
   WHERE r.delivery_date >= (now() - '90 days'::interval)
   GROUP BY r.delivery_date
-  ORDER BY r.delivery_date DESC;
+  ORDER BY r.delivery_date DESC
 WITH NO DATA;
 
 CREATE MATERIALIZED VIEW driver_stats_mv AS
@@ -665,7 +665,7 @@ CREATE MATERIALIZED VIEW driver_stats_mv AS
      LEFT JOIN route_stops rs ON r.id = rs.route_id
      LEFT JOIN driver_ratings dr ON d.id = dr.driver_id
      LEFT JOIN delivery_exceptions de ON rs.id = de.route_stop_id
-  GROUP BY d.id, d.user_id, p.full_name, p.email, d.is_active, d.vehicle_type, d.profile_image_url, d.created_at;
+  GROUP BY d.id, d.user_id, p.full_name, p.email, d.is_active, d.vehicle_type, d.profile_image_url, d.created_at
 WITH NO DATA;
 
 -- Functions -------------------------------------------------------------------
