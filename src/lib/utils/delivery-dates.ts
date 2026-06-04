@@ -108,6 +108,64 @@ export function getZonedDayOfWeek(date: Date): number {
   return new Date(Date.UTC(year, month - 1, day)).getUTCDay();
 }
 
+/**
+ * Format a Date as the LA-local calendar date string (YYYY-MM-DD).
+ * Use for "today" defaults and for keying timestamptz data by delivery day.
+ */
+export function getZonedDateString(date: Date = new Date()): string {
+  return formatDateString(date);
+}
+
+/**
+ * Parse a YYYY-MM-DD delivery-date string to the UTC instant of LA-local
+ * midnight on that date.
+ */
+export function parseDeliveryDateToUtc(dateString: string): Date {
+  const [year, month, day] = dateString.split("-").map(Number);
+  return zonedTimeToUtc({ year, month, day });
+}
+
+/**
+ * UTC [start, end) boundaries for an LA-local delivery day. Use to filter
+ * timestamptz columns (e.g. orders.delivery_window_start) by a delivery date.
+ */
+export function getZonedDayRangeUtc(dateString: string): { startUtc: string; endUtc: string } {
+  const start = parseDeliveryDateToUtc(dateString);
+  const end = addZonedDays(start, 1);
+  return { startUtc: start.toISOString(), endUtc: end.toISOString() };
+}
+
+/** Human-readable display ("Saturday, January 20") for a YYYY-MM-DD string. */
+export function formatDeliveryDateString(dateString: string): string {
+  return formatDisplayDate(parseDeliveryDateToUtc(dateString));
+}
+
+/** UTC instant for a given LA-local hour on a YYYY-MM-DD date (e.g. delivery start). */
+export function getZonedDateTimeUtc(dateString: string, hour: number): Date {
+  const [year, month, day] = dateString.split("-").map(Number);
+  return zonedTimeToUtc({ year, month, day, hour, minute: 0, second: 0 });
+}
+
+/**
+ * Cutoff instant for a delivery date given a cutoff weekday + hour.
+ * General form of getCutoffForDeliveryDay that takes primitives instead of a
+ * DeliveryDayConfig.
+ */
+export function getCutoffForDate(dateString: string, cutoffDay: number, cutoffHour: number): Date {
+  const { year, month, day } = getZonedParts(parseDeliveryDateToUtc(dateString));
+  const utcDate = new Date(Date.UTC(year, month - 1, day));
+  const daysBack = (utcDate.getUTCDay() - cutoffDay + 7) % 7;
+  utcDate.setUTCDate(utcDate.getUTCDate() - daysBack);
+  return zonedTimeToUtc({
+    year: utcDate.getUTCFullYear(),
+    month: utcDate.getUTCMonth() + 1,
+    day: utcDate.getUTCDate(),
+    hour: cutoffHour,
+    minute: 0,
+    second: 0,
+  });
+}
+
 export function getNextSaturday(from: Date = new Date()): Date {
   const { year, month, day } = getZonedParts(from);
   const utcDate = new Date(Date.UTC(year, month - 1, day));

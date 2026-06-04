@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import {
   LayoutDashboard,
   Activity,
+  CalendarClock,
   UtensilsCrossed,
   ClipboardList,
   FolderTree,
@@ -31,6 +32,11 @@ const navItems = [
     label: "Dashboard",
     href: "/admin",
     icon: LayoutDashboard,
+  },
+  {
+    label: "Delivery Day",
+    href: "/admin/delivery-day",
+    icon: CalendarClock,
   },
   {
     label: "Ops Center",
