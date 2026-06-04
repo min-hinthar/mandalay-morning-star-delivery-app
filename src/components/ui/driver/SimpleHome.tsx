@@ -8,9 +8,10 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { m } from "framer-motion";
-import { Calendar, CheckCircle, Package, Play, ArrowRight, Loader2 } from "lucide-react";
+import { Calendar, CheckCircle, Package, Play, ArrowRight, Loader2, Settings } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -54,6 +55,22 @@ export function SimpleHome({ driverName, todayRoute, dayOfWeek, dateDisplay }: S
   return (
     <div className="min-h-screen bg-gradient-to-b from-surface-primary to-surface-tertiary/30">
       <div className="px-4 py-8 space-y-8">
+        {/* Settings access — the simple-mode nav has no profile tab, so this is
+            the driver's only route to the profile page (mode toggle, practice). */}
+        <div className="flex justify-end">
+          <Link
+            href="/driver/profile"
+            aria-label="Settings and profile"
+            className={cn(
+              "flex h-11 w-11 items-center justify-center rounded-full",
+              "bg-surface-primary/70 text-text-secondary shadow-sm",
+              "transition-colors duration-fast hover:text-text-primary active:scale-95"
+            )}
+          >
+            <Settings className="h-5 w-5" />
+          </Link>
+        </div>
+
         {/* Greeting */}
         <m.div
           initial={shouldAnimate ? { opacity: 0, y: -10 } : undefined}

@@ -12,7 +12,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 import { DeliveryConfirmDialog } from "./DeliveryConfirmDialog";
 import { PhotoCapture } from "./PhotoCapture";
-import { SimpleRouteDone } from "./SimpleRouteDone";
+import { RouteCompleteCard } from "./RouteCompleteCard";
 import type { RouteStopStatus } from "@/types/driver";
 
 const OPERATOR_PHONE = process.env.NEXT_PUBLIC_OPERATOR_PHONE || "+16269001234";
@@ -45,11 +45,26 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
+  const [isOnline, setIsOnline] = useState(true);
   const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const completeFiredRef = useRef(false);
 
   useEffect(() => {
     return () => {
       if (successTimerRef.current) clearTimeout(successTimerRef.current);
+    };
+  }, []);
+
+  // Track connectivity reactively so the completion effect below re-runs (and
+  // retries) when the driver reconnects, not just on a fresh mount.
+  useEffect(() => {
+    const update = () => setIsOnline(navigator.onLine);
+    update();
+    window.addEventListener("online", update);
+    window.addEventListener("offline", update);
+    return () => {
+      window.removeEventListener("online", update);
+      window.removeEventListener("offline", update);
     };
   }, []);
 
@@ -58,9 +73,9 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
     [localStatuses]
   );
 
-  const deliveredCount = stops.filter(
-    (s) => getStatus(s) === "delivered" || getStatus(s) === "skipped"
-  ).length;
+  const deliveredOnlyCount = stops.filter((s) => getStatus(s) === "delivered").length;
+  const skippedCount = stops.filter((s) => getStatus(s) === "skipped").length;
+  const handledCount = deliveredOnlyCount + skippedCount;
   const totalCount = stops.length;
 
   const currentStop = stops.find((s) => {
@@ -69,6 +84,28 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
   });
 
   const allDone = !currentStop && totalCount > 0;
+
+  // Mark the route complete server-side once every stop is handled. Standard
+  // mode has an explicit "Complete Route" button; simple mode has no extra tap,
+  // so without this the route stays in_progress forever and never reaches
+  // earnings/history. Online-guarded and fired once; the server rejects a
+  // premature completion (409) if any stop hasn't persisted yet.
+  useEffect(() => {
+    if (!allDone || !isOnline || completeFiredRef.current) return;
+    completeFiredRef.current = true;
+    fetch(`/api/driver/routes/${routeId}/complete`, { method: "POST" })
+      .then((res) => {
+        // 200 = completed, 400 = already completed (idempotent re-land): keep
+        // fired. Transient (5xx) / not-yet-persisted (409) / rate-limit (429):
+        // clear the latch so a later connectivity change or re-land retries.
+        if (res.status >= 500 || res.status === 409 || res.status === 429) {
+          completeFiredRef.current = false;
+        }
+      })
+      .catch(() => {
+        completeFiredRef.current = false;
+      });
+  }, [allDone, isOnline, routeId]);
 
   const getFullAddress = (stop: SimpleStopData) => {
     const addr = stop.order.address;
@@ -167,7 +204,14 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
     [routeId, currentStop, queuePhoto]
   );
 
-  if (allDone) return <SimpleRouteDone />;
+  if (allDone)
+    return (
+      <RouteCompleteCard
+        deliveredCount={deliveredOnlyCount}
+        skippedCount={skippedCount}
+        totalCount={totalCount}
+      />
+    );
 
   if (!currentStop) {
     return (
@@ -191,13 +235,13 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
           className="text-center"
         >
           <p className="font-body text-lg font-semibold text-text-primary">
-            {deliveredCount} of {totalCount} done
+            {handledCount} of {totalCount} done
           </p>
           <div className="mt-2 mx-auto h-2 w-48 overflow-hidden rounded-full bg-surface-tertiary">
             <m.div
               initial={{ width: 0 }}
               animate={{
-                width: `${totalCount > 0 ? (deliveredCount / totalCount) * 100 : 0}%`,
+                width: `${totalCount > 0 ? (handledCount / totalCount) * 100 : 0}%`,
               }}
               transition={{ duration: 0.5, ease: "easeOut" }}
               className="h-full rounded-full bg-accent-teal"
