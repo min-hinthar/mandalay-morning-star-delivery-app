@@ -27,6 +27,7 @@ import { DriverInfoCard } from "./DriverInfoCard";
 import { RouteTimeline } from "./RouteTimeline";
 import { TimeComparison } from "./TimeComparison";
 import { ExceptionAlert } from "./ExceptionAlert";
+import { ResolveExceptionDialog } from "./ResolveExceptionDialog";
 import { useStopMutations } from "./useStopMutations";
 import { validateSplitSelection } from "../route-selection-utils";
 import type { RouteDetailResponse, DriverOption } from "./types";
@@ -54,6 +55,8 @@ export function RouteDetailClient() {
   const [addStopsModalOpen, setAddStopsModalOpen] = useState(false);
   const [isManuallyReordered, setIsManuallyReordered] = useState(false);
   const [localStops, setLocalStops] = useState<StopDetail[]>([]);
+  const [resolvingExceptionId, setResolvingExceptionId] = useState<string | null>(null);
+  const [isResolvingException, setIsResolvingException] = useState(false);
 
   const stopRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const { ref: mapRef, triggered: mapTriggered } = useViewportTrigger();
@@ -181,6 +184,35 @@ export function RouteDetailClient() {
     toast({ message: "Route optimized", type: "success" });
   };
 
+  const handleResolveException = useCallback(
+    async (resolutionNotes: string) => {
+      if (!resolvingExceptionId) return;
+      setIsResolvingException(true);
+      try {
+        const res = await fetch(`/api/admin/routes/${routeId}/exceptions/${resolvingExceptionId}`, {
+          method: "PATCH",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ resolutionNotes }),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error ?? "Failed to resolve exception");
+        }
+        toast({ message: "Exception resolved", type: "success" });
+        setResolvingExceptionId(null);
+        await fetchRoute();
+      } catch (err) {
+        toast({
+          message: err instanceof Error ? err.message : "Failed to resolve exception",
+          type: "error",
+        });
+      } finally {
+        setIsResolvingException(false);
+      }
+    },
+    [resolvingExceptionId, routeId, fetchRoute]
+  );
+
   const getStopSummaries = (): StopSummary[] => {
     if (!route) return [];
     return [...route.stops]
@@ -236,7 +268,10 @@ export function RouteDetailClient() {
               onDelete={routeActions.openDelete}
             />
 
-            <ExceptionAlert stops={route.stops} />
+            <ExceptionAlert
+              stops={route.stops}
+              onMarkResolved={(exceptionId) => setResolvingExceptionId(exceptionId)}
+            />
             <RouteStatsBar route={route} />
             <TimeComparison route={route} />
 
@@ -366,6 +401,13 @@ export function RouteDetailClient() {
                 toast({ message: "Stops added to route", type: "success" });
                 fetchRoute();
               }}
+            />
+
+            <ResolveExceptionDialog
+              open={resolvingExceptionId !== null}
+              onConfirm={handleResolveException}
+              onCancel={() => setResolvingExceptionId(null)}
+              isLoading={isResolvingException}
             />
           </>
         )}

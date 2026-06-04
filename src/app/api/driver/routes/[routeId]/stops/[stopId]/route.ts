@@ -21,11 +21,99 @@ interface StopQueryResult {
   route_id: string;
   stop_index: number;
   order_id: string;
+  arrived_at: string | null;
+  delivered_at: string | null;
 }
 
 interface PromotionResult {
   promoted_stop_id: string | null;
   stop_index: number | null;
+}
+
+type NextStop = { id: string; stopIndex: number };
+
+type DriverAuthSuccess = Extract<Awaited<ReturnType<typeof requireDriver>>, { success: true }>;
+type SupabaseClient = DriverAuthSuccess["supabase"];
+
+/**
+ * Recover route progress when the atomic `promote_next_stop` RPC errors.
+ * Best-effort: returns the next active stop, or `null` when none could be
+ * promoted (route complete, or a rare double-failure that is logged for
+ * follow-up). Never throws and never fails the request — the stop status was
+ * already committed by the caller, so a promotion hiccup must not report the
+ * delivery as failed; the client refetches the route to find the next stop.
+ */
+async function fallbackPromoteNextStop(
+  supabase: SupabaseClient,
+  routeId: string
+): Promise<NextStop | null> {
+  // A stop may already be enroute (partial RPC apply or concurrent advance).
+  const { data: enroute } = await supabase
+    .from("route_stops")
+    .select("id, stop_index")
+    .eq("route_id", routeId)
+    .eq("status", "enroute")
+    .order("stop_index", { ascending: true })
+    .limit(1)
+    .returns<{ id: string; stop_index: number }[]>();
+
+  if (enroute && enroute.length > 0) {
+    return { id: enroute[0].id, stopIndex: enroute[0].stop_index };
+  }
+
+  // Promote the lowest-index pending stop directly, guarded against races.
+  const { data: pending } = await supabase
+    .from("route_stops")
+    .select("id, stop_index")
+    .eq("route_id", routeId)
+    .eq("status", "pending")
+    .order("stop_index", { ascending: true })
+    .limit(1)
+    .returns<{ id: string; stop_index: number }[]>();
+
+  if (!pending || pending.length === 0) {
+    return null; // No pending stops remain — route is effectively complete.
+  }
+
+  const { data: promoted, error: promoteError } = await supabase
+    .from("route_stops")
+    .update({ status: "enroute" })
+    .eq("id", pending[0].id)
+    .eq("status", "pending")
+    .select("id");
+
+  if (promoteError) {
+    logger.exception(promoteError, {
+      api: "driver/routes/[routeId]/stops/[stopId]",
+      flowId: "fallback-promotion",
+      routeId,
+    });
+    return null;
+  }
+
+  // No-op means another request advanced the stop first — re-read the enroute stop.
+  if ((promoted?.length ?? 0) === 0) {
+    const { data: enrouteRetry } = await supabase
+      .from("route_stops")
+      .select("id, stop_index")
+      .eq("route_id", routeId)
+      .eq("status", "enroute")
+      .order("stop_index", { ascending: true })
+      .limit(1)
+      .returns<{ id: string; stop_index: number }[]>();
+
+    if (enrouteRetry && enrouteRetry.length > 0) {
+      return { id: enrouteRetry[0].id, stopIndex: enrouteRetry[0].stop_index };
+    }
+    logger.warn("Fallback promotion could not advance the route", {
+      api: "driver/routes/[routeId]/stops/[stopId]",
+      flowId: "fallback-promotion",
+      routeId,
+    });
+    return null;
+  }
+
+  return { id: pending[0].id, stopIndex: pending[0].stop_index };
 }
 
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
@@ -84,7 +172,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     // Get current stop
     const { data: stop, error: stopError } = await supabase
       .from("route_stops")
-      .select("id, status, route_id, stop_index, order_id")
+      .select("id, status, route_id, stop_index, order_id, arrived_at, delivered_at")
       .eq("id", stopId)
       .eq("route_id", routeId)
       .returns<StopQueryResult[]>()
@@ -94,9 +182,26 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Stop not found" }, { status: 404 });
     }
 
-    // Idempotency: status transition validation prevents duplicate updates.
-    // A duplicate "mark as arrived" when already arrived returns 400, which
-    // the client treats as a permanent failure and removes from the queue.
+    // Idempotent re-submission. An at-least-once offline queue may retry a
+    // status update whose original response was lost (network blip, or a 500
+    // raised after the write already committed). If the stop is already in the
+    // requested status, return success instead of a 400 the queue would surface
+    // as a permanent failure for a delivery that actually happened.
+    if (stop.status === newStatus) {
+      return NextResponse.json({
+        success: true,
+        idempotent: true,
+        stop: {
+          id: stopId,
+          status: newStatus as RouteStopStatus,
+          arrivedAt: stop.arrived_at,
+          deliveredAt: stop.delivered_at,
+        },
+        ...(newStatus === "delivered" ? { orderUpdated: true } : {}),
+        nextStop: null,
+      });
+    }
+
     if (!isValidStatusTransition(stop.status, newStatus)) {
       return NextResponse.json(
         { error: `Cannot transition from ${stop.status} to ${newStatus}` },
@@ -173,12 +278,21 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       const promotionResult = rpcData as unknown as PromotionResult | null;
 
       if (promotionError) {
-        logger.warn("Stop promotion failed", {
+        // The atomic RPC failed (rare — DB-level error). Don't return success and
+        // silently strand the route with no enroute stop: recover forward progress
+        // directly. First check whether a stop is already enroute (a concurrent op
+        // or a partial apply may have advanced it); otherwise promote the
+        // lowest-index pending stop, guarded against races.
+        logger.warn("Stop promotion RPC failed; attempting fallback promotion", {
           api: "driver/routes/[routeId]/stops/[stopId]",
           routeId,
           stopId,
           error: promotionError.message,
         });
+
+        // Best-effort recovery: never fail the request here — the stop status is
+        // already committed, so the client must not re-queue it as a failure.
+        nextStop = await fallbackPromoteNextStop(supabase, routeId);
       } else if (promotionResult?.promoted_stop_id) {
         nextStop = {
           id: promotionResult.promoted_stop_id,
