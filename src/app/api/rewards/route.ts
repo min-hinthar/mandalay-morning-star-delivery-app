@@ -7,18 +7,17 @@ import { referralShareUrl, REFERRAL_REWARD_CENTS } from "@/lib/referrals";
 import { ensureReferralCode } from "@/lib/referrals/code";
 import {
   LOYALTY_MILESTONE_STEP,
-  STAR_EARNING_STATUSES,
   hasEarlyAccess,
   nextMilestone,
   nextRewardCents,
   nextTier,
   ordersToNextMilestone,
-  ordersToNextTier,
   progressInCycle,
-  tierForOrders,
+  spendToNextTierCents,
+  tierForSpend,
   tierPerks,
 } from "@/lib/loyalty";
-import type { OrderStatus } from "@/types/database";
+import { loyaltyStatsForUser } from "@/lib/loyalty/tier";
 
 const UNAUTHORIZED = NextResponse.json(
   { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
@@ -60,12 +59,8 @@ export async function GET() {
     const service = createServiceClient();
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 
-    const [orderCountRes, code, loyaltyRes, referralRes] = await Promise.all([
-      service
-        .from("orders")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", user.id)
-        .in("status", STAR_EARNING_STATUSES as unknown as OrderStatus[]),
+    const [stats, code, loyaltyRes, referralRes] = await Promise.all([
+      loyaltyStatsForUser(service, user.id),
       ensureReferralCode(service, user.id),
       service
         .from("loyalty_rewards")
@@ -83,13 +78,14 @@ export async function GET() {
 
     if (!code) throw new Error("Could not assign a referral code");
 
-    const stars = orderCountRes.count ?? 0;
+    const stars = stats.orderCount;
+    const spendCents = stats.spendCents;
     const referrals = referralRes.data ?? [];
     const completed = referrals.filter((r) => r.status === "completed");
     const loyaltyRows = loyaltyRes.data ?? [];
 
-    const tier = tierForOrders(stars);
-    const upcomingTier = nextTier(stars);
+    const tier = tierForSpend(spendCents);
+    const upcomingTier = nextTier(spendCents);
     const nowMs = Date.now();
     const isUsable = (r: { redeemed_at: string | null; expires_at: string | null }): boolean =>
       !r.redeemed_at && (!r.expires_at || new Date(r.expires_at).getTime() > nowMs);
@@ -141,11 +137,12 @@ export async function GET() {
     return NextResponse.json({
       data: {
         stars,
+        spendCents,
         milestoneStep: LOYALTY_MILESTONE_STEP,
         nextMilestone: nextMilestone(stars),
         ordersToNext: ordersToNextMilestone(stars),
         progressInCycle: progressInCycle(stars),
-        nextRewardCents: nextRewardCents(stars),
+        nextRewardCents: nextRewardCents(spendCents),
         tier: { id: tier.id, name: tier.name, english: tier.english, emoji: tier.emoji },
         nextTier: upcomingTier
           ? {
@@ -153,12 +150,12 @@ export async function GET() {
               name: upcomingTier.name,
               english: upcomingTier.english,
               emoji: upcomingTier.emoji,
-              minOrders: upcomingTier.minOrders,
+              minSpendCents: upcomingTier.minSpendCents,
             }
           : null,
-        ordersToNextTier: ordersToNextTier(stars),
-        earlyAccess: hasEarlyAccess(stars),
-        perks: tierPerks(stars),
+        spendToNextTierCents: spendToNextTierCents(spendCents),
+        earlyAccess: hasEarlyAccess(spendCents),
+        perks: tierPerks(spendCents),
         justUnlocked,
         wallet,
         referral: {

@@ -110,7 +110,7 @@ export function RewardsTab() {
         nextRewardCents={data.nextRewardCents}
         tier={data.tier}
         nextTier={data.nextTier}
-        ordersToNextTier={data.ordersToNextTier}
+        spendToNextTierCents={data.spendToNextTierCents}
       />
       <CouponWallet items={data.wallet} />
       <TierLadder currentTierId={data.tier.id} />

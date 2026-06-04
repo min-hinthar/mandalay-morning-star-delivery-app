@@ -39,14 +39,26 @@ export function daysUntilExpiry(expiresAt: string | null, now: Date = new Date()
   return ms <= 0 ? 0 : Math.ceil(ms / 86_400_000);
 }
 
-/** Order statuses that count as a real (Star-earning) order. */
+/**
+ * Order statuses that count toward loyalty (Stars + spend). Deliberately
+ * EXCLUDES `pending_approval`: a COD order hasn't been paid/approved yet, so it
+ * must not inflate Stars or tier. COD counts once approved (→ `confirmed`).
+ */
 export const STAR_EARNING_STATUSES = [
   "confirmed",
   "preparing",
   "out_for_delivery",
   "delivered",
-  "pending_approval",
 ] as const;
+
+/**
+ * Net loyalty spend for one order: food subtotal minus any discount, floored at
+ * 0. Excludes tax (goes to the state), tip (goes to the driver), and delivery
+ * fee — only what the customer actually spent on our food counts toward tier.
+ */
+export function orderSpendCents(subtotalCents: number, discountCents: number): number {
+  return Math.max(0, subtotalCents - discountCents);
+}
 
 export type LoyaltyTierId = "new" | "jade" | "ruby" | "gold";
 
@@ -57,50 +69,80 @@ export interface LoyaltyTier {
   /** English gloss, e.g. "Jade". */
   english: string;
   emoji: string;
-  /** Lifetime orders required to reach this tier. */
-  minOrders: number;
+  /** Lifetime net spend (cents) required to reach this tier. */
+  minSpendCents: number;
   /** Milestone coupon size (cents) earned while in this tier. */
   rewardCents: number;
 }
 
-/** The Burmese-gem tier ladder, ascending. */
+/**
+ * The Burmese-gem tier ladder, ascending — earned by LIFETIME NET SPEND, not
+ * order count. Spend-based tiers reward real contribution and can't be farmed
+ * with tiny orders. Per-order milestone coupons (every 5 orders) are separate.
+ */
 export const LOYALTY_TIERS: LoyaltyTier[] = [
   {
     id: "new",
     name: "New Friend",
     english: "New Friend",
     emoji: "⭐",
-    minOrders: 0,
+    minSpendCents: 0,
     rewardCents: 500,
   },
-  { id: "jade", name: "Kyauk Sein", english: "Jade", emoji: "💚", minOrders: 10, rewardCents: 800 },
-  { id: "ruby", name: "Padamya", english: "Ruby", emoji: "❤️", minOrders: 25, rewardCents: 1000 },
-  { id: "gold", name: "Shwe", english: "Gold", emoji: "💛", minOrders: 50, rewardCents: 1200 },
+  {
+    id: "jade",
+    name: "Kyauk Sein",
+    english: "Jade",
+    emoji: "💚",
+    minSpendCents: 25000,
+    rewardCents: 800,
+  },
+  {
+    id: "ruby",
+    name: "Padamya",
+    english: "Ruby",
+    emoji: "❤️",
+    minSpendCents: 75000,
+    rewardCents: 1000,
+  },
+  {
+    id: "gold",
+    name: "Shwe",
+    english: "Gold",
+    emoji: "💛",
+    minSpendCents: 150000,
+    rewardCents: 1200,
+  },
 ];
 
-/** The customer's current tier for a given lifetime order count. */
-export function tierForOrders(orderCount: number): LoyaltyTier {
+/** The customer's current tier for a given lifetime net spend (cents). */
+export function tierForSpend(spendCents: number): LoyaltyTier {
   let current = LOYALTY_TIERS[0];
   for (const tier of LOYALTY_TIERS) {
-    if (orderCount >= tier.minOrders) current = tier;
+    if (spendCents >= tier.minSpendCents) current = tier;
   }
   return current;
 }
 
 /** The next tier up, or null if already at the top. */
-export function nextTier(orderCount: number): LoyaltyTier | null {
-  return LOYALTY_TIERS.find((t) => t.minOrders > orderCount) ?? null;
+export function nextTier(spendCents: number): LoyaltyTier | null {
+  return LOYALTY_TIERS.find((t) => t.minSpendCents > spendCents) ?? null;
 }
 
-/** Orders remaining until the next tier, or null at the top. */
-export function ordersToNextTier(orderCount: number): number | null {
-  const next = nextTier(orderCount);
-  return next ? next.minOrders - orderCount : null;
+/** Net spend (cents) remaining until the next tier, or null at the top. */
+export function spendToNextTierCents(spendCents: number): number | null {
+  const next = nextTier(spendCents);
+  return next ? next.minSpendCents - spendCents : null;
 }
 
-/** Milestone coupon size (cents) for the tier at a given order count. */
-export function rewardCentsForOrders(orderCount: number): number {
-  return tierForOrders(orderCount).rewardCents;
+/** Milestone coupon size (cents) for the customer's current spend tier. */
+export function rewardCentsForSpend(spendCents: number): number {
+  return tierForSpend(spendCents).rewardCents;
+}
+
+/** The coupon size (cents) the customer earns at their next milestone. */
+export function nextRewardCents(spendCents: number): number {
+  return rewardCentsForSpend(spendCents);
 }
 
 /**
@@ -110,9 +152,9 @@ export function rewardCentsForOrders(orderCount: number): number {
  */
 export const EARLY_ACCESS_TIERS: LoyaltyTierId[] = ["ruby", "gold"];
 
-/** Whether the tier at `orderCount` unlocks early access. */
-export function hasEarlyAccess(orderCount: number): boolean {
-  return EARLY_ACCESS_TIERS.includes(tierForOrders(orderCount).id);
+/** Whether the tier at a given lifetime net spend unlocks early access. */
+export function hasEarlyAccess(spendCents: number): boolean {
+  return EARLY_ACCESS_TIERS.includes(tierForSpend(spendCents).id);
 }
 
 export interface LoyaltyPerk {
@@ -170,9 +212,9 @@ export const TIER_PERKS: Record<LoyaltyTierId, LoyaltyPerk[]> = {
   ],
 };
 
-/** The perks unlocked at the tier for a given order count. */
-export function tierPerks(orderCount: number): LoyaltyPerk[] {
-  return TIER_PERKS[tierForOrders(orderCount).id];
+/** The perks unlocked at the tier for a given lifetime net spend. */
+export function tierPerks(spendCents: number): LoyaltyPerk[] {
+  return TIER_PERKS[tierForSpend(spendCents).id];
 }
 
 /** The next milestone (multiple of the step) strictly above `stars`. */
@@ -185,17 +227,18 @@ export function ordersToNextMilestone(stars: number): number {
   return nextMilestone(stars) - stars;
 }
 
-/** The coupon size (cents) the customer will earn at their next milestone. */
-export function nextRewardCents(stars: number): number {
-  return rewardCentsForOrders(nextMilestone(stars));
-}
-
 /**
- * The milestone reached at exactly this completed-order count, or null if the
- * count isn't on a milestone boundary.
+ * Every milestone (multiple of the step) at or below `orderCount` — used to
+ * back-fill any milestones a count jump skipped. e.g. count 6 → [5]; 12 → [5,10].
+ * Issuance dedupes via the UNIQUE(user_id, milestone) constraint, so re-issuing
+ * an already-claimed milestone is a safe no-op.
  */
-export function milestoneReached(orderCount: number): number | null {
-  return orderCount > 0 && orderCount % LOYALTY_MILESTONE_STEP === 0 ? orderCount : null;
+export function milestonesReached(orderCount: number): number[] {
+  const out: number[] = [];
+  for (let m = LOYALTY_MILESTONE_STEP; m <= orderCount; m += LOYALTY_MILESTONE_STEP) {
+    out.push(m);
+  }
+  return out;
 }
 
 /** Progress (0–step) toward the next milestone, for the progress ring. */
