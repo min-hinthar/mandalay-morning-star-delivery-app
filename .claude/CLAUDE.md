@@ -75,6 +75,17 @@ session.**
 8. **Connectors drop silently.** Supabase/GitHub MCPs can de-register mid-session;
    a re-enabled connector isn't re-injected — start a fresh session to re-handshake,
    or fall back to a session secret (`SUPABASE_DB_URL`) for DB access.
+9. **Track every open PR (cross-session).** PRs are the shared brain across
+   sessions, not any one session's memory. **At session start**, reconcile
+   in-flight work: read [`docs/open-prs.md`](../docs/open-prs.md), check each open
+   PR's CI (`get_check_runs`) + unresolved threads (`get_review_comments`), and
+   `subscribe_pr_activity` to any you'll watch. **Review** another session's PR
+   adversarially against its *real* base (PRs stack — base is often another
+   `claude/*` branch), post findings as a non-blocking `COMMENT` review tagged
+   High/Med/Low with a clear verdict, and **update `open-prs.md`**. Subscriptions
+   miss CI-success / new-pushes / merge-conflicts — re-check on a timer (or a
+   `git ls-remote` `Monitor`); a watch ends only at merge/close. Full protocol:
+   [`docs/collaborative-pr-review.md`](../docs/collaborative-pr-review.md).
 
 ## Paths
 
