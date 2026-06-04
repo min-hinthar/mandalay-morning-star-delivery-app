@@ -52,12 +52,43 @@ export const STAR_EARNING_STATUSES = [
 ] as const;
 
 /**
- * Net loyalty spend for one order: food subtotal minus any discount, floored at
- * 0. Excludes tax (goes to the state), tip (goes to the driver), and delivery
- * fee — only what the customer actually spent on our food counts toward tier.
+ * Net loyalty spend for one order: food subtotal minus any discount and minus
+ * the value of any refunded items, floored at 0. Excludes tax (goes to the
+ * state), tip (goes to the driver), and delivery fee — only what the customer
+ * actually, finally spent on our food counts toward tier. A fully-refunded
+ * order contributes 0; a partial refund reduces spend by the refunded portion,
+ * so a customer can't order big, refund, and keep the tier.
  */
-export function orderSpendCents(subtotalCents: number, discountCents: number): number {
-  return Math.max(0, subtotalCents - discountCents);
+export function orderSpendCents(
+  subtotalCents: number,
+  discountCents: number,
+  refundedCents = 0
+): number {
+  return Math.max(0, subtotalCents - discountCents - Math.max(0, refundedCents));
+}
+
+/**
+ * Refunded food value for one order, from its line items. Each item's refunded
+ * value is its unit price (line_total / quantity) × refunded_quantity, so a
+ * partial item refund is counted proportionally. Pure + null-safe.
+ */
+export function orderRefundedCents(
+  items: {
+    line_total_cents: number | null;
+    quantity: number | null;
+    refunded_quantity: number | null;
+  }[]
+): number {
+  let refunded = 0;
+  for (const it of items) {
+    const qty = it.quantity ?? 0;
+    const refundedQty = it.refunded_quantity ?? 0;
+    const lineTotal = it.line_total_cents ?? 0;
+    if (qty > 0 && refundedQty > 0) {
+      refunded += Math.round((lineTotal / qty) * Math.min(refundedQty, qty));
+    }
+  }
+  return refunded;
 }
 
 export type LoyaltyTierId = "new" | "jade" | "ruby" | "gold";
