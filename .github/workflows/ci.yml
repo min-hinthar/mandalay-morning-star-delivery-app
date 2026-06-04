@@ -64,16 +64,12 @@ jobs:
     name: DB types match migrations
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # NON-BLOCKING until two things are resolved (this job already surfaced both):
-    #   1. Legacy migrations don't apply cleanly from scratch — 000_initial_schema
-    #      and 001_schema both CREATE TYPE order_status (collision), and some
-    #      historical files predate the strict <timestamp>_name.sql naming. These
-    #      need a migration-history cleanup (out of scope here).
-    #   2. The committed database.generated.ts was hand-maintained, so the first
-    #      real `supabase gen types --local` will differ (formatting/ordering).
-    # To arm as a required check: clean up the migration history so the local
-    # stack starts, run `pnpm gen:types`, commit the baseline, then remove this line.
-    continue-on-error: true
+    # BLOCKING. The entangled migration lineages were squashed to a single
+    # live-schema baseline (supabase/migrations/00000000000000_baseline.sql;
+    # legacy files preserved in supabase/migrations_archive/), so the local
+    # stack starts cleanly, and database.generated.ts was regenerated from that
+    # schema. This job now fails the build if a migration changes the schema
+    # without a matching `pnpm gen:types`.
     steps:
       - uses: actions/checkout@v4
 
@@ -87,6 +83,14 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      # Guard against a stale local stack holding the DB port (54322) — e.g. a
+      # superseded run cancelled mid `db start` by cancel-in-progress can leave
+      # its container behind on a non-ephemeral runner.
+      - name: Clean up any stale Supabase stack
+        run: |
+          pnpm exec supabase stop --no-backup 2>/dev/null || true
+          docker rm -f $(docker ps -aq --filter "name=supabase_") 2>/dev/null || true
+
       # Spin up the local Supabase stack and apply ALL migrations — this both
       # proves the migrations apply cleanly AND gives us a schema to generate
       # from. No production credentials: everything is local Docker.
@@ -95,6 +99,16 @@ jobs:
 
       - name: Check generated types match the schema
         run: pnpm gen:types:check
+
+      # On drift, print the exact diff (committed body vs freshly generated) so
+      # the mismatch is diagnosable from the run logs.
+      - name: Show type drift on failure
+        if: failure()
+        run: |
+          pnpm exec supabase gen types typescript --local --schema public \
+            | pnpm exec prettier --parser typescript > /tmp/fresh.generated.ts
+          echo '===== unified diff: committed (header stripped) vs fresh local ====='
+          diff -u <(tail -n +6 src/types/database.generated.ts) /tmp/fresh.generated.ts || true
 
       - name: Stop Supabase
         if: always()
