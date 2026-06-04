@@ -9,6 +9,8 @@ export interface RewardsSummary {
   ordersToNext: number;
   nextRewardCents: number;
   tier: { id: LoyaltyTierId; name: string; english: string; emoji: string };
+  /** Whether the customer's tier unlocks early access (Ruby+). */
+  earlyAccess: boolean;
 }
 
 /**

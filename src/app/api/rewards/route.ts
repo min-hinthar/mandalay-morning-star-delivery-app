@@ -8,6 +8,7 @@ import { ensureReferralCode } from "@/lib/referrals/code";
 import {
   LOYALTY_MILESTONE_STEP,
   STAR_EARNING_STATUSES,
+  hasEarlyAccess,
   nextMilestone,
   nextRewardCents,
   nextTier,
@@ -15,6 +16,7 @@ import {
   ordersToNextTier,
   progressInCycle,
   tierForOrders,
+  tierPerks,
 } from "@/lib/loyalty";
 import type { OrderStatus } from "@/types/database";
 
@@ -155,6 +157,8 @@ export async function GET() {
             }
           : null,
         ordersToNextTier: ordersToNextTier(stars),
+        earlyAccess: hasEarlyAccess(stars),
+        perks: tierPerks(stars),
         justUnlocked,
         wallet,
         referral: {

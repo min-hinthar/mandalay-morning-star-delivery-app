@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/hooks/useToastV8";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useRewardsSummary } from "@/lib/hooks/useRewardsSummary";
+import { TierBadge } from "@/components/ui/TierBadge";
 import { format, parseISO } from "date-fns";
 import type { Profile, FormErrors } from "./types";
 import { VALIDATION } from "./types";
@@ -24,6 +26,7 @@ export function ProfileTab() {
   const [errors, setErrors] = useState<FormErrors>({});
   const [hasError, setHasError] = useState(false);
   const { shouldAnimate } = useAnimationPreference();
+  const { data: rewards } = useRewardsSummary(true);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -155,12 +158,15 @@ export function ProfileTab() {
             <div className="rounded-full bg-primary/10 p-4">
               <User className="h-8 w-8 text-primary" />
             </div>
-            <div>
+            <div className="flex-1">
               <h2 className="text-xl font-display font-bold text-text-primary">
                 Profile Information
               </h2>
               <p className="text-sm text-text-secondary">Manage your personal details</p>
             </div>
+            {rewards && rewards.tier.id !== "new" && (
+              <TierBadge tier={rewards.tier} variant="pill" />
+            )}
           </div>
 
           <div className="space-y-6">
