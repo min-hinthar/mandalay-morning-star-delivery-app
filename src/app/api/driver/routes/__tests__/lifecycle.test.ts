@@ -42,6 +42,7 @@ const { PATCH: updateStop } = await import("../[routeId]/stops/[stopId]/route");
 
 let routeState: RoutesRow;
 let stopStates: RouteStopsRow[];
+let orderUpdateShouldFail = false;
 
 // ── Mock RPC ─────────────────────────────────────────────────────────
 
@@ -143,14 +144,33 @@ function fromMock(table: string) {
         const selectChain: Record<string, unknown> = {
           eq: (col: string, val: string) => {
             if (col === "route_id") {
-              // Start handler: first stop by route_id then order/limit/single
-              return createChainTerminal({
-                data:
-                  stopStates.length > 0
-                    ? { id: stopStates[0].id, stop_index: stopStates[0].stop_index }
-                    : null,
-                error: stopStates.length > 0 ? null : { message: "not found" },
-              });
+              // Start handler: first stop by route_id then order/limit/single.
+              // Fallback promotion: a second .eq("status", X) returns the
+              // status-filtered array of stops.
+              const firstStopData =
+                stopStates.length > 0
+                  ? { id: stopStates[0].id, stop_index: stopStates[0].stop_index }
+                  : null;
+              const routeStopsTerminal: Record<string, unknown> = {
+                single: () =>
+                  Promise.resolve({
+                    data: firstStopData,
+                    error: firstStopData ? null : { message: "not found" },
+                  }),
+                returns: () => routeStopsTerminal,
+                order: () => routeStopsTerminal,
+                limit: () => routeStopsTerminal,
+                eq: (_col2: string, statusVal: string) =>
+                  createChainTerminal({
+                    data: stopStates
+                      .filter((s) => s.status === statusVal)
+                      .map((s) => ({ id: s.id, stop_index: s.stop_index })),
+                    error: null,
+                  }),
+                then: (resolve: (v: unknown) => void) =>
+                  resolve({ data: firstStopData, error: null }),
+              };
+              return routeStopsTerminal;
             }
             if (col === "id") {
               // Stop handler: select by stop id, then chain .eq("route_id", ...)
@@ -183,34 +203,50 @@ function fromMock(table: string) {
         };
         return selectChain;
       },
-      update: (data: Record<string, string | null>) => {
-        return {
-          eq: (col: string, val: string) => {
-            if (col === "id") {
-              const stop = stopStates.find((s) => s.id === val);
-              if (stop) Object.assign(stop, data);
-            }
-            return Promise.resolve({ error: null });
-          },
-        };
-      },
+      update: (data: Record<string, string | null>) => ({
+        eq: (col: string, val: string) => {
+          const stop = col === "id" ? stopStates.find((s) => s.id === val) : null;
+          const apply = (guard?: string) => {
+            if (stop && (guard === undefined || stop.status === guard)) Object.assign(stop, data);
+          };
+          return {
+            // Status-guarded second .eq (start first-stop + fallback promotion)
+            eq: (_col2: string, val2: string) => {
+              const matched = Boolean(stop && stop.status === val2);
+              apply(val2);
+              return {
+                select: () => Promise.resolve({ data: matched ? [{ id: val }] : [], error: null }),
+                then: (resolve: (v: unknown) => void) => resolve({ error: null }),
+              };
+            },
+            // Direct await (single .eq stop status update)
+            then: (resolve: (v: unknown) => void) => {
+              apply();
+              resolve({ error: null });
+            },
+          };
+        },
+      }),
     };
   }
 
   if (table === "orders") {
+    const orderResult = orderUpdateShouldFail
+      ? { data: null, error: { message: "order update failed" } }
+      : { data: [{ id: "order-0-uuid" }], error: null };
     return {
       update: () => ({
         in: () => ({
           in: () => ({
-            select: () => Promise.resolve({ data: [{ id: "order-0-uuid" }], error: null }),
+            select: () => Promise.resolve(orderResult),
           }),
-          select: () => Promise.resolve({ data: [{ id: "order-0-uuid" }], error: null }),
+          select: () => Promise.resolve(orderResult),
         }),
         eq: () => ({
           eq: () => ({
-            select: () => Promise.resolve({ data: [{ id: "order-0-uuid" }], error: null }),
+            select: () => Promise.resolve(orderResult),
           }),
-          select: () => Promise.resolve({ data: [{ id: "order-0-uuid" }], error: null }),
+          select: () => Promise.resolve(orderResult),
         }),
       }),
     };
@@ -279,6 +315,7 @@ describe("Driver Route Lifecycle Integration", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     resetCallCounts();
+    orderUpdateShouldFail = false;
     routeState = createMockRoute({ status: "assigned" });
     stopStates = [
       createMockStop({ id: "stop-0-uuid", stop_index: 0, order_id: "order-0-uuid" }),
@@ -510,5 +547,110 @@ describe("Driver Route Lifecycle Integration", () => {
     expect(data.success).toBe(true);
     expect(data.firstStopId).toBeNull();
     expect(data.ordersTransitioned).toBe(0);
+  });
+
+  // ── Start: order-transition failure is surfaced (no silent stuck orders) ──
+
+  it("start returns 500 when the order transition fails", async () => {
+    routeState.status = "accepted";
+    orderUpdateShouldFail = true;
+
+    const res = await startRoute(postRequest(`${ROUTE_ID}/start`), routeParams(ROUTE_ID));
+    expect(res.status).toBe(500);
+    const data = await res.json();
+    expect(data.error).toContain("failed to update orders");
+  });
+
+  // ── Start: idempotent re-entry when already in_progress (retry path) ──
+
+  it("start is idempotent when route is already in_progress", async () => {
+    routeState.status = "in_progress";
+    routeState.started_at = "2026-06-04T10:00:00.000Z";
+
+    const res = await startRoute(postRequest(`${ROUTE_ID}/start`), routeParams(ROUTE_ID));
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.success).toBe(true);
+    // Returns the persisted start time, not a fresh stamp
+    expect(data.startedAt).toBe("2026-06-04T10:00:00.000Z");
+    expect(data.ordersTransitioned).toBe(2);
+    expect(routeState.status).toBe("in_progress");
+  });
+
+  // ── Stop promotion fallback when the atomic RPC errors ──
+
+  it("deliver promotes lowest pending stop via fallback when RPC errors", async () => {
+    routeState.status = "in_progress";
+    stopStates[0].status = "arrived";
+    stopStates[1].status = "pending";
+    mockRpc.mockImplementationOnce(() =>
+      Promise.resolve({ data: null, error: { message: "rpc failed" } })
+    );
+
+    const res = await updateStop(
+      patchRequest(`${ROUTE_ID}/stops/stop-0-uuid`, { status: "delivered" }),
+      stopParams(ROUTE_ID, "stop-0-uuid")
+    );
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(data.nextStop).toEqual({ id: "stop-1-uuid", stopIndex: 1 });
+    expect(stopStates[1].status).toBe("enroute");
+  });
+
+  it("deliver fallback returns the already-enroute stop when RPC errors", async () => {
+    routeState.status = "in_progress";
+    stopStates[0].status = "arrived";
+    stopStates[1].status = "enroute"; // already advanced
+    mockRpc.mockImplementationOnce(() =>
+      Promise.resolve({ data: null, error: { message: "rpc failed" } })
+    );
+
+    const res = await updateStop(
+      patchRequest(`${ROUTE_ID}/stops/stop-0-uuid`, { status: "delivered" }),
+      stopParams(ROUTE_ID, "stop-0-uuid")
+    );
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.nextStop).toEqual({ id: "stop-1-uuid", stopIndex: 1 });
+  });
+
+  // ── Idempotent re-submission (offline at-least-once retry) ──
+
+  it("re-submitting an already-delivered stop returns idempotent success, not 400", async () => {
+    routeState.status = "in_progress";
+    stopStates[0].status = "delivered";
+    stopStates[0].delivered_at = "2026-06-04T11:00:00.000Z";
+
+    const res = await updateStop(
+      patchRequest(`${ROUTE_ID}/stops/stop-0-uuid`, { status: "delivered" }),
+      stopParams(ROUTE_ID, "stop-0-uuid")
+    );
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.success).toBe(true);
+    expect(data.idempotent).toBe(true);
+    expect(data.stop.status).toBe("delivered");
+    expect(data.stop.deliveredAt).toBe("2026-06-04T11:00:00.000Z");
+    expect(data.nextStop).toBeNull();
+    // No promotion RPC on an idempotent no-op
+    expect(mockRpc).not.toHaveBeenCalled();
+  });
+
+  it("deliver fallback returns null nextStop when no pending stops remain", async () => {
+    routeState.status = "in_progress";
+    stopStates[0].status = "arrived";
+    stopStates[1].status = "delivered"; // last remaining already done
+    mockRpc.mockImplementationOnce(() =>
+      Promise.resolve({ data: null, error: { message: "rpc failed" } })
+    );
+
+    const res = await updateStop(
+      patchRequest(`${ROUTE_ID}/stops/stop-0-uuid`, { status: "delivered" }),
+      stopParams(ROUTE_ID, "stop-0-uuid")
+    );
+    const data = await res.json();
+    expect(res.status).toBe(200);
+    expect(data.nextStop).toBeNull();
   });
 });
