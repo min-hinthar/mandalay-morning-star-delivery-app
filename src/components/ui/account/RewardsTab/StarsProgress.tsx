@@ -8,6 +8,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { formatPrice } from "@/lib/utils/currency";
 import type { LoyaltyTierId } from "@/lib/loyalty";
 import { ordersToReward, ordersToTier } from "@/lib/loyalty/copy";
+import { TierBadge } from "@/components/ui/TierBadge";
 import { tierAccent } from "./tierStyle";
 
 interface TierInfo {
@@ -104,19 +105,7 @@ export function StarsProgress({
           </div>
 
           {/* Current tier badge */}
-          <span
-            className={cn(
-              "mt-1 inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-sm font-semibold",
-              accent.bg,
-              accent.text
-            )}
-          >
-            <span aria-hidden="true">{tier.emoji}</span>
-            {tier.name}
-            {tier.english !== tier.name && (
-              <span className="font-normal opacity-80">· {tier.english}</span>
-            )}
-          </span>
+          <TierBadge tier={tier} variant="pill" className="mt-1" />
 
           <p className="mt-2 text-sm text-text-secondary">
             {ordersToNext === 1 ? (

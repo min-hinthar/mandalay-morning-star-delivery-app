@@ -14,6 +14,7 @@ import { duration, easing } from "@/lib/motion-tokens";
 import { LOAD_ERROR, RETRY, unlockedAnnounce } from "@/lib/loyalty/copy";
 import { StarsProgress } from "./StarsProgress";
 import { CouponWallet } from "./CouponWallet";
+import { TierLadder } from "./TierLadder";
 import { Confetti } from "./Confetti";
 
 function RewardsSkeleton() {
@@ -112,6 +113,7 @@ export function RewardsTab() {
         ordersToNextTier={data.ordersToNextTier}
       />
       <CouponWallet items={data.wallet} />
+      <TierLadder currentTierId={data.tier.id} />
       <ReferAFriendCard data={data.referral} />
     </div>
   );

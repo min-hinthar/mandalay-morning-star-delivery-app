@@ -10,6 +10,7 @@ import { formatPrice } from "@/lib/utils/currency";
 import type { Database } from "@/types/database";
 import { LOYALTY_ANNIVERSARY_CENTS } from ".";
 import { mintLoyaltyPromoCode } from "./mint";
+import { tierForUser } from "./tier";
 
 interface AnniversaryRecipient {
   userId: string;
@@ -48,6 +49,7 @@ export async function issueLoyaltyAnniversary(
     tag: "loyalty-anniversary",
   });
 
+  const tier = await tierForUser(service, recipient.userId);
   const emailComponent = React.createElement(LoyaltyReward, {
     customerName: recipient.fullName?.split(" ")[0] || "friend",
     rewardCents: LOYALTY_ANNIVERSARY_CENTS,
@@ -55,6 +57,9 @@ export async function issueLoyaltyAnniversary(
     menuUrl: `${appUrl}/menu?src=loyalty_anniversary`,
     variant: "anniversary",
     years: recipient.years,
+    tierName: tier.name,
+    tierEnglish: tier.english,
+    tierEmoji: tier.emoji,
   });
   const [html, text] = await Promise.all([
     render(emailComponent),
