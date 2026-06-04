@@ -1,7 +1,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Route, Navigation, PackageCheck, AlertTriangle, Inbox } from "lucide-react";
+import { Route, Navigation, PackageCheck, Loader, Inbox } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { AnimatedValue } from "@/components/ui/admin/AdminDashboard/AnimatedValue";
@@ -82,12 +82,7 @@ export function DeliveryDaySummary({
         icon={PackageCheck}
         tone="green"
       />
-      <StatCard
-        label="Exceptions"
-        value={summary.exceptions}
-        icon={AlertTriangle}
-        tone={summary.exceptions > 0 ? "warning" : "default"}
-      />
+      <StatCard label="Active routes" value={summary.inProgressRoutes} icon={Loader} tone="teal" />
       <StatCard
         label="Unassigned"
         value={unassignedOrders}

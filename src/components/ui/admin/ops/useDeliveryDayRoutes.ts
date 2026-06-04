@@ -1,17 +1,19 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import type { RouteStats, RouteStatus } from "@/types/driver";
+import type { RouteStatus } from "@/types/driver";
 
+/**
+ * Subset of /api/admin/routes list items (transformRouteForList output) that the
+ * day summary needs. The list endpoint flattens stats to stopCount/deliveredCount
+ * — it does NOT return stats_json or an exception count.
+ */
 export interface DeliveryDayRoute {
   id: string;
   status: RouteStatus;
-  driverName: string | null;
-  stats: RouteStats | null;
   stopCount: number;
-  exceptionCount: number;
-  startedAt: string | null;
-  completedAt: string | null;
+  deliveredCount: number;
+  driver: { id: string; fullName: string | null } | null;
 }
 
 export interface DeliveryDaySummary {
@@ -21,7 +23,6 @@ export interface DeliveryDaySummary {
   plannedRoutes: number;
   totalStops: number;
   deliveredStops: number;
-  exceptions: number;
 }
 
 export interface DeliveryDayRoutesState {
@@ -38,7 +39,6 @@ const EMPTY_SUMMARY: DeliveryDaySummary = {
   plannedRoutes: 0,
   totalStops: 0,
   deliveredStops: 0,
-  exceptions: 0,
 };
 
 function summarize(routes: DeliveryDayRoute[]): DeliveryDaySummary {
@@ -48,9 +48,8 @@ function summarize(routes: DeliveryDayRoute[]): DeliveryDaySummary {
       if (r.status === "completed") acc.completedRoutes += 1;
       else if (r.status === "in_progress") acc.inProgressRoutes += 1;
       else if (r.status === "planned") acc.plannedRoutes += 1;
-      acc.totalStops += r.stats?.total_stops ?? r.stopCount ?? 0;
-      acc.deliveredStops += r.stats?.delivered_stops ?? 0;
-      acc.exceptions += r.exceptionCount ?? 0;
+      acc.totalStops += r.stopCount ?? 0;
+      acc.deliveredStops += r.deliveredCount ?? 0;
       return acc;
     },
     { ...EMPTY_SUMMARY }
