@@ -167,7 +167,8 @@ export async function POST(request: Request) {
       supabase,
       user.id,
       subtotalCents,
-      input.promoCode
+      input.promoCode,
+      createServiceClient()
     );
     if (!discountResult.ok) {
       return errorResponse("VALIDATION_ERROR", discountResult.message, 400);
