@@ -11,6 +11,7 @@ import { CTABanner } from "@/components/ui/homepage/CTABanner";
 import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import { FooterCTA } from "@/components/ui/homepage/FooterCTA";
 import { SettingsNudgeBanner } from "@/components/ui/homepage/SettingsNudgeBanner";
+import { RewardsWelcomeBack } from "@/components/ui/homepage/RewardsWelcomeBack";
 import type { FeaturedSectionWithItems } from "@/types/featured-sections";
 
 // Lazy load HowItWorksSection to defer 369KB Google Maps bundle
@@ -122,6 +123,9 @@ export default async function HomePage(): Promise<ReactElement> {
           deliveriesThisMonth={deliveryStats.deliveriesThisMonth}
           nextDeliveryDate={deliveryStats.nextDeliveryDate}
         />
+
+        {/* Rewards welcome-back pill - signed-in customers with Stars (client) */}
+        <RewardsWelcomeBack />
 
         {/* Settings Nudge Banner - client component (auth check, inline saves) */}
         <SettingsNudgeBanner />

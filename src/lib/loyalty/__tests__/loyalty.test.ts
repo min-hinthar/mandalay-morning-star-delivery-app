@@ -14,6 +14,10 @@ import {
   rewardCentsForOrders,
   rewardExpiryISO,
   tierForOrders,
+  hasEarlyAccess,
+  tierPerks,
+  TIER_PERKS,
+  LOYALTY_TIERS,
 } from "..";
 
 describe("loyalty helpers", () => {
@@ -121,6 +125,48 @@ describe("loyalty helpers", () => {
     it("clamps past-due to 0 and passes through null", () => {
       expect(daysUntilExpiry("2026-01-09T12:00:00.000Z", now)).toBe(0);
       expect(daysUntilExpiry(null, now)).toBeNull();
+    });
+  });
+
+  describe("hasEarlyAccess", () => {
+    it("is true only at Ruby tier and above", () => {
+      expect(hasEarlyAccess(0)).toBe(false); // New Friend
+      expect(hasEarlyAccess(9)).toBe(false);
+      expect(hasEarlyAccess(10)).toBe(false); // Jade
+      expect(hasEarlyAccess(24)).toBe(false);
+      expect(hasEarlyAccess(25)).toBe(true); // Ruby
+      expect(hasEarlyAccess(49)).toBe(true);
+      expect(hasEarlyAccess(50)).toBe(true); // Gold
+      expect(hasEarlyAccess(200)).toBe(true);
+    });
+  });
+
+  describe("tierPerks / TIER_PERKS", () => {
+    it("returns the perks for the tier at a given order count", () => {
+      expect(tierPerks(0)).toBe(TIER_PERKS.new);
+      expect(tierPerks(10)).toBe(TIER_PERKS.jade);
+      expect(tierPerks(25)).toBe(TIER_PERKS.ruby);
+      expect(tierPerks(50)).toBe(TIER_PERKS.gold);
+    });
+
+    it("defines bilingual perks for every tier", () => {
+      for (const tier of LOYALTY_TIERS) {
+        const perks = TIER_PERKS[tier.id];
+        expect(perks.length).toBeGreaterThan(0);
+        for (const perk of perks) {
+          expect(perk.en.length).toBeGreaterThan(0);
+          expect(perk.my.length).toBeGreaterThan(0);
+          expect(["star", "gift", "sparkles", "crown", "clock"]).toContain(perk.icon);
+        }
+      }
+    });
+
+    it("only Ruby+ perks mention early access", () => {
+      const mentionsEarly = (id: keyof typeof TIER_PERKS) =>
+        TIER_PERKS[id].some((p) => /early access/i.test(p.en));
+      expect(mentionsEarly("new")).toBe(false);
+      expect(mentionsEarly("jade")).toBe(false);
+      expect(mentionsEarly("ruby")).toBe(true);
     });
   });
 });

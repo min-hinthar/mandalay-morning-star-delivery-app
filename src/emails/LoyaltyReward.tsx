@@ -41,7 +41,9 @@ export function LoyaltyReward({
   const isMilestone = variant === "milestone" && typeof milestone === "number";
   const isAnniversary = variant === "anniversary" && typeof years === "number";
   const isExpiring = variant === "expiring";
-  const showTier = isMilestone && tierName && tierEmoji;
+  // Show the tier chip on any celebratory variant (milestone/anniversary/
+  // thank-you) when tier props are supplied — skip the "hurry up" expiring nudge.
+  const showTier = !isExpiring && Boolean(tierName && tierEmoji);
   const dayLabel = daysLeft === 1 ? "tomorrow" : `in ${daysLeft} days`;
 
   const heading = isExpiring

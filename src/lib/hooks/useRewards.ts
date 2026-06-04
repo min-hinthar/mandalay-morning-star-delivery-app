@@ -28,6 +28,12 @@ export interface RewardsReferral {
   stats: { pending: number; completed: number; earnedCents: number };
 }
 
+export interface RewardsPerk {
+  icon: "star" | "gift" | "sparkles" | "crown" | "clock";
+  en: string;
+  my: string;
+}
+
 export interface RewardsData {
   stars: number;
   milestoneStep: number;
@@ -38,6 +44,8 @@ export interface RewardsData {
   tier: RewardsTier;
   nextTier: (RewardsTier & { minOrders: number }) | null;
   ordersToNextTier: number | null;
+  earlyAccess: boolean;
+  perks: RewardsPerk[];
   justUnlocked: { code: string; amountCents: number; kind: string } | null;
   wallet: RewardsWalletItem[];
   referral: RewardsReferral;

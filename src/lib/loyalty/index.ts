@@ -103,6 +103,78 @@ export function rewardCentsForOrders(orderCount: number): number {
   return tierForOrders(orderCount).rewardCents;
 }
 
+/**
+ * Tiers at or above which "early access" applies (Ruby, Gold). A pure,
+ * server-derivable capability flag — the UI only ever displays it; any future
+ * gating (e.g. early-access specials) must re-check server-side.
+ */
+export const EARLY_ACCESS_TIERS: LoyaltyTierId[] = ["ruby", "gold"];
+
+/** Whether the tier at `orderCount` unlocks early access. */
+export function hasEarlyAccess(orderCount: number): boolean {
+  return EARLY_ACCESS_TIERS.includes(tierForOrders(orderCount).id);
+}
+
+export interface LoyaltyPerk {
+  /** Lucide icon name the UI maps to a component. */
+  icon: "star" | "gift" | "sparkles" | "crown" | "clock";
+  en: string;
+  my: string;
+}
+
+/**
+ * Bilingual "what you get" perks per tier, cumulative (each tier inherits the
+ * tiers below it plus its own). Display-only — the monetary perk (tier-sized
+ * coupons) is enforced server-side at issuance; this just makes the ladder
+ * legible. Keep copy in sync with LOYALTY_TIERS reward sizes.
+ */
+export const TIER_PERKS: Record<LoyaltyTierId, LoyaltyPerk[]> = {
+  new: [
+    { icon: "star", en: "1 Star for every order", my: "အော်ဒါတိုင်း Star တစ်လုံး" },
+    {
+      icon: "gift",
+      en: "$5 Kyay-Zu-Par! reward every 5 orders",
+      my: "၅ ကြိမ်တိုင်း $5 ကျေးဇူးဆု",
+    },
+  ],
+  jade: [
+    { icon: "sparkles", en: "Everything in New Friend", my: "New Friend ပါဝင်သမျှ အားလုံး" },
+    {
+      icon: "gift",
+      en: "Bigger $8 reward every 5 orders",
+      my: "၅ ကြိမ်တိုင်း $8 ဆု (ပိုကြီး)",
+    },
+    { icon: "star", en: "Jade tier badge on your profile", my: "ပရိုဖိုင်မှာ Jade တံဆိပ်" },
+  ],
+  ruby: [
+    { icon: "sparkles", en: "Everything in Jade", my: "Jade ပါဝင်သမျှ အားလုံး" },
+    { icon: "gift", en: "Bigger $10 reward every 5 orders", my: "၅ ကြိမ်တိုင်း $10 ဆု" },
+    {
+      icon: "clock",
+      en: "Early access to new specials",
+      my: "အထူးမီနူးအသစ်များ စောစီးစွာ ဝင်ကြည့်ခွင့်",
+    },
+  ],
+  gold: [
+    { icon: "sparkles", en: "Everything in Ruby", my: "Ruby ပါဝင်သမျှ အားလုံး" },
+    {
+      icon: "gift",
+      en: "Biggest $12 reward every 5 orders",
+      my: "၅ ကြိမ်တိုင်း $12 ဆု (အကြီးဆုံး)",
+    },
+    {
+      icon: "crown",
+      en: "Gold tier — our most loyal friends 💛",
+      my: "Gold — အချစ်ဆုံး မိတ်ဆွေအရင်းများ 💛",
+    },
+  ],
+};
+
+/** The perks unlocked at the tier for a given order count. */
+export function tierPerks(orderCount: number): LoyaltyPerk[] {
+  return TIER_PERKS[tierForOrders(orderCount).id];
+}
+
 /** The next milestone (multiple of the step) strictly above `stars`. */
 export function nextMilestone(stars: number): number {
   return (Math.floor(stars / LOYALTY_MILESTONE_STEP) + 1) * LOYALTY_MILESTONE_STEP;

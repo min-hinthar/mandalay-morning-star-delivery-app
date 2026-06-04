@@ -5,6 +5,7 @@ import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import {
   STAR_EARNING_STATUSES,
+  hasEarlyAccess,
   nextRewardCents,
   ordersToNextMilestone,
   tierForOrders,
@@ -52,6 +53,7 @@ export async function GET() {
         ordersToNext: ordersToNextMilestone(stars),
         nextRewardCents: nextRewardCents(stars),
         tier: { id: tier.id, name: tier.name, english: tier.english, emoji: tier.emoji },
+        earlyAccess: hasEarlyAccess(stars),
       },
     });
   } catch (error) {
