@@ -36,14 +36,15 @@ export interface RewardsPerk {
 
 export interface RewardsData {
   stars: number;
+  spendCents: number;
   milestoneStep: number;
   nextMilestone: number;
   ordersToNext: number;
   progressInCycle: number;
   nextRewardCents: number;
   tier: RewardsTier;
-  nextTier: (RewardsTier & { minOrders: number }) | null;
-  ordersToNextTier: number | null;
+  nextTier: (RewardsTier & { minSpendCents: number }) | null;
+  spendToNextTierCents: number | null;
   earlyAccess: boolean;
   perks: RewardsPerk[];
   justUnlocked: { code: string; amountCents: number; kind: string } | null;

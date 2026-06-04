@@ -75,11 +75,10 @@ export function ordersToReward(ordersToNext: number, amount: string): BilingualT
   };
 }
 
-/** Climb-to-next-tier line. */
-export function ordersToTier(ordersToNextTier: number, tierName: string): BilingualText {
-  const noun = ordersToNextTier === 1 ? "order" : "orders";
+/** Climb-to-next-tier line, denominated in spend (e.g. "$120 more to reach Ruby"). */
+export function spendToTier(amountToNextTier: string, tierName: string): BilingualText {
   return {
-    en: `${ordersToNextTier} more ${noun} to ${tierName}`,
-    my: `${tierName} အထိ နောက်ထပ် ${ordersToNextTier} ခါ`,
+    en: `${amountToNextTier} more to reach ${tierName}`,
+    my: `${tierName} ရဖို့ နောက်ထပ် ${amountToNextTier} သုံးရန်`,
   };
 }

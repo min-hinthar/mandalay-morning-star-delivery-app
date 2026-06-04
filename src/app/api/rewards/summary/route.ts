@@ -4,13 +4,12 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import {
-  STAR_EARNING_STATUSES,
   hasEarlyAccess,
   nextRewardCents,
   ordersToNextMilestone,
-  tierForOrders,
+  tierForSpend,
 } from "@/lib/loyalty";
-import type { OrderStatus } from "@/types/database";
+import { loyaltyStatsForUser } from "@/lib/loyalty/tier";
 
 const UNAUTHORIZED = NextResponse.json(
   { error: { code: "UNAUTHORIZED", message: "Not authenticated" } },
@@ -38,22 +37,16 @@ export async function GET() {
     if (rl.limited) return rl.response;
 
     const service = createServiceClient();
-    const { count } = await service
-      .from("orders")
-      .select("id", { count: "exact", head: true })
-      .eq("user_id", user.id)
-      .in("status", STAR_EARNING_STATUSES as unknown as OrderStatus[]);
-
-    const stars = count ?? 0;
-    const tier = tierForOrders(stars);
+    const { orderCount, spendCents } = await loyaltyStatsForUser(service, user.id);
+    const tier = tierForSpend(spendCents);
 
     return NextResponse.json({
       data: {
-        stars,
-        ordersToNext: ordersToNextMilestone(stars),
-        nextRewardCents: nextRewardCents(stars),
+        stars: orderCount,
+        ordersToNext: ordersToNextMilestone(orderCount),
+        nextRewardCents: nextRewardCents(spendCents),
         tier: { id: tier.id, name: tier.name, english: tier.english, emoji: tier.emoji },
-        earlyAccess: hasEarlyAccess(stars),
+        earlyAccess: hasEarlyAccess(spendCents),
       },
     });
   } catch (error) {

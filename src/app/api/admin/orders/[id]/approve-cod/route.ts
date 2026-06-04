@@ -6,6 +6,10 @@ import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 import { sendEmail, fetchSuggestedItems, fetchDietaryRestrictions } from "@/lib/email";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
+import { createServiceClient } from "@/lib/supabase/server";
+import { maybeIssueMilestoneReward } from "@/lib/loyalty/reward";
+import { maybeRewardReferral } from "@/lib/referrals/reward";
+import { markLoyaltyRedeemed } from "@/lib/loyalty/redeem";
 import type { OrderStatus } from "@/types/database";
 
 interface OrderRow {
@@ -197,6 +201,30 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
         logger.error("Failed to send COD approval email", {
           orderId: approvedOrderId,
           error: emailErr instanceof Error ? emailErr.message : String(emailErr),
+        });
+      }
+    });
+
+    // Loyalty (best-effort): a COD order counts the same as a paid one once
+    // approved — issue milestone rewards, reward any referral, and mark a used
+    // loyalty code redeemed. Uses the service role (loyalty_rewards is
+    // write-only under RLS); mirrors the Stripe checkout webhook.
+    const loyaltyUserId = order.user_id;
+    after(async () => {
+      try {
+        const service = createServiceClient();
+        const { data: ord } = await service
+          .from("orders")
+          .select("promo_code")
+          .eq("id", approvedOrderId)
+          .maybeSingle();
+        await maybeIssueMilestoneReward(service, loyaltyUserId);
+        await maybeRewardReferral(service, loyaltyUserId);
+        await markLoyaltyRedeemed(service, ord?.promo_code);
+      } catch (loyaltyErr) {
+        logger.error("COD loyalty processing failed", {
+          orderId: approvedOrderId,
+          error: loyaltyErr instanceof Error ? loyaltyErr.message : String(loyaltyErr),
         });
       }
     });
