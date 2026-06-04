@@ -1,5 +1,5 @@
 -- ===========================================
--- 20260604b: Loyalty tier spend is NET OF REFUNDS
+-- 20260605: Loyalty tier spend is NET OF REFUNDS
 -- ===========================================
 -- Supersedes 20260604_loyalty_tier_by_spend.sql. Tier spend must subtract the
 -- value of refunded items, so a customer can't order big, get refunded, and
