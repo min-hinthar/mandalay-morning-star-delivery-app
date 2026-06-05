@@ -11,6 +11,7 @@ interface RouteQueryResult {
   id: string;
   status: string;
   driver_id: string;
+  started_at: string | null;
 }
 
 interface StopQueryResult {
@@ -39,7 +40,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     // Get route
     const { data: route, error: routeError } = await supabase
       .from("routes")
-      .select("id, status, driver_id")
+      .select("id, status, driver_id, started_at")
       .eq("id", routeId)
       .returns<RouteQueryResult[]>()
       .single();
@@ -53,30 +54,37 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Not authorized to start this route" }, { status: 403 });
     }
 
-    // Check route can be started (must be accepted first)
-    if (route.status !== "accepted") {
+    // Must be accepted first. Allow idempotent re-entry when already in_progress
+    // so a request that failed partway (e.g. the order transition below) can be
+    // safely retried without leaving orders stranded in "preparing".
+    if (route.status !== "accepted" && route.status !== "in_progress") {
       return NextResponse.json(
         { error: `Cannot start route — accept route first. Current status: ${route.status}` },
         { status: 400 }
       );
     }
 
-    // Start the route
-    const startedAt = new Date().toISOString();
-    const { error: updateError } = await supabase
-      .from("routes")
-      .update({
-        status: "in_progress",
-        started_at: startedAt,
-      })
-      .eq("id", routeId);
+    const alreadyStarted = route.status === "in_progress";
 
-    if (updateError) {
-      logger.exception(updateError, { api: "driver/routes/[routeId]/start", routeId, driverId });
-      return NextResponse.json({ error: "Failed to start route" }, { status: 500 });
+    // Start the route (skip the status flip when re-entering an in_progress route).
+    const startedAt = new Date().toISOString();
+    if (!alreadyStarted) {
+      const { error: updateError } = await supabase
+        .from("routes")
+        .update({
+          status: "in_progress",
+          started_at: startedAt,
+        })
+        .eq("id", routeId);
+
+      if (updateError) {
+        logger.exception(updateError, { api: "driver/routes/[routeId]/start", routeId, driverId });
+        return NextResponse.json({ error: "Failed to start route" }, { status: 500 });
+      }
     }
 
-    // Set first stop to "enroute"
+    // Set first stop to "enroute" — guarded to pending so a retry never reverts a
+    // stop the driver has already progressed past.
     const { data: firstStop } = await supabase
       .from("route_stops")
       .select("id, stop_index")
@@ -87,10 +95,18 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       .single();
 
     if (firstStop) {
-      await supabase.from("route_stops").update({ status: "enroute" }).eq("id", firstStop.id);
+      await supabase
+        .from("route_stops")
+        .update({ status: "enroute" })
+        .eq("id", firstStop.id)
+        .eq("status", "pending");
     }
 
-    // Batch-transition all route orders to out_for_delivery
+    // Batch-transition all route orders to out_for_delivery. A failure here is now
+    // surfaced as 500 (was silently logged): otherwise the orders stay in
+    // "preparing" while the route is in_progress, and the optimistic lock on
+    // stop-delivery (which requires status "out_for_delivery") prevents them from
+    // ever reaching "delivered". The status flip above is idempotent on retry.
     const { data: routeStops } = await supabase
       .from("route_stops")
       .select("order_id")
@@ -107,23 +123,27 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
         .select("id");
 
       if (orderUpdateError) {
-        logger.warn("Failed to batch-update orders to out_for_delivery", {
+        logger.exception(orderUpdateError, {
           api: "driver/routes/[routeId]/start",
           routeId,
-          error: orderUpdateError.message,
+          driverId,
         });
-      } else {
-        logger.info("Orders transitioned to out_for_delivery", {
-          api: "driver/routes/[routeId]/start",
-          routeId,
-          count: updatedOrders?.length ?? 0,
-        });
+        return NextResponse.json(
+          { error: "Route started but failed to update orders. Please retry." },
+          { status: 500 }
+        );
       }
+
+      logger.info("Orders transitioned to out_for_delivery", {
+        api: "driver/routes/[routeId]/start",
+        routeId,
+        count: updatedOrders?.length ?? 0,
+      });
     }
 
     return NextResponse.json({
       success: true,
-      startedAt,
+      startedAt: alreadyStarted ? route.started_at : startedAt,
       firstStopId: firstStop?.id ?? null,
       ordersTransitioned: orderIds.length,
     });

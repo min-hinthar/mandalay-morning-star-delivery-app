@@ -155,6 +155,8 @@ ComponentName/
 - pgtap/plpgsql_check in `public` leak ~15 test fns into generated types and never byte-match local-vs-prod — keep test extensions in the `extensions` schema
 - `gen types` from prod ≠ from local (`PostgrestVersion`, extension internals) — the committed `database.generated.ts` must be the LOCAL-stack output the drift guard checks
 - Tiers = lifetime NET spend (subtotal − discount − refunds); coupons = per-order milestones. `pending_approval` (unpaid COD) excluded from loyalty
+- Offline at-least-once queue + terminal-state writes: a driver stop PATCH whose response is lost (network blip, or a 500 raised AFTER the row committed) gets re-queued. If the handler returns 400 on same-status re-submission (`delivered→delivered` is an invalid transition), the queue marks a SUCCESSFUL delivery as a permanent failure + error toast. Same-status re-submits must short-circuit to idempotent 200. Corollary: never 500 a request for a secondary side-effect (stop promotion) after the primary write committed — log + return 200, client refetches
+- Route `start` must be idempotent: do the order→`out_for_delivery` transition as part of a retryable start (allow re-entry when already `in_progress`, guard first-stop enroute to `status=pending`) and surface order-transition failure as 500. Otherwise orders strand in `preparing` while the route runs, and the delivered-stop optimistic lock (`.eq("status","out_for_delivery")`) blocks them from ever reaching `delivered`
 
 ## Learnings
 
