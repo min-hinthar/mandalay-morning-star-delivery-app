@@ -15,12 +15,14 @@ import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDynamicTheme } from "@/components/ui/theme";
 import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
-import { DeliveryCountdown } from "@/components/ui/delivery";
 import { Button } from "@/components/ui/button";
 import { COVERAGE_LIMITS } from "@/types/address";
 import { formatDeliveryDaysList, getNextCutoffText } from "@/lib/utils/delivery-schedule";
 import { AnimatedHeadline } from "./HeroSubComponents";
 import { HeroStatBand } from "./HeroStatBand";
+import { HeroCountdown } from "./HeroCountdown";
+import { HeroSunburst } from "./HeroSunburst";
+import { useMagnetic, useTilt } from "./interactions";
 import type { DeliveryDayConfig } from "@/types/delivery";
 
 /** Day names for cutoff display */
@@ -66,6 +68,8 @@ export function HeroContent({
 }: HeroContentProps) {
   const { shouldAnimate } = useAnimationPreference();
   const { timeOfDay } = useDynamicTheme();
+  const ctaMagnet = useMagnetic(0.3);
+  const cardTilt = useTilt(5);
 
   // Use multi-day gate if deliveryDays available, fallback to legacy
   const multiDayGate = useDeliveryGateMultiDay(deliveryDays ?? []);
@@ -116,14 +120,17 @@ export function HeroContent({
   return (
     <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-12 pb-safe md:pt-24 md:pb-16">
       <div className="max-w-4xl mx-auto text-center">
-        {/* Time-based greeting badge - bilingual (Anthropic warm-paper pill) */}
-        <div className="group inline-flex items-center gap-2 px-4 py-2 mb-5 rounded-full bg-hero-card border border-hero-line shadow-lg shadow-black/10 ring-1 ring-hero-line transition-transform duration-300 hover:-translate-y-0.5 animate-fade-in-up-delay-1">
-          <GreetingIcon
-            className="w-4 h-4 text-hero-accent transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
-            aria-hidden="true"
-          />
-          <span className="text-hero-accent font-semibold">{greeting.en}</span>
-          <span className="text-sm text-hero-ink-muted font-medium">{greeting.my}</span>
+        {/* Sunburst mark + time-based greeting badge (Anthropic warm-paper pill) */}
+        <div className="mb-5 flex flex-col items-center gap-3 animate-hero-develop-1">
+          <HeroSunburst className="h-7 w-7 text-hero-clay" rays={10} />
+          <div className="group inline-flex items-center gap-2 px-4 py-2 rounded-full hero-surface-paper transition-transform duration-300 hover:-translate-y-0.5">
+            <GreetingIcon
+              className="w-4 h-4 text-hero-clay transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
+              aria-hidden="true"
+            />
+            <span className="text-hero-accent font-semibold">{greeting.en}</span>
+            <span className="text-sm text-hero-ink-muted font-medium">{greeting.my}</span>
+          </div>
         </div>
 
         {/* EN Headline */}
@@ -133,35 +140,38 @@ export function HeroContent({
           className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-1 leading-tight hero-text-glow"
         />
         {/* MY Headline */}
-        <p className="font-body text-2xl md:text-3xl lg:text-4xl text-hero-text/80 mb-3 hero-text-glow animate-fade-in-up-delay-1">
+        <p className="font-body text-2xl md:text-3xl lg:text-4xl text-hero-text/80 mb-3 hero-text-glow animate-hero-develop-2">
           အိမ်ချက်ထမင်းဟင်း လွမ်းနေပြီလား · LA တစ်ခွင် အိမ်ရောက်ပို့ပေးမယ်
         </p>
 
         {/* EN Tagline */}
-        <p className="text-lg md:text-xl text-hero-text/70 font-medium mb-1 animate-fade-in-up-delay-1">
+        <p className="text-lg md:text-xl text-hero-text/70 font-medium mb-1 animate-hero-develop-2">
           {tagline}
         </p>
         {/* MY Tagline */}
-        <p className="text-base md:text-lg text-hero-text/60 font-medium mb-4 animate-fade-in-up-delay-1">
+        <p className="text-base md:text-lg text-hero-text/60 font-medium mb-4 animate-hero-develop-3">
           အိမ်ချက်ထမင်းဟင်းအရသာအတိုင်း ချက်ပြုတ်ပြီး ပို့ပေးပါတယ်
         </p>
 
         {/* EN Subheadline */}
-        <p className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-2 font-body animate-fade-in-up-delay-2">
+        <p className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-2 font-body animate-hero-develop-3">
           {subheadline}
         </p>
         {/* MY Subheadline */}
-        <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-8 font-body animate-fade-in-up-delay-2">
+        <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-8 font-body animate-hero-develop-4">
           {deliveryDaysList} တိုင်း လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ပြီး အိမ်ရောက်ပို့ပေးပါတယ်
         </p>
 
-        <div className="flex flex-col items-center gap-6 mb-10 animate-fade-in-up-delay-3">
+        <div className="flex flex-col items-center gap-6 mb-10 animate-hero-develop-5">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <m.div
               className="relative"
-              whileHover={shouldAnimate ? { scale: 1.05, y: -2 } : undefined}
+              whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
               whileTap={shouldAnimate ? { scale: 0.97 } : undefined}
               transition={spring.snappy}
+              style={{ x: ctaMagnet.x, y: ctaMagnet.y }}
+              onPointerMove={ctaMagnet.onPointerMove}
+              onPointerLeave={ctaMagnet.onPointerLeave}
             >
               {/* Pulsing sunset glow halo */}
               {shouldAnimate && (
@@ -178,23 +188,28 @@ export function HeroContent({
                 asChild
                 className={cn(
                   "relative overflow-hidden group px-8 py-6 text-lg rounded-full",
-                  "bg-gradient-to-r from-hero-accent via-hero-accent-strong to-hero-accent",
-                  "hover:from-hero-accent-strong hover:via-hero-accent hover:to-hero-accent-strong",
-                  "shadow-lg shadow-hero-accent/40",
-                  "hover:shadow-xl hover:shadow-hero-accent/60",
-                  "hover:ring-2 hover:ring-hero-card/70",
+                  "bg-gradient-to-br from-hero-clay to-hero-clay-2",
+                  "hover:from-hero-clay-2 hover:to-hero-clay",
+                  "shadow-lg shadow-hero-clay/40",
+                  "hover:shadow-xl hover:shadow-hero-clay/60",
+                  "hover:ring-2 hover:ring-hero-ink/15",
                   "transition-all duration-300"
                 )}
               >
                 <Link href={ctaHref}>
+                  {/* Press glow (ripple-style flash from center) */}
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 rounded-full bg-hero-card opacity-0 scale-50 transition-[opacity,transform] duration-500 ease-out group-active:opacity-30 group-active:scale-100"
+                  />
                   {/* Periodic shine sweep (paused under reduced motion) */}
                   {shouldAnimate && (
                     <span
                       aria-hidden="true"
-                      className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep"
+                      className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/45 to-transparent animate-shine-sweep"
                     />
                   )}
-                  <span className="relative z-10 flex items-center gap-2 text-text-inverse font-semibold">
+                  <span className="relative z-10 flex items-center gap-2 text-hero-ink font-semibold">
                     {dynamicCtaText}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
@@ -203,24 +218,25 @@ export function HeroContent({
             </m.div>
           </div>
 
-          {/* Delivery Info Card */}
+          {/* Delivery Info Card — tinted vellum surface */}
           <m.div
             initial={shouldAnimate ? { opacity: 0, y: 16, scale: 0.97 } : undefined}
             animate={shouldAnimate ? { opacity: 1, y: 0, scale: 1 } : undefined}
             transition={shouldAnimate ? { delay: 0.3, ...spring.snappy } : undefined}
-            whileHover={shouldAnimate ? { scale: 1.02, y: -2 } : undefined}
-            className={cn(
-              "relative w-full max-w-lg rounded-2xl p-6",
-              "bg-hero-card",
-              "border border-hero-line",
-              "shadow-lg shadow-black/10",
-              "transition-shadow duration-300 hover:shadow-xl hover:shadow-black/15"
-            )}
+            whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
+            onPointerMove={cardTilt.onPointerMove}
+            onPointerLeave={cardTilt.onPointerLeave}
+            style={{
+              rotateX: cardTilt.rotateX,
+              rotateY: cardTilt.rotateY,
+              transformPerspective: 1000,
+            }}
+            className="relative w-full max-w-lg rounded-2xl p-6 hero-surface-vellum"
           >
-            {/* Paper grain texture */}
+            {/* Drifting paper grain texture */}
             <span
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-2xl opacity-[0.07] mix-blend-multiply hero-paper-grain"
+              className="pointer-events-none absolute inset-0 rounded-2xl opacity-[0.07] mix-blend-multiply hero-paper-grain hero-grain-drift"
             />
             {gate.isOpen ? (
               <>
@@ -235,13 +251,13 @@ export function HeroContent({
                       animate={shouldAnimate ? { rotate: [0, -8, 8, 0] } : undefined}
                       transition={{ duration: 3, repeat: Infinity, repeatDelay: 5 }}
                     >
-                      <CalendarClock className="w-6 h-6 text-hero-accent flex-shrink-0" />
+                      <CalendarClock className="w-6 h-6 text-hero-clay flex-shrink-0" />
                     </m.div>
                     <span className="text-xl md:text-2xl font-bold text-hero-ink">
                       {gate.deliveryDate.displayDate}
                     </span>
                   </m.div>
-                  <DeliveryCountdown
+                  <HeroCountdown
                     cutoffDate={gate.cutoffDate}
                     urgency={gate.urgency}
                     className="text-base"
@@ -268,7 +284,7 @@ export function HeroContent({
                     animate={shouldAnimate ? { x: [0, 4, 0] } : undefined}
                     transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4 }}
                   >
-                    <Truck className="w-5 h-5 text-hero-accent/80 flex-shrink-0" />
+                    <Truck className="w-5 h-5 text-hero-sage flex-shrink-0" />
                   </m.div>
                   <span className="text-base font-semibold text-hero-ink">{deliveryDaysList}</span>
                   <span className="text-sm text-hero-ink-muted">
@@ -295,7 +311,7 @@ export function HeroContent({
                   အော်ဒါပိတ်ထားပါတယ် · နောက်ပို့မယ့်ရက်ကို စောင့်ပါ
                 </p>
                 <div className="flex items-center gap-3 pt-3 border-t border-hero-line">
-                  <Truck className="w-5 h-5 text-hero-accent/80 flex-shrink-0" />
+                  <Truck className="w-5 h-5 text-hero-sage flex-shrink-0" />
                   <span className="text-base font-semibold text-hero-ink">{deliveryDaysList}</span>
                   <span className="text-sm text-hero-ink-muted">
                     · {deliveryDaysList} တိုင်း ပို့ပေးပါတယ်

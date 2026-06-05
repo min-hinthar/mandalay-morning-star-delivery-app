@@ -90,6 +90,16 @@ export function GradientFallback({ children, className }: GradientFallbackProps)
         style={{ ["--tw-gradient-from" as string]: "var(--hero-overlay)" }}
       />
 
+      {/* Texture layers — dot-grid + drifting grain for Anthropic depth */}
+      <div
+        aria-hidden="true"
+        className="hero-dotgrid pointer-events-none absolute inset-0 opacity-50 mix-blend-soft-light"
+      />
+      <div
+        aria-hidden="true"
+        className="hero-paper-grain hero-grain-drift pointer-events-none absolute inset-0 opacity-[0.04] mix-blend-overlay"
+      />
+
       {/* Content layer */}
       <div
         className="relative flex flex-col items-center justify-center min-h-[100svh] min-h-[100dvh]"

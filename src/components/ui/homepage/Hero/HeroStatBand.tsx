@@ -15,8 +15,13 @@ import { ChefHat, Gift, MapPin, Star, Truck, type LucideIcon } from "lucide-reac
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useTilt } from "./interactions";
 
 const COUNT_SPRING = { stiffness: 80, damping: 26, restDelta: 0.01 } as const;
+
+/** Anthropic accent triad — cycles across tiles on non-text shapes */
+const TRIAD_TEXT = ["text-hero-clay", "text-hero-blue", "text-hero-sage"] as const;
+const TRIAD_BG = ["bg-hero-clay", "bg-hero-blue", "bg-hero-sage"] as const;
 
 // ============================================
 // COUNT-UP NUMBER
@@ -77,6 +82,9 @@ function TileView({ tile, index, inView, animate }: TileViewProps) {
   const { icon: Icon, count, decimals = 0, display, suffix, label, sub, tooltip, live } = tile;
   const valueText = count !== undefined ? formatNum(count, decimals) : (display ?? "");
   const ariaLabel = `${valueText} — ${label}. ${tooltip}`;
+  const tilt = useTilt(6);
+  const accentText = TRIAD_TEXT[index % TRIAD_TEXT.length];
+  const accentBg = TRIAD_BG[index % TRIAD_BG.length];
 
   return (
     <m.div
@@ -88,14 +96,15 @@ function TileView({ tile, index, inView, animate }: TileViewProps) {
       transition={animate ? { delay: 0.07 * index, ...spring.gentle } : undefined}
       whileHover={animate ? { y: -4 } : undefined}
       whileTap={animate ? { scale: 0.98 } : undefined}
+      onPointerMove={tilt.onPointerMove}
+      onPointerLeave={tilt.onPointerLeave}
+      style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformPerspective: 700 }}
       className={cn(
         "group relative flex h-full flex-col items-center justify-center gap-1 rounded-2xl text-center",
         "px-2 py-5 sm:px-4",
-        "bg-hero-card",
-        "border border-hero-line shadow-lg shadow-black/10",
-        "transition-[box-shadow,border-color,transform] duration-300",
-        "hover:border-hero-accent/35 hover:shadow-xl hover:shadow-black/15",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent/50"
+        "hero-surface-glass",
+        "transition-[border-color] duration-300 hover:border-hero-clay/40",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/50"
       )}
     >
       {/* Paper grain texture */}
@@ -108,14 +117,23 @@ function TileView({ tile, index, inView, animate }: TileViewProps) {
       {live && (
         <span className="absolute right-3 top-3 flex h-2 w-2" aria-hidden="true">
           {animate && (
-            <span className="absolute inline-flex h-full w-full rounded-full bg-hero-accent/50 animate-ping" />
+            <span
+              className={cn(
+                "absolute inline-flex h-full w-full rounded-full animate-ping",
+                accentBg
+              )}
+              style={{ opacity: 0.5 }}
+            />
           )}
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-hero-accent" />
+          <span className={cn("relative inline-flex h-2 w-2 rounded-full", accentBg)} />
         </span>
       )}
 
       <Icon
-        className="mb-0.5 h-4 w-4 text-hero-accent transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
+        className={cn(
+          "mb-0.5 h-4 w-4 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110",
+          accentText
+        )}
         aria-hidden="true"
       />
 

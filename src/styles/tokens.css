@@ -121,13 +121,19 @@
   --hero-orb-blur: 100px;
 
   /* Anthropic "warm paper" hero cards — float on the sunset (shared light/dark) */
-  --hero-card-bg: rgba(250, 247, 240, 0.94); /* warm cream paper */
-  --hero-card-bg-strong: rgba(252, 250, 245, 0.98);
-  --hero-ink: #1f1e1d; /* charcoal text */
-  --hero-ink-muted: rgba(31, 30, 29, 0.58);
-  --hero-line: rgba(31, 30, 29, 0.1); /* thin warm rule */
-  --hero-accent: #c2410c; /* clay / terracotta */
-  --hero-accent-strong: #9a3412;
+  --hero-card-bg: rgba(250, 249, 245, 0.94); /* warm cream paper (#faf9f5) */
+  --hero-card-bg-strong: rgba(252, 251, 247, 0.98);
+  --hero-ink: #141413; /* Anthropic ink */
+  --hero-ink-muted: rgba(20, 20, 19, 0.58);
+  --hero-line: rgba(20, 20, 19, 0.1); /* thin warm rule */
+  --hero-accent: #9a3412; /* deep clay — accent TEXT (AA on cream) */
+  --hero-accent-strong: #7c2d12;
+
+  /* Anthropic accent triad — cycle on non-text shapes */
+  --hero-clay: #d97757; /* book cloth */
+  --hero-clay-2: #cf6a49; /* deeper book cloth (CTA gradient) */
+  --hero-blue: #6a9bcc; /* slate blue */
+  --hero-sage: #788c5d; /* sage */
   --hero-emoji-shadow-far: 0 2px 8px rgba(0, 0, 0, 0.3);
   --hero-emoji-shadow-mid: 0 4px 12px rgba(0, 0, 0, 0.4);
   --hero-emoji-shadow-near: 0 6px 20px rgba(0, 0, 0, 0.5);

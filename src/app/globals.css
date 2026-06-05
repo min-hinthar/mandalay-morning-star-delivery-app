@@ -141,6 +141,10 @@
   --color-hero-line: var(--hero-line);
   --color-hero-accent: var(--hero-accent);
   --color-hero-accent-strong: var(--hero-accent-strong);
+  --color-hero-clay: var(--hero-clay);
+  --color-hero-clay-2: var(--hero-clay-2);
+  --color-hero-blue: var(--hero-blue);
+  --color-hero-sage: var(--hero-sage);
 
   /* Skeleton / Disabled / Selection (from tokens.css) */
   --color-skeleton: var(--color-skeleton);
@@ -702,6 +706,92 @@
     background-size: 140px 140px;
   }
 
+  /* Slow grain drift (living texture) — motion-gated */
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-grain-drift {
+      animation: hero-grain-drift 9s linear infinite;
+    }
+  }
+
+  /* Dot-grid texture behind the hero cards */
+  .hero-dotgrid {
+    background-image: radial-gradient(var(--hero-line) 1px, transparent 1.5px);
+    background-size: 18px 18px;
+  }
+
+  /* ---- Anthropic card surfaces (three treatments, shown in context) ---- */
+
+  /* A) Frosted translucent glass — the sunset glows through */
+  .hero-surface-glass {
+    background: rgba(250, 249, 245, 0.74);
+    backdrop-filter: blur(14px) saturate(1.15);
+    -webkit-backdrop-filter: blur(14px) saturate(1.15);
+    border: 1px solid var(--hero-line);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.5),
+      0 4px 14px rgba(20, 20, 19, 0.1),
+      0 16px 44px rgba(20, 20, 19, 0.12);
+  }
+
+  /* B) Tinted vellum — semi-transparent cream with a clay→sage wash */
+  .hero-surface-vellum {
+    background:
+      linear-gradient(140deg, rgba(217, 119, 87, 0.08), rgba(120, 140, 93, 0.07)),
+      rgba(250, 249, 245, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--hero-line);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.42),
+      0 6px 22px rgba(20, 20, 19, 0.1);
+  }
+
+  /* C) Layered stacked paper — opaque cream with stacked depth */
+  .hero-surface-paper {
+    background: rgba(250, 249, 245, 0.95);
+    border: 1px solid var(--hero-line);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.6),
+      0 2px 6px rgba(20, 20, 19, 0.08),
+      0 12px 30px rgba(20, 20, 19, 0.14);
+  }
+
+  /* Sunburst/asterisk ray draw-on (motion-gated; drawn by default otherwise) */
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-hero-draw {
+      stroke-dasharray: 1;
+      stroke-dashoffset: 1;
+      animation: hero-draw 0.85s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+  }
+
+  /* Cinematic 'develop-in' page load — rise + de-blur, eased + motion-gated */
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-hero-develop-1,
+    .animate-hero-develop-2,
+    .animate-hero-develop-3,
+    .animate-hero-develop-4,
+    .animate-hero-develop-5 {
+      opacity: 0;
+      animation: hero-develop 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .animate-hero-develop-1 {
+      animation-delay: 0.05s;
+    }
+    .animate-hero-develop-2 {
+      animation-delay: 0.16s;
+    }
+    .animate-hero-develop-3 {
+      animation-delay: 0.27s;
+    }
+    .animate-hero-develop-4 {
+      animation-delay: 0.38s;
+    }
+    .animate-hero-develop-5 {
+      animation-delay: 0.5s;
+    }
+  }
+
   /* Hero headline depth glow — improves legibility over the vibrant gradient */
   .hero-text-glow {
     text-shadow:
@@ -869,6 +959,37 @@
   100% {
     transform: translateX(200%) rotate(45deg);
     opacity: 0;
+  }
+}
+
+/* Living grain drift — slow background-position crawl */
+@keyframes hero-grain-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 140px 90px;
+  }
+}
+
+/* Sunburst ray draw-on */
+@keyframes hero-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Cinematic develop-in — rise + de-blur on page load */
+@keyframes hero-develop {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
   }
 }
 
