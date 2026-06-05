@@ -32,6 +32,14 @@ export interface CutoffCountdownProps {
   cutoffLabel?: string;
   /** Below this many ms remaining the pill enters the urgent phase. */
   urgentThresholdMs?: number;
+  /**
+   * Force the `locked` ("you've ordered") presentation regardless of the clock.
+   * Use post-order (confirmation/tracking), where the cutoff is moot and the
+   * point is the anticipation, not a countdown. Disables the live tick.
+   */
+  forceLocked?: boolean;
+  /** Override the locked-state subline (e.g. include the delivery date). */
+  lockedSubline?: string;
   /** Frozen reference time — stops the live tick (stories/tests/SSR). */
   now?: Date | number;
   className?: string;
@@ -74,31 +82,44 @@ const phaseStyles: Record<
   },
 };
 
+const LOCKED_STATE = {
+  phase: "locked" as const,
+  hours: 0,
+  minutes: 0,
+  seconds: 0,
+  totalMs: 0,
+  days: 0,
+};
+
 export function CutoffCountdown({
   cutoffAt,
   deliveryDayLabel,
   cutoffLabel,
   urgentThresholdMs,
+  forceLocked = false,
+  lockedSubline,
   now,
   className,
 }: CutoffCountdownProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
 
-  // Live tick: re-render each second unless time is frozen via `now`.
+  // Live tick: re-render each second unless time is frozen (`now`) or the state
+  // is forced locked (no countdown to run).
   const [tick, setTick] = useState(0);
   useEffect(() => {
-    if (now != null) return;
+    if (now != null || forceLocked) return;
     const id = setInterval(() => setTick((t) => t + 1), 1000);
     return () => clearInterval(id);
-  }, [now]);
+  }, [now, forceLocked]);
 
-  const state = useMemo(
+  const computedState = useMemo(
     () => getCountdownState(cutoffAt, { now, urgentThresholdMs }),
     // `tick` is an intentional re-compute trigger for the live clock.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [cutoffAt, now, urgentThresholdMs, tick]
   );
 
+  const state = forceLocked ? LOCKED_STATE : computedState;
   const resolvedCutoffLabel = cutoffLabel ?? deriveCutoffLabel(cutoffAt);
   const styles = phaseStyles[state.phase];
   const isLocked = state.phase === "locked";
@@ -111,7 +132,7 @@ export function CutoffCountdown({
     : `Order by ${resolvedCutoffLabel} for ${deliveryDayLabel}`;
 
   const subline = isLocked
-    ? "Your feast is on the way — see you on delivery day."
+    ? (lockedSubline ?? "Your feast is on the way — see you on delivery day.")
     : isUrgent
       ? "Window closing soon — finish your order to make this round."
       : "Order now and we'll bring it fresh on delivery day.";
