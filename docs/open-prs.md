@@ -8,29 +8,38 @@ _Last reconciled: 2026-06-05._
 
 ## In flight
 
-- Admin–driver: **#131** (last of the #129 → #130 → #131 stack; #129 + #130
-  merged, so #131 auto-retargeted to `main`).
-- Customer UX: **#132 → #133** (#132 is off `main`).
-
-| PR                                                                                 | Title                                                                                             | Branch                                      | Base                                        | CI    | Status / outstanding findings                                                                                                                                                                                                                                                                          |
-| ---------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [#131](https://github.com/min-hinthar/mandalay-morning-star-delivery-app/pull/131) | Admin Delivery Day hub — single-screen command center + live fleet map                            | `claude/admin-driver-ui-redesign-emz5W`     | `main`                                      | green | Reviewed → **author addressed all 3 review findings** in `2e00c29` (date-scoped live-map query, `<a>`→`<Link>`, motion-pref, honest `role=group` tabs). Retargeted to `main` after #130 merged; briefly closed+reopened. Remaining Lows (color-only fresh/stale, raw green hex) optional. Merge-ready. |
-| [#132](https://github.com/min-hinthar/mandalay-morning-star-delivery-app/pull/132) | Customer world-class signature UX components (foundation) + cross-session PR-review workflow docs | `claude/review-pr129-pr130-workclass-g5n4W` | `main`                                      | green | Open for review. Component **library** (`CutoffCountdown`, `RewardRail`, `StarsBalance`) + countdown util/tests + Storybook; plus `collaborative-pr-review.md` + this registry + CLAUDE.md/README/WORKFLOW wiring. Base of #133. Merge-ready.                                                          |
-| [#133](https://github.com/min-hinthar/mandalay-morning-star-delivery-app/pull/133) | "Locked in" delivery ritual on order confirmation                                                 | `claude/order-cutoff-ritual`                | `claude/review-pr129-pr130-workclass-g5n4W` | green | Wires `CutoffCountdown` (new `forceLocked`) into `OrderConfirmationV8` — the one surface with no countdown. Adversarial review → fixed LA-tz weekday + gated ritual to confirmed (not the `pending` poller phase). Merge after #132.                                                                   |
-
-> **#132 strategy (decided with maintainer):** treat as a reusable component
-> library; wire each piece only where it beats what's already shipped.
-> `StarsBalance`/`RewardRail` intentionally **not** wired — the rewards hub
-> already has a Stars ring + tier badge, and the cart has `FreeDeliveryProgress`.
+_None._ The admin–driver overhaul (#129 → #130 → #131) and the customer-UX
+stack (#132 → #133) have all landed on `main`, along with the workflow docs
+(#134).
 
 ## Watching
 
-This session is subscribed to PR activity for **#131, #132, #133**
-(`subscribe_pr_activity`) and will react to CI failures / review comments.
+_None active._ All tracked PRs are merged or closed; subscriptions ended at
+merge/close.
 
 ## Recently closed
 
-- **#129** — Driver correctness fixes (route-start, stop-promotion,
-  exception-resolve). **Merged.** Included the Resolve-dialog a11y fix
-  (`386be7e`: announced validation + char counter + de-duped SR heading).
-- **#130** — Route-complete close-out + simple-mode completion fix. **Merged.**
+- **#127** — Migration-history squash _plan_ (docs). **Closed (superseded)** —
+  the squash already shipped in the merged #126 baseline; the plan served its
+  purpose.
+- **#129** — Driver correctness fixes (route-start idempotency, stop-promotion
+  fallback, idempotent re-submission, admin exception-resolve). **Merged.**
+  Included the Resolve-dialog a11y fix (announced validation + char counter +
+  de-duped SR heading).
+- **#130** — Route-complete close-out + simple-mode completion fix (server-
+  confirmed celebration, `RouteFinishingCard` hold, 409 premature-completion
+  guard). **Merged** (rebased onto `main` past a squash-stack conflict).
+- **#131** — Admin Delivery Day hub: single-screen command center + live fleet
+  map (`/api/admin/ops/driver-locations`, date-aware ops infra, LA-tz helpers).
+  **Merged** (rebased onto `main`; all review findings + the colorblind-marker
+  Low folded in).
+- **#132** — Customer world-class signature UX components (`CutoffCountdown`,
+  `RewardRail`, `StarsBalance`) + countdown util/tests + Storybook, plus the
+  cross-session PR-review workflow docs. **Merged.** Strategy: reusable
+  component library — wire each piece only where it beats what's shipped
+  (`StarsBalance`/`RewardRail` intentionally not wired; rewards hub + cart
+  already cover them).
+- **#133** — "Locked in" delivery ritual on order confirmation (`CutoffCountdown`
+  `forceLocked`), with an LA-tz weekday fix on the existing card. **Merged.**
+- **#134** — Workflow-discipline docs (own-session PR stewardship + stacked-PR
+  merge mechanics). **Merged.**
