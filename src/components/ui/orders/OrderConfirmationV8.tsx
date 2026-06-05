@@ -10,6 +10,7 @@ import { useCartStore } from "@/lib/stores/cart-store";
 import { formatPrice } from "@/lib/utils/currency";
 import { useConfetti } from "@/components/ui/Confetti";
 import { OrderRewardsTeaser } from "@/components/ui/orders/OrderRewardsTeaser";
+import { CutoffCountdown } from "@/components/ui/customer";
 import { SuccessCheckmark } from "@/components/ui/success-checkmark";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -48,6 +49,12 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
   const deliveryDate = order.deliveryWindowStart
     ? format(parseISO(order.deliveryWindowStart), "EEEE, MMMM d, yyyy")
     : "Scheduled";
+
+  // Weekday name for the "Locked in for {day}" ritual (same tz basis as the
+  // delivery-date card above, so they always agree).
+  const deliveryDayLabel = order.deliveryWindowStart
+    ? format(parseISO(order.deliveryWindowStart), "EEEE")
+    : "your delivery day";
 
   const deliveryTime =
     order.deliveryWindowStart && order.deliveryWindowEnd
@@ -114,6 +121,24 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
               Order #{order.id.slice(0, 8).toUpperCase()}
             </p>
           </m.div>
+
+          {/* "Locked in for {day}" anticipation ritual — only once a delivery
+              window is set (skipped for COD still awaiting approval). */}
+          {!isPendingApproval && order.deliveryWindowStart && (
+            <m.div
+              initial={shouldAnimate ? { opacity: 0, y: 12 } : undefined}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.45, ...getSpring(spring.default) }}
+              className="mb-8"
+            >
+              <CutoffCountdown
+                cutoffAt={order.deliveryWindowStart}
+                deliveryDayLabel={deliveryDayLabel}
+                forceLocked
+                lockedSubline={`Arriving ${deliveryDate}`}
+              />
+            </m.div>
+          )}
 
           {/* Staggered Content Container */}
           <m.div
