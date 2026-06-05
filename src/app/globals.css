@@ -887,9 +887,6 @@
     .hero-comet {
       animation: hero-comet 9s ease-in-out infinite;
     }
-    .hero-rail-spark {
-      animation: hero-rail-spark 3.6s ease-in-out infinite;
-    }
     .hero-gem-float {
       animation: hero-gem-float var(--gem-dur, 4s) ease-in-out infinite;
       animation-delay: var(--gem-delay, 0s);
@@ -1294,24 +1291,6 @@
   }
   100% {
     transform: translate(170px, -130px) rotate(28deg);
-    opacity: 0;
-  }
-}
-
-/* Rewards gem journey — traveling rail spark */
-@keyframes hero-rail-spark {
-  0% {
-    left: 0%;
-    opacity: 0;
-  }
-  12% {
-    opacity: 1;
-  }
-  88% {
-    opacity: 1;
-  }
-  100% {
-    left: 100%;
     opacity: 0;
   }
 }
