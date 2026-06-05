@@ -25,6 +25,8 @@ export interface FloatingEmojiProps {
   initialX: number;
   /** Initial Y position (0-100 percentage) */
   initialY: number;
+  /** Dish/ingredient name shown on hover */
+  name?: string;
   /** Live pointer position within the hero (percent 0–100) for cursor-gather */
   pointer?: { x: number; y: number } | null;
   /** Tap handler (viewport coords) — triggers the particle burst */
@@ -35,6 +37,7 @@ export interface FloatingEmojiProps {
 
 export interface EmojiConfig {
   emoji: string;
+  name: string;
   size: EmojiSize;
   depth: EmojiDepth;
   animationType: AnimationType;
@@ -120,24 +123,28 @@ const getAnimationDuration = (type: AnimationType, index: number): number => {
 // Each emoji appears exactly once across all layers
 // Distribution: 4 far, 5 mid, 4 near
 export const EMOJI_CONFIG: EmojiConfig[] = [
-  // Far layer (4 emojis) - small, blurred, lower opacity
-  { emoji: "🍜", size: "sm", depth: "far", animationType: "drift", initialX: 8, initialY: 15 },
-  { emoji: "🥟", size: "sm", depth: "far", animationType: "bob", initialX: 85, initialY: 25 },
-  { emoji: "🍲", size: "sm", depth: "far", animationType: "spiral", initialX: 20, initialY: 75 },
-  { emoji: "🌶️", size: "sm", depth: "far", animationType: "drift", initialX: 75, initialY: 80 },
+  // Far layer - small, blurred, lower opacity
+  { emoji: "🍜", name: "Mohinga", size: "sm", depth: "far", animationType: "drift", initialX: 8, initialY: 14 }, // prettier-ignore
+  { emoji: "🥟", name: "Samusa", size: "sm", depth: "far", animationType: "bob", initialX: 85, initialY: 24 }, // prettier-ignore
+  { emoji: "🍲", name: "Ohn No Khao Swè", size: "sm", depth: "far", animationType: "spiral", initialX: 18, initialY: 72 }, // prettier-ignore
+  { emoji: "🌶️", name: "Balachaung", size: "sm", depth: "far", animationType: "drift", initialX: 76, initialY: 80 }, // prettier-ignore
+  { emoji: "🍤", name: "Prawn Curry", size: "sm", depth: "far", animationType: "bob", initialX: 40, initialY: 88 }, // prettier-ignore
+  { emoji: "🫘", name: "Pè Byouk", size: "sm", depth: "far", animationType: "spiral", initialX: 58, initialY: 10 }, // prettier-ignore
 
-  // Mid layer (5 emojis) - medium size, slight blur
-  { emoji: "🍛", size: "md", depth: "mid", animationType: "spiral", initialX: 12, initialY: 45 },
-  { emoji: "🥢", size: "md", depth: "mid", animationType: "bob", initialX: 92, initialY: 55 },
-  { emoji: "🫕", size: "md", depth: "mid", animationType: "drift", initialX: 35, initialY: 20 },
-  { emoji: "🥘", size: "md", depth: "mid", animationType: "spiral", initialX: 65, initialY: 70 },
-  { emoji: "🍚", size: "md", depth: "mid", animationType: "bob", initialX: 50, initialY: 85 },
+  // Mid layer - medium size, slight blur
+  { emoji: "🍛", name: "Chicken Curry", size: "md", depth: "mid", animationType: "spiral", initialX: 12, initialY: 44 }, // prettier-ignore
+  { emoji: "🥢", name: "Khao Swè", size: "md", depth: "mid", animationType: "bob", initialX: 92, initialY: 55 }, // prettier-ignore
+  { emoji: "🫕", name: "Burmese Hotpot", size: "md", depth: "mid", animationType: "drift", initialX: 33, initialY: 20 }, // prettier-ignore
+  { emoji: "🥘", name: "Pork Curry", size: "md", depth: "mid", animationType: "spiral", initialX: 66, initialY: 68 }, // prettier-ignore
+  { emoji: "🍚", name: "Coconut Rice", size: "md", depth: "mid", animationType: "bob", initialX: 50, initialY: 84 }, // prettier-ignore
+  { emoji: "🍢", name: "Grilled Skewers", size: "md", depth: "mid", animationType: "drift", initialX: 95, initialY: 80 }, // prettier-ignore
 
-  // Near layer (4 emojis) - large, crisp, full opacity
-  { emoji: "🥗", size: "lg", depth: "near", animationType: "bob", initialX: 5, initialY: 60 },
-  { emoji: "🍵", size: "lg", depth: "near", animationType: "drift", initialX: 88, initialY: 40 },
-  { emoji: "🧄", size: "lg", depth: "near", animationType: "spiral", initialX: 25, initialY: 35 },
-  { emoji: "🫚", size: "lg", depth: "near", animationType: "drift", initialX: 70, initialY: 15 },
+  // Near layer - large, crisp, full opacity
+  { emoji: "🥗", name: "Lahpet Thoke", size: "lg", depth: "near", animationType: "bob", initialX: 5, initialY: 58 }, // prettier-ignore
+  { emoji: "🍵", name: "Lahpet Yay", size: "lg", depth: "near", animationType: "drift", initialX: 88, initialY: 40 }, // prettier-ignore
+  { emoji: "🧄", name: "Fried Garlic", size: "lg", depth: "near", animationType: "spiral", initialX: 25, initialY: 34 }, // prettier-ignore
+  { emoji: "🫚", name: "Ginger Salad", size: "lg", depth: "near", animationType: "drift", initialX: 72, initialY: 14 }, // prettier-ignore
+  { emoji: "🥥", name: "Coconut", size: "lg", depth: "near", animationType: "bob", initialX: 38, initialY: 50 }, // prettier-ignore
 ];
 
 // ============================================
@@ -175,6 +182,7 @@ function Steam() {
 
 export function FloatingEmoji({
   emoji,
+  name,
   size,
   depth,
   animationType,
@@ -190,12 +198,8 @@ export function FloatingEmoji({
   const gatherX = pointer ? clamp((pointer.x - initialX) * 0.4, -46, 46) : 0;
   const gatherY = pointer ? clamp((pointer.y - initialY) * 0.4, -46, 46) : 0;
 
-  // Depth-based styles using CSS variables from tokens.css.
-  // NOTE: No boxShadow - it creates rectangular backgrounds behind emoji glyphs.
-  const depthStyles: React.CSSProperties = {
-    left: `${initialX}%`,
-    top: `${initialY}%`,
-    willChange: "transform",
+  // Depth filter/opacity applied to the GLYPH only, so the hover label stays crisp.
+  const glyphStyle: React.CSSProperties = {
     filter:
       depth === "near"
         ? `drop-shadow(var(--hero-emoji-shadow-${depth}))`
@@ -203,15 +207,24 @@ export function FloatingEmoji({
     opacity: depth === "near" ? 1 : `var(--hero-emoji-opacity-${depth})`,
   };
 
+  const label = name ? (
+    <span className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full hero-surface-paper px-2 py-0.5 text-2xs font-semibold text-hero-ink opacity-0 transition-opacity duration-200 group-hover:opacity-100">
+      {name}
+    </span>
+  ) : null;
+
   // Static render for reduced motion preference
   if (!shouldAnimate) {
     return (
       <span
-        className={`absolute ${SIZE_CLASSES[size]} select-none`}
-        style={depthStyles}
+        className={`group absolute ${SIZE_CLASSES[size]} select-none`}
+        style={{ left: `${initialX}%`, top: `${initialY}%` }}
         role="presentation"
       >
-        {emoji}
+        {label}
+        <span className="block" style={glyphStyle}>
+          {emoji}
+        </span>
       </span>
     );
   }
@@ -228,14 +241,15 @@ export function FloatingEmoji({
 
   return (
     <m.span
-      className={`absolute ${SIZE_CLASSES[size]} pointer-events-auto cursor-pointer select-none`}
-      style={depthStyles}
+      className={`group absolute ${SIZE_CLASSES[size]} pointer-events-auto cursor-pointer select-none`}
+      style={{ left: `${initialX}%`, top: `${initialY}%`, willChange: "transform" }}
       animate={{ x: gatherX, y: gatherY }}
       transition={{ type: "spring", stiffness: 120, damping: 18 }}
       whileTap={{ scale: 1.5, rotate: 12 }}
       onPointerDown={onTap ? (e) => onTap(e.clientX, e.clientY) : undefined}
       role="presentation"
     >
+      {label}
       {/* Echo trail (behind, lagging) */}
       <m.span
         aria-hidden="true"
@@ -247,7 +261,12 @@ export function FloatingEmoji({
         {emoji}
       </m.span>
       {/* Main float */}
-      <m.span className="relative block" animate={variant} transition={floatTransition}>
+      <m.span
+        className="relative block"
+        style={glyphStyle}
+        animate={variant}
+        transition={floatTransition}
+      >
         {HOT_EMOJI.has(emoji) && <Steam />}
         {emoji}
       </m.span>

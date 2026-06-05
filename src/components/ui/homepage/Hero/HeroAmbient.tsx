@@ -96,6 +96,18 @@ const STARS = Array.from({ length: 16 }, (_, i) => {
   };
 });
 
+// Faint links between constellation dots
+const CONSTELLATION: [number, number][] = [
+  [0, 3],
+  [3, 7],
+  [7, 11],
+  [1, 5],
+  [5, 9],
+  [2, 6],
+  [8, 12],
+  [11, 14],
+];
+
 export function HeroAmbient() {
   const ref = useRef<HTMLDivElement>(null);
   const { x, y } = useHeroParallax(ref);
@@ -108,12 +120,21 @@ export function HeroAmbient() {
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 overflow-hidden"
     >
-      {/* Living aurora ribbon (drifts + breathes) */}
+      {/* Living aurora ribbons (drift + breathe, two layers) */}
       <div
-        className="hero-aurora absolute left-0 top-[18%] h-[46%] w-full"
+        className="hero-aurora absolute left-0 top-[16%] h-[46%] w-full"
         style={{
           background:
             "linear-gradient(100deg, transparent, var(--hero-clay), var(--hero-sage), var(--hero-blue), transparent)",
+          filter: "blur(var(--blur-3xl))",
+          mixBlendMode: "screen",
+        }}
+      />
+      <div
+        className="hero-aurora-2 absolute left-0 top-[40%] h-[40%] w-full"
+        style={{
+          background:
+            "linear-gradient(80deg, transparent, var(--hero-blue), var(--hero-clay), transparent)",
           filter: "blur(var(--blur-3xl))",
           mixBlendMode: "screen",
         }}
@@ -194,6 +215,35 @@ export function HeroAmbient() {
           }
         />
       ))}
+
+      {/* Constellation links between dots */}
+      <svg
+        className="absolute inset-0 h-full w-full"
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        {CONSTELLATION.map(([a, b], i) => (
+          <m.line
+            key={i}
+            x1={parseFloat(STARS[a].left)}
+            y1={parseFloat(STARS[a].top)}
+            x2={parseFloat(STARS[b].left)}
+            y2={parseFloat(STARS[b].top)}
+            stroke="rgba(250,249,245,0.55)"
+            strokeWidth={0.8}
+            vectorEffect="non-scaling-stroke"
+            initial={{ opacity: 0.06 }}
+            animate={{ opacity: [0.06, 0.22, 0.06] }}
+            transition={{
+              duration: 5 + (i % 4),
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.6,
+            }}
+          />
+        ))}
+      </svg>
 
       {/* Soft vignette to seat the layers */}
       <div

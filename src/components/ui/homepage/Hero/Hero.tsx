@@ -19,6 +19,7 @@ import { HeroFeaturedDishes } from "./HeroFeaturedDishes";
 import { HeroCursor } from "./HeroCursor";
 import { ScrollProgress } from "./ScrollProgress";
 import { HeroConfetti } from "./HeroConfetti";
+import { HeroOrbitCluster } from "./HeroOrbitCluster";
 import { useBurst, Bursts } from "./HeroBurst";
 import { formatDeliveryDaysList } from "@/lib/utils/delivery-schedule";
 
@@ -167,6 +168,16 @@ export function Hero({
         {ORB_CONFIG_MID.map((orb, i) => (
           <GradientOrb key={`orb-mid-${i}`} {...orb} />
         ))}
+      </div>
+
+      {/* Layer 3b: Flavor solar-system orbit cluster */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
+        style={{ zIndex: 2 }}
+        aria-hidden="true"
+      >
+        <HeroOrbitCluster className="opacity-50" />
       </div>
 
       {/* Layer 4: Floating emojis (tap to burst, cursor-gather, steam, trails) + sparkles */}

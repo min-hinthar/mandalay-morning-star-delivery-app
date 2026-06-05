@@ -19,7 +19,7 @@ import { Button } from "@/components/ui/button";
 import { COVERAGE_LIMITS } from "@/types/address";
 import { formatDeliveryDaysList, getNextCutoffText } from "@/lib/utils/delivery-schedule";
 import { AnimatedHeadline } from "./HeroSubComponents";
-import { AnimatedText } from "./AnimatedText";
+import { HeroRewards } from "./HeroRewards";
 import { HeroStatBand } from "./HeroStatBand";
 import { HeroCountdown } from "./HeroCountdown";
 import { HeroSunburst } from "./HeroSunburst";
@@ -157,26 +157,11 @@ export function HeroContent({
           </div>
         </div>
 
-        {/* EN Tagline — word-reveal on scroll, touch-pop, accent highlights */}
-        <AnimatedText
-          text={tagline}
-          accentWords={["Burmese", "homemade", "home-cooked", "fresh", "free", "authentic"]}
-          className="text-lg md:text-xl text-hero-text/85 font-medium mb-1"
-        />
-        {/* MY Tagline */}
-        <p className="text-base md:text-lg text-hero-text/65 font-burmese mb-4 animate-hero-develop-3">
-          အိမ်ချက်ထမင်းဟင်းအရသာအတိုင်း ချက်ပြုတ်ပြီး ပို့ပေးပါတယ်
-        </p>
-
-        {/* EN Subheadline — word-reveal on scroll, touch-pop, accent highlights */}
-        <AnimatedText
-          text={subheadline}
-          accentWords={["delivered", "doorstep", "door", "fresh", "LA", "free"]}
-          className="text-lg md:text-xl text-hero-text/85 max-w-2xl mx-auto mb-3 font-body"
-        />
-        {/* MY Subheadline */}
-        <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-5 font-burmese animate-hero-develop-4">
-          {deliveryDaysList} တိုင်း လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ပြီး အိမ်ရောက်ပို့ပေးပါတယ်
+        {/* Morning Star Rewards — replaces the generic taglines */}
+        <HeroRewards className="mb-7 animate-hero-develop-3" />
+        {/* Bilingual context retained for SEO / screen readers */}
+        <p className="sr-only">
+          {tagline}. {subheadline}
         </p>
 
         {/* Vibrant fact-chips */}
