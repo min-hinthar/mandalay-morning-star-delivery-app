@@ -172,7 +172,9 @@ export function Hero({
         <HeroOrbitCluster className="opacity-50" />
       </div>
 
-      {/* Layer 4: Floating emojis (tap to burst, cursor-gather, steam, trails) + sparkles */}
+      {/* Layer 4: Floating emojis + sparkles. Behind the content cards (z-index
+          3 < content's 5) and pointer-events-none on the container; tappable
+          emojis re-enable pointer events on hover/desktop only. */}
       <div
         ref={emojiLayerRef}
         className="absolute inset-0 pointer-events-none overflow-hidden"
@@ -193,6 +195,8 @@ export function Hero({
             index={i}
             pointer={pointer}
             onTap={handleEmojiTap}
+            interactive={canHover}
+            mobileHidden={i >= 7}
           />
         ))}
         {/* Rising flavor sparkles */}
