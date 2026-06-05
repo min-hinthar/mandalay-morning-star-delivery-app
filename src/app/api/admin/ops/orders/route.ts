@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
+import { getZonedDayRangeUtc } from "@/lib/utils/delivery-dates";
 import type { OrderStatus, RefundStatus } from "@/types/database";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
@@ -29,7 +30,7 @@ interface OrderRow {
 // GET /api/admin/ops/orders
 // ============================================
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
@@ -45,10 +46,13 @@ export async function GET() {
     if (rl.limited) return rl.response;
     const { supabase } = auth;
 
-    const { data: orders, error: ordersError } = await supabase
-      .from("orders")
-      .select(
-        `
+    // Optional ?date=YYYY-MM-DD filters to one LA-local delivery day (used by the
+    // Delivery Day hub). Without it, behavior is unchanged (100 most recent).
+    const { searchParams } = new URL(request.url);
+    const date = searchParams.get("date");
+
+    let query = supabase.from("orders").select(
+      `
         id,
         status,
         refund_status,
@@ -64,7 +68,15 @@ export async function GET() {
         route_stops (id),
         notification_logs (status, created_at)
       `
-      )
+    );
+
+    // Filters must precede order/limit transforms.
+    if (date) {
+      const { startUtc, endUtc } = getZonedDayRangeUtc(date);
+      query = query.gte("delivery_window_start", startUtc).lt("delivery_window_start", endUtc);
+    }
+
+    const { data: orders, error: ordersError } = await query
       .order("placed_at", { ascending: false })
       .limit(100)
       .returns<OrderRow[]>();

@@ -85,7 +85,7 @@ function DriverPanelSkeleton() {
 // COMPONENT
 // ============================================
 
-export function OpsDriverPanel() {
+export function OpsDriverPanel({ date }: { date?: string } = {}) {
   const [drivers, setDrivers] = useState<DriverApiResponse[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -122,10 +122,14 @@ export function OpsDriverPanel() {
     };
   }, []);
 
-  // Filter to active drivers and derive readiness
+  // Filter to active drivers and derive readiness for the target date.
   const readinessData = useMemo(() => {
     const activeDrivers = drivers.filter((d) => d.isActive);
-    const today = new Date();
+    // Parse YYYY-MM-DD as a local calendar date (no UTC shift) so weekday and
+    // blocked-date checks land on the intended day; default to today.
+    const target = date
+      ? new Date(Number(date.slice(0, 4)), Number(date.slice(5, 7)) - 1, Number(date.slice(8, 10)))
+      : new Date();
     const readiness = activeDrivers.map((d) => {
       const input: DriverInput = {
         id: d.id,
@@ -135,10 +139,10 @@ export function OpsDriverPanel() {
         isActive: d.isActive,
         availability: d.availability,
       };
-      return deriveDriverReadiness(input, today);
+      return deriveDriverReadiness(input, target);
     });
     return sortDrivers(readiness);
-  }, [drivers]);
+  }, [drivers, date]);
 
   const availableCount = useMemo(
     () => readinessData.filter((d) => d.isAvailable).length,
