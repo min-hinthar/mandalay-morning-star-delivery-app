@@ -30,6 +30,10 @@ Sentry.init({
     /maps-api-v3/i,
     // WebGL context creation failures (browser/driver, not app code)
     /Error creating WebGL context/i,
+    // Aborted fetch / navigation on mobile (benign unhandled rejection,
+    // DOMException code 20) — user navigated away mid-request.
+    /AbortError/i,
+    /The operation was aborted/i,
   ],
   denyUrls: [/maps\.googleapis\.com/i, /maps\.gstatic\.com/i],
 });
