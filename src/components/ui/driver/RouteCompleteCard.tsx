@@ -41,7 +41,7 @@ export function RouteCompleteCard({
         <PartyPopper className="h-20 w-20 text-green" />
       </m.div>
 
-      <h1 className="mt-6 font-display text-3xl font-bold text-text-primary">Route Complete!</h1>
+      <h2 className="mt-6 font-display text-3xl font-bold text-text-primary">Route Complete!</h2>
       <p className="mt-2 font-body text-lg text-text-secondary">Great job — all stops handled.</p>
 
       {/* Summary chips */}

@@ -13,6 +13,8 @@ import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 import { DeliveryConfirmDialog } from "./DeliveryConfirmDialog";
 import { PhotoCapture } from "./PhotoCapture";
 import { RouteCompleteCard } from "./RouteCompleteCard";
+import { RouteFinishingCard } from "./RouteFinishingCard";
+import { useSimpleRouteCompletion } from "./useSimpleRouteCompletion";
 import type { RouteStopStatus } from "@/types/driver";
 
 const OPERATOR_PHONE = process.env.NEXT_PUBLIC_OPERATOR_PHONE || "+16269001234";
@@ -45,26 +47,11 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
   const [showConfirm, setShowConfirm] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
-  const [isOnline, setIsOnline] = useState(true);
   const successTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const completeFiredRef = useRef(false);
 
   useEffect(() => {
     return () => {
       if (successTimerRef.current) clearTimeout(successTimerRef.current);
-    };
-  }, []);
-
-  // Track connectivity reactively so the completion effect below re-runs (and
-  // retries) when the driver reconnects, not just on a fresh mount.
-  useEffect(() => {
-    const update = () => setIsOnline(navigator.onLine);
-    update();
-    window.addEventListener("online", update);
-    window.addEventListener("offline", update);
-    return () => {
-      window.removeEventListener("online", update);
-      window.removeEventListener("offline", update);
     };
   }, []);
 
@@ -85,27 +72,10 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
 
   const allDone = !currentStop && totalCount > 0;
 
-  // Mark the route complete server-side once every stop is handled. Standard
-  // mode has an explicit "Complete Route" button; simple mode has no extra tap,
-  // so without this the route stays in_progress forever and never reaches
-  // earnings/history. Online-guarded and fired once; the server rejects a
-  // premature completion (409) if any stop hasn't persisted yet.
-  useEffect(() => {
-    if (!allDone || !isOnline || completeFiredRef.current) return;
-    completeFiredRef.current = true;
-    fetch(`/api/driver/routes/${routeId}/complete`, { method: "POST" })
-      .then((res) => {
-        // 200 = completed, 400 = already completed (idempotent re-land): keep
-        // fired. Transient (5xx) / not-yet-persisted (409) / rate-limit (429):
-        // clear the latch so a later connectivity change or re-land retries.
-        if (res.status >= 500 || res.status === 409 || res.status === 429) {
-          completeFiredRef.current = false;
-        }
-      })
-      .catch(() => {
-        completeFiredRef.current = false;
-      });
-  }, [allDone, isOnline, routeId]);
+  // Auto-complete the route server-side once every stop is handled (simple mode
+  // has no explicit Complete button). `completionConfirmed` only flips after the
+  // server confirms, so the celebration can't render prematurely.
+  const { isOnline, completionConfirmed } = useSimpleRouteCompletion(routeId, allDone);
 
   const getFullAddress = (stop: SimpleStopData) => {
     const addr = stop.order.address;
@@ -204,7 +174,7 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
     [routeId, currentStop, queuePhoto]
   );
 
-  if (allDone)
+  if (allDone && completionConfirmed)
     return (
       <RouteCompleteCard
         deliveredCount={deliveredOnlyCount}
@@ -212,6 +182,11 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
         totalCount={totalCount}
       />
     );
+
+  // Every stop handled, but the server hasn't confirmed completion yet — hold on
+  // a no-exit "Finishing up…" state instead of a celebration the driver could
+  // dismiss before the route is actually done.
+  if (allDone) return <RouteFinishingCard isOnline={isOnline} />;
 
   if (!currentStop) {
     return (
