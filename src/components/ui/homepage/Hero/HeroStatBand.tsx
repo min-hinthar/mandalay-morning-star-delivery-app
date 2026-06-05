@@ -9,45 +9,21 @@
  * live), coverage, rating, and the free-delivery value prop.
  */
 
-import { type ReactNode, useEffect, useRef } from "react";
-import { m, useInView, useSpring, useTransform } from "framer-motion";
+import { type ReactNode, useRef } from "react";
+import { m, useInView } from "framer-motion";
 import { ChefHat, Gift, MapPin, Star, Truck, type LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { useTilt } from "./interactions";
-
-const COUNT_SPRING = { stiffness: 80, damping: 26, restDelta: 0.01 } as const;
+import { useTilt, useRipple } from "./interactions";
+import { RollingNumber } from "./RollingDigits";
 
 /** Anthropic accent triad — cycles across tiles on non-text shapes */
 const TRIAD_TEXT = ["text-hero-clay", "text-hero-blue", "text-hero-sage"] as const;
 const TRIAD_BG = ["bg-hero-clay", "bg-hero-blue", "bg-hero-sage"] as const;
 
-// ============================================
-// COUNT-UP NUMBER
-// ============================================
-
-interface CountUpProps {
-  value: number;
-  decimals?: number;
-  start: boolean;
-  animate: boolean;
-}
-
 function formatNum(n: number, decimals: number) {
   return decimals > 0 ? n.toFixed(decimals) : Math.round(n).toLocaleString("en-US");
-}
-
-function CountUp({ value, decimals = 0, start, animate }: CountUpProps) {
-  const mv = useSpring(0, COUNT_SPRING);
-  const text = useTransform(mv, (n) => formatNum(n, decimals));
-
-  useEffect(() => {
-    if (start) mv.set(value);
-  }, [mv, value, start]);
-
-  if (!animate) return <>{formatNum(value, decimals)}</>;
-  return <m.span>{text}</m.span>;
 }
 
 // ============================================
@@ -83,6 +59,7 @@ function TileView({ tile, index, inView, animate }: TileViewProps) {
   const valueText = count !== undefined ? formatNum(count, decimals) : (display ?? "");
   const ariaLabel = `${valueText} — ${label}. ${tooltip}`;
   const tilt = useTilt(6);
+  const { ripples, onPointerDown } = useRipple();
   const accentText = TRIAD_TEXT[index % TRIAD_TEXT.length];
   const accentBg = TRIAD_BG[index % TRIAD_BG.length];
 
@@ -98,6 +75,7 @@ function TileView({ tile, index, inView, animate }: TileViewProps) {
       whileTap={animate ? { scale: 0.98 } : undefined}
       onPointerMove={tilt.onPointerMove}
       onPointerLeave={tilt.onPointerLeave}
+      onPointerDown={onPointerDown}
       style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformPerspective: 700 }}
       className={cn(
         "group relative flex h-full flex-col items-center justify-center gap-1 rounded-2xl text-center",
@@ -112,6 +90,26 @@ function TileView({ tile, index, inView, animate }: TileViewProps) {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 rounded-2xl opacity-[0.07] mix-blend-multiply hero-paper-grain"
       />
+
+      {/* Auto sheen sweep + tap ripples (clipped to the card) */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl"
+      >
+        {animate && (
+          <span
+            className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/35 to-transparent animate-hero-sheen"
+            style={{ animationDelay: `${index * 0.8}s` }}
+          />
+        )}
+        {ripples.map((rp) => (
+          <span
+            key={rp.id}
+            className={cn("absolute h-24 w-24 rounded-full animate-hero-ripple", accentBg)}
+            style={{ left: rp.x, top: rp.y, opacity: 0.3 }}
+          />
+        ))}
+      </span>
 
       {/* Live indicator */}
       {live && (
@@ -144,7 +142,7 @@ function TileView({ tile, index, inView, animate }: TileViewProps) {
         )}
       >
         {count !== undefined ? (
-          <CountUp value={count} decimals={decimals} start={inView} animate={animate} />
+          <RollingNumber value={count} decimals={decimals} animate={animate && inView} />
         ) : (
           <span>{display}</span>
         )}

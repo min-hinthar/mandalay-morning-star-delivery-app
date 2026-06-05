@@ -8,6 +8,7 @@
 
 import React from "react";
 import { cn } from "@/lib/utils/cn";
+import { HeroAmbient } from "./HeroAmbient";
 
 // ============================================
 // ANIMATED HEADLINE
@@ -25,8 +26,10 @@ export function AnimatedHeadline({ text, className, highlight }: AnimatedHeadlin
     highlight && text.includes(highlight) ? (
       <>
         {text.slice(0, text.indexOf(highlight))}
-        <span className="bg-gradient-to-br from-hero-clay to-hero-accent bg-clip-text italic text-transparent">
-          {highlight}
+        <span className="hero-accent-underline">
+          <span className="bg-gradient-to-br from-hero-clay to-hero-accent bg-clip-text italic text-transparent">
+            {highlight}
+          </span>
         </span>
         {text.slice(text.indexOf(highlight) + highlight.length)}
       </>
@@ -90,15 +93,9 @@ export function GradientFallback({ children, className }: GradientFallbackProps)
         style={{ ["--tw-gradient-from" as string]: "var(--hero-overlay)" }}
       />
 
-      {/* Texture layers — dot-grid + drifting grain for Anthropic depth */}
-      <div
-        aria-hidden="true"
-        className="hero-dotgrid pointer-events-none absolute inset-0 opacity-50 mix-blend-soft-light"
-      />
-      <div
-        aria-hidden="true"
-        className="hero-paper-grain hero-grain-drift pointer-events-none absolute inset-0 opacity-[0.04] mix-blend-overlay"
-      />
+      {/* Layered Anthropic atmosphere — parallax dot-grids, morphing orbs,
+          drifting multi-grain, twinkling constellation */}
+      <HeroAmbient />
 
       {/* Content layer */}
       <div

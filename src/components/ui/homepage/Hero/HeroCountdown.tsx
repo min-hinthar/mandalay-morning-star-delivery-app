@@ -7,33 +7,11 @@
  * DeliveryCountdown stays unchanged.
  */
 
-import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useCountdown } from "@/lib/hooks/useCountdown";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { RollingDigit } from "./RollingDigits";
 import type { Urgency } from "@/lib/hooks/useDeliveryGate";
-
-const DIGITS = Array.from({ length: 10 }, (_, d) => d);
-
-function RollingDigit({ digit, animate }: { digit: number; animate: boolean }) {
-  if (!animate) return <span className="tabular-nums">{digit}</span>;
-  return (
-    <span className="relative inline-flex h-[1.05em] w-[0.6em] overflow-hidden align-baseline tabular-nums">
-      <m.span
-        className="absolute left-0 top-0 flex w-full flex-col"
-        style={{ height: "1000%" }}
-        animate={{ y: `-${digit * 10}%` }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      >
-        {DIGITS.map((d) => (
-          <span key={d} className="flex h-[10%] items-center justify-center leading-none">
-            {d}
-          </span>
-        ))}
-      </m.span>
-    </span>
-  );
-}
 
 function Reel({ value, pad, animate }: { value: number; pad: number; animate: boolean }) {
   const chars = String(value).padStart(pad, "0").split("");

@@ -4,8 +4,8 @@
 /* V5 Legacy (preserved for gradual migration) */
 @import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
 
-/* Anthropic-inspired editorial type: Fraunces (display serif) + Hanken Grotesk (body/UI) */
-@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,500&family=Hanken+Grotesk:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&display=swap");
+/* Anthropic-inspired editorial type: Fraunces (display serif, full variable axes for 'breathing') + Hanken Grotesk (body/UI) */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Hanken+Grotesk:ital,wght@0,300..800;1,300..600&display=swap");
 @import "tailwindcss";
 
 /* Exclude directories with documentation patterns like --shadow-* that break Tailwind v4 scanning */
@@ -795,6 +795,58 @@
     }
   }
 
+  /* Living Fraunces — static variation baseline (reduced motion sees this) */
+  .hero-font-breathe {
+    font-variation-settings:
+      "opsz" 144,
+      "wght" 600,
+      "SOFT" 0,
+      "WONK" 0;
+  }
+
+  /* Accent underline swash (drawn by default; animates under no-preference) */
+  .hero-accent-underline {
+    background-image: linear-gradient(var(--hero-clay), var(--hero-clay));
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    background-size: 100% 0.09em;
+    padding-bottom: 0.04em;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .hero-font-breathe {
+      animation: hero-font-breathe 7s ease-in-out infinite;
+    }
+    .hero-accent-underline {
+      background-size: 0% 0.09em;
+      animation: hero-underline-draw 0.9s 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    .hero-orb-morph {
+      animation: hero-orb-morph 20s ease-in-out infinite;
+    }
+    .hero-twinkle {
+      animation: hero-twinkle var(--twinkle-dur, 4s) ease-in-out infinite;
+      animation-delay: var(--twinkle-delay, 0s);
+    }
+    .hero-halo-breathe {
+      animation: hero-halo-breathe 4.5s ease-in-out infinite;
+    }
+    .hero-grain-drift-slow {
+      animation: hero-grain-drift 16s linear infinite;
+    }
+    .hero-grain-drift-rev {
+      animation: hero-grain-drift 12s linear infinite reverse;
+    }
+    .animate-hero-sheen {
+      animation: hero-sheen 5s ease-in-out infinite;
+    }
+  }
+
+  /* Tap ripple (user-initiated; plays once) */
+  .animate-hero-ripple {
+    animation: hero-ripple 0.6s ease-out forwards;
+  }
+
   /* Hero headline depth glow — improves legibility over the vibrant gradient */
   .hero-text-glow {
     text-shadow:
@@ -993,6 +1045,100 @@
     opacity: 1;
     transform: translateY(0);
     filter: blur(0);
+  }
+}
+
+/* Living Fraunces — variable-axis 'breathing' */
+@keyframes hero-font-breathe {
+  0%,
+  100% {
+    font-variation-settings:
+      "opsz" 144,
+      "wght" 540,
+      "SOFT" 0,
+      "WONK" 0;
+  }
+  50% {
+    font-variation-settings:
+      "opsz" 144,
+      "wght" 660,
+      "SOFT" 45,
+      "WONK" 1;
+  }
+}
+
+/* Accent underline swash draw-on */
+@keyframes hero-underline-draw {
+  from {
+    background-size: 0% 0.09em;
+  }
+  to {
+    background-size: 100% 0.09em;
+  }
+}
+
+/* Morphing mesh orb */
+@keyframes hero-orb-morph {
+  0%,
+  100% {
+    border-radius: 46% 54% 58% 42% / 52% 44% 56% 48%;
+    transform: scale(1);
+  }
+  33% {
+    border-radius: 60% 40% 44% 56% / 56% 60% 40% 44%;
+    transform: scale(1.08);
+  }
+  66% {
+    border-radius: 50% 50% 56% 44% / 44% 56% 52% 48%;
+    transform: scale(0.95);
+  }
+}
+
+/* Twinkling constellation dot */
+@keyframes hero-twinkle {
+  0%,
+  100% {
+    opacity: 0.12;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.1);
+  }
+}
+
+/* Breathing halo (greeting pill / accents) */
+@keyframes hero-halo-breathe {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 0.85;
+    transform: scale(1.06);
+  }
+}
+
+/* Auto sheen sweep (mobile vibrance on cards) */
+@keyframes hero-sheen {
+  0% {
+    transform: translateX(-160%) skewX(-12deg);
+  }
+  100% {
+    transform: translateX(360%) skewX(-12deg);
+  }
+}
+
+/* Tap ripple */
+@keyframes hero-ripple {
+  from {
+    transform: translate(-50%, -50%) scale(0);
+    opacity: 0.5;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(4);
+    opacity: 0;
   }
 }
 

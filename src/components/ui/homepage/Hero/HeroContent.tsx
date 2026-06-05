@@ -13,7 +13,6 @@ import { ArrowRight, CalendarClock, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { useDynamicTheme } from "@/components/ui/theme";
 import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
 import { Button } from "@/components/ui/button";
 import { COVERAGE_LIMITS } from "@/types/address";
@@ -22,6 +21,7 @@ import { AnimatedHeadline } from "./HeroSubComponents";
 import { HeroStatBand } from "./HeroStatBand";
 import { HeroCountdown } from "./HeroCountdown";
 import { HeroSunburst } from "./HeroSunburst";
+import { HeroGreetingPill } from "./HeroGreetingPill";
 import { useMagnetic, useTilt } from "./interactions";
 import type { DeliveryDayConfig } from "@/types/delivery";
 
@@ -67,7 +67,6 @@ export function HeroContent({
   deliveriesThisMonth = 0,
 }: HeroContentProps) {
   const { shouldAnimate } = useAnimationPreference();
-  const { timeOfDay } = useDynamicTheme();
   const ctaMagnet = useMagnetic(0.3);
   const cardTilt = useTilt(5);
 
@@ -97,21 +96,16 @@ export function HeroContent({
   const freeThresholdDollars = toDollars(freeDeliveryThresholdCents);
   const longDistanceFeeDollars = toDollars(longDistanceFeeCents);
 
-  // Bilingual greetings
-  const greetings: Record<string, { en: string; my: string }> = {
-    morning: { en: "Good morning!", my: "မင်္ဂလာပါ နံနက်ခင်းလေးပါ" },
-    afternoon: { en: "Good afternoon!", my: "နေ့လည်ခင်းလေး မင်္ဂလာပါ" },
-    evening: { en: "Good evening!", my: "ညနေခင်းလေး မင်္ဂလာပါ" },
-    night: { en: "Late night cravings?", my: "ညဥ့နက်ကြီး ဗိုက်ဆာနေပြီလား" },
-    dawn: { en: "Early bird?", my: "စောစောထတာပဲ" },
-  };
-  const greeting = greetings[timeOfDay] ?? greetings.morning;
-
   return (
     <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-12 pb-safe md:pt-24 md:pb-16">
       <div className="max-w-4xl mx-auto text-center">
+        {/* Standalone live greeting pill */}
+        <div className="mb-5 flex justify-center animate-hero-develop-1">
+          <HeroGreetingPill />
+        </div>
+
         {/* Editorial masthead — Fraunces serif, ink on frosted paper */}
-        <div className="relative mx-auto mb-7 max-w-3xl animate-hero-develop-1">
+        <div className="relative mx-auto mb-7 max-w-3xl animate-hero-develop-2">
           <div className="relative overflow-hidden rounded-3xl hero-surface-glass px-6 py-7 text-center md:px-10 md:py-9">
             {/* Paper grain */}
             <span
@@ -122,16 +116,16 @@ export function HeroContent({
             <div className="relative mb-3 flex items-center justify-center gap-2 text-hero-accent">
               <HeroSunburst className="h-4 w-4 text-hero-clay" rays={8} />
               <span className="text-2xs font-semibold uppercase tracking-[0.2em] md:text-xs">
-                {greeting.en} · Straight from our Covina kitchen
+                Straight from our Covina kitchen · မြန်မာ အရသာ
               </span>
             </div>
             {/* Hairline rule */}
             <div className="relative mx-auto mb-5 h-px w-24 bg-hero-line" />
-            {/* EN headline — Fraunces serif, ink, clay italic accent word */}
+            {/* EN headline — Fraunces serif, ink, clay italic accent word, living variable axes */}
             <AnimatedHeadline
               text={headline}
               highlight="Burmese"
-              className="relative font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-hero-ink leading-[1.04]"
+              className="hero-font-breathe relative font-display text-4xl md:text-5xl lg:text-6xl tracking-tight text-hero-ink leading-[1.04]"
             />
             {/* MY headline */}
             <p className="relative mt-3 font-burmese text-lg md:text-2xl text-hero-ink-muted leading-snug">
@@ -141,7 +135,7 @@ export function HeroContent({
         </div>
 
         {/* EN Tagline */}
-        <p className="text-lg md:text-xl text-hero-text/70 font-medium mb-1 animate-hero-develop-2">
+        <p className="text-lg md:text-xl text-hero-text/70 font-medium mb-1 animate-hero-develop-3">
           {tagline}
         </p>
         {/* MY Tagline */}
@@ -150,7 +144,7 @@ export function HeroContent({
         </p>
 
         {/* EN Subheadline */}
-        <p className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-2 font-body animate-hero-develop-3">
+        <p className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-2 font-body animate-hero-develop-4">
           {subheadline}
         </p>
         {/* MY Subheadline */}
