@@ -11,6 +11,7 @@ import { useRef, type CSSProperties } from "react";
 import { m, useTransform, type MotionValue } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useHeroParallax } from "./interactions";
+import type { HeroFxBudget } from "@/lib/hooks/useHeroFx";
 
 type MV = MotionValue<number>;
 
@@ -52,26 +53,29 @@ interface OrbConfig {
   delay: string;
 }
 
-function Orb({ x, y, cfg }: { x: MV; y: MV; cfg: OrbConfig }) {
+function Orb({ x, y, cfg, blur }: { x: MV; y: MV; cfg: OrbConfig; blur: boolean }) {
   const tx = useTransform(x, (v) => v * cfg.depth);
   const ty = useTransform(y, (v) => v * cfg.depth);
   return (
     <m.div
       aria-hidden="true"
-      className="absolute hidden md:block"
+      className="absolute"
       style={{ x: tx, y: ty, top: cfg.top, left: cfg.left }}
     >
-      {/* Desktop only (md+): blurred mesh orb. On mobile this whole layer is
-          display:none — full-screen blur() OOM-crashes iOS WebKit. */}
+      {/* Render is gated by the FX budget. With `blur`, the full mesh orb; without
+          it (lite tier) the gradient falloff alone seats the orb — no blur()
+          backing store, which is what OOM-crashes iOS WebKit. */}
       <span
         className="hero-orb-morph block"
         style={{
           width: cfg.size,
           height: cfg.size,
-          background: `radial-gradient(circle at 50% 50%, ${cfg.color}, transparent 70%)`,
-          filter: "blur(var(--blur-3xl))",
+          background: blur
+            ? `radial-gradient(circle at 50% 50%, ${cfg.color}, transparent 70%)`
+            : `radial-gradient(circle at 50% 50%, ${cfg.color}, transparent 58%)`,
+          filter: blur ? "blur(var(--blur-3xl))" : undefined,
           animationDelay: cfg.delay,
-          opacity: 0.5,
+          opacity: blur ? 0.5 : 0.34,
         }}
       />
     </m.div>
@@ -110,11 +114,17 @@ const CONSTELLATION: [number, number][] = [
   [11, 14],
 ];
 
-export function HeroAmbient() {
+export function HeroAmbient({ fx }: { fx?: HeroFxBudget }) {
   const ref = useRef<HTMLDivElement>(null);
   const { x, y } = useHeroParallax(ref);
   const spotX = useTransform(x, (v) => `${(0.5 + v) * 100}%`);
   const spotY = useTransform(y, (v) => `${(0.5 + v) * 100}%`);
+
+  // FX budget — defaults to the crash-safe floor when no budget is supplied.
+  const showOrbs = fx?.orbs ?? false;
+  const orbBlur = fx?.orbBlur ?? false;
+  const showAuroras = fx?.auroras ?? false;
+  const showSpotlight = fx?.spotlight ?? false;
 
   return (
     <div
@@ -122,30 +132,34 @@ export function HeroAmbient() {
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 overflow-hidden"
     >
-      {/* Living aurora ribbons (drift + breathe, two layers) */}
-      <div
-        className="hero-aurora absolute left-0 top-[16%] hidden h-[46%] w-full md:block"
-        style={{
-          background:
-            "linear-gradient(100deg, transparent, var(--hero-clay), var(--hero-sage), var(--hero-blue), transparent)",
-          filter: "blur(var(--blur-3xl))",
-          mixBlendMode: "screen",
-        }}
-      />
-      <div
-        className="hero-aurora-2 absolute left-0 top-[40%] hidden h-[40%] w-full md:block"
-        style={{
-          background:
-            "linear-gradient(80deg, transparent, var(--hero-blue), var(--hero-clay), transparent)",
-          filter: "blur(var(--blur-3xl))",
-          mixBlendMode: "screen",
-        }}
-      />
+      {/* Living aurora ribbons (drift + breathe, two layers). Full-screen blur()
+          — desktop/rich only; OOM-crashes iOS WebKit, so gated by the budget. */}
+      {showAuroras && (
+        <>
+          <div
+            className="hero-aurora absolute left-0 top-[16%] h-[46%] w-full"
+            style={{
+              background:
+                "linear-gradient(100deg, transparent, var(--hero-clay), var(--hero-sage), var(--hero-blue), transparent)",
+              filter: "blur(var(--blur-3xl))",
+              mixBlendMode: "screen",
+            }}
+          />
+          <div
+            className="hero-aurora-2 absolute left-0 top-[40%] h-[40%] w-full"
+            style={{
+              background:
+                "linear-gradient(80deg, transparent, var(--hero-blue), var(--hero-clay), transparent)",
+              filter: "blur(var(--blur-3xl))",
+              mixBlendMode: "screen",
+            }}
+          />
+        </>
+      )}
 
       {/* Morphing mesh orbs */}
-      {ORBS.map((cfg) => (
-        <Orb key={cfg.color + cfg.top} x={x} y={y} cfg={cfg} />
-      ))}
+      {showOrbs &&
+        ORBS.map((cfg) => <Orb key={cfg.color + cfg.top} x={x} y={y} cfg={cfg} blur={orbBlur} />)}
 
       {/* Calm, layered, masked grids — pointer/gyro parallax only (no scroll dizziness) */}
       <ParallaxGrid
@@ -257,16 +271,18 @@ export function HeroAmbient() {
       />
 
       {/* Cursor spotlight — soft light that follows the pointer, revealing the
-          grids/orbs/grain beneath it */}
-      <m.div
-        className="absolute hidden h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full mix-blend-screen md:block"
-        style={{
-          left: spotX,
-          top: spotY,
-          background:
-            "radial-gradient(circle, rgba(255,247,237,0.30), rgba(217,119,87,0.12) 38%, transparent 68%)",
-        }}
-      />
+          grids/orbs/grain beneath it. Pointer devices only (budget-gated). */}
+      {showSpotlight && (
+        <m.div
+          className="absolute h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full mix-blend-screen"
+          style={{
+            left: spotX,
+            top: spotY,
+            background:
+              "radial-gradient(circle, rgba(255,247,237,0.30), rgba(217,119,87,0.12) 38%, transparent 68%)",
+          }}
+        />
+      )}
     </div>
   );
 }
