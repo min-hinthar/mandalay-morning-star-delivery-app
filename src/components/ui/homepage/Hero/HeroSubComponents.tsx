@@ -16,10 +16,25 @@ import { cn } from "@/lib/utils/cn";
 interface AnimatedHeadlineProps {
   text: string;
   className?: string;
+  /** Word/phrase to render with a warm saffron gradient accent */
+  highlight?: string;
 }
 
-export function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
-  return <h1 className={cn(className, "animate-fade-in-up")}>{text}</h1>;
+export function AnimatedHeadline({ text, className, highlight }: AnimatedHeadlineProps) {
+  const content =
+    highlight && text.includes(highlight) ? (
+      <>
+        {text.slice(0, text.indexOf(highlight))}
+        <span className="bg-gradient-to-r from-amber-200 via-secondary to-amber-300 bg-clip-text text-transparent">
+          {highlight}
+        </span>
+        {text.slice(text.indexOf(highlight) + highlight.length)}
+      </>
+    ) : (
+      text
+    );
+
+  return <h1 className={cn(className, "animate-fade-in-up")}>{content}</h1>;
 }
 
 // ============================================

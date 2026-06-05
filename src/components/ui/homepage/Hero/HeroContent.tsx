@@ -9,7 +9,7 @@
 
 import Link from "next/link";
 import { m } from "framer-motion";
-import { ArrowRight, CalendarClock, Truck } from "lucide-react";
+import { ArrowRight, CalendarClock, Moon, Sun, Sunrise, Sunset, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -103,22 +103,37 @@ export function HeroContent({
   };
   const greeting = greetings[timeOfDay] ?? greetings.morning;
 
+  // Time-of-day icon for the greeting badge
+  const greetingIcons = {
+    morning: Sunrise,
+    afternoon: Sun,
+    evening: Sunset,
+    night: Moon,
+    dawn: Sunrise,
+  } as const;
+  const GreetingIcon = greetingIcons[timeOfDay as keyof typeof greetingIcons] ?? Sun;
+
   return (
     <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-12 pb-safe md:pt-24 md:pb-16">
       <div className="max-w-4xl mx-auto text-center">
         {/* Time-based greeting badge - bilingual */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 mb-5 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1">
-          <span className="text-secondary">{greeting.en}</span>
+        <div className="group inline-flex items-center gap-2 px-4 py-2 mb-5 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 shadow-lg shadow-black/10 ring-1 ring-white/10 transition-transform duration-300 hover:-translate-y-0.5 animate-fade-in-up-delay-1">
+          <GreetingIcon
+            className="w-4 h-4 text-secondary transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
+            aria-hidden="true"
+          />
+          <span className="text-secondary font-medium">{greeting.en}</span>
           <span className="text-sm text-hero-text/70 font-medium">{greeting.my}</span>
         </div>
 
         {/* EN Headline */}
         <AnimatedHeadline
           text={headline}
-          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-1 leading-tight"
+          highlight="Burmese"
+          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-1 leading-tight hero-text-glow"
         />
         {/* MY Headline */}
-        <p className="font-body text-2xl md:text-3xl lg:text-4xl text-hero-text/80 mb-3 animate-fade-in-up-delay-1">
+        <p className="font-body text-2xl md:text-3xl lg:text-4xl text-hero-text/80 mb-3 hero-text-glow animate-fade-in-up-delay-1">
           အိမ်ချက်ထမင်းဟင်း လွမ်းနေပြီလား · LA တစ်ခွင် အိမ်ရောက်ပို့ပေးမယ်
         </p>
 
@@ -143,10 +158,20 @@ export function HeroContent({
         <div className="flex flex-col items-center gap-6 mb-10 animate-fade-in-up-delay-3">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <m.div
+              className="relative"
               whileHover={shouldAnimate ? { scale: 1.05, y: -2 } : undefined}
               whileTap={shouldAnimate ? { scale: 0.97 } : undefined}
               transition={spring.snappy}
             >
+              {/* Pulsing sunset glow halo */}
+              {shouldAnimate && (
+                <m.span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -inset-2.5 rounded-full bg-gradient-to-r from-amber-400/50 via-secondary/50 to-orange-400/50 blur-xl"
+                  animate={{ opacity: [0.45, 0.8, 0.45], scale: [0.97, 1.03, 0.97] }}
+                  transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                />
+              )}
               <Button
                 variant="primary"
                 size="lg"
@@ -155,13 +180,20 @@ export function HeroContent({
                   "relative overflow-hidden group px-8 py-6 text-lg rounded-full",
                   "bg-gradient-to-r from-secondary via-secondary-hover to-secondary",
                   "hover:from-secondary-hover hover:via-secondary hover:to-secondary-hover",
-                  "shadow-lg shadow-secondary/30",
-                  "hover:shadow-xl hover:shadow-secondary/40",
-                  "hover:ring-2 hover:ring-secondary/30",
+                  "shadow-lg shadow-secondary/40",
+                  "hover:shadow-xl hover:shadow-secondary/60",
+                  "hover:ring-2 hover:ring-white/50",
                   "transition-all duration-300"
                 )}
               >
                 <Link href={ctaHref}>
+                  {/* Periodic shine sweep (paused under reduced motion) */}
+                  {shouldAnimate && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep"
+                    />
+                  )}
                   <span className="relative z-10 flex items-center gap-2 text-text-primary font-semibold">
                     {dynamicCtaText}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
