@@ -37,3 +37,15 @@ Match exact DOM structure of loaded state (sticky positions, heights, grid, aspe
 ## Atomic Swap for Component Migration
 
 Replace ALL usages of legacy component in single commit, then delete. Incremental = "frankenstein" state.
+
+---
+
+## Hero Motion System (Anthropic warm-paper)
+
+Full spec: [`docs/hero-design-language.md`](../../docs/hero-design-language.md). Reusable kit in `src/components/ui/homepage/Hero/`.
+
+- **Catalogue (globals.css, search `hero-`):** `animate-hero-develop-1..5` (page-load cascade), `hero-font-breathe` (Fraunces variable-axis), `hero-accent-underline` (swash draw-on), `animate-hero-sheen`, `animate-hero-ripple`, `hero-halo-breathe`, `hero-aurora`/`-2`, `hero-steam`, `hero-sparkle`, `hero-comet`, `hero-twinkle`, `hero-orb-morph`, `hero-grain-drift*`, `animate-hero-draw`. Hooks (`interactions.ts`): `useTilt`/`useMagnetic`/`useHeroParallax`/`useRipple`; particles `HeroBurst`; odometer reels `RollingDigits`.
+- **Non-negotiables:** 60fps (transform/opacity only — never animate layout/`width`/`top`); reduced-motion honored (CSS in `@media (prefers-reduced-motion)` or `motion-safe:`; JS via `useAnimationPreference().shouldAnimate`); rAF-throttle pointer; **pause CSS loops offscreen** (`.hero-anim-paused` toggled by an IntersectionObserver on the hero section) and **detach window listeners offscreen** (`useHeroParallax` self-gates via IO).
+- **No scroll-coupled background translate** — motion sickness. Parallax = pointer + device-orientation only.
+- **Watch the count.** The maximalist hero stacked ~150 concurrent animations + duplicate orb systems + a full-screen `hue-rotate` filter before a calibration pass cut them. Budget animations; dedupe competing layers; `backdrop-filter`/large `blur()`/`mix-blend` are expensive — keep bounded (glass on 1-2 cards, opaque paper elsewhere).
+- **Framer + LazyMotion:** `m.span/div/li/line/circle` work; use `repeatType: "loop"` + seamless (start===end) keyframes for continuous loops; clear `setTimeout`s on unmount (`useBurst`/`useRipple`).

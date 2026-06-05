@@ -21,6 +21,7 @@ Consolidated knowledge from working on this codebase. Scan this file first, then
 
 ## Usage
 
+- **Before any UI/motion work:** read `docs/hero-design-language.md` (design language + UI/UX quality bar); token/animation dives in `design-tokens.md` / `animation.md`
 - **Before debugging:** check CLAUDE.md § Gotchas first, then relevant topic file for deep dives
 - **After session:** `/retro` routes new learnings to correct topic file
 - **Staleness:** `/retro` flags entries referencing deleted files or >90 days old

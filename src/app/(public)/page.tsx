@@ -6,6 +6,7 @@ import { getDeliveryStats } from "@/lib/queries/delivery-stats";
 import { HomePageWrapper } from "@/components/ui/homepage/HomePageWrapper";
 import { HomepageMenuSection } from "@/components/ui/homepage/HomepageMenuSection";
 import { Hero } from "@/components/ui/homepage/Hero";
+import type { MenuItem } from "@/types/menu";
 import { TestimonialsCarousel } from "@/components/ui/homepage/TestimonialsCarousel";
 import { CTABanner } from "@/components/ui/homepage/CTABanner";
 import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
@@ -106,6 +107,21 @@ export default async function HomePage(): Promise<ReactElement> {
     // Supabase unavailable — render with empty featured sections
   }
 
+  // Flatten featured sections (popular, new, etc.) into a deduped list of
+  // photo-bearing dishes for the hero appetite carousel (graceful no-op when
+  // none have images).
+  const featuredDishes: MenuItem[] = [];
+  const seenDishIds = new Set<string>();
+  for (const section of featuredSections) {
+    for (const item of section.items) {
+      if (!item.imageUrl || !item.isActive || item.isSoldOut || seenDishIds.has(item.id)) continue;
+      seenDishIds.add(item.id);
+      featuredDishes.push(item);
+      if (featuredDishes.length >= 12) break;
+    }
+    if (featuredDishes.length >= 12) break;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       {/* HomePageWrapper provides SectionNavDots (scroll spy) */}
@@ -122,6 +138,7 @@ export default async function HomePage(): Promise<ReactElement> {
           longDistanceThresholdMiles={rules.longDistanceThresholdMiles}
           deliveriesThisMonth={deliveryStats.deliveriesThisMonth}
           nextDeliveryDate={deliveryStats.nextDeliveryDate}
+          featuredDishes={featuredDishes}
         />
 
         {/* Rewards welcome-back pill - signed-in customers with Stars (client) */}

@@ -9,16 +9,11 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { COVERAGE_LIMITS } from "@/types/address";
 
 interface StatusBarProps {
-  deliveriesThisMonth: number;
   nextDeliveryDate: string;
   deliverySchedule?: string;
 }
 
-export function StatusBar({
-  deliveriesThisMonth,
-  nextDeliveryDate,
-  deliverySchedule,
-}: StatusBarProps) {
+export function StatusBar({ nextDeliveryDate, deliverySchedule }: StatusBarProps) {
   const { shouldAnimate } = useAnimationPreference();
 
   const handleScrollToCoverage = () => {
@@ -63,11 +58,6 @@ export function StatusBar({
 
           {/* Right: delivery info + CTA */}
           <div className="flex items-center gap-3 shrink-0">
-            {deliveriesThisMonth > 0 && (
-              <span className="text-xs font-semibold text-text-primary hidden md:inline">
-                {deliveriesThisMonth} this month
-              </span>
-            )}
             {nextDeliveryDate && (
               <span className="px-2 py-1 rounded-lg bg-primary/10 text-primary text-xs font-bold hidden sm:inline">
                 Next: {nextDeliveryDate}

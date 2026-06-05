@@ -3,6 +3,7 @@
  */
 
 import type { DeliveryDayConfig } from "@/types/delivery";
+import type { MenuItem } from "@/types/menu";
 
 export interface HeroProps {
   /** Hero headline */
@@ -35,4 +36,6 @@ export interface HeroProps {
   longDistanceFeeCents?: number;
   /** Miles threshold for long-distance fee */
   longDistanceThresholdMiles?: number;
+  /** Featured dishes (aggregated menu items) for the appetite carousel */
+  featuredDishes?: MenuItem[];
 }
