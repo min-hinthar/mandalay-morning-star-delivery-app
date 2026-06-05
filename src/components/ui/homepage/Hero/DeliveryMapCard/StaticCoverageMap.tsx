@@ -12,7 +12,7 @@
  */
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { m } from "framer-motion";
+import { m, AnimatePresence } from "framer-motion";
 import { Truck, Package } from "lucide-react";
 import { KITCHEN_LOCATION, COVERAGE_LIMITS } from "@/types/address";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -132,6 +132,7 @@ export function StaticCoverageMap() {
     left: `${((offX + lx * cover) / box.w) * 100}%`,
     top: `${((offY + ly * cover) / box.h) * 100}%`,
   });
+  const ActiveIcon = active % 2 === 0 ? Truck : Package;
 
   return (
     <div ref={ref} className="relative h-full w-full overflow-hidden bg-hero-stat-bg/40">
@@ -195,22 +196,28 @@ export function StaticCoverageMap() {
                     transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
                   />
                 )}
-                {/* Info label on the active pin (desktop-tooltip parity) */}
-                {isActive && (
-                  <m.span
-                    initial={shouldAnimate ? { opacity: 0, y: 4 } : false}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full hero-surface-paper px-2 py-0.5 text-2xs font-semibold text-hero-ink shadow-sm"
-                  >
-                    {c.name}
-                    <span className="ml-1 font-normal text-hero-ink-muted">
-                      · {DIRECTION_DAYS[c.dir]}
-                    </span>
-                  </m.span>
-                )}
               </m.span>
             );
           })}
+
+          {/* Active-city info chip — fixed upper-center so it's always in bounds
+              and always on top (no per-pin tooltip clipping / z-fighting). */}
+          <AnimatePresence mode="wait">
+            <m.div
+              key={active}
+              initial={shouldAnimate ? { opacity: 0, y: -4 } : false}
+              animate={{ opacity: 1, y: 0 }}
+              exit={shouldAnimate ? { opacity: 0, y: -4 } : undefined}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="absolute left-1/2 top-11 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full hero-surface-paper px-2.5 py-1 text-2xs font-semibold text-hero-ink shadow-md md:top-14"
+            >
+              <ActiveIcon className="h-3 w-3" style={{ color: DIR_VAR[CITY_PX[active].dir] }} />
+              {CITY_PX[active].name}
+              <span className="font-normal text-hero-ink-muted">
+                · {DIRECTION_DAYS[CITY_PX[active].dir]}
+              </span>
+            </m.div>
+          </AnimatePresence>
         </div>
       )}
     </div>
