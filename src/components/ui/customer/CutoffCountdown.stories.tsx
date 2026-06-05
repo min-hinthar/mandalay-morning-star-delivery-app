@@ -44,6 +44,17 @@ export const Locked: Story = {
   },
 };
 
+/** Post-order: forced locked regardless of the clock (confirmation/tracking). */
+export const Confirmed: Story = {
+  args: {
+    cutoffAt: offset(2 * 60 * 60 * 1000), // future cutoff, but forceLocked wins
+    deliveryDayLabel: "Saturday",
+    forceLocked: true,
+    lockedSubline: "Arriving Saturday, June 6, 2026",
+    now: NOW,
+  },
+};
+
 export const Dark: Story = {
   args: Urgent.args,
   parameters: { backgrounds: { default: "dark" } },
