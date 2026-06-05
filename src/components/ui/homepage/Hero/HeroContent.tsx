@@ -7,6 +7,7 @@
  * Bilingual EN/MY display with multi-day delivery support.
  */
 
+import type { PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import { m } from "framer-motion";
 import { ArrowRight, CalendarClock, Gift, MapPin, Star, Truck } from "lucide-react";
@@ -25,6 +26,7 @@ import { HeroSunburst } from "./HeroSunburst";
 import { HeroGreetingPill } from "./HeroGreetingPill";
 import { HeroCardLayers } from "./HeroCardLayers";
 import { HeroFactChips, type FactChip } from "./HeroFactChips";
+import { useBurst, Bursts } from "./HeroBurst";
 import { useMagnetic, useTilt } from "./interactions";
 import type { DeliveryDayConfig } from "@/types/delivery";
 
@@ -72,6 +74,12 @@ export function HeroContent({
   const { shouldAnimate } = useAnimationPreference();
   const ctaMagnet = useMagnetic(0.3);
   const cardTilt = useTilt(5);
+  const { bursts: ctaBursts, fire: fireCta } = useBurst(12);
+
+  const handleCtaBurst = (e: ReactPointerEvent<HTMLElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    fireCta(e.clientX - r.left, e.clientY - r.top);
+  };
 
   // Use multi-day gate if deliveryDays available, fallback to legacy
   const multiDayGate = useDeliveryGateMultiDay(deliveryDays ?? []);
@@ -184,7 +192,9 @@ export function HeroContent({
               style={{ x: ctaMagnet.x, y: ctaMagnet.y }}
               onPointerMove={ctaMagnet.onPointerMove}
               onPointerLeave={ctaMagnet.onPointerLeave}
+              onPointerEnter={shouldAnimate ? handleCtaBurst : undefined}
             >
+              <Bursts bursts={ctaBursts} />
               {/* Pulsing sunset glow halo */}
               {shouldAnimate && (
                 <m.span

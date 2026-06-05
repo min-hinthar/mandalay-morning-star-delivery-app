@@ -25,8 +25,10 @@ export interface FloatingEmojiProps {
   initialX: number;
   /** Initial Y position (0-100 percentage) */
   initialY: number;
-  /** Mouse offset for repel effect */
-  mouseOffset?: { x: number; y: number };
+  /** Live pointer position within the hero (percent 0–100) for cursor-gather */
+  pointer?: { x: number; y: number } | null;
+  /** Tap handler (viewport coords) — triggers the particle burst */
+  onTap?: (clientX: number, clientY: number) => void;
   /** Index for animation delay staggering */
   index: number;
 }
@@ -142,6 +144,35 @@ export const EMOJI_CONFIG: EmojiConfig[] = [
 // FLOATING EMOJI COMPONENT
 // ============================================
 
+const HOT_EMOJI = new Set(["🍜", "🍛", "🍲", "🥘", "🫕", "🍵", "🍚"]);
+const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(max, v));
+
+/** Rising steam wisps for hot dishes */
+function Steam() {
+  return (
+    <span
+      aria-hidden="true"
+      className="pointer-events-none absolute -top-1 left-1/2 h-3 w-6 -translate-x-1/2"
+    >
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="hero-steam absolute bottom-0 h-3 w-1 rounded-full"
+          style={
+            {
+              left: `${i * 8}px`,
+              background: "rgba(255,255,255,0.5)",
+              filter: "blur(var(--blur-sm))",
+              "--steam-delay": `${i * 0.5}s`,
+              "--steam-dur": `${2.8 + i * 0.4}s`,
+            } as React.CSSProperties
+          }
+        />
+      ))}
+    </span>
+  );
+}
+
 export function FloatingEmoji({
   emoji,
   size,
@@ -149,35 +180,28 @@ export function FloatingEmoji({
   animationType,
   initialX,
   initialY,
-  mouseOffset,
+  pointer,
+  onTap,
   index,
 }: FloatingEmojiProps) {
   const { shouldAnimate } = useAnimationPreference();
 
-  // Mouse repel effect — emojis dodge the cursor more noticeably now
-  const repelX = mouseOffset ? mouseOffset.x * 0.5 : 0;
-  const repelY = mouseOffset ? mouseOffset.y * 0.5 : 0;
+  // Cursor gather — drift gently toward the pointer
+  const gatherX = pointer ? clamp((pointer.x - initialX) * 0.4, -46, 46) : 0;
+  const gatherY = pointer ? clamp((pointer.y - initialY) * 0.4, -46, 46) : 0;
 
-  // Depth-based styles using CSS variables from tokens.css
+  // Depth-based styles using CSS variables from tokens.css.
   // NOTE: No boxShadow - it creates rectangular backgrounds behind emoji glyphs.
-  // Use CSS filter: drop-shadow() if glyph-following shadows are needed.
   const depthStyles: React.CSSProperties = {
-    // Position
     left: `${initialX}%`,
     top: `${initialY}%`,
-    // GPU acceleration
     willChange: "transform",
-    transform: `translate3d(${repelX}px, ${repelY}px, 0)`,
-    // Depth effects via CSS variables
     filter:
       depth === "near"
         ? `drop-shadow(var(--hero-emoji-shadow-${depth}))`
         : `blur(var(--hero-emoji-blur-${depth})) drop-shadow(var(--hero-emoji-shadow-${depth}))`,
     opacity: depth === "near" ? 1 : `var(--hero-emoji-opacity-${depth})`,
   };
-
-  const animationVariant = getAnimationVariant(animationType, index);
-  const animationDuration = getAnimationDuration(animationType, index);
 
   // Static render for reduced motion preference
   if (!shouldAnimate) {
@@ -192,21 +216,41 @@ export function FloatingEmoji({
     );
   }
 
+  const variant = getAnimationVariant(animationType, index);
+  const duration = getAnimationDuration(animationType, index);
+  const floatTransition = {
+    duration,
+    repeat: Infinity,
+    repeatType: "loop" as const,
+    ease: "easeInOut" as const,
+    delay: index * 0.5,
+  };
+
   return (
     <m.span
-      className={`absolute ${SIZE_CLASSES[size]} select-none`}
+      className={`absolute ${SIZE_CLASSES[size]} pointer-events-auto cursor-pointer select-none`}
       style={depthStyles}
-      animate={animationVariant}
-      transition={{
-        duration: animationDuration,
-        repeat: Infinity,
-        repeatType: "loop",
-        ease: "easeInOut",
-        delay: index * 0.5, // Stagger start times
-      }}
+      animate={{ x: gatherX, y: gatherY }}
+      transition={{ type: "spring", stiffness: 120, damping: 18 }}
+      whileTap={{ scale: 1.5, rotate: 12 }}
+      onPointerDown={onTap ? (e) => onTap(e.clientX, e.clientY) : undefined}
       role="presentation"
     >
-      {emoji}
+      {/* Echo trail (behind, lagging) */}
+      <m.span
+        aria-hidden="true"
+        className="absolute inset-0 block opacity-25"
+        style={{ filter: "blur(var(--blur-sm))" }}
+        animate={variant}
+        transition={{ ...floatTransition, delay: index * 0.5 + 0.45 }}
+      >
+        {emoji}
+      </m.span>
+      {/* Main float */}
+      <m.span className="relative block" animate={variant} transition={floatTransition}>
+        {HOT_EMOJI.has(emoji) && <Steam />}
+        {emoji}
+      </m.span>
     </m.span>
   );
 }

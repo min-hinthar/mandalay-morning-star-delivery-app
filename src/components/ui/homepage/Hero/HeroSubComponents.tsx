@@ -52,9 +52,9 @@ interface GradientFallbackProps {
 export function GradientFallback({ children, className }: GradientFallbackProps) {
   return (
     <div className={cn("relative w-full min-h-[100svh] min-h-[100dvh]", className)}>
-      {/* Muted warm gradient background */}
+      {/* Muted warm gradient background — slowly breathes its hue (living) */}
       <div
-        className="absolute inset-0 hero-gradient-transition"
+        className="absolute inset-0 hero-gradient-transition hero-hue-breathe"
         style={{
           background: `linear-gradient(180deg, var(--hero-bg-end) 0%, var(--hero-bg-mid) 50%, var(--hero-bg-start) 100%)`,
         }}

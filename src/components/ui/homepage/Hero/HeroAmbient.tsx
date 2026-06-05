@@ -99,6 +99,8 @@ const STARS = Array.from({ length: 16 }, (_, i) => {
 export function HeroAmbient() {
   const ref = useRef<HTMLDivElement>(null);
   const { x, y } = useHeroParallax(ref);
+  const spotX = useTransform(x, (v) => `${(0.5 + v) * 100}%`);
+  const spotY = useTransform(y, (v) => `${(0.5 + v) * 100}%`);
 
   return (
     <div
@@ -106,6 +108,17 @@ export function HeroAmbient() {
       aria-hidden="true"
       className="pointer-events-none absolute inset-0 overflow-hidden"
     >
+      {/* Living aurora ribbon (drifts + breathes) */}
+      <div
+        className="hero-aurora absolute left-0 top-[18%] h-[46%] w-full"
+        style={{
+          background:
+            "linear-gradient(100deg, transparent, var(--hero-clay), var(--hero-sage), var(--hero-blue), transparent)",
+          filter: "blur(var(--blur-3xl))",
+          mixBlendMode: "screen",
+        }}
+      />
+
       {/* Morphing mesh orbs */}
       {ORBS.map((cfg) => (
         <Orb key={cfg.color + cfg.top} x={x} y={y} cfg={cfg} />
@@ -188,6 +201,18 @@ export function HeroAmbient() {
         style={{
           background:
             "radial-gradient(120% 100% at 50% 28%, transparent 55%, rgba(20,20,19,0.16) 100%)",
+        }}
+      />
+
+      {/* Cursor spotlight — soft light that follows the pointer, revealing the
+          grids/orbs/grain beneath it */}
+      <m.div
+        className="absolute h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full mix-blend-screen"
+        style={{
+          left: spotX,
+          top: spotY,
+          background:
+            "radial-gradient(circle, rgba(255,247,237,0.30), rgba(217,119,87,0.12) 38%, transparent 68%)",
         }}
       />
     </div>
