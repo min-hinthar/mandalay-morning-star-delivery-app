@@ -172,21 +172,60 @@ out-of-memory, not a server/JS fault. Cause: too many large GPU buffers
 compositing at once on a retina phone — several full-screen `blur(36px)` layers
 (orbs + auroras) + `backdrop-filter` surfaces.
 
-**Rules (enforced in the hotfix):**
+**Rules (enforced):**
 
 - **No `backdrop-filter` on mobile.** Surfaces are opaque below `md`;
   `backdrop-blur` is added only at `md:`+ (`@media (min-width: 768px)`).
-- **No large / full-screen `blur()` on mobile.** Gate the heavy blurred
-  decorative layers (orbs, auroras, spotlight) behind `md:` (`hidden md:block`).
+- **No large / full-screen `blur()` on mobile by default.** The heavy blurred
+  decorative layers (orbs, auroras, spotlight) are off in the `baseline` budget.
   For soft glows, prefer a **`radial-gradient(..., transparent)` falloff** (no
   filter buffer) over `blur()`.
 - **Cap counts on mobile** — fewer floating elements / filter (`drop-shadow`)
-  layers (e.g. `mobileHidden` on the large/near emoji layer).
+  layers (the FX budget's `emojiCount` controls this).
 - **Budget the _initial_ composite.** The hero is in view on load, so the
   offscreen-pause (§6) does NOT reduce peak load — what renders on first paint is
   the budget. Count full-screen blurs + `backdrop-filter` + blend layers there.
 - Validate on a real iOS device (WebKit OOM can't be reproduced in CI or
-  desktop). Desktop visuals can stay rich (`md:`+); mobile gets the lighter set.
+  desktop). Desktop visuals can stay rich; mobile gets the lighter set.
+
+### 7.2 The FX-budget system (`useHeroFx`) — one source of truth
+
+Blanket `hidden md:block` gates couple "is this expensive?" to a viewport
+breakpoint, which is the wrong axis (a low-end phone in landscape ≥`md` still
+crashes; a capable tablet <`md` is starved). The hero now reads a **device-tiered
+effects budget** from [`src/lib/hooks/useHeroFx.ts`](../src/lib/hooks/useHeroFx.ts):
+
+- **`HeroFxBudget`** flags every expensive layer — `orbs`, `orbBlur`, `auroras`,
+  `spotlight`, `frontEmojis`, `interactiveEmojis`, `emojiCount`. `Hero` →
+  `GradientFallback` → `HeroAmbient` + the emoji layer read these instead of
+  hardcoded `md:` gates.
+- **Three profiles.** `rich` (desktop — everything, blurred orbs + auroras +
+  spotlight, 17 emojis behind the cards & tappable); `lite` (experimental
+  mobile-rich — orbs via **gradient falloff, no `blur()`**, no auroras/spotlight,
+  emojis in front, 12); `baseline` (crash-safe floor — no orbs/auroras/spotlight,
+  7 emojis).
+- **SSR-safe defaulting.** The hook starts at `baseline` (the SSR value too), so
+  we **never render the rich set on first paint** where it could OOM before
+  detection runs. Post-mount it picks a profile from `deviceTier()`
+  (`hover + fine pointer` ⇒ `desktop`; else by `hardwareConcurrency`).
+- **Mobile stays `baseline` by default.** `profileForTier()` returns `baseline`
+  for every non-desktop tier today — promote a tier to `lite` here only once
+  telemetry proves it survives.
+- **Force a profile on a real device with `?fx=rich|lite|baseline`** and inspect
+  `document.documentElement.dataset.fx`. This is how you A/B a budget on the phone
+  that crashed.
+- **Survival telemetry.** iOS exposes no memory API and an OOM kills JS before
+  Sentry can report, so there's no crash "limit" to read. Instead the hook emits
+  a sampled (touch-only) `hero_render` beacon on mount and a `hero_stable` beacon
+  4s later, tagged `{fx_profile, device_tier, dpr, cores}`. A `hero_render` with
+  **no matching `hero_stable`** (filter `os:iOS`) ⇒ the tab crashed under that
+  profile. That's the empirical signal that lets us ratchet creativity up per tier
+  **with certainty** instead of guessing.
+
+**Workflow to raise the mobile budget:** ship with mobile=`baseline` → on a real
+iOS device load `?fx=lite`, confirm it survives 4s + check the `hero_stable`
+beacon → watch the `hero_render`/`hero_stable` ratio in Sentry across real
+devices → only then promote that tier in `profileForTier()`.
 
 ## 8. Reusable hero kit (promote to a shared `anthropic` kit)
 

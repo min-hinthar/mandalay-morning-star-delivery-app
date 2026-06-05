@@ -9,6 +9,7 @@
 import React, { useRef, useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils/cn";
 import { useCanHover } from "@/lib/hooks/useResponsive";
+import { useHeroFx } from "@/lib/hooks/useHeroFx";
 import { FloatingEmoji, EMOJI_CONFIG } from "../FloatingEmoji";
 import dynamic from "next/dynamic";
 import type { HeroProps } from "./types";
@@ -62,6 +63,7 @@ export function Hero({
   featuredDishes,
 }: HeroProps) {
   const canHover = useCanHover();
+  const fx = useHeroFx();
   const containerRef = useRef<HTMLDivElement>(null);
   const emojiLayerRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef(0);
@@ -142,7 +144,7 @@ export function Hero({
       onMouseMove={canHover ? handleMouseMove : undefined}
       onMouseLeave={canHover ? handleMouseLeave : undefined}
     >
-      <GradientFallback>
+      <GradientFallback fx={fx}>
         {heroContent}
         {featuredDishes && featuredDishes.length > 0 && (
           <div className="relative w-full pt-2 pb-6 max-w-5xl mx-auto">
@@ -172,15 +174,15 @@ export function Hero({
         <HeroOrbitCluster className="opacity-50" />
       </div>
 
-      {/* Layer 4: Floating emojis + sparkles. Behind the content cards (z-index
-          3 < content's 5) and pointer-events-none on the container; tappable
-          emojis re-enable pointer events on hover/desktop only. */}
+      {/* Layer 4: Floating emojis + sparkles. The FX budget decides count and
+          whether they sit IN FRONT of the cards (visible, mobile) or BEHIND
+          (tappable, desktop). Content layer is z-index 5. */}
       <div
         ref={emojiLayerRef}
         className="absolute inset-0 pointer-events-none overflow-hidden"
         style={{
-          // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
-          zIndex: 3,
+          // Local stacking context (isolate on parent); front (6) or behind (3) per budget
+          zIndex: fx.frontEmojis ? 6 : 3,
           maskImage:
             "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
           WebkitMaskImage:
@@ -188,15 +190,14 @@ export function Hero({
         }}
         aria-hidden="true"
       >
-        {EMOJI_CONFIG.map((emoji, i) => (
+        {EMOJI_CONFIG.slice(0, fx.emojiCount).map((emoji, i) => (
           <FloatingEmoji
             key={`emoji-${i}`}
             {...emoji}
             index={i}
             pointer={pointer}
             onTap={handleEmojiTap}
-            interactive={canHover}
-            mobileHidden={i >= 7}
+            interactive={fx.interactiveEmojis}
           />
         ))}
         {/* Rising flavor sparkles */}
