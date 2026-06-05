@@ -91,46 +91,37 @@ function TileView({ tile, index, inView, animate }: TileViewProps) {
       className={cn(
         "group relative flex h-full flex-col items-center justify-center gap-1 rounded-2xl text-center",
         "px-2 py-5 sm:px-4",
-        "bg-hero-stat-bg/70 sm:backdrop-blur-md",
-        "border border-hero-text/15 shadow-md shadow-black/10",
-        "transition-[box-shadow,border-color,background-color] duration-300",
-        "hover:border-secondary/40 hover:bg-hero-stat-bg/90 hover:shadow-lg hover:shadow-secondary/20",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/50"
+        "bg-hero-card",
+        "border border-hero-line shadow-lg shadow-black/10",
+        "transition-[box-shadow,border-color,transform] duration-300",
+        "hover:border-hero-accent/35 hover:shadow-xl hover:shadow-black/15",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent/50"
       )}
     >
-      {/* Hover shine sweep (clipped to the card) */}
+      {/* Paper grain texture */}
       <span
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 overflow-hidden rounded-2xl"
-      >
-        <span
-          className={cn(
-            "absolute inset-y-0 left-0 w-1/2 -skew-x-12",
-            "bg-gradient-to-r from-transparent via-white/25 to-transparent",
-            "-translate-x-full transition-transform duration-700 ease-out",
-            "group-hover:translate-x-[280%]"
-          )}
-        />
-      </span>
+        className="pointer-events-none absolute inset-0 rounded-2xl opacity-[0.07] mix-blend-multiply hero-paper-grain"
+      />
 
       {/* Live indicator */}
       {live && (
         <span className="absolute right-3 top-3 flex h-2 w-2" aria-hidden="true">
           {animate && (
-            <span className="absolute inline-flex h-full w-full rounded-full bg-secondary/60 animate-ping" />
+            <span className="absolute inline-flex h-full w-full rounded-full bg-hero-accent/50 animate-ping" />
           )}
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-secondary" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-hero-accent" />
         </span>
       )}
 
       <Icon
-        className="mb-0.5 h-4 w-4 text-secondary/80 transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
+        className="mb-0.5 h-4 w-4 text-hero-accent transition-transform duration-300 group-hover:-rotate-6 group-hover:scale-110"
         aria-hidden="true"
       />
 
       <div
         className={cn(
-          "flex items-baseline gap-0.5 font-display font-bold text-hero-text",
+          "flex items-baseline gap-0.5 font-display font-bold text-hero-ink",
           "text-3xl md:text-4xl leading-none tabular-nums"
         )}
       >
@@ -142,8 +133,10 @@ function TileView({ tile, index, inView, animate }: TileViewProps) {
         {suffix}
       </div>
 
-      <div className="text-xs font-semibold uppercase tracking-wide text-hero-text/55">{label}</div>
-      {sub && <div className="text-2xs font-body leading-tight text-hero-text/45">{sub}</div>}
+      <div className="text-xs font-semibold uppercase tracking-wide text-hero-ink-muted">
+        {label}
+      </div>
+      {sub && <div className="text-2xs font-body leading-tight text-hero-ink-muted">{sub}</div>}
 
       {/* Informative tooltip (hover + keyboard focus) */}
       <span
@@ -186,7 +179,7 @@ export interface HeroStatBandProps {
 }
 
 const GOLD_STAR = (
-  <Star className="ml-0.5 h-5 w-5 self-center fill-secondary text-secondary md:h-6 md:w-6" />
+  <Star className="ml-0.5 h-5 w-5 self-center fill-amber-500 text-amber-500 md:h-6 md:w-6" />
 );
 
 export function HeroStatBand({
@@ -252,7 +245,7 @@ export function HeroStatBand({
     {
       icon: MapPin,
       count: coverageMiles,
-      suffix: <span className="text-lg font-semibold text-hero-text/70 md:text-xl">mi</span>,
+      suffix: <span className="text-lg font-semibold text-hero-ink/60 md:text-xl">mi</span>,
       label: "Coverage",
       sub: `${coverageMinutes} min · မိုင် ၅၀ အတွင်း`,
       tooltip: `We deliver up to ${coverageMiles} miles (about ${coverageMinutes} minutes) from our Covina, CA kitchen.`,
@@ -275,22 +268,17 @@ export function HeroStatBand({
       initial={shouldAnimate ? { opacity: 0, y: 16 } : undefined}
       animate={shouldAnimate && inView ? { opacity: 1, y: 0 } : undefined}
       transition={shouldAnimate ? { ...spring.gentle } : undefined}
-      className={cn(
-        "relative mx-auto w-full max-w-lg md:max-w-3xl",
-        "rounded-3xl border border-hero-text/12 bg-hero-text/5 p-1.5",
-        "shadow-xl shadow-black/20",
-        className
-      )}
+      className={cn("relative mx-auto w-full max-w-lg md:max-w-3xl", className)}
       role="list"
       aria-label="Delivery highlights"
     >
-      {/* Ambient sunset glow behind the tray (painted behind via DOM order) */}
+      {/* Ambient sunset glow behind the paper cards (painted behind via DOM order) */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute -inset-3 rounded-[2rem] bg-gradient-to-r from-amber-400/20 via-orange-400/15 to-rose-400/20 blur-2xl"
+        className="pointer-events-none absolute -inset-4 rounded-[2rem] bg-gradient-to-r from-amber-400/25 via-orange-400/20 to-rose-400/25 blur-2xl"
       />
 
-      <div className="relative grid grid-cols-2 gap-1.5 md:grid-cols-4">
+      <div className="relative grid grid-cols-2 gap-2.5 md:grid-cols-4 md:gap-3">
         {tiles.map((tile, i) => (
           <TileView
             key={tile.label}

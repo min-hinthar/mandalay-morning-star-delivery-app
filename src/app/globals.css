@@ -134,6 +134,13 @@
   --color-hero-text-muted: var(--hero-text-muted);
   --color-hero-overlay: var(--hero-overlay);
   --color-hero-stat-bg: var(--hero-stat-bg);
+  --color-hero-card: var(--hero-card-bg);
+  --color-hero-card-strong: var(--hero-card-bg-strong);
+  --color-hero-ink: var(--hero-ink);
+  --color-hero-ink-muted: var(--hero-ink-muted);
+  --color-hero-line: var(--hero-line);
+  --color-hero-accent: var(--hero-accent);
+  --color-hero-accent-strong: var(--hero-accent-strong);
 
   /* Skeleton / Disabled / Selection (from tokens.css) */
   --color-skeleton: var(--color-skeleton);
@@ -687,6 +694,12 @@
   .glass-safari-fix {
     isolation: isolate;
     overflow: hidden;
+  }
+
+  /* Anthropic paper-grain texture for warm cream hero cards */
+  .hero-paper-grain {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='hg'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23hg)'/%3E%3C/svg%3E");
+    background-size: 140px 140px;
   }
 
   /* Hero headline depth glow — improves legibility over the vibrant gradient */

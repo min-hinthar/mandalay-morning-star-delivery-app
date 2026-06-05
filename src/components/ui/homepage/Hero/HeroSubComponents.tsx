@@ -74,6 +74,16 @@ export function GradientFallback({ children, className }: GradientFallbackProps)
       {/* Radial glow effect */}
       <div className="absolute inset-0 bg-gradient-radial from-secondary/15 via-transparent to-transparent" />
 
+      {/* Setting-sun glow — evokes a literal sunset at the horizon, flows into the next section */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-2/3 pointer-events-none"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(58% 80% at 50% 108%, rgba(254,215,170,0.55) 0%, rgba(251,146,60,0.34) 32%, rgba(244,114,182,0.12) 58%, transparent 74%)",
+        }}
+      />
+
       {/* Gradient overlay for text readability */}
       <div
         className="absolute inset-0 bg-gradient-to-t via-transparent to-transparent"

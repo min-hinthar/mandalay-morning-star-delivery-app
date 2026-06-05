@@ -3,17 +3,7 @@
  */
 
 import type { DeliveryDayConfig } from "@/types/delivery";
-
-/** Minimal featured-dish shape for the hero carousel */
-export interface HeroDish {
-  id: string;
-  slug: string;
-  nameEn: string;
-  nameMy: string | null;
-  imageUrl: string;
-  priceCents: number;
-  tag?: string | null;
-}
+import type { MenuItem } from "@/types/menu";
 
 export interface HeroProps {
   /** Hero headline */
@@ -46,6 +36,6 @@ export interface HeroProps {
   longDistanceFeeCents?: number;
   /** Miles threshold for long-distance fee */
   longDistanceThresholdMiles?: number;
-  /** Featured dishes for the appetite carousel */
-  featuredDishes?: HeroDish[];
+  /** Featured dishes (aggregated menu items) for the appetite carousel */
+  featuredDishes?: MenuItem[];
 }

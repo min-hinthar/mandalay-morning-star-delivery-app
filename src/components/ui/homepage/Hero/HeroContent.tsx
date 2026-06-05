@@ -116,14 +116,14 @@ export function HeroContent({
   return (
     <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-12 pb-safe md:pt-24 md:pb-16">
       <div className="max-w-4xl mx-auto text-center">
-        {/* Time-based greeting badge - bilingual */}
-        <div className="group inline-flex items-center gap-2 px-4 py-2 mb-5 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 shadow-lg shadow-black/10 ring-1 ring-white/10 transition-transform duration-300 hover:-translate-y-0.5 animate-fade-in-up-delay-1">
+        {/* Time-based greeting badge - bilingual (Anthropic warm-paper pill) */}
+        <div className="group inline-flex items-center gap-2 px-4 py-2 mb-5 rounded-full bg-hero-card border border-hero-line shadow-lg shadow-black/10 ring-1 ring-hero-line transition-transform duration-300 hover:-translate-y-0.5 animate-fade-in-up-delay-1">
           <GreetingIcon
-            className="w-4 h-4 text-secondary transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
+            className="w-4 h-4 text-hero-accent transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
             aria-hidden="true"
           />
-          <span className="text-secondary font-medium">{greeting.en}</span>
-          <span className="text-sm text-hero-text/70 font-medium">{greeting.my}</span>
+          <span className="text-hero-accent font-semibold">{greeting.en}</span>
+          <span className="text-sm text-hero-ink-muted font-medium">{greeting.my}</span>
         </div>
 
         {/* EN Headline */}
@@ -178,11 +178,11 @@ export function HeroContent({
                 asChild
                 className={cn(
                   "relative overflow-hidden group px-8 py-6 text-lg rounded-full",
-                  "bg-gradient-to-r from-secondary via-secondary-hover to-secondary",
-                  "hover:from-secondary-hover hover:via-secondary hover:to-secondary-hover",
-                  "shadow-lg shadow-secondary/40",
-                  "hover:shadow-xl hover:shadow-secondary/60",
-                  "hover:ring-2 hover:ring-white/50",
+                  "bg-gradient-to-r from-hero-accent via-hero-accent-strong to-hero-accent",
+                  "hover:from-hero-accent-strong hover:via-hero-accent hover:to-hero-accent-strong",
+                  "shadow-lg shadow-hero-accent/40",
+                  "hover:shadow-xl hover:shadow-hero-accent/60",
+                  "hover:ring-2 hover:ring-hero-card/70",
                   "transition-all duration-300"
                 )}
               >
@@ -194,7 +194,7 @@ export function HeroContent({
                       className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-shine-sweep"
                     />
                   )}
-                  <span className="relative z-10 flex items-center gap-2 text-text-primary font-semibold">
+                  <span className="relative z-10 flex items-center gap-2 text-text-inverse font-semibold">
                     {dynamicCtaText}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
@@ -210,13 +210,18 @@ export function HeroContent({
             transition={shouldAnimate ? { delay: 0.3, ...spring.snappy } : undefined}
             whileHover={shouldAnimate ? { scale: 1.02, y: -2 } : undefined}
             className={cn(
-              "w-full max-w-lg rounded-2xl p-6",
-              "bg-hero-stat-bg/80 sm:backdrop-blur-md",
-              "border border-hero-text/20",
+              "relative w-full max-w-lg rounded-2xl p-6",
+              "bg-hero-card",
+              "border border-hero-line",
               "shadow-lg shadow-black/10",
               "transition-shadow duration-300 hover:shadow-xl hover:shadow-black/15"
             )}
           >
+            {/* Paper grain texture */}
+            <span
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-2xl opacity-[0.07] mix-blend-multiply hero-paper-grain"
+            />
             {gate.isOpen ? (
               <>
                 {/* Row 1: Next delivery date + countdown */}
@@ -230,9 +235,9 @@ export function HeroContent({
                       animate={shouldAnimate ? { rotate: [0, -8, 8, 0] } : undefined}
                       transition={{ duration: 3, repeat: Infinity, repeatDelay: 5 }}
                     >
-                      <CalendarClock className="w-6 h-6 text-secondary flex-shrink-0" />
+                      <CalendarClock className="w-6 h-6 text-hero-accent flex-shrink-0" />
                     </m.div>
-                    <span className="text-xl md:text-2xl font-bold text-hero-text">
+                    <span className="text-xl md:text-2xl font-bold text-hero-ink">
                       {gate.deliveryDate.displayDate}
                     </span>
                   </m.div>
@@ -244,18 +249,18 @@ export function HeroContent({
                 </div>
 
                 {/* Row 2: Cutoff details */}
-                <p className="text-base text-hero-text/80 mb-2 font-medium">
+                <p className="text-base text-hero-ink mb-2 font-medium">
                   {deliveryDays && deliveryDays.length > 0 && gate.deliveryDayOfWeek !== undefined
                     ? getNextCutoffText(gate.deliveryDayOfWeek, deliveryDays)
                     : deliveryScheduleText}
                 </p>
-                <p className="text-sm text-hero-text/60 mb-4">
+                <p className="text-sm text-hero-ink-muted mb-4">
                   နောက်ပို့မယ့်ရက် · အချိန်မီ မှာယူလိုက်ပါ
                 </p>
 
                 {/* Row 3: Delivery schedule */}
                 <m.div
-                  className="flex items-center gap-3 pt-3 border-t border-hero-text/10"
+                  className="flex items-center gap-3 pt-3 border-t border-hero-line"
                   whileHover={shouldAnimate ? { x: 3 } : undefined}
                   transition={spring.snappy}
                 >
@@ -263,12 +268,10 @@ export function HeroContent({
                     animate={shouldAnimate ? { x: [0, 4, 0] } : undefined}
                     transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4 }}
                   >
-                    <Truck className="w-5 h-5 text-secondary/70 flex-shrink-0" />
+                    <Truck className="w-5 h-5 text-hero-accent/80 flex-shrink-0" />
                   </m.div>
-                  <span className="text-base font-semibold text-hero-text/80">
-                    {deliveryDaysList}
-                  </span>
-                  <span className="text-sm text-hero-text/50">
+                  <span className="text-base font-semibold text-hero-ink">{deliveryDaysList}</span>
+                  <span className="text-sm text-hero-ink-muted">
                     · {deliveryDaysList} တိုင်း ပို့ပေးပါတယ်
                   </span>
                 </m.div>
@@ -283,22 +286,18 @@ export function HeroContent({
                   >
                     <CalendarClock className="w-6 h-6 text-amber-500 flex-shrink-0" />
                   </m.div>
-                  <span className="text-xl md:text-2xl font-bold text-hero-text">
-                    Orders Closed
-                  </span>
+                  <span className="text-xl md:text-2xl font-bold text-hero-ink">Orders Closed</span>
                 </div>
-                <p className="text-base text-hero-text/80 mb-1 font-medium">
+                <p className="text-base text-hero-ink mb-1 font-medium">
                   Next delivery: {gate.deliveryDate.displayDate}
                 </p>
-                <p className="text-sm text-hero-text/60 mb-4">
+                <p className="text-sm text-hero-ink-muted mb-4">
                   အော်ဒါပိတ်ထားပါတယ် · နောက်ပို့မယ့်ရက်ကို စောင့်ပါ
                 </p>
-                <div className="flex items-center gap-3 pt-3 border-t border-hero-text/10">
-                  <Truck className="w-5 h-5 text-secondary/70 flex-shrink-0" />
-                  <span className="text-base font-semibold text-hero-text/80">
-                    {deliveryDaysList}
-                  </span>
-                  <span className="text-sm text-hero-text/50">
+                <div className="flex items-center gap-3 pt-3 border-t border-hero-line">
+                  <Truck className="w-5 h-5 text-hero-accent/80 flex-shrink-0" />
+                  <span className="text-base font-semibold text-hero-ink">{deliveryDaysList}</span>
+                  <span className="text-sm text-hero-ink-muted">
                     · {deliveryDaysList} တိုင်း ပို့ပေးပါတယ်
                   </span>
                 </div>
