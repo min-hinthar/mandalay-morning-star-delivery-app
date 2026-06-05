@@ -75,7 +75,8 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
   // Auto-complete the route server-side once every stop is handled (simple mode
   // has no explicit Complete button). `completionConfirmed` only flips after the
   // server confirms, so the celebration can't render prematurely.
-  const { isOnline, completionConfirmed } = useSimpleRouteCompletion(routeId, allDone);
+  const { isOnline, completionConfirmed, completionError, retryCompletion } =
+    useSimpleRouteCompletion(routeId, allDone);
 
   const getFullAddress = (stop: SimpleStopData) => {
     const addr = stop.order.address;
@@ -184,9 +185,18 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
     );
 
   // Every stop handled, but the server hasn't confirmed completion yet — hold on
-  // a no-exit "Finishing up…" state instead of a celebration the driver could
-  // dismiss before the route is actually done.
-  if (allDone) return <RouteFinishingCard isOnline={isOnline} />;
+  // a "Finishing up…" state instead of a celebration the driver could dismiss
+  // before the route is actually done. On a terminal error, the card surfaces
+  // retry + call-for-help so the driver is never trapped.
+  if (allDone)
+    return (
+      <RouteFinishingCard
+        isOnline={isOnline}
+        hasError={completionError}
+        onRetry={retryCompletion}
+        helpPhone={OPERATOR_PHONE}
+      />
+    );
 
   if (!currentStop) {
     return (
