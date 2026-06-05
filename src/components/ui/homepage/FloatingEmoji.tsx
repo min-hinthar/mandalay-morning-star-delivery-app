@@ -123,9 +123,9 @@ const getAnimationDuration = (type: AnimationType, index: number): number => {
 // EMOJI CONFIGURATION (DETERMINISTIC)
 // ============================================
 
-// 13 unique emojis with deterministic positions to avoid hydration mismatch
+// 17 unique emojis with deterministic positions to avoid hydration mismatch
 // Each emoji appears exactly once across all layers
-// Distribution: 4 far, 5 mid, 4 near
+// Distribution: 6 far, 6 mid, 5 near (the FX budget slices this list by tier)
 export const EMOJI_CONFIG: EmojiConfig[] = [
   // Far layer - small, blurred, lower opacity
   { emoji: "🍜", name: "Mohinga", size: "sm", depth: "far", animationType: "drift", initialX: 8, initialY: 14 }, // prettier-ignore

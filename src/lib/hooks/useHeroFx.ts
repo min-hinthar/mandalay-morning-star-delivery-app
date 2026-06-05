@@ -11,7 +11,7 @@
  *
  * Default mobile = `baseline` (crash-safe). Desktop = `rich`. Force a profile to
  * test on a real device with `?fx=rich|lite|baseline`. See
- * docs/hero-design-language.md §7.1.
+ * docs/hero-design-language.md §7.2.
  */
 
 import { useEffect, useState } from "react";
@@ -116,6 +116,9 @@ export function useHeroFx(): HeroFxBudget {
     // Survival telemetry — only on touch devices (where crashes happen),
     // sampled to control event volume. `hero_render` without a matching
     // `hero_stable` (filter `os:iOS`) ⇒ the tab crashed under that profile.
+    // Production builds only (preview + prod) — skips local `pnpm dev`, whose
+    // StrictMode double-invoke would emit a spurious "crash" (render w/o stable).
+    if (process.env.NODE_ENV !== "production") return;
     if (tier === "desktop" || Math.random() > BEACON_SAMPLE_RATE) return;
     const tags = {
       fx_profile: next,
