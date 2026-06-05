@@ -1,23 +1,42 @@
 "use client";
 
 /**
- * StaticCoverageMap — a REAL static map snapshot (Google Static Maps API) shown
- * INSTEAD of the live Google Map on low/mid mobile, which OOM-crashes low-end
- * retina iPhones. It's a single lightweight image — no WebGL context, no tile
- * cache, no markers churn — so it carries a tiny fraction of the live map's
- * memory cost while still looking like a real map (roads + a coverage circle +
- * city pins around Covina). If the Static Maps API is unavailable, it falls back
- * to a pure-SVG coverage diagram (no external dependency).
+ * StaticCoverageMap — a REAL static map snapshot (Google Static Maps API) with a
+ * lightweight ANIMATED delivery overlay, shown on low/mid mobile instead of the
+ * live Google Map (which OOM-crashes low-end retina iPhones). The base is a
+ * single image (no WebGL / tile cache / map markers); the life comes from a
+ * handful of CSS/Framer pins — truck/package icons at the cities' true bearings,
+ * dropping in, with an auto-cycling "active" pin that surfaces the same info the
+ * desktop tooltip shows (city · direction · delivery days). Falls back to a pure
+ * SVG coverage diagram if the Static Maps API is unavailable.
  */
 
-import { useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { m } from "framer-motion";
+import { Truck, Package } from "lucide-react";
 import { KITCHEN_LOCATION, COVERAGE_LIMITS } from "@/types/address";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 type Dir = "east" | "west" | "south";
 
 const CENTER_LAT = KITCHEN_LOCATION.lat;
 const CENTER_LNG = KITCHEN_LOCATION.lng;
 const KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || "";
+
+const ZOOM = 9;
+const IMG_W = 600;
+const IMG_H = 400;
+
+const DIRECTION_DAYS: Record<Dir, string> = {
+  east: "Mon/Sat",
+  west: "Wed/Sat",
+  south: "Thu/Sat",
+};
+const DIR_VAR: Record<Dir, string> = {
+  east: "var(--hero-blue)",
+  west: "var(--hero-sage)",
+  south: "var(--hero-clay)",
+};
 
 const CITIES: { name: string; lat: number; lng: number; dir: Dir }[] = [
   { name: "Santa Monica", lat: 34.0195, lng: -118.4912, dir: "west" },
@@ -31,65 +50,174 @@ const CITIES: { name: string; lat: number; lng: number; dir: Dir }[] = [
   { name: "Riverside", lat: 33.9533, lng: -117.3962, dir: "east" },
 ];
 
-// Triad accent per direction (Static Maps wants 0xRRGGBB).
-const DIR_HEX: Record<Dir, string> = {
-  east: "0x6a9bcc",
-  west: "0x788c5d",
-  south: "0xd97757",
-};
-const DIR_VAR: Record<Dir, string> = {
-  east: "var(--hero-blue)",
-  west: "var(--hero-sage)",
-  south: "var(--hero-clay)",
-};
+// ---- Web-Mercator projection into the static image's logical pixel box ----
+const WORLD = 256 * 2 ** ZOOM;
+function worldPx(lat: number, lng: number) {
+  const x = ((lng + 180) / 360) * WORLD;
+  const sin = Math.sin((lat * Math.PI) / 180);
+  const y = (0.5 - Math.log((1 + sin) / (1 - sin)) / (4 * Math.PI)) * WORLD;
+  return { x, y };
+}
+const CENTER_PX = worldPx(CENTER_LAT, CENTER_LNG);
+/** City positions in the 600×400 image-logical space (centered on Covina). */
+const CITY_PX = CITIES.map((c) => {
+  const p = worldPx(c.lat, c.lng);
+  return { ...c, lx: IMG_W / 2 + (p.x - CENTER_PX.x), ly: IMG_H / 2 + (p.y - CENTER_PX.y) };
+});
 
-/** ~24-point polygon approximating the coverage circle, as Static Maps path pts. */
 function circlePath(): string {
-  const rLat = COVERAGE_LIMITS.maxDistanceMiles / 69; // deg latitude per mile
+  const rLat = COVERAGE_LIMITS.maxDistanceMiles / 69;
   const rLng = rLat / Math.cos((CENTER_LAT * Math.PI) / 180);
   const pts: string[] = [];
   for (let i = 0; i <= 24; i++) {
     const a = (i / 24) * Math.PI * 2;
-    const lat = CENTER_LAT + rLat * Math.cos(a);
-    const lng = CENTER_LNG + rLng * Math.sin(a);
-    pts.push(`${lat.toFixed(4)},${lng.toFixed(4)}`);
+    pts.push(
+      `${(CENTER_LAT + rLat * Math.cos(a)).toFixed(4)},${(CENTER_LNG + rLng * Math.sin(a)).toFixed(4)}`
+    );
   }
   return pts.join("|");
-}
-
-function cityMarkers(dir: Dir): string {
-  const pts = CITIES.filter((c) => c.dir === dir)
-    .map((c) => `${c.lat},${c.lng}`)
-    .join("|");
-  return `size:tiny|color:${DIR_HEX[dir]}|${pts}`;
 }
 
 function staticMapUrl(): string {
   const center = `${CENTER_LAT},${CENTER_LNG}`;
   const params = [
     `center=${center}`,
-    "zoom=9",
-    "size=540x340",
+    `zoom=${ZOOM}`,
+    `size=${IMG_W}x${IMG_H}`,
     "scale=2",
     "maptype=roadmap",
-    // warm, decluttered styling
     "style=feature:poi|visibility:off",
     "style=feature:transit|visibility:off",
     "style=feature:road|element:labels|visibility:off",
     "style=saturation:-22|lightness:6",
-    // coverage circle
     `path=fillcolor:0xd9775720|color:0xd9775777|weight:1|${circlePath()}`,
-    // kitchen + city pins
-    `markers=size:mid|color:0x9a3412|${center}`,
-    `markers=${cityMarkers("east")}`,
-    `markers=${cityMarkers("west")}`,
-    `markers=${cityMarkers("south")}`,
     `key=${KEY}`,
   ];
   return `https://maps.googleapis.com/maps/api/staticmap?${params.join("&")}`;
 }
 
-// ---- SVG fallback (no external dependency) ----
+export function StaticCoverageMap() {
+  const { shouldAnimate } = useAnimationPreference();
+  const [imgError, setImgError] = useState(false);
+  const [box, setBox] = useState({ w: 0, h: 0 });
+  const [active, setActive] = useState(0);
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Measure the container so the overlay can match the image's object-cover fit.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver(([e]) => {
+      const r = e.contentRect;
+      setBox({ w: r.width, h: r.height });
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Auto-cycle the "active" pin to surface each city's info in turn.
+  useEffect(() => {
+    if (!shouldAnimate) return;
+    const id = setInterval(() => setActive((a) => (a + 1) % CITY_PX.length), 2600);
+    return () => clearInterval(id);
+  }, [shouldAnimate]);
+
+  if (!KEY || imgError) return <SvgFallback />;
+
+  // object-cover mapping: scale the 600×400 image to cover the box, centered.
+  const cover = box.w && box.h ? Math.max(box.w / IMG_W, box.h / IMG_H) : 0;
+  const offX = (box.w - IMG_W * cover) / 2;
+  const offY = (box.h - IMG_H * cover) / 2;
+  const pos = (lx: number, ly: number) => ({
+    left: `${((offX + lx * cover) / box.w) * 100}%`,
+    top: `${((offY + ly * cover) / box.h) * 100}%`,
+  });
+
+  return (
+    <div ref={ref} className="relative h-full w-full overflow-hidden bg-hero-stat-bg/40">
+      {/* eslint-disable-next-line @next/next/no-img-element -- external Static Maps
+          URL with onError fallback; next/image remote loader is overkill here */}
+      <img
+        src={staticMapUrl()}
+        alt={`Delivery coverage across Greater Los Angeles — about ${COVERAGE_LIMITS.maxDistanceMiles} miles from our Covina kitchen`}
+        className="h-full w-full object-cover"
+        decoding="async"
+        onError={() => setImgError(true)}
+      />
+
+      {/* Animated delivery overlay (decorative) */}
+      {cover > 0 && (
+        <div className="pointer-events-none absolute inset-0" aria-hidden="true">
+          {/* Kitchen */}
+          <span
+            className="absolute -translate-x-1/2 -translate-y-1/2"
+            style={pos(IMG_W / 2, IMG_H / 2)}
+          >
+            <span className="block h-3 w-3 rounded-full bg-hero-accent ring-2 ring-hero-card shadow-md" />
+            {shouldAnimate && (
+              <m.span
+                className="absolute inset-0 rounded-full"
+                style={{ background: "var(--hero-accent)" }}
+                animate={{ scale: [1, 2.4], opacity: [0.35, 0] }}
+                transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
+              />
+            )}
+          </span>
+
+          {/* City delivery pins */}
+          {CITY_PX.map((c, i) => {
+            const Icon = i % 2 === 0 ? Truck : Package;
+            const isActive = i === active;
+            return (
+              <m.span
+                key={c.name}
+                className="absolute -translate-x-1/2 -translate-y-1/2"
+                style={pos(c.lx, c.ly)}
+                initial={shouldAnimate ? { opacity: 0, scale: 0, y: -6 } : false}
+                animate={{ opacity: 1, scale: isActive ? 1.18 : 1, y: 0 }}
+                transition={
+                  shouldAnimate
+                    ? { delay: 0.15 + i * 0.12, type: "spring", stiffness: 320, damping: 20 }
+                    : { duration: 0 }
+                }
+              >
+                <span
+                  className="grid h-6 w-6 place-items-center rounded-full bg-hero-card shadow-md ring-2"
+                  style={{ ["--tw-ring-color" as string]: DIR_VAR[c.dir] }}
+                >
+                  <Icon className="h-3 w-3" style={{ color: DIR_VAR[c.dir] }} />
+                </span>
+                {shouldAnimate && isActive && (
+                  <m.span
+                    className="absolute inset-0 rounded-full"
+                    style={{ background: DIR_VAR[c.dir] }}
+                    animate={{ scale: [1, 2.2], opacity: [0.4, 0] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+                  />
+                )}
+                {/* Info label on the active pin (desktop-tooltip parity) */}
+                {isActive && (
+                  <m.span
+                    initial={shouldAnimate ? { opacity: 0, y: 4 } : false}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="absolute bottom-full left-1/2 mb-1 -translate-x-1/2 whitespace-nowrap rounded-full hero-surface-paper px-2 py-0.5 text-2xs font-semibold text-hero-ink shadow-sm"
+                  >
+                    {c.name}
+                    <span className="ml-1 font-normal text-hero-ink-muted">
+                      · {DIRECTION_DAYS[c.dir]}
+                    </span>
+                  </m.span>
+                )}
+              </m.span>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ---- SVG fallback (no external dependency, used only if no API key) ----
 
 const SCALE = 52;
 const clamp = (v: number) => Math.max(8, Math.min(92, v));
@@ -160,27 +288,6 @@ function SvgFallback() {
       <span className="absolute left-1/2 top-1/2 mt-3 -translate-x-1/2 text-2xs font-semibold text-hero-accent">
         Covina
       </span>
-    </div>
-  );
-}
-
-export function StaticCoverageMap() {
-  const [imgError, setImgError] = useState(false);
-  const showImage = Boolean(KEY) && !imgError;
-
-  if (!showImage) return <SvgFallback />;
-
-  return (
-    <div className="relative h-full w-full overflow-hidden bg-hero-stat-bg/40">
-      {/* eslint-disable-next-line @next/next/no-img-element -- external Static
-          Maps URL with onError fallback; next/image remote loader is overkill here */}
-      <img
-        src={staticMapUrl()}
-        alt={`Delivery coverage across Greater Los Angeles — about ${COVERAGE_LIMITS.maxDistanceMiles} miles from our Covina kitchen`}
-        className="h-full w-full object-cover"
-        decoding="async"
-        onError={() => setImgError(true)}
-      />
     </div>
   );
 }
