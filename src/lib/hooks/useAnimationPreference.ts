@@ -8,9 +8,11 @@ import { useState, useEffect, useCallback, useMemo } from "react";
  * - reduced: Essential animations only
  * - none: All animations disabled
  *
- * V7 PHILOSOPHY: Animations are ON by default.
- * We ignore prefers-reduced-motion OS setting.
- * Users must manually toggle if they want reduced motion.
+ * Motion is ON by default. When the user has NOT set an in-app preference, we
+ * additionally honor the OS `prefers-reduced-motion: reduce` setting (so
+ * `shouldAnimate` goes false → JS animations match the CSS, which is already
+ * gated by the media query). Once the user picks any in-app preference, that
+ * wins and the OS setting is ignored.
  */
 export type AnimationPreference = "full" | "reduced" | "none";
 
@@ -40,6 +42,17 @@ export function useAnimationPreference() {
   const [preference, setPreferenceState] = useState<AnimationPreference>("full");
   const [isHydrated, setIsHydrated] = useState(false);
   const [hasCustomPreference, setHasCustomPreference] = useState(false);
+  const [osReducedMotion, setOsReducedMotion] = useState(false);
+
+  // Track the OS prefers-reduced-motion setting (reactive)
+  useEffect(() => {
+    if (typeof window === "undefined" || !window.matchMedia) return;
+    const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setOsReducedMotion(mq.matches);
+    const onChange = (e: MediaQueryListEvent) => setOsReducedMotion(e.matches);
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, []);
 
   // Initialize on mount
   useEffect(() => {
@@ -95,10 +108,12 @@ export function useAnimationPreference() {
   }, [preference, setPreference]);
 
   // Computed values
-  const isFullMotion = preference === "full";
-  const isReduced = preference === "reduced";
+  // Honor the OS reduce-motion setting unless the user has set an in-app pref.
+  const osWantsCalm = osReducedMotion && !hasCustomPreference;
+  const isFullMotion = preference === "full" && !osWantsCalm;
+  const isReduced = preference === "reduced" || osWantsCalm;
   const isDisabled = preference === "none";
-  const shouldAnimate = preference !== "none";
+  const shouldAnimate = preference !== "none" && !osWantsCalm;
 
   /**
    * Get spring config based on preference

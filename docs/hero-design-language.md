@@ -50,7 +50,7 @@ Authentic Anthropic palette (hexes from their brand-guidelines). Tokens live in
 | Token                  | Value                         | Utility               | Use                            |
 | ---------------------- | ----------------------------- | --------------------- | ------------------------------ |
 | `--hero-ink`           | `#141413`                     | `text-hero-ink`       | Primary text on cream surfaces |
-| `--hero-ink-muted`     | `rgba(20,20,19,.58)`          | `text-hero-ink-muted` | Secondary text                 |
+| `--hero-ink-muted`     | `rgba(20,20,19,.70)`          | `text-hero-ink-muted` | Secondary text                 |
 | `--hero-line`          | `rgba(20,20,19,.10)`          | `border-hero-line`    | Hairline rules / card borders  |
 | `--hero-accent`        | `#9a3412` (deep clay)         | `text-hero-accent`    | **Accent TEXT** (AA on cream)  |
 | `--hero-accent-strong` | `#7c2d12`                     | gradients             | Depth                          |
@@ -141,7 +141,9 @@ cascade) · `hero-font-breathe` (variable-axis headline) · `hero-accent-underli
 
 1. **Reduced motion is mandatory.** CSS animations live **inside**
    `@media (prefers-reduced-motion: no-preference)` (or use `motion-safe:`);
-   framer/JS effects gate on `useAnimationPreference().shouldAnimate`. Static
+   framer/JS effects gate on `useAnimationPreference().shouldAnimate` — which
+   honors the OS `prefers-reduced-motion` setting until the user picks an in-app
+   motion preference (then that wins). CSS + JS stay consistent. Static
    fallbacks must look intentional, not broken.
 2. **60fps or it doesn't ship.** Animate `transform`/`opacity` only. No animating
    layout/`width`/`top`. Big `blur()` and `backdrop-filter` are expensive — count
