@@ -887,6 +887,13 @@
     .hero-comet {
       animation: hero-comet 9s ease-in-out infinite;
     }
+    .hero-gem-float {
+      animation: hero-gem-float var(--gem-dur, 4s) ease-in-out infinite;
+      animation-delay: var(--gem-delay, 0s);
+    }
+    .hero-gem-spin {
+      animation: hero-gem-spin 7s linear infinite;
+    }
   }
 
   /* Pause every CSS animation in the hero subtree when it scrolls offscreen
@@ -1285,6 +1292,24 @@
   100% {
     transform: translate(170px, -130px) rotate(28deg);
     opacity: 0;
+  }
+}
+
+/* Rewards gem journey — gentle gem float */
+@keyframes hero-gem-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-3px) rotate(5deg);
+  }
+}
+
+/* Rewards gem journey — facet sheen rotation */
+@keyframes hero-gem-spin {
+  to {
+    transform: rotate(360deg);
   }
 }
 
