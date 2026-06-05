@@ -28,30 +28,24 @@ export function StatusBar({ nextDeliveryDate, deliverySchedule }: StatusBarProps
       transition={{ ...spring.gentle, delay: 0.4 }}
       className="absolute bottom-3 left-3 right-3"
     >
-      <div
-        className={cn(
-          "px-4 py-3 rounded-xl",
-          "bg-surface-primary/95 sm:backdrop-blur-md",
-          "shadow-lg ring-1 ring-border/30"
-        )}
-      >
+      <div className={cn("px-4 py-3 rounded-xl hero-surface-paper", "shadow-lg")}>
         <div className="flex items-center justify-between gap-3">
           {/* Left: coverage stats */}
-          <div className="flex items-center gap-3 text-xs font-medium text-text-secondary flex-wrap">
+          <div className="flex items-center gap-3 text-xs font-medium text-hero-ink-muted flex-wrap">
             <span className="flex items-center gap-1">
-              <MapPin className="w-3.5 h-3.5 text-primary" />
-              <span className="font-semibold text-text-primary">
+              <MapPin className="w-3.5 h-3.5 text-hero-clay" />
+              <span className="font-semibold text-hero-ink">
                 {COVERAGE_LIMITS.maxDistanceMiles} mi
               </span>
             </span>
-            <span className="text-text-muted/40">&bull;</span>
+            <span className="text-hero-ink-muted/40">&bull;</span>
             <span className="flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-text-muted" />
+              <Clock className="w-3.5 h-3.5 text-hero-ink-muted" />
               <span>{COVERAGE_LIMITS.maxDurationMinutes} min</span>
             </span>
-            <span className="text-text-muted/40 hidden sm:inline">&bull;</span>
+            <span className="text-hero-ink-muted/40 hidden sm:inline">&bull;</span>
             <span className="hidden sm:flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5 text-text-muted" />
+              <Calendar className="w-3.5 h-3.5 text-hero-ink-muted" />
               <span>{deliverySchedule ?? "Mon/Wed/Thu/Sat"}</span>
             </span>
           </div>
@@ -59,7 +53,7 @@ export function StatusBar({ nextDeliveryDate, deliverySchedule }: StatusBarProps
           {/* Right: delivery info + CTA */}
           <div className="flex items-center gap-3 shrink-0">
             {nextDeliveryDate && (
-              <span className="px-2 py-1 rounded-lg bg-primary/10 text-primary text-xs font-bold hidden sm:inline">
+              <span className="px-2 py-1 rounded-lg bg-hero-clay/12 text-hero-accent text-xs font-bold hidden sm:inline">
                 Next: {nextDeliveryDate}
               </span>
             )}
@@ -67,7 +61,7 @@ export function StatusBar({ nextDeliveryDate, deliverySchedule }: StatusBarProps
               type="button"
               onClick={handleScrollToCoverage}
               className={cn(
-                "text-xs font-semibold text-primary hover:text-primary/80",
+                "text-xs font-semibold text-hero-accent hover:text-hero-accent-strong",
                 "transition-colors duration-150 whitespace-nowrap"
               )}
             >
