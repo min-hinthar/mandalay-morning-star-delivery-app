@@ -17,10 +17,12 @@ import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useTilt, useRipple } from "./interactions";
 import { RollingNumber } from "./RollingDigits";
+import { HeroCardLayers } from "./HeroCardLayers";
 
 /** Anthropic accent triad — cycles across tiles on non-text shapes */
 const TRIAD_TEXT = ["text-hero-clay", "text-hero-blue", "text-hero-sage"] as const;
 const TRIAD_BG = ["bg-hero-clay", "bg-hero-blue", "bg-hero-sage"] as const;
+const TRIAD_ACCENT = ["clay", "blue", "sage"] as const;
 
 function formatNum(n: number, decimals: number) {
   return decimals > 0 ? n.toFixed(decimals) : Math.round(n).toLocaleString("en-US");
@@ -85,11 +87,8 @@ function TileView({ tile, index, inView, animate }: TileViewProps) {
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/50"
       )}
     >
-      {/* Paper grain texture */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-2xl opacity-[0.07] mix-blend-multiply hero-paper-grain"
-      />
+      {/* Layered backdrop — dot-grid + grain + corner ticks + triad edge-glow */}
+      <HeroCardLayers accent={TRIAD_ACCENT[index % TRIAD_ACCENT.length]} radius="rounded-2xl" />
 
       {/* Auto sheen sweep + tap ripples (clipped to the card) */}
       <span

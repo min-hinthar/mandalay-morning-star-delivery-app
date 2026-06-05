@@ -9,7 +9,7 @@
 
 import Link from "next/link";
 import { m } from "framer-motion";
-import { ArrowRight, CalendarClock, Truck } from "lucide-react";
+import { ArrowRight, CalendarClock, Gift, MapPin, Star, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -18,10 +18,13 @@ import { Button } from "@/components/ui/button";
 import { COVERAGE_LIMITS } from "@/types/address";
 import { formatDeliveryDaysList, getNextCutoffText } from "@/lib/utils/delivery-schedule";
 import { AnimatedHeadline } from "./HeroSubComponents";
+import { AnimatedText } from "./AnimatedText";
 import { HeroStatBand } from "./HeroStatBand";
 import { HeroCountdown } from "./HeroCountdown";
 import { HeroSunburst } from "./HeroSunburst";
 import { HeroGreetingPill } from "./HeroGreetingPill";
+import { HeroCardLayers } from "./HeroCardLayers";
+import { HeroFactChips, type FactChip } from "./HeroFactChips";
 import { useMagnetic, useTilt } from "./interactions";
 import type { DeliveryDayConfig } from "@/types/delivery";
 
@@ -96,6 +99,21 @@ export function HeroContent({
   const freeThresholdDollars = toDollars(freeDeliveryThresholdCents);
   const longDistanceFeeDollars = toDollars(longDistanceFeeCents);
 
+  // Vibrant fact-chips (triad-accented frosted pills)
+  const factChips: FactChip[] = [
+    { icon: Truck, label: deliveryDaysList, accent: "sage" },
+    ...(freeThresholdDollars !== undefined
+      ? [{ icon: Gift, label: `Free over $${freeThresholdDollars}`, accent: "clay" as const }]
+      : []),
+    {
+      icon: MapPin,
+      label: `${COVERAGE_LIMITS.maxDistanceMiles}mi`,
+      sub: `${COVERAGE_LIMITS.maxDurationMinutes}min`,
+      accent: "blue",
+    },
+    { icon: Star, label: "5.0", sub: "rated", accent: "amber" },
+  ];
+
   return (
     <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-12 pb-safe md:pt-24 md:pb-16">
       <div className="max-w-4xl mx-auto text-center">
@@ -107,11 +125,8 @@ export function HeroContent({
         {/* Editorial masthead — Fraunces serif, ink on frosted paper */}
         <div className="relative mx-auto mb-7 max-w-3xl animate-hero-develop-2">
           <div className="relative overflow-hidden rounded-3xl hero-surface-glass px-6 py-7 text-center md:px-10 md:py-9">
-            {/* Paper grain */}
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-3xl opacity-[0.06] mix-blend-multiply hero-paper-grain"
-            />
+            {/* Layered backdrop — dot-grid + grain + corner ticks + clay edge-glow */}
+            <HeroCardLayers accent="clay" radius="rounded-3xl" />
             {/* Kicker */}
             <div className="relative mb-3 flex items-center justify-center gap-2 text-hero-accent">
               <HeroSunburst className="h-4 w-4 text-hero-clay" rays={8} />
@@ -134,23 +149,30 @@ export function HeroContent({
           </div>
         </div>
 
-        {/* EN Tagline */}
-        <p className="text-lg md:text-xl text-hero-text/70 font-medium mb-1 animate-hero-develop-3">
-          {tagline}
-        </p>
+        {/* EN Tagline — word-reveal on scroll, touch-pop, accent highlights */}
+        <AnimatedText
+          text={tagline}
+          accentWords={["Burmese", "homemade", "home-cooked", "fresh", "free", "authentic"]}
+          className="text-lg md:text-xl text-hero-text/85 font-medium mb-1"
+        />
         {/* MY Tagline */}
-        <p className="text-base md:text-lg text-hero-text/60 font-medium mb-4 animate-hero-develop-3">
+        <p className="text-base md:text-lg text-hero-text/65 font-burmese mb-4 animate-hero-develop-3">
           အိမ်ချက်ထမင်းဟင်းအရသာအတိုင်း ချက်ပြုတ်ပြီး ပို့ပေးပါတယ်
         </p>
 
-        {/* EN Subheadline */}
-        <p className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-2 font-body animate-hero-develop-4">
-          {subheadline}
-        </p>
+        {/* EN Subheadline — word-reveal on scroll, touch-pop, accent highlights */}
+        <AnimatedText
+          text={subheadline}
+          accentWords={["delivered", "doorstep", "door", "fresh", "LA", "free"]}
+          className="text-lg md:text-xl text-hero-text/85 max-w-2xl mx-auto mb-3 font-body"
+        />
         {/* MY Subheadline */}
-        <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-8 font-body animate-hero-develop-4">
+        <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-5 font-burmese animate-hero-develop-4">
           {deliveryDaysList} တိုင်း လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ပြီး အိမ်ရောက်ပို့ပေးပါတယ်
         </p>
+
+        {/* Vibrant fact-chips */}
+        <HeroFactChips chips={factChips} className="mb-9 animate-hero-develop-4" />
 
         <div className="flex flex-col items-center gap-6 mb-10 animate-hero-develop-5">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
@@ -223,11 +245,8 @@ export function HeroContent({
             }}
             className="relative w-full max-w-lg rounded-2xl p-6 hero-surface-vellum"
           >
-            {/* Drifting paper grain texture */}
-            <span
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-2xl opacity-[0.07] mix-blend-multiply hero-paper-grain hero-grain-drift"
-            />
+            {/* Layered backdrop — dot-grid + grain + corner ticks + sage edge-glow */}
+            <HeroCardLayers accent="sage" radius="rounded-2xl" />
             {gate.isOpen ? (
               <>
                 {/* Row 1: Next delivery date + countdown */}

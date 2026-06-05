@@ -21,6 +21,7 @@ function ParallaxDots({
   scrollY,
   depth,
   scroll,
+  dotStyle,
   className,
 }: {
   x: MV;
@@ -28,6 +29,7 @@ function ParallaxDots({
   scrollY: MV;
   depth: number;
   scroll: number;
+  dotStyle?: CSSProperties;
   className?: string;
 }) {
   const tx = useTransform(x, (v) => v * depth);
@@ -38,7 +40,7 @@ function ParallaxDots({
   return (
     <m.div
       aria-hidden="true"
-      style={{ x: tx, y: ty }}
+      style={{ x: tx, y: ty, ...dotStyle }}
       className={cn("hero-dotgrid absolute -inset-16", className)}
     />
   );
@@ -113,14 +115,21 @@ export function HeroAmbient() {
         <Orb key={cfg.color + cfg.top} x={x} y={y} cfg={cfg} />
       ))}
 
-      {/* Parallax dot-grids (two depths) */}
+      {/* Parallax dot-grids (two depths) — bright cream + clay, actually visible */}
       <ParallaxDots
         x={x}
         y={y}
         scrollY={scrollY}
         depth={26}
         scroll={0.05}
-        className="opacity-40 mix-blend-soft-light"
+        className="opacity-70"
+        dotStyle={
+          {
+            "--dot-color": "rgba(250, 249, 245, 0.55)",
+            "--dot-gap": "24px",
+            "--dot-r": "1.4px",
+          } as CSSProperties
+        }
       />
       <ParallaxDots
         x={x}
@@ -128,7 +137,14 @@ export function HeroAmbient() {
         scrollY={scrollY}
         depth={54}
         scroll={0.12}
-        className="opacity-30 mix-blend-soft-light [background-size:30px_30px]"
+        className="opacity-60"
+        dotStyle={
+          {
+            "--dot-color": "rgba(217, 119, 87, 0.5)",
+            "--dot-gap": "40px",
+            "--dot-r": "1.8px",
+          } as CSSProperties
+        }
       />
 
       {/* Drifting multi-grain */}

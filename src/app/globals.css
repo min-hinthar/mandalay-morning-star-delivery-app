@@ -716,10 +716,13 @@
     }
   }
 
-  /* Dot-grid texture behind the hero cards */
+  /* Dot-grid texture (parameterized: --dot-color / --dot-gap / --dot-r) */
   .hero-dotgrid {
-    background-image: radial-gradient(var(--hero-line) 1px, transparent 1.5px);
-    background-size: 18px 18px;
+    background-image: radial-gradient(
+      var(--dot-color, rgba(20, 20, 19, 0.12)) var(--dot-r, 1px),
+      transparent calc(var(--dot-r, 1px) + 0.6px)
+    );
+    background-size: var(--dot-gap, 18px) var(--dot-gap, 18px);
   }
 
   /* ---- Anthropic card surfaces (three treatments, shown in context) ---- */
