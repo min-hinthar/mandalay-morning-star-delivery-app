@@ -46,6 +46,11 @@ session.**
 
 1. **Branch + PR per task.** Develop on `claude/<slug>`; never push to `main`.
    Open a PR; merge only when CI is green. One logical change per PR.
+   **You own the PRs your session opens end-to-end** — audit, verify, fix review
+   findings, merge, and close them yourself. Don't rely on another session's
+   review to catch your bugs; audit your own diff before handoff (this session's
+   driver-completion gap and admin summary-data bug both nearly shipped on the
+   assumption a reviewer would catch them).
 2. **Verify before every PR.** Run the full verification suite locally
    (lint · lint:css · format:check · typecheck · test · build). Don't open a PR
    on red.
@@ -63,7 +68,12 @@ session.**
      post a precise root-cause + fix as a PR comment (`mcp__github__add_issue_comment`).
      If you can finish it (e.g. Docker is available), do so and push.
    - Don't push competing commits to a branch another session owns mid-iteration
-     unless you're taking it over with intent.
+     unless you're taking it over with intent (and say so in a PR comment).
+   - **Default to review/comment-only on another session's PRs.** The owning
+     session lands and closes its own work; don't force-push someone else's
+     branch (incl. rebases) unless you've explicitly taken it over. Pushing a
+     rebase to a branch another session is iterating on is the top cross-session
+     confusion source.
 5. **CI failures are the task, not noise.** Kick → diagnose from the job logs
    (`mcp__github__get_job_logs`) → re-kick. Don't merge around a red blocking job.
 6. **Schema changes.** Add a migration (`<timestamp>_name.sql` — the CLI skips
@@ -86,6 +96,17 @@ session.**
    miss CI-success / new-pushes / merge-conflicts — re-check on a timer (or a
    `git ls-remote` `Monitor`); a watch ends only at merge/close. Full protocol:
    [`docs/collaborative-pr-review.md`](../docs/collaborative-pr-review.md).
+10. **Stacked PRs merge bottom-up — and squash breaks the stack.** CI is
+    `pull_request: branches:[main]`, so a stacked PR's blocking jobs (`verify`,
+    `db-drift`) **don't run until its base is `main`**. Merge the lowest PR first.
+    Squash-merging a stacked **parent** makes the **child** go `dirty`: the
+    parent's commits are no longer ancestors of `main`. Fix by rebasing the child
+    onto `main`, replaying **only its own commits**:
+    `git rebase --onto main <old-parent-tip> <child-branch>` → re-verify →
+    `git push --force-with-lease`. **Never naive-retarget** a stacked child's base
+    to `main` (it re-introduces the parent's already-squashed changes and can
+    revert later fixes). Verify locally meanwhile, since the child has no CI until
+    it sits on `main`.
 
 ## Paths
 
