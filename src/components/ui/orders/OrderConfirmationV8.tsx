@@ -15,7 +15,25 @@ import { SuccessCheckmark } from "@/components/ui/success-checkmark";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import type { Order } from "@/types/order";
-import { format, parseISO } from "date-fns";
+import { parseISO } from "date-fns";
+
+// Delivery is LA-only — format the window in LA time so the day/time shown is
+// the real delivery day regardless of the viewer's timezone (avoids the
+// getUTCDay-in-LA class of bug; see CLAUDE.md gotchas).
+const LA_TZ = "America/Los_Angeles";
+const LA_DATE_FMT = new Intl.DateTimeFormat("en-US", {
+  weekday: "long",
+  month: "long",
+  day: "numeric",
+  year: "numeric",
+  timeZone: LA_TZ,
+});
+const LA_WEEKDAY_FMT = new Intl.DateTimeFormat("en-US", { weekday: "long", timeZone: LA_TZ });
+const LA_TIME_FMT = new Intl.DateTimeFormat("en-US", {
+  hour: "numeric",
+  minute: "2-digit",
+  timeZone: LA_TZ,
+});
 
 interface OrderConfirmationV8Props {
   order: Order;
@@ -47,18 +65,18 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
   }, [clearCart, trigger, shouldAnimate, isPendingApproval]);
 
   const deliveryDate = order.deliveryWindowStart
-    ? format(parseISO(order.deliveryWindowStart), "EEEE, MMMM d, yyyy")
+    ? LA_DATE_FMT.format(parseISO(order.deliveryWindowStart))
     : "Scheduled";
 
-  // Weekday name for the "Locked in for {day}" ritual (same tz basis as the
-  // delivery-date card above, so they always agree).
+  // Weekday name for the "Locked in for {day}" ritual — LA tz, matching the
+  // delivery-date card above so they always agree.
   const deliveryDayLabel = order.deliveryWindowStart
-    ? format(parseISO(order.deliveryWindowStart), "EEEE")
+    ? LA_WEEKDAY_FMT.format(parseISO(order.deliveryWindowStart))
     : "your delivery day";
 
   const deliveryTime =
     order.deliveryWindowStart && order.deliveryWindowEnd
-      ? `${format(parseISO(order.deliveryWindowStart), "h:mm a")} - ${format(parseISO(order.deliveryWindowEnd), "h:mm a")}`
+      ? `${LA_TIME_FMT.format(parseISO(order.deliveryWindowStart))} - ${LA_TIME_FMT.format(parseISO(order.deliveryWindowEnd))}`
       : "Time slot selected";
 
   return (
@@ -122,9 +140,11 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             </p>
           </m.div>
 
-          {/* "Locked in for {day}" anticipation ritual — only once a delivery
-              window is set (skipped for COD still awaiting approval). */}
-          {!isPendingApproval && order.deliveryWindowStart && (
+          {/* "Locked in for {day}" anticipation ritual — only for a confirmed
+              order with a delivery window. Skipped for COD awaiting approval and
+              during the post-Stripe "confirming…" poller phase (status pending),
+              so the locked copy can't contradict an in-flight confirmation. */}
+          {order.status !== "pending" && !isPendingApproval && order.deliveryWindowStart && (
             <m.div
               initial={shouldAnimate ? { opacity: 0, y: 12 } : undefined}
               animate={{ opacity: 1, y: 0 }}
