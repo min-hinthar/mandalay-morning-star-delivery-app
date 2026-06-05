@@ -23,6 +23,7 @@ import type { DriverLocation } from "@/app/api/admin/ops/driver-locations/route"
 
 const FRESH_COLOR = "#22C55E";
 const STALE_COLOR = "#9CA3AF";
+const STALE_RING = "#374151";
 
 interface DeliveryDayMapProps {
   locations: DriverLocation[];
@@ -155,11 +156,14 @@ export function DeliveryDayMap({ locations, className }: DeliveryDayMapProps) {
           label={{ text: "K", color: "white", fontWeight: "bold" }}
         />
 
-        {/* Driver markers */}
+        {/* Driver markers — fresh vs stale differ by size + ring, not hue alone
+            (colorblind-safe): live = larger, solid, white ring; stale = smaller,
+            translucent, dark ring. */}
         {validLocations.map((loc) => {
-          const color = loc.isStale ? STALE_COLOR : FRESH_COLOR;
+          const stale = loc.isStale;
+          const color = stale ? STALE_COLOR : FRESH_COLOR;
           const initial = (loc.driverName?.trim()?.[0] ?? "?").toUpperCase();
-          const staleSuffix = loc.isStale ? ` (last seen ${minutesAgo(loc.recordedAt)}m ago)` : "";
+          const staleSuffix = stale ? ` (last seen ${minutesAgo(loc.recordedAt)}m ago)` : "";
           return (
             <Marker
               key={loc.driverId}
@@ -168,11 +172,11 @@ export function DeliveryDayMap({ locations, className }: DeliveryDayMapProps) {
               label={{ text: initial, color: "white", fontWeight: "bold" }}
               icon={{
                 path: google.maps.SymbolPath.CIRCLE,
-                scale: 13,
+                scale: stale ? 11 : 14,
                 fillColor: color,
-                fillOpacity: loc.isStale ? 0.65 : 1,
-                strokeColor: "white",
-                strokeWeight: 2,
+                fillOpacity: stale ? 0.7 : 1,
+                strokeColor: stale ? STALE_RING : "#ffffff",
+                strokeWeight: stale ? 3 : 2,
               }}
             />
           );
@@ -190,11 +194,17 @@ export function DeliveryDayMap({ locations, className }: DeliveryDayMapProps) {
           ) : (
             <>
               <div className="flex items-center gap-1.5">
-                <div className="h-3 w-3 rounded-full" style={{ backgroundColor: FRESH_COLOR }} />
+                <div
+                  className="h-3.5 w-3.5 rounded-full"
+                  style={{ backgroundColor: FRESH_COLOR }}
+                />
                 <span className="text-text-secondary">Live</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <div className="h-3 w-3 rounded-full" style={{ backgroundColor: STALE_COLOR }} />
+                <div
+                  className="h-3 w-3 rounded-full border-2"
+                  style={{ backgroundColor: `${STALE_COLOR}66`, borderColor: STALE_RING }}
+                />
                 <span className="text-text-secondary">Stale (&gt;5m)</span>
               </div>
               <div className="flex items-center gap-1.5">
