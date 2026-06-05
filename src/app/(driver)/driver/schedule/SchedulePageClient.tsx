@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { m } from "framer-motion";
 import { CalendarDays } from "lucide-react";
 import { staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks";
+import { toast } from "@/lib/hooks/useToastV8";
 import { DayOfWeekPills, BlockedDateChips } from "@/components/ui/driver/AvailabilityPicker";
 import { HistorySummaryCard } from "@/components/ui/driver/DriverDashboard/HistorySummaryCard";
 import type { HistoryRouteData } from "@/components/ui/driver/DriverDashboard/HistorySummaryCard";
@@ -28,13 +29,18 @@ export function SchedulePageClient({ routes, availability }: SchedulePageClientP
   const [selectedDays, setSelectedDays] = useState<DayOfWeek[]>(availability?.available_days ?? []);
   const [blockedDates, setBlockedDates] = useState<string[]>(availability?.blocked_dates ?? []);
   const [isSaving, setIsSaving] = useState(false);
+  // Only the most recent save controls revert/toast/spinner, so a slow failing
+  // request can't clobber a newer selection the driver already made.
+  const saveSeqRef = useRef(0);
 
   const handleDaysChange = useCallback(
     async (days: DayOfWeek[]) => {
+      const previous = selectedDays;
+      const seq = ++saveSeqRef.current;
       setSelectedDays(days);
       setIsSaving(true);
       try {
-        await fetch("/api/driver/availability", {
+        const res = await fetch("/api/driver/availability", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -42,19 +48,28 @@ export function SchedulePageClient({ routes, availability }: SchedulePageClientP
             blocked_dates: blockedDates,
           }),
         });
+        if (!res.ok) throw new Error("save failed");
+        if (seq === saveSeqRef.current) toast({ message: "Availability saved", type: "success" });
+      } catch {
+        if (seq === saveSeqRef.current) {
+          setSelectedDays(previous); // revert optimistic change
+          toast({ message: "Couldn't save availability. Try again.", type: "error" });
+        }
       } finally {
-        setIsSaving(false);
+        if (seq === saveSeqRef.current) setIsSaving(false);
       }
     },
-    [blockedDates]
+    [blockedDates, selectedDays]
   );
 
   const handleBlockedDatesChange = useCallback(
     async (dates: string[]) => {
+      const previous = blockedDates;
+      const seq = ++saveSeqRef.current;
       setBlockedDates(dates);
       setIsSaving(true);
       try {
-        await fetch("/api/driver/availability", {
+        const res = await fetch("/api/driver/availability", {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -62,11 +77,18 @@ export function SchedulePageClient({ routes, availability }: SchedulePageClientP
             blocked_dates: dates,
           }),
         });
+        if (!res.ok) throw new Error("save failed");
+        if (seq === saveSeqRef.current) toast({ message: "Blocked dates saved", type: "success" });
+      } catch {
+        if (seq === saveSeqRef.current) {
+          setBlockedDates(previous); // revert optimistic change
+          toast({ message: "Couldn't save blocked dates. Try again.", type: "error" });
+        }
       } finally {
-        setIsSaving(false);
+        if (seq === saveSeqRef.current) setIsSaving(false);
       }
     },
-    [selectedDays]
+    [selectedDays, blockedDates]
   );
 
   // Group routes by date

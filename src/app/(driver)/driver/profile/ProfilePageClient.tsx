@@ -9,9 +9,10 @@
 "use client";
 
 import { useState, useCallback, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { m } from "framer-motion";
-import { Mail, Lock, Shield, Calendar } from "lucide-react";
+import { Mail, Lock, Shield, Calendar, GraduationCap, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -392,13 +393,44 @@ export function ProfilePageClient({
       </form>
 
       {/* Simple Mode Toggle */}
-      <div className="px-4 pb-6">
+      <div className="px-4 pb-4">
         <m.div
           initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={{ ...getSpring(spring.default), delay: 0.3 }}
         >
           <SimpleModeToggle />
+        </m.div>
+      </div>
+
+      {/* Practice delivery */}
+      <div className="px-4 pb-6">
+        <m.div
+          initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
+          animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+          transition={{ ...getSpring(spring.default), delay: 0.35 }}
+        >
+          <Link
+            href="/driver/test-delivery"
+            className={cn(
+              "flex items-center gap-4 rounded-2xl border border-border shadow-card p-5",
+              "bg-surface-primary/80 backdrop-blur-sm transition-all duration-fast",
+              "hover:shadow-lg active:scale-[0.99]"
+            )}
+          >
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-accent-teal/10">
+              <GraduationCap className="h-5 w-5 text-accent-teal" />
+            </div>
+            <div className="flex-1">
+              <h3 className="font-body text-base font-semibold text-text-primary">
+                Practice a delivery
+              </h3>
+              <p className="mt-1 font-body text-sm text-text-secondary">
+                Walk through a sample route — nothing is saved.
+              </p>
+            </div>
+            <ChevronRight className="h-5 w-5 shrink-0 text-text-muted" />
+          </Link>
         </m.div>
       </div>
     </div>
