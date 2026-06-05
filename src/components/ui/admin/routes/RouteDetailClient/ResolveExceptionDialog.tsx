@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/Modal";
 import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils/cn";
 
 const MIN_NOTES = 10;
 
@@ -35,6 +36,9 @@ export function ResolveExceptionDialog({
 
   const trimmed = notes.trim();
   const isValid = trimmed.length >= MIN_NOTES;
+  // Only surface the validation error once the field is dirty — don't shout at a
+  // pristine textarea. Drives the error color, the textarea ring, and aria-invalid.
+  const showError = notes.length > 0 && !isValid;
 
   return (
     <Modal
@@ -47,7 +51,12 @@ export function ResolveExceptionDialog({
     >
       <div className="space-y-4">
         <div>
-          <h3 className="text-lg font-semibold text-text-primary">Resolve Exception</h3>
+          {/* Modal's `title` prop already renders an sr-only <h2> "Resolve Exception"
+              that names the dialog; hide this visual duplicate from SR to avoid a
+              double read-out. */}
+          <h3 aria-hidden="true" className="text-lg font-semibold text-text-primary">
+            Resolve Exception
+          </h3>
           <p className="mt-2 text-sm text-text-secondary">
             Record how this delivery exception was resolved. These notes are kept on the order’s
             audit trail.
@@ -66,10 +75,32 @@ export function ResolveExceptionDialog({
             rows={4}
             disabled={isLoading}
             autoFocus
+            aria-invalid={showError}
+            aria-describedby="resolution-notes-help"
+            className={cn(showError && "border-destructive focus-visible:ring-destructive")}
           />
-          <p className="text-xs text-text-muted">
-            {trimmed.length < MIN_NOTES ? `At least ${MIN_NOTES} characters required.` : " "}
-          </p>
+          <div className="flex items-center justify-between gap-2">
+            {/* aria-live announces the requirement/valid transition to SR users —
+                the disabled Resolve button alone gives no reason. Message text only
+                flips at the validity boundary, so announcements stay quiet. */}
+            <p
+              id="resolution-notes-help"
+              aria-live="polite"
+              className={cn("text-xs", showError ? "text-destructive" : "text-text-muted")}
+            >
+              {isValid ? "Looks good." : `At least ${MIN_NOTES} characters required.`}
+            </p>
+            {/* Visual counter only — aria-hidden so it doesn't announce every keystroke. */}
+            <span
+              aria-hidden="true"
+              className={cn(
+                "text-xs tabular-nums",
+                showError ? "text-destructive" : "text-text-muted"
+              )}
+            >
+              {trimmed.length}/{MIN_NOTES}
+            </span>
+          </div>
         </div>
 
         <div className="flex gap-3 pt-2">
