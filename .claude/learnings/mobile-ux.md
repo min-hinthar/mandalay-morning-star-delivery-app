@@ -93,3 +93,19 @@ style={{ bottom: `calc(24px + env(safe-area-inset-bottom, 0px))` }}
 ```
 
 **Apply when:** Fixed-position buttons/FABs on iOS with safe area insets.
+
+---
+
+## iOS WebKit OOM Tab Crash from Stacked Blur / backdrop-filter
+
+The maximalist hero crashed iOS Chrome/WebKit in production — page loaded then crashed/reloaded ("Can't open page"). **Server was fine and Sentry had NO error** (the tab dies before client JS reports) — the signature of a GPU/memory OOM, not a server/JS bug. Cause: several full-screen `blur(36px)` layers (gradient orbs + aurora ribbons) + `backdrop-filter` frosted surfaces all compositing at once on a retina phone → exceeds the per-tab GPU buffer budget.
+
+**Fix / rules:**
+
+- **No `backdrop-filter` on mobile** — opaque surfaces below `md`; add `backdrop-blur` only inside `@media (min-width: 768px)`.
+- **No large/full-screen `blur()` on mobile** — gate heavy blurred layers behind `md:` (`hidden md:block`). For soft glows use a `radial-gradient(..., transparent N%)` falloff instead of a `blur()` filter (no GPU buffer).
+- **Cap counts** — fewer floating/`drop-shadow` elements on mobile.
+- **Budget the initial composite** — the hero is in view on load, so IntersectionObserver offscreen-pause does NOT cut peak load. Count full-screen blurs + backdrop-filters + blend layers on first paint.
+- **Validate on a real iPhone** — WebKit OOM isn't reproducible in CI or on desktop.
+
+**Apply when:** Any visually-rich, animated section (hero, marketing) with blur/backdrop-filter/blend layers that must run on mobile Safari/WebKit.

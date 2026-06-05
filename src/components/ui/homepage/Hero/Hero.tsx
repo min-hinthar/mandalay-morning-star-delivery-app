@@ -172,13 +172,16 @@ export function Hero({
         <HeroOrbitCluster className="opacity-50" />
       </div>
 
-      {/* Layer 4: Floating emojis (tap to burst, cursor-gather, steam, trails) + sparkles */}
+      {/* Layer 4: Floating emojis + sparkles. z-index is responsive: IN FRONT of
+          the cards on touch/mobile (so they're visible, not hidden behind the
+          full-width cards — non-interactive there), BEHIND on hover/desktop
+          (fills the margins, stays tappable). Content layer is z-index 5. */}
       <div
         ref={emojiLayerRef}
         className="absolute inset-0 pointer-events-none overflow-hidden"
         style={{
-          // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
-          zIndex: 3,
+          // Local stacking context (isolate parent); front on touch, behind on desktop
+          zIndex: canHover ? 3 : 6,
           maskImage:
             "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
           WebkitMaskImage:
@@ -193,7 +196,8 @@ export function Hero({
             index={i}
             pointer={pointer}
             onTap={handleEmojiTap}
-            mobileHidden={i >= 7}
+            interactive={canHover}
+            mobileHidden={i >= 12}
           />
         ))}
         {/* Rising flavor sparkles */}
