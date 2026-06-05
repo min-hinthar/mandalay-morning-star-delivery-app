@@ -31,6 +31,12 @@ export interface FloatingEmojiProps {
   pointer?: { x: number; y: number } | null;
   /** Tap handler (viewport coords) — triggers the particle burst */
   onTap?: (clientX: number, clientY: number) => void;
+  /** Tappable (hover/desktop, where the layer sits behind cards). When false
+   *  (touch/mobile, layer in front) the emoji is pure decoration that doesn't
+   *  block taps. */
+  interactive?: boolean;
+  /** Hide on mobile (display:none below md) to cut GPU/memory on small screens */
+  mobileHidden?: boolean;
   /** Index for animation delay staggering */
   index: number;
 }
@@ -190,8 +196,12 @@ export function FloatingEmoji({
   initialY,
   pointer,
   onTap,
+  interactive,
+  mobileHidden,
   index,
 }: FloatingEmojiProps) {
+  const visibility = mobileHidden ? " hidden md:block" : "";
+  const interactivity = interactive ? " pointer-events-auto cursor-pointer" : "";
   const { shouldAnimate } = useAnimationPreference();
 
   // Cursor gather — drift gently toward the pointer
@@ -217,7 +227,7 @@ export function FloatingEmoji({
   if (!shouldAnimate) {
     return (
       <span
-        className={`group absolute ${SIZE_CLASSES[size]} select-none`}
+        className={`group absolute ${SIZE_CLASSES[size]} select-none${visibility}`}
         style={{ left: `${initialX}%`, top: `${initialY}%` }}
         role="presentation"
       >
@@ -241,12 +251,12 @@ export function FloatingEmoji({
 
   return (
     <m.span
-      className={`group absolute ${SIZE_CLASSES[size]} pointer-events-auto cursor-pointer select-none`}
+      className={`group absolute ${SIZE_CLASSES[size]} select-none${interactivity}${visibility}`}
       style={{ left: `${initialX}%`, top: `${initialY}%` }}
       animate={{ x: gatherX, y: gatherY }}
       transition={{ type: "spring", stiffness: 120, damping: 18 }}
-      whileTap={{ scale: 1.5, rotate: 12 }}
-      onPointerDown={onTap ? (e) => onTap(e.clientX, e.clientY) : undefined}
+      whileTap={interactive ? { scale: 1.5, rotate: 12 } : undefined}
+      onPointerDown={interactive && onTap ? (e) => onTap(e.clientX, e.clientY) : undefined}
       role="presentation"
     >
       {label}

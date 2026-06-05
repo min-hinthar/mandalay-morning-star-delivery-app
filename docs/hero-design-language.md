@@ -162,6 +162,32 @@ sparkles), respond to **tap** (ripple, emoji burst) and **device-orientation**
 (gyro tilt/parallax). Touch targets ≥44px; decorative taps never block scroll or
 content. The custom cursor is desktop/fine-pointer only.
 
+### 7.1 Mobile GPU/memory budget (HARD limit — this crashed production)
+
+The maximalist hero **OOM-crashed iOS Chrome/WebKit** on
+`delivery.mandalaymorningstar.com` — the page loaded then crashed/reloaded
+("Can't open page"). Server was healthy and **Sentry had no error** (the tab
+died before client JS could report) — the tell-tale signature of a GPU/memory
+out-of-memory, not a server/JS fault. Cause: too many large GPU buffers
+compositing at once on a retina phone — several full-screen `blur(36px)` layers
+(orbs + auroras) + `backdrop-filter` surfaces.
+
+**Rules (enforced in the hotfix):**
+
+- **No `backdrop-filter` on mobile.** Surfaces are opaque below `md`;
+  `backdrop-blur` is added only at `md:`+ (`@media (min-width: 768px)`).
+- **No large / full-screen `blur()` on mobile.** Gate the heavy blurred
+  decorative layers (orbs, auroras, spotlight) behind `md:` (`hidden md:block`).
+  For soft glows, prefer a **`radial-gradient(..., transparent)` falloff** (no
+  filter buffer) over `blur()`.
+- **Cap counts on mobile** — fewer floating elements / filter (`drop-shadow`)
+  layers (e.g. `mobileHidden` on the large/near emoji layer).
+- **Budget the _initial_ composite.** The hero is in view on load, so the
+  offscreen-pause (§6) does NOT reduce peak load — what renders on first paint is
+  the budget. Count full-screen blurs + `backdrop-filter` + blend layers there.
+- Validate on a real iOS device (WebKit OOM can't be reproduced in CI or
+  desktop). Desktop visuals can stay rich (`md:`+); mobile gets the lighter set.
+
 ## 8. Reusable hero kit (promote to a shared `anthropic` kit)
 
 These are built generic on purpose; reuse them on homepage/menu rather than

@@ -58,9 +58,11 @@ function Orb({ x, y, cfg }: { x: MV; y: MV; cfg: OrbConfig }) {
   return (
     <m.div
       aria-hidden="true"
-      className="absolute"
+      className="absolute hidden md:block"
       style={{ x: tx, y: ty, top: cfg.top, left: cfg.left }}
     >
+      {/* Desktop only (md+): blurred mesh orb. On mobile this whole layer is
+          display:none — full-screen blur() OOM-crashes iOS WebKit. */}
       <span
         className="hero-orb-morph block"
         style={{
@@ -122,7 +124,7 @@ export function HeroAmbient() {
     >
       {/* Living aurora ribbons (drift + breathe, two layers) */}
       <div
-        className="hero-aurora absolute left-0 top-[16%] h-[46%] w-full"
+        className="hero-aurora absolute left-0 top-[16%] hidden h-[46%] w-full md:block"
         style={{
           background:
             "linear-gradient(100deg, transparent, var(--hero-clay), var(--hero-sage), var(--hero-blue), transparent)",
@@ -131,7 +133,7 @@ export function HeroAmbient() {
         }}
       />
       <div
-        className="hero-aurora-2 absolute left-0 top-[40%] h-[40%] w-full"
+        className="hero-aurora-2 absolute left-0 top-[40%] hidden h-[40%] w-full md:block"
         style={{
           background:
             "linear-gradient(80deg, transparent, var(--hero-blue), var(--hero-clay), transparent)",
@@ -257,7 +259,7 @@ export function HeroAmbient() {
       {/* Cursor spotlight — soft light that follows the pointer, revealing the
           grids/orbs/grain beneath it */}
       <m.div
-        className="absolute h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full mix-blend-screen"
+        className="absolute hidden h-[560px] w-[560px] -translate-x-1/2 -translate-y-1/2 rounded-full mix-blend-screen md:block"
         style={{
           left: spotX,
           top: spotY,
