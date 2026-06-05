@@ -3,14 +3,12 @@
 /**
  * Hero Sub-Components
  *
- * AnimatedHeadline, StatItem, GradientFallback - used by Hero and HeroContent.
+ * AnimatedHeadline, GradientFallback - used by Hero and HeroContent.
  */
 
 import React from "react";
-import { m } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
-import { spring } from "@/lib/motion-tokens";
-import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { HeroAmbient } from "./HeroAmbient";
 
 // ============================================
 // ANIMATED HEADLINE
@@ -19,67 +17,27 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 interface AnimatedHeadlineProps {
   text: string;
   className?: string;
+  /** Word/phrase to render with a clay (book-cloth) italic accent */
+  highlight?: string;
 }
 
-export function AnimatedHeadline({ text, className }: AnimatedHeadlineProps) {
-  return <h1 className={cn(className, "animate-fade-in-up")}>{text}</h1>;
-}
+export function AnimatedHeadline({ text, className, highlight }: AnimatedHeadlineProps) {
+  const content =
+    highlight && text.includes(highlight) ? (
+      <>
+        {text.slice(0, text.indexOf(highlight))}
+        <span className="hero-accent-underline">
+          <span className="bg-gradient-to-br from-hero-clay to-hero-accent bg-clip-text italic text-transparent">
+            {highlight}
+          </span>
+        </span>
+        {text.slice(text.indexOf(highlight) + highlight.length)}
+      </>
+    ) : (
+      text
+    );
 
-// ============================================
-// HERO STATS BAR
-// ============================================
-
-interface StatItemProps {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  subValue?: string;
-  index?: number;
-}
-
-export function StatItem({ icon, label, value, subValue, index = 0 }: StatItemProps) {
-  const { shouldAnimate } = useAnimationPreference();
-
-  return (
-    <m.div
-      className="relative"
-      initial={shouldAnimate ? { opacity: 0, y: 12 } : undefined}
-      animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-      transition={shouldAnimate ? { delay: 0.1 * index, ...spring.gentle } : undefined}
-    >
-      {/* Ambient glow */}
-      <div className="absolute inset-0 rounded-2xl bg-secondary/8 blur-xl" aria-hidden="true" />
-      <m.div
-        className={cn(
-          "relative flex items-start gap-3 rounded-2xl p-4",
-          "bg-hero-stat-bg/70 sm:backdrop-blur-md",
-          "border border-hero-text/25",
-          "shadow-md shadow-black/10",
-          "transition-shadow duration-300 hover:shadow-xl hover:shadow-black/15"
-        )}
-        whileHover={shouldAnimate ? { scale: 1.04, y: -3 } : undefined}
-        whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
-        transition={spring.snappy}
-      >
-        {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
-        <m.div
-          className="p-2.5 rounded-full bg-hero-stat-bg/80 sm:backdrop-blur-sm ring-1 ring-secondary/20"
-          whileHover={shouldAnimate ? { rotate: 8, scale: 1.1 } : undefined}
-          animate={shouldAnimate ? { scale: [1, 1.08, 1] } : undefined}
-          transition={shouldAnimate ? { duration: 3, repeat: Infinity, repeatDelay: 5 } : undefined}
-        >
-          {icon}
-        </m.div>
-        <div className="text-left">
-          <div className="text-xs text-hero-text-muted uppercase tracking-wide">{label}</div>
-          <div className="text-xs md:text-sm font-bold text-hero-text leading-tight">{value}</div>
-          {subValue && (
-            <span className="block text-xs text-hero-text/60 font-body mt-0.5">{subValue}</span>
-          )}
-        </div>
-      </m.div>
-    </m.div>
-  );
+  return <h1 className={cn(className, "animate-fade-in-up")}>{content}</h1>;
 }
 
 // ============================================
@@ -119,11 +77,25 @@ export function GradientFallback({ children, className }: GradientFallbackProps)
       {/* Radial glow effect */}
       <div className="absolute inset-0 bg-gradient-radial from-secondary/15 via-transparent to-transparent" />
 
+      {/* Setting-sun glow — evokes a literal sunset at the horizon, flows into the next section */}
+      <div
+        className="absolute inset-x-0 bottom-0 h-2/3 pointer-events-none"
+        aria-hidden="true"
+        style={{
+          background:
+            "radial-gradient(58% 80% at 50% 108%, rgba(254,215,170,0.55) 0%, rgba(251,146,60,0.34) 32%, rgba(244,114,182,0.12) 58%, transparent 74%)",
+        }}
+      />
+
       {/* Gradient overlay for text readability */}
       <div
         className="absolute inset-0 bg-gradient-to-t via-transparent to-transparent"
         style={{ ["--tw-gradient-from" as string]: "var(--hero-overlay)" }}
       />
+
+      {/* Layered Anthropic atmosphere — parallax dot-grids, morphing orbs,
+          drifting multi-grain, twinkling constellation */}
+      <HeroAmbient />
 
       {/* Content layer */}
       <div

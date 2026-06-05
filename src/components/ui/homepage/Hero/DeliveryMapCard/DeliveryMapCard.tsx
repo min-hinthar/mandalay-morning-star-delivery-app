@@ -18,11 +18,7 @@ import type { DeliveryMapCardProps } from "./types";
 const COVERAGE_RADIUS_METERS = COVERAGE_LIMITS.maxDistanceMiles * 1609.34;
 const CENTER = { lat: KITCHEN_LOCATION.lat, lng: KITCHEN_LOCATION.lng };
 
-export function DeliveryMapCard({
-  deliveriesThisMonth,
-  nextDeliveryDate,
-  deliverySchedule,
-}: DeliveryMapCardProps) {
+export function DeliveryMapCard({ nextDeliveryDate, deliverySchedule }: DeliveryMapCardProps) {
   const { shouldAnimate } = useAnimationPreference();
   const [map, setMap] = useState<google.maps.Map | null>(null);
   const [isVisible, setIsVisible] = useState(true);
@@ -198,9 +194,7 @@ export function DeliveryMapCard({
               transition={{ duration: 2, repeat: 5 }}
               className="w-2.5 h-2.5 rounded-full bg-primary"
             />
-            <span className="text-text-primary font-semibold">
-              {deliveriesThisMonth > 0 ? `${deliveriesThisMonth} deliveries` : "Now delivering"}
-            </span>
+            <span className="text-text-primary font-semibold">Now delivering</span>
             <span className="text-text-muted/60">&bull;</span>
             <Clock className="w-3.5 h-3.5 text-text-muted" />
             <span className="text-text-secondary">{COVERAGE_LIMITS.maxDurationMinutes} min</span>
@@ -237,11 +231,7 @@ export function DeliveryMapCard({
         </m.div>
 
         {/* Bottom status bar */}
-        <StatusBar
-          deliveriesThisMonth={deliveriesThisMonth}
-          nextDeliveryDate={nextDeliveryDate}
-          deliverySchedule={deliverySchedule}
-        />
+        <StatusBar nextDeliveryDate={nextDeliveryDate} deliverySchedule={deliverySchedule} />
       </div>
     </m.div>
   );

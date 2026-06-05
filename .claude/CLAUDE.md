@@ -166,6 +166,17 @@ ComponentName/
 - **Distance-tiered fees** — >25mi: flat $20 (no free delivery); ≤25mi: $15 or free if subtotal ≥$100. Zone bearings in `delivery_zones` table, fee settings in `app_settings`
 - **COD payment flow** — `pending_approval` status, admin approval via `/approve-cod` endpoint
 
+## Design Language (UI/UX)
+
+**Standard: [`docs/hero-design-language.md`](../docs/hero-design-language.md)** — read before ANY visual/motion work. Component specs: [`docs/frontend-design-system.md`](../docs/frontend-design-system.md). The bar: _every surface layered, every number alive, every interaction responsive — restrained palette + editorial type, maximal-but-tasteful motion, 60fps, reduced-motion-safe, bilingual, token-pure._ Default Tailwind/AI-template looks = not done.
+
+- **Aesthetic** — Anthropic "warm paper": cream surfaces + ink + a clay/blue/sage accent triad, floating on the kept sunset gradient. Restraint in palette/type/composition; maximalism in motion/texture/depth.
+- **Type (global)** — Fraunces (display serif, `font-display`) + Hanken Grotesk (body/UI, `font-body`/`font-sans`) + Padauk (`font-burmese`). Always bilingual EN/MY.
+- **Tokens** — hero palette in `tokens.css` (`--hero-ink #141413`, cream `--hero-card-bg`, `--hero-clay #d97757`, `--hero-blue`, `--hero-sage`, `--hero-accent` = deep clay for accent TEXT), mapped in `globals.css @theme`. Triad cycles on non-text shapes; deep clay for accent text; amber for stars. Never hardcode — ESLint bans raw white/black/z-index/blur/hex; add a token + `@theme` map + use the utility.
+- **Reuse (don't reinvent)** — surfaces `hero-surface-{glass,vellum,paper}` + `HeroCardLayers` (dots/grain/ticks/glow); textures `hero-dotgrid`/`hero-linegrid` (gradient-masked, never uniform full-bleed), grain, aurora; motion hooks in `Hero/interactions.ts` (`useTilt`/`useMagnetic`/`useHeroParallax`/`useRipple`), particles `HeroBurst`, odometer reels `RollingDigits`, `HeroSunburst`.
+- **Non-negotiables** — reduced-motion honored (CSS via `@media (prefers-reduced-motion)`/`motion-safe:`; JS via `useAnimationPreference().shouldAnimate`); 60fps (animate transform/opacity only); rAF-throttle pointer; **pause CSS loops + detach window listeners offscreen** (IntersectionObserver); **no scroll-coupled background parallax** (motion sickness — pointer/gyro only); decorative layers `pointer-events-none` + `aria-hidden`; mobile = autoplay + tap + gyro (no hover). Mind animation COUNT (overload/battery) — dedupe competing layers.
+- **Process** — bold POV; for consequential/irreversible choices (fonts, palette, big forks) present recommendation-led **options** via `AskUserQuestion`, research-backed (bundle/contrast/evidence). Detail is the job (timing/easing, spacing, contrast, layered depth, a micro-interaction on every interactive element). a11y + perf are part of "done". Never fabricate data to look alive — animate REAL values only. After adding CSS utilities, confirm they emit in built CSS. Calibrate + adversarial self-review after big visual adds.
+
 ## Gotchas (from learnings)
 
 - `void asyncFn()` killed on Vercel — use `await` or `after()` for fire-and-forget

@@ -7,18 +7,27 @@
  * Bilingual EN/MY display with multi-day delivery support.
  */
 
+import type { PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import { m } from "framer-motion";
-import { ArrowRight, CalendarClock, ChefHat, Clock, MapPin, Truck } from "lucide-react";
+import { ArrowRight, CalendarClock, Gift, MapPin, Star, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { useDynamicTheme } from "@/components/ui/theme";
 import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
-import { DeliveryCountdown } from "@/components/ui/delivery";
 import { Button } from "@/components/ui/button";
+import { COVERAGE_LIMITS } from "@/types/address";
 import { formatDeliveryDaysList, getNextCutoffText } from "@/lib/utils/delivery-schedule";
-import { AnimatedHeadline, StatItem } from "./HeroSubComponents";
+import { AnimatedHeadline } from "./HeroSubComponents";
+import { HeroRewards } from "./HeroRewards";
+import { HeroStatBand } from "./HeroStatBand";
+import { HeroCountdown } from "./HeroCountdown";
+import { HeroSunburst } from "./HeroSunburst";
+import { HeroGreetingPill } from "./HeroGreetingPill";
+import { HeroCardLayers } from "./HeroCardLayers";
+import { HeroFactChips, type FactChip } from "./HeroFactChips";
+import { useBurst, Bursts } from "./HeroBurst";
+import { useMagnetic, useTilt } from "./interactions";
 import type { DeliveryDayConfig } from "@/types/delivery";
 
 /** Day names for cutoff display */
@@ -44,6 +53,7 @@ interface HeroContentProps {
   deliveryDays?: DeliveryDayConfig[];
   longDistanceFeeCents?: number;
   longDistanceThresholdMiles?: number;
+  deliveriesThisMonth?: number;
 }
 
 export function HeroContent({
@@ -59,9 +69,17 @@ export function HeroContent({
   deliveryDays,
   longDistanceFeeCents,
   longDistanceThresholdMiles,
+  deliveriesThisMonth = 0,
 }: HeroContentProps) {
   const { shouldAnimate } = useAnimationPreference();
-  const { timeOfDay } = useDynamicTheme();
+  const ctaMagnet = useMagnetic(0.3);
+  const cardTilt = useTilt(5);
+  const { bursts: ctaBursts, fire: fireCta } = useBurst(12);
+
+  const handleCtaBurst = (e: ReactPointerEvent<HTMLElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    fireCta(e.clientX - r.left, e.clientY - r.top);
+  };
 
   // Use multi-day gate if deliveryDays available, fallback to legacy
   const multiDayGate = useDeliveryGateMultiDay(deliveryDays ?? []);
@@ -83,95 +101,122 @@ export function HeroContent({
         : "Every Saturday"
     : `Orders closed — next ${gate.deliveryDate.displayDate}`;
 
-  const deliveryFee =
-    deliveryFeeCents !== undefined ? (deliveryFeeCents / 100).toFixed(0) : undefined;
-  const freeThreshold =
-    freeDeliveryThresholdCents !== undefined
-      ? (freeDeliveryThresholdCents / 100).toFixed(0)
-      : undefined;
-  const deliveryFeeText =
-    deliveryFee && freeThreshold
-      ? longDistanceFeeCents
-        ? `$${deliveryFee} · Free $${freeThreshold}+`
-        : `$${deliveryFee} · Free $${freeThreshold}+`
-      : undefined;
-  const deliveryFeeSubText =
-    deliveryFee && freeThreshold
-      ? longDistanceFeeCents
-        ? `$${(longDistanceFeeCents / 100).toFixed(0)} for ${longDistanceThresholdMiles ?? 25}+ mi · $${freeThreshold} အထက် အခမဲ့`
-        : `$${freeThreshold} အထက်ဆို အခမဲ့ပို့ပေးတယ်`
-      : undefined;
+  // Fee values (dollars) for the stat band
+  const toDollars = (cents?: number) => (cents !== undefined ? Math.round(cents / 100) : undefined);
+  const deliveryFeeDollars = toDollars(deliveryFeeCents);
+  const freeThresholdDollars = toDollars(freeDeliveryThresholdCents);
+  const longDistanceFeeDollars = toDollars(longDistanceFeeCents);
 
-  // Bilingual greetings
-  const greetings: Record<string, { en: string; my: string }> = {
-    morning: { en: "Good morning!", my: "မင်္ဂလာပါ နံနက်ခင်းလေးပါ" },
-    afternoon: { en: "Good afternoon!", my: "နေ့လည်ခင်းလေး မင်္ဂလာပါ" },
-    evening: { en: "Good evening!", my: "ညနေခင်းလေး မင်္ဂလာပါ" },
-    night: { en: "Late night cravings?", my: "ညဥ့နက်ကြီး ဗိုက်ဆာနေပြီလား" },
-    dawn: { en: "Early bird?", my: "စောစောထတာပဲ" },
-  };
-  const greeting = greetings[timeOfDay] ?? greetings.morning;
+  // Vibrant fact-chips (triad-accented frosted pills)
+  const factChips: FactChip[] = [
+    { icon: Truck, label: deliveryDaysList, accent: "sage" },
+    ...(freeThresholdDollars !== undefined
+      ? [{ icon: Gift, label: `Free over $${freeThresholdDollars}`, accent: "clay" as const }]
+      : []),
+    {
+      icon: MapPin,
+      label: `${COVERAGE_LIMITS.maxDistanceMiles}mi`,
+      sub: `${COVERAGE_LIMITS.maxDurationMinutes}min`,
+      accent: "blue",
+    },
+    { icon: Star, label: "5.0", sub: "rated", accent: "amber" },
+  ];
 
   return (
     <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-12 pb-safe md:pt-24 md:pb-16">
       <div className="max-w-4xl mx-auto text-center">
-        {/* Time-based greeting badge - bilingual */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1">
-          <span className="text-secondary">{greeting.en}</span>
-          <span className="text-sm text-hero-text/70 font-medium">{greeting.my}</span>
+        {/* Standalone live greeting pill */}
+        <div className="mb-5 flex justify-center animate-hero-develop-1">
+          <HeroGreetingPill />
         </div>
 
-        {/* EN Headline */}
-        <AnimatedHeadline
-          text={headline}
-          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-2 leading-tight"
-        />
-        {/* MY Headline */}
-        <p className="font-body text-2xl md:text-3xl lg:text-4xl text-hero-text/80 mb-4 animate-fade-in-up-delay-1">
-          အိမ်ချက်ထမင်းဟင်း လွမ်းနေပြီလား · LA တစ်ခွင် အိမ်ရောက်ပို့ပေးမယ်
+        {/* Editorial masthead — Fraunces serif, ink on frosted paper */}
+        <div className="relative mx-auto mb-7 max-w-3xl animate-hero-develop-2">
+          <div className="relative overflow-hidden rounded-3xl hero-surface-glass px-6 py-7 text-center md:px-10 md:py-9">
+            {/* Layered backdrop — dot-grid + grain + corner ticks + clay edge-glow */}
+            <HeroCardLayers accent="clay" radius="rounded-3xl" />
+            {/* Kicker */}
+            <div className="relative mb-3 flex items-center justify-center gap-2 text-hero-accent">
+              <HeroSunburst className="h-4 w-4 text-hero-clay" rays={8} />
+              <span className="text-2xs font-semibold uppercase tracking-[0.2em] md:text-xs">
+                Straight from our Covina kitchen · မြန်မာ အရသာ
+              </span>
+            </div>
+            {/* Hairline rule */}
+            <div className="relative mx-auto mb-5 h-px w-24 bg-hero-line" />
+            {/* EN headline — Fraunces serif, ink, clay italic accent word, living variable axes */}
+            <AnimatedHeadline
+              text={headline}
+              highlight="Burmese"
+              className="hero-font-breathe relative font-display text-4xl md:text-5xl lg:text-6xl tracking-tight text-hero-ink leading-[1.04]"
+            />
+            {/* MY headline */}
+            <p className="relative mt-3 font-burmese text-lg md:text-2xl text-hero-ink-muted leading-snug">
+              အိမ်ချက်ထမင်းဟင်း လွမ်းနေပြီလား · LA တစ်ခွင် အိမ်ရောက်ပို့ပေးမယ်
+            </p>
+          </div>
+        </div>
+
+        {/* Morning Star Rewards — replaces the generic taglines */}
+        <HeroRewards className="mb-7 animate-hero-develop-3" />
+        {/* Bilingual context retained for SEO / screen readers */}
+        <p className="sr-only">
+          {tagline}. {subheadline}
         </p>
 
-        {/* EN Tagline */}
-        <p className="text-lg md:text-xl text-hero-text/70 font-medium mb-1 animate-fade-in-up-delay-1">
-          {tagline}
-        </p>
-        {/* MY Tagline */}
-        <p className="text-base md:text-lg text-hero-text/60 font-medium mb-6 animate-fade-in-up-delay-1">
-          အိမ်ချက်ထမင်းဟင်းအရသာအတိုင်း ချက်ပြုတ်ပြီး ပို့ပေးပါတယ်
-        </p>
+        {/* Vibrant fact-chips */}
+        <HeroFactChips chips={factChips} className="mb-9 animate-hero-develop-4" />
 
-        {/* EN Subheadline */}
-        <p className="text-lg md:text-xl text-hero-text/80 max-w-2xl mx-auto mb-2 font-body animate-fade-in-up-delay-2">
-          {subheadline}
-        </p>
-        {/* MY Subheadline */}
-        <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-14 font-body animate-fade-in-up-delay-2">
-          {deliveryDaysList} တိုင်း လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ပြီး အိမ်ရောက်ပို့ပေးပါတယ်
-        </p>
-
-        <div className="flex flex-col items-center gap-6 mb-16 animate-fade-in-up-delay-3">
+        <div className="flex flex-col items-center gap-6 mb-10 animate-hero-develop-5">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <m.div
-              whileHover={shouldAnimate ? { scale: 1.05, y: -2 } : undefined}
+              className="relative"
+              whileHover={shouldAnimate ? { scale: 1.05 } : undefined}
               whileTap={shouldAnimate ? { scale: 0.97 } : undefined}
               transition={spring.snappy}
+              style={{ x: ctaMagnet.x, y: ctaMagnet.y }}
+              onPointerMove={ctaMagnet.onPointerMove}
+              onPointerLeave={ctaMagnet.onPointerLeave}
+              onPointerEnter={shouldAnimate ? handleCtaBurst : undefined}
             >
+              <Bursts bursts={ctaBursts} />
+              {/* Pulsing sunset glow halo */}
+              {shouldAnimate && (
+                <m.span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute -inset-2.5 rounded-full bg-gradient-to-r from-amber-400/50 via-secondary/50 to-orange-400/50 blur-xl"
+                  animate={{ opacity: [0.45, 0.8, 0.45], scale: [0.97, 1.03, 0.97] }}
+                  transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
+                />
+              )}
               <Button
                 variant="primary"
                 size="lg"
                 asChild
                 className={cn(
                   "relative overflow-hidden group px-8 py-6 text-lg rounded-full",
-                  "bg-gradient-to-r from-secondary via-secondary-hover to-secondary",
-                  "hover:from-secondary-hover hover:via-secondary hover:to-secondary-hover",
-                  "shadow-lg shadow-secondary/30",
-                  "hover:shadow-xl hover:shadow-secondary/40",
-                  "hover:ring-2 hover:ring-secondary/30",
+                  "bg-gradient-to-br from-hero-clay to-hero-clay-2",
+                  "hover:from-hero-clay-2 hover:to-hero-clay",
+                  "shadow-lg shadow-hero-clay/40",
+                  "hover:shadow-xl hover:shadow-hero-clay/60",
+                  "hover:ring-2 hover:ring-hero-ink/15",
                   "transition-all duration-300"
                 )}
               >
                 <Link href={ctaHref}>
-                  <span className="relative z-10 flex items-center gap-2 text-text-primary font-semibold">
+                  {/* Press glow (ripple-style flash from center) */}
+                  <span
+                    aria-hidden="true"
+                    className="pointer-events-none absolute inset-0 rounded-full bg-hero-card opacity-0 scale-50 transition-[opacity,transform] duration-500 ease-out group-active:opacity-30 group-active:scale-100"
+                  />
+                  {/* Periodic shine sweep (paused under reduced motion) */}
+                  {shouldAnimate && (
+                    <span
+                      aria-hidden="true"
+                      className="pointer-events-none absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-transparent via-white/45 to-transparent animate-shine-sweep"
+                    />
+                  )}
+                  <span className="relative z-10 flex items-center gap-2 text-hero-ink font-semibold">
                     {dynamicCtaText}
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </span>
@@ -180,20 +225,23 @@ export function HeroContent({
             </m.div>
           </div>
 
-          {/* Delivery Info Card */}
+          {/* Delivery Info Card — tinted vellum surface */}
           <m.div
             initial={shouldAnimate ? { opacity: 0, y: 16, scale: 0.97 } : undefined}
             animate={shouldAnimate ? { opacity: 1, y: 0, scale: 1 } : undefined}
             transition={shouldAnimate ? { delay: 0.3, ...spring.snappy } : undefined}
-            whileHover={shouldAnimate ? { scale: 1.02, y: -2 } : undefined}
-            className={cn(
-              "w-full max-w-lg rounded-2xl p-6",
-              "bg-hero-stat-bg/80 sm:backdrop-blur-md",
-              "border border-hero-text/20",
-              "shadow-lg shadow-black/10",
-              "transition-shadow duration-300 hover:shadow-xl hover:shadow-black/15"
-            )}
+            whileHover={shouldAnimate ? { scale: 1.02 } : undefined}
+            onPointerMove={cardTilt.onPointerMove}
+            onPointerLeave={cardTilt.onPointerLeave}
+            style={{
+              rotateX: cardTilt.rotateX,
+              rotateY: cardTilt.rotateY,
+              transformPerspective: 1000,
+            }}
+            className="relative w-full max-w-lg rounded-2xl p-6 hero-surface-vellum"
           >
+            {/* Layered backdrop — dot-grid + grain + corner ticks + sage edge-glow */}
+            <HeroCardLayers accent="sage" radius="rounded-2xl" />
             {gate.isOpen ? (
               <>
                 {/* Row 1: Next delivery date + countdown */}
@@ -207,13 +255,13 @@ export function HeroContent({
                       animate={shouldAnimate ? { rotate: [0, -8, 8, 0] } : undefined}
                       transition={{ duration: 3, repeat: Infinity, repeatDelay: 5 }}
                     >
-                      <CalendarClock className="w-6 h-6 text-secondary flex-shrink-0" />
+                      <CalendarClock className="w-6 h-6 text-hero-clay flex-shrink-0" />
                     </m.div>
-                    <span className="text-xl md:text-2xl font-bold text-hero-text">
+                    <span className="text-xl md:text-2xl font-bold text-hero-ink">
                       {gate.deliveryDate.displayDate}
                     </span>
                   </m.div>
-                  <DeliveryCountdown
+                  <HeroCountdown
                     cutoffDate={gate.cutoffDate}
                     urgency={gate.urgency}
                     className="text-base"
@@ -221,18 +269,18 @@ export function HeroContent({
                 </div>
 
                 {/* Row 2: Cutoff details */}
-                <p className="text-base text-hero-text/80 mb-2 font-medium">
+                <p className="text-base text-hero-ink mb-2 font-medium">
                   {deliveryDays && deliveryDays.length > 0 && gate.deliveryDayOfWeek !== undefined
                     ? getNextCutoffText(gate.deliveryDayOfWeek, deliveryDays)
                     : deliveryScheduleText}
                 </p>
-                <p className="text-sm text-hero-text/60 mb-4">
+                <p className="text-sm text-hero-ink-muted mb-4">
                   နောက်ပို့မယ့်ရက် · အချိန်မီ မှာယူလိုက်ပါ
                 </p>
 
                 {/* Row 3: Delivery schedule */}
                 <m.div
-                  className="flex items-center gap-3 pt-3 border-t border-hero-text/10"
+                  className="flex items-center gap-3 pt-3 border-t border-hero-line"
                   whileHover={shouldAnimate ? { x: 3 } : undefined}
                   transition={spring.snappy}
                 >
@@ -240,12 +288,10 @@ export function HeroContent({
                     animate={shouldAnimate ? { x: [0, 4, 0] } : undefined}
                     transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4 }}
                   >
-                    <Truck className="w-5 h-5 text-secondary/70 flex-shrink-0" />
+                    <Truck className="w-5 h-5 text-hero-sage flex-shrink-0" />
                   </m.div>
-                  <span className="text-base font-semibold text-hero-text/80">
-                    {deliveryDaysList}
-                  </span>
-                  <span className="text-sm text-hero-text/50">
+                  <span className="text-base font-semibold text-hero-ink">{deliveryDaysList}</span>
+                  <span className="text-sm text-hero-ink-muted">
                     · {deliveryDaysList} တိုင်း ပို့ပေးပါတယ်
                   </span>
                 </m.div>
@@ -260,22 +306,18 @@ export function HeroContent({
                   >
                     <CalendarClock className="w-6 h-6 text-amber-500 flex-shrink-0" />
                   </m.div>
-                  <span className="text-xl md:text-2xl font-bold text-hero-text">
-                    Orders Closed
-                  </span>
+                  <span className="text-xl md:text-2xl font-bold text-hero-ink">Orders Closed</span>
                 </div>
-                <p className="text-base text-hero-text/80 mb-1 font-medium">
+                <p className="text-base text-hero-ink mb-1 font-medium">
                   Next delivery: {gate.deliveryDate.displayDate}
                 </p>
-                <p className="text-sm text-hero-text/60 mb-4">
+                <p className="text-sm text-hero-ink-muted mb-4">
                   အော်ဒါပိတ်ထားပါတယ် · နောက်ပို့မယ့်ရက်ကို စောင့်ပါ
                 </p>
-                <div className="flex items-center gap-3 pt-3 border-t border-hero-text/10">
-                  <Truck className="w-5 h-5 text-secondary/70 flex-shrink-0" />
-                  <span className="text-base font-semibold text-hero-text/80">
-                    {deliveryDaysList}
-                  </span>
-                  <span className="text-sm text-hero-text/50">
+                <div className="flex items-center gap-3 pt-3 border-t border-hero-line">
+                  <Truck className="w-5 h-5 text-hero-sage flex-shrink-0" />
+                  <span className="text-base font-semibold text-hero-ink">{deliveryDaysList}</span>
+                  <span className="text-sm text-hero-ink-muted">
                     · {deliveryDaysList} တိုင်း ပို့ပေးပါတယ်
                   </span>
                 </div>
@@ -284,38 +326,16 @@ export function HeroContent({
           </m.div>
         </div>
 
-        <div className="mt-2 grid grid-cols-2 gap-3 max-w-lg mx-auto md:grid-cols-4 md:max-w-3xl">
-          <StatItem
-            icon={<ChefHat className="w-5 h-5 text-secondary" />}
-            label="Authentic"
-            value="Burmese Recipes"
-            subValue="မြန်မာ့ရိုးရာ ချက်နည်းများ"
-            index={0}
-          />
-          <StatItem
-            icon={<Clock className="w-5 h-5 text-secondary" />}
-            label="Delivery"
-            value={deliveryScheduleText}
-            subValue={`${deliveryDaysList} တိုင်း ပို့ပေးပါတယ်`}
-            index={1}
-          />
-          <StatItem
-            icon={<MapPin className="w-5 h-5 text-secondary" />}
-            label="Coverage"
-            value="Greater Los Angeles"
-            subValue="East/West/South routes · မိုင် ၅၀ အတွင်း"
-            index={2}
-          />
-          {deliveryFeeText && (
-            <StatItem
-              icon={<Truck className="w-5 h-5 text-secondary" />}
-              label="Fee"
-              value={deliveryFeeText}
-              subValue={deliveryFeeSubText}
-              index={3}
-            />
-          )}
-        </div>
+        <HeroStatBand
+          className="mt-2"
+          deliveriesThisMonth={deliveriesThisMonth}
+          coverageMiles={COVERAGE_LIMITS.maxDistanceMiles}
+          coverageMinutes={COVERAGE_LIMITS.maxDurationMinutes}
+          freeThresholdDollars={freeThresholdDollars}
+          deliveryFeeDollars={deliveryFeeDollars}
+          longDistanceFeeDollars={longDistanceFeeDollars}
+          longDistanceMiles={longDistanceThresholdMiles}
+        />
       </div>
     </div>
   );
