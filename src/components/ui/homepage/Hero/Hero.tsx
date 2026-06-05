@@ -6,11 +6,10 @@
  * Main hero section with floating emojis and gradient orbs.
  */
 
-import React, { useRef, useState, useCallback } from "react";
+import React, { useRef, useState, useCallback, useEffect } from "react";
 import { cn } from "@/lib/utils/cn";
 import { useCanHover } from "@/lib/hooks/useResponsive";
 import { FloatingEmoji, EMOJI_CONFIG } from "../FloatingEmoji";
-import { GradientOrb, ORB_CONFIG_FAR, ORB_CONFIG_MID } from "../GradientOrb";
 import dynamic from "next/dynamic";
 import type { HeroProps } from "./types";
 import { GradientFallback } from "./HeroSubComponents";
@@ -73,6 +72,18 @@ export function Hero({
   const [pointer, setPointer] = useState<{ x: number; y: number } | null>(null);
   const { bursts: emojiBursts, fire: fireEmoji } = useBurst(8);
 
+  // Pause the hero's CSS animations when it scrolls offscreen (perf/battery)
+  const [heroInView, setHeroInView] = useState(true);
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(([entry]) => setHeroInView(entry.isIntersecting), {
+      rootMargin: "120px",
+    });
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
   const handleMouseMove = useCallback(
     (e: React.MouseEvent<HTMLElement>) => {
       if (!canHover) return;
@@ -122,7 +133,11 @@ export function Hero({
       ref={containerRef}
       id="hero"
       data-testid="hero-section"
-      className={cn("relative min-h-[100svh] min-h-[100dvh] overflow-hidden isolate", className)}
+      className={cn(
+        "relative min-h-[100svh] min-h-[100dvh] overflow-hidden isolate",
+        !heroInView && "hero-anim-paused",
+        className
+      )}
       style={{ position: "relative" }}
       onMouseMove={canHover ? handleMouseMove : undefined}
       onMouseLeave={canHover ? handleMouseLeave : undefined}
@@ -146,31 +161,8 @@ export function Hero({
         </div>
       </GradientFallback>
 
-      {/* Layer 2: Background orbs (far) */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
-        style={{ zIndex: 1 }}
-        aria-hidden="true"
-      >
-        {ORB_CONFIG_FAR.map((orb, i) => (
-          <GradientOrb key={`orb-far-${i}`} {...orb} />
-        ))}
-      </div>
-
-      {/* Layer 3: Mid-distance orbs */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
-        style={{ zIndex: 2 }}
-        aria-hidden="true"
-      >
-        {ORB_CONFIG_MID.map((orb, i) => (
-          <GradientOrb key={`orb-mid-${i}`} {...orb} />
-        ))}
-      </div>
-
-      {/* Layer 3b: Flavor solar-system orbit cluster */}
+      {/* Flavor solar-system orbit cluster (the morphing mesh orbs now live in
+          HeroAmbient — the legacy GradientOrb layers were duplicates, removed) */}
       <div
         className="absolute inset-0 pointer-events-none"
         // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index

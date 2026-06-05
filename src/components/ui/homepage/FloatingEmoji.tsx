@@ -242,7 +242,7 @@ export function FloatingEmoji({
   return (
     <m.span
       className={`group absolute ${SIZE_CLASSES[size]} pointer-events-auto cursor-pointer select-none`}
-      style={{ left: `${initialX}%`, top: `${initialY}%`, willChange: "transform" }}
+      style={{ left: `${initialX}%`, top: `${initialY}%` }}
       animate={{ x: gatherX, y: gatherY }}
       transition={{ type: "spring", stiffness: 120, damping: 18 }}
       whileTap={{ scale: 1.5, rotate: 12 }}
@@ -250,16 +250,18 @@ export function FloatingEmoji({
       role="presentation"
     >
       {label}
-      {/* Echo trail (behind, lagging) */}
-      <m.span
-        aria-hidden="true"
-        className="absolute inset-0 block opacity-25"
-        style={{ filter: "blur(var(--blur-sm))" }}
-        animate={variant}
-        transition={{ ...floatTransition, delay: index * 0.5 + 0.45 }}
-      >
-        {emoji}
-      </m.span>
+      {/* Echo trail (behind, lagging) — only on the prominent near layer (perf) */}
+      {depth === "near" && (
+        <m.span
+          aria-hidden="true"
+          className="absolute inset-0 block opacity-25"
+          style={{ filter: "blur(var(--blur-sm))" }}
+          animate={variant}
+          transition={{ ...floatTransition, delay: index * 0.5 + 0.45 }}
+        >
+          {emoji}
+        </m.span>
+      )}
       {/* Main float */}
       <m.span
         className="relative block"

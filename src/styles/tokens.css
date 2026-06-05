@@ -124,7 +124,7 @@
   --hero-card-bg: rgba(250, 249, 245, 0.94); /* warm cream paper (#faf9f5) */
   --hero-card-bg-strong: rgba(252, 251, 247, 0.98);
   --hero-ink: #141413; /* Anthropic ink */
-  --hero-ink-muted: rgba(20, 20, 19, 0.58);
+  --hero-ink-muted: rgba(20, 20, 19, 0.7);
   --hero-line: rgba(20, 20, 19, 0.1); /* thin warm rule */
   --hero-accent: #9a3412; /* deep clay — accent TEXT (AA on cream) */
   --hero-accent-strong: #7c2d12;

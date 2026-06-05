@@ -689,22 +689,23 @@ Set `CRON_SECRET` in Vercel env vars to secure these endpoints. The loyalty than
 
 ## Documentation
 
-| Document                 | Path                              |
-| ------------------------ | --------------------------------- |
-| Collaborative PR Review  | `docs/collaborative-pr-review.md` |
-| Open PRs (live registry) | `docs/open-prs.md`                |
-| Architecture             | `docs/architecture.md`            |
-| Data Model               | `docs/04-data-model.md`           |
-| Menu System              | `docs/05-menu.md`                 |
-| Stripe Integration       | `docs/06-stripe.md`               |
-| Frontend Design System   | `docs/frontend-design-system.md`  |
-| Component Guide          | `docs/component-guide.md`         |
-| Deployment               | `docs/DEPLOYMENT.md`              |
-| Z-Index Strategy         | `docs/STACKING-CONTEXT.md`        |
-| Performance Guide        | `PERFORMANCE.md`                  |
-| Change Log               | `docs/change_log.md`              |
-| Project Status           | `docs/project_status.md`          |
-| Business Context         | `docs/00-context-pack.md`         |
+| Document                            | Path                              |
+| ----------------------------------- | --------------------------------- |
+| Collaborative PR Review             | `docs/collaborative-pr-review.md` |
+| Open PRs (live registry)            | `docs/open-prs.md`                |
+| Architecture                        | `docs/architecture.md`            |
+| Data Model                          | `docs/04-data-model.md`           |
+| Menu System                         | `docs/05-menu.md`                 |
+| Stripe Integration                  | `docs/06-stripe.md`               |
+| Design Language + UI/UX Quality Bar | `docs/hero-design-language.md`    |
+| Frontend Design System              | `docs/frontend-design-system.md`  |
+| Component Guide                     | `docs/component-guide.md`         |
+| Deployment                          | `docs/DEPLOYMENT.md`              |
+| Z-Index Strategy                    | `docs/STACKING-CONTEXT.md`        |
+| Performance Guide                   | `PERFORMANCE.md`                  |
+| Change Log                          | `docs/change_log.md`              |
+| Project Status                      | `docs/project_status.md`          |
+| Business Context                    | `docs/00-context-pack.md`         |
 
 ## Troubleshooting
 

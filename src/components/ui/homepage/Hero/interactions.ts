@@ -87,10 +87,10 @@ export function useHeroParallax(ref: React.RefObject<HTMLElement | null>): {
 
   useEffect(() => {
     if (!shouldAnimate) return;
+    const el = ref.current;
+    if (!el) return;
 
     const onPointer = (e: PointerEvent) => {
-      const el = ref.current;
-      if (!el) return;
       const r = el.getBoundingClientRect();
       cancelAnimationFrame(frame.current);
       frame.current = requestAnimationFrame(() => {
@@ -98,30 +98,45 @@ export function useHeroParallax(ref: React.RefObject<HTMLElement | null>): {
         y.set((e.clientY - (r.top + r.height / 2)) / r.height);
       });
     };
-
-    const onScroll = () => {
-      const el = ref.current;
-      if (!el) return;
-      scrollY.set(-el.getBoundingClientRect().top);
-    };
-
+    const onScroll = () => scrollY.set(-el.getBoundingClientRect().top);
     const onOrient = (e: DeviceOrientationEvent) => {
       if (e.gamma == null || e.beta == null) return;
-      // gamma: left/right (-90..90), beta: front/back (-180..180)
       x.set(Math.max(-0.5, Math.min(0.5, e.gamma / 45)));
       y.set(Math.max(-0.5, Math.min(0.5, (e.beta - 45) / 45)));
     };
 
-    window.addEventListener("pointermove", onPointer, { passive: true });
-    window.addEventListener("scroll", onScroll, { passive: true });
-    window.addEventListener("deviceorientation", onOrient, { passive: true });
-    onScroll();
-
-    return () => {
-      cancelAnimationFrame(frame.current);
+    // Only listen while the hero is on screen (perf — these are window listeners).
+    let attached = false;
+    const attach = () => {
+      if (attached) return;
+      attached = true;
+      window.addEventListener("pointermove", onPointer, { passive: true });
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("deviceorientation", onOrient, { passive: true });
+      onScroll();
+    };
+    const detach = () => {
+      if (!attached) return;
+      attached = false;
       window.removeEventListener("pointermove", onPointer);
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("deviceorientation", onOrient);
+    };
+
+    let io: IntersectionObserver | null = null;
+    if (typeof IntersectionObserver !== "undefined") {
+      io = new IntersectionObserver(([entry]) => (entry.isIntersecting ? attach() : detach()), {
+        rootMargin: "120px",
+      });
+      io.observe(el);
+    } else {
+      attach();
+    }
+
+    return () => {
+      cancelAnimationFrame(frame.current);
+      detach();
+      io?.disconnect();
     };
   }, [ref, x, y, scrollY, shouldAnimate]);
 
@@ -141,15 +156,19 @@ export interface Ripple {
 export function useRipple() {
   const [ripples, setRipples] = useState<Ripple[]>([]);
   const nextId = useRef(0);
+  const timers = useRef<number[]>([]);
 
   const onPointerDown = useCallback((e: ReactPointer) => {
     const r = e.currentTarget.getBoundingClientRect();
     const id = nextId.current++;
     setRipples((prev) => [...prev, { id, x: e.clientX - r.left, y: e.clientY - r.top }]);
-    window.setTimeout(() => {
+    const t = window.setTimeout(() => {
       setRipples((prev) => prev.filter((rp) => rp.id !== id));
     }, 650);
+    timers.current.push(t);
   }, []);
+
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   return { ripples, onPointerDown };
 }

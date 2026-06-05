@@ -6,7 +6,7 @@
  * <Bursts> inside a relative, clipped overlay. Powers emoji taps + CTA bursts.
  */
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { m } from "framer-motion";
 
 const COLORS = ["var(--hero-clay)", "var(--hero-blue)", "var(--hero-sage)", "#f59e0b"];
@@ -48,15 +48,19 @@ function makeParticles(seed: number, count: number): BurstParticle[] {
 export function useBurst(count = 9) {
   const [bursts, setBursts] = useState<BurstInstance[]>([]);
   const next = useRef(0);
+  const timers = useRef<number[]>([]);
 
   const fire = useCallback(
     (x: number, y: number) => {
       const id = next.current++;
       setBursts((prev) => [...prev, { id, x, y, particles: makeParticles(id, count) }]);
-      window.setTimeout(() => setBursts((prev) => prev.filter((b) => b.id !== id)), 900);
+      const t = window.setTimeout(() => setBursts((prev) => prev.filter((b) => b.id !== id)), 900);
+      timers.current.push(t);
     },
     [count]
   );
+
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   return { bursts, fire };
 }

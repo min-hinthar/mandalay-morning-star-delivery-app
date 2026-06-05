@@ -3,6 +3,14 @@
 > **Aesthetic Direction**: Warm, premium fast-casual dining — NOT generic AI slop
 > **Inspiration**: Panda Express web ordering UX + Burmese cultural warmth
 > **Last Updated**: 2026-01-13
+>
+> ⭐ **Current design language + UI/UX quality bar:
+> [`hero-design-language.md`](./hero-design-language.md)** — the Anthropic
+> warm-paper aesthetic, the surface/texture/motion systems, the non-negotiables
+> (reduced-motion, 60fps, token purity, a11y), and the design-thinking process
+> expected of every session. **Read it before any visual/motion work.** The type
+> system there (Fraunces display + Hanken Grotesk body) is now **global** and
+> supersedes §3 below.
 
 ---
 

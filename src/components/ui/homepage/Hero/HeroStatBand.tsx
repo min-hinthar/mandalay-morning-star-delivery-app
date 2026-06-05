@@ -82,7 +82,7 @@ function TileView({ tile, index, inView, animate }: TileViewProps) {
       className={cn(
         "group relative flex h-full flex-col items-center justify-center gap-1 rounded-2xl text-center",
         "px-2 py-5 sm:px-4",
-        "hero-surface-glass",
+        "hero-surface-paper",
         "transition-[border-color] duration-300 hover:border-hero-clay/40",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/50"
       )}
