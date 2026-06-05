@@ -15,6 +15,7 @@ import dynamic from "next/dynamic";
 import type { HeroProps } from "./types";
 import { GradientFallback } from "./HeroSubComponents";
 import { HeroContent } from "./HeroContent";
+import { HeroDishCarousel } from "./HeroDishCarousel";
 import { formatDeliveryDaysList } from "@/lib/utils/delivery-schedule";
 
 const DeliveryMapCard = dynamic(
@@ -45,6 +46,7 @@ export function Hero({
   nextDeliveryDate,
   longDistanceFeeCents,
   longDistanceThresholdMiles,
+  featuredDishes,
 }: HeroProps) {
   const canHover = useCanHover();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -102,6 +104,11 @@ export function Hero({
     >
       <GradientFallback>
         {heroContent}
+        {featuredDishes && featuredDishes.length > 0 && (
+          <div className="relative w-full px-4 pt-2 pb-6 max-w-5xl mx-auto">
+            <HeroDishCarousel dishes={featuredDishes} menuHref={ctaHref} />
+          </div>
+        )}
         <div
           className="relative w-full px-4 pt-6 pb-12 max-w-5xl mx-auto"
           // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index

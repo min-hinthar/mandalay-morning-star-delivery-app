@@ -3,4 +3,4 @@
  */
 
 export { Hero, Hero as default } from "./Hero";
-export type { HeroProps } from "./types";
+export type { HeroProps, HeroDish } from "./types";

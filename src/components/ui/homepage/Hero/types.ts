@@ -4,6 +4,17 @@
 
 import type { DeliveryDayConfig } from "@/types/delivery";
 
+/** Minimal featured-dish shape for the hero carousel */
+export interface HeroDish {
+  id: string;
+  slug: string;
+  nameEn: string;
+  nameMy: string | null;
+  imageUrl: string;
+  priceCents: number;
+  tag?: string | null;
+}
+
 export interface HeroProps {
   /** Hero headline */
   headline?: string;
@@ -35,4 +46,6 @@ export interface HeroProps {
   longDistanceFeeCents?: number;
   /** Miles threshold for long-distance fee */
   longDistanceThresholdMiles?: number;
+  /** Featured dishes for the appetite carousel */
+  featuredDishes?: HeroDish[];
 }

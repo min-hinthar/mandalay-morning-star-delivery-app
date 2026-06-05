@@ -108,16 +108,16 @@
   --hero-overlay: rgba(0, 0, 0, 0.6);
   --hero-stat-bg: rgba(255, 255, 255, 0.1);
 
-  /* Hero redesign - Premium sunset gradient (orange → rose → violet) */
-  --hero-bg-start: #fb923c; /* Orange-400 - golden sunset */
-  --hero-bg-mid: #ec4899; /* Pink-500 - rose sky */
-  --hero-bg-end: #7c3aed; /* Violet-600 - twilight purple */
-  --hero-shimmer: rgba(251, 191, 36, 0.18); /* Amber shimmer */
+  /* Hero redesign - Daytime sunrise gradient (saffron → magenta-rose → violet) */
+  --hero-bg-start: #fb8b2a; /* Saffron - golden sun */
+  --hero-bg-mid: #f0357f; /* Magenta-rose sky */
+  --hero-bg-end: #6d28d9; /* Violet-700 - twilight */
+  --hero-shimmer: rgba(253, 224, 71, 0.22); /* Brighter gold shimmer */
 
-  /* Hero orbs - sunset palette */
-  --hero-orb-saffron: rgba(251, 191, 36, 0.4); /* Golden sun glow */
-  --hero-orb-jade: rgba(244, 114, 182, 0.35); /* Rose pink glow */
-  --hero-orb-ruby: rgba(139, 92, 246, 0.3); /* Violet twilight glow */
+  /* Hero orbs - sunrise palette */
+  --hero-orb-saffron: rgba(251, 191, 36, 0.45); /* Golden sun glow */
+  --hero-orb-jade: rgba(244, 114, 182, 0.42); /* Rose pink glow */
+  --hero-orb-ruby: rgba(139, 92, 246, 0.36); /* Violet twilight glow */
   --hero-orb-blur: 100px;
 
   /* Hero emoji depth effects - same as dark theme */
@@ -614,19 +614,19 @@
   --hero-text: #ffffff;
   --hero-text-muted: rgba(255, 255, 255, 0.75);
   --hero-overlay: rgba(0, 0, 0, 0.5);
-  --hero-stat-bg: rgba(255, 255, 255, 0.12);
+  --hero-stat-bg: rgba(255, 255, 255, 0.14);
 
-  /* Hero redesign - Premium sunset gradient (orange → rose → violet) */
-  --hero-bg-start: #fb923c; /* Orange-400 - golden sunset */
-  --hero-bg-mid: #ec4899; /* Pink-500 - rose sky */
-  --hero-bg-end: #7c3aed; /* Violet-600 - twilight purple */
-  --hero-shimmer: rgba(251, 191, 36, 0.18); /* Amber shimmer */
+  /* Hero redesign - Night sunset gradient (ember → wine → midnight) */
+  --hero-bg-start: #c2410c; /* Burnt ember orange */
+  --hero-bg-mid: #86133f; /* Deep wine magenta */
+  --hero-bg-end: #1e1b4b; /* Midnight indigo */
+  --hero-shimmer: rgba(251, 191, 36, 0.12); /* Subtle gold shimmer */
 
-  /* Hero orbs - sunset palette */
-  --hero-orb-saffron: rgba(251, 191, 36, 0.4); /* Golden sun glow */
-  --hero-orb-jade: rgba(244, 114, 182, 0.35); /* Rose pink glow */
-  --hero-orb-ruby: rgba(139, 92, 246, 0.3); /* Violet twilight glow */
-  --hero-orb-blur: 100px;
+  /* Hero orbs - night sunset palette (glowier on dark) */
+  --hero-orb-saffron: rgba(251, 146, 60, 0.42); /* Ember glow */
+  --hero-orb-jade: rgba(236, 72, 153, 0.4); /* Deep rose glow */
+  --hero-orb-ruby: rgba(124, 58, 237, 0.42); /* Violet midnight glow */
+  --hero-orb-blur: 110px;
 
   /* Hero emoji depth effects - darker shadows (Phase 31) */
   --hero-emoji-shadow-far: 0 2px 8px rgba(0, 0, 0, 0.3);
