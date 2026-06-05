@@ -39,19 +39,24 @@ function parseSentryDsn(dsn: string | undefined) {
 
 const sentryDsn = parseSentryDsn(process.env.NEXT_PUBLIC_SENTRY_DSN);
 
+// Vercel Live (preview feedback toolbar) loads from vercel.live + Pusher.
+// Allow it on PREVIEW deploys only — production CSP stays locked down.
+const vercelLive = process.env.VERCEL_ENV === "preview";
+const live = (tokens: string) => (vercelLive ? ` ${tokens}` : "");
+
 const cspDirectives = [
   "default-src 'self'",
   // Google Maps requires *.googleapis.com, *.gstatic.com, *.google.com, blob:
   // See: https://developers.google.com/maps/documentation/javascript/content-security-policy
-  `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googleapis.com https://*.gstatic.com https://*.google.com https://connect.facebook.net blob:`,
-  "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-  "img-src 'self' blob: data: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.googleusercontent.com https://*.tile.openstreetmap.org",
-  "font-src 'self' https://fonts.gstatic.com",
+  `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googleapis.com https://*.gstatic.com https://*.google.com https://connect.facebook.net blob:${live("https://vercel.live")}`,
+  `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com${live("https://vercel.live")}`,
+  `img-src 'self' blob: data: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.googleusercontent.com https://*.tile.openstreetmap.org${live("https://vercel.live https://vercel.com")}`,
+  `font-src 'self' https://fonts.gstatic.com${live("https://vercel.live https://assets.vercel.com")}`,
   // Google Maps: *.googleapis.com, *.google.com, *.gstatic.com, data:, blob:
   // Vercel Speed Insights: vitals.vercel-insights.com (fallback when not proxied)
-  "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.ingest.us.sentry.io https://*.googleapis.com https://*.google.com https://*.gstatic.com https://vitals.vercel-insights.com data: blob:",
+  `connect-src 'self' https://*.supabase.co wss://*.supabase.co https://*.ingest.us.sentry.io https://*.googleapis.com https://*.google.com https://*.gstatic.com https://vitals.vercel-insights.com data: blob:${live("https://vercel.live https://*.pusher.com wss://*.pusher.com")}`,
   "worker-src 'self' blob:",
-  "frame-src 'self' https://*.google.com",
+  `frame-src 'self' https://*.google.com${live("https://vercel.live")}`,
   "object-src 'none'",
   "base-uri 'self'",
   "form-action 'self'",
