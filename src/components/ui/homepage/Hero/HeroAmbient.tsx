@@ -58,19 +58,20 @@ function Orb({ x, y, cfg }: { x: MV; y: MV; cfg: OrbConfig }) {
   return (
     <m.div
       aria-hidden="true"
-      className="absolute"
+      className="absolute hidden md:block"
       style={{ x: tx, y: ty, top: cfg.top, left: cfg.left }}
     >
-      {/* Soft glow via the radial-gradient's own transparent falloff — NO
-          blur() filter (that allocated huge GPU buffers and crashed iOS). */}
+      {/* Desktop only (md+): blurred mesh orb. On mobile this whole layer is
+          display:none — full-screen blur() OOM-crashes iOS WebKit. */}
       <span
         className="hero-orb-morph block"
         style={{
           width: cfg.size,
           height: cfg.size,
-          background: `radial-gradient(circle at 50% 50%, ${cfg.color}, transparent 68%)`,
+          background: `radial-gradient(circle at 50% 50%, ${cfg.color}, transparent 70%)`,
+          filter: "blur(var(--blur-3xl))",
           animationDelay: cfg.delay,
-          opacity: 0.42,
+          opacity: 0.5,
         }}
       />
     </m.div>
