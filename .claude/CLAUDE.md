@@ -96,7 +96,8 @@ session.**
    miss CI-success / new-pushes / merge-conflicts — re-check on a timer (or a
    `git ls-remote` `Monitor`); a watch ends only at merge/close. Full protocol:
    [`docs/collaborative-pr-review.md`](../docs/collaborative-pr-review.md).
-10. **Stacked PRs merge bottom-up — and squash breaks the stack.** CI is
+10. **Prefer independent PRs off `main`; stack only for true dependencies —
+    and stacks merge bottom-up, with squash breaking them.** CI is
     `pull_request: branches:[main]`, so a stacked PR's blocking jobs (`verify`,
     `db-drift`) **don't run until its base is `main`**. Merge the lowest PR first.
     Squash-merging a stacked **parent** makes the **child** go `dirty`: the
