@@ -88,6 +88,20 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     stats.completion_rate =
       stats.total_stops > 0 ? Math.round((stats.delivered_stops / stats.total_stops) * 100) : 0;
 
+    // Refuse to complete while stops are still in flight. Standard mode only
+    // surfaces the Complete button once every stop is done; simple mode
+    // auto-fires completion from optimistic UI, so this guards against
+    // completing a route whose final deliveries haven't persisted yet (e.g. a
+    // delivery queued offline that hasn't synced). 409 signals "retry later".
+    const unfinishedStops =
+      stopCounts?.filter((s) => s.status === "pending" || s.status === "enroute").length ?? 0;
+    if (unfinishedStops > 0) {
+      return NextResponse.json(
+        { error: "Route still has stops that are not delivered or skipped" },
+        { status: 409 }
+      );
+    }
+
     // Complete the route
     const completedAt = new Date().toISOString();
     const { error: updateError } = await supabase

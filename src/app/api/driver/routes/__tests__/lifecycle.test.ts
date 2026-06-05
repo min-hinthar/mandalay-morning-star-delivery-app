@@ -398,6 +398,18 @@ describe("Driver Route Lifecycle Integration", () => {
     expect(routeState.status).toBe("completed");
   });
 
+  it("complete returns 409 when stops are still pending (not yet persisted)", async () => {
+    routeState.status = "in_progress";
+    stopStates[0].status = "delivered";
+    stopStates[1].status = "pending"; // a queued delivery hasn't landed yet
+
+    const res = await completeRoute(postRequest(`${ROUTE_ID}/complete`), routeParams(ROUTE_ID));
+    expect(res.status).toBe(409);
+    const data = await res.json();
+    expect(data.error).toContain("not delivered or skipped");
+    expect(routeState.status).toBe("in_progress"); // not completed
+  });
+
   // ── Stop skip path ──
 
   it("skip triggers promote_next_stop and promotes next pending stop", async () => {

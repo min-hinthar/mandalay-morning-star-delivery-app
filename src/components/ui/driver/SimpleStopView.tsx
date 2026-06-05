@@ -12,7 +12,9 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useOfflineSync } from "@/lib/hooks/useOfflineSync";
 import { DeliveryConfirmDialog } from "./DeliveryConfirmDialog";
 import { PhotoCapture } from "./PhotoCapture";
-import { SimpleRouteDone } from "./SimpleRouteDone";
+import { RouteCompleteCard } from "./RouteCompleteCard";
+import { RouteFinishingCard } from "./RouteFinishingCard";
+import { useSimpleRouteCompletion } from "./useSimpleRouteCompletion";
 import type { RouteStopStatus } from "@/types/driver";
 
 const OPERATOR_PHONE = process.env.NEXT_PUBLIC_OPERATOR_PHONE || "+16269001234";
@@ -58,9 +60,9 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
     [localStatuses]
   );
 
-  const deliveredCount = stops.filter(
-    (s) => getStatus(s) === "delivered" || getStatus(s) === "skipped"
-  ).length;
+  const deliveredOnlyCount = stops.filter((s) => getStatus(s) === "delivered").length;
+  const skippedCount = stops.filter((s) => getStatus(s) === "skipped").length;
+  const handledCount = deliveredOnlyCount + skippedCount;
   const totalCount = stops.length;
 
   const currentStop = stops.find((s) => {
@@ -69,6 +71,12 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
   });
 
   const allDone = !currentStop && totalCount > 0;
+
+  // Auto-complete the route server-side once every stop is handled (simple mode
+  // has no explicit Complete button). `completionConfirmed` only flips after the
+  // server confirms, so the celebration can't render prematurely.
+  const { isOnline, completionConfirmed, completionError, retryCompletion } =
+    useSimpleRouteCompletion(routeId, allDone);
 
   const getFullAddress = (stop: SimpleStopData) => {
     const addr = stop.order.address;
@@ -167,7 +175,28 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
     [routeId, currentStop, queuePhoto]
   );
 
-  if (allDone) return <SimpleRouteDone />;
+  if (allDone && completionConfirmed)
+    return (
+      <RouteCompleteCard
+        deliveredCount={deliveredOnlyCount}
+        skippedCount={skippedCount}
+        totalCount={totalCount}
+      />
+    );
+
+  // Every stop handled, but the server hasn't confirmed completion yet — hold on
+  // a "Finishing up…" state instead of a celebration the driver could dismiss
+  // before the route is actually done. On a terminal error, the card surfaces
+  // retry + call-for-help so the driver is never trapped.
+  if (allDone)
+    return (
+      <RouteFinishingCard
+        isOnline={isOnline}
+        hasError={completionError}
+        onRetry={retryCompletion}
+        helpPhone={OPERATOR_PHONE}
+      />
+    );
 
   if (!currentStop) {
     return (
@@ -191,13 +220,13 @@ export function SimpleStopView({ routeId, stops }: SimpleStopViewProps) {
           className="text-center"
         >
           <p className="font-body text-lg font-semibold text-text-primary">
-            {deliveredCount} of {totalCount} done
+            {handledCount} of {totalCount} done
           </p>
           <div className="mt-2 mx-auto h-2 w-48 overflow-hidden rounded-full bg-surface-tertiary">
             <m.div
               initial={{ width: 0 }}
               animate={{
-                width: `${totalCount > 0 ? (deliveredCount / totalCount) * 100 : 0}%`,
+                width: `${totalCount > 0 ? (handledCount / totalCount) * 100 : 0}%`,
               }}
               transition={{ duration: 0.5, ease: "easeOut" }}
               className="h-full rounded-full bg-accent-teal"

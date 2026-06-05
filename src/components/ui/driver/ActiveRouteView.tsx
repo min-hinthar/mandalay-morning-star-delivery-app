@@ -24,6 +24,7 @@ import {
 } from "@/components/ui/DragReorderList";
 import { StopList } from "./StopList";
 import { StopCard } from "./StopCard";
+import { RouteCompleteCard } from "./RouteCompleteCard";
 import type { RouteStopStatus } from "@/types/driver";
 
 interface StopData {
@@ -57,6 +58,7 @@ export function ActiveRouteView({ routeId, routeStatus, stops }: ActiveRouteView
   const router = useRouter();
   const [isStarting, setIsStarting] = useState(false);
   const [isCompleting, setIsCompleting] = useState(false);
+  const [isCompleted, setIsCompleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { isFullMotion, shouldAnimate, getSpring } = useAnimationPreference();
 
@@ -133,13 +135,24 @@ export function ActiveRouteView({ routeId, routeStatus, stops }: ActiveRouteView
         throw new Error(data.error || "Failed to complete route");
       }
 
-      router.push("/driver?completed=true");
+      setIsCompleted(true);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setIsCompleting(false);
     }
   };
+
+  if (isCompleted) {
+    return (
+      <RouteCompleteCard
+        deliveredCount={deliveredCount}
+        skippedCount={skippedCount}
+        totalCount={totalCount}
+        showEarningsLink
+      />
+    );
+  }
 
   return (
     <m.div
