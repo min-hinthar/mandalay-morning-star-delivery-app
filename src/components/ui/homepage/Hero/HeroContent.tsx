@@ -9,7 +9,7 @@
 
 import Link from "next/link";
 import { m } from "framer-motion";
-import { ArrowRight, CalendarClock, Moon, Sun, Sunrise, Sunset, Truck } from "lucide-react";
+import { ArrowRight, CalendarClock, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -107,42 +107,38 @@ export function HeroContent({
   };
   const greeting = greetings[timeOfDay] ?? greetings.morning;
 
-  // Time-of-day icon for the greeting badge
-  const greetingIcons = {
-    morning: Sunrise,
-    afternoon: Sun,
-    evening: Sunset,
-    night: Moon,
-    dawn: Sunrise,
-  } as const;
-  const GreetingIcon = greetingIcons[timeOfDay as keyof typeof greetingIcons] ?? Sun;
-
   return (
     <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-12 pb-safe md:pt-24 md:pb-16">
       <div className="max-w-4xl mx-auto text-center">
-        {/* Sunburst mark + time-based greeting badge (Anthropic warm-paper pill) */}
-        <div className="mb-5 flex flex-col items-center gap-3 animate-hero-develop-1">
-          <HeroSunburst className="h-7 w-7 text-hero-clay" rays={10} />
-          <div className="group inline-flex items-center gap-2 px-4 py-2 rounded-full hero-surface-paper transition-transform duration-300 hover:-translate-y-0.5">
-            <GreetingIcon
-              className="w-4 h-4 text-hero-clay transition-transform duration-300 group-hover:rotate-12 group-hover:scale-110"
+        {/* Editorial masthead — Fraunces serif, ink on frosted paper */}
+        <div className="relative mx-auto mb-7 max-w-3xl animate-hero-develop-1">
+          <div className="relative overflow-hidden rounded-3xl hero-surface-glass px-6 py-7 text-center md:px-10 md:py-9">
+            {/* Paper grain */}
+            <span
               aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-3xl opacity-[0.06] mix-blend-multiply hero-paper-grain"
             />
-            <span className="text-hero-accent font-semibold">{greeting.en}</span>
-            <span className="text-sm text-hero-ink-muted font-medium">{greeting.my}</span>
+            {/* Kicker */}
+            <div className="relative mb-3 flex items-center justify-center gap-2 text-hero-accent">
+              <HeroSunburst className="h-4 w-4 text-hero-clay" rays={8} />
+              <span className="text-2xs font-semibold uppercase tracking-[0.2em] md:text-xs">
+                {greeting.en} · Straight from our Covina kitchen
+              </span>
+            </div>
+            {/* Hairline rule */}
+            <div className="relative mx-auto mb-5 h-px w-24 bg-hero-line" />
+            {/* EN headline — Fraunces serif, ink, clay italic accent word */}
+            <AnimatedHeadline
+              text={headline}
+              highlight="Burmese"
+              className="relative font-display text-4xl md:text-5xl lg:text-6xl font-semibold tracking-tight text-hero-ink leading-[1.04]"
+            />
+            {/* MY headline */}
+            <p className="relative mt-3 font-burmese text-lg md:text-2xl text-hero-ink-muted leading-snug">
+              အိမ်ချက်ထမင်းဟင်း လွမ်းနေပြီလား · LA တစ်ခွင် အိမ်ရောက်ပို့ပေးမယ်
+            </p>
           </div>
         </div>
-
-        {/* EN Headline */}
-        <AnimatedHeadline
-          text={headline}
-          highlight="Burmese"
-          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-1 leading-tight hero-text-glow"
-        />
-        {/* MY Headline */}
-        <p className="font-body text-2xl md:text-3xl lg:text-4xl text-hero-text/80 mb-3 hero-text-glow animate-hero-develop-2">
-          အိမ်ချက်ထမင်းဟင်း လွမ်းနေပြီလား · LA တစ်ခွင် အိမ်ရောက်ပို့ပေးမယ်
-        </p>
 
         {/* EN Tagline */}
         <p className="text-lg md:text-xl text-hero-text/70 font-medium mb-1 animate-hero-develop-2">

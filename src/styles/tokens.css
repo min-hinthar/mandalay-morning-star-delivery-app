@@ -272,9 +272,9 @@
      Nunito - Rounded, Playful
      =========================================== */
 
-  /* Font Families */
-  --font-display: "Nunito", ui-rounded, system-ui, sans-serif;
-  --font-body: "Nunito", system-ui, sans-serif;
+  /* Font Families — Anthropic-inspired: Fraunces (display serif) + Hanken Grotesk (body/UI) */
+  --font-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --font-body: "Hanken Grotesk", system-ui, -apple-system, sans-serif;
   --font-burmese: "Padauk", "Noto Sans Myanmar", sans-serif;
 
   /* Font Sizes */

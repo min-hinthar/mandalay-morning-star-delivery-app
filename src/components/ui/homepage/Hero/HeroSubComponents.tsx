@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils/cn";
 interface AnimatedHeadlineProps {
   text: string;
   className?: string;
-  /** Word/phrase to render with a warm saffron gradient accent */
+  /** Word/phrase to render with a clay (book-cloth) italic accent */
   highlight?: string;
 }
 
@@ -25,7 +25,7 @@ export function AnimatedHeadline({ text, className, highlight }: AnimatedHeadlin
     highlight && text.includes(highlight) ? (
       <>
         {text.slice(0, text.indexOf(highlight))}
-        <span className="bg-gradient-to-r from-amber-200 via-secondary to-amber-300 bg-clip-text text-transparent">
+        <span className="bg-gradient-to-br from-hero-clay to-hero-accent bg-clip-text italic text-transparent">
           {highlight}
         </span>
         {text.slice(text.indexOf(highlight) + highlight.length)}
