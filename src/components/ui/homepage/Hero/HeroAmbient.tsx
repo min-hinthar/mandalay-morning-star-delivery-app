@@ -14,34 +14,30 @@ import { useHeroParallax } from "./interactions";
 
 type MV = MotionValue<number>;
 
-// ---- Parallax dot-grid layer ----
-function ParallaxDots({
+// ---- Parallax grid layer (dots or lines) ----
+function ParallaxGrid({
   x,
   y,
-  scrollY,
   depth,
-  scroll,
-  dotStyle,
+  base,
+  gridStyle,
   className,
 }: {
   x: MV;
   y: MV;
-  scrollY: MV;
   depth: number;
-  scroll: number;
-  dotStyle?: CSSProperties;
+  base: "hero-dotgrid" | "hero-linegrid";
+  gridStyle?: CSSProperties;
   className?: string;
 }) {
+  // Pointer/gyro parallax only — no scroll-linked translate (avoids dizziness).
   const tx = useTransform(x, (v) => v * depth);
-  const ty = useTransform(
-    [y, scrollY] as [MV, MV],
-    ([vy, vs]: number[]) => vy * depth + vs * scroll
-  );
+  const ty = useTransform(y, (v) => v * depth);
   return (
     <m.div
       aria-hidden="true"
-      style={{ x: tx, y: ty, ...dotStyle }}
-      className={cn("hero-dotgrid absolute -inset-16", className)}
+      style={{ x: tx, y: ty, ...gridStyle }}
+      className={cn(base, "absolute -inset-16", className)}
     />
   );
 }
@@ -102,7 +98,7 @@ const STARS = Array.from({ length: 16 }, (_, i) => {
 
 export function HeroAmbient() {
   const ref = useRef<HTMLDivElement>(null);
-  const { x, y, scrollY } = useHeroParallax(ref);
+  const { x, y } = useHeroParallax(ref);
 
   return (
     <div
@@ -115,34 +111,51 @@ export function HeroAmbient() {
         <Orb key={cfg.color + cfg.top} x={x} y={y} cfg={cfg} />
       ))}
 
-      {/* Parallax dot-grids (two depths) — bright cream + clay, actually visible */}
-      <ParallaxDots
+      {/* Calm, layered, masked grids — pointer/gyro parallax only (no scroll dizziness) */}
+      <ParallaxGrid
         x={x}
         y={y}
-        scrollY={scrollY}
-        depth={26}
-        scroll={0.05}
-        className="opacity-70"
-        dotStyle={
+        depth={14}
+        base="hero-dotgrid"
+        className="opacity-50"
+        gridStyle={
           {
-            "--dot-color": "rgba(250, 249, 245, 0.55)",
-            "--dot-gap": "24px",
-            "--dot-r": "1.4px",
+            "--dot-color": "rgba(250, 249, 245, 0.42)",
+            "--dot-gap": "26px",
+            "--dot-r": "1.2px",
+            maskImage: "radial-gradient(125% 95% at 50% 32%, transparent 26%, #000 72%)",
+            WebkitMaskImage: "radial-gradient(125% 95% at 50% 32%, transparent 26%, #000 72%)",
           } as CSSProperties
         }
       />
-      <ParallaxDots
+      <ParallaxGrid
         x={x}
         y={y}
-        scrollY={scrollY}
-        depth={54}
-        scroll={0.12}
-        className="opacity-60"
-        dotStyle={
+        depth={24}
+        base="hero-linegrid"
+        className="opacity-40"
+        gridStyle={
           {
-            "--dot-color": "rgba(217, 119, 87, 0.5)",
-            "--dot-gap": "40px",
-            "--dot-r": "1.8px",
+            "--line-color": "rgba(217, 119, 87, 0.14)",
+            "--line-gap": "58px",
+            maskImage: "linear-gradient(120deg, #000, transparent 68%)",
+            WebkitMaskImage: "linear-gradient(120deg, #000, transparent 68%)",
+          } as CSSProperties
+        }
+      />
+      <ParallaxGrid
+        x={x}
+        y={y}
+        depth={34}
+        base="hero-dotgrid"
+        className="opacity-[0.35]"
+        gridStyle={
+          {
+            "--dot-color": "rgba(120, 140, 93, 0.4)",
+            "--dot-gap": "46px",
+            "--dot-r": "1.6px",
+            maskImage: "radial-gradient(80% 70% at 82% 78%, #000, transparent 70%)",
+            WebkitMaskImage: "radial-gradient(80% 70% at 82% 78%, #000, transparent 70%)",
           } as CSSProperties
         }
       />

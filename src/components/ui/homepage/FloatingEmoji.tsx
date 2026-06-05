@@ -54,24 +54,25 @@ const SIZE_CLASSES: Record<EmojiSize, string> = {
 // ANIMATION VARIANTS
 // ============================================
 
-// Animation keyframes - each plays once with organic movement
+// Seamless looping keyframes (start === end) — opacity handled by depth styles so
+// emojis float continuously instead of fading out and stopping.
 const DRIFT_ANIMATION = {
-  x: [0, 15, -10, 5, 0],
-  y: [0, -20, 10, -5, 0],
-  opacity: [0, 1, 1, 1, 0.7],
+  x: [0, 22, -14, 8, 0],
+  y: [0, -28, 14, -8, 0],
+  scale: [1, 1.06, 0.98, 1.03, 1],
 };
 
 const SPIRAL_ANIMATION = {
-  x: [0, 20, 0, -20, 0],
-  y: [0, -15, -30, -15, 0],
-  rotate: [0, 10, 0, -10, 0],
-  opacity: [0, 1, 1, 1, 0.7],
+  x: [0, 26, 0, -26, 0],
+  y: [0, -20, -38, -20, 0],
+  rotate: [0, 12, 0, -12, 0],
+  scale: [1, 1.05, 1, 1.05, 1],
 };
 
 const BOB_ANIMATION = {
-  y: [0, -25, 0, -12, 0],
-  scale: [1, 1.05, 1, 1.02, 1],
-  opacity: [0, 1, 1, 1, 0.7],
+  y: [0, -32, 0, -16, 0],
+  scale: [1, 1.09, 1, 1.04, 1],
+  rotate: [0, 4, -4, 2, 0],
 };
 
 const getAnimationVariant = (type: AnimationType, index: number) => {
@@ -107,12 +108,6 @@ const getAnimationDuration = (type: AnimationType, index: number): number => {
   };
   // Stagger duration based on index for variety
   return baseDurations[type] + (index % 4) * 2;
-};
-
-// Finite repeat count varies per emoji for non-uniform endings
-const getRepeatCount = (index: number): number => {
-  // 1 to 3 repeats depending on index, so emojis don't all stop at the same time
-  return 1 + (index % 3);
 };
 
 // ============================================
@@ -159,9 +154,9 @@ export function FloatingEmoji({
 }: FloatingEmojiProps) {
   const { shouldAnimate } = useAnimationPreference();
 
-  // Mouse repel effect (subtle, max 20px)
-  const repelX = mouseOffset ? mouseOffset.x * 0.3 : 0;
-  const repelY = mouseOffset ? mouseOffset.y * 0.3 : 0;
+  // Mouse repel effect — emojis dodge the cursor more noticeably now
+  const repelX = mouseOffset ? mouseOffset.x * 0.5 : 0;
+  const repelY = mouseOffset ? mouseOffset.y * 0.5 : 0;
 
   // Depth-based styles using CSS variables from tokens.css
   // NOTE: No boxShadow - it creates rectangular backgrounds behind emoji glyphs.
@@ -183,7 +178,6 @@ export function FloatingEmoji({
 
   const animationVariant = getAnimationVariant(animationType, index);
   const animationDuration = getAnimationDuration(animationType, index);
-  const repeatCount = getRepeatCount(index);
 
   // Static render for reduced motion preference
   if (!shouldAnimate) {
@@ -205,7 +199,8 @@ export function FloatingEmoji({
       animate={animationVariant}
       transition={{
         duration: animationDuration,
-        repeat: repeatCount,
+        repeat: Infinity,
+        repeatType: "loop",
         ease: "easeInOut",
         delay: index * 0.5, // Stagger start times
       }}

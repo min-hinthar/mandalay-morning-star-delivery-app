@@ -725,6 +725,14 @@
     background-size: var(--dot-gap, 18px) var(--dot-gap, 18px);
   }
 
+  /* Line-grid texture (parameterized: --line-color / --line-gap) */
+  .hero-linegrid {
+    background-image:
+      linear-gradient(to right, var(--line-color, rgba(20, 20, 19, 0.06)) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--line-color, rgba(20, 20, 19, 0.06)) 1px, transparent 1px);
+    background-size: var(--line-gap, 40px) var(--line-gap, 40px);
+  }
+
   /* ---- Anthropic card surfaces (three treatments, shown in context) ---- */
 
   /* A) Frosted translucent glass — the sunset glows through */
