@@ -9,7 +9,7 @@
 
 import Link from "next/link";
 import { m } from "framer-motion";
-import { ArrowRight, CalendarClock, ChefHat, Clock, MapPin, Truck } from "lucide-react";
+import { ArrowRight, CalendarClock, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -17,8 +17,10 @@ import { useDynamicTheme } from "@/components/ui/theme";
 import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
 import { DeliveryCountdown } from "@/components/ui/delivery";
 import { Button } from "@/components/ui/button";
+import { COVERAGE_LIMITS } from "@/types/address";
 import { formatDeliveryDaysList, getNextCutoffText } from "@/lib/utils/delivery-schedule";
-import { AnimatedHeadline, StatItem } from "./HeroSubComponents";
+import { AnimatedHeadline } from "./HeroSubComponents";
+import { HeroStatBand } from "./HeroStatBand";
 import type { DeliveryDayConfig } from "@/types/delivery";
 
 /** Day names for cutoff display */
@@ -44,6 +46,7 @@ interface HeroContentProps {
   deliveryDays?: DeliveryDayConfig[];
   longDistanceFeeCents?: number;
   longDistanceThresholdMiles?: number;
+  deliveriesThisMonth?: number;
 }
 
 export function HeroContent({
@@ -59,6 +62,7 @@ export function HeroContent({
   deliveryDays,
   longDistanceFeeCents,
   longDistanceThresholdMiles,
+  deliveriesThisMonth = 0,
 }: HeroContentProps) {
   const { shouldAnimate } = useAnimationPreference();
   const { timeOfDay } = useDynamicTheme();
@@ -83,24 +87,11 @@ export function HeroContent({
         : "Every Saturday"
     : `Orders closed — next ${gate.deliveryDate.displayDate}`;
 
-  const deliveryFee =
-    deliveryFeeCents !== undefined ? (deliveryFeeCents / 100).toFixed(0) : undefined;
-  const freeThreshold =
-    freeDeliveryThresholdCents !== undefined
-      ? (freeDeliveryThresholdCents / 100).toFixed(0)
-      : undefined;
-  const deliveryFeeText =
-    deliveryFee && freeThreshold
-      ? longDistanceFeeCents
-        ? `$${deliveryFee} · Free $${freeThreshold}+`
-        : `$${deliveryFee} · Free $${freeThreshold}+`
-      : undefined;
-  const deliveryFeeSubText =
-    deliveryFee && freeThreshold
-      ? longDistanceFeeCents
-        ? `$${(longDistanceFeeCents / 100).toFixed(0)} for ${longDistanceThresholdMiles ?? 25}+ mi · $${freeThreshold} အထက် အခမဲ့`
-        : `$${freeThreshold} အထက်ဆို အခမဲ့ပို့ပေးတယ်`
-      : undefined;
+  // Fee values (dollars) for the stat band
+  const toDollars = (cents?: number) => (cents !== undefined ? Math.round(cents / 100) : undefined);
+  const deliveryFeeDollars = toDollars(deliveryFeeCents);
+  const freeThresholdDollars = toDollars(freeDeliveryThresholdCents);
+  const longDistanceFeeDollars = toDollars(longDistanceFeeCents);
 
   // Bilingual greetings
   const greetings: Record<string, { en: string; my: string }> = {
@@ -116,7 +107,7 @@ export function HeroContent({
     <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-12 pb-safe md:pt-24 md:pb-16">
       <div className="max-w-4xl mx-auto text-center">
         {/* Time-based greeting badge - bilingual */}
-        <div className="inline-flex items-center gap-2 px-4 py-2 mb-6 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1">
+        <div className="inline-flex items-center gap-2 px-4 py-2 mb-5 rounded-full bg-hero-stat-bg sm:backdrop-blur-md border border-hero-text/20 animate-fade-in-up-delay-1">
           <span className="text-secondary">{greeting.en}</span>
           <span className="text-sm text-hero-text/70 font-medium">{greeting.my}</span>
         </div>
@@ -124,10 +115,10 @@ export function HeroContent({
         {/* EN Headline */}
         <AnimatedHeadline
           text={headline}
-          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-2 leading-tight"
+          className="font-display text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-hero-text mb-1 leading-tight"
         />
         {/* MY Headline */}
-        <p className="font-body text-2xl md:text-3xl lg:text-4xl text-hero-text/80 mb-4 animate-fade-in-up-delay-1">
+        <p className="font-body text-2xl md:text-3xl lg:text-4xl text-hero-text/80 mb-3 animate-fade-in-up-delay-1">
           အိမ်ချက်ထမင်းဟင်း လွမ်းနေပြီလား · LA တစ်ခွင် အိမ်ရောက်ပို့ပေးမယ်
         </p>
 
@@ -136,7 +127,7 @@ export function HeroContent({
           {tagline}
         </p>
         {/* MY Tagline */}
-        <p className="text-base md:text-lg text-hero-text/60 font-medium mb-6 animate-fade-in-up-delay-1">
+        <p className="text-base md:text-lg text-hero-text/60 font-medium mb-4 animate-fade-in-up-delay-1">
           အိမ်ချက်ထမင်းဟင်းအရသာအတိုင်း ချက်ပြုတ်ပြီး ပို့ပေးပါတယ်
         </p>
 
@@ -145,11 +136,11 @@ export function HeroContent({
           {subheadline}
         </p>
         {/* MY Subheadline */}
-        <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-14 font-body animate-fade-in-up-delay-2">
+        <p className="text-base md:text-lg text-hero-text/65 max-w-2xl mx-auto mb-8 font-body animate-fade-in-up-delay-2">
           {deliveryDaysList} တိုင်း လတ်လတ်ဆတ်ဆတ် ချက်ပြုတ်ပြီး အိမ်ရောက်ပို့ပေးပါတယ်
         </p>
 
-        <div className="flex flex-col items-center gap-6 mb-16 animate-fade-in-up-delay-3">
+        <div className="flex flex-col items-center gap-6 mb-10 animate-fade-in-up-delay-3">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <m.div
               whileHover={shouldAnimate ? { scale: 1.05, y: -2 } : undefined}
@@ -284,38 +275,16 @@ export function HeroContent({
           </m.div>
         </div>
 
-        <div className="mt-2 grid grid-cols-2 gap-3 max-w-lg mx-auto md:grid-cols-4 md:max-w-3xl">
-          <StatItem
-            icon={<ChefHat className="w-5 h-5 text-secondary" />}
-            label="Authentic"
-            value="Burmese Recipes"
-            subValue="မြန်မာ့ရိုးရာ ချက်နည်းများ"
-            index={0}
-          />
-          <StatItem
-            icon={<Clock className="w-5 h-5 text-secondary" />}
-            label="Delivery"
-            value={deliveryScheduleText}
-            subValue={`${deliveryDaysList} တိုင်း ပို့ပေးပါတယ်`}
-            index={1}
-          />
-          <StatItem
-            icon={<MapPin className="w-5 h-5 text-secondary" />}
-            label="Coverage"
-            value="Greater Los Angeles"
-            subValue="East/West/South routes · မိုင် ၅၀ အတွင်း"
-            index={2}
-          />
-          {deliveryFeeText && (
-            <StatItem
-              icon={<Truck className="w-5 h-5 text-secondary" />}
-              label="Fee"
-              value={deliveryFeeText}
-              subValue={deliveryFeeSubText}
-              index={3}
-            />
-          )}
-        </div>
+        <HeroStatBand
+          className="mt-2"
+          deliveriesThisMonth={deliveriesThisMonth}
+          coverageMiles={COVERAGE_LIMITS.maxDistanceMiles}
+          coverageMinutes={COVERAGE_LIMITS.maxDurationMinutes}
+          freeThresholdDollars={freeThresholdDollars}
+          deliveryFeeDollars={deliveryFeeDollars}
+          longDistanceFeeDollars={longDistanceFeeDollars}
+          longDistanceMiles={longDistanceThresholdMiles}
+        />
       </div>
     </div>
   );

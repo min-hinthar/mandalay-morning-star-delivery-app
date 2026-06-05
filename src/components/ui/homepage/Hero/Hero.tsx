@@ -86,6 +86,7 @@ export function Hero({
       deliveryDays={deliveryDays}
       longDistanceFeeCents={longDistanceFeeCents}
       longDistanceThresholdMiles={longDistanceThresholdMiles}
+      deliveriesThisMonth={deliveriesThisMonth}
     />
   );
 
@@ -107,7 +108,6 @@ export function Hero({
           style={{ zIndex: 5 }}
         >
           <DeliveryMapCard
-            deliveriesThisMonth={deliveriesThisMonth ?? 0}
             nextDeliveryDate={nextDeliveryDate ?? ""}
             deliverySchedule={deliverySchedule}
           />
