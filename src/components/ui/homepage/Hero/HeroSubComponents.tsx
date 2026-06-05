@@ -9,6 +9,7 @@
 import React from "react";
 import { cn } from "@/lib/utils/cn";
 import { HeroAmbient } from "./HeroAmbient";
+import type { HeroFxBudget } from "@/lib/hooks/useHeroFx";
 
 // ============================================
 // ANIMATED HEADLINE
@@ -47,9 +48,11 @@ export function AnimatedHeadline({ text, className, highlight }: AnimatedHeadlin
 interface GradientFallbackProps {
   children: React.ReactNode;
   className?: string;
+  /** Device-tiered effects budget — gates the expensive ambient layers */
+  fx?: HeroFxBudget;
 }
 
-export function GradientFallback({ children, className }: GradientFallbackProps) {
+export function GradientFallback({ children, className, fx }: GradientFallbackProps) {
   return (
     <div className={cn("relative w-full min-h-[100svh] min-h-[100dvh]", className)}>
       {/* Muted warm gradient background */}
@@ -95,7 +98,7 @@ export function GradientFallback({ children, className }: GradientFallbackProps)
 
       {/* Layered Anthropic atmosphere — parallax dot-grids, morphing orbs,
           drifting multi-grain, twinkling constellation */}
-      <HeroAmbient />
+      <HeroAmbient fx={fx} />
 
       {/* Content layer */}
       <div
