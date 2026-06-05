@@ -79,8 +79,8 @@ function RouteProgressCard({ route }: { route: RouteProgressItem }) {
 // ROUTE PROGRESS WIDGET
 // ============================================
 
-export function RouteProgressWidget() {
-  const { routes } = useRouteProgressPolling();
+export function RouteProgressWidget({ date }: { date?: string } = {}) {
+  const { routes } = useRouteProgressPolling(5000, date);
   const { shouldAnimate } = useAnimationPreference();
 
   return (

@@ -29,7 +29,7 @@ export interface OpsPollingState {
  * Preserves selection across refreshes, prunes stale IDs.
  * Pauses polling during bulk operations.
  */
-export function useOpsPolling(intervalMs = 5000): OpsPollingState {
+export function useOpsPolling(intervalMs = 5000, date?: string): OpsPollingState {
   const [orders, setOrders] = useState<OpsOrder[]>([]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -51,7 +51,9 @@ export function useOpsPolling(intervalMs = 5000): OpsPollingState {
 
     setIsRefreshing(true);
     try {
-      const res = await fetch("/api/admin/ops/orders");
+      const res = await fetch(
+        date ? `/api/admin/ops/orders?date=${date}` : "/api/admin/ops/orders"
+      );
       if (!res.ok) return;
       const data: OpsOrder[] = await res.json();
       setOrders(data);
@@ -71,7 +73,7 @@ export function useOpsPolling(intervalMs = 5000): OpsPollingState {
     } finally {
       setIsRefreshing(false);
     }
-  }, []);
+  }, [date]);
 
   useEffect(() => {
     // Initial fetch

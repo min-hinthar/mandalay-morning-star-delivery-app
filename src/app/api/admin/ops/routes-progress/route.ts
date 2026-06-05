@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
+import { getZonedDateString } from "@/lib/utils/delivery-dates";
 import type { RouteStats, RouteStatus } from "@/types/driver";
 
 // ============================================
@@ -21,7 +22,7 @@ export interface RouteProgressItem {
 // GET /api/admin/ops/routes-progress
 // ============================================
 
-export async function GET() {
+export async function GET(request: Request) {
   try {
     const auth = await requireAdmin();
     if (!auth.success) {
@@ -38,10 +39,12 @@ export async function GET() {
 
     const { supabase } = auth;
 
-    // Today's date in YYYY-MM-DD format (server timezone)
-    const today = new Date().toISOString().split("T")[0];
+    // Target delivery date (LA-local), defaulting to today. The Delivery Day hub
+    // passes ?date=YYYY-MM-DD to inspect any day.
+    const { searchParams } = new URL(request.url);
+    const date = searchParams.get("date") || getZonedDateString();
 
-    // Query today's non-completed, non-planned routes with driver name
+    // Query the date's non-completed, non-planned routes with driver name.
     // !inner JOIN excludes routes without a driver (shouldn't happen for non-planned)
     const { data: routes, error } = await supabase
       .from("routes")
@@ -57,7 +60,7 @@ export async function GET() {
         )
       `
       )
-      .eq("delivery_date", today)
+      .eq("delivery_date", date)
       .neq("status", "completed")
       .neq("status", "planned");
 
