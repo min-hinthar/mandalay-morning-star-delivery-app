@@ -735,11 +735,11 @@
 
   /* ---- Anthropic card surfaces (three treatments, shown in context) ---- */
 
-  /* A) Frosted translucent glass — the sunset glows through */
+  /* A) Frosted translucent glass — the sunset glows through.
+     Mobile: opaque cream (NO backdrop-filter — it's the #1 iOS WebKit
+     memory/GPU cost and was crashing tabs). backdrop-blur only on md+. */
   .hero-surface-glass {
-    background: rgba(250, 249, 245, 0.74);
-    backdrop-filter: blur(14px) saturate(1.15);
-    -webkit-backdrop-filter: blur(14px) saturate(1.15);
+    background: rgba(250, 249, 245, 0.95);
     border: 1px solid var(--hero-line);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.5),
@@ -747,17 +747,33 @@
       0 16px 44px rgba(20, 20, 19, 0.12);
   }
 
-  /* B) Tinted vellum — semi-transparent cream with a clay→sage wash */
+  @media (min-width: 768px) {
+    .hero-surface-glass {
+      background: rgba(250, 249, 245, 0.74);
+      backdrop-filter: blur(14px) saturate(1.15);
+      -webkit-backdrop-filter: blur(14px) saturate(1.15);
+    }
+  }
+
+  /* B) Tinted vellum — clay→sage wash. Mobile: opaque (no backdrop-filter). */
   .hero-surface-vellum {
     background:
       linear-gradient(140deg, rgba(217, 119, 87, 0.08), rgba(120, 140, 93, 0.07)),
-      rgba(250, 249, 245, 0.72);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
+      rgba(250, 249, 245, 0.95);
     border: 1px solid var(--hero-line);
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.42),
       0 6px 22px rgba(20, 20, 19, 0.1);
+  }
+
+  @media (min-width: 768px) {
+    .hero-surface-vellum {
+      background:
+        linear-gradient(140deg, rgba(217, 119, 87, 0.08), rgba(120, 140, 93, 0.07)),
+        rgba(250, 249, 245, 0.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
   }
 
   /* C) Layered stacked paper — opaque cream with stacked depth */

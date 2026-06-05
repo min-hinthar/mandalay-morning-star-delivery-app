@@ -193,6 +193,7 @@ export function Hero({
             index={i}
             pointer={pointer}
             onTap={handleEmojiTap}
+            mobileHidden={i >= 7}
           />
         ))}
         {/* Rising flavor sparkles */}
