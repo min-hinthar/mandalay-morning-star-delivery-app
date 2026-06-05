@@ -207,6 +207,29 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
+## Development Workflow
+
+This repo is built collaboratively across Claude Code sessions. The full
+discipline lives in [`.claude/CLAUDE.md`](./.claude/CLAUDE.md) (auto-loaded each
+session); the essentials:
+
+- **Branch + PR per task.** Develop on `claude/<slug>`, never push to `main`,
+  one logical change per PR.
+- **Verify before every PR:** `pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test && pnpm build`.
+  Don't open a PR on red. Both CI jobs (`verify`, `db-drift`) must be green to merge.
+- **Adversarial self-review** on anything touching auth / payments / RLS / money /
+  migrations — review your own diff (subagent or `code-review` / `security-review`
+  skill) before handoff.
+- **Own your PRs end-to-end** — the session that opens a PR audits, fixes review
+  findings, merges, and closes it. Across sessions, default to review/comment
+  only; don't force-push a branch another session owns unless you've explicitly
+  taken it over.
+- **Stacked PRs merge bottom-up.** CI only runs against a `main` base, so a
+  stacked PR's blocking jobs don't run until its parent merges. After
+  squash-merging a parent, rebase the child onto `main`
+  (`git rebase --onto main <old-parent-tip> <child>`) — never naive-retarget,
+  which re-introduces already-squashed changes.
+
 ## Environment Variables
 
 ### Required
