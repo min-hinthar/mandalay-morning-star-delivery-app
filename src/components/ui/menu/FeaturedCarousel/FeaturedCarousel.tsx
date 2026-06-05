@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { UnifiedMenuItemCard } from "../UnifiedMenuItemCard";
 import { MenuCardWrapper } from "../MenuCardWrapper";
-import { CarouselControls } from "./CarouselControls";
+import { CarouselControls, ArrowButton } from "./CarouselControls";
 import type { MenuItem } from "@/types/menu";
 
 // ============================================
@@ -268,61 +268,75 @@ export function FeaturedCarousel({
       onTouchStart={handlePause}
       onTouchEnd={handleResume}
     >
-      {/* Scrollable container */}
-      <div
-        ref={scrollRef}
-        className={cn(
-          "flex overflow-x-auto scrollbar-hide",
-          "gap-4 md:gap-6",
-          "px-4 md:px-6",
-          "pt-4 pb-4", // Space for 3D tilt effect and shadows
-          "-mt-2", // Compensate for visual alignment
-          "touch-pan-x"
-        )}
-        style={{
-          scrollSnapType: "x mandatory",
-          scrollbarWidth: "none",
-          msOverflowStyle: "none",
-          WebkitOverflowScrolling: "touch",
-        }}
-        onScroll={handleScroll}
-        onTouchMove={handleUserScroll}
-        onWheel={handleUserScroll}
-      >
-        {items.map((item, index) => (
-          <div
-            key={item.id}
-            ref={(el) => setCardRef(index, el as HTMLDivElement)}
-            data-carousel-card
-            data-index={index}
-            className={cn("flex-shrink-0", "w-[280px] md:w-[320px]", "snap-start")}
-            style={{ scrollSnapAlign: "start" }}
-          >
-            <MenuCardWrapper
-              itemId={item.id}
-              index={index}
-              replayOnScroll={false}
-              animateMode="viewport"
+      {/* Viewport — arrows overlay the cards; edges melt into the hero */}
+      <div className="relative">
+        {/* Scrollable container */}
+        <div
+          ref={scrollRef}
+          className={cn(
+            "flex overflow-x-auto scrollbar-hide",
+            "gap-4 md:gap-6",
+            "px-4 md:px-6",
+            "pt-4 pb-4", // Space for 3D tilt effect and shadows
+            "-mt-2", // Compensate for visual alignment
+            "touch-pan-x"
+          )}
+          style={{
+            scrollSnapType: "x mandatory",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            WebkitOverflowScrolling: "touch",
+            // Editorial edge-fade — cards dissolve into the warm gradient at
+            // each side (fixed px so the first/last card isn't eaten).
+            maskImage:
+              "linear-gradient(to right, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%)",
+            WebkitMaskImage:
+              "linear-gradient(to right, transparent 0, #000 28px, #000 calc(100% - 28px), transparent 100%)",
+          }}
+          onScroll={handleScroll}
+          onTouchMove={handleUserScroll}
+          onWheel={handleUserScroll}
+        >
+          {items.map((item, index) => (
+            <div
+              key={item.id}
+              ref={(el) => setCardRef(index, el as HTMLDivElement)}
+              data-carousel-card
+              data-index={index}
+              className={cn("flex-shrink-0", "w-[280px] md:w-[320px]", "snap-start")}
+              style={{ scrollSnapAlign: "start" }}
             >
-              <UnifiedMenuItemCard
-                item={item}
-                variant="homepage"
-                onSelect={onItemSelect}
-                isFavorite={favorites.has(item.id)}
-                onFavoriteToggle={onFavoriteToggle}
-                priority={index < 3}
-              />
-            </MenuCardWrapper>
-          </div>
-        ))}
+              <MenuCardWrapper
+                itemId={item.id}
+                index={index}
+                replayOnScroll={false}
+                animateMode="viewport"
+              >
+                <UnifiedMenuItemCard
+                  item={item}
+                  variant="homepage"
+                  onSelect={onItemSelect}
+                  isFavorite={favorites.has(item.id)}
+                  onFavoriteToggle={onFavoriteToggle}
+                  priority={index < 3}
+                />
+              </MenuCardWrapper>
+            </div>
+          ))}
+        </div>
+
+        <ArrowButton direction="left" onClick={handlePrev} disabled={currentIndex === 0} />
+        <ArrowButton
+          direction="right"
+          onClick={handleNext}
+          disabled={currentIndex >= items.length - 1}
+        />
       </div>
 
-      {/* Controls */}
+      {/* Dots */}
       <CarouselControls
         totalItems={items.length}
         currentIndex={currentIndex}
-        onPrev={handlePrev}
-        onNext={handleNext}
         onDotClick={handleDotClick}
         dotLabels={items.map((item) => item.nameEn)}
       />
