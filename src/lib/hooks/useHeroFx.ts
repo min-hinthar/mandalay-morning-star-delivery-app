@@ -79,13 +79,26 @@ function readOverride(): FxProfile | null {
   return p === "rich" || p === "lite" || p === "baseline" ? p : null;
 }
 
-function deviceTier(): DeviceTier {
+export function deviceTier(): DeviceTier {
   if (typeof window === "undefined" || !window.matchMedia) return "low";
   if (window.matchMedia("(hover: hover) and (pointer: fine)").matches) return "desktop";
   const cores = navigator.hardwareConcurrency ?? 0;
   if (cores >= 8) return "high";
   if (cores >= 6) return "mid";
   return "low";
+}
+
+/**
+ * SSR-safe device tier. Starts at `low` (server + first paint) and resolves the
+ * real tier after mount — so heavy, capable-only paths (e.g. the live WebGL map)
+ * never render on the first paint of a low-end device where they could OOM.
+ */
+export function useDeviceTier(): DeviceTier {
+  const [tier, setTier] = useState<DeviceTier>("low");
+  useEffect(() => {
+    setTier(deviceTier());
+  }, []);
+  return tier;
 }
 
 /** Default profile by tier — mobile stays `baseline` until telemetry proves a
