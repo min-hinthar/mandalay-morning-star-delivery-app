@@ -5,7 +5,6 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { NavDots } from "@/components/ui/NavDots";
 
 // ============================================
 // TYPES
@@ -16,10 +15,6 @@ export interface CarouselControlsProps {
   totalItems: number;
   /** Current visible index */
   currentIndex: number;
-  /** Callback for previous button */
-  onPrev: () => void;
-  /** Callback for next button */
-  onNext: () => void;
   /** Callback when dot is clicked */
   onDotClick: (index: number) => void;
   /** Labels for dot indicators (item names) */
@@ -29,16 +24,16 @@ export interface CarouselControlsProps {
 }
 
 // ============================================
-// ARROW BUTTON COMPONENT
+// ARROW BUTTON (warm paper — overlays the cards)
 // ============================================
 
-interface ArrowButtonProps {
+export interface ArrowButtonProps {
   direction: "left" | "right";
   onClick: () => void;
   disabled: boolean;
 }
 
-function ArrowButton({ direction, onClick, disabled }: ArrowButtonProps) {
+export function ArrowButton({ direction, onClick, disabled }: ArrowButtonProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const Icon = direction === "left" ? ChevronLeft : ChevronRight;
 
@@ -52,18 +47,13 @@ function ArrowButton({ direction, onClick, disabled }: ArrowButtonProps) {
             onClick();
           }}
           className={cn(
-            "absolute top-1/2 -translate-y-1/2 z-20",
-            "w-10 h-10 md:w-12 md:h-12",
-            "flex items-center justify-center",
-            "rounded-full",
-            // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
-            "bg-surface-primary md:bg-surface-primary/80 md:backdrop-blur-md",
-            "border border-border-subtle",
-            "text-text-primary hover:text-primary",
-            "shadow-lg hover:shadow-xl",
-            "transition-colors duration-150",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-            direction === "left" ? "left-2 md:left-4" : "right-2 md:right-4"
+            "absolute top-1/2 z-20 -translate-y-1/2",
+            "hidden h-10 w-10 items-center justify-center sm:flex md:h-11 md:w-11",
+            "rounded-full hero-surface-paper",
+            "text-hero-ink hover:text-hero-clay",
+            "shadow-md transition-colors duration-150",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/60",
+            direction === "left" ? "left-1 md:left-2" : "right-1 md:right-2"
           )}
           initial={shouldAnimate ? { opacity: 0, scale: 0.8 } : undefined}
           animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
@@ -73,7 +63,7 @@ function ArrowButton({ direction, onClick, disabled }: ArrowButtonProps) {
           transition={shouldAnimate ? getSpring(spring.snappy) : undefined}
           aria-label={direction === "left" ? "Previous items" : "Next items"}
         >
-          <Icon className="w-5 h-5 md:w-6 md:h-6" />
+          <Icon className="h-5 w-5" />
         </m.button>
       )}
     </AnimatePresence>
@@ -81,35 +71,46 @@ function ArrowButton({ direction, onClick, disabled }: ArrowButtonProps) {
 }
 
 // ============================================
-// MAIN COMPONENT
+// DOTS — editorial clay pills (the active one stretches)
 // ============================================
 
 export function CarouselControls({
   totalItems,
   currentIndex,
-  onPrev,
-  onNext,
   onDotClick,
   dotLabels,
   className,
 }: CarouselControlsProps) {
-  const isAtStart = currentIndex === 0;
-  const isAtEnd = currentIndex >= totalItems - 1;
+  const { shouldAnimate } = useAnimationPreference();
 
   return (
-    <div className={cn("relative", className)}>
-      {/* Arrow buttons */}
-      <ArrowButton direction="left" onClick={onPrev} disabled={isAtStart} />
-      <ArrowButton direction="right" onClick={onNext} disabled={isAtEnd} />
-
-      {/* Dots indicator */}
-      <div className="flex justify-center mt-6">
-        <NavDots
-          total={totalItems}
-          current={currentIndex}
-          onSelect={onDotClick}
-          labels={dotLabels}
-        />
+    <div className={cn("mt-5 flex justify-center", className)}>
+      <div className="flex items-center gap-1.5" aria-label="Featured dishes">
+        {Array.from({ length: totalItems }).map((_, i) => {
+          const isActive = i === currentIndex;
+          return (
+            <button
+              key={i}
+              type="button"
+              aria-current={isActive ? "true" : undefined}
+              aria-label={dotLabels?.[i] ?? `Go to item ${i + 1}`}
+              onClick={() => onDotClick(i)}
+              className="group grid place-items-center py-1.5 focus-visible:outline-none"
+            >
+              <m.span
+                className={cn(
+                  "block h-1.5 rounded-full transition-colors",
+                  isActive
+                    ? "bg-hero-clay"
+                    : "bg-hero-ink/20 group-hover:bg-hero-ink/35 group-focus-visible:ring-2 group-focus-visible:ring-hero-clay/60"
+                )}
+                animate={shouldAnimate ? { width: isActive ? 22 : 6 } : undefined}
+                style={shouldAnimate ? undefined : { width: isActive ? 22 : 6 }}
+                transition={{ type: "spring", stiffness: 320, damping: 28 }}
+              />
+            </button>
+          );
+        })}
       </div>
     </div>
   );
