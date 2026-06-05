@@ -82,3 +82,38 @@ transitions**. So a subscription alone isn't enough:
 When work spans sessions, the PR + its review thread + the registry row are the
 handoff. Don't push competing commits to a branch another session owns
 mid-iteration unless you're deliberately taking it over — say so in a comment.
+
+## Branching, stacking & merging (efficiency)
+
+Hard-won from the #129–#134 train. The goal is to spend effort on the change,
+not on git mechanics.
+
+- **Prefer independent PRs off `main`.** Stack only when a change genuinely
+  depends on another's code. Deep stacks (PR3 → PR2 → PR1) cost real time:
+  children get **no blocking CI until their base is `main`**, and **squash-
+  merging a parent makes every child `dirty`** (see CLAUDE.md workflow #10). When
+  you do stack, keep it shallow and **merge bottom-up promptly** so children
+  don't drift.
+- **One squash commit per PR keeps `main` clean — but breaks open stacks.** After
+  squash-merging a parent, rebase each child onto `main` replaying only its own
+  commits: `git rebase --onto main <old-parent-tip> <child>` → re-verify →
+  `git push --force-with-lease`. Don't naive-retarget a child's base to `main`
+  (it re-introduces the squashed parent and can revert later fixes).
+- **Changing a PR's base does _not_ trigger CI.** The `pull_request` workflow
+  runs on `opened`/`synchronize`/`reopened`, not `edited`. After retargeting to
+  `main`, fire a run with a push (force-push the rebase) or a close+reopen —
+  otherwise the required checks never start and the PR can't merge.
+- **Merge order across stacks:** `#129 → #130 → #131`, each: merge → rebase the
+  next child onto the new `main` → re-verify → force-push → (push/reopen to
+  trigger CI) → merge when green. Budget ~6 min of CI per level.
+- **Verify locally before every force-push to a shared branch.** A stacked child
+  has no CI of its own until it sits on `main`, so the local
+  lint·lint:css·format·typecheck·test·build run _is_ the gate.
+- **House-keeping:** delete merged `claude/*` branches. If the repo enables
+  _Settings → Pull Requests → Allow auto-merge_, prefer `enable_pr_auto_merge`
+  (SQUASH) over babysitting CI — it lands the PR the moment checks pass, which
+  closes the "can't watch CI from a session" gap.
+- **`GH_TOKEN` is often proxy-scoped** — invalid against public `api.github.com`,
+  so `curl`-polling CI won't work. Use the GitHub MCP (`get_check_runs`) on
+  re-invocation; for "new push" detection a `git ls-remote origin` `Monitor`
+  works (it goes through the git proxy, not the REST API).
