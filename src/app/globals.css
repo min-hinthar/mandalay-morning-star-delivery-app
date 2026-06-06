@@ -546,6 +546,16 @@
     color: var(--menu-modal-accent);
   }
 
+  /* Gold glint sweep across a card image on hover (one-shot, JS-driven) */
+  .card-gold-shimmer {
+    background: linear-gradient(
+      105deg,
+      transparent 38%,
+      color-mix(in srgb, var(--menu-gold) 42%, transparent) 50%,
+      transparent 62%
+    );
+  }
+
   .menu-modal-rule {
     background: linear-gradient(
       90deg,
