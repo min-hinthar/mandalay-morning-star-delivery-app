@@ -59,22 +59,25 @@ export function OfferBanner({ className, source = "banner" }: OfferBannerProps) 
   if (!ready) return null;
 
   return (
-    <div className={cn("relative", className)}>
-      <AnimatePresence mode="wait" initial={false}>
+    <m.div
+      layout={shouldAnimate}
+      transition={{ layout: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
+      className={cn("relative flex justify-center", className)}
+    >
+      <AnimatePresence mode="popLayout" initial={false}>
         {collapsed ? (
           <m.button
             key="pill"
             type="button"
             onClick={expand}
             aria-label="Show rewards offer — $5 off your first order, and refer a friend for $10"
-            initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
-            animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
-            exit={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
-            transition={{ type: "spring", stiffness: 320, damping: 26 }}
+            initial={shouldAnimate ? { opacity: 0 } : false}
+            animate={{ opacity: 1 }}
+            exit={shouldAnimate ? { opacity: 0 } : undefined}
+            transition={{ duration: shouldAnimate ? 0.2 : 0 }}
             className={cn(
               "group inline-flex items-center gap-2.5 rounded-full hero-surface-paper py-1.5 pl-1.5 pr-4",
-              "shadow-sm ring-1 ring-hero-line transition-all duration-300",
-              "hover:-translate-y-0.5 hover:shadow-md",
+              "shadow-sm ring-1 ring-hero-line transition-shadow duration-300 hover:shadow-md",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/50"
             )}
           >
@@ -95,12 +98,12 @@ export function OfferBanner({ className, source = "banner" }: OfferBannerProps) 
             key="full"
             role="region"
             aria-label="Offers"
-            initial={shouldAnimate ? { opacity: 0, y: -6 } : undefined}
-            animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-            exit={shouldAnimate ? { opacity: 0, scale: 0.97 } : undefined}
-            transition={{ duration: 0.25, ease: "easeOut" }}
+            initial={shouldAnimate ? { opacity: 0 } : false}
+            animate={{ opacity: 1 }}
+            exit={shouldAnimate ? { opacity: 0 } : undefined}
+            transition={{ duration: shouldAnimate ? 0.2 : 0 }}
             className={cn(
-              "relative flex items-center gap-3 overflow-hidden rounded-2xl hero-surface-vellum px-4 py-3",
+              "relative flex w-full items-center gap-3 overflow-hidden rounded-2xl hero-surface-vellum px-3.5 py-3 sm:px-4",
               "ring-1 ring-hero-line"
             )}
           >
@@ -144,7 +147,7 @@ export function OfferBanner({ className, source = "banner" }: OfferBannerProps) 
               onClick={collapse}
               aria-label="Collapse offer"
               className={cn(
-                "shrink-0 rounded-full p-1 text-hero-ink-muted transition-colors",
+                "grid h-8 w-8 shrink-0 place-items-center rounded-full text-hero-ink-muted transition-colors",
                 "hover:bg-hero-card hover:text-hero-ink",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/40"
               )}
@@ -154,7 +157,7 @@ export function OfferBanner({ className, source = "banner" }: OfferBannerProps) 
           </m.div>
         )}
       </AnimatePresence>
-    </div>
+    </m.div>
   );
 }
 
