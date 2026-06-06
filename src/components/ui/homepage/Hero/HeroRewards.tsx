@@ -3,18 +3,19 @@
 /**
  * HeroRewards — Morning Star Rewards as a "ကြယ်ဆု" (star-reward) CONSTELLATION.
  * An asymmetric editorial standout: the left column states the value prop + a
- * live perk panel; the right column is a star constellation — each loyalty tier
- * is a star, and the path lights up segment-by-segment as you climb toward the
- * apex "Morning Star" (Gold). Hover / tap / focus a star to preview its perks
- * ($ reward + unlock + bilingual benefits). Value-prop only (no auth) — every
- * number comes from LOYALTY_TIERS / TIER_PERKS.
+ * live perk panel; the right column is a constellation of crafted Burmese-gem
+ * nodes — each loyalty tier is a faceted gem in a warm-paper disc (sheen sweep +
+ * gentle float + tier glow), and the path lights up segment-by-segment as you
+ * climb toward the Gold apex "Morning Star". Hover / tap / focus a gem to preview
+ * its perks. Value-prop only (no auth) — numbers come from LOYALTY_TIERS /
+ * TIER_PERKS.
  *
- * Perf/a11y: only the active star's halo + a single path shimmer animate
- * (transform/opacity/pathLength), gated on `shouldAnimate`, pausing offscreen
- * (.hero-anim-paused). The visible panel updates on hover for sighted users; a
- * separate sr-only aria-live region announces only on focus/click (no SR spam on
- * a mouse sweep). No full-screen blur()/backdrop-filter — within the mobile GPU
- * budget. Burmese tier names are in script (flagged for native review).
+ * Perf/a11y: float + sheen are transform-only; only the active gem's halo
+ * (opacity-only) + one path shimmer loop, gated on `shouldAnimate`, pausing
+ * offscreen (.hero-anim-paused). The visible panel updates on hover; a separate
+ * sr-only aria-live region announces only on focus/click (no SR spam on a mouse
+ * sweep). One small `blur-md` halo only — within the mobile GPU budget. Burmese
+ * tier names are in script (flagged for native review).
  */
 
 import { useState, type CSSProperties } from "react";
@@ -26,25 +27,31 @@ import { LOYALTY_TIERS, TIER_PERKS, type LoyaltyTierId, type LoyaltyPerk } from 
 import { HeroCardLayers } from "./HeroCardLayers";
 import { HeroSunburst } from "./HeroSunburst";
 
-/** Per-tier star: triad + gold apex (token-pure), Burmese-script name, glyph. */
-const TIER_STAR: Record<
+/** Per-tier: color-accurate gem fill + token-pure ring/halo/text + Burmese name.
+ *  Ruby/Gold use semantic jewel colors (no red/gold in the triad); everything
+ *  else stays on hero tokens. */
+const TIER_GEM: Record<
   LoyaltyTierId,
-  { text: string; halo: string; stroke: string; my: string; glyph: string }
+  { base: string; ring: string; halo: string; text: string; my: string }
 > = {
-  new: { text: "text-hero-clay", halo: "bg-hero-clay/30", stroke: "var(--hero-clay)", my: "မိတ်ဆွေသစ်", glyph: "✦" },
-  jade: { text: "text-hero-sage", halo: "bg-hero-sage/35", stroke: "var(--hero-sage)", my: "ကျောက်စိမ်း", glyph: "★" },
-  ruby: { text: "text-hero-blue", halo: "bg-hero-blue/35", stroke: "var(--hero-blue)", my: "ပတ္တမြား", glyph: "★" },
-  gold: { text: "text-amber-500", halo: "bg-amber-400/40", stroke: "rgb(245 158 11)", my: "ရွှေ", glyph: "★" },
+  new: { base: "var(--hero-clay)", ring: "ring-hero-clay/60", halo: "bg-hero-clay/35", text: "text-hero-clay", my: "မိတ်ဆွေသစ်" },
+  jade: { base: "var(--hero-sage)", ring: "ring-hero-sage/70", halo: "bg-hero-sage/40", text: "text-hero-sage", my: "ကျောက်စိမ်း" },
+  ruby: { base: "#c43b54", ring: "ring-hero-accent/70", halo: "bg-rose-400/40", text: "text-hero-accent", my: "ပတ္တမြား" },
+  gold: { base: "rgb(245 158 11)", ring: "ring-hero-clay/70", halo: "bg-amber-400/45", text: "text-amber-500", my: "ရွှေ" },
 }; // prettier-ignore
 
 /** Constellation anchors (% of the stage) — a non-linear climb to the Gold apex. */
 const STAR_POS = [
-  { x: 15, y: 72, size: "text-xl md:text-2xl" },
-  { x: 39, y: 45, size: "text-2xl md:text-3xl" },
-  { x: 63, y: 60, size: "text-3xl md:text-4xl" },
-  { x: 86, y: 26, size: "text-4xl md:text-5xl" },
+  { x: 15, y: 70 },
+  { x: 39, y: 44 },
+  { x: 63, y: 60 },
+  { x: 86, y: 26 },
 ];
 const LINE_POINTS = STAR_POS.map((p) => `${p.x},${p.y}`).join(" ");
+
+/** Rotating facet sheen over each gem. */
+const FACET =
+  "conic-gradient(from 140deg, transparent, rgba(255,255,255,0.5), transparent 40%, rgba(255,255,255,0.28), transparent 75%)";
 
 /** Decorative background "sky" twinkles (deterministic). */
 const SKY = Array.from({ length: 6 }, (_, i) => {
@@ -68,6 +75,28 @@ function perkLabel(perk: LoyaltyPerk) {
   return `${perk.en} — ${perk.my}`;
 }
 
+/** A crafted faceted cut-gem (table + girdle + pavilion + facet lines). */
+function Gem({ color, className }: { color: string; className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} aria-hidden="true">
+      <polygon points="7,6.5 17,6.5 20,10 12,21 4,10" fill={color} />
+      {/* table facet (catches light) */}
+      <polygon points="7,6.5 17,6.5 15,10 9,10" fill="#fff" fillOpacity="0.3" />
+      {/* crown shadow + pavilion highlight for depth */}
+      <polygon points="7,6.5 9,10 4,10" fill="#000" fillOpacity="0.12" />
+      <polygon points="9,10 12,21 4,10" fill="#fff" fillOpacity="0.13" />
+      {/* facet lines */}
+      <g stroke="#fff" strokeOpacity="0.4" strokeWidth="0.4" fill="none" strokeLinejoin="round">
+        <polyline points="4,10 20,10" />
+        <polyline points="9,10 7,6.5" />
+        <polyline points="15,10 17,6.5" />
+        <polyline points="9,10 12,21" />
+        <polyline points="15,10 12,21" />
+      </g>
+    </svg>
+  );
+}
+
 export function HeroRewards({ className }: { className?: string }) {
   const { shouldAnimate } = useAnimationPreference();
   // `active` drives the visual highlight + the visible detail panel (hover/focus/
@@ -75,7 +104,7 @@ export function HeroRewards({ className }: { className?: string }) {
   const [active, setActive] = useState(0);
   const [announced, setAnnounced] = useState(0);
   const tier = LOYALTY_TIERS[active] ?? LOYALTY_TIERS[0];
-  const star = TIER_STAR[tier.id];
+  const gem = TIER_GEM[tier.id];
   const perks = TIER_PERKS[tier.id];
   const announcedTier = LOYALTY_TIERS[announced] ?? LOYALTY_TIERS[0];
   const unlockText =
@@ -129,7 +158,7 @@ export function HeroRewards({ className }: { className?: string }) {
             reward every <span className="font-semibold text-hero-accent">5</span>.
           </p>
 
-          {/* Live perk panel for the active star (visible; the sr-only announcer
+          {/* Live perk panel for the active gem (visible; the sr-only announcer
               below carries focus/click updates so hover can't spam screen readers). */}
           <div className="mt-4 min-h-[6.5rem] rounded-2xl bg-hero-card/55 p-3 text-left ring-1 ring-hero-line">
             <AnimatePresence mode="wait">
@@ -140,13 +169,11 @@ export function HeroRewards({ className }: { className?: string }) {
                 exit={shouldAnimate ? { opacity: 0, y: -6 } : undefined}
                 transition={{ duration: 0.22, ease: "easeOut" }}
               >
-                <p className="flex items-baseline gap-1.5 text-base font-semibold text-hero-ink">
-                  <span aria-hidden="true" className={cn("text-lg leading-none", star.text)}>
-                    {star.glyph}
-                  </span>
+                <p className="flex items-center gap-1.5 text-base font-semibold text-hero-ink">
+                  <Gem color={gem.base} className="h-4 w-4 shrink-0" />
                   {tier.english}
                   <span className="font-burmese text-sm font-normal text-hero-ink-muted">
-                    {star.my}
+                    {gem.my}
                   </span>
                 </p>
                 <p className="text-xs text-hero-ink-muted">
@@ -177,7 +204,7 @@ export function HeroRewards({ className }: { className?: string }) {
           </div>
         </div>
 
-        {/* RIGHT — the ကြယ်ဆု constellation */}
+        {/* RIGHT — the ကြယ်ဆု gem constellation */}
         <div className="relative h-52 w-full md:h-56">
           {/* Background sky twinkles */}
           {SKY.map((s, i) => (
@@ -208,8 +235,8 @@ export function HeroRewards({ className }: { className?: string }) {
             <defs>
               <linearGradient id="hero-constellation" x1="0" y1="1" x2="1" y2="0">
                 <stop offset="0%" stopColor="var(--hero-clay)" />
-                <stop offset="40%" stopColor="var(--hero-sage)" />
-                <stop offset="70%" stopColor="var(--hero-blue)" />
+                <stop offset="38%" stopColor="var(--hero-sage)" />
+                <stop offset="70%" stopColor="#c43b54" />
                 <stop offset="100%" stopColor="rgb(245 158 11)" />
               </linearGradient>
             </defs>
@@ -259,10 +286,10 @@ export function HeroRewards({ className }: { className?: string }) {
             )}
           </svg>
 
-          {/* Tier stars */}
+          {/* Tier gems */}
           <ol>
             {LOYALTY_TIERS.map((t, i) => {
-              const s = TIER_STAR[t.id];
+              const g = TIER_GEM[t.id];
               const p = STAR_POS[i];
               const isActive = i === active;
               const earned = i <= active;
@@ -283,24 +310,24 @@ export function HeroRewards({ className }: { className?: string }) {
                     onPointerEnter={() => setActive(i)}
                     onFocus={() => select(i)}
                     onClick={() => select(i)}
-                    className="group relative grid place-items-center rounded-full p-1 outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/60"
+                    className="group relative grid place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/60"
                   >
                     {/* Sunburst rays behind the Gold apex */}
                     {t.id === "gold" && (
                       <HeroSunburst
                         className={cn(
-                          "pointer-events-none absolute h-12 w-12 text-amber-500 transition-opacity duration-300 md:h-16 md:w-16",
+                          "pointer-events-none absolute h-[4.5rem] w-[4.5rem] text-amber-500 transition-opacity duration-300",
                           isActive ? "opacity-70" : "opacity-40"
                         )}
                         rays={12}
                       />
                     )}
-                    {/* Soft halo (radial via bg + opacity; pulses only when active) */}
+                    {/* Soft glow halo (opacity-only pulse on active — no blur re-raster) */}
                     <m.span
                       aria-hidden="true"
                       className={cn(
-                        "pointer-events-none absolute h-9 w-9 rounded-full blur-md md:h-11 md:w-11",
-                        s.halo
+                        "pointer-events-none absolute h-10 w-10 rounded-full blur-md md:h-12 md:w-12",
+                        g.halo
                       )}
                       animate={
                         shouldAnimate && isActive
@@ -313,16 +340,30 @@ export function HeroRewards({ className }: { className?: string }) {
                           : { duration: 0.3 }
                       }
                     />
-                    {/* Star glyph */}
+                    {/* Faceted gem disc */}
                     <span
                       className={cn(
-                        "relative leading-none transition-all duration-300",
-                        p.size,
-                        s.text,
-                        isActive ? "scale-110" : earned ? "scale-100" : "scale-90 opacity-45"
+                        "hero-gem-float relative grid h-11 w-11 place-items-center overflow-hidden rounded-full ring-2 hero-surface-paper transition-transform duration-300 md:h-14 md:w-14",
+                        g.ring,
+                        isActive
+                          ? "scale-110 ring-[3px]"
+                          : earned
+                            ? "scale-100"
+                            : "scale-95 opacity-70"
                       )}
+                      style={
+                        {
+                          "--gem-dur": `${3.6 + i * 0.4}s`,
+                          "--gem-delay": `${i * 0.3}s`,
+                        } as CSSProperties
+                      }
                     >
-                      {s.glyph}
+                      <span
+                        aria-hidden="true"
+                        className="hero-gem-spin absolute inset-0 opacity-40 mix-blend-overlay"
+                        style={{ background: FACET }}
+                      />
+                      <Gem color={g.base} className="relative h-6 w-6 md:h-7 md:w-7" />
                     </span>
                     {/* Label */}
                     <span className="absolute left-1/2 top-full mt-1.5 -translate-x-1/2 whitespace-nowrap text-center">
@@ -335,7 +376,7 @@ export function HeroRewards({ className }: { className?: string }) {
                         {t.english}
                       </span>
                       <span className="block font-burmese text-[0.625rem] leading-tight text-hero-ink-muted">
-                        {s.my}
+                        {g.my}
                       </span>
                     </span>
                   </button>
