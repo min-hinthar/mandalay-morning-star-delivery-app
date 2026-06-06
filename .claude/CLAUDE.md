@@ -223,3 +223,17 @@ ComponentName/
 - Before `/sync`: run `/retro` to capture learnings
 - For new UI work: start with `/frontend-design` or `/prd-ux`
 
+## PR Review Automation
+
+- **Active:** `.github/workflows/claude-pr-review.yml` runs Claude on every PR push
+  (`opened`/`synchronize`/`reopened`) and posts severity-tagged inline + summary comments.
+  Open the repo in an active session and the comments are already there — no need to re-prompt
+  "review this".
+- **Review calibration lives in** `.github/claude-review-prompt.md` (severity weights: security /
+  payments / order-lifecycle = heavy; bugs / perf = medium; taste / style = light). Edit that file
+  to tune the review — no YAML changes needed; the workflow just points Claude at it.
+- **Test a prompt change before merging:** push to a branch, open a PR, watch the run in the Actions
+  tab; iterate on `.github/claude-review-prompt.md` and push again.
+- **Auth:** `CLAUDE_CODE_OAUTH_TOKEN` (Max-covered, `claude setup-token`) or `ANTHROPIC_API_KEY`,
+  set as a repo Actions secret. Model override via repo variable `CLAUDE_REVIEW_MODEL`.
+
