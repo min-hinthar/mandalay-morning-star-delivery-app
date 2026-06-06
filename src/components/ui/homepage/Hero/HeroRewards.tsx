@@ -3,17 +3,16 @@
 /**
  * HeroRewards — Morning Star Rewards as a "ကြယ်ဆု" (star-reward) CONSTELLATION.
  * An asymmetric editorial standout: the left column states the value prop + a
- * live perk panel; the right column is a constellation of radiant GEMSTARS — each
- * loyalty tier is a luminous star in its gem's true colour (clay → jade-green →
- * ruby-red → gold), with a soft radial glow, 8-point sparkle rays and a bright
- * jewel core. The path lights up segment-by-segment as you climb to the Gold
- * apex "Morning Star" (a full sunburst). Hover / tap / focus a gemstar to preview
- * its perks. Value-prop only (no auth) — numbers come from LOYALTY_TIERS /
- * TIER_PERKS.
+ * live perk panel; the right column is a constellation of crafted tier nodes —
+ * each loyalty tier is an emoji seated in a warm-paper faceted disc (rotating
+ * facet sheen + gentle float + tier glow), and the path lights up segment-by-
+ * segment as you climb to the Gold apex "Morning Star" (a full sunburst).
+ * Hover / tap / focus a node to preview its perks. Value-prop only (no auth) —
+ * numbers come from LOYALTY_TIERS / TIER_PERKS.
  *
- * Perf/a11y: glows are radial-gradients (no blur backing store); float+twinkle
- * is one CSS transform animation (pauses offscreen via .hero-anim-paused); only
- * the active glow + one path shimmer loop in JS, gated on `shouldAnimate`. The
+ * Perf/a11y: glows are radial-gradients (no blur backing store); float + facet
+ * sheen are transform-only CSS (pause offscreen via .hero-anim-paused); only the
+ * active glow + one path shimmer loop in JS, gated on `shouldAnimate`. The
  * visible panel updates on hover; a separate sr-only aria-live region announces
  * only on focus/click. Within the mobile GPU budget. Burmese tier names are in
  * script (flagged for native review).
@@ -28,22 +27,29 @@ import { LOYALTY_TIERS, TIER_PERKS, type LoyaltyTierId, type LoyaltyPerk } from 
 import { HeroCardLayers } from "./HeroCardLayers";
 import { HeroSunburst } from "./HeroSunburst";
 
-/** Per-tier jewel colour (color-accurate) + Burmese-script name. */
-const TIER: Record<LoyaltyTierId, { color: string; my: string }> = {
-  new: { color: "#d97757", my: "မိတ်ဆွေသစ်" }, // clay
-  jade: { color: "#2fa572", my: "ကျောက်စိမ်း" }, // jade green
-  ruby: { color: "#d62246", my: "ပတ္တမြား" }, // ruby red
-  gold: { color: "#eaa92f", my: "ရွှေ" }, // gold
-};
+/** Per-tier node: emoji + ring/halo (decorative) + glow colour + Burmese name. */
+const TIER: Record<
+  LoyaltyTierId,
+  { emoji: string; ring: string; halo: string; glow: string; my: string }
+> = {
+  new: { emoji: "⭐", ring: "ring-hero-clay/60", halo: "bg-hero-clay/30", glow: "var(--hero-clay)", my: "မိတ်ဆွေသစ်" },
+  jade: { emoji: "💎", ring: "ring-hero-sage/70", halo: "bg-hero-sage/35", glow: "var(--hero-sage)", my: "ကျောက်စိမ်း" },
+  ruby: { emoji: "♦️", ring: "ring-hero-accent/70", halo: "bg-rose-400/40", glow: "#e0556b", my: "ပတ္တမြား" },
+  gold: { emoji: "👑", ring: "ring-hero-clay/70", halo: "bg-amber-400/45", glow: "#eaa92f", my: "ရွှေ" },
+}; // prettier-ignore
 
-/** Constellation anchors (% of stage) + gemstar size (px) — a non-linear climb. */
+/** Constellation anchors (% of stage) — a non-linear climb to the Gold apex. */
 const STAR_POS = [
-  { x: 18, y: 70, size: 32 },
-  { x: 40, y: 45, size: 40 },
-  { x: 62, y: 58, size: 48 },
-  { x: 80, y: 28, size: 58 },
+  { x: 16, y: 70 },
+  { x: 40, y: 46 },
+  { x: 62, y: 60 },
+  { x: 84, y: 28 },
 ];
 const LINE_POINTS = STAR_POS.map((p) => `${p.x},${p.y}`).join(" ");
+
+/** Rotating facet sheen over each gem disc. */
+const FACET =
+  "conic-gradient(from 140deg, transparent, rgba(255,255,255,0.5), transparent 40%, rgba(255,255,255,0.28), transparent 75%)";
 
 /** Decorative background "sky" twinkles (deterministic). */
 const SKY = Array.from({ length: 6 }, (_, i) => {
@@ -67,33 +73,6 @@ function perkLabel(perk: LoyaltyPerk) {
   return `${perk.en} — ${perk.my}`;
 }
 
-/** A luminous gemstar: 8-point sparkle rays + a bright white jewel core + glint. */
-function GemStar({ color, id, className }: { color: string; id: string; className?: string }) {
-  return (
-    <svg viewBox="0 0 48 48" className={cn("overflow-visible", className)} aria-hidden="true">
-      <defs>
-        <radialGradient id={id} cx="42%" cy="38%" r="65%">
-          <stop offset="0%" stopColor="#fff" />
-          <stop offset="45%" stopColor="#fff" stopOpacity="0.85" />
-          <stop offset="78%" stopColor={color} />
-          <stop offset="100%" stopColor={color} />
-        </radialGradient>
-      </defs>
-      {/* secondary diagonal rays (shorter, fainter) */}
-      <g opacity="0.5" transform="rotate(45 24 24)">
-        <polygon points="24,9 26,24 24,39 22,24" fill={color} />
-        <polygon points="9,24 24,22 39,24 24,26" fill={color} />
-      </g>
-      {/* primary 4-point rays */}
-      <polygon points="24,1 27,24 24,47 21,24" fill={color} />
-      <polygon points="1,24 24,21 47,24 24,27" fill={color} />
-      {/* bright jewel core + specular glint */}
-      <circle cx="24" cy="24" r="7" fill={`url(#${id})`} />
-      <circle cx="21" cy="21" r="1.7" fill="#fff" opacity="0.9" />
-    </svg>
-  );
-}
-
 export function HeroRewards({ className }: { className?: string }) {
   const { shouldAnimate } = useAnimationPreference();
   // `active` drives the visual highlight + the visible detail panel (hover/focus/
@@ -101,7 +80,7 @@ export function HeroRewards({ className }: { className?: string }) {
   const [active, setActive] = useState(0);
   const [announced, setAnnounced] = useState(0);
   const tier = LOYALTY_TIERS[active] ?? LOYALTY_TIERS[0];
-  const jewel = TIER[tier.id];
+  const node = TIER[tier.id];
   const perks = TIER_PERKS[tier.id];
   const announcedTier = LOYALTY_TIERS[announced] ?? LOYALTY_TIERS[0];
   const unlockText =
@@ -155,7 +134,7 @@ export function HeroRewards({ className }: { className?: string }) {
             reward every <span className="font-semibold text-hero-accent">5</span>.
           </p>
 
-          {/* Live perk panel for the active gemstar (visible; the sr-only announcer
+          {/* Live perk panel for the active node (visible; the sr-only announcer
               below carries focus/click updates so hover can't spam screen readers). */}
           <div className="mt-4 min-h-[6.5rem] rounded-2xl bg-hero-card/55 p-3 text-left ring-1 ring-hero-line">
             <AnimatePresence mode="wait">
@@ -167,14 +146,10 @@ export function HeroRewards({ className }: { className?: string }) {
                 transition={{ duration: 0.22, ease: "easeOut" }}
               >
                 <p className="flex items-center gap-1.5 text-base font-semibold text-hero-ink">
-                  <GemStar
-                    color={jewel.color}
-                    id={`gs-panel-${tier.id}`}
-                    className="h-4 w-4 shrink-0"
-                  />
+                  <span aria-hidden="true">{node.emoji}</span>
                   {tier.english}
                   <span className="font-burmese text-sm font-normal text-hero-ink-muted">
-                    {jewel.my}
+                    {node.my}
                   </span>
                 </p>
                 <p className="text-xs text-hero-ink-muted">
@@ -205,8 +180,8 @@ export function HeroRewards({ className }: { className?: string }) {
           </div>
         </div>
 
-        {/* RIGHT — the ကြယ်ဆု gemstar constellation */}
-        <div className="relative h-56 w-full md:h-60">
+        {/* RIGHT — the ကြယ်ဆု gem-disc constellation */}
+        <div className="relative h-52 w-full md:h-56">
           {/* Background sky twinkles */}
           {SKY.map((s, i) => (
             <span
@@ -236,8 +211,8 @@ export function HeroRewards({ className }: { className?: string }) {
             <defs>
               <linearGradient id="hero-constellation" x1="0" y1="1" x2="1" y2="0">
                 <stop offset="0%" stopColor="#d97757" />
-                <stop offset="38%" stopColor="#2fa572" />
-                <stop offset="70%" stopColor="#d62246" />
+                <stop offset="38%" stopColor="#788c5d" />
+                <stop offset="70%" stopColor="#e0556b" />
                 <stop offset="100%" stopColor="#eaa92f" />
               </linearGradient>
             </defs>
@@ -287,14 +262,14 @@ export function HeroRewards({ className }: { className?: string }) {
             )}
           </svg>
 
-          {/* Tier gemstars */}
+          {/* Tier nodes — emoji in faceted paper discs */}
           <ol>
             {LOYALTY_TIERS.map((t, i) => {
-              const j = TIER[t.id];
+              const n = TIER[t.id];
               const p = STAR_POS[i];
               const isActive = i === active;
               const earned = i <= active;
-              const glow = p.size * 2;
+              const glow = t.id === "gold" ? 84 : 66;
               return (
                 <li
                   key={t.id}
@@ -312,20 +287,20 @@ export function HeroRewards({ className }: { className?: string }) {
                     onPointerEnter={() => setActive(i)}
                     onFocus={() => select(i)}
                     onClick={() => select(i)}
-                    className="group relative grid place-items-center rounded-full p-1 outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/50"
+                    className="group relative grid place-items-center rounded-full outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/60"
                   >
-                    {/* Soft radial glow (no blur — radial-gradient falloff) */}
+                    {/* Soft radial glow (no blur — gradient falloff) */}
                     <m.span
                       aria-hidden="true"
                       className="pointer-events-none absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full"
                       style={{
                         width: glow,
                         height: glow,
-                        background: `radial-gradient(circle, ${j.color} 0%, transparent 66%)`,
+                        background: `radial-gradient(circle, ${n.glow} 0%, transparent 66%)`,
                       }}
                       animate={
                         shouldAnimate && isActive
-                          ? { opacity: [0.45, 0.75, 0.45] }
+                          ? { opacity: [0.5, 0.8, 0.5] }
                           : { opacity: isActive ? 0.7 : earned ? 0.4 : 0.16 }
                       }
                       transition={
@@ -338,34 +313,35 @@ export function HeroRewards({ className }: { className?: string }) {
                     {t.id === "gold" && (
                       <HeroSunburst
                         className={cn(
-                          "pointer-events-none absolute h-20 w-20 text-amber-500 transition-opacity duration-300",
+                          "pointer-events-none absolute h-[4.5rem] w-[4.5rem] text-amber-500 transition-opacity duration-300",
                           isActive ? "opacity-80" : "opacity-50"
                         )}
                         rays={12}
                       />
                     )}
-                    {/* Gemstar */}
+                    {/* Faceted gem disc with the tier emoji */}
                     <span
                       className={cn(
-                        "hero-gem-float relative block transition-opacity duration-300",
-                        isActive ? "opacity-100" : earned ? "opacity-95" : "opacity-55"
+                        "hero-gem-float relative grid h-11 w-11 place-items-center overflow-hidden rounded-full ring-2 hero-surface-paper md:h-14 md:w-14",
+                        n.ring,
+                        isActive ? "ring-[3px]" : earned ? "" : "opacity-70"
                       )}
                       style={
                         {
-                          width: p.size,
-                          height: p.size,
                           "--gem-dur": `${3.6 + i * 0.5}s`,
                           "--gem-delay": `${i * 0.35}s`,
                         } as CSSProperties
                       }
                     >
-                      <GemStar color={j.color} id={`gs-${t.id}`} className="h-full w-full" />
+                      <span
+                        aria-hidden="true"
+                        className="hero-gem-spin absolute inset-0 opacity-40 mix-blend-overlay"
+                        style={{ background: FACET }}
+                      />
+                      <span className="relative text-xl md:text-2xl">{n.emoji}</span>
                     </span>
                     {/* Label */}
-                    <span
-                      className="absolute left-1/2 top-full -translate-x-1/2 whitespace-nowrap text-center"
-                      style={{ marginTop: glow / 2 - p.size / 2 - 2 }}
-                    >
+                    <span className="absolute left-1/2 top-full mt-1.5 -translate-x-1/2 whitespace-nowrap text-center">
                       <span
                         className={cn(
                           "block text-2xs font-semibold transition-colors md:text-xs",
@@ -375,7 +351,7 @@ export function HeroRewards({ className }: { className?: string }) {
                         {t.english}
                       </span>
                       <span className="block font-burmese text-[0.625rem] leading-tight text-hero-ink-muted">
-                        {j.my}
+                        {n.my}
                       </span>
                     </span>
                   </button>
