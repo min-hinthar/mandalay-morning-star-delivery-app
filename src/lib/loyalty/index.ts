@@ -121,10 +121,11 @@ export const LOYALTY_TIERS: LoyaltyTier[] = [
     rewardCents: 500,
   },
   {
+    // id stays "jade" (internal key, never user-visible); displayed as Diamond.
     id: "jade",
-    name: "Kyauk Sein",
-    english: "Jade",
-    emoji: "💚",
+    name: "စိန်",
+    english: "Diamond",
+    emoji: "💎",
     minSpendCents: 25000,
     rewardCents: 800,
   },
