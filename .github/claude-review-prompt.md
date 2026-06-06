@@ -40,6 +40,7 @@ Tag **every** finding with one of these (used for visual filtering — keep the 
 ### HEAVY weight — surface every meaningful finding
 
 **Security**
+
 - Auth bypass; missing authz on protected routes (admin/driver/customer boundaries).
 - Secrets in code or client bundles (`NEXT_PUBLIC_*` leaking server secrets).
 - Injection (SQL via Supabase raw/RPC, command, path); unsafe raw-HTML rendering into the DOM
@@ -50,8 +51,9 @@ Tag **every** finding with one of these (used for visual filtering — keep the 
 - Exposed PII (addresses, phones, emails) in logs, responses, or client state.
 
 **Delivery-domain logic**
+
 - Order lifecycle state machine: `created → confirmed → preparing → ready → out_for_delivery →
-  delivered` (+ `cancelled`, COD `pending_approval`). Illegal transitions, missing guards, races.
+delivered` (+ `cancelled`, COD `pending_approval`). Illegal transitions, missing guards, races.
 - Inventory / availability consistency under concurrent orders.
 - Driver assignment race conditions (double-assign, declined-by handling — note the `routes→drivers`
   multi-FK PostgREST gotcha).
@@ -59,6 +61,7 @@ Tag **every** finding with one of these (used for visual filtering — keep the 
 - Delivery-day / cutoff logic and **timezone correctness** (America/Los_Angeles; see footguns).
 
 **Payment integrity**
+
 - **Idempotency keys** on every Stripe write (charge/refund/capture) — replays must not double-charge.
 - Webhook **replay protection** + signature verification; handler returns **500 on DB error** (so it
   retries) and never swallows failures into a 200.
