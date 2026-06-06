@@ -17,13 +17,10 @@
  */
 
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import Image from "next/image";
-import { X } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Drawer } from "@/components/ui/Drawer";
 import { AddToCartButton, QuantitySelector } from "@/components/ui/cart";
 import { ModifierGroup } from "./ModifierGroup";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -38,7 +35,8 @@ import { toast } from "@/lib/hooks/useToastV8";
 import { cn } from "@/lib/utils/cn";
 import type { CartItem } from "@/types/cart";
 import type { MenuItem, ModifierOption } from "@/types/menu";
-import { AllergenWarning, DiscardChangesDialog, getCategoryEmoji } from "./ItemDetailSheet/helpers";
+import { AllergenWarning, DiscardChangesDialog } from "./ItemDetailSheet/helpers";
+import { DishHero } from "./ItemDetailSheet/DishHero";
 
 // ============================================
 // TYPES
@@ -271,66 +269,17 @@ export function ItemDetailSheet({
     if (!item) return null;
 
     return (
-      <div className={cn("flex flex-col", isMobile && "h-full")}>
-        {/* Hero Image */}
-        <div className="relative aspect-video shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800">
-          {/* Close Button - uses semi-transparent overlay on image */}
-          <button
-            onClick={handleRequestClose}
-            className={cn(
-              "absolute top-3 right-3 z-10",
-              "w-8 h-8 rounded-full",
-              "bg-surface-inverse/50 hover:bg-surface-inverse/70",
-              "flex items-center justify-center",
-              "text-text-inverse",
-              "transition-colors duration-150",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-primary/50"
-            )}
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          {item.imageUrl ? (
-            <Image
-              src={item.imageUrl}
-              alt={item.nameEn}
-              fill
-              sizes="(max-width: 640px) 100vw, 512px"
-              className="menu-modal-kenburns object-cover"
-              priority
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-4xl">{getCategoryEmoji(item.tags?.[0])}</span>
-            </div>
-          )}
-          {item.isSoldOut && (
-            <div className="absolute inset-0 flex items-center justify-center bg-overlay-heavy">
-              <Badge variant="default" size="lg">
-                Sold Out
-              </Badge>
-            </div>
-          )}
-        </div>
+      <div className={cn("relative flex flex-col", isMobile && "h-full")}>
+        {/* Editorial hero: image + scrim + un-clipped close + floating plate */}
+        <DishHero item={item} onClose={handleRequestClose} />
 
         {/* Scrollable Content - touchAction inherited from Drawer content wrapper */}
         <div
           className={cn(
-            "p-4 space-y-4",
+            "p-4 pt-4 space-y-4",
             isMobile ? "flex-1 overflow-y-auto overscroll-contain" : ""
           )}
         >
-          {/* Header */}
-          <div>
-            <h2 className="font-display text-2xl font-bold text-text-primary">{item.nameEn}</h2>
-            {item.nameMy && <p className="font-burmese text-text-muted">{item.nameMy}</p>}
-            <p className="menu-modal-price font-display text-2xl font-bold mt-1">
-              {formatPrice(item.basePriceCents)}
-            </p>
-            {/* Clay/amber accent rule — After Dark divider */}
-            <div className="menu-modal-rule mt-3 h-px w-full" aria-hidden="true" />
-          </div>
-
           {/* Description */}
           {item.descriptionEn && <p className="text-text-secondary">{item.descriptionEn}</p>}
 

@@ -565,6 +565,21 @@
     );
   }
 
+  /* Editorial dot-grid behind the modal title plate (theme-matched to the
+     standard modal surface; fades down from the top). */
+  .menu-modal-dots {
+    background-image: radial-gradient(var(--menu-texture-dot) 1px, transparent 1px);
+    background-size: 16px 16px;
+    -webkit-mask-image: radial-gradient(120% 110% at 50% 0%, #000 28%, transparent 82%);
+    mask-image: radial-gradient(120% 110% at 50% 0%, #000 28%, transparent 82%);
+  }
+
+  /* Bottom scrim over the modal hero image so the floating title plate +
+     close button stay legible on any photo. */
+  .menu-modal-scrim {
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.5) 0%, transparent 68%);
+  }
+
   /* Slow Ken-Burns drift on the modal hero image — motion-gated */
   @media (prefers-reduced-motion: no-preference) {
     .menu-modal-kenburns {
