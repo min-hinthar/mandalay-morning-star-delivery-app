@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { m, AnimatePresence } from "framer-motion";
-import { Gift, X, ArrowRight, Sparkles } from "lucide-react";
+import { Gift, X, ArrowRight, ChevronRight, Sparkles } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -66,25 +66,29 @@ export function OfferBanner({ className, source = "banner" }: OfferBannerProps) 
             key="pill"
             type="button"
             onClick={expand}
-            aria-label="Show rewards offer"
+            aria-label="Show rewards offer — $5 off your first order, and refer a friend for $10"
             initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
             animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
             exit={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
             transition={{ type: "spring", stiffness: 320, damping: 26 }}
             className={cn(
-              "group inline-flex items-center gap-2 rounded-full hero-surface-paper py-1.5 pl-2 pr-3",
-              "text-sm font-semibold text-hero-ink shadow-sm transition-shadow hover:shadow-md",
+              "group inline-flex items-center gap-2.5 rounded-full hero-surface-paper py-1.5 pl-1.5 pr-4",
+              "shadow-sm ring-1 ring-hero-line transition-all duration-300",
+              "hover:-translate-y-0.5 hover:shadow-md",
               "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/50"
             )}
           >
-            <span className="grid h-6 w-6 place-items-center rounded-full bg-hero-clay/15 text-hero-clay">
-              <Gift className="h-3.5 w-3.5" />
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-hero-clay/15 text-hero-clay ring-1 ring-hero-clay/20">
+              <Gift className="h-[18px] w-[18px]" />
             </span>
-            Rewards
-            <span className="rounded-full bg-hero-clay/12 px-1.5 py-0.5 text-2xs font-bold text-hero-accent">
-              $5 + $10
+            <span className="flex flex-col items-start leading-tight">
+              <span className="text-sm font-bold text-hero-ink">Rewards</span>
+              <span className="text-2xs font-medium text-hero-ink-muted">
+                <span className="font-bold text-hero-accent">$5</span> off · refer for{" "}
+                <span className="font-bold text-hero-accent">$10</span>
+              </span>
             </span>
-            <ArrowRight className="h-3.5 w-3.5 text-hero-clay transition-transform group-hover:translate-x-0.5" />
+            <ChevronRight className="ml-0.5 h-4 w-4 shrink-0 text-hero-clay transition-transform group-hover:translate-x-0.5" />
           </m.button>
         ) : (
           <m.div
