@@ -97,6 +97,8 @@ function BadgeItem({ config, index }: BadgeItemProps) {
         "rounded-full text-2xs font-semibold uppercase tracking-wide",
         config.bgColor,
         config.textColor,
+        // Soft glow ring in the badge's own hue (reads as a lit chip)
+        "ring-1 ring-inset ring-current/25",
         // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
         "sm:backdrop-blur-sm shadow-sm"
       )}
