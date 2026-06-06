@@ -152,7 +152,10 @@ cascade) · `hero-font-breathe` (variable-axis headline) · `hero-accent-underli
    is **pointer + device-orientation** only.
 4. **Throttle pointer with rAF**; never `setState` per raw pointer event.
 5. **Pause when offscreen** (IntersectionObserver) for continuous loops; clean up
-   every listener/timeout in `useEffect`.
+   every listener/timeout in `useEffect`. Note: the shared `.hero-anim-paused`
+   toggle only pauses **CSS** animations — framer-motion JS loops (`repeat:
+Infinity`) keep running offscreen, so gate them on `useInView(ref)` too
+   (`const loop = shouldAnimate && inView`; render/animate the loop only when `loop`).
 6. Easing: prefer `cubic-bezier(0.22,1,0.36,1)` (develop), springs for tactile.
 
 ## 7. Mobile
