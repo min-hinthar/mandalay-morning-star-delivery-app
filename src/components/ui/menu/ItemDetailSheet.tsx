@@ -24,8 +24,9 @@ import { ModifierGroup } from "./ModifierGroup";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useReducedMotion } from "framer-motion";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
-import { formatPrice } from "@/lib/utils/currency";
+import { RollingNumber } from "@/components/ui/homepage/Hero/RollingDigits";
 import {
   calculateItemPrice,
   validateModifierSelection,
@@ -71,6 +72,19 @@ export interface ItemDetailSheetProps {
 }
 
 // ============================================
+// LIVE PRICE — rolls the total as modifiers / quantity change
+// ============================================
+
+function LivePrice({ cents, animate }: { cents: number; animate: boolean }) {
+  return (
+    <span className="tabular-nums">
+      {"$"}
+      <RollingNumber value={cents / 100} decimals={2} animate={animate} />
+    </span>
+  );
+}
+
+// ============================================
 // MAIN COMPONENT
 // ============================================
 
@@ -89,11 +103,6 @@ export function ItemDetailSheet({
   const [notes, setNotes] = useState("");
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
-  // Modifier scroll overflow detection
-  const [hasOverflow, setHasOverflow] = useState(false);
-  const [isAtBottom, setIsAtBottom] = useState(false);
-  const modifierContainerRef = useRef<HTMLDivElement>(null);
-
   // Track initial edit values to detect dirty state
   const initialEditState = useRef<{
     modifiers: SelectedModifier[];
@@ -105,6 +114,8 @@ export function ItemDetailSheet({
 
   // Responsive overlay selection
   const isMobile = useMediaQuery("(max-width: 639px)");
+  const prefersReducedMotion = useReducedMotion();
+  const animatePrice = !prefersReducedMotion;
 
   // Reset state when item changes OR when modal opens
   // In edit mode, pre-populate from editingCartItem
@@ -136,24 +147,6 @@ export function ItemDetailSheet({
       initialEditState.current = null;
     }
   }, [item, isOpen, editingCartItem]);
-
-  // Detect modifier container overflow and track scroll position
-  useEffect(() => {
-    const el = modifierContainerRef.current;
-    if (!el) {
-      setHasOverflow(false);
-      return;
-    }
-    setHasOverflow(el.scrollHeight > el.clientHeight);
-    setIsAtBottom(false);
-
-    const onScroll = () => {
-      // 4px threshold for "at bottom" to handle sub-pixel rounding
-      setIsAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 4);
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [item?.modifierGroups]);
 
   // Compute dirty state for edit mode
   const isDirty = useMemo(() => {
@@ -288,34 +281,20 @@ export function ItemDetailSheet({
             <AllergenWarning allergens={item.allergens} />
           )}
 
-          {/* Modifier Groups with overflow fade indicator */}
+          {/* Modifier Groups — flow in the single sheet scroll (no nested box) */}
           {item.modifierGroups && item.modifierGroups.length > 0 && (
-            <div className="relative">
-              <div
-                ref={modifierContainerRef}
-                className={cn(
-                  "divide-y divide-border",
-                  isMobile && "max-h-[50vh] overflow-y-auto overscroll-contain"
-                )}
-              >
-                {item.modifierGroups.map((group) => (
-                  <ModifierGroup
-                    key={group.id}
-                    group={group}
-                    selectedOptions={selectedModifiers
-                      .filter((m) => m.groupId === group.id)
-                      .map((m) => m.optionId)}
-                    onSelect={handleModifierSelect}
-                    onDeselect={handleModifierDeselect}
-                  />
-                ))}
-              </div>
-              {hasOverflow && !isAtBottom && (
-                <div
-                  className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-surface-primary to-transparent"
-                  aria-hidden="true"
+            <div className="space-y-3">
+              {item.modifierGroups.map((group) => (
+                <ModifierGroup
+                  key={group.id}
+                  group={group}
+                  selectedOptions={selectedModifiers
+                    .filter((m) => m.groupId === group.id)
+                    .map((m) => m.optionId)}
+                  onSelect={handleModifierSelect}
+                  onDeselect={handleModifierDeselect}
                 />
-              )}
+              ))}
             </div>
           )}
 
@@ -348,7 +327,7 @@ export function ItemDetailSheet({
 
         {/* Footer with Add to Cart / Update Cart */}
         {/* eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution */}
-        <div className="shrink-0 border-t border-border p-4 bg-white dark:bg-black safe-area-inset-bottom">
+        <div className="menu-sheet-footer safe-area-inset-bottom shrink-0 border-t border-border bg-white p-4 dark:bg-black">
           {/* Validation Error */}
           {!validation.isValid && validation.errors[0] && (
             <p className="mb-2 text-sm text-status-error">{validation.errors[0]}</p>
@@ -367,7 +346,10 @@ export function ItemDetailSheet({
                 disabled={!validation.isValid}
                 className="w-full"
               >
-                {`Update Cart - ${formatPrice(priceCalc?.totalCents ?? 0)}`}
+                <span className="inline-flex items-center gap-1">
+                  Update Cart -
+                  <LivePrice cents={priceCalc?.totalCents ?? 0} animate={animatePrice} />
+                </span>
               </Button>
             )
           ) : (
@@ -388,9 +370,14 @@ export function ItemDetailSheet({
               className="w-full"
               size="lg"
             >
-              {item.isSoldOut
-                ? "Sold Out"
-                : `Add to Cart - ${formatPrice(priceCalc?.totalCents ?? 0)}`}
+              {item.isSoldOut ? (
+                "Sold Out"
+              ) : (
+                <span className="inline-flex items-center gap-1">
+                  Add to Cart -
+                  <LivePrice cents={priceCalc?.totalCents ?? 0} animate={animatePrice} />
+                </span>
+              )}
             </AddToCartButton>
           )}
         </div>

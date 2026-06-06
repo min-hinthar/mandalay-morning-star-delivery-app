@@ -546,6 +546,12 @@
     color: var(--menu-modal-accent);
   }
 
+  /* Soft top shadow so the dish-sheet footer reads as a layer above the
+     scrolling options (the Add button clearly floats over the content). */
+  .menu-sheet-footer {
+    box-shadow: 0 -6px 18px -10px rgba(0, 0, 0, 0.22);
+  }
+
   /* Lit gold→clay pill for a selected dietary filter chip (no shimmer) */
   .menu-chip-active {
     background: linear-gradient(100deg, var(--menu-gold), var(--menu-clay));

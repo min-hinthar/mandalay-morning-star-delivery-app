@@ -53,11 +53,13 @@ export function DishHero({ item, onClose }: DishHeroProps) {
           )}
         </div>
 
-        {/* Close button — glass pill, ≥40px tap target, drop-shadow for legibility */}
+        {/* Close button — glass pill, ≥40px tap target, safe-area aware so the
+            iOS status-bar / notch can never clip it */}
         <button
           onClick={onClose}
+          style={{ top: "max(0.75rem, env(safe-area-inset-top))" }}
           className={cn(
-            "absolute top-3 right-3 z-20",
+            "absolute right-3 z-30",
             "flex h-10 w-10 items-center justify-center rounded-full",
             "bg-surface-inverse/55 hover:bg-surface-inverse/75",
             "text-text-inverse shadow-lg sm:backdrop-blur-sm",
@@ -70,16 +72,19 @@ export function DishHero({ item, onClose }: DishHeroProps) {
         </button>
       </div>
 
-      {/* Floating glass title plate — small overlap for layered texture */}
-      <div className="relative z-10 -mt-6 mx-4 overflow-hidden rounded-2xl border border-border bg-surface-primary shadow-xl">
+      {/* Floating glass title plate — compact, small overlap for layered texture */}
+      <div className="relative z-10 -mt-5 mx-4 overflow-hidden rounded-2xl border border-border bg-surface-primary shadow-lg">
         <span className="menu-modal-dots pointer-events-none absolute inset-0" aria-hidden="true" />
-        <div className="relative p-4">
-          <h2 className="font-display text-2xl font-bold text-text-primary">{item.nameEn}</h2>
-          {item.nameMy && <p className="font-burmese text-text-muted">{item.nameMy}</p>}
-          <p className="menu-modal-price mt-1 font-display text-2xl font-bold">
+        <div className="relative flex items-start justify-between gap-3 px-3.5 py-3">
+          <div className="min-w-0">
+            <h2 className="font-display text-lg font-bold leading-tight text-text-primary">
+              {item.nameEn}
+            </h2>
+            {item.nameMy && <p className="font-burmese text-sm text-text-muted">{item.nameMy}</p>}
+          </div>
+          <p className="menu-modal-price shrink-0 font-display text-lg font-bold leading-tight">
             {formatPrice(item.basePriceCents)}
           </p>
-          <div className="menu-modal-rule mt-3 h-px w-full" aria-hidden="true" />
         </div>
       </div>
     </>
