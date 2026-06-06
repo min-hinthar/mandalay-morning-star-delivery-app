@@ -300,6 +300,9 @@ typecheck · test · build`) before every PR. After adding CSS utilities/keyfram
 - Hero code: `src/components/ui/homepage/Hero/` (+ `../FloatingEmoji.tsx`).
 - Tokens: `src/styles/tokens.css` → mapped in `src/app/globals.css` `@theme`.
 - Motion utilities/keyframes: `src/app/globals.css` (search `hero-`).
-- Loyalty model (for the rewards strip): `src/lib/loyalty/` (`LOYALTY_TIERS`).
+- Loyalty model (for the rewards section): `src/lib/loyalty/` (`LOYALTY_TIERS` +
+  `TIER_PERKS`). The hero rewards section (`HeroRewards.tsx`) renders the tiers as
+  a **"ကြယ်ဆု" star constellation** that lights up segment-by-segment toward the
+  Gold apex — only the active star's halo + one path shimmer animate (budget-safe).
 - Component specs (buttons/cards/etc.): [`frontend-design-system.md`](./frontend-design-system.md).
 - Deep-dive learnings: `.claude/learnings/{animation,design-tokens,mobile-ux,performance}.md`.

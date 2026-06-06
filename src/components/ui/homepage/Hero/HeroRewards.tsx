@@ -104,7 +104,8 @@ export function HeroRewards({ className }: { className?: string }) {
           <div className="mb-2 flex items-center justify-center gap-2 text-hero-accent md:justify-start">
             <HeroSunburst className="h-4 w-4 text-hero-clay" rays={8} />
             <span className="text-2xs font-semibold uppercase tracking-[0.2em] md:text-xs">
-              Morning Star Rewards · ကြယ်ဆုလက်ဆောင်
+              Morning Star Rewards{" "}
+              <span className="font-burmese normal-case tracking-normal">· ကြယ်ဆုလက်ဆောင်</span>
             </span>
           </div>
 
@@ -303,8 +304,8 @@ export function HeroRewards({ className }: { className?: string }) {
                       )}
                       animate={
                         shouldAnimate && isActive
-                          ? { scale: [1, 1.25, 1], opacity: [0.7, 1, 0.7] }
-                          : { scale: 1, opacity: isActive ? 0.9 : earned ? 0.4 : 0.15 }
+                          ? { opacity: [0.6, 1, 0.6] }
+                          : { opacity: isActive ? 0.9 : earned ? 0.4 : 0.15 }
                       }
                       transition={
                         shouldAnimate && isActive
