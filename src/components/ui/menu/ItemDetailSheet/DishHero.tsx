@@ -57,9 +57,9 @@ export function DishHero({ item, onClose }: DishHeroProps) {
             iOS status-bar / notch can never clip it */}
         <button
           onClick={onClose}
-          style={{ top: "max(0.75rem, env(safe-area-inset-top))" }}
+          style={{ top: "max(1rem, calc(env(safe-area-inset-top) + 0.5rem))" }}
           className={cn(
-            "absolute right-3 z-30",
+            "absolute right-4 z-30",
             "flex h-10 w-10 items-center justify-center rounded-full",
             "bg-surface-inverse/55 hover:bg-surface-inverse/75",
             "text-text-inverse shadow-lg sm:backdrop-blur-sm",
