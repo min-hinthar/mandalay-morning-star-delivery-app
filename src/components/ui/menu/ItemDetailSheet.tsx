@@ -270,13 +270,13 @@ export function ItemDetailSheet({
 
     return (
       <div className={cn("relative flex flex-col", isMobile && "h-full")}>
-        {/* Editorial hero: image + scrim + un-clipped close + floating plate */}
+        {/* Photo-first hero: clean food photo + un-clipped close + title below */}
         <DishHero item={item} onClose={handleRequestClose} />
 
         {/* Scrollable Content - touchAction inherited from Drawer content wrapper */}
         <div
           className={cn(
-            "p-4 pt-4 space-y-4",
+            "space-y-4 px-4 pb-4 pt-3",
             isMobile ? "flex-1 overflow-y-auto overscroll-contain" : ""
           )}
         >

@@ -68,10 +68,10 @@ export const MENU_DIETARY_FILTERS: DietaryFilterDef[] = [
     kind: "free-from",
     excludesAllergens: ["fish"],
   },
-  // ---- Tag-based (explicit only; veg/vegan/halal pending owner ground truth) ----
+  // ---- Tag-based (explicit owner-confirmed tags only) ----
+  // Halal intentionally omitted: meat is depot-sourced but not halal-certified.
   { id: "vegetarian", label: "Vegetarian", emoji: "🌱", kind: "tag", tagAny: ["vegetarian"] },
   { id: "vegan", label: "Vegan", emoji: "🌿", kind: "tag", tagAny: ["vegan"] },
-  { id: "halal", label: "Halal", emoji: "☪️", kind: "tag", tagAny: ["halal"] },
   {
     id: "spicy",
     label: "Spicy",
