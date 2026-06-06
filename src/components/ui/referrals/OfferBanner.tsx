@@ -32,7 +32,10 @@ export function OfferBanner({ className, source = "banner" }: OfferBannerProps) 
 
   useEffect(() => {
     try {
-      if (localStorage.getItem(COLLAPSE_KEY) === "1") setCollapsed(true);
+      // COLLAPSE_KEY is authoritative once set (even "0", so expand() persists);
+      // only fall back to the legacy permanent-dismiss flag when it's absent.
+      const flag = localStorage.getItem(COLLAPSE_KEY);
+      if (flag !== null) setCollapsed(flag === "1");
       else if (localStorage.getItem(LEGACY_DISMISS_KEY) === "1") setCollapsed(true);
     } catch {
       // ignore
@@ -59,12 +62,12 @@ export function OfferBanner({ className, source = "banner" }: OfferBannerProps) 
   if (!ready) return null;
 
   return (
-    <m.div
-      layout={shouldAnimate}
-      transition={{ layout: { duration: 0.3, ease: [0.22, 1, 0.36, 1] } }}
-      className={cn("relative flex justify-center", className)}
-    >
-      <AnimatePresence mode="popLayout" initial={false}>
+    // Centered (no lone left pill) + a clean opacity crossfade. No framer
+    // `layout`/`popLayout` here — those need domMax, which the public-page
+    // bundle (domAnimation) doesn't load, so the swap behaves identically on
+    // homepage / menu / checkout.
+    <div className={cn("relative flex justify-center", className)}>
+      <AnimatePresence mode="wait" initial={false}>
         {collapsed ? (
           <m.button
             key="pill"
@@ -112,7 +115,12 @@ export function OfferBanner({ className, source = "banner" }: OfferBannerProps) 
               aria-hidden="true"
               className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-hero-clay/15 text-hero-clay ring-1 ring-hero-clay/25"
               animate={shouldAnimate ? { rotate: [0, -8, 8, -4, 0] } : undefined}
-              transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", repeatDelay: 2.5 }}
+              transition={{
+                duration: 3.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                repeatDelay: 2.5,
+              }}
             >
               <Gift className="h-5 w-5" />
               <Sparkles className="absolute -right-0.5 -top-0.5 h-3 w-3 text-hero-accent" />
@@ -157,7 +165,7 @@ export function OfferBanner({ className, source = "banner" }: OfferBannerProps) 
           </m.div>
         )}
       </AnimatePresence>
-    </m.div>
+    </div>
   );
 }
 
