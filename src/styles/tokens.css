@@ -145,24 +145,27 @@
   --hero-emoji-opacity-mid: 0.85;
 
   /* ===========================================
-     MENU NOCTURNE — deepened-sunset "night-lacquer"
-     Warm espresso menu surfaces + gold-leaf hairline +
-     emissive sunset accents. Theme-independent: the public
-     menu reads as a warm nocturne on any UI theme (owner POV).
-     Applied via the `.menu-nocturne` scope (globals.css), which
+     MENU WARM-PAPER CARDS — "paper floating on dark"
+     Cream parchment menu cards that float bright on the dark
+     page (After Dark) and stay warm on light — theme-independent.
+     Applied via the `.menu-paper` scope (globals.css), which
      re-skins a card subtree by overriding the tokens it consumes.
+     Fixes the dark-mode card/page meld (espresso ≈ #1a1918 page).
      =========================================== */
-  --menu-night-bg: #1c1714; /* warm espresso paper */
-  --menu-night-bg-2: #261e18; /* lifted espresso (gradient top) */
-  --menu-night-ink: #f6f1e9; /* warm cream text */
-  --menu-night-ink-muted: rgba(246, 241, 233, 0.66);
-  --menu-night-hairline: rgba(234, 169, 47, 0.24); /* gold-leaf rule */
-  --menu-night-hairline-strong: rgba(234, 169, 47, 0.5);
-  --menu-clay: #d97757; /* book-cloth clay — CTA accent */
-  --menu-amber: #f0b357; /* warm amber — CTA hover */
-  --menu-gold: #eaa92f; /* deep gold — price / hairline */
-  --menu-night-sheen: rgba(246, 241, 233, 0.07); /* inner top sheen */
-  --menu-ember-glow: 0 18px 40px -20px rgba(217, 119, 87, 0.6); /* hover ember */
+  --menu-card-bg: rgba(252, 251, 247, 0.97); /* warm cream paper */
+  --menu-card-bg-2: rgba(248, 244, 236, 0.97); /* warmer cream (gradient top) */
+  --menu-ink: #1c1714; /* warm espresso ink (primary text) */
+  --menu-ink-muted: rgba(28, 23, 20, 0.62); /* secondary text */
+  --menu-ink-faint: rgba(28, 23, 20, 0.46); /* tertiary text */
+  --menu-paper-hairline: rgba(28, 23, 20, 0.1); /* warm rule */
+  --menu-paper-hairline-strong: rgba(217, 119, 87, 0.5); /* clay on hover */
+  --menu-accent: #9a3412; /* deep clay — Burmese / price / CTA (AA on cream) */
+  --menu-accent-strong: #7c2d12;
+  --menu-clay: #d97757; /* book-cloth clay — ember hover glow */
+  --menu-gold: #eaa92f; /* deep gold — category-tab pill */
+  --menu-paper-sheen: rgba(255, 255, 255, 0.55); /* inner top sheen */
+  --menu-paper-cta-ink: #fdfcf9; /* warm-white label on the clay CTA */
+  --menu-ember-glow: 0 16px 38px -20px rgba(154, 52, 18, 0.42); /* clay hover lift */
 
   /* ===========================================
      INTERACTIVE ALIASES

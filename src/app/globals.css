@@ -469,51 +469,57 @@
   }
 
   /* ============================================
-     MENU NOCTURNE — "night-lacquer" card surface
-     Re-skins a menu card subtree to the deepened-sunset
-     nocturne by overriding the tokens the card already
-     consumes (surface / text / CTA / focus). Theme-independent.
-     Mobile-safe: opaque espresso; inherits glass-menu-card's
-     md+ backdrop-blur only (no new filters below md).
+     MENU WARM-PAPER CARDS — cream "paper floating on dark"
+     Re-skins a menu card subtree by overriding the tokens the
+     card already consumes (surface / text / CTA / focus), so one
+     class warms surface, body text, the Add button and focus
+     rings. Theme-independent: cream paper floats bright on the
+     dark page (fixes the meld) and stays warm on light.
+     Mobile-safe: opaque cream; inherits glass-menu-card's md+
+     backdrop-blur only (no new filters below md).
      ============================================ */
-  .menu-nocturne {
-    --color-surface-primary: var(--menu-night-bg);
-    --color-surface-secondary: var(--menu-night-bg-2);
-    --color-surface-tertiary: var(--menu-night-bg-2);
-    --color-border-default: var(--menu-night-hairline);
-    --color-text-primary: var(--menu-night-ink);
-    --color-text-secondary: var(--menu-night-ink-muted);
-    --color-text-muted: var(--menu-night-ink-muted);
-    --color-primary: var(--menu-clay);
-    --color-primary-hover: var(--menu-amber);
+  .menu-paper {
+    --color-surface-primary: var(--menu-card-bg);
+    --color-surface-secondary: var(--menu-card-bg-2);
+    --color-surface-tertiary: var(--menu-card-bg-2);
+    --color-border-default: var(--menu-paper-hairline);
+    --color-text-primary: var(--menu-ink);
+    --color-text-secondary: var(--menu-ink-muted);
+    --color-text-muted: var(--menu-ink-faint);
+    --color-primary: var(--menu-accent);
+    --color-primary-hover: var(--menu-accent-strong);
+
+    /* Deep-clay CTA needs a light label in BOTH themes (text-inverse is
+       black in dark, which fails AA on clay) — pin a warm white. */
+    --color-text-inverse: var(--menu-paper-cta-ink);
   }
 
-  /* Night-lacquer surface: warm espresso wash + gold-leaf hairline +
-     inner top sheen. Ember lift on hover/focus. */
-  .menu-nocturne .glass-menu-card {
-    background: linear-gradient(157deg, var(--menu-night-bg-2) 0%, var(--menu-night-bg) 64%);
-    border-color: var(--menu-night-hairline);
+  /* Warm-paper surface: cream wash + warm hairline + inner top
+     sheen. Clay ember lift on hover/focus. */
+  .menu-paper .glass-menu-card {
+    background: linear-gradient(157deg, var(--menu-card-bg-2) 0%, var(--menu-card-bg) 64%);
+    border-color: var(--menu-paper-hairline);
     box-shadow:
-      inset 0 1px 0 0 var(--menu-night-sheen),
+      inset 0 1px 0 0 var(--menu-paper-sheen),
       var(--shadow-card);
   }
 
-  .menu-nocturne .glass-menu-card:hover,
-  .menu-nocturne .glass-menu-card:focus-within {
-    border-color: var(--menu-night-hairline-strong);
+  .menu-paper .glass-menu-card:hover,
+  .menu-paper .glass-menu-card:focus-within {
+    border-color: var(--menu-paper-hairline-strong);
     box-shadow:
-      inset 0 1px 0 0 var(--menu-night-sheen),
+      inset 0 1px 0 0 var(--menu-paper-sheen),
       var(--menu-ember-glow);
   }
 
   @media (min-width: 640px) {
-    /* Keep the espresso wash under the frosted (md+) blur so the
+    /* Keep the cream wash under the frosted (md+) blur so the
        backdrop-filter doesn't wash the surface back toward neutral. */
-    .menu-nocturne .glass-menu-card {
+    .menu-paper .glass-menu-card {
       background: linear-gradient(
         157deg,
-        color-mix(in srgb, var(--menu-night-bg-2) 92%, transparent) 0%,
-        color-mix(in srgb, var(--menu-night-bg) 92%, transparent) 64%
+        color-mix(in srgb, var(--menu-card-bg-2) 92%, transparent) 0%,
+        color-mix(in srgb, var(--menu-card-bg) 92%, transparent) 64%
       );
     }
   }
