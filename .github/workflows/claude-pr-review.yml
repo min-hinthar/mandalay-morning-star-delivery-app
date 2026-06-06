@@ -25,6 +25,10 @@ jobs:
       # secrets can't be read in `if:` directly — fold them into an env boolean here.
       CLAUDE_AUTH_PRESENT: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' || secrets.ANTHROPIC_API_KEY != '' }}
       PR_NUMBER: ${{ github.event.pull_request.number }}
+      # Max thinking budget for reviews (Claude Code reads this; "ultrathink" = 31999).
+      # On Opus 4.8 thinking is adaptive — the harness maps this to max effort. Belt-and-
+      # suspenders alongside the "Ultrathink." keyword in the prompt below.
+      MAX_THINKING_TOKENS: "31999"
     steps:
       - name: Checkout PR head
         uses: actions/checkout@v4
@@ -41,6 +45,8 @@ jobs:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
           anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
           prompt: |
+            Ultrathink.
+
             You are running an automated code review of pull request
             #${{ env.PR_NUMBER }} in the repository ${{ github.repository }}.
 
