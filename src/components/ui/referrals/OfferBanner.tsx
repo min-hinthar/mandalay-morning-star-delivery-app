@@ -2,11 +2,16 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Gift, X } from "lucide-react";
+import { m, AnimatePresence } from "framer-motion";
+import { Gift, X, ArrowRight, ChevronRight, Sparkles } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
-const DISMISS_KEY = "mms_offer_banner_dismissed";
+const COLLAPSE_KEY = "mms_offer_banner_collapsed";
+// Legacy permanent-dismiss flag — returning users who dismissed before now see
+// the collapsed pill (still reachable), not the full banner again.
+const LEGACY_DISMISS_KEY = "mms_offer_banner_dismissed";
 
 interface OfferBannerProps {
   className?: string;
@@ -15,74 +20,151 @@ interface OfferBannerProps {
 }
 
 /**
- * Slim, dismissible, bilingual awareness strip for the welcome + referral
- * offers. Placed on high-intent surfaces (homepage, menu, checkout). Renders
- * nothing until we've checked the dismissal flag, so there's no flash.
+ * Warm-paper awareness strip for the welcome + referral offers, on high-intent
+ * surfaces (homepage, menu, checkout). "Dismiss" COLLAPSES it to a small,
+ * re-expandable rewards pill rather than hiding it forever — so the offer
+ * persists without nagging. Renders nothing until the flag is read (no flash).
  */
 export function OfferBanner({ className, source = "banner" }: OfferBannerProps) {
+  const { shouldAnimate } = useAnimationPreference();
   const [ready, setReady] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     try {
-      setDismissed(localStorage.getItem(DISMISS_KEY) === "1");
+      // COLLAPSE_KEY is authoritative once set (even "0", so expand() persists);
+      // only fall back to the legacy permanent-dismiss flag when it's absent.
+      const flag = localStorage.getItem(COLLAPSE_KEY);
+      if (flag !== null) setCollapsed(flag === "1");
+      else if (localStorage.getItem(LEGACY_DISMISS_KEY) === "1") setCollapsed(true);
     } catch {
       // ignore
     }
     setReady(true);
   }, []);
 
-  if (!ready || dismissed) return null;
-
-  const dismiss = () => {
+  const persist = (next: boolean) => {
     try {
-      localStorage.setItem(DISMISS_KEY, "1");
+      localStorage.setItem(COLLAPSE_KEY, next ? "1" : "0");
     } catch {
       // ignore
     }
-    setDismissed(true);
+  };
+  const collapse = () => {
+    setCollapsed(true);
+    persist(true);
+  };
+  const expand = () => {
+    setCollapsed(false);
+    persist(false);
   };
 
+  if (!ready) return null;
+
   return (
-    <div
-      className={cn(
-        "relative flex items-center gap-3 rounded-2xl border border-secondary/30 px-4 py-3",
-        "bg-gradient-to-r from-secondary/10 via-primary/5 to-secondary/10",
-        className
-      )}
-      role="region"
-      aria-label="Offers"
-    >
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
-        <Gift className="h-5 w-5" />
-      </span>
+    // Centered (no lone left pill) + a clean opacity crossfade. No framer
+    // `layout`/`popLayout` here — those need domMax, which the public-page
+    // bundle (domAnimation) doesn't load, so the swap behaves identically on
+    // homepage / menu / checkout.
+    <div className={cn("relative flex justify-center", className)}>
+      <AnimatePresence mode="wait" initial={false}>
+        {collapsed ? (
+          <m.button
+            key="pill"
+            type="button"
+            onClick={expand}
+            aria-label="Show rewards offer — $5 off your first order, and refer a friend for $10"
+            initial={shouldAnimate ? { opacity: 0 } : false}
+            animate={{ opacity: 1 }}
+            exit={shouldAnimate ? { opacity: 0 } : undefined}
+            transition={{ duration: shouldAnimate ? 0.2 : 0 }}
+            className={cn(
+              "group inline-flex items-center gap-2.5 rounded-full hero-surface-paper py-1.5 pl-1.5 pr-4",
+              "shadow-sm ring-1 ring-hero-line transition-shadow duration-300 hover:shadow-md",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/50"
+            )}
+          >
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-hero-clay/15 text-hero-clay ring-1 ring-hero-clay/20">
+              <Gift className="h-[18px] w-[18px]" />
+            </span>
+            <span className="flex flex-col items-start leading-tight">
+              <span className="text-sm font-bold text-hero-ink">Rewards</span>
+              <span className="text-2xs font-medium text-hero-ink-muted">
+                <span className="font-bold text-hero-accent">$5</span> off · refer for{" "}
+                <span className="font-bold text-hero-accent">$10</span>
+              </span>
+            </span>
+            <ChevronRight className="ml-0.5 h-4 w-4 shrink-0 text-hero-clay transition-transform group-hover:translate-x-0.5" />
+          </m.button>
+        ) : (
+          <m.div
+            key="full"
+            role="region"
+            aria-label="Offers"
+            initial={shouldAnimate ? { opacity: 0 } : false}
+            animate={{ opacity: 1 }}
+            exit={shouldAnimate ? { opacity: 0 } : undefined}
+            transition={{ duration: shouldAnimate ? 0.2 : 0 }}
+            className={cn(
+              "relative flex w-full items-center gap-3 overflow-hidden rounded-2xl hero-surface-vellum px-3.5 py-3 sm:px-4",
+              "ring-1 ring-hero-line"
+            )}
+          >
+            {/* Gift mark with a soft halo + gentle motion-safe sway */}
+            <m.span
+              aria-hidden="true"
+              className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-hero-clay/15 text-hero-clay ring-1 ring-hero-clay/25"
+              animate={shouldAnimate ? { rotate: [0, -8, 8, -4, 0] } : undefined}
+              transition={{
+                duration: 3.5,
+                repeat: Infinity,
+                ease: "easeInOut",
+                repeatDelay: 2.5,
+              }}
+            >
+              <Gift className="h-5 w-5" />
+              <Sparkles className="absolute -right-0.5 -top-0.5 h-3 w-3 text-hero-accent" />
+            </m.span>
 
-      <div className="min-w-0 flex-1">
-        <p className="text-sm font-medium text-text-primary">
-          New here? <strong className="text-primary">$5 off</strong> your first $50+ order · Refer a
-          friend — <strong className="text-primary">you both get $10</strong>
-        </p>
-        <p className="mt-0.5 text-xs text-text-secondary">
-          ပထမဆုံးအော်ဒါ $၅ လျှော့ · မိတ်ဆွေကို ဖိတ်ရင် နှစ်ယောက်စလုံး $၁၀ — ချစ်ရင်
-          ပြောပြလိုက်ပါနော် 😘
-        </p>
-      </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-hero-ink">
+                New here? <strong className="font-semibold text-hero-accent">$5 off</strong> your
+                first $50+ order · Refer a friend —{" "}
+                <strong className="font-semibold text-hero-accent">you both get $10</strong>
+              </p>
+              <p className="mt-0.5 font-burmese text-xs text-hero-ink-muted">
+                ပထမဆုံးအော်ဒါ $၅ လျှော့ · မိတ်ဆွေကို ဖိတ်ရင် နှစ်ယောက်စလုံး $၁၀ — ချစ်ရင်
+                ပြောပြလိုက်ပါနော် 😘
+              </p>
+            </div>
 
-      <Link
-        href={`/account?tab=settings&src=${encodeURIComponent(source)}`}
-        className="hidden shrink-0 rounded-full bg-primary px-4 py-1.5 text-sm font-semibold text-text-inverse transition-colors hover:bg-primary-hover sm:inline-block"
-      >
-        Share &amp; earn
-      </Link>
+            <Link
+              href={`/account?tab=settings&src=${encodeURIComponent(source)}`}
+              className={cn(
+                "group hidden shrink-0 items-center gap-1 rounded-full bg-hero-accent px-4 py-1.5",
+                "text-sm font-semibold text-hero-card transition-colors hover:bg-hero-accent-strong sm:inline-flex",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent/40"
+              )}
+            >
+              Share &amp; earn
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </Link>
 
-      <button
-        type="button"
-        onClick={dismiss}
-        aria-label="Dismiss offer"
-        className="shrink-0 rounded-full p-1 text-text-muted transition-colors hover:bg-surface-secondary hover:text-text-primary"
-      >
-        <X className="h-4 w-4" />
-      </button>
+            <button
+              type="button"
+              onClick={collapse}
+              aria-label="Collapse offer"
+              className={cn(
+                "grid h-8 w-8 shrink-0 place-items-center rounded-full text-hero-ink-muted transition-colors",
+                "hover:bg-hero-card hover:text-hero-ink",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/40"
+              )}
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </m.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
