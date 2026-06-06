@@ -70,10 +70,11 @@ jobs:
           # The webhook usually wins; poll ~90s before forcing one so we don't create a
           # duplicate build when the git integration is merely a little slow.
           for i in $(seq 1 6); do
-            UID="$(deployment_for_sha || true)"
-            if [ -n "$UID" ]; then
-              echo "Vercel already has a deployment for this commit ($UID) - nothing to do."
-              echo "Vercel already built this commit (\`$UID\`); no fallback needed." >> "$GITHUB_STEP_SUMMARY"
+            # NB: $UID is a readonly bash builtin (the real user id) — use our own name.
+            DEP_ID="$(deployment_for_sha || true)"
+            if [ -n "$DEP_ID" ]; then
+              echo "Vercel already has a deployment for this commit ($DEP_ID) - nothing to do."
+              echo "Vercel already built this commit (\`$DEP_ID\`); no fallback needed." >> "$GITHUB_STEP_SUMMARY"
               exit 0
             fi
             echo "  ...no deployment yet (attempt $i/6); waiting 15s"
