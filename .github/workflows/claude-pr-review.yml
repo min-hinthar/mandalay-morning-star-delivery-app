@@ -1,0 +1,145 @@
+name: Claude PR Review
+
+# Fires on every push to any PR (per directive: review every PR push).
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Least privilege the review needs: read code, write PR review comments + summary.
+# id-token: write is required by claude-code-action to exchange the OAuth token via OIDC.
+# deployments/statuses: read let the Vercel-wait step poll the GitHub Deployments API.
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+  id-token: write
+  deployments: read
+  statuses: read
+
+# Newer push to the same PR cancels the in-flight review (don't stack reviews).
+concurrency:
+  group: claude-review-pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    # Same-repo PRs get secrets; fork PRs don't. Skip on forks rather than half-run.
+    if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+    env:
+      # secrets can't be read in `if:` directly — fold them into an env boolean here.
+      CLAUDE_AUTH_PRESENT: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN != '' || secrets.ANTHROPIC_API_KEY != '' }}
+      PR_NUMBER: ${{ github.event.pull_request.number }}
+      HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+      GH_TOKEN: ${{ github.token }}
+      # Max thinking budget for reviews (Claude Code reads this; "ultrathink" = 31999).
+      # On Opus 4.8 thinking is adaptive — the harness maps this to max effort. Belt-and-
+      # suspenders alongside the "Ultrathink." keyword in the prompt below.
+      MAX_THINKING_TOKENS: "31999"
+      # Vercel grounding. Preview URL + state come free via GitHub deployment statuses (no token).
+      # VERCEL_TOKEN is optional — only used to enrich with build readyState/error via the Vercel API.
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_PROJECT_ID: ${{ vars.VERCEL_PROJECT_ID || 'prj_pWcX3WT10W4xkbUgHCgroxlzXY1u' }}
+      VERCEL_TEAM_ID: ${{ vars.VERCEL_TEAM_ID || 'team_1q2XCfNOcVLtAxpgP0L29Tnt' }}
+    steps:
+      - name: Checkout PR head
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      # Grounding step 1 — wait for the Vercel preview for this commit (via GitHub Deployments
+      # API; no Vercel token/project id needed). continue-on-error so "no preview" never fails it.
+      - name: Wait for Vercel preview deployment
+        id: vercel
+        continue-on-error: true
+        uses: vercel/wait-for-deployment-action@0e2b0c5c5cce31f1648108aeec56467187aca037 # untagged action — pinned to main SHA
+        with:
+          github-token: ${{ github.token }}
+          environment: preview
+          timeout: ${{ vars.VERCEL_WAIT_TIMEOUT || 600 }}
+          check-interval: 10
+
+      # Grounding step 2 — write vercel-context.json for Claude (preview URL + build state, plus
+      # optional readyState/error enrichment via the Vercel API when VERCEL_TOKEN is set).
+      - name: Build Vercel context
+        if: ${{ always() }}
+        env:
+          VERCEL_URL_OUT: ${{ steps.vercel.outputs.deployment-url }}
+          VERCEL_STATE_OUT: ${{ steps.vercel.outputs.deployment-state }}
+          VERCEL_OUTCOME: ${{ steps.vercel.outcome }}
+        run: |
+          set -uo pipefail
+          URL="${VERCEL_URL_OUT:-}"
+          STATE="${VERCEL_STATE_OUT:-}"
+          BUILD_JSON='null'
+          if [ -n "${VERCEL_TOKEN:-}" ] && [ -n "${HEAD_SHA:-}" ]; then
+            DEP=$(curl -s -H "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&teamId=$VERCEL_TEAM_ID&meta-githubCommitSha=$HEAD_SHA&limit=1" || echo '{}')
+            BUILD_JSON=$(echo "$DEP" | jq -c '.deployments[0] // null
+              | if . == null then null else {
+                  uid: .uid, url: .url, readyState: .readyState, state: .state,
+                  createdAt: .createdAt, inspectorUrl: .inspectorUrl
+                } end' 2>/dev/null || echo 'null')
+          fi
+          jq -n \
+            --arg url "$URL" \
+            --arg state "$STATE" \
+            --arg outcome "${VERCEL_OUTCOME:-}" \
+            --argjson build "$BUILD_JSON" \
+            '{preview_url: $url, deployment_state: $state, wait_outcome: $outcome, vercel_api_deployment: $build}' \
+            > vercel-context.json
+          echo "vercel-context.json:"; cat vercel-context.json
+
+      # Claude runs the review and posts its own inline + summary comments.
+      # Auth: prefers CLAUDE_CODE_OAUTH_TOKEN (Max-covered, via `claude setup-token`); falls back to
+      # ANTHROPIC_API_KEY. The action ignores whichever is empty.
+      - name: Claude review
+        if: ${{ env.CLAUDE_AUTH_PRESENT == 'true' }}
+        uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          prompt: |
+            Ultrathink.
+
+            You are running an automated code review of pull request
+            #${{ env.PR_NUMBER }} in the repository ${{ github.repository }}.
+
+            Follow `.github/claude-review-prompt.md` exactly — it is the full spec for severity
+            calibration, what to weight, and the required output format. Do not deviate from it.
+
+            Deployment context for THIS commit is in `vercel-context.json` (repo root):
+              - Preview URL: ${{ steps.vercel.outputs.deployment-url }}
+              - Build state: ${{ steps.vercel.outputs.deployment-state }}
+            Use it to ground findings (e.g. flag deploy/build failures, reference the live preview).
+
+            Procedure:
+              1. Read .claude/CLAUDE.md (Gotchas + Critical Notes) and .github/claude-review-prompt.md.
+              2. Read vercel-context.json (deployment/build state for this commit).
+              3. Run `gh pr diff ${{ env.PR_NUMBER }}` and `gh pr view ${{ env.PR_NUMBER }}`.
+              4. Open changed files plus their tests/callers; investigate before asserting.
+              5. Post severity-tagged INLINE comments on specific lines via
+                 mcp__github_inline_comment__create_inline_comment, and ONE summary comment via
+                 `gh pr comment ${{ env.PR_NUMBER }} --body "..."`. Include the Vercel preview URL +
+                 build state in the summary's "Deployment & runtime context" section.
+
+            Be direct and honest. If the code is clean, say so briefly — do not manufacture findings.
+          claude_args: |
+            --model ${{ vars.CLAUDE_REVIEW_MODEL || 'claude-opus-4-8' }}
+            --max-turns 40
+            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),Bash(cat:*),Read,Grep,Glob"
+
+      # If no Claude auth is configured yet, the run still goes green and prints what to add.
+      - name: Setup checklist (Claude auth not configured)
+        if: ${{ env.CLAUDE_AUTH_PRESENT != 'true' }}
+        run: |
+          echo "::notice title=Claude PR Review — setup incomplete::No Claude auth secret found. The review step was skipped. Add CLAUDE_CODE_OAUTH_TOKEN (preferred, Max-covered) or ANTHROPIC_API_KEY in repo Settings → Secrets and variables → Actions, then re-run."
+          {
+            echo "## Claude PR Review — not yet active"
+            echo ""
+            echo "The workflow ran, but **no Claude auth secret is configured**, so no review was posted."
+            echo ""
+            echo "Add **one** of these repo secrets, then push again:"
+            echo "- \`CLAUDE_CODE_OAUTH_TOKEN\` — run \`claude setup-token\` locally (covered by Claude Max)."
+            echo "- \`ANTHROPIC_API_KEY\` — from console.anthropic.com (billed per use)."
+          } >> "$GITHUB_STEP_SUMMARY"
