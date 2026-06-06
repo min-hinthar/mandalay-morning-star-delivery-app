@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { m } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, ArrowRight } from "lucide-react";
-import { ItemDetailSheet } from "@/components/ui/menu";
+import { ItemDetailSheet, MenuTextureBackdrop } from "@/components/ui/menu";
 import { FeaturedSections } from "@/components/ui/homepage/FeaturedSections";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
@@ -113,6 +113,9 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
 
       {/* Dark overlay for text readability */}
       <div className="absolute inset-0 bg-surface-primary/85 pointer-events-none" />
+
+      {/* Layered editorial texture (gradient-masked grids + triad glows) */}
+      <MenuTextureBackdrop />
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}

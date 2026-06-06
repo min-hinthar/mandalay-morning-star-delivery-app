@@ -40,6 +40,8 @@ export type { FeaturedCarouselProps, CarouselControlsProps } from "./FeaturedCar
 
 export { MenuEmptyState } from "./MenuEmptyState";
 
+export { MenuTextureBackdrop } from "./MenuTextureBackdrop";
+
 export { SearchResultsGrid } from "./SearchResultsGrid";
 
 export { MenuHeader } from "./MenuHeader";
