@@ -273,7 +273,7 @@ export function ItemDetailSheet({
     return (
       <div className={cn("flex flex-col", isMobile && "h-full")}>
         {/* Hero Image */}
-        <div className="relative aspect-video shrink-0 bg-zinc-100 dark:bg-zinc-800">
+        <div className="relative aspect-video shrink-0 overflow-hidden bg-zinc-100 dark:bg-zinc-800">
           {/* Close Button - uses semi-transparent overlay on image */}
           <button
             onClick={handleRequestClose}
@@ -296,7 +296,7 @@ export function ItemDetailSheet({
               alt={item.nameEn}
               fill
               sizes="(max-width: 640px) 100vw, 512px"
-              className="object-cover"
+              className="menu-modal-kenburns object-cover"
               priority
             />
           ) : (
@@ -324,9 +324,11 @@ export function ItemDetailSheet({
           <div>
             <h2 className="font-display text-2xl font-bold text-text-primary">{item.nameEn}</h2>
             {item.nameMy && <p className="font-burmese text-text-muted">{item.nameMy}</p>}
-            <p className="font-display text-2xl font-bold text-primary mt-1">
+            <p className="menu-modal-price font-display text-2xl font-bold mt-1">
               {formatPrice(item.basePriceCents)}
             </p>
+            {/* Clay/amber accent rule — After Dark divider */}
+            <div className="menu-modal-rule mt-3 h-px w-full" aria-hidden="true" />
           </div>
 
           {/* Description */}

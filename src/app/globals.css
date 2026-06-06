@@ -540,6 +540,38 @@
     color: var(--menu-card-price);
   }
 
+  /* ---- Detail modal "After Dark" accents (standard surface, so accent
+     flips deep-clay → amber by theme; AA on white and on dark) ---- */
+  .menu-modal-price {
+    color: var(--menu-modal-accent);
+  }
+
+  .menu-modal-rule {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--menu-modal-accent) 60%, transparent),
+      transparent
+    );
+  }
+
+  /* Slow Ken-Burns drift on the modal hero image — motion-gated */
+  @media (prefers-reduced-motion: no-preference) {
+    .menu-modal-kenburns {
+      animation: menu-modal-kenburns 18s ease-in-out infinite alternate;
+      transform-origin: center;
+    }
+  }
+
+  @keyframes menu-modal-kenburns {
+    from {
+      transform: scale(1);
+    }
+    to {
+      transform: scale(1.07);
+    }
+  }
+
   /* Menu category-tab active indicator — gold→clay lit pill (deepened
      sunset). Soft amber glow + top sheen; sits behind the label. */
   .menu-tab-indicator {
