@@ -4,7 +4,7 @@
  * Stars are simply the customer's completed-order count (no stored counter, so
  * nothing can drift). Every Nth order crosses a milestone and auto-issues a
  * tier-sized "Kyay-Zu-Par!" thank-you coupon. Tiers are the Burmese-gem ladder
- * (Mandalay, the Golden City): New Friend → Jade → Ruby → Gold.
+ * (Mandalay, the Golden City): New Friend → Diamond → Ruby → Gold.
  */
 
 /** Base loyalty thank-you discount (cents) — the New Friend "Kyay-Zu-Par!". */
@@ -95,9 +95,9 @@ export type LoyaltyTierId = "new" | "jade" | "ruby" | "gold";
 
 export interface LoyaltyTier {
   id: LoyaltyTierId;
-  /** Burmese name, e.g. "Kyauk Sein". */
+  /** Romanized Burmese name, e.g. "Padamya". */
   name: string;
-  /** English gloss, e.g. "Jade". */
+  /** English gloss, e.g. "Ruby". */
   english: string;
   emoji: string;
   /** Lifetime net spend (cents) required to reach this tier. */
@@ -121,10 +121,13 @@ export const LOYALTY_TIERS: LoyaltyTier[] = [
     rewardCents: 500,
   },
   {
+    // id stays "jade" (internal key, never user-visible); displayed as Diamond.
+    // `name` is romanized Burmese (Sein = diamond) to match Padamya/Shwe; the
+    // hero constellation shows the native script (စိန်) via its own MY map.
     id: "jade",
-    name: "Kyauk Sein",
-    english: "Jade",
-    emoji: "💚",
+    name: "Sein",
+    english: "Diamond",
+    emoji: "💎",
     minSpendCents: 25000,
     rewardCents: 800,
   },
@@ -132,7 +135,7 @@ export const LOYALTY_TIERS: LoyaltyTier[] = [
     id: "ruby",
     name: "Padamya",
     english: "Ruby",
-    emoji: "❤️",
+    emoji: "♦️",
     minSpendCents: 75000,
     rewardCents: 1000,
   },
@@ -140,7 +143,7 @@ export const LOYALTY_TIERS: LoyaltyTier[] = [
     id: "gold",
     name: "Shwe",
     english: "Gold",
-    emoji: "💛",
+    emoji: "👑",
     minSpendCents: 150000,
     rewardCents: 1200,
   },
@@ -217,10 +220,10 @@ export const TIER_PERKS: Record<LoyaltyTierId, LoyaltyPerk[]> = {
       en: "Bigger $8 reward every 5 orders",
       my: "၅ ကြိမ်တိုင်း $8 ဆု (ပိုကြီး)",
     },
-    { icon: "star", en: "Jade tier badge on your profile", my: "ပရိုဖိုင်မှာ Jade တံဆိပ်" },
+    { icon: "star", en: "Diamond tier badge on your profile", my: "ပရိုဖိုင်မှာ Diamond တံဆိပ်" },
   ],
   ruby: [
-    { icon: "sparkles", en: "Everything in Jade", my: "Jade ပါဝင်သမျှ အားလုံး" },
+    { icon: "sparkles", en: "Everything in Diamond", my: "Diamond ပါဝင်သမျှ အားလုံး" },
     { icon: "gift", en: "Bigger $10 reward every 5 orders", my: "၅ ကြိမ်တိုင်း $10 ဆု" },
     {
       icon: "clock",
@@ -237,8 +240,8 @@ export const TIER_PERKS: Record<LoyaltyTierId, LoyaltyPerk[]> = {
     },
     {
       icon: "crown",
-      en: "Gold tier — our most loyal friends 💛",
-      my: "Gold — အချစ်ဆုံး မိတ်ဆွေအရင်းများ 💛",
+      en: "Gold tier — our most loyal friends 👑",
+      my: "Gold — အချစ်ဆုံး မိတ်ဆွေအရင်းများ 👑",
     },
   ],
 };

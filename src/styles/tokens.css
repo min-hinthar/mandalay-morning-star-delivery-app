@@ -134,6 +134,8 @@
   --hero-clay-2: #cf6a49; /* deeper book cloth (CTA gradient) */
   --hero-blue: #6a9bcc; /* slate blue */
   --hero-sage: #788c5d; /* sage */
+  --hero-ruby: #e0556b; /* ruby red — rewards Ruby-tier accent */
+  --hero-gold: #eaa92f; /* deep gold — rewards Gold-tier apex accent */
   --hero-emoji-shadow-far: 0 2px 8px rgba(0, 0, 0, 0.3);
   --hero-emoji-shadow-mid: 0 4px 12px rgba(0, 0, 0, 0.4);
   --hero-emoji-shadow-near: 0 6px 20px rgba(0, 0, 0, 0.5);
