@@ -169,6 +169,8 @@
   --menu-card-cta-ink: #241a12; /* dark label on clay */
   --menu-gold: #eaa92f; /* category-tab pill (theme-independent) */
   --menu-clay: #d97757;
+  --menu-texture-dot: rgba(20, 20, 19, 0.1); /* dark dots on the light section overlay */
+  --menu-texture-line: rgba(20, 20, 19, 0.05);
 
   /* ===========================================
      INTERACTIVE ALIASES
@@ -698,6 +700,8 @@
   --menu-card-price: #9a3412; /* deep clay price */
   --menu-card-cta-bg: #9a3412; /* deep clay CTA */
   --menu-card-cta-ink: #fdfcf9; /* warm-white label on clay */
+  --menu-texture-dot: rgba(246, 241, 233, 0.08); /* light dots on the dark section overlay */
+  --menu-texture-line: rgba(246, 241, 233, 0.045);
 
   /* ===========================================
      INTERACTIVE ALIASES (Dark Mode)
