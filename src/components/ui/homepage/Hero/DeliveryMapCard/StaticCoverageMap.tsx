@@ -154,11 +154,11 @@ export function StaticCoverageMap() {
             className="absolute -translate-x-1/2 -translate-y-1/2"
             style={pos(IMG_W / 2, IMG_H / 2)}
           >
-            <span className="block h-3 w-3 rounded-full bg-hero-accent ring-2 ring-hero-card shadow-md" />
+            <span className="block h-3.5 w-3.5 rounded-full bg-hero-clay ring-2 ring-hero-card shadow-md" />
             {shouldAnimate && (
               <m.span
                 className="absolute inset-0 rounded-full"
-                style={{ background: "var(--hero-accent)" }}
+                style={{ background: "var(--hero-clay)" }}
                 animate={{ scale: [1, 2.4], opacity: [0.35, 0] }}
                 transition={{ duration: 2, repeat: Infinity, ease: "easeOut" }}
               />
@@ -209,7 +209,7 @@ export function StaticCoverageMap() {
               animate={{ opacity: 1, y: 0 }}
               exit={shouldAnimate ? { opacity: 0, y: -4 } : undefined}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="absolute left-1/2 top-11 flex -translate-x-1/2 items-center gap-1.5 whitespace-nowrap rounded-full hero-surface-paper px-2.5 py-1 text-2xs font-semibold text-hero-ink shadow-md md:top-14"
+              className="absolute left-1/2 top-12 flex max-w-[80%] -translate-x-1/2 items-center gap-1.5 truncate rounded-full hero-surface-paper px-2.5 py-1 text-2xs font-semibold text-hero-ink shadow-md md:top-14"
             >
               <ActiveIcon className="h-3 w-3" style={{ color: DIR_VAR[CITY_PX[active].dir] }} />
               {CITY_PX[active].name}

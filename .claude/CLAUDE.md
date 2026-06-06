@@ -192,6 +192,7 @@ ComponentName/
 - Webhook handlers: return 500 on DB errors for retry; never swallow into 200
 - `loading="lazy"` + animated containers (opacity 0) = images never load
 - iOS WebKit OOM crash ("Can't open page"/reload, no Sentry error since the tab dies pre-report): stacked `backdrop-filter` + large `blur()` layers blow the mobile tab memory. Keep them `md:`-only; opaque surfaces + radial-gradient glows on mobile. (See Design Language § mobile budget.)
+- A **live WebGL Google map** (`@react-google-maps/api`) is another iOS OOM source on low-end retina phones (WebGL context + tiles + animated markers) — gate it by `useDeviceTier()` (low/mid → static map image, desktop/high → live), and put `useJsApiLoader` inside a conditionally-_rendered_ child so the Maps SDK never loads on low-end (a parent that always mounts would load it regardless). `useDeviceTier` is SSR-safe (`low` first paint) so the swap can't cause a hydration mismatch. (See Design Language §7.3.)
 - Nested `overflow-y-auto` without explicit height — wheel events blocked
 - `useRef` on conditional render targets breaks observers — use stable wrapper element
 - Event listeners belong inside `useEffect`, not via `useCallback` with state deps

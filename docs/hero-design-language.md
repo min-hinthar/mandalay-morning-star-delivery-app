@@ -227,6 +227,34 @@ iOS device load `?fx=lite`, confirm it survives 4s + check the `hero_stable`
 beacon → watch the `hero_render`/`hero_stable` ratio in Sentry across real
 devices → only then promote that tier in `profileForTier()`.
 
+### 7.3 Live WebGL maps are an OOM trap on low-end mobile — tier-gate them
+
+A **live `@react-google-maps/api` map** is one of the heaviest things you can put
+in the hero: a WebGL context + tile cache + (here) 20 animated `AdvancedMarker`
+elements. The telemetry caught it crashing low-end retina iPhones
+(`device_tier:low`, `dpr:3`, `fx_profile:baseline` — `hero_render` with no
+`hero_stable`), and **enlarging** the map made it worse. Rules:
+
+- **Gate the live map by device tier**, not just `md:`. `DeliveryMapCard` reads
+  `useDeviceTier()` (from `useHeroFx`, SSR-safe → starts `low`): `low`/`mid` get a
+  **static** map, `desktop`/`high` get the live one.
+- **Isolate the SDK loader in a child component.** `useJsApiLoader` injects the
+  Maps JS SDK the moment it mounts — so it must live inside the live-only child
+  (`LiveDeliveryMap`), which is conditionally _rendered_. React never runs the
+  hooks of an un-rendered component, so on low/mid the SDK **never loads at all**
+  (not just "hidden"). Don't call `useJsApiLoader` in a parent that always mounts.
+- **The static replacement can still feel alive.** `StaticCoverageMap` = one
+  Google **Static Maps image** (a single decoded bitmap — a tiny fraction of the
+  live map's memory) + a lightweight CSS/Framer overlay: delivery pins at the
+  cities' **true bearings** (Web-Mercator projected, aligned to the image via a
+  `ResizeObserver` object-cover fit) and an auto-cycling info chip. No WebGL, no
+  `backdrop-filter`, ~10 transform/opacity nodes. Falls back to a pure-SVG
+  coverage diagram if the Static Maps API key/endpoint is unavailable.
+- **SSR-safe swap:** `useDeviceTier` returns `low` on the server + first client
+  paint, so the static map renders first everywhere (no hydration mismatch); a
+  capable device swaps to the live map post-mount (one extra image fetch on
+  desktop — an acceptable price for the gate).
+
 ## 8. Reusable hero kit (promote to a shared `anthropic` kit)
 
 These are built generic on purpose; reuse them on homepage/menu rather than
