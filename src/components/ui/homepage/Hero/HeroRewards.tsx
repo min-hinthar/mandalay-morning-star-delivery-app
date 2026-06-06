@@ -176,10 +176,17 @@ export function HeroRewards({ className }: { className?: string }) {
   const announcedTier = LOYALTY_TIERS[announced] ?? LOYALTY_TIERS[0];
   const litFraction = active / (LOYALTY_TIERS.length - 1);
 
-  const select = (i: number, e?: { clientX: number; clientY: number }) => {
+  // Announce on intentional selection (focus or click) — not hover (avoids SR spam).
+  const announce = (i: number) => {
     setActive(i);
     setAnnounced(i);
-    if (e && stageRef.current) {
+  };
+
+  const select = (i: number, e?: { clientX: number; clientY: number }) => {
+    announce(i);
+    // Only burst for a real pointer; keyboard-activated clicks report (0,0),
+    // which would fire the particles off-stage.
+    if (e && e.clientX > 0 && e.clientY > 0 && stageRef.current) {
       const r = stageRef.current.getBoundingClientRect();
       fire(e.clientX - r.left, e.clientY - r.top);
     }
@@ -370,6 +377,7 @@ export function HeroRewards({ className }: { className?: string }) {
                         : `, unlock at $${dollars(t.minSpendCents)} lifetime`
                     }, $${dollars(t.rewardCents)} reward`}
                     onHover={() => setActive(i)}
+                    onFocus={() => announce(i)}
                     onSelect={(e) => select(i, e)}
                   />
                 </li>

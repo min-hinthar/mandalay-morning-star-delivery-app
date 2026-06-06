@@ -30,7 +30,10 @@ interface TierNodeProps {
   loop: boolean;
   index: number;
   ariaLabel: string;
+  /** Pointer hover — updates the visible panel only (no SR announce). */
   onHover: () => void;
+  /** Keyboard focus — intentional, so it announces to the sr-only live region. */
+  onFocus: () => void;
   onSelect: (e: ReactPointerEvent<HTMLButtonElement>) => void;
 }
 
@@ -48,6 +51,7 @@ export function TierNode({
   index,
   ariaLabel,
   onHover,
+  onFocus,
   onSelect,
 }: TierNodeProps) {
   const mag = useMagnetic(0.3);
@@ -58,7 +62,7 @@ export function TierNode({
       aria-pressed={isActive}
       aria-label={ariaLabel}
       onPointerEnter={onHover}
-      onFocus={onHover}
+      onFocus={onFocus}
       onClick={onSelect}
       onPointerMove={mag.onPointerMove}
       onPointerLeave={mag.onPointerLeave}

@@ -13,7 +13,9 @@ export interface TierAccent {
 export function tierAccent(id: LoyaltyTierId): TierAccent {
   switch (id) {
     case "jade":
-      return { text: "text-accent-green", ring: "ring-accent-green", bg: "bg-accent-green/10" };
+      // Displayed as Diamond (💎) — a cool teal accent matches the gem (and the
+      // hero's blue node), not the old jade-green.
+      return { text: "text-accent-teal", ring: "ring-accent-teal", bg: "bg-accent-teal/10" };
     case "ruby":
       return { text: "text-magenta", ring: "ring-magenta", bg: "bg-magenta/10" };
     case "gold":
