@@ -410,7 +410,10 @@
 
   --header-height: 64px;
   --offline-banner-height: 0px; /* Set by OfflineIndicator when showing */
-  --tabs-offset: calc(64px + var(--offline-banner-height, 0px)); /* Header + offline banner */
+
+  /* Live header height (published by MenuHeader) + offline banner, so sticky
+     CategoryTabs always clears the full header incl. the dietary chips row. */
+  --tabs-offset: calc(var(--menu-header-height, 64px) + var(--offline-banner-height, 0px));
   --cart-bar-height: 64px;
   --driver-header-height: 48px;
   --driver-action-height: 80px;

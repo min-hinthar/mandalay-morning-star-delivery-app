@@ -4,7 +4,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { AnimatePresence, m } from "framer-motion";
 import { CartButton } from "@/components/ui/cart";
 import { SearchInput } from "./SearchInput";
-import { DietaryChipPicker } from "@/components/ui/account/SettingsTab/DietaryChipPicker";
+import { MenuDietaryFilter } from "./MenuDietaryFilter";
 import { useScrollDirection } from "@/lib/hooks/useScrollDirection";
 import { cn } from "@/lib/utils/cn";
 import type { MenuItem } from "@/types/menu";
@@ -18,6 +18,8 @@ interface MenuHeaderProps {
   onQueryChange: (query: string) => void;
   /** Callback when menu item is selected from autocomplete */
   onSelectItem?: (item: MenuItem) => void;
+  /** All menu items (unfiltered) — powers dietary filter chips + counts */
+  items: MenuItem[];
   /** Active dietary filter selections */
   dietaryFilters: string[];
   /** Callback when dietary filters change */
@@ -40,10 +42,29 @@ const chipsRowVariants = {
 export function MenuHeader({
   onQueryChange,
   onSelectItem,
+  items,
   dietaryFilters,
   onDietaryChange,
 }: MenuHeaderProps) {
   const { isCollapsed } = useScrollDirection({ threshold: 10 });
+
+  // Publish the live header height so CategoryTabs (sticky at --tabs-offset)
+  // always sits BELOW the full header — incl. the collapsible dietary row — so
+  // the chips can't hide behind the tabs on scroll-up.
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const publish = () => root.style.setProperty("--menu-header-height", `${el.offsetHeight}px`);
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--menu-header-height");
+    };
+  }, []);
 
   // Scroll fade indicator state for dietary chips
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -77,6 +98,7 @@ export function MenuHeader({
 
   return (
     <header
+      ref={headerRef}
       className={cn(
         "sticky top-0 z-20",
         // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
@@ -126,7 +148,11 @@ export function MenuHeader({
 
                 {/* Scroll container */}
                 <div ref={scrollContainerRef} className="overflow-x-auto no-scrollbar">
-                  <DietaryChipPicker selected={dietaryFilters} onChange={onDietaryChange} />
+                  <MenuDietaryFilter
+                    items={items}
+                    selected={dietaryFilters}
+                    onChange={onDietaryChange}
+                  />
                 </div>
 
                 {/* Right fade indicator */}
