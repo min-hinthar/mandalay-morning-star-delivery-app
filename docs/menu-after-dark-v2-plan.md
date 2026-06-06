@@ -1,0 +1,83 @@
+# Menu "After Dark" v2 — epic plan
+
+Owner-approved maximalist redesign of the public menu, layered on top of the
+After Dark theming already in PR #150 (branch `claude/homepage-menu-dark-theme-ux-SeSs2`).
+Built as sequential, individually-verified pushes on the same branch (owner is
+driving this as one continuous effort; harness pins this branch).
+
+## Locked decisions (via AskUserQuestion, 2026-06-06)
+
+| Surface        | Direction                                                           |
+| -------------- | ------------------------------------------------------------------- |
+| Search/header  | **⌘K command palette** — expand search into a full-screen overlay   |
+| Category nav   | **Two-pane index rail (desktop) + reinvented filmstrip (mobile)**   |
+| Detail modal   | **Layered editorial dish sheet**                                    |
+| Dietary filter | **Re-vocabulary + matching fix + data enrichment (migration/seed)** |
+
+## Baseline bugs (fold the fix into the relevant feature, not separate PRs)
+
+1. **Dietary filter dead** — chips use the account vocabulary (`"Vegetarian"`,
+   capitalized, 6 opts from `settings-types.ts`) but items are tagged lowercase
+   (`"vegetarian"`, `"spicy"`); `useMenuFilters` does exact `tags.includes(f)`
+   → never matches. Also ~95% of seed items have empty `tags`. → Feature D.
+2. **Dietary chips hide behind tabs on scroll** — `--tabs-offset` is hardcoded
+   `calc(64px + offline-banner)` and ignores the dietary row height, so
+   `CategoryTabs` (sticky) sits over the chips. → Feature B (offset model).
+3. **Tab text meld (dark)** — inactive labels `text-text-secondary` on
+   `dark:surface-elevated` low-contrast; bar reads flat. → Feature B.
+4. **Modal close button clipped** — `absolute top-3 right-3` INSIDE the
+   `overflow-hidden` Ken-Burns image container → corner clips it; modal lacks
+   depth. → Feature C.
+
+## Build order (isolated/high-impact first)
+
+### C. Layered editorial dish sheet (modal) — FIRST
+
+- File: `src/components/ui/menu/ItemDetailSheet.tsx` (+ `ItemDetailSheet/helpers`).
+- Move close button OUT of the image `overflow-hidden` into the modal root
+  (safe insets, glass button, ≥44px).
+- Full-bleed parallax image + gradient scrim; floating glass title plate that
+  overlaps the image (depth); dot-grid texture; bilingual type; clay accents;
+  modifier rows tactile press states; sticky footer with live rolling price reel
+  (reuse `RollingDigits`).
+- Mobile = Drawer (keep drag handle; don't collide with close).
+- Guardrails: no new mobile `backdrop-filter`/large blur; reduced-motion safe;
+  Modal test (`CheckoutClient.test` analog) — don't add a nested LazyMotion.
+
+### D. Dietary re-vocab + matching + data enrichment
+
+- Menu filter vocabulary = menu tags (vegetarian, vegan, gluten-free, spicy,
+  contains-nuts/dairy, halal…), NOT the account `DietaryOption` set.
+- `src/lib/hooks/useMenuFilters.ts` — normalize matching (case-insensitive,
+  token map); add per-filter counts + empty state.
+- New menu-specific dietary chip control (don't reuse account `DietaryChipPicker`).
+- Data: migration/seed pass so items carry real dietary tags. Seed YAML
+  `data/menul.seed.yaml` + `scripts/seed-menu.ts`. If DB-only, add a migration
+  `<timestamp>_menu_dietary_tags.sql` then `pnpm gen:types`. Tiers/loyalty
+  untouched. Watch: `DietaryBadges` reads `item.tags` (display must still work).
+
+### B. Two-pane index rail + filmstrip nav
+
+- Desktop: sticky vertical category index beside the grid (scrollspy, counts,
+  draw-on accent). Mobile: horizontal filmstrip — morphing `layoutId` active
+  pill, high-contrast cream label (fix dark meld), magnetic hover, scroll
+  progress. domMax note: `layout`/`layoutId` need DomMaxProvider — NOT present
+  on public pages (PublicShell only loads domAnimation). Use a measured-position
+  pill (current approach) or a CSS-transform morph, NOT framer `layoutId`.
+- Fix `--tabs-offset` to include the dietary/filter row height (measure or token).
+
+### A. ⌘K command palette search
+
+- Expand `SearchInput` into a full-screen overlay: live bilingual results,
+  category jumps, recent/popular, dietary quick-filters inside. Header condenses
+  to a slim bar. Keyboard: ⌘K/Ctrl-K open, Esc close, ↑/↓ navigate, ⏎ select.
+- Reuse `useMenuSearch`/`useMenuFilters`. a11y: focus trap, aria-activedescendant.
+
+## Global guardrails (from CLAUDE.md)
+
+- Token-pure (no raw white/black/hex/z-index in JSX); add `@theme` map + utility.
+- Mobile GPU budget: opaque surfaces, gate heavy decorative layers `md:`+,
+  radial-gradient glows over `blur()`.
+- 60fps (transform/opacity only), rAF-throttle pointer, reduced-motion honored.
+- Verify before every push: lint · lint:css · format:check · typecheck · test · build.
+- Adversarial self-review once owner is satisfied, before merge.
