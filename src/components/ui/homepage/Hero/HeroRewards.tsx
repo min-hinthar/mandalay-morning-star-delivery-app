@@ -11,14 +11,16 @@
  *
  * Micro-interactions: magnetic node hover, star-burst on select, reward-$ and
  * unlock-$ count-up (RollingNumber), card sheen sweep. Perf/a11y: glows are
- * radial-gradients (no blur); float + sheen + comet are transform/stroke only,
- * gated on `shouldAnimate` and pausing offscreen (.hero-anim-paused). The
- * visible panel updates on hover; a separate sr-only aria-live region announces
- * only on focus/click. Burmese is in script (flagged for native review).
+ * radial-gradients (no blur); transform/stroke-only motion gated on
+ * `shouldAnimate`. The comet + active-node glow are JS loops, so they pause
+ * offscreen via `useInView` on the stage; the CSS loops (float/sheen/twinkle)
+ * pause via `.hero-anim-paused`. The visible panel updates on hover; a separate
+ * sr-only aria-live region announces only on focus/click. Jewel colors are
+ * tokens (`var(--hero-*)`), never raw hex. Burmese flagged for native review.
  */
 
 import { useRef, useState, type CSSProperties } from "react";
-import { AnimatePresence, m } from "framer-motion";
+import { AnimatePresence, m, useInView } from "framer-motion";
 import { Star, Gift, Sparkles, Crown, Clock } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -35,12 +37,12 @@ import { TierNode } from "./HeroRewardsNode";
 import { RollingNumber } from "./RollingDigits";
 import { useBurst, Bursts } from "./HeroBurst";
 
-/** Per-tier node: non-heart emoji + ring/glow (decorative) + Burmese-script name. */
+/** Per-tier node: non-heart emoji + ring/glow (token colors) + Burmese-script name. */
 const TIER: Record<LoyaltyTierId, { emoji: string; ring: string; glow: string; my: string }> = {
   new: { emoji: "⭐", ring: "ring-hero-clay/60", glow: "var(--hero-clay)", my: "မိတ်ဆွေသစ်" },
-  jade: { emoji: "💎", ring: "ring-hero-blue/70", glow: "#6a9bcc", my: "စိန်" },
-  ruby: { emoji: "♦️", ring: "ring-hero-accent/70", glow: "#e0556b", my: "ပတ္တမြား" },
-  gold: { emoji: "👑", ring: "ring-hero-clay/70", glow: "#eaa92f", my: "ရွှေ" },
+  jade: { emoji: "💎", ring: "ring-hero-blue/70", glow: "var(--hero-blue)", my: "စိန်" },
+  ruby: { emoji: "♦️", ring: "ring-hero-ruby/70", glow: "var(--hero-ruby)", my: "ပတ္တမြား" },
+  gold: { emoji: "👑", ring: "ring-hero-gold/70", glow: "var(--hero-gold)", my: "ရွှေ" },
 }; // prettier-ignore
 
 /** Constellation anchors (% of stage) — a smooth upward ARC to the Gold apex. */
@@ -161,6 +163,9 @@ export function HeroRewards({ className }: { className?: string }) {
   const [active, setActive] = useState(0);
   const [announced, setAnnounced] = useState(0);
   const stageRef = useRef<HTMLDivElement>(null);
+  // Pause the JS loops (comet, active-node glow) when the stage scrolls offscreen.
+  const inView = useInView(stageRef, { margin: "200px 0px" });
+  const loop = shouldAnimate && inView;
   const { bursts, fire } = useBurst(10);
 
   const tier = LOYALTY_TIERS[active] ?? LOYALTY_TIERS[0];
@@ -288,10 +293,10 @@ export function HeroRewards({ className }: { className?: string }) {
           >
             <defs>
               <linearGradient id="hero-arc" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0%" stopColor="#d97757" />
-                <stop offset="40%" stopColor="#6a9bcc" />
-                <stop offset="70%" stopColor="#e0556b" />
-                <stop offset="100%" stopColor="#eaa92f" />
+                <stop offset="0%" stopColor="var(--hero-clay)" />
+                <stop offset="40%" stopColor="var(--hero-blue)" />
+                <stop offset="70%" stopColor="var(--hero-ruby)" />
+                <stop offset="100%" stopColor="var(--hero-gold)" />
               </linearGradient>
             </defs>
             <path
@@ -313,10 +318,10 @@ export function HeroRewards({ className }: { className?: string }) {
               vectorEffect="non-scaling-stroke"
               initial={false}
               animate={{ pathLength: litFraction || 0.001, opacity: 0.85 }}
-              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: shouldAnimate ? 0.35 : 0, ease: [0.22, 1, 0.36, 1] }}
             />
-            {/* traveling comet (a bright dash sweeping the arc) */}
-            {shouldAnimate && (
+            {/* traveling comet (a bright dash sweeping the arc) — pauses offscreen */}
+            {loop && (
               <m.path
                 d={ARC_D}
                 fill="none"
@@ -353,7 +358,7 @@ export function HeroRewards({ className }: { className?: string }) {
                     isGold={t.id === "gold"}
                     isActive={i === active}
                     earned={i <= active}
-                    shouldAnimate={shouldAnimate}
+                    loop={loop}
                     index={i}
                     ariaLabel={`${t.english} tier${
                       t.minSpendCents === 0

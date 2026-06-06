@@ -26,7 +26,8 @@ interface TierNodeProps {
   isGold: boolean;
   isActive: boolean;
   earned: boolean;
-  shouldAnimate: boolean;
+  /** Whether continuous loops may run (shouldAnimate && stage in view). */
+  loop: boolean;
   index: number;
   ariaLabel: string;
   onHover: () => void;
@@ -43,7 +44,7 @@ export function TierNode({
   isGold,
   isActive,
   earned,
-  shouldAnimate,
+  loop,
   index,
   ariaLabel,
   onHover,
@@ -74,12 +75,12 @@ export function TierNode({
           background: `radial-gradient(circle, ${glow} 0%, transparent 66%)`,
         }}
         animate={
-          shouldAnimate && isActive
+          loop && isActive
             ? { opacity: [0.5, 0.85, 0.5] }
             : { opacity: isActive ? 0.75 : earned ? 0.42 : 0.16 }
         }
         transition={
-          shouldAnimate && isActive
+          loop && isActive
             ? { duration: 2.4, repeat: Infinity, ease: "easeInOut" }
             : { duration: 0.3 }
         }

@@ -148,6 +148,8 @@
   --color-hero-clay-2: var(--hero-clay-2);
   --color-hero-blue: var(--hero-blue);
   --color-hero-sage: var(--hero-sage);
+  --color-hero-ruby: var(--hero-ruby);
+  --color-hero-gold: var(--hero-gold);
 
   /* Skeleton / Disabled / Selection (from tokens.css) */
   --color-skeleton: var(--color-skeleton);
