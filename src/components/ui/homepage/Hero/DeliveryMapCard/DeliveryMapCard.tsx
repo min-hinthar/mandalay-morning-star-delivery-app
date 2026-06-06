@@ -18,10 +18,12 @@ import type { DeliveryMapCardProps } from "./types";
 export function DeliveryMapCard({ nextDeliveryDate, deliverySchedule }: DeliveryMapCardProps) {
   const { shouldAnimate } = useAnimationPreference();
   const tier = useDeviceTier();
-  // Low/mid mobile gets the lightweight static diagram — the live WebGL map +
-  // tiles OOM-crash low-end retina iPhones. Desktop/high keep the live map.
+  // Only DESKTOP gets the live WebGL Google Map. ALL mobile (incl. "high" tier:
+  // a recent iPhone reports ≥8 cores) gets the lightweight static diagram — a
+  // high core count doesn't lift WebKit's per-TAB memory ceiling, and the live
+  // map + tiles OOM-crash iOS on the menu→homepage path (cumulative memory).
   // (SSR/first paint = "low", so the SDK never loads on a low-end first paint.)
-  const liteMap = tier === "low" || tier === "mid";
+  const liteMap = tier !== "desktop";
 
   return (
     <m.div
