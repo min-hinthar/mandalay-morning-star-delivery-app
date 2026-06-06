@@ -6,10 +6,12 @@ on:
     types: [opened, synchronize, reopened]
 
 # Least privilege the review needs: read code, write PR review comments + summary.
+# id-token: write is required by claude-code-action to exchange the OAuth token via OIDC.
 permissions:
   contents: read
   pull-requests: write
   issues: write
+  id-token: write
 
 # Newer push to the same PR cancels the in-flight review (don't stack reviews).
 concurrency:
