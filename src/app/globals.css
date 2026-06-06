@@ -468,6 +468,65 @@
     }
   }
 
+  /* ============================================
+     MENU NOCTURNE — "night-lacquer" card surface
+     Re-skins a menu card subtree to the deepened-sunset
+     nocturne by overriding the tokens the card already
+     consumes (surface / text / CTA / focus). Theme-independent.
+     Mobile-safe: opaque espresso; inherits glass-menu-card's
+     md+ backdrop-blur only (no new filters below md).
+     ============================================ */
+  .menu-nocturne {
+    --color-surface-primary: var(--menu-night-bg);
+    --color-surface-secondary: var(--menu-night-bg-2);
+    --color-surface-tertiary: var(--menu-night-bg-2);
+    --color-border-default: var(--menu-night-hairline);
+    --color-text-primary: var(--menu-night-ink);
+    --color-text-secondary: var(--menu-night-ink-muted);
+    --color-text-muted: var(--menu-night-ink-muted);
+    --color-primary: var(--menu-clay);
+    --color-primary-hover: var(--menu-amber);
+  }
+
+  /* Night-lacquer surface: warm espresso wash + gold-leaf hairline +
+     inner top sheen. Ember lift on hover/focus. */
+  .menu-nocturne .glass-menu-card {
+    background: linear-gradient(157deg, var(--menu-night-bg-2) 0%, var(--menu-night-bg) 64%);
+    border-color: var(--menu-night-hairline);
+    box-shadow:
+      inset 0 1px 0 0 var(--menu-night-sheen),
+      var(--shadow-card);
+  }
+
+  .menu-nocturne .glass-menu-card:hover,
+  .menu-nocturne .glass-menu-card:focus-within {
+    border-color: var(--menu-night-hairline-strong);
+    box-shadow:
+      inset 0 1px 0 0 var(--menu-night-sheen),
+      var(--menu-ember-glow);
+  }
+
+  @media (min-width: 640px) {
+    /* Keep the espresso wash under the frosted (md+) blur so the
+       backdrop-filter doesn't wash the surface back toward neutral. */
+    .menu-nocturne .glass-menu-card {
+      background: linear-gradient(
+        157deg,
+        color-mix(in srgb, var(--menu-night-bg-2) 92%, transparent) 0%,
+        color-mix(in srgb, var(--menu-night-bg) 92%, transparent) 64%
+      );
+    }
+  }
+
+  /* Menu category-tab active indicator — gold→clay lit pill (deepened
+     sunset). Soft amber glow + top sheen; sits behind the label. */
+  .menu-tab-indicator {
+    background: linear-gradient(100deg, var(--menu-gold), var(--menu-clay));
+    box-shadow:
+      0 2px 12px -2px rgba(234, 169, 47, 0.5),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+  }
+
   /* Gradient glow on hover - for cards/buttons */
   .glow-gradient {
     position: relative;

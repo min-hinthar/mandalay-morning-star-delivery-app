@@ -145,6 +145,26 @@
   --hero-emoji-opacity-mid: 0.85;
 
   /* ===========================================
+     MENU NOCTURNE — deepened-sunset "night-lacquer"
+     Warm espresso menu surfaces + gold-leaf hairline +
+     emissive sunset accents. Theme-independent: the public
+     menu reads as a warm nocturne on any UI theme (owner POV).
+     Applied via the `.menu-nocturne` scope (globals.css), which
+     re-skins a card subtree by overriding the tokens it consumes.
+     =========================================== */
+  --menu-night-bg: #1c1714; /* warm espresso paper */
+  --menu-night-bg-2: #261e18; /* lifted espresso (gradient top) */
+  --menu-night-ink: #f6f1e9; /* warm cream text */
+  --menu-night-ink-muted: rgba(246, 241, 233, 0.66);
+  --menu-night-hairline: rgba(234, 169, 47, 0.24); /* gold-leaf rule */
+  --menu-night-hairline-strong: rgba(234, 169, 47, 0.5);
+  --menu-clay: #d97757; /* book-cloth clay — CTA accent */
+  --menu-amber: #f0b357; /* warm amber — CTA hover */
+  --menu-gold: #eaa92f; /* deep gold — price / hairline */
+  --menu-night-sheen: rgba(246, 241, 233, 0.07); /* inner top sheen */
+  --menu-ember-glow: 0 18px 40px -20px rgba(217, 119, 87, 0.6); /* hover ember */
+
+  /* ===========================================
      INTERACTIVE ALIASES
      Semantic interactive color tokens
      =========================================== */

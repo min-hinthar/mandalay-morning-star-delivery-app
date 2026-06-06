@@ -18,6 +18,8 @@ export interface CardContentProps {
   showBurmeseName?: boolean;
   /** Padding class */
   paddingClass?: string;
+  /** Deepened-sunset treatment — emissive gold price */
+  nocturne?: boolean;
   /** Additional className */
   className?: string;
 }
@@ -40,6 +42,7 @@ export const CardContent = memo(function CardContent({
   showDescription = true,
   showBurmeseName = true,
   paddingClass = "p-4",
+  nocturne = false,
   className,
 }: CardContentProps) {
   return (
@@ -72,7 +75,7 @@ export const CardContent = memo(function CardContent({
           value={item.basePriceCents}
           inCents={true}
           size="md"
-          className="text-text-secondary font-semibold"
+          className={cn("font-semibold", nocturne ? "text-hero-gold" : "text-text-secondary")}
         />
       </div>
     </div>

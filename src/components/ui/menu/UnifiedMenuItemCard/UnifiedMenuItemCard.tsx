@@ -41,6 +41,13 @@ export interface UnifiedMenuItemCardProps {
   onFavoriteToggle?: (item: MenuItem, isFavorite: boolean) => void;
   /** Disable 3D tilt effect */
   disableTilt?: boolean;
+  /**
+   * Deepened-sunset "night-lacquer" treatment (warm espresso surface,
+   * gold-leaf hairline, emissive accents). Defaults on for the `menu`
+   * variant; pass explicitly to opt a homepage carousel in without
+   * touching the hero's warm-paper FeaturedCarousel.
+   */
+  nocturne?: boolean;
   /** Priority loading for above-fold images */
   priority?: boolean;
   /** Additional className */
@@ -56,7 +63,7 @@ const variantConfig = {
     imageAspect: "aspect-[4/3]",
     showDescription: true,
     showBadges: true,
-    enableTilt: false,
+    enableTilt: true,
     rounded: "rounded-3xl",
     roundedTop: "rounded-t-3xl",
     padding: "p-4 pb-14 md:pb-4",
@@ -118,6 +125,7 @@ export function UnifiedMenuItemCard({
   isFavorite: controlledFavorite,
   onFavoriteToggle: controlledFavoriteToggle,
   disableTilt = false,
+  nocturne,
   priority = false,
   className,
 }: UnifiedMenuItemCardProps) {
@@ -132,6 +140,8 @@ export function UnifiedMenuItemCard({
 
   // Get variant config
   const config = variantConfig[variant];
+  // Deepened-sunset night-lacquer treatment (default on for the menu grid)
+  const isNocturne = nocturne ?? variant === "menu";
   // Disable tilt on touch-only devices (complete disable per CONTEXT.md)
   const shouldEnableTilt =
     config.enableTilt && !disableTilt && shouldAnimate && !item.isSoldOut && canHover;
@@ -194,6 +204,8 @@ export function UnifiedMenuItemCard({
         "overflow-visible",
         // Visible focus ring for keyboard navigation (CUX-14)
         "outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        // Deepened-sunset night-lacquer scope (re-skins surface/text/CTA)
+        isNocturne && "menu-nocturne",
         // Add tilt-container for Safari stacking context isolation
         shouldEnableTilt && "tilt-container",
         item.isSoldOut && "opacity-60 cursor-not-allowed",
@@ -235,7 +247,7 @@ export function UnifiedMenuItemCard({
       aria-label={`${item.nameEn}${item.isSoldOut ? " - Sold Out" : ""}`}
     >
       {/* Glassmorphism background */}
-      <GlassOverlay isHovered={isHovered} rounded={config.rounded} />
+      <GlassOverlay isHovered={isHovered} rounded={config.rounded} nocturne={isNocturne} />
 
       {/* Card content container - no overflow-hidden to prevent 3D tilt clipping */}
       <div className={cn("relative", config.rounded)}>
@@ -280,6 +292,7 @@ export function UnifiedMenuItemCard({
           showDescription={config.showDescription}
           showBurmeseName={variant !== "cart"}
           paddingClass={config.padding}
+          nocturne={isNocturne}
         />
 
         {/* Add button - bottom right */}
