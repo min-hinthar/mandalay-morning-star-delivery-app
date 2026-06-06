@@ -70,7 +70,14 @@ export const MENU_DIETARY_FILTERS: DietaryFilterDef[] = [
   },
   // ---- Tag-based (explicit owner-confirmed tags only) ----
   // Halal intentionally omitted: meat is depot-sourced but not halal-certified.
-  { id: "vegetarian", label: "Vegetarian", emoji: "🌱", kind: "tag", tagAny: ["vegetarian"] },
+  // Vegan dishes also satisfy Vegetarian (a vegan dish is vegetarian).
+  {
+    id: "vegetarian",
+    label: "Vegetarian",
+    emoji: "🌱",
+    kind: "tag",
+    tagAny: ["vegetarian", "vegan"],
+  },
   { id: "vegan", label: "Vegan", emoji: "🌿", kind: "tag", tagAny: ["vegan"] },
   {
     id: "spicy",
