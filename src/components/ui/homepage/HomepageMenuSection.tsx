@@ -142,6 +142,18 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
           >
             Authentic Burmese Cuisine
           </m.h2>
+
+          {/* Bilingual accent underline — draws on with the header reveal */}
+          <m.div
+            variants={{
+              hidden: { scaleX: 0, opacity: 0 },
+              visible: { scaleX: 1, opacity: 1 },
+            }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="mx-auto mb-3 h-[3px] w-24 origin-center rounded-pill"
+            style={{ background: "linear-gradient(90deg, var(--menu-clay), var(--menu-gold))" }}
+            aria-hidden="true"
+          />
           <m.p
             variants={staggerItem}
             className="font-body text-xl md:text-2xl text-primary/70 mb-4"

@@ -543,10 +543,39 @@
   /* Menu category-tab active indicator — gold→clay lit pill (deepened
      sunset). Soft amber glow + top sheen; sits behind the label. */
   .menu-tab-indicator {
+    position: relative;
+    overflow: hidden;
     background: linear-gradient(100deg, var(--menu-gold), var(--menu-clay));
     box-shadow:
       0 2px 12px -2px rgba(234, 169, 47, 0.5),
       inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+  }
+
+  /* Traveling lacquer glint across the active pill — motion-gated */
+  @media (prefers-reduced-motion: no-preference) {
+    .menu-tab-indicator::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        100deg,
+        transparent 20%,
+        rgba(255, 255, 255, 0.4) 50%,
+        transparent 80%
+      );
+      transform: translateX(-130%);
+      animation: menu-tab-shimmer 3.4s ease-in-out infinite;
+    }
+  }
+
+  @keyframes menu-tab-shimmer {
+    0% {
+      transform: translateX(-130%);
+    }
+    55%,
+    100% {
+      transform: translateX(130%);
+    }
   }
 
   /* Gradient glow on hover - for cards/buttons */
