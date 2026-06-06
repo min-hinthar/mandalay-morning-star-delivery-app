@@ -37,12 +37,16 @@ import { TierNode } from "./HeroRewardsNode";
 import { RollingNumber } from "./RollingDigits";
 import { useBurst, Bursts } from "./HeroBurst";
 
-/** Per-tier node: non-heart emoji + ring/glow (token colors) + Burmese-script name. */
-const TIER: Record<LoyaltyTierId, { emoji: string; ring: string; glow: string; my: string }> = {
-  new: { emoji: "⭐", ring: "ring-hero-clay/60", glow: "var(--hero-clay)", my: "မိတ်ဆွေသစ်" },
-  jade: { emoji: "💎", ring: "ring-hero-blue/70", glow: "var(--hero-blue)", my: "စိန်" },
-  ruby: { emoji: "♦️", ring: "ring-hero-ruby/70", glow: "var(--hero-ruby)", my: "ပတ္တမြား" },
-  gold: { emoji: "👑", ring: "ring-hero-gold/70", glow: "var(--hero-gold)", my: "ရွှေ" },
+/**
+ * Per-tier decoration: ring/glow (token colors) + native-script Burmese name.
+ * The EMOJI is NOT duplicated here — it's read from LOYALTY_TIERS[].emoji so the
+ * hero, account ladder, and loyalty emails can never drift (⭐💎♦️👑).
+ */
+const TIER: Record<LoyaltyTierId, { ring: string; glow: string; my: string }> = {
+  new: { ring: "ring-hero-clay/60", glow: "var(--hero-clay)", my: "မိတ်ဆွေသစ်" },
+  jade: { ring: "ring-hero-blue/70", glow: "var(--hero-blue)", my: "စိန်" },
+  ruby: { ring: "ring-hero-ruby/70", glow: "var(--hero-ruby)", my: "ပတ္တမြား" },
+  gold: { ring: "ring-hero-gold/70", glow: "var(--hero-gold)", my: "ရွှေ" },
 }; // prettier-ignore
 
 /** Constellation anchors (% of stage) — a smooth upward ARC to the Gold apex. */
@@ -112,7 +116,7 @@ function PerkPanelBody({ tier, animate }: { tier: LoyaltyTier; animate: boolean 
     <>
       <p className="flex items-center gap-1.5 text-base font-semibold text-hero-ink">
         <span aria-hidden="true" className="text-xl">
-          {node.emoji}
+          {tier.emoji}
         </span>
         {tier.english}
         <span className="font-burmese text-[0.95rem] font-normal leading-none text-hero-ink/70">
@@ -349,7 +353,7 @@ export function HeroRewards({ className }: { className?: string }) {
                   style={{ left: `${p.x}%`, top: `${p.y}%` }}
                 >
                   <TierNode
-                    emoji={n.emoji}
+                    emoji={t.emoji}
                     english={t.english}
                     my={n.my}
                     ring={n.ring}

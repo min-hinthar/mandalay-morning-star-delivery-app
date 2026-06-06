@@ -135,7 +135,7 @@ export const LOYALTY_TIERS: LoyaltyTier[] = [
     id: "ruby",
     name: "Padamya",
     english: "Ruby",
-    emoji: "❤️",
+    emoji: "♦️",
     minSpendCents: 75000,
     rewardCents: 1000,
   },
@@ -143,7 +143,7 @@ export const LOYALTY_TIERS: LoyaltyTier[] = [
     id: "gold",
     name: "Shwe",
     english: "Gold",
-    emoji: "💛",
+    emoji: "👑",
     minSpendCents: 150000,
     rewardCents: 1200,
   },
@@ -240,8 +240,8 @@ export const TIER_PERKS: Record<LoyaltyTierId, LoyaltyPerk[]> = {
     },
     {
       icon: "crown",
-      en: "Gold tier — our most loyal friends 💛",
-      my: "Gold — အချစ်ဆုံး မိတ်ဆွေအရင်းများ 💛",
+      en: "Gold tier — our most loyal friends 👑",
+      my: "Gold — အချစ်ဆုံး မိတ်ဆွေအရင်းများ 👑",
     },
   ],
 };
