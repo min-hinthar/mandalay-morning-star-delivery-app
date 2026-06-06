@@ -240,7 +240,7 @@ export const CategoryTabs = memo(function CategoryTabs({
         {/* CSS-transitioned pill indicator */}
         {indicatorStyle && (
           <div
-            className="absolute rounded-pill bg-primary shadow-sm transition-all duration-200 ease-out"
+            className="absolute rounded-pill menu-tab-indicator transition-all duration-200 ease-out"
             style={{
               left: indicatorStyle.left,
               width: indicatorStyle.width,
@@ -279,7 +279,8 @@ export const CategoryTabs = memo(function CategoryTabs({
                 "font-body text-sm font-semibold",
                 "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 isActive
-                  ? "text-text-inverse"
+                  ? // Dark ink reads on the gold→clay pill in both themes
+                    "text-hero-ink"
                   : "text-text-secondary hover:text-text-primary hover:bg-surface-secondary"
               )}
             >
