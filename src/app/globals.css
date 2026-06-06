@@ -891,9 +891,6 @@
       animation: hero-gem-float var(--gem-dur, 4s) ease-in-out infinite;
       animation-delay: var(--gem-delay, 0s);
     }
-    .hero-gem-spin {
-      animation: hero-gem-spin 7s linear infinite;
-    }
   }
 
   /* Pause every CSS animation in the hero subtree when it scrolls offscreen
@@ -1295,21 +1292,14 @@
   }
 }
 
-/* Rewards constellation — gentle gem-disc float */
+/* Rewards constellation — gentle gemstar float + twinkle */
 @keyframes hero-gem-float {
   0%,
   100% {
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
   50% {
-    transform: translateY(-3px);
-  }
-}
-
-/* Rewards constellation — facet sheen rotation */
-@keyframes hero-gem-spin {
-  to {
-    transform: rotate(360deg);
+    transform: translateY(-3px) scale(1.05);
   }
 }
 
