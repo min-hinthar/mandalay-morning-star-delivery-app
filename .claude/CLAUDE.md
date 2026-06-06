@@ -109,6 +109,37 @@ session.**
     revert later fixes). Verify locally meanwhile, since the child has no CI until
     it sits on `main`.
 
+## Collaborative iteration & merge protocol (this owner's workflow)
+
+How visual/UX work is actually driven here — learned across the hero sessions:
+
+- **Iterate on previews, don't gate every tweak behind a review.** Build → push →
+  share the **clickable Vercel preview link** (every reply that ships a change
+  includes the preview URL + PR link). Refine against the owner's feedback. Run
+  the **adversarial review only once the owner is satisfied, just before merge** —
+  not on every push (it wastes cycles mid-iteration).
+- **Always read the Claude auto-review before merging.** The repo runs an
+  automated Claude PR review on every push (`.github/workflows/claude-pr-review.yml`).
+  Before any merge, fetch and read its comments
+  (`pull_request_read` → `get_comments` / `get_reviews` / `get_review_comments`)
+  and **fix or explicitly justify every finding** (it has caught real
+  domMax/bundle gaps and a localStorage-migration bug).
+- **Never self-merge. Merge only on the owner's explicit, per-PR "go".** Open the
+  PR, get CI green, surface the auto-review verdict, and ask. Approval of one PR
+  is not approval of the next.
+- **Mobile-first, always.** Check ratios, spacing, centering, and ≥44px tap
+  targets on a narrow viewport for **every** UI change — not just desktop. Avoid
+  layout twitch (no height-collapse gaps / scale-pops on collapse↔expand).
+- **Consequential visual forks → recommendation-led options** via
+  `AskUserQuestion` (the owner is a thorough-evaluator + design-conscious). For
+  reversible polish, just build it and show the preview.
+- **Framer features by route:** the root provider loads only `domAnimation`.
+  `layout`/`popLayout`/drag need `domMax` — present on customer/admin/driver/auth
+  shells (`DomMaxProvider`) but **NOT** on public pages (homepage/menu via
+  `PublicShell`). Don't use `layout`/`popLayout` in components that render on
+  public surfaces, and don't add a nested `LazyMotion` that framer-motion test
+  mocks (e.g. `CheckoutClient.test`) don't stub — it breaks those tests.
+
 ## Paths
 
 | Path                    | Purpose                             |
