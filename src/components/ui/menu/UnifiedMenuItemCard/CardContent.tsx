@@ -63,7 +63,7 @@ export const CardContent = memo(function CardContent({
         <p
           className={cn(
             "text-lg mt-0.5 font-burmese line-clamp-1",
-            warmPaper ? "text-hero-accent" : "text-text-muted"
+            warmPaper ? "menu-bilingual" : "text-text-muted"
           )}
         >
           {item.nameMy}
@@ -83,7 +83,7 @@ export const CardContent = memo(function CardContent({
           value={item.basePriceCents}
           inCents={true}
           size="md"
-          className={cn("font-semibold", warmPaper ? "text-hero-accent" : "text-text-secondary")}
+          className={cn("font-semibold", warmPaper ? "menu-price" : "text-text-secondary")}
         />
       </div>
     </div>
