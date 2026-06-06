@@ -148,6 +148,8 @@
   --color-hero-clay-2: var(--hero-clay-2);
   --color-hero-blue: var(--hero-blue);
   --color-hero-sage: var(--hero-sage);
+  --color-hero-ruby: var(--hero-ruby);
+  --color-hero-gold: var(--hero-gold);
 
   /* Skeleton / Disabled / Selection (from tokens.css) */
   --color-skeleton: var(--color-skeleton);
@@ -1295,18 +1297,18 @@
   }
 }
 
-/* Rewards gem journey — gentle gem float */
+/* Rewards constellation — gentle gem-disc float */
 @keyframes hero-gem-float {
   0%,
   100% {
-    transform: translateY(0) rotate(0deg);
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-3px) rotate(5deg);
+    transform: translateY(-3px);
   }
 }
 
-/* Rewards gem journey — facet sheen rotation */
+/* Rewards constellation — facet sheen rotation */
 @keyframes hero-gem-spin {
   to {
     transform: rotate(360deg);

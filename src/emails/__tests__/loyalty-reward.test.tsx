@@ -18,9 +18,9 @@ describe("LoyaltyReward email", () => {
           menuUrl="https://mandalaymorningstar.com/menu"
           variant="milestone"
           milestone={10}
-          tierName="Kyauk Sein"
-          tierEnglish="Jade"
-          tierEmoji="💚"
+          tierName="Sein"
+          tierEnglish="Diamond"
+          tierEmoji="💎"
         />
       )
     );
@@ -29,8 +29,8 @@ describe("LoyaltyReward email", () => {
     expect(html).toContain("Kyay-Zu-Par!");
     expect(html).toContain("10 times");
     // Tier badge
-    expect(html).toContain("Kyauk Sein");
-    expect(html).toContain("Jade tier");
+    expect(html).toContain("Sein");
+    expect(html).toContain("Diamond tier");
     // Warm, casual Burmese line
     expect(html).toContain("ကျေးဇူး");
   });

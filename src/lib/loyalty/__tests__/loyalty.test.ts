@@ -141,7 +141,7 @@ describe("loyalty helpers", () => {
   describe("rewardCentsForSpend (tier-scaled coupons)", () => {
     it("grows the milestone coupon by spend tier", () => {
       expect(rewardCentsForSpend(0)).toBe(500); // New Friend
-      expect(rewardCentsForSpend(25000)).toBe(800); // Jade
+      expect(rewardCentsForSpend(25000)).toBe(800); // Diamond (id: jade)
       expect(rewardCentsForSpend(75000)).toBe(1000); // Ruby
       expect(rewardCentsForSpend(150000)).toBe(1200); // Gold
     });
@@ -181,7 +181,7 @@ describe("loyalty helpers", () => {
     it("is true only at Ruby tier and above (by spend)", () => {
       expect(hasEarlyAccess(0)).toBe(false); // New Friend
       expect(hasEarlyAccess(24999)).toBe(false);
-      expect(hasEarlyAccess(25000)).toBe(false); // Jade
+      expect(hasEarlyAccess(25000)).toBe(false); // Diamond (id: jade)
       expect(hasEarlyAccess(74999)).toBe(false);
       expect(hasEarlyAccess(75000)).toBe(true); // Ruby
       expect(hasEarlyAccess(149999)).toBe(true);

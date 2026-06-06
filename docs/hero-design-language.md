@@ -152,7 +152,10 @@ cascade) · `hero-font-breathe` (variable-axis headline) · `hero-accent-underli
    is **pointer + device-orientation** only.
 4. **Throttle pointer with rAF**; never `setState` per raw pointer event.
 5. **Pause when offscreen** (IntersectionObserver) for continuous loops; clean up
-   every listener/timeout in `useEffect`.
+   every listener/timeout in `useEffect`. Note: the shared `.hero-anim-paused`
+   toggle only pauses **CSS** animations — framer-motion JS loops (`repeat:
+Infinity`) keep running offscreen, so gate them on `useInView(ref)` too
+   (`const loop = shouldAnimate && inView`; render/animate the loop only when `loop`).
 6. Easing: prefer `cubic-bezier(0.22,1,0.36,1)` (develop), springs for tactile.
 
 ## 7. Mobile
@@ -300,6 +303,9 @@ typecheck · test · build`) before every PR. After adding CSS utilities/keyfram
 - Hero code: `src/components/ui/homepage/Hero/` (+ `../FloatingEmoji.tsx`).
 - Tokens: `src/styles/tokens.css` → mapped in `src/app/globals.css` `@theme`.
 - Motion utilities/keyframes: `src/app/globals.css` (search `hero-`).
-- Loyalty model (for the rewards strip): `src/lib/loyalty/` (`LOYALTY_TIERS`).
+- Loyalty model (for the rewards section): `src/lib/loyalty/` (`LOYALTY_TIERS` +
+  `TIER_PERKS`). The hero rewards section (`HeroRewards.tsx`) renders the tiers as
+  a **"ကြယ်ဆု" star constellation** that lights up segment-by-segment toward the
+  Gold apex — only the active star's halo + one path shimmer animate (budget-safe).
 - Component specs (buttons/cards/etc.): [`frontend-design-system.md`](./frontend-design-system.md).
 - Deep-dive learnings: `.claude/learnings/{animation,design-tokens,mobile-ux,performance}.md`.

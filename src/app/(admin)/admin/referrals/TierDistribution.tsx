@@ -11,7 +11,8 @@ export interface TierRow {
 // Admin strip palette — token classes, one per gem tier.
 const TIER_STYLE: Record<LoyaltyTierId, { bar: string; text: string; bg: string }> = {
   new: { bar: "bg-text-muted", text: "text-text-secondary", bg: "bg-surface-secondary" },
-  jade: { bar: "bg-accent-green", text: "text-accent-green", bg: "bg-accent-green/10" },
+  // `jade` is displayed as Diamond (💎) — cool teal, matching tierStyle.ts + the hero.
+  jade: { bar: "bg-accent-teal", text: "text-accent-teal", bg: "bg-accent-teal/10" },
   ruby: { bar: "bg-magenta", text: "text-magenta", bg: "bg-magenta/10" },
   gold: { bar: "bg-accent-orange", text: "text-accent-orange", bg: "bg-accent-orange/10" },
 };
