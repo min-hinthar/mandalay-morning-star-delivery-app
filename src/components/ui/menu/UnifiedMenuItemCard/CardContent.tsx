@@ -18,8 +18,8 @@ export interface CardContentProps {
   showBurmeseName?: boolean;
   /** Padding class */
   paddingClass?: string;
-  /** Deepened-sunset treatment — emissive gold price */
-  nocturne?: boolean;
+  /** Warm-paper treatment — ink/clay text hierarchy + clay price on cream */
+  warmPaper?: boolean;
   /** Additional className */
   className?: string;
 }
@@ -42,7 +42,7 @@ export const CardContent = memo(function CardContent({
   showDescription = true,
   showBurmeseName = true,
   paddingClass = "p-4",
-  nocturne = false,
+  warmPaper = false,
   className,
 }: CardContentProps) {
   return (
@@ -57,9 +57,17 @@ export const CardContent = memo(function CardContent({
         {item.nameEn}
       </h3>
 
-      {/* Burmese name - muted secondary */}
+      {/* Burmese name - warm clay accent on paper (distinct from grey
+          description), else muted secondary */}
       {showBurmeseName && item.nameMy && (
-        <p className="text-lg text-text-muted mt-0.5 font-burmese line-clamp-1">{item.nameMy}</p>
+        <p
+          className={cn(
+            "text-lg mt-0.5 font-burmese line-clamp-1",
+            warmPaper ? "text-hero-accent" : "text-text-muted"
+          )}
+        >
+          {item.nameMy}
+        </p>
       )}
 
       {/* Description - secondary typography */}
@@ -75,7 +83,7 @@ export const CardContent = memo(function CardContent({
           value={item.basePriceCents}
           inCents={true}
           size="md"
-          className={cn("font-semibold", nocturne ? "text-hero-gold" : "text-text-secondary")}
+          className={cn("font-semibold", warmPaper ? "text-hero-accent" : "text-text-secondary")}
         />
       </div>
     </div>

@@ -15,8 +15,8 @@ export interface GlassOverlayProps {
   isHovered: boolean;
   /** Border radius class */
   rounded?: string;
-  /** Deepened-sunset treatment — warm ember hover glow instead of brand red */
-  nocturne?: boolean;
+  /** Warm-paper treatment — clay ember hover glow instead of brand red */
+  warmPaper?: boolean;
   /** Additional className */
   className?: string;
 }
@@ -34,15 +34,15 @@ export interface GlassOverlayProps {
 export const GlassOverlay = memo(function GlassOverlay({
   isHovered,
   rounded = "rounded-3xl",
-  nocturne = false,
+  warmPaper = false,
   className,
 }: GlassOverlayProps) {
   const { shouldAnimate } = useAnimationPreference();
 
-  // Hover glow palette: warm clay/ember for nocturne, else brand red.
+  // Hover glow palette: warm clay/ember for warm-paper cards, else brand red.
   // (The surface border + box-shadow lift come from CSS; this layer adds
   // the soft colored bloom that Framer can interpolate.)
-  const glow = nocturne
+  const glow = warmPaper
     ? {
         on: "rgba(217, 119, 87, 0.55)",
         offBorder: "rgba(217, 119, 87, 0)",

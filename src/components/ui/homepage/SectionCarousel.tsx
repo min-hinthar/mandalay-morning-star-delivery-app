@@ -209,9 +209,9 @@ export function SectionCarousel({
                 isFavorite={favorites.has(item.id)}
                 onFavoriteToggle={onFavoriteToggle}
                 priority={index < 3}
-                // Match the homepage menu grid's night-lacquer cards (the
+                // Match the homepage menu grid's warm-paper cards (the
                 // hero's FeaturedCarousel is a separate component, untouched).
-                nocturne
+                warmPaper
               />
             </MenuCardWrapper>
           </div>
