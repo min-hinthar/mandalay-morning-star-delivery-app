@@ -145,27 +145,30 @@
   --hero-emoji-opacity-mid: 0.85;
 
   /* ===========================================
-     MENU WARM-PAPER CARDS — "paper floating on dark"
-     Cream parchment menu cards that float bright on the dark
-     page (After Dark) and stay warm on light — theme-independent.
-     Applied via the `.menu-paper` scope (globals.css), which
-     re-skins a card subtree by overriding the tokens it consumes.
-     Fixes the dark-mode card/page meld (espresso ≈ #1a1918 page).
+     MENU CARDS — theme-aware "card is the opposite tone of the page"
+     Light mode → dark espresso card (pops on the light page).
+     Dark mode  → cream paper card (pops on the dark page; .dark override).
+     Both float with a gold/clay hairline + dot-grid texture. Applied via
+     the `.menu-paper` scope (globals.css). Values below are the LIGHT
+     (espresso) set; `.dark` flips them to cream. Triad accents flip too so
+     contrast stays AA on whichever surface is active.
      =========================================== */
-  --menu-card-bg: rgba(252, 251, 247, 0.97); /* warm cream paper */
-  --menu-card-bg-2: rgba(248, 244, 236, 0.97); /* warmer cream (gradient top) */
-  --menu-ink: #1c1714; /* warm espresso ink (primary text) */
-  --menu-ink-muted: rgba(28, 23, 20, 0.62); /* secondary text */
-  --menu-ink-faint: rgba(28, 23, 20, 0.46); /* tertiary text */
-  --menu-paper-hairline: rgba(28, 23, 20, 0.1); /* warm rule */
-  --menu-paper-hairline-strong: rgba(217, 119, 87, 0.5); /* clay on hover */
-  --menu-accent: #9a3412; /* deep clay — Burmese / price / CTA (AA on cream) */
-  --menu-accent-strong: #7c2d12;
-  --menu-clay: #d97757; /* book-cloth clay — ember hover glow */
-  --menu-gold: #eaa92f; /* deep gold — category-tab pill */
-  --menu-paper-sheen: rgba(255, 255, 255, 0.55); /* inner top sheen */
-  --menu-paper-cta-ink: #fdfcf9; /* warm-white label on the clay CTA */
-  --menu-ember-glow: 0 16px 38px -20px rgba(154, 52, 18, 0.42); /* clay hover lift */
+  --menu-card-bg: #1c1714; /* espresso surface */
+  --menu-card-bg-2: #261e18; /* lifted espresso (gradient top) */
+  --menu-card-ink: #f6f1e9; /* cream primary text */
+  --menu-card-ink-muted: rgba(246, 241, 233, 0.64); /* description */
+  --menu-card-ink-faint: rgba(246, 241, 233, 0.46); /* tertiary */
+  --menu-card-hairline: rgba(234, 169, 47, 0.24); /* gold-leaf rule */
+  --menu-card-hairline-strong: rgba(234, 169, 47, 0.5);
+  --menu-card-sheen: rgba(246, 241, 233, 0.07); /* inner top sheen */
+  --menu-card-glow: 0 18px 40px -20px rgba(217, 119, 87, 0.6); /* clay ember lift */
+  --menu-card-dots: rgba(246, 241, 233, 0.1); /* light dots on espresso */
+  --menu-card-bilingual: #f0b357; /* amber Burmese (AA on espresso) */
+  --menu-card-price: #eaa92f; /* gold price (AA on espresso) */
+  --menu-card-cta-bg: #d97757; /* clay CTA */
+  --menu-card-cta-ink: #241a12; /* dark label on clay */
+  --menu-gold: #eaa92f; /* category-tab pill (theme-independent) */
+  --menu-clay: #d97757;
 
   /* ===========================================
      INTERACTIVE ALIASES
@@ -674,6 +677,27 @@
   --hero-emoji-blur-mid: 0.5px;
   --hero-emoji-opacity-far: 0.65;
   --hero-emoji-opacity-mid: 0.85;
+
+  /* ===========================================
+     MENU CARDS (Dark Mode) — cream paper on the dark page
+     Flips the espresso light-mode set to cream + ink, with deep-clay
+     accents so Burmese/price/CTA stay AA on the cream surface.
+     =========================================== */
+
+  --menu-card-bg: rgba(252, 251, 247, 0.97); /* cream paper surface */
+  --menu-card-bg-2: rgba(248, 244, 236, 0.97);
+  --menu-card-ink: #1c1714; /* espresso primary text */
+  --menu-card-ink-muted: rgba(28, 23, 20, 0.62);
+  --menu-card-ink-faint: rgba(28, 23, 20, 0.46);
+  --menu-card-hairline: rgba(28, 23, 20, 0.1); /* warm rule */
+  --menu-card-hairline-strong: rgba(217, 119, 87, 0.5);
+  --menu-card-sheen: rgba(255, 255, 255, 0.55);
+  --menu-card-glow: 0 16px 38px -20px rgba(154, 52, 18, 0.42);
+  --menu-card-dots: rgba(28, 23, 20, 0.07); /* ink dots on cream */
+  --menu-card-bilingual: #9a3412; /* deep clay Burmese (AA on cream) */
+  --menu-card-price: #9a3412; /* deep clay price */
+  --menu-card-cta-bg: #9a3412; /* deep clay CTA */
+  --menu-card-cta-ink: #fdfcf9; /* warm-white label on clay */
 
   /* ===========================================
      INTERACTIVE ALIASES (Dark Mode)

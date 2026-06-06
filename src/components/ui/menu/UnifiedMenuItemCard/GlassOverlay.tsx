@@ -74,6 +74,14 @@ export const GlassOverlay = memo(function GlassOverlay({
         }}
       />
 
+      {/* Editorial dot-grid texture, faded up behind the card content
+          (decorative; dot color flips with the card surface). */}
+      {warmPaper && (
+        <div className={cn("absolute inset-0 overflow-hidden", rounded)} aria-hidden="true">
+          <span className="menu-card-dots absolute inset-0" />
+        </div>
+      )}
+
       {/* Hover border glow - brand color, ~--shadow-glow-primary equivalent */}
       {shouldAnimate && (
         <m.div
