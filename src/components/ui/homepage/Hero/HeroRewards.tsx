@@ -3,14 +3,14 @@
 /**
  * HeroRewards — Morning Star Rewards (ရွှေကြယ် ဆုလက်ဆောင်မွန်) as a star-reward
  * CONSTELLATION. Asymmetric editorial standout: left column = value prop + a
- * live perk panel (fixed height so selecting a tier never shifts the layout);
- * right column = the loyalty tiers as emoji-in-faceted-disc nodes on an upward
- * ARC. A light "comet" travels the arc; selecting a tier lights the arc up to it
- * (connect-on-select). Value-prop only (no auth) — numbers from LOYALTY_TIERS /
- * TIER_PERKS.
+ * live perk panel (height locked to the tallest tier so selecting one never
+ * shifts the layout); right column = the loyalty tiers as emoji-in-faceted-disc
+ * nodes on an upward ARC. A light "comet" travels the arc; selecting a tier
+ * lights the arc up to it (connect-on-select). Value-prop only (no auth) —
+ * numbers from LOYALTY_TIERS / TIER_PERKS.
  *
- * Micro-interactions: magnetic node hover, star-burst on select, reward-$
- * count-up (RollingNumber), card sheen sweep. Perf/a11y: glows are
+ * Micro-interactions: magnetic node hover, star-burst on select, reward-$ and
+ * unlock-$ count-up (RollingNumber), card sheen sweep. Perf/a11y: glows are
  * radial-gradients (no blur); float + sheen + comet are transform/stroke only,
  * gated on `shouldAnimate` and pausing offscreen (.hero-anim-paused). The
  * visible panel updates on hover; a separate sr-only aria-live region announces
@@ -22,7 +22,13 @@ import { AnimatePresence, m } from "framer-motion";
 import { Star, Gift, Sparkles, Crown, Clock } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import { LOYALTY_TIERS, TIER_PERKS, type LoyaltyTierId, type LoyaltyPerk } from "@/lib/loyalty";
+import {
+  LOYALTY_TIERS,
+  TIER_PERKS,
+  type LoyaltyTier,
+  type LoyaltyTierId,
+  type LoyaltyPerk,
+} from "@/lib/loyalty";
 import { HeroCardLayers } from "./HeroCardLayers";
 import { HeroSunburst } from "./HeroSunburst";
 import { TierNode } from "./HeroRewardsNode";
@@ -77,11 +83,77 @@ const SKY = Array.from({ length: 6 }, (_, i) => {
 
 const PERK_ICON = { star: Star, gift: Gift, sparkles: Sparkles, crown: Crown, clock: Clock };
 
+const MY_DIGITS = ["၀", "၁", "၂", "၃", "၄", "၅", "၆", "၇", "၈", "၉"];
+
 function dollars(cents: number) {
   return Math.round(cents / 100);
 }
+/** Latin integer → Burmese numerals (e.g. 1500 → ၁၅၀၀). */
+function toMyanmar(n: number): string {
+  return String(n).replace(/\d/g, (d) => MY_DIGITS[Number(d)]);
+}
 function perkLabel(perk: LoyaltyPerk) {
   return `${perk.en} — ${perk.my}`;
+}
+
+/**
+ * The perk-panel content for one tier. Rendered once live (animated) and once
+ * per tier as an invisible spacer stacked in the same grid cell, so the panel's
+ * height is locked to the TALLEST tier — selecting never reflows the card.
+ */
+function PerkPanelBody({ tier, animate }: { tier: LoyaltyTier; animate: boolean }) {
+  const node = TIER[tier.id];
+  const perks = TIER_PERKS[tier.id];
+  const isStart = tier.minSpendCents === 0;
+
+  return (
+    <>
+      <p className="flex items-center gap-1.5 text-base font-semibold text-hero-ink">
+        <span aria-hidden="true" className="text-xl">
+          {node.emoji}
+        </span>
+        {tier.english}
+        <span className="font-burmese text-[0.95rem] font-normal leading-none text-hero-ink/70">
+          {node.my}
+        </span>
+      </p>
+      <p className="mt-1 text-xs text-hero-ink-muted">
+        <span className="font-semibold text-hero-accent">
+          $<RollingNumber value={dollars(tier.rewardCents)} animate={animate} /> reward
+        </span>{" "}
+        ·{" "}
+        {isStart ? (
+          "Start here — welcome aboard"
+        ) : (
+          <>
+            Unlock at $<RollingNumber value={dollars(tier.minSpendCents)} animate={animate} />{" "}
+            lifetime
+          </>
+        )}
+      </p>
+      <p className="mt-1 font-burmese text-[0.95rem] leading-relaxed text-hero-accent/85">
+        {isStart
+          ? "ယခု စတင်လိုက်ပါ"
+          : `တစ်သက်တာ $${toMyanmar(dollars(tier.minSpendCents))} ဖိုးအားပေးလျှင်`}
+      </p>
+      <ul className="mt-2.5 space-y-1.5">
+        {perks.map((perk) => {
+          const Icon = PERK_ICON[perk.icon];
+          return (
+            <li key={perk.en} className="flex items-start gap-1.5">
+              <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-hero-clay" aria-hidden="true" />
+              <span className="text-xs leading-snug text-hero-ink">
+                {perk.en}
+                <span className="ml-1 font-burmese text-[0.88rem] leading-relaxed text-hero-ink/65">
+                  · {perk.my}
+                </span>
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+    </>
+  );
 }
 
 export function HeroRewards({ className }: { className?: string }) {
@@ -92,19 +164,8 @@ export function HeroRewards({ className }: { className?: string }) {
   const { bursts, fire } = useBurst(10);
 
   const tier = LOYALTY_TIERS[active] ?? LOYALTY_TIERS[0];
-  const node = TIER[tier.id];
-  const perks = TIER_PERKS[tier.id];
   const announcedTier = LOYALTY_TIERS[announced] ?? LOYALTY_TIERS[0];
   const litFraction = active / (LOYALTY_TIERS.length - 1);
-
-  const unlockText =
-    tier.minSpendCents === 0
-      ? "Start here — welcome aboard"
-      : `Unlock at $${dollars(tier.minSpendCents)} lifetime`;
-  const unlockMy =
-    tier.minSpendCents === 0
-      ? "ယခု စတင်လိုက်ပါ"
-      : `တစ်သက်တာ $${dollars(tier.minSpendCents)} သုံးစွဲမှ`;
 
   const select = (i: number, e?: { clientX: number; clientY: number }) => {
     setActive(i);
@@ -142,7 +203,7 @@ export function HeroRewards({ className }: { className?: string }) {
             <HeroSunburst className="h-4 w-4 text-hero-clay" rays={8} />
             <span className="text-2xs font-semibold uppercase tracking-[0.2em] md:text-xs">
               Morning Star Rewards{" "}
-              <span className="font-burmese normal-case tracking-normal">
+              <span className="font-burmese text-[0.72rem] normal-case tracking-normal">
                 · ရွှေကြယ် ဆုလက်ဆောင်မွန်
               </span>
             </span>
@@ -165,55 +226,33 @@ export function HeroRewards({ className }: { className?: string }) {
             reward every <span className="font-semibold text-hero-accent">5</span>, bigger each
             tier.
           </p>
-          <p className="mt-1.5 font-burmese text-xs leading-relaxed text-hero-ink-muted">
+          <p className="mt-2 font-burmese text-[0.9rem] leading-loose text-hero-ink/75">
             အော်ဒါတစ်ခါ မှာယူတိုင်း ရွှေကြယ်တစ်ပွင့် ရယူပြီး၊ ရွှေကြယ် ငါးခုလျှင် အဆင့်လိုက်
             သတ်မှတ်ထားသော ဆုလက်ဆောင်များ ရယူလိုက်ပါ။
           </p>
 
-          {/* Live perk panel — fixed height so switching tiers never shifts layout */}
-          <div className="mt-4 min-h-[10.5rem] rounded-2xl bg-hero-card/55 p-3.5 text-left ring-1 ring-hero-line">
+          {/* Live perk panel — grid-stacked spacers lock height to the tallest tier
+              so hovering/selecting a tier never reflows the card. */}
+          <div className="mt-4 grid rounded-2xl bg-hero-card/55 p-3.5 text-left ring-1 ring-hero-line">
+            {LOYALTY_TIERS.map((t) => (
+              <div
+                key={`measure-${t.id}`}
+                aria-hidden="true"
+                className="invisible col-start-1 row-start-1"
+              >
+                <PerkPanelBody tier={t} animate={false} />
+              </div>
+            ))}
             <AnimatePresence mode="wait">
               <m.div
                 key={tier.id}
+                className="col-start-1 row-start-1"
                 initial={shouldAnimate ? { opacity: 0, y: 6 } : false}
                 animate={{ opacity: 1, y: 0 }}
                 exit={shouldAnimate ? { opacity: 0, y: -6 } : undefined}
-                transition={{ duration: 0.22, ease: "easeOut" }}
+                transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
               >
-                <p className="flex items-center gap-1.5 text-base font-semibold text-hero-ink">
-                  <span aria-hidden="true" className="text-lg">
-                    {node.emoji}
-                  </span>
-                  {tier.english}
-                  <span className="font-burmese text-sm font-normal text-hero-ink-muted">
-                    {node.my}
-                  </span>
-                </p>
-                <p className="mt-0.5 text-xs text-hero-ink-muted">
-                  <span className="font-semibold text-hero-accent">
-                    $ <RollingNumber value={dollars(tier.rewardCents)} animate={shouldAnimate} />{" "}
-                    reward
-                  </span>{" "}
-                  · {unlockText}
-                  <span className="ml-1 font-burmese">· {unlockMy}</span>
-                </p>
-                <ul className="mt-2 space-y-1">
-                  {perks.map((perk) => {
-                    const Icon = PERK_ICON[perk.icon];
-                    return (
-                      <li key={perk.en} className="flex items-start gap-1.5">
-                        <Icon
-                          className="mt-0.5 h-3.5 w-3.5 shrink-0 text-hero-clay"
-                          aria-hidden="true"
-                        />
-                        <span className="text-xs leading-snug text-hero-ink">
-                          {perk.en}
-                          <span className="ml-1 font-burmese text-hero-ink-muted">· {perk.my}</span>
-                        </span>
-                      </li>
-                    );
-                  })}
-                </ul>
+                <PerkPanelBody tier={tier} animate={shouldAnimate} />
               </m.div>
             </AnimatePresence>
           </div>
@@ -274,7 +313,7 @@ export function HeroRewards({ className }: { className?: string }) {
               vectorEffect="non-scaling-stroke"
               initial={false}
               animate={{ pathLength: litFraction || 0.001, opacity: 0.85 }}
-              transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             />
             {/* traveling comet (a bright dash sweeping the arc) */}
             {shouldAnimate && (
@@ -288,7 +327,7 @@ export function HeroRewards({ className }: { className?: string }) {
                 pathLength={1}
                 strokeDasharray="0.14 0.86"
                 animate={{ strokeDashoffset: [0, -1] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
               />
             )}
           </svg>

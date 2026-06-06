@@ -96,12 +96,13 @@ export function TierNode({
         />
       )}
 
-      {/* Faceted gem disc with the tier emoji */}
+      {/* Faceted gem disc with the tier emoji — disc stays opaque so the emoji
+          reads crisp; non-active tiers recede via glow/ring, never a faded disc. */}
       <span
         className={cn(
-          "hero-gem-float relative grid h-14 w-14 place-items-center overflow-hidden rounded-full ring-2 hero-surface-paper md:h-16 md:w-16",
+          "hero-gem-float relative grid h-14 w-14 place-items-center overflow-hidden rounded-full ring-2 hero-surface-paper md:h-[4.25rem] md:w-[4.25rem]",
           ring,
-          isActive ? "ring-[3px]" : earned ? "" : "opacity-70"
+          isActive ? "ring-[3px]" : "ring-2"
         )}
         style={
           {
@@ -112,10 +113,10 @@ export function TierNode({
       >
         <span
           aria-hidden="true"
-          className="hero-gem-spin absolute inset-0 opacity-40 mix-blend-overlay"
+          className="hero-gem-spin absolute inset-0 opacity-20 mix-blend-overlay"
           style={{ background: FACET }}
         />
-        <span className="relative text-2xl md:text-3xl">{emoji}</span>
+        <span className="relative text-2xl md:text-4xl">{emoji}</span>
       </span>
 
       {/* Label */}
@@ -128,9 +129,7 @@ export function TierNode({
         >
           {english}
         </span>
-        <span className="block font-burmese text-[0.7rem] leading-tight text-hero-ink-muted">
-          {my}
-        </span>
+        <span className="block font-burmese text-[0.8rem] leading-snug text-hero-ink/60">{my}</span>
       </span>
     </m.button>
   );
