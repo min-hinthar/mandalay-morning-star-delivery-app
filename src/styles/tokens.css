@@ -145,6 +145,35 @@
   --hero-emoji-opacity-mid: 0.85;
 
   /* ===========================================
+     MENU CARDS — theme-aware "card is the opposite tone of the page"
+     Light mode → dark espresso card (pops on the light page).
+     Dark mode  → cream paper card (pops on the dark page; .dark override).
+     Both float with a gold/clay hairline + dot-grid texture. Applied via
+     the `.menu-paper` scope (globals.css). Values below are the LIGHT
+     (espresso) set; `.dark` flips them to cream. Triad accents flip too so
+     contrast stays AA on whichever surface is active.
+     =========================================== */
+  --menu-card-bg: #1c1714; /* espresso surface */
+  --menu-card-bg-2: #261e18; /* lifted espresso (gradient top) */
+  --menu-card-ink: #f6f1e9; /* cream primary text */
+  --menu-card-ink-muted: rgba(246, 241, 233, 0.64); /* description */
+  --menu-card-ink-faint: rgba(246, 241, 233, 0.46); /* tertiary */
+  --menu-card-hairline: rgba(234, 169, 47, 0.24); /* gold-leaf rule */
+  --menu-card-hairline-strong: rgba(234, 169, 47, 0.5);
+  --menu-card-sheen: rgba(246, 241, 233, 0.07); /* inner top sheen */
+  --menu-card-glow: 0 18px 40px -20px rgba(217, 119, 87, 0.6); /* clay ember lift */
+  --menu-card-dots: rgba(246, 241, 233, 0.1); /* light dots on espresso */
+  --menu-card-bilingual: #f0b357; /* amber Burmese (AA on espresso) */
+  --menu-card-price: #eaa92f; /* gold price (AA on espresso) */
+  --menu-card-cta-bg: #d97757; /* clay CTA */
+  --menu-card-cta-ink: #241a12; /* dark label on clay */
+  --menu-gold: #eaa92f; /* category-tab pill (theme-independent) */
+  --menu-clay: #d97757;
+  --menu-texture-dot: rgba(20, 20, 19, 0.1); /* dark dots on the light section overlay */
+  --menu-texture-line: rgba(20, 20, 19, 0.05);
+  --menu-modal-accent: #9a3412; /* detail-modal price/accent — deep clay (AA on white) */
+
+  /* ===========================================
      INTERACTIVE ALIASES
      Semantic interactive color tokens
      =========================================== */
@@ -381,7 +410,18 @@
 
   --header-height: 64px;
   --offline-banner-height: 0px; /* Set by OfflineIndicator when showing */
-  --tabs-offset: calc(64px + var(--offline-banner-height, 0px)); /* Header + offline banner */
+
+  /* Mobile bottom-sheet ceiling: dvh (not vh — iOS vh hides behind the toolbar/
+     notch and clips the sheet top) minus the top safe-area, so Modal/Drawer
+     sheets always clear the status bar cleanly. */
+  --sheet-max-h: calc(100dvh - env(safe-area-inset-top) - 1rem);
+
+  /* Live header height (published by MenuHeader) + offline banner, so sticky
+     CategoryTabs always clears the full header incl. the dietary chips row.
+     Fallback ≈ title row (56px) + always-on dietary chips row (~72px) so the
+     sticky tabs don't overlap the chips for the first frame before MenuHeader's
+     ResizeObserver publishes the measured --menu-header-height. */
+  --tabs-offset: calc(var(--menu-header-height, 128px) + var(--offline-banner-height, 0px));
   --cart-bar-height: 64px;
   --driver-header-height: 48px;
   --driver-action-height: 80px;
@@ -651,6 +691,30 @@
   --hero-emoji-blur-mid: 0.5px;
   --hero-emoji-opacity-far: 0.65;
   --hero-emoji-opacity-mid: 0.85;
+
+  /* ===========================================
+     MENU CARDS (Dark Mode) — cream paper on the dark page
+     Flips the espresso light-mode set to cream + ink, with deep-clay
+     accents so Burmese/price/CTA stay AA on the cream surface.
+     =========================================== */
+
+  --menu-card-bg: rgba(252, 251, 247, 0.97); /* cream paper surface */
+  --menu-card-bg-2: rgba(248, 244, 236, 0.97);
+  --menu-card-ink: #1c1714; /* espresso primary text */
+  --menu-card-ink-muted: rgba(28, 23, 20, 0.62);
+  --menu-card-ink-faint: rgba(28, 23, 20, 0.46);
+  --menu-card-hairline: rgba(28, 23, 20, 0.1); /* warm rule */
+  --menu-card-hairline-strong: rgba(217, 119, 87, 0.5);
+  --menu-card-sheen: rgba(255, 255, 255, 0.55);
+  --menu-card-glow: 0 16px 38px -20px rgba(154, 52, 18, 0.42);
+  --menu-card-dots: rgba(28, 23, 20, 0.07); /* ink dots on cream */
+  --menu-card-bilingual: #9a3412; /* deep clay Burmese (AA on cream) */
+  --menu-card-price: #9a3412; /* deep clay price */
+  --menu-card-cta-bg: #9a3412; /* deep clay CTA */
+  --menu-card-cta-ink: #fdfcf9; /* warm-white label on clay */
+  --menu-texture-dot: rgba(246, 241, 233, 0.08); /* light dots on the dark section overlay */
+  --menu-texture-line: rgba(246, 241, 233, 0.045);
+  --menu-modal-accent: #f0b357; /* detail-modal price/accent — amber (AA on dark) */
 
   /* ===========================================
      INTERACTIVE ALIASES (Dark Mode)

@@ -2,6 +2,7 @@
 
 import { useState, useCallback } from "react";
 import type { MenuCategory, MenuItem } from "@/types/menu";
+import { itemMatchesDietaryFilters } from "@/lib/menu/dietary-filters";
 
 // ============================================
 // TYPES
@@ -38,12 +39,6 @@ function matchesTextQuery(item: MenuItem, query: string): boolean {
   );
 }
 
-/** AND logic: item.tags must include ALL active dietary filters */
-function matchesDietaryFilters(item: MenuItem, filters: string[]): boolean {
-  if (filters.length === 0) return true;
-  return filters.every((f) => item.tags.includes(f));
-}
-
 /** Stable sort: sold-out items to bottom within category */
 function sortSoldOutLast(items: MenuItem[]): MenuItem[] {
   return [...items].sort((a, b) => Number(a.isSoldOut) - Number(b.isSoldOut));
@@ -77,9 +72,9 @@ export function useMenuFilters(): UseMenuFiltersReturn {
             items = items.filter((item) => matchesTextQuery(item, trimmedQuery));
           }
 
-          // Dietary filter (AND logic)
+          // Dietary filter (AND logic: free-from via allergens + tag-based)
           if (dietaryFilters.length > 0) {
-            items = items.filter((item) => matchesDietaryFilters(item, dietaryFilters));
+            items = items.filter((item) => itemMatchesDietaryFilters(item, dietaryFilters));
           }
 
           // Sold-out sort: available first, sold-out last

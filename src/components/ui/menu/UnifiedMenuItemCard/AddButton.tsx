@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { QuantitySelector, useFlyToCart } from "@/components/ui/cart";
+import { useBurst, Bursts } from "@/components/ui/homepage/Hero/HeroBurst";
 import { useCardSound } from "./use-card-sound";
 import type { MenuItem } from "@/types/menu";
 
@@ -75,6 +76,10 @@ export const AddButton = memo(function AddButton({
 }: AddButtonProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const buttonRef = useRef<HTMLButtonElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Ember burst on add (clay/gold sparkles from the button center)
+  const { bursts, fire } = useBurst(8);
 
   // Internal state for animation timing
   const [isAddingAnimation, setIsAddingAnimation] = useState(false);
@@ -131,6 +136,13 @@ export const AddButton = memo(function AddButton({
       // Call parent callback to add to cart (optimistic - happens immediately)
       onAdd();
 
+      // Ember sparkle burst from the button center (decorative, motion-gated)
+      if (shouldAnimate && containerRef.current && buttonRef.current) {
+        const cont = containerRef.current.getBoundingClientRect();
+        const btn = buttonRef.current.getBoundingClientRect();
+        fire(btn.left - cont.left + btn.width / 2, btn.top - cont.top + btn.height / 2);
+      }
+
       // Fly animation with checkmark callbacks
       // Sound and haptics are handled inside fly()
       const source = sourceRef?.current ?? buttonRef.current;
@@ -165,7 +177,7 @@ export const AddButton = memo(function AddButton({
         }, 350);
       }
     },
-    [disabled, markUserInteraction, fly, sourceRef, item.imageUrl, onAdd]
+    [disabled, markUserInteraction, fly, sourceRef, item.imageUrl, onAdd, shouldAnimate, fire]
   );
 
   const handleIncrement = useCallback(
@@ -200,7 +212,14 @@ export const AddButton = memo(function AddButton({
   const springConfig = getSpring(spring.snappy);
 
   return (
-    <div className={cn("relative", className)} onClick={(e) => e.stopPropagation()}>
+    <div
+      ref={containerRef}
+      className={cn("relative", className)}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Ember sparkle burst overlay (decorative) */}
+      <Bursts bursts={bursts} />
+
       <AnimatePresence mode="wait" initial={false}>
         {/* Idle state - Add button */}
         {displayState === "idle" && (

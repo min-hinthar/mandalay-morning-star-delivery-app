@@ -111,6 +111,12 @@ export function MenuContent({ className, cutoffDay, cutoffHour, deliveryDays }: 
     [filterItems, displayCategories]
   );
 
+  // All items (unfiltered) — powers dietary filter chips + their counts
+  const allItems = useMemo(
+    () => displayCategories.flatMap((c) => c.items ?? []),
+    [displayCategories]
+  );
+
   // ============================================
   // FAVORITES
   // ============================================
@@ -299,6 +305,7 @@ export function MenuContent({ className, cutoffDay, cutoffHour, deliveryDays }: 
       <MenuHeader
         onQueryChange={setQuery}
         onSelectItem={handleSelectItem}
+        items={allItems}
         dietaryFilters={dietaryFilters}
         onDietaryChange={setDietaryFilters}
       />

@@ -299,7 +299,7 @@ items:
     base_price_cents: 500
     is_active: true
     is_sold_out: false
-    tags: []
+    tags: ["vegan-optional"]
     allergens: ["gluten_wheat"]
     modifier_group_slugs: []
 
@@ -311,7 +311,7 @@ items:
     base_price_cents: 300
     is_active: true
     is_sold_out: false
-    tags: []
+    tags: ["vegan"]
     allergens: []
     modifier_group_slugs: []
 
@@ -323,7 +323,7 @@ items:
     base_price_cents: 200
     is_active: true
     is_sold_out: false
-    tags: []
+    tags: ["vegan"]
     allergens: []
     modifier_group_slugs: []
 
@@ -493,7 +493,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["vegetarian"]
+    tags: ["vegetarian", "vegan-optional"]
     allergens: []
     modifier_group_slugs: []
     # Added Mar 2026 — found on DoorDash/UberEats platforms, absent from app
@@ -531,7 +531,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["vegetarian"]
+    tags: ["vegetarian", "vegan-optional"]
     allergens: []
     modifier_group_slugs: []
 
@@ -543,7 +543,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["vegetarian", "spicy_optional"]
+    tags: ["vegetarian", "spicy_optional", "vegan-optional"]
     allergens: []
     modifier_group_slugs: []
 
@@ -689,7 +689,7 @@ items:
     base_price_cents: 1200
     is_active: true
     is_sold_out: false
-    tags: []
+    tags: ["vegan-optional"]
     allergens: ["peanuts", "shellfish"]
     modifier_group_slugs: []
 
@@ -701,7 +701,7 @@ items:
     base_price_cents: 1200
     is_active: true
     is_sold_out: false
-    tags: []
+    tags: ["vegetarian", "vegan-optional"]
     allergens: []
     modifier_group_slugs: []
 
@@ -713,7 +713,7 @@ items:
     base_price_cents: 1200
     is_active: true
     is_sold_out: false
-    tags: []
+    tags: ["vegan-optional"]
     allergens: ["peanuts", "shellfish"]
     modifier_group_slugs: []
 
@@ -737,7 +737,7 @@ items:
     base_price_cents: 1200
     is_active: true
     is_sold_out: false
-    tags: []
+    tags: ["vegetarian", "vegan-optional"]
     allergens: ["peanuts"]
     modifier_group_slugs: []
 
@@ -762,7 +762,7 @@ items:
     base_price_cents: 650
     is_active: true
     is_sold_out: false
-    tags: []
+    tags: ["vegan"]
     allergens: []
     modifier_group_slugs: []
     # Added Mar 2026 — found on DoorDash/UberEats platforms, absent from app

@@ -127,6 +127,20 @@ export const CardImage = memo(function CardImage({
         />
       )}
 
+      {/* Gold glint sweep — one-shot sweep across the image on hover */}
+      {shouldAnimate && isHovered && (
+        <m.div
+          aria-hidden="true"
+          className={cn(
+            "card-gold-shimmer absolute inset-y-0 -left-1/4 w-1/2 pointer-events-none",
+            zClass.cardShine
+          )}
+          initial={{ x: "-180%", opacity: 0 }}
+          animate={{ x: "320%", opacity: [0, 1, 0] }}
+          transition={{ duration: 0.9, ease: "easeOut" }}
+        />
+      )}
+
       {/* Touch device shine removed - was obscuring photos on mobile */}
 
       {/* Gradient overlay for better text contrast if needed */}

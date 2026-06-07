@@ -17,18 +17,16 @@
  */
 
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
-import Image from "next/image";
-import { X } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Drawer } from "@/components/ui/Drawer";
 import { AddToCartButton, QuantitySelector } from "@/components/ui/cart";
 import { ModifierGroup } from "./ModifierGroup";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useReducedMotion } from "framer-motion";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
-import { formatPrice } from "@/lib/utils/currency";
+import { RollingNumber } from "@/components/ui/homepage/Hero/RollingDigits";
 import {
   calculateItemPrice,
   validateModifierSelection,
@@ -38,7 +36,15 @@ import { toast } from "@/lib/hooks/useToastV8";
 import { cn } from "@/lib/utils/cn";
 import type { CartItem } from "@/types/cart";
 import type { MenuItem, ModifierOption } from "@/types/menu";
-import { AllergenWarning, DiscardChangesDialog, getCategoryEmoji } from "./ItemDetailSheet/helpers";
+import { AllergenWarning, DiscardChangesDialog } from "./ItemDetailSheet/helpers";
+import { DishHero } from "./ItemDetailSheet/DishHero";
+import { VeganToggle } from "./ItemDetailSheet/VeganToggle";
+import {
+  isVeganizable,
+  composeNotes,
+  splitVeganNote,
+  userNotesBudget,
+} from "@/lib/menu/vegan-request";
 
 // ============================================
 // TYPES
@@ -73,6 +79,23 @@ export interface ItemDetailSheetProps {
 }
 
 // ============================================
+// LIVE PRICE — rolls the total as modifiers / quantity change
+// ============================================
+
+function LivePrice({ cents, animate }: { cents: number; animate: boolean }) {
+  return (
+    <span className="tabular-nums">
+      {/* Real price for the accessible name (rolling digits are aria-hidden) */}
+      <span className="sr-only">${(cents / 100).toFixed(2)}</span>
+      <span aria-hidden="true">
+        {"$"}
+        <RollingNumber value={cents / 100} decimals={2} animate={animate} />
+      </span>
+    </span>
+  );
+}
+
+// ============================================
 // MAIN COMPONENT
 // ============================================
 
@@ -89,24 +112,25 @@ export function ItemDetailSheet({
   const [selectedModifiers, setSelectedModifiers] = useState<SelectedModifier[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState("");
+  const [makeVegan, setMakeVegan] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
 
-  // Modifier scroll overflow detection
-  const [hasOverflow, setHasOverflow] = useState(false);
-  const [isAtBottom, setIsAtBottom] = useState(false);
-  const modifierContainerRef = useRef<HTMLDivElement>(null);
+  const veganizable = isVeganizable(item?.tags);
 
   // Track initial edit values to detect dirty state
   const initialEditState = useRef<{
     modifiers: SelectedModifier[];
     quantity: number;
     notes: string;
+    makeVegan: boolean;
   } | null>(null);
 
   const isEditMode = !!editingCartItem;
 
   // Responsive overlay selection
   const isMobile = useMediaQuery("(max-width: 639px)");
+  const prefersReducedMotion = useReducedMotion();
+  const animatePrice = !prefersReducedMotion;
 
   // Reset state when item changes OR when modal opens
   // In edit mode, pre-populate from editingCartItem
@@ -122,40 +146,27 @@ export function ItemDetailSheet({
         optionName: m.optionName,
         priceDeltaCents: m.priceDeltaCents,
       }));
+      // Recover the "make it vegan" toggle from the stored notes
+      const { makeVegan: editVegan, userNotes: editNotes } = splitVeganNote(editingCartItem.notes);
       setSelectedModifiers(editModifiers);
       setQuantity(editingCartItem.quantity);
-      setNotes(editingCartItem.notes);
+      setNotes(editNotes);
+      setMakeVegan(editVegan);
       initialEditState.current = {
         modifiers: editModifiers,
         quantity: editingCartItem.quantity,
-        notes: editingCartItem.notes,
+        notes: editNotes,
+        makeVegan: editVegan,
       };
     } else {
       // Add mode: reset to empty
       setSelectedModifiers([]);
       setQuantity(1);
       setNotes("");
+      setMakeVegan(false);
       initialEditState.current = null;
     }
   }, [item, isOpen, editingCartItem]);
-
-  // Detect modifier container overflow and track scroll position
-  useEffect(() => {
-    const el = modifierContainerRef.current;
-    if (!el) {
-      setHasOverflow(false);
-      return;
-    }
-    setHasOverflow(el.scrollHeight > el.clientHeight);
-    setIsAtBottom(false);
-
-    const onScroll = () => {
-      // 4px threshold for "at bottom" to handle sub-pixel rounding
-      setIsAtBottom(el.scrollTop + el.clientHeight >= el.scrollHeight - 4);
-    };
-    el.addEventListener("scroll", onScroll, { passive: true });
-    return () => el.removeEventListener("scroll", onScroll);
-  }, [item?.modifierGroups]);
 
   // Compute dirty state for edit mode
   const isDirty = useMemo(() => {
@@ -163,10 +174,11 @@ export function ItemDetailSheet({
     const initial = initialEditState.current;
     if (quantity !== initial.quantity) return true;
     if (notes !== initial.notes) return true;
+    if (makeVegan !== initial.makeVegan) return true;
     if (selectedModifiers.length !== initial.modifiers.length) return true;
     const initialIds = new Set(initial.modifiers.map((m) => m.optionId));
     return selectedModifiers.some((m) => !initialIds.has(m.optionId));
-  }, [isEditMode, selectedModifiers, quantity, notes]);
+  }, [isEditMode, selectedModifiers, quantity, notes, makeVegan]);
 
   // Handle close with dirty-state check
   const handleRequestClose = useCallback(() => {
@@ -242,11 +254,24 @@ export function ItemDetailSheet({
     setSelectedModifiers((prev) => prev.filter((mod) => mod.optionId !== optionId));
   }, []);
 
+  // Final notes = the kitchen "make vegan" instruction (when toggled) + user text
+  const finalNotes = composeNotes(veganizable && makeVegan, notes);
+  // Keep the user's free text within budget so the composed note never trips
+  // the 500-char checkout cap.
+  const notesLimit = userNotesBudget(veganizable && makeVegan);
+
+  // Re-clamp existing notes when the budget shrinks (e.g. "Make it vegan"
+  // toggled on after a long note) so the counter stays truthful and we don't
+  // silently drop the user's trailing text inside composeNotes.
+  useEffect(() => {
+    setNotes((n) => (n.length > notesLimit ? n.slice(0, notesLimit) : n));
+  }, [notesLimit]);
+
   const handleAddToCart = useCallback(() => {
     if (!item || !onAddToCart) return;
-    onAddToCart(item, selectedModifiers, quantity, notes.trim());
+    onAddToCart(item, selectedModifiers, quantity, finalNotes);
     onClose();
-  }, [item, onAddToCart, selectedModifiers, quantity, notes, onClose]);
+  }, [item, onAddToCart, selectedModifiers, quantity, finalNotes, onClose]);
 
   const handleUpdateCart = useCallback(() => {
     if (!item || !editingCartItem || !onUpdateCart) return;
@@ -256,12 +281,21 @@ export function ItemDetailSheet({
       editingCartItem.cartItemId,
       selectedModifiers,
       quantity,
-      notes.trim(),
+      finalNotes,
       unitPriceCents
     );
     toast({ message: "Cart updated", type: "success" });
     onClose();
-  }, [item, editingCartItem, onUpdateCart, selectedModifiers, quantity, notes, priceCalc, onClose]);
+  }, [
+    item,
+    editingCartItem,
+    onUpdateCart,
+    selectedModifiers,
+    quantity,
+    finalNotes,
+    priceCalc,
+    onClose,
+  ]);
 
   // ============================================
   // RENDER CONTENT
@@ -271,64 +305,17 @@ export function ItemDetailSheet({
     if (!item) return null;
 
     return (
-      <div className={cn("flex flex-col", isMobile && "h-full")}>
-        {/* Hero Image */}
-        <div className="relative aspect-video shrink-0 bg-zinc-100 dark:bg-zinc-800">
-          {/* Close Button - uses semi-transparent overlay on image */}
-          <button
-            onClick={handleRequestClose}
-            className={cn(
-              "absolute top-3 right-3 z-10",
-              "w-8 h-8 rounded-full",
-              "bg-surface-inverse/50 hover:bg-surface-inverse/70",
-              "flex items-center justify-center",
-              "text-text-inverse",
-              "transition-colors duration-150",
-              "focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-primary/50"
-            )}
-            aria-label="Close"
-          >
-            <X className="w-5 h-5" />
-          </button>
-          {item.imageUrl ? (
-            <Image
-              src={item.imageUrl}
-              alt={item.nameEn}
-              fill
-              sizes="(max-width: 640px) 100vw, 512px"
-              className="object-cover"
-              priority
-            />
-          ) : (
-            <div className="absolute inset-0 flex items-center justify-center">
-              <span className="text-4xl">{getCategoryEmoji(item.tags?.[0])}</span>
-            </div>
-          )}
-          {item.isSoldOut && (
-            <div className="absolute inset-0 flex items-center justify-center bg-overlay-heavy">
-              <Badge variant="default" size="lg">
-                Sold Out
-              </Badge>
-            </div>
-          )}
-        </div>
+      <div className={cn("relative flex flex-col", isMobile && "h-full")}>
+        {/* Photo-first hero: clean food photo + un-clipped close + title below */}
+        <DishHero item={item} onClose={handleRequestClose} />
 
         {/* Scrollable Content - touchAction inherited from Drawer content wrapper */}
         <div
           className={cn(
-            "p-4 space-y-4",
+            "space-y-4 px-4 pb-4 pt-3",
             isMobile ? "flex-1 overflow-y-auto overscroll-contain" : ""
           )}
         >
-          {/* Header */}
-          <div>
-            <h2 className="font-display text-2xl font-bold text-text-primary">{item.nameEn}</h2>
-            {item.nameMy && <p className="font-burmese text-text-muted">{item.nameMy}</p>}
-            <p className="font-display text-2xl font-bold text-primary mt-1">
-              {formatPrice(item.basePriceCents)}
-            </p>
-          </div>
-
           {/* Description */}
           {item.descriptionEn && <p className="text-text-secondary">{item.descriptionEn}</p>}
 
@@ -337,35 +324,26 @@ export function ItemDetailSheet({
             <AllergenWarning allergens={item.allergens} />
           )}
 
-          {/* Modifier Groups with overflow fade indicator */}
+          {/* Modifier Groups — flow in the single sheet scroll (no nested box) */}
           {item.modifierGroups && item.modifierGroups.length > 0 && (
-            <div className="relative">
-              <div
-                ref={modifierContainerRef}
-                className={cn(
-                  "divide-y divide-border",
-                  isMobile && "max-h-[50vh] overflow-y-auto overscroll-contain"
-                )}
-              >
-                {item.modifierGroups.map((group) => (
-                  <ModifierGroup
-                    key={group.id}
-                    group={group}
-                    selectedOptions={selectedModifiers
-                      .filter((m) => m.groupId === group.id)
-                      .map((m) => m.optionId)}
-                    onSelect={handleModifierSelect}
-                    onDeselect={handleModifierDeselect}
-                  />
-                ))}
-              </div>
-              {hasOverflow && !isAtBottom && (
-                <div
-                  className="pointer-events-none absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-surface-primary to-transparent"
-                  aria-hidden="true"
+            <div className="space-y-3">
+              {item.modifierGroups.map((group) => (
+                <ModifierGroup
+                  key={group.id}
+                  group={group}
+                  selectedOptions={selectedModifiers
+                    .filter((m) => m.groupId === group.id)
+                    .map((m) => m.optionId)}
+                  onSelect={handleModifierSelect}
+                  onDeselect={handleModifierDeselect}
                 />
-              )}
+              ))}
             </div>
+          )}
+
+          {/* Make it vegan — one tap attaches a bilingual kitchen instruction */}
+          {veganizable && (
+            <VeganToggle makeVegan={makeVegan} onToggle={() => setMakeVegan((v) => !v)} />
           )}
 
           {/* Special Instructions */}
@@ -374,12 +352,14 @@ export function ItemDetailSheet({
             <Textarea
               id="item-notes"
               value={notes}
-              onChange={(e) => setNotes(e.target.value.slice(0, 500))}
+              onChange={(e) => setNotes(e.target.value.slice(0, notesLimit))}
               placeholder="Any special requests? Let us know..."
               rows={3}
               className="resize-none"
             />
-            <p className="text-xs text-text-muted text-right">{notes.length}/500</p>
+            <p className="text-xs text-text-muted text-right">
+              {notes.length}/{notesLimit}
+            </p>
           </div>
 
           {/* Quantity */}
@@ -397,7 +377,7 @@ export function ItemDetailSheet({
 
         {/* Footer with Add to Cart / Update Cart */}
         {/* eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution */}
-        <div className="shrink-0 border-t border-border p-4 bg-white dark:bg-black safe-area-inset-bottom">
+        <div className="menu-sheet-footer safe-area-inset-bottom shrink-0 border-t border-border bg-white p-4 dark:bg-black">
           {/* Validation Error */}
           {!validation.isValid && validation.errors[0] && (
             <p className="mb-2 text-sm text-status-error">{validation.errors[0]}</p>
@@ -416,7 +396,10 @@ export function ItemDetailSheet({
                 disabled={!validation.isValid}
                 className="w-full"
               >
-                {`Update Cart - ${formatPrice(priceCalc?.totalCents ?? 0)}`}
+                <span className="inline-flex items-center gap-1">
+                  Update Cart -
+                  <LivePrice cents={priceCalc?.totalCents ?? 0} animate={animatePrice} />
+                </span>
               </Button>
             )
           ) : (
@@ -431,15 +414,20 @@ export function ItemDetailSheet({
               }}
               quantity={quantity}
               modifiers={selectedModifiers}
-              notes={notes.trim()}
+              notes={finalNotes}
               disabled={item.isSoldOut || !validation.isValid}
               onAdd={handleAddToCart}
               className="w-full"
               size="lg"
             >
-              {item.isSoldOut
-                ? "Sold Out"
-                : `Add to Cart - ${formatPrice(priceCalc?.totalCents ?? 0)}`}
+              {item.isSoldOut ? (
+                "Sold Out"
+              ) : (
+                <span className="inline-flex items-center gap-1">
+                  Add to Cart -
+                  <LivePrice cents={priceCalc?.totalCents ?? 0} animate={animatePrice} />
+                </span>
+              )}
             </AddToCartButton>
           )}
         </div>

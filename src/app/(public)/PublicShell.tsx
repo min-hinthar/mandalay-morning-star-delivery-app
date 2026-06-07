@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
 import { CartOverlays } from "@/components/ui/cart/CartOverlays";
 import { DeliverySettingsSync } from "@/components/ui/cart/DeliverySettingsSync";
 import { CartServerSync } from "@/components/ui/cart/CartServerSync";
@@ -31,8 +32,11 @@ export function PublicShell({
   longDistanceFeeCents,
   longDistanceThresholdMiles,
 }: PublicShellProps) {
+  // domMax enables framer `drag` so the swipe-to-close bottom sheets that already
+  // render on public surfaces (cart drawer, dish detail sheet) work here too —
+  // previously inert under the root domAnimation-only provider. Lazy-loaded.
   return (
-    <>
+    <DomMaxProvider>
       <OfflineBanner />
       <DeliverySettingsSync
         deliveryFeeCents={deliveryFeeCents}
@@ -50,6 +54,6 @@ export function PublicShell({
       <CartOverlays />
       <FeedbackFAB />
       <FeedbackSheet />
-    </>
+    </DomMaxProvider>
   );
 }
