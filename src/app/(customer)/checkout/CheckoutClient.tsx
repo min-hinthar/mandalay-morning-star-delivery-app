@@ -29,6 +29,8 @@ import {
   EmptyCheckoutError,
   CheckoutErrorBanner,
 } from "@/components/ui/checkout";
+import { CheckoutMasthead } from "@/components/ui/checkout/CheckoutMasthead";
+import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import type { CheckoutStep } from "@/types/checkout";
 import type { DeliveryDayConfig, DeliveryZoneConfig, TimeWindow } from "@/types/delivery";
@@ -318,8 +320,12 @@ export default function CheckoutClient({
 
   if (authLoading || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="relative flex min-h-screen items-center justify-center bg-background">
+        <div
+          aria-hidden="true"
+          className="checkout-ambient pointer-events-none absolute inset-x-0 top-0 h-[420px]"
+        />
+        <Loader2 className="relative h-8 w-8 animate-spin text-hero-accent" />
       </div>
     );
   }
@@ -342,16 +348,20 @@ export default function CheckoutClient({
   };
 
   return (
-    <div className="min-h-screen bg-surface-secondary pb-32">
-      <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
-        <h1 className="mb-6 text-xl sm:text-2xl font-display font-bold text-text-primary">
-          Checkout
-        </h1>
+    <div className="relative min-h-screen bg-background pb-32">
+      {/* Warm sunset ambience seated at the top (radial falloff — no blur) */}
+      <div
+        aria-hidden="true"
+        className="checkout-ambient pointer-events-none absolute inset-x-0 top-0 h-[460px]"
+      />
+
+      <div className="relative mx-auto max-w-4xl px-4 py-6 sm:py-8">
+        <CheckoutMasthead step={step} className="mb-6 animate-hero-develop-1" />
 
         <CheckoutStepperV8
           currentStep={step}
           onStepClick={handleStepClick}
-          className="mb-6 sm:mb-8"
+          className="mb-6 animate-hero-develop-2 sm:mb-8"
         />
 
         {/* Welcome + referral offers (first-order discount auto-applies at payment) */}
@@ -367,82 +377,85 @@ export default function CheckoutClient({
         <div className="grid grid-cols-1 gap-6 lg:gap-8 lg:grid-cols-3">
           {/* Main content - order form with animated transitions */}
           <div className="lg:col-span-2">
-            <div className="rounded-lg border border-border bg-surface-primary p-4 sm:p-6 shadow-colorful overflow-hidden">
-              <AnimatePresence mode="wait" custom={direction}>
-                {step === "address" && (
-                  <m.div
-                    key="address"
-                    custom={direction}
-                    variants={stepVariants}
-                    initial={shouldAnimate ? "initial" : false}
-                    animate="animate"
-                    exit={shouldAnimate ? "exit" : undefined}
-                    transition={{
-                      x: getSpring(spring.default),
-                      scale: getSpring(spring.gentle),
-                      opacity: { duration: 0.2 },
-                      boxShadow: { duration: 0.3 },
-                    }}
-                  >
-                    <AddressStep onNext={goToNextStep} deliveryZones={deliveryZones} />
-                  </m.div>
-                )}
-                {step === "time" && (
-                  <m.div
-                    key="time"
-                    custom={direction}
-                    variants={stepVariants}
-                    initial={shouldAnimate ? "initial" : false}
-                    animate="animate"
-                    exit={shouldAnimate ? "exit" : undefined}
-                    transition={{
-                      x: getSpring(spring.default),
-                      scale: getSpring(spring.gentle),
-                      opacity: { duration: 0.2 },
-                      boxShadow: { duration: 0.3 },
-                    }}
-                  >
-                    <TimeStep
-                      onNext={goToNextStep}
-                      onBack={goToPrevStep}
-                      timeWindows={timeWindows}
-                      deliveryDays={deliveryDays}
-                      deliveryZones={deliveryZones}
-                    />
-                  </m.div>
-                )}
-                {step === "payment" && (
-                  <m.div
-                    key="payment"
-                    custom={direction}
-                    variants={stepVariants}
-                    initial={shouldAnimate ? "initial" : false}
-                    animate="animate"
-                    exit={shouldAnimate ? "exit" : undefined}
-                    transition={{
-                      x: getSpring(spring.default),
-                      scale: getSpring(spring.gentle),
-                      opacity: { duration: 0.2 },
-                      boxShadow: { duration: 0.3 },
-                    }}
-                  >
-                    <PaymentStep
-                      onBack={goToPrevStep}
-                      disableGuard={disableGuard}
-                      timeWindows={timeWindows}
-                      onCutoffPassed={() => setShowCutoffModal(true)}
-                      codEnabled={codEnabled}
-                      cutoffModalOpen={showCutoffModal}
-                    />
-                  </m.div>
-                )}
-              </AnimatePresence>
+            <div className="hero-surface-glass animate-hero-develop-3 relative overflow-hidden rounded-2xl p-4 sm:p-6">
+              <HeroCardLayers accent="clay" radius="rounded-2xl" ticks={false} />
+              <div className="relative">
+                <AnimatePresence mode="wait" custom={direction}>
+                  {step === "address" && (
+                    <m.div
+                      key="address"
+                      custom={direction}
+                      variants={stepVariants}
+                      initial={shouldAnimate ? "initial" : false}
+                      animate="animate"
+                      exit={shouldAnimate ? "exit" : undefined}
+                      transition={{
+                        x: getSpring(spring.default),
+                        scale: getSpring(spring.gentle),
+                        opacity: { duration: 0.2 },
+                        boxShadow: { duration: 0.3 },
+                      }}
+                    >
+                      <AddressStep onNext={goToNextStep} deliveryZones={deliveryZones} />
+                    </m.div>
+                  )}
+                  {step === "time" && (
+                    <m.div
+                      key="time"
+                      custom={direction}
+                      variants={stepVariants}
+                      initial={shouldAnimate ? "initial" : false}
+                      animate="animate"
+                      exit={shouldAnimate ? "exit" : undefined}
+                      transition={{
+                        x: getSpring(spring.default),
+                        scale: getSpring(spring.gentle),
+                        opacity: { duration: 0.2 },
+                        boxShadow: { duration: 0.3 },
+                      }}
+                    >
+                      <TimeStep
+                        onNext={goToNextStep}
+                        onBack={goToPrevStep}
+                        timeWindows={timeWindows}
+                        deliveryDays={deliveryDays}
+                        deliveryZones={deliveryZones}
+                      />
+                    </m.div>
+                  )}
+                  {step === "payment" && (
+                    <m.div
+                      key="payment"
+                      custom={direction}
+                      variants={stepVariants}
+                      initial={shouldAnimate ? "initial" : false}
+                      animate="animate"
+                      exit={shouldAnimate ? "exit" : undefined}
+                      transition={{
+                        x: getSpring(spring.default),
+                        scale: getSpring(spring.gentle),
+                        opacity: { duration: 0.2 },
+                        boxShadow: { duration: 0.3 },
+                      }}
+                    >
+                      <PaymentStep
+                        onBack={goToPrevStep}
+                        disableGuard={disableGuard}
+                        timeWindows={timeWindows}
+                        onCutoffPassed={() => setShowCutoffModal(true)}
+                        codEnabled={codEnabled}
+                        cutoffModalOpen={showCutoffModal}
+                      />
+                    </m.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
 
           {/* Order summary - sticky on desktop */}
           <div className="lg:col-span-1">
-            <div className="lg:sticky lg:top-24">
+            <div className="animate-hero-develop-4 lg:sticky lg:top-24">
               <CheckoutSummary />
             </div>
           </div>

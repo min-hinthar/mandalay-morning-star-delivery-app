@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import { MapPin, Clock, CreditCard } from "lucide-react";
 import { m } from "framer-motion";
 import { CHECKOUT_STEPS, type CheckoutStep } from "@/types/checkout";
@@ -8,13 +9,11 @@ import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 
 /**
- * Animated checkmark with draw-in effect using SVG pathLength
+ * Animated checkmark with draw-in effect using SVG pathLength.
  */
 function AnimatedCheckmark({ shouldAnimate }: { shouldAnimate: boolean }) {
   return (
     <svg
-      width="16"
-      height="16"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
@@ -22,6 +21,7 @@ function AnimatedCheckmark({ shouldAnimate }: { shouldAnimate: boolean }) {
       strokeLinecap="round"
       strokeLinejoin="round"
       className="h-4 w-4"
+      aria-hidden="true"
     >
       <m.path
         d="M20 6L9 17L4 12"
@@ -42,166 +42,163 @@ interface CheckoutStepperV8Props {
   className?: string;
 }
 
-const STEP_CONFIG: Record<CheckoutStep, { label: string; icon: typeof MapPin }> = {
-  address: { label: "Address", icon: MapPin },
-  time: { label: "Time", icon: Clock },
-  payment: { label: "Pay", icon: CreditCard },
+type Triad = "clay" | "blue" | "sage";
+
+interface StepMeta {
+  label: string;
+  my: string;
+  icon: typeof MapPin;
+  accent: Triad;
+  varName: string;
+}
+
+/**
+ * Step config — bilingual labels + a triad accent that cycles clay → blue →
+ * sage (Anthropic's own guideline for non-text shapes).
+ */
+const STEP_CONFIG: Record<CheckoutStep, StepMeta> = {
+  address: { label: "Address", my: "လိပ်စာ", icon: MapPin, accent: "clay", varName: "--hero-clay" },
+  time: { label: "Time", my: "အချိန်", icon: Clock, accent: "blue", varName: "--hero-blue" },
+  payment: { label: "Pay", my: "ငွေပေး", icon: CreditCard, accent: "sage", varName: "--hero-sage" },
+};
+
+const ACCENT_TEXT: Record<Triad, string> = {
+  clay: "text-hero-clay",
+  blue: "text-hero-blue",
+  sage: "text-hero-sage",
 };
 
 /**
- * V8 Checkout Stepper - Enhanced Animations
+ * Checkout "After Dark" journey rail.
  *
- * Features:
- * - Pulsing ring on current step using scale keyframes
- * - Line fill with spring.rubbery for satisfying progress
- * - Hover scale on clickable (completed) steps
- * - Check icon with spring.ultraBouncy
- * - useAnimationPreference for reduced motion support
+ * A warm-paper progress rail: triad-cycling nodes (clay → blue → sage), a
+ * connector that draws on with a gradient as you advance, a soft radial halo
+ * (no blur — iOS GPU budget) on the active node, and a drawn checkmark on
+ * completed steps. Completed nodes are clickable (back-navigation only).
+ * 44px tap targets, bilingual labels, reduced-motion safe.
  */
 export function CheckoutStepperV8({ currentStep, onStepClick, className }: CheckoutStepperV8Props) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const currentIndex = CHECKOUT_STEPS.indexOf(currentStep);
 
   return (
-    <nav className={cn("w-full py-4", className)} aria-label="Checkout progress">
-      <ol className="flex items-start justify-between max-w-md mx-auto">
+    <nav className={cn("w-full", className)} aria-label="Checkout progress">
+      <ol className="mx-auto flex max-w-md items-start justify-between">
         {CHECKOUT_STEPS.map((step, index) => {
           const isCompleted = index < currentIndex;
           const isCurrent = index === currentIndex;
-          const isClickable = isCompleted && onStepClick;
-          const config = STEP_CONFIG[step];
+          const isClickable = isCompleted && Boolean(onStepClick);
+          const meta = STEP_CONFIG[step];
+          const Icon = meta.icon;
+          const isDone = isCompleted || isCurrent;
 
           return (
             <li key={step} className="flex flex-1 flex-col items-center">
-              <div className="flex items-center w-full">
-                {/* V8 Connector line - left side with glow */}
+              <div className="flex w-full items-center">
+                {/* Connector — left side, fills with a triad gradient */}
                 {index > 0 && (
-                  <div className="flex-1 h-0.5 bg-border overflow-hidden relative">
+                  <div className="relative h-[3px] flex-1 overflow-hidden rounded-full bg-hero-line/60">
                     <m.div
-                      className="h-full bg-green"
-                      initial={{ width: 0 }}
-                      animate={{
-                        width: isCompleted || isCurrent ? "100%" : "0%",
-                        // --shadow-glow-success equivalent, kept numeric for FM interpolation
-                        boxShadow:
-                          isCompleted || isCurrent
-                            ? "0 0 8px rgba(61, 139, 34, 0.5)"
-                            : "0 0 0px rgba(61, 139, 34, 0)",
+                      className="h-full rounded-full"
+                      style={{
+                        background:
+                          "linear-gradient(90deg, var(--hero-clay), var(--hero-blue), var(--hero-sage))",
                       }}
+                      initial={{ width: 0 }}
+                      animate={{ width: isDone ? "100%" : "0%" }}
                       transition={getSpring(spring.rubbery)}
                     />
                   </div>
                 )}
 
-                {/* V8 Step circle with pulsing glow ring for current */}
+                {/* Node */}
                 <div className="relative">
-                  {/* Primary glow ring for current step */}
+                  {/* Active halo — radial-gradient falloff (no blur) */}
                   {isCurrent && shouldAnimate && (
-                    <>
-                      {/* Outer expanding ring */}
-                      <m.div
-                        className="absolute inset-0 rounded-full bg-primary/30"
-                        initial={{ scale: 1, opacity: 0.6 }}
-                        animate={{
-                          scale: [1, 1.5, 1],
-                          opacity: [0.6, 0, 0.6],
-                        }}
-                        transition={{
-                          duration: 2,
-                          repeat: 5,
-                          ease: "easeInOut",
-                        }}
-                      />
-                      {/* Inner glow halo - --shadow-glow-primary equivalent, kept numeric for FM interpolation */}
-                      {/* eslint-disable no-restricted-syntax -- FM animation needs numeric boxShadow for interpolation */}
-                      <m.div
-                        className="absolute inset-0 rounded-full"
-                        initial={{ boxShadow: "0 0 0px rgba(164, 16, 52, 0)" }}
-                        animate={{
-                          boxShadow: [
-                            "0 0 8px rgba(164, 16, 52, 0.3)",
-                            "0 0 16px rgba(164, 16, 52, 0.5)",
-                            "0 0 8px rgba(164, 16, 52, 0.3)",
-                          ],
-                        }}
-                        transition={{
-                          duration: 1.5,
-                          repeat: 5,
-                          ease: "easeInOut",
-                        }}
-                      />
-                      {/* eslint-enable no-restricted-syntax */}
-                    </>
+                    <m.span
+                      aria-hidden="true"
+                      className="absolute -inset-2 rounded-full"
+                      style={
+                        {
+                          background: `radial-gradient(circle, var(${meta.varName}) 0%, transparent 68%)`,
+                        } as CSSProperties
+                      }
+                      initial={{ opacity: 0.25, scale: 0.9 }}
+                      animate={{ opacity: [0.28, 0.12, 0.28], scale: [0.95, 1.12, 0.95] }}
+                      transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
+                    />
                   )}
 
                   <m.button
                     type="button"
-                    onClick={() => isClickable && onStepClick(step)}
+                    onClick={() => isClickable && onStepClick?.(step)}
                     disabled={!isClickable}
-                    whileHover={shouldAnimate && isClickable ? { scale: 1.15 } : undefined}
-                    whileTap={shouldAnimate && isClickable ? { scale: 0.95 } : undefined}
+                    whileHover={shouldAnimate && isClickable ? { scale: 1.08 } : undefined}
+                    whileTap={shouldAnimate && isClickable ? { scale: 0.94 } : undefined}
                     transition={getSpring(spring.snappy)}
                     className={cn(
-                      "relative flex items-center justify-center rounded-full",
-                      "h-9 w-9",
-                      "font-body text-sm font-bold",
-                      "transition-all duration-fast",
-                      "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                      isCompleted && "cursor-pointer bg-green text-text-inverse shadow-sm",
-                      isCurrent && "bg-primary text-text-inverse shadow-md",
-                      !isCompleted &&
-                        !isCurrent &&
-                        "border-2 border-border bg-surface-primary text-text-muted"
+                      "relative flex h-11 w-11 items-center justify-center rounded-full",
+                      "font-body text-sm font-bold transition-colors duration-200",
+                      "focus:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent focus-visible:ring-offset-2",
+                      isCompleted &&
+                        "cursor-pointer border border-hero-line bg-hero-card text-hero-accent shadow-sm",
+                      isCurrent && "border-2 border-hero-accent/40 bg-hero-card shadow-md",
+                      !isDone && "border border-hero-line bg-hero-card/70 text-hero-ink-muted"
                     )}
                     aria-current={isCurrent ? "step" : undefined}
+                    aria-label={`${meta.label}${isCompleted ? " (completed)" : ""}`}
                   >
                     {isCompleted ? (
-                      <m.div
-                        initial={shouldAnimate ? { scale: 0, rotate: -180 } : undefined}
+                      <m.span
+                        className="text-hero-accent"
+                        initial={shouldAnimate ? { scale: 0, rotate: -90 } : undefined}
                         animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
                         transition={getSpring(spring.ultraBouncy)}
                       >
                         <AnimatedCheckmark shouldAnimate={shouldAnimate} />
-                      </m.div>
+                      </m.span>
                     ) : (
-                      <span className="text-xs font-bold">{index + 1}</span>
+                      <Icon
+                        className={cn("h-[18px] w-[18px]", isCurrent && ACCENT_TEXT[meta.accent])}
+                        aria-hidden="true"
+                      />
                     )}
                   </m.button>
                 </div>
 
-                {/* V8 Connector line - right side with glow */}
+                {/* Connector — right side */}
                 {index < CHECKOUT_STEPS.length - 1 && (
-                  <div className="flex-1 h-0.5 bg-border overflow-hidden relative">
+                  <div className="relative h-[3px] flex-1 overflow-hidden rounded-full bg-hero-line/60">
                     <m.div
-                      className="h-full bg-green"
-                      initial={{ width: 0 }}
-                      animate={{
-                        width: isCompleted ? "100%" : "0%",
-                        // --shadow-glow-success equivalent, kept numeric for FM interpolation
-                        boxShadow: isCompleted
-                          ? "0 0 8px rgba(61, 139, 34, 0.5)"
-                          : "0 0 0px rgba(61, 139, 34, 0)",
+                      className="h-full rounded-full"
+                      style={{
+                        background:
+                          "linear-gradient(90deg, var(--hero-clay), var(--hero-blue), var(--hero-sage))",
                       }}
+                      initial={{ width: 0 }}
+                      animate={{ width: isCompleted ? "100%" : "0%" }}
                       transition={getSpring(spring.rubbery)}
                     />
                   </div>
                 )}
               </div>
 
-              {/* V8 Label below circle with fade animation */}
+              {/* Bilingual label */}
               <m.span
                 initial={shouldAnimate ? { opacity: 0, y: 4 } : undefined}
                 animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-                transition={{ delay: index * 0.1, ...getSpring(spring.gentle) }}
+                transition={{ delay: index * 0.08, ...getSpring(spring.gentle) }}
                 className={cn(
-                  "mt-2 font-body text-2xs font-bold uppercase tracking-wider",
-                  "transition-colors duration-fast",
-                  isCompleted && "text-green",
-                  isCurrent && "text-text-primary",
-                  !isCompleted && !isCurrent && "text-text-muted"
+                  "mt-2 flex flex-col items-center gap-0.5 text-center transition-colors duration-200",
+                  isCurrent ? "text-hero-ink" : "text-hero-ink-muted"
                 )}
               >
-                {config.label}
+                <span className="font-body text-2xs font-bold uppercase tracking-wider">
+                  {meta.label}
+                </span>
+                <span className="font-burmese text-[0.65rem] leading-none opacity-80" lang="my">
+                  {meta.my}
+                </span>
               </m.span>
             </li>
           );

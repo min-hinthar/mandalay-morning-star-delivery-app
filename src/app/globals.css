@@ -969,6 +969,55 @@
       0 12px 30px rgba(20, 20, 19, 0.14);
   }
 
+  /* ============================================
+     CHECKOUT "AFTER DARK" — living-receipt ticket
+     Warm-paper ritual: ambient sunset glow over bg-background, dashed
+     perforation rules, and a torn/punched bottom edge. Radial-gradient
+     glows only (NO blur() — iOS GPU/memory budget).
+     ============================================ */
+
+  /* Soft sunset glow seated at the top of the checkout page. Decorative
+     layer over bg-background; radial falloff, no filter buffer. */
+  .checkout-ambient {
+    background:
+      radial-gradient(120% 58% at 50% -12%, rgba(217, 119, 87, 0.16), transparent 60%),
+      radial-gradient(85% 50% at 84% -4%, rgba(106, 155, 204, 0.1), transparent 55%),
+      radial-gradient(70% 46% at 8% 2%, rgba(120, 140, 93, 0.08), transparent 60%);
+  }
+
+  /* Dashed perforation rule — the receipt cue between ticket sections. */
+  .checkout-perf {
+    height: 0;
+    border-top: 1.5px dashed var(--hero-line);
+  }
+
+  /* Torn/perforated bottom edge of the receipt: a cream strip whose top is
+     punched with half-circles so the page shows through (a real ticket tear).
+     The strip color matches the receipt's opaque cream foot exactly. */
+  .checkout-tear {
+    height: 11px;
+    background: rgba(250, 249, 245, 0.96);
+    -webkit-mask: radial-gradient(circle 6px at 10px -1px, transparent 6px, #000 6.5px) repeat-x;
+    mask: radial-gradient(circle 6px at 10px -1px, transparent 6px, #000 6.5px) repeat-x;
+    -webkit-mask-size: 20px 11px;
+    mask-size: 20px 11px;
+  }
+
+  /* A slow ledger sheen that sweeps the receipt total once data settles. */
+  @media (prefers-reduced-motion: no-preference) {
+    .checkout-total-sheen {
+      background-image: linear-gradient(
+        110deg,
+        transparent 30%,
+        rgba(217, 119, 87, 0.14) 48%,
+        transparent 66%
+      );
+      background-size: 220% 100%;
+      background-position: 120% 0;
+      animation: checkout-ledger-sheen 5.5s ease-in-out infinite;
+    }
+  }
+
   /* Sunburst/asterisk ray draw-on (motion-gated; drawn by default otherwise) */
   @media (prefers-reduced-motion: no-preference) {
     .animate-hero-draw {
@@ -1503,6 +1552,17 @@
   }
   100% {
     transform: translateX(200%) rotate(45deg);
+  }
+}
+
+/* Checkout receipt total — slow ledger sheen sweep (background-position) */
+@keyframes checkout-ledger-sheen {
+  0% {
+    background-position: 120% 0;
+  }
+  55%,
+  100% {
+    background-position: -40% 0;
   }
 }
 
