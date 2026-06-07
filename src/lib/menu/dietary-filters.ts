@@ -78,7 +78,8 @@ export const MENU_DIETARY_FILTERS: DietaryFilterDef[] = [
     kind: "tag",
     tagAny: ["vegetarian", "vegan"],
   },
-  { id: "vegan", label: "Vegan", emoji: "🌿", kind: "tag", tagAny: ["vegan"] },
+  // Vegan also surfaces "vegan on request" dishes (badged in the card/sheet).
+  { id: "vegan", label: "Vegan", emoji: "🌿", kind: "tag", tagAny: ["vegan", "vegan-optional"] },
   {
     id: "spicy",
     label: "Spicy",
