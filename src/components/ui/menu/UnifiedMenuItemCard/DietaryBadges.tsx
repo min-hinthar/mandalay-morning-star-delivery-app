@@ -46,6 +46,13 @@ function getBadgeConfig(tag: string, level?: number): BadgeConfig | null {
         bgColor: "bg-emerald-500/20",
         textColor: "text-emerald-700 dark:text-emerald-400",
       };
+    case "vegan-optional":
+      return {
+        icon: <Leaf className="w-3 h-3" />,
+        label: "Vegan on request",
+        bgColor: "bg-emerald-500/15",
+        textColor: "text-emerald-700 dark:text-emerald-400",
+      };
     case "spicy":
       return {
         icon: (
@@ -97,6 +104,8 @@ function BadgeItem({ config, index }: BadgeItemProps) {
         "rounded-full text-2xs font-semibold uppercase tracking-wide",
         config.bgColor,
         config.textColor,
+        // Soft glow ring in the badge's own hue (reads as a lit chip)
+        "ring-1 ring-inset ring-current/25",
         // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
         "sm:backdrop-blur-sm shadow-sm"
       )}
@@ -134,6 +143,12 @@ export const DietaryBadges = memo(function DietaryBadges({ tags, className }: Di
   if (tags.includes("vegan") && !tags.includes("vegetarian")) {
     const config = getBadgeConfig("vegan");
     if (config) badges.push({ config, key: "vegan" });
+  }
+
+  // Vegan-on-request (only when not already vegan as-served)
+  if (tags.includes("vegan-optional") && !tags.includes("vegan")) {
+    const config = getBadgeConfig("vegan-optional");
+    if (config) badges.push({ config, key: "vegan-optional" });
   }
 
   // Check for spicy levels

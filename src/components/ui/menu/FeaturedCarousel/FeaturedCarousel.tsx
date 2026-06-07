@@ -319,6 +319,9 @@ export function FeaturedCarousel({
                   isFavorite={favorites.has(item.id)}
                   onFavoriteToggle={onFavoriteToggle}
                   priority={index < 3}
+                  // Warm-paper cream treatment to match the menu grid + homepage
+                  // section cards (the hero's only consumer wants the same look).
+                  warmPaper
                 />
               </MenuCardWrapper>
             </div>

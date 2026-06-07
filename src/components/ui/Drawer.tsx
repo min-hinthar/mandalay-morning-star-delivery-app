@@ -254,7 +254,10 @@ export function Drawer({
     if (!isBottom) return undefined;
     return {
       ...(swipeProps?.style || {}),
-      height: height === "full" ? "95vh" : "auto",
+      // dvh + top safe-area aware (see --sheet-max-h) so the sheet top never
+      // hides under the iOS status bar / notch.
+      height: height === "full" ? "var(--sheet-max-h)" : "auto",
+      maxHeight: "var(--sheet-max-h)",
     };
   }, [isBottom, swipeProps?.style, height]);
 
@@ -367,7 +370,7 @@ export function Drawer({
                 ref={contentRef}
                 className={cn(
                   "overflow-y-auto overscroll-contain",
-                  "max-h-[calc(95vh-3rem)]",
+                  "max-h-[calc(var(--sheet-max-h)-3rem)]",
                   "pb-safe"
                 )}
                 style={{ touchAction: contentScrollable ? "pan-y" : undefined }}

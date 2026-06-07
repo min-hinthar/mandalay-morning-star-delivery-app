@@ -5,7 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { m } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, ArrowRight } from "lucide-react";
-import { ItemDetailSheet } from "@/components/ui/menu";
+import { ItemDetailSheet, MenuTextureBackdrop } from "@/components/ui/menu";
 import { FeaturedSections } from "@/components/ui/homepage/FeaturedSections";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
@@ -114,6 +114,9 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
       {/* Dark overlay for text readability */}
       <div className="absolute inset-0 bg-surface-primary/85 pointer-events-none" />
 
+      {/* Layered editorial texture (gradient-masked grids + triad glows) */}
+      <MenuTextureBackdrop />
+
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
         <m.div
@@ -139,6 +142,18 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
           >
             Authentic Burmese Cuisine
           </m.h2>
+
+          {/* Bilingual accent underline — draws on with the header reveal */}
+          <m.div
+            variants={{
+              hidden: { scaleX: 0, opacity: 0 },
+              visible: { scaleX: 1, opacity: 1 },
+            }}
+            transition={{ duration: 0.6, ease: "easeOut" }}
+            className="mx-auto mb-3 h-[3px] w-24 origin-center rounded-pill"
+            style={{ background: "linear-gradient(90deg, var(--menu-clay), var(--menu-gold))" }}
+            aria-hidden="true"
+          />
           <m.p
             variants={staggerItem}
             className="font-body text-xl md:text-2xl text-primary/70 mb-4"
