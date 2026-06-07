@@ -271,7 +271,7 @@ export function Modal({
                   "shadow-xl",
                   "focus:outline-none",
                   // Mobile styles
-                  isMobile && ["rounded-t-[1.5rem]", "max-h-[90vh]", "pb-safe"],
+                  isMobile && ["rounded-t-[1.5rem]", "max-h-[var(--sheet-max-h)]", "pb-safe"],
                   // Desktop styles
                   !isMobile && [
                     "rounded-[var(--radius-lg,0.75rem)]",
@@ -351,7 +351,7 @@ export function Modal({
                     "overflow-y-auto overscroll-contain",
                     config.padding,
                     showCloseButton && !header && "pt-14",
-                    isMobile ? "max-h-[calc(90vh-3rem)]" : "max-h-[calc(85vh-2rem)]",
+                    isMobile ? "max-h-[calc(var(--sheet-max-h)-3rem)]" : "max-h-[calc(85vh-2rem)]",
                     footer && "pb-0",
                     contentClassName
                   )}

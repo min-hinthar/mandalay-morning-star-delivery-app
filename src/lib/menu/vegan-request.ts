@@ -13,7 +13,7 @@ export const VEGANIZABLE_TAG = "vegan-optional";
 export const VEGAN_NOTE_EN = "Make it vegan — no fish sauce, shrimp powder, or ngapi";
 // DRAFT Burmese kitchen instruction — VERIFY wording with the owner before
 // relying on it for staff. (EN always accompanies it on the ticket.)
-export const VEGAN_NOTE_MY = "သက်သတ်လွတ် — ငါးပိ၊ ပုစွန်ခြောက်၊ ငါးငံပြာရည် မထည့်ပါနှင့်";
+export const VEGAN_NOTE_MY = "သားသတ်လွတ် — ငါးပိ၊ ပုစွန်ခြောက်၊ ငါးငံပြာရည် မထည့်ပါနှင့်";
 
 /** The composed line that gets prepended to the order's notes when toggled on. */
 export const VEGAN_NOTE = `${VEGAN_NOTE_EN} (${VEGAN_NOTE_MY})`;
