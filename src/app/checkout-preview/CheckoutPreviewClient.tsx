@@ -78,10 +78,20 @@ const STEP_NOTE: Record<CheckoutStep, string> = {
 export function CheckoutPreviewClient() {
   const [step, setStep] = useState<CheckoutStep>("address");
 
-  // Seed the mock cart + delivery settings; restore on unmount so a later
-  // real session on this preview origin isn't polluted with preview items.
+  // Seed the mock cart + delivery settings; restore the FULL prior slice on
+  // unmount. (Only `items` is persisted via partialize, but we snapshot every
+  // field we overwrite so a later real session on this origin isn't left with
+  // mock fee/threshold/distance config. Non-prod route; the page 404s in prod.)
   useEffect(() => {
-    const prev = useCartStore.getState().items;
+    const {
+      items,
+      deliveryFeeCents,
+      freeDeliveryThresholdCents,
+      addressDistanceMiles,
+      longDistanceFeeCents,
+      longDistanceThresholdMiles,
+      _hasHydrated,
+    } = useCartStore.getState();
     useCartStore.setState({
       items: MOCK_ITEMS,
       deliveryFeeCents: 1500,
@@ -92,7 +102,15 @@ export function CheckoutPreviewClient() {
       _hasHydrated: true,
     });
     return () => {
-      useCartStore.setState({ items: prev });
+      useCartStore.setState({
+        items,
+        deliveryFeeCents,
+        freeDeliveryThresholdCents,
+        addressDistanceMiles,
+        longDistanceFeeCents,
+        longDistanceThresholdMiles,
+        _hasHydrated,
+      });
     };
   }, []);
 

@@ -88,6 +88,9 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             <span className="inline-flex items-center gap-1.5 rounded-full border border-hero-line bg-hero-card/70 px-2.5 py-1 text-2xs font-bold text-hero-ink-muted">
               <ShoppingBag className="h-3.5 w-3.5 text-hero-clay" aria-hidden="true" />
               {itemCount} {itemCount === 1 ? "item" : "items"}
+              <span className="font-burmese" lang="my">
+                · {itemCount} ခု
+              </span>
             </span>
           </div>
 

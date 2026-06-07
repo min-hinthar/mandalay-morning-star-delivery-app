@@ -1,8 +1,8 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import { type CSSProperties, useRef } from "react";
 import { MapPin, Clock, CreditCard } from "lucide-react";
-import { m } from "framer-motion";
+import { m, useInView } from "framer-motion";
 import { CHECKOUT_STEPS, type CheckoutStep } from "@/types/checkout";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -120,8 +120,16 @@ export function CheckoutStepperV8({ currentStep, onStepClick, className }: Check
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const currentIndex = CHECKOUT_STEPS.indexOf(currentStep);
 
+  // Gate the perpetual halo/icon loops to on-screen only — per the project
+  // gotcha, framer `repeat: Infinity` JS loops keep ticking offscreen (unlike
+  // `.hero-anim-paused`, which only halts CSS). useInView stops them once the
+  // rail scrolls away on a tall step.
+  const navRef = useRef<HTMLElement>(null);
+  const inView = useInView(navRef, { margin: "0px 0px -20% 0px" });
+  const loop = shouldAnimate && inView;
+
   return (
-    <nav className={cn("w-full", className)} aria-label="Checkout progress">
+    <nav ref={navRef} className={cn("w-full", className)} aria-label="Checkout progress">
       <ol className="mx-auto flex max-w-md items-start justify-between">
         {CHECKOUT_STEPS.map((step, index) => {
           const isCompleted = index < currentIndex;
@@ -139,7 +147,7 @@ export function CheckoutStepperV8({ currentStep, onStepClick, className }: Check
                 {/* Node */}
                 <div className="relative shrink-0">
                   {/* Active halo — radial-gradient falloff (no blur) */}
-                  {isCurrent && shouldAnimate && (
+                  {isCurrent && loop && (
                     <m.span
                       aria-hidden="true"
                       className="absolute -inset-2.5 rounded-full"
@@ -184,9 +192,7 @@ export function CheckoutStepperV8({ currentStep, onStepClick, className }: Check
                     ) : isCurrent ? (
                       <m.span
                         className="text-hero-card"
-                        animate={
-                          shouldAnimate ? { y: [0, -1.5, 0], rotate: [0, -4, 4, 0] } : undefined
-                        }
+                        animate={loop ? { y: [0, -1.5, 0], rotate: [0, -4, 4, 0] } : undefined}
                         transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
                       >
                         <Icon className="h-[19px] w-[19px]" aria-hidden="true" strokeWidth={2.4} />

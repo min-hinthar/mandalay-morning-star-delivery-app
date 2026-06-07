@@ -976,15 +976,6 @@
      glows only (NO blur() — iOS GPU/memory budget).
      ============================================ */
 
-  /* Soft sunset glow seated at the top of the checkout page. Decorative
-     layer over bg-background; radial falloff, no filter buffer. */
-  .checkout-ambient {
-    background:
-      radial-gradient(120% 58% at 50% -12%, rgba(217, 119, 87, 0.16), transparent 60%),
-      radial-gradient(85% 50% at 84% -4%, rgba(106, 155, 204, 0.1), transparent 55%),
-      radial-gradient(70% 46% at 8% 2%, rgba(120, 140, 93, 0.08), transparent 60%);
-  }
-
   /* Dashed perforation rule — the receipt cue between ticket sections. */
   .checkout-perf {
     height: 0;
@@ -996,7 +987,7 @@
      The strip color matches the receipt's opaque cream foot exactly. */
   .checkout-tear {
     height: 11px;
-    background: rgba(250, 249, 245, 0.96);
+    background: rgba(250, 249, 245, 0.95);
     -webkit-mask: radial-gradient(circle 6px at 10px -1px, transparent 6px, #000 6.5px) repeat-x;
     mask: radial-gradient(circle 6px at 10px -1px, transparent 6px, #000 6.5px) repeat-x;
     -webkit-mask-size: 20px 11px;

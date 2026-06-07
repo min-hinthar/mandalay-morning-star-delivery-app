@@ -20,7 +20,9 @@ export const metadata = {
 };
 
 export default function CheckoutPreviewPage() {
-  if (process.env.VERCEL_ENV === "production") {
+  // Fail closed: VERCEL_ENV is undefined on non-Vercel/self-hosted prod builds,
+  // so also block on NODE_ENV. Available on Vercel preview + local dev only.
+  if (process.env.VERCEL_ENV === "production" || process.env.NODE_ENV === "production") {
     notFound();
   }
   return <CheckoutPreviewClient />;
