@@ -8,13 +8,14 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { Tag, X, Check, Loader2 } from "lucide-react";
+import { Tag, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
 
 // ============================================
 // TYPES
@@ -108,21 +109,37 @@ export function PromoCodeInput({ className }: PromoCodeInputProps) {
     return (
       <div className={cn("space-y-2", className)}>
         <m.div
-          initial={shouldAnimate ? { scale: 0.95, opacity: 0 } : undefined}
-          animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
+          initial={shouldAnimate ? { y: 6, opacity: 0 } : undefined}
+          animate={shouldAnimate ? { y: 0, opacity: 1 } : undefined}
           transition={getSpring(spring.default)}
-          className="flex items-center justify-between rounded-lg border border-status-success/30 bg-status-success-bg px-4 py-2.5"
+          className="flex items-center justify-between rounded-xl border border-hero-clay/30 bg-hero-clay/[0.07] px-4 py-3"
         >
-          <div className="flex items-center gap-2">
-            <Check className="h-4 w-4 text-status-success" />
-            <span className="text-sm font-medium text-status-success">
-              Applied: {discountLabel}
-            </span>
+          <div className="flex items-center gap-3">
+            {/* Wax seal — presses down like a stamp on apply */}
+            <m.span
+              aria-hidden="true"
+              initial={shouldAnimate ? { scale: 1.5, rotate: -14, opacity: 0 } : undefined}
+              animate={shouldAnimate ? { scale: 1, rotate: 0, opacity: 1 } : undefined}
+              transition={{ type: "spring", stiffness: 520, damping: 17, delay: 0.05 }}
+              className="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full shadow-sm"
+              style={{
+                background:
+                  "radial-gradient(circle at 35% 28%, var(--hero-clay), var(--hero-accent-strong))",
+              }}
+            >
+              <HeroSunburst className="h-4 w-4 text-hero-card/90" rays={8} />
+            </m.span>
+            <div className="leading-tight">
+              <p className="text-sm font-semibold text-hero-ink">Applied: {discountLabel}</p>
+              <p className="font-burmese text-2xs text-hero-ink-muted" lang="my">
+                ကုဒ် အသုံးပြုပြီး
+              </p>
+            </div>
           </div>
           <button
             type="button"
             onClick={handleRemove}
-            className="rounded-full p-1 text-text-muted hover:bg-surface-tertiary hover:text-text-primary transition-colors"
+            className="rounded-full p-1 text-hero-ink-muted hover:bg-hero-clay/10 hover:text-hero-ink transition-colors"
             aria-label="Remove promo code"
           >
             <X className="h-3.5 w-3.5" />
