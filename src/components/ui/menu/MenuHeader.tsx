@@ -91,9 +91,8 @@ export function MenuHeader({
       ref={headerRef}
       className={cn(
         "sticky top-0 z-20",
-        // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
-        "bg-[var(--color-cream)] dark:bg-[var(--color-background)] sm:bg-[var(--color-cream)]/95 sm:dark:bg-[var(--color-background)]/95",
-        "sm:backdrop-blur-lg border-b border-[var(--color-border)]"
+        // Elevated warm surface so the bar floats above the page (no meld)
+        "menu-bar sm:backdrop-blur-lg"
       )}
     >
       {/* Top row: title + search + cart — always visible */}
@@ -123,7 +122,7 @@ export function MenuHeader({
             <div
               className={cn(
                 "absolute left-0 top-0 bottom-0 w-8 z-10",
-                "bg-gradient-to-r from-[var(--color-cream)] dark:from-[var(--color-background)] to-transparent",
+                "bg-gradient-to-r from-surface-elevated to-transparent",
                 "pointer-events-none"
               )}
               aria-hidden="true"
@@ -140,7 +139,7 @@ export function MenuHeader({
             <div
               className={cn(
                 "absolute right-0 top-0 bottom-0 w-8 z-10",
-                "bg-gradient-to-l from-[var(--color-cream)] dark:from-[var(--color-background)] to-transparent",
+                "bg-gradient-to-l from-surface-elevated to-transparent",
                 "pointer-events-none"
               )}
               aria-hidden="true"

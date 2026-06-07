@@ -211,10 +211,8 @@ export const CategoryTabs = memo(function CategoryTabs({
     <div
       className={cn(
         "sticky top-[var(--tabs-offset)] z-20",
-        // Solid background - elevated in dark mode for contrast against page
-        "bg-surface-primary dark:bg-surface-elevated",
-        // Visible border for separation
-        "border-b border-border-default",
+        // Elevated warm surface so the rail floats above the page (no meld)
+        "menu-bar",
         className
       )}
     >
@@ -223,7 +221,7 @@ export const CategoryTabs = memo(function CategoryTabs({
         <div
           className={cn(
             "absolute left-0 top-0 bottom-0 w-8 z-10",
-            "bg-gradient-to-r from-surface-primary dark:from-surface-elevated to-transparent",
+            "bg-gradient-to-r from-surface-elevated to-transparent",
             "pointer-events-none"
           )}
           aria-hidden="true"
@@ -279,11 +277,12 @@ export const CategoryTabs = memo(function CategoryTabs({
                 "font-body text-sm font-semibold",
                 "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 isActive
-                  ? // Dark ink reads on the gold→clay pill in both themes
+                  ? // Dark ink reads on the lit gold→clay pill in both themes
                     "text-hero-ink"
-                  : // Filled neutral pill + full-contrast ink label so inactive
-                    // tabs never meld into the bar (light OR dark)
-                    "border border-border-default bg-surface-tertiary text-text-primary hover:border-hero-clay/50 hover:bg-surface-secondary"
+                  : // Ghost pill: full-contrast ink label + clay outline so it
+                    // reads clearly on the elevated bar (no meld), and contrasts
+                    // hard against the bold lit active pill
+                    "border border-hero-clay/30 text-text-primary hover:border-hero-clay/60 hover:bg-surface-primary"
               )}
             >
               {/* Tab label */}
@@ -298,7 +297,7 @@ export const CategoryTabs = memo(function CategoryTabs({
         <div
           className={cn(
             "absolute right-0 top-0 bottom-0 w-8 z-10",
-            "bg-gradient-to-l from-surface-primary dark:from-surface-elevated to-transparent",
+            "bg-gradient-to-l from-surface-elevated to-transparent",
             "pointer-events-none"
           )}
           aria-hidden="true"

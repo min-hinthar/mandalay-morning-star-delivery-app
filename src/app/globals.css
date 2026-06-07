@@ -501,6 +501,21 @@
       0 2px 7px -3px rgba(0, 0, 0, 0.22);
   }
 
+  /* Menu sticky bars (header + category rail) — a distinct ELEVATED warm
+     surface (clay wash + gold hairline + soft lift) so they float clearly
+     above the page instead of melding into it, in light AND dark. */
+  .menu-bar {
+    background:
+      linear-gradient(
+        180deg,
+        color-mix(in srgb, var(--menu-clay) 7%, transparent),
+        transparent 62%
+      ),
+      var(--color-surface-elevated);
+    border-bottom: 1.5px solid var(--menu-card-hairline-strong);
+    box-shadow: 0 6px 20px -10px rgba(0, 0, 0, 0.35);
+  }
+
   /* Lit gold→clay CTA pill (the menu card "Add" button) — vibrant in both
      themes (the deep-clay token reads dull in dark mode); dark ink keeps AA. */
   .menu-cta-lit {
