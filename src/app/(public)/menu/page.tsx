@@ -11,7 +11,13 @@ export default async function MenuPage() {
   const rules = await getBusinessRules();
 
   return (
-    <main className="min-h-screen bg-background pb-32">
+    <main className="menu-page-bg relative min-h-screen pb-32">
+      {/* Decorative editorial dot-grid for hero-like depth — fixed behind the
+          content, gated md:+ to keep the mobile composite minimal. */}
+      <span
+        aria-hidden="true"
+        className="hero-dotgrid pointer-events-none fixed inset-0 -z-10 hidden opacity-60 [--dot-color:var(--menu-texture-dot)] [--dot-gap:22px] md:block"
+      />
       <Suspense fallback={<MenuSkeleton />}>
         <MenuContent
           cutoffDay={rules.cutoffDay}

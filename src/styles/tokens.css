@@ -169,6 +169,14 @@
   --menu-card-cta-ink: #241a12; /* dark label on clay */
   --menu-gold: #eaa92f; /* category-tab pill (theme-independent) */
   --menu-clay: #d97757;
+
+  /* Active category pill — INVERTED tone of the bar so it always pops.
+     Light bar (#fff): a deep espresso pill w/ cream label + gold ring. */
+  --menu-tab-active-from: #241c17; /* espresso */
+  --menu-tab-active-to: #38291f; /* lifted espresso (gradient top) */
+  --menu-tab-active-ink: #fbf4e8; /* cream label */
+  --menu-tab-active-ring: rgba(234, 169, 47, 0.65); /* gold ring */
+  --menu-tab-active-glow: rgba(36, 28, 23, 0.34); /* dark soft shadow */
   --menu-texture-dot: rgba(20, 20, 19, 0.1); /* dark dots on the light section overlay */
   --menu-texture-line: rgba(20, 20, 19, 0.05);
   --menu-modal-accent: #9a3412; /* detail-modal price/accent — deep clay (AA on white) */
@@ -712,6 +720,14 @@
   --menu-card-price: #9a3412; /* deep clay price */
   --menu-card-cta-bg: #9a3412; /* deep clay CTA */
   --menu-card-cta-ink: #fdfcf9; /* warm-white label on clay */
+
+  /* Active category pill — INVERTED tone of the bar so it always pops.
+     Dark bar (#1a1a1a): a bright gold→clay lit pill w/ dark label + cream ring. */
+  --menu-tab-active-from: #eaa92f; /* gold */
+  --menu-tab-active-to: #d97757; /* clay */
+  --menu-tab-active-ink: #241a12; /* dark label */
+  --menu-tab-active-ring: rgba(255, 244, 224, 0.72); /* cream ring */
+  --menu-tab-active-glow: rgba(234, 169, 47, 0.55); /* warm gold glow */
   --menu-texture-dot: rgba(246, 241, 233, 0.08); /* light dots on the dark section overlay */
   --menu-texture-line: rgba(246, 241, 233, 0.045);
   --menu-modal-accent: #f0b357; /* detail-modal price/accent — amber (AA on dark) */

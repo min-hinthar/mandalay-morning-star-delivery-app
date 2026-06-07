@@ -277,12 +277,13 @@ export const CategoryTabs = memo(function CategoryTabs({
                 "font-body text-sm font-semibold",
                 "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 isActive
-                  ? // Dark ink reads on the lit gold→clay pill in both themes
-                    "text-hero-ink"
-                  : // Ghost pill: full-contrast ink label + clay outline so it
-                    // reads clearly on the elevated bar (no meld), and contrasts
-                    // hard against the bold lit active pill
-                    "border border-hero-clay/30 text-text-primary hover:border-hero-clay/60 hover:bg-surface-primary"
+                  ? // Label flips cream↔ink to stay AA on the INVERTED active
+                    // pill (espresso on the light bar, gold→clay on the dark bar)
+                    "menu-tab-active-label"
+                  : // Inactive = clean editorial text tab (no chrome), so the
+                    // bold inverted active pill is unmistakable — max figure/
+                    // ground separation, never melds in either theme
+                    "text-text-secondary hover:bg-surface-primary/70 hover:text-text-primary"
               )}
             >
               {/* Tab label */}

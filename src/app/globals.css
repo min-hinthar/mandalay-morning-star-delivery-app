@@ -516,6 +516,33 @@
     box-shadow: 0 6px 20px -10px rgba(0, 0, 0, 0.35);
   }
 
+  /* Menu PAGE background — a warm, hero-like layered wash (sunset clay/gold +
+     a cool slate counter-glow) over the base page color, anchored to the top
+     so the page reads as the homepage hero's "warm paper on sunset" surface
+     rather than a flat fill. Mobile-safe: radial-gradients only (NO blur /
+     backdrop-filter), so it adds zero GPU buffer cost. Cards/bars still pop
+     because the wash is low-alpha and the surfaces stay opaque/elevated. */
+  .menu-page-bg {
+    background-color: var(--color-background);
+    background-image:
+      radial-gradient(
+        125% 62% at 50% -10%,
+        color-mix(in srgb, var(--menu-clay) 15%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        80% 48% at 100% 2%,
+        color-mix(in srgb, var(--menu-gold) 12%, transparent),
+        transparent 58%
+      ),
+      radial-gradient(
+        78% 46% at 0% 6%,
+        color-mix(in srgb, var(--hero-blue) 8%, transparent),
+        transparent 60%
+      );
+    background-repeat: no-repeat;
+  }
+
   /* Lit gold→clay CTA pill (the menu card "Add" button) — vibrant in both
      themes (the deep-clay token reads dull in dark mode); dark ink keeps AA. */
   .menu-cta-lit {
@@ -641,19 +668,24 @@
     }
   }
 
-  /* Menu category-tab active indicator — gold→clay lit pill (deepened
-     sunset). Soft amber glow + top sheen; sits behind the label. */
+  /* Menu category-tab active indicator — INVERTED tone of the bar so it always
+     pops in BOTH themes (deep espresso pill on the light/white bar; bright
+     gold→clay lit pill on the dark bar). Crisp accent ring + soft drop glow +
+     top sheen; sits behind the label (label color flips via
+     .menu-tab-active-label). */
   .menu-tab-indicator {
     position: relative;
     overflow: hidden;
-    background: linear-gradient(100deg, var(--menu-gold), var(--menu-clay));
-
-    /* Bright cream ring + warm glow so the active pill POPS on a light OR dark
-       bar (it was melding into the dark elevated bar). */
+    background: linear-gradient(100deg, var(--menu-tab-active-from), var(--menu-tab-active-to));
     box-shadow:
-      0 6px 18px -3px rgba(234, 169, 47, 0.7),
-      0 0 0 1.5px rgba(255, 236, 196, 0.6),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.35);
+      0 8px 20px -4px var(--menu-tab-active-glow),
+      0 0 0 1.5px var(--menu-tab-active-ring),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.22);
+  }
+
+  /* Active tab label — flips cream↔ink so it stays AA on the inverted pill. */
+  .menu-tab-active-label {
+    color: var(--menu-tab-active-ink);
   }
 
   /* Traveling lacquer glint across the active pill — motion-gated */
