@@ -345,6 +345,10 @@ export default function CheckoutClient({
 
   return (
     <div className="checkout-canvas relative min-h-screen pb-32">
+      <div
+        aria-hidden="true"
+        className="checkout-dots pointer-events-none absolute inset-x-0 top-0 h-[560px]"
+      />
       <div className="relative mx-auto max-w-4xl px-4 py-6 sm:py-8">
         <CheckoutMasthead step={step} className="mb-6 animate-hero-develop-1" />
 

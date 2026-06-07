@@ -102,6 +102,10 @@ export function CheckoutPreviewClient() {
 
   return (
     <div className="checkout-canvas relative min-h-screen pb-32">
+      <div
+        aria-hidden="true"
+        className="checkout-dots pointer-events-none absolute inset-x-0 top-0 h-[560px]"
+      />
       <div className="relative mx-auto max-w-4xl px-4 py-6 sm:py-8">
         {/* Non-prod review banner + step jumper */}
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-hero-clay/30 bg-hero-clay/10 px-4 py-2.5">
