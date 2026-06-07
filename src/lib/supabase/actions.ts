@@ -52,7 +52,36 @@ function warnIfAppUrlNotCanonical(envUrl: string): void {
   }
 }
 
+/**
+ * On Vercel Preview deployments the canonical NEXT_PUBLIC_APP_URL points at
+ * production — so an auth link built from it would send the user to prod
+ * instead of back to the preview they're testing. Resolve THIS preview's own
+ * origin instead. Bounded to *.vercel.app (or VERCEL_URL, which Vercel sets
+ * server-side and a client can't forge) so a spoofed Origin/Host header can
+ * never point a sign-in link off-platform.
+ */
+async function getPreviewOrigin(): Promise<string | null> {
+  const headerList = await headers();
+  const fwdHost = headerList.get("x-forwarded-host") ?? headerList.get("host");
+  if (fwdHost && /(^|\.)vercel\.app$/i.test(fwdHost)) {
+    const proto = headerList.get("x-forwarded-proto") ?? "https";
+    return `${proto}://${fwdHost.replace(/^www\./i, "")}`;
+  }
+  if (process.env.VERCEL_URL) {
+    return `https://${process.env.VERCEL_URL}`;
+  }
+  return null;
+}
+
 export async function getAppUrl(): Promise<string> {
+  // Vercel Preview: prefer the preview's own origin (NEXT_PUBLIC_APP_URL is the
+  // production host, which would bounce magic links off the preview). Prod and
+  // local dev keep using the canonical configured URL unchanged.
+  if (process.env.VERCEL_ENV === "preview") {
+    const previewUrl = await getPreviewOrigin();
+    if (previewUrl) return previewUrl;
+  }
+
   const envUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (envUrl) {
     warnIfAppUrlNotCanonical(envUrl);
