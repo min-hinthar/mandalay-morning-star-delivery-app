@@ -27,6 +27,7 @@ import { useMediaQuery } from "@/lib/hooks";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { Modal } from "@/components/ui/Modal";
 import { Drawer } from "@/components/ui/Drawer";
+import { CheckoutSectionHeader } from "./CheckoutSectionHeader";
 import { AddressCardV8 } from "./AddressCardV8";
 import { AddressFormV8 } from "./AddressFormV8";
 import { CoverageErrorCard } from "./CoverageErrorCard";
@@ -175,11 +176,14 @@ export function AddressStepV8({ onNext, deliveryZones }: AddressStepV8Props) {
     >
       {/* Header with stagger */}
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
-        <div className="flex items-center gap-2 mb-1">
-          <MapPin className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold text-text-primary">Delivery Address</h2>
-        </div>
-        <p className="font-body text-sm text-text-muted">Select or add a delivery address</p>
+        <CheckoutSectionHeader
+          icon={MapPin}
+          eyebrow="Delivery Address"
+          eyebrowMy="လိပ်စာ"
+          lead="Where to"
+          accent="deliver"
+          sub="Select or add a delivery address"
+        />
       </m.div>
 
       {/* Skeleton loading state */}

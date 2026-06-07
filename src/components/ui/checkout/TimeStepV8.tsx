@@ -36,6 +36,7 @@ import {
   getAvailableDeliveryDatesMultiDay,
   getZonedDayOfWeek,
 } from "@/lib/utils/delivery-dates";
+import { CheckoutSectionHeader } from "./CheckoutSectionHeader";
 import { TimeSlotPicker } from "./TimeSlotPicker";
 import { DeliveryZoneInfoCard } from "./DeliveryZoneInfoCard";
 import { Button } from "@/components/ui/button";
@@ -167,12 +168,15 @@ export function TimeStepV8({
     >
       {/* Header with stagger */}
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
-        <div className="flex items-center gap-2 mb-1">
-          <Clock className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold text-text-primary">Delivery Time</h2>
-        </div>
-        <p className="font-body text-sm text-text-muted">Choose your preferred delivery window</p>
-        <p className="font-body text-xs text-text-muted mt-1">
+        <CheckoutSectionHeader
+          icon={Clock}
+          eyebrow="Delivery Time"
+          eyebrowMy="အချိန်"
+          lead="When it"
+          accent="arrives"
+          sub="Choose your preferred delivery window"
+        />
+        <p className="font-body text-xs text-hero-ink-muted mt-1.5">
           Time windows are preferred delivery times, not guaranteed arrival times.
         </p>
       </m.div>

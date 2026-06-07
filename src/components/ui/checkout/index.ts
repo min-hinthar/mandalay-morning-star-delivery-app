@@ -7,6 +7,7 @@
 
 // V8 Components (new animated versions)
 export { CheckoutMasthead } from "./CheckoutMasthead";
+export { CheckoutSectionHeader } from "./CheckoutSectionHeader";
 export { CheckoutStepperV8 } from "./CheckoutStepperV8";
 export { AnimatedFormField } from "./AnimatedFormField";
 export { AddressFormV8 } from "./AddressFormV8";

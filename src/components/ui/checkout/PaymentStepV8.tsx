@@ -10,6 +10,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
 import type { TimeWindow } from "@/types/delivery";
+import { CheckoutSectionHeader } from "./CheckoutSectionHeader";
 import { TipSelector } from "./TipSelector";
 import { PromoCodeInput } from "./PromoCodeInput";
 import { ContactInfoSection } from "./ContactInfoSection";
@@ -113,13 +114,14 @@ export function PaymentStepV8({
       animate={shouldAnimate ? "visible" : undefined}
     >
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
-        <div className="flex items-center gap-2 mb-1">
-          <CreditCard className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold text-text-primary">Review & Pay</h2>
-        </div>
-        <p className="font-body text-sm text-text-muted">
-          Review your order and proceed to payment
-        </p>
+        <CheckoutSectionHeader
+          icon={CreditCard}
+          eyebrow="Review & Pay"
+          eyebrowMy="ငွေပေးချေမှု"
+          lead="Almost"
+          accent="done"
+          sub="Review your order and proceed to payment"
+        />
       </m.div>
 
       <AnimatePresence mode="wait">
