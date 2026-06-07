@@ -4,13 +4,15 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-06-06._
+_Last reconciled: 2026-06-07._
 
 ## In flight
 
-_None._ The hero/rewards iteration (#143 → #144 → #145), the CI/review tooling
-(#146 → #147 → #148), and the preview safety net (#149) have all landed on
-`main`. **Next up (new session): homepage + menu page UI/UX updates.**
+_None._ The menu/homepage "After Dark" epic (**#150**), the allergen-reviewed +
+favorite-polish follow-ups (**#151**), and the full allergen audit (**#152**)
+have all landed on `main`. **Next up: extend the Anthropic "After Dark" UI/UX
+to the remaining customer surfaces — checkout first.** See
+[`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
 
 ## Watching
 
@@ -18,6 +20,26 @@ _None active._ All tracked PRs are merged or closed; subscriptions ended at
 merge/close.
 
 ## Recently closed
+
+- **#150** — Menu & homepage **"After Dark"** epic (one branch, owner-driven):
+  warm-paper theming + micro-interactions; photo-first **layered dish-sheet
+  modal** (un-clipped close, single-scroll layered modifiers, live rolling
+  total); **working dietary filters** (allergen-derived **fail-safe** +
+  confirm-with-us disclaimer); owner-confirmed veg/vegan tags + **"Vegan on
+  request"** toggle with a bilingual kitchen note; hero carousel opens the
+  detail modal with warm-paper cards. **iOS hardening:** live WebGL map →
+  desktop-only (fixes menu→homepage OOM); Modal/Drawer bottom sheets clear the
+  status bar via `--sheet-max-h` (dvh + safe-area); swipe-to-close on public
+  pages (`DomMaxProvider` on `PublicShell`); textarea no longer triggers iOS
+  auto-zoom; rolling digits sit on the baseline. **Merged.** All pre-merge
+  auto-review findings fixed (allergen safety, 500-char checkout-notes cap,
+  CTA a11y).
+- **#151** — `allergen-reviewed` tag (restores genuinely-plain dishes like Rice
+  to free-from without claiming safety from absent data) + warm-paper-card
+  favorite polish (`onPaper`) + **13 unit tests** on the allergen fail-safe
+  path. **Merged.**
+- **#152** — Full **allergen audit** from dish descriptions + owner kitchen
+  corrections (DB + seed; 3 DB-only items reconciled into the seed). **Merged.**
 
 - **#143** — Delivery map: device-tier gate (low/mid → animated static coverage
   map, desktop/high → live WebGL) to dodge the iOS WebGL OOM; warm-paper status
