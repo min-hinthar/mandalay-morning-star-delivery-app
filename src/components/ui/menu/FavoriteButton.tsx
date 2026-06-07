@@ -24,6 +24,9 @@ export interface FavoriteButtonProps {
   className?: string;
   /** Aria label override */
   ariaLabel?: string;
+  /** Rendered on a warm-paper (cream) card — darkens the resting heart + drops
+   *  the dark favorited chip so the affordance stays legible on cream. */
+  onPaper?: boolean;
 }
 
 // ============================================
@@ -135,6 +138,7 @@ export function FavoriteButton({
   showBackground = true,
   className,
   ariaLabel,
+  onPaper = false,
 }: FavoriteButtonProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const [showBurst, setShowBurst] = useState(false);
@@ -184,7 +188,9 @@ export function FavoriteButton({
           "bg-surface-primary dark:bg-surface-primary sm:bg-surface-primary/90 sm:dark:bg-surface-primary/90",
           "sm:backdrop-blur-sm",
           "shadow-sm",
-          isFavorite && "bg-red-50 dark:bg-red-950/30",
+          // On cream cards keep the favorited chip light (the dark red can't be
+          // re-skinned by .menu-paper); elsewhere keep the themed dark variant.
+          isFavorite && (onPaper ? "bg-red-50" : "bg-red-50 dark:bg-red-950/30"),
         ],
         "transition-colors duration-150",
         "focus-visible:outline-none focus-visible:ring-2",
@@ -240,7 +246,9 @@ export function FavoriteButton({
               "transition-colors duration-150",
               isFavorite
                 ? "fill-red-500 stroke-red-500"
-                : "fill-transparent stroke-gray-400 hover:stroke-red-400"
+                : onPaper
+                  ? "fill-transparent stroke-hero-ink/55 hover:stroke-red-500"
+                  : "fill-transparent stroke-gray-400 hover:stroke-red-400"
             )}
             strokeWidth={2}
           />

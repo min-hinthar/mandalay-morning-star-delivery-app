@@ -311,7 +311,7 @@ items:
     base_price_cents: 300
     is_active: true
     is_sold_out: false
-    tags: ["vegan"]
+    tags: ["vegan", "allergen-reviewed"]
     allergens: []
     modifier_group_slugs: []
 
@@ -323,7 +323,19 @@ items:
     base_price_cents: 200
     is_active: true
     is_sold_out: false
-    tags: ["vegan"]
+    tags: ["vegan", "allergen-reviewed"]
+    allergens: []
+    modifier_group_slugs: []
+
+  - slug: peas-steamed
+    category_slug: sides
+    name_en: "Peas Steamed"
+    name_my: "ပဲပြုတ် (စားတော်ပဲ)"
+    description_en: "Slow-steamed Burmese brown peas, a quintessential Burmese breakfast side."
+    base_price_cents: 500
+    is_active: true
+    is_sold_out: false
+    tags: ["vegan", "allergen-reviewed"]
     allergens: []
     modifier_group_slugs: []
 
@@ -762,8 +774,8 @@ items:
     base_price_cents: 650
     is_active: true
     is_sold_out: false
-    tags: ["vegan"]
-    allergens: []
+    tags: []
+    allergens: ["dairy"]
     modifier_group_slugs: []
     # Added Mar 2026 — found on DoorDash/UberEats platforms, absent from app
 
