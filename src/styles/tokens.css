@@ -170,13 +170,14 @@
   --menu-gold: #eaa92f; /* category-tab pill (theme-independent) */
   --menu-clay: #d97757;
 
-  /* Active category pill — INVERTED tone of the bar so it always pops.
-     Light bar (#fff): a deep espresso pill w/ cream label + gold ring. */
-  --menu-tab-active-from: #241c17; /* espresso */
-  --menu-tab-active-to: #38291f; /* lifted espresso (gradient top) */
-  --menu-tab-active-ink: #fbf4e8; /* cream label */
-  --menu-tab-active-ring: rgba(234, 169, 47, 0.65); /* gold ring */
-  --menu-tab-active-glow: rgba(36, 28, 23, 0.34); /* dark soft shadow */
+  /* Active category pill — HERO MAGENTA (the homepage sunset signature), so it
+     reads as the brand "selected" accent and pops hard on the warm bar.
+     Light: deep crimson→clay; warm-white label; magenta glow + cream ring. */
+  --menu-tab-active-from: #a41034; /* hero magenta (crimson) */
+  --menu-tab-active-to: #c2533f; /* magenta→clay blend */
+  --menu-tab-active-ink: #fff5ef; /* warm-white label */
+  --menu-tab-active-ring: rgba(255, 240, 220, 0.55); /* warm cream ring */
+  --menu-tab-active-glow: rgba(164, 16, 52, 0.5); /* magenta glow */
   --menu-texture-dot: rgba(20, 20, 19, 0.1); /* dark dots on the light section overlay */
   --menu-texture-line: rgba(20, 20, 19, 0.05);
   --menu-modal-accent: #9a3412; /* detail-modal price/accent — deep clay (AA on white) */
@@ -721,13 +722,13 @@
   --menu-card-cta-bg: #9a3412; /* deep clay CTA */
   --menu-card-cta-ink: #fdfcf9; /* warm-white label on clay */
 
-  /* Active category pill — INVERTED tone of the bar so it always pops.
-     Dark bar (#1a1a1a): a bright gold→clay lit pill w/ dark label + cream ring. */
-  --menu-tab-active-from: #eaa92f; /* gold */
-  --menu-tab-active-to: #d97757; /* clay */
-  --menu-tab-active-ink: #241a12; /* dark label */
-  --menu-tab-active-ring: rgba(255, 244, 224, 0.72); /* cream ring */
-  --menu-tab-active-glow: rgba(234, 169, 47, 0.55); /* warm gold glow */
+  /* Active category pill — HERO MAGENTA (brighter on the dark bar so it pops).
+     Bright magenta→clay; warm-white label; magenta glow + cream ring. */
+  --menu-tab-active-from: #c41844; /* brighter hero magenta */
+  --menu-tab-active-to: #d65f4e; /* magenta→clay blend */
+  --menu-tab-active-ink: #fff5ef; /* warm-white label */
+  --menu-tab-active-ring: rgba(255, 240, 220, 0.62); /* warm cream ring */
+  --menu-tab-active-glow: rgba(196, 24, 68, 0.55); /* magenta glow */
   --menu-texture-dot: rgba(246, 241, 233, 0.08); /* light dots on the dark section overlay */
   --menu-texture-line: rgba(246, 241, 233, 0.045);
   --menu-modal-accent: #f0b357; /* detail-modal price/accent — amber (AA on dark) */

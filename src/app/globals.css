@@ -516,30 +516,42 @@
     box-shadow: 0 6px 20px -10px rgba(0, 0, 0, 0.35);
   }
 
-  /* Menu PAGE background — a warm, hero-like layered wash (sunset clay/gold +
-     a cool slate counter-glow) over the base page color, anchored to the top
-     so the page reads as the homepage hero's "warm paper on sunset" surface
-     rather than a flat fill. Mobile-safe: radial-gradients only (NO blur /
-     backdrop-filter), so it adds zero GPU buffer cost. Cards/bars still pop
-     because the wash is low-alpha and the surfaces stay opaque/elevated. */
+  /* Menu PAGE background — the homepage hero's MAGENTA SUNSET, brought to the
+     menu: a deep magenta horizon glow at the top, a magenta→transparent band
+     that bleeds down behind the sticky bars + first rows, and the triad
+     (clay / blue / sage) counter-glows — the "warm paper floating on sunset"
+     read instead of a flat fill. The bars/cards stay opaque + elevated so they
+     pop ON the sunset. Mobile-safe: radial/linear gradients only (NO blur /
+     backdrop-filter), zero GPU buffer cost. */
   .menu-page-bg {
     background-color: var(--color-background);
     background-image:
+      /* Sunset horizon glow at the very top — magenta core → clay falloff */
       radial-gradient(
-        125% 62% at 50% -10%,
-        color-mix(in srgb, var(--menu-clay) 15%, transparent),
-        transparent 60%
+        115% 58% at 50% -8%,
+        color-mix(in srgb, var(--hero-gradient-start) 52%, transparent) 0%,
+        color-mix(in srgb, var(--menu-clay) 26%, transparent) 36%,
+        transparent 70%
       ),
-      radial-gradient(
-        80% 48% at 100% 2%,
-        color-mix(in srgb, var(--menu-gold) 12%, transparent),
-        transparent 58%
-      ),
-      radial-gradient(
-        78% 46% at 0% 6%,
-        color-mix(in srgb, var(--hero-blue) 8%, transparent),
-        transparent 60%
-      );
+      /* Magenta band bleeding down behind the masthead + first rows */
+        linear-gradient(
+          180deg,
+          color-mix(in srgb, var(--hero-gradient-start) 30%, transparent) 0%,
+          color-mix(in srgb, var(--hero-gradient-mid) 12%, transparent) 22%,
+          transparent 46%
+        ),
+      /* Slate-blue counter-glow, upper right (triad) */
+        radial-gradient(
+          62% 42% at 100% 6%,
+          color-mix(in srgb, var(--hero-blue) 16%, transparent),
+          transparent 60%
+        ),
+      /* Sage counter-glow, upper left (triad) */
+        radial-gradient(
+          58% 40% at 0% 12%,
+          color-mix(in srgb, var(--hero-sage) 13%, transparent),
+          transparent 60%
+        );
     background-repeat: no-repeat;
   }
 
@@ -668,11 +680,12 @@
     }
   }
 
-  /* Menu category-tab active indicator — INVERTED tone of the bar so it always
-     pops in BOTH themes (deep espresso pill on the light/white bar; bright
-     gold→clay lit pill on the dark bar). Crisp accent ring + soft drop glow +
-     top sheen; sits behind the label (label color flips via
-     .menu-tab-active-label). */
+  /* Menu category-tab active indicator — HERO MAGENTA (the homepage sunset
+     signature): a vivid magenta→clay pill that reads as the brand "selected"
+     accent and pops hard on the warm bar in BOTH themes (deep crimson on the
+     light bar, brighter magenta on the dark bar — via theme-tuned tokens).
+     Crisp cream ring + magenta drop glow + top sheen; sits behind the label
+     (warm-white via .menu-tab-active-label). */
   .menu-tab-indicator {
     position: relative;
     overflow: hidden;
