@@ -260,6 +260,13 @@ export function ItemDetailSheet({
   // the 500-char checkout cap.
   const notesLimit = userNotesBudget(veganizable && makeVegan);
 
+  // Re-clamp existing notes when the budget shrinks (e.g. "Make it vegan"
+  // toggled on after a long note) so the counter stays truthful and we don't
+  // silently drop the user's trailing text inside composeNotes.
+  useEffect(() => {
+    setNotes((n) => (n.length > notesLimit ? n.slice(0, notesLimit) : n));
+  }, [notesLimit]);
+
   const handleAddToCart = useCallback(() => {
     if (!item || !onAddToCart) return;
     onAddToCart(item, selectedModifiers, quantity, finalNotes);
