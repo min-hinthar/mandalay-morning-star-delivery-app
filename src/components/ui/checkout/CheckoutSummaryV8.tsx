@@ -108,7 +108,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                 <m.li
                   key={item.cartItemId}
                   variants={shouldAnimate ? staggerItem : undefined}
-                  className="flex justify-between text-sm"
+                  className="-mx-2 flex justify-between rounded-lg px-2 py-0.5 text-sm transition-colors hover:bg-hero-clay/[0.07]"
                 >
                   <div className="min-w-0 flex-1 pr-3">
                     <div className="flex items-center gap-1.5">
@@ -181,12 +181,9 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                       {formatPrice(amountToFreeDelivery)} more for free delivery
                     </span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-hero-line/60">
+                  <div className="h-2 overflow-hidden rounded-full bg-hero-ink/10">
                     <m.div
-                      className="h-full rounded-full"
-                      style={{
-                        background: "linear-gradient(90deg, var(--hero-sage), var(--hero-clay))",
-                      }}
+                      className="checkout-progress-fill h-full rounded-full"
                       initial={{ width: 0 }}
                       animate={{ width: `${progressPercent}%` }}
                       transition={getSpring(spring.rubbery)}

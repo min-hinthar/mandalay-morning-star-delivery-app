@@ -1018,17 +1018,54 @@
     }
   }
 
-  /* Warm, theme-independent checkout canvas. The "After Dark" palette is
-     warm cream paper floating on a soft sunset — the hero tokens (ink, cream)
-     are fixed regardless of theme, so on a dark `bg-background` the ink text +
-     cream cards meld. This canvas keeps checkout in its intended warm light in
-     BOTH themes: cream base + triad sunset glows (radial falloff, no blur). */
+  /* Theme-aware checkout canvas. The "After Dark" identity is warm cream paper
+     cards that POP against their surround. Light = warm oat sunset; Dark = deep
+     espresso with sunset embers — the cream cards glow on it. Elements directly
+     on the canvas (masthead, stepper labels) read --ck-* (theme-flipped); card
+     interiors keep the fixed hero ink (cards are cream in BOTH themes). Radial
+     glows only (no blur — iOS GPU budget). */
   .checkout-canvas {
+    --ck-ink: #1a1713;
+    --ck-ink-muted: rgba(26, 23, 19, 0.66);
+    --ck-line: rgba(26, 23, 19, 0.14);
+    --ck-accent: #9a3412;
+
     background:
-      radial-gradient(125% 70% at 50% -12%, rgba(217, 119, 87, 0.2), transparent 56%),
-      radial-gradient(95% 60% at 90% -2%, rgba(106, 155, 204, 0.15), transparent 55%),
-      radial-gradient(85% 55% at 4% 4%, rgba(120, 140, 93, 0.14), transparent 56%),
-      linear-gradient(180deg, #faf9f5 0%, #f5f2ec 58%, #efe9df 100%);
+      radial-gradient(125% 70% at 50% -12%, rgba(217, 119, 87, 0.18), transparent 56%),
+      radial-gradient(95% 60% at 90% -2%, rgba(106, 155, 204, 0.14), transparent 55%),
+      radial-gradient(85% 55% at 4% 4%, rgba(120, 140, 93, 0.13), transparent 56%),
+      linear-gradient(180deg, #f1ebdf 0%, #ece4d4 58%, #e5dcc9 100%);
+    color: var(--ck-ink);
+  }
+
+  .dark .checkout-canvas {
+    --ck-ink: #f3ecdf;
+    --ck-ink-muted: rgba(243, 236, 223, 0.64);
+    --ck-line: rgba(243, 236, 223, 0.16);
+    --ck-accent: #e6936b;
+
+    background:
+      radial-gradient(125% 72% at 50% -14%, rgba(217, 119, 87, 0.26), transparent 56%),
+      radial-gradient(95% 60% at 90% -2%, rgba(106, 155, 204, 0.14), transparent 55%),
+      radial-gradient(85% 58% at 2% 2%, rgba(120, 140, 93, 0.14), transparent 56%),
+      linear-gradient(180deg, #1c1813 0%, #191409 55%, #140f0a 100%);
+  }
+
+  /* On-canvas text/hairline helpers (theme-flipped via --ck-*). */
+  .checkout-ink {
+    color: var(--ck-ink);
+  }
+  .checkout-ink-muted {
+    color: var(--ck-ink-muted);
+  }
+  .checkout-accent {
+    color: var(--ck-accent);
+  }
+  .checkout-hairline {
+    background-color: var(--ck-line);
+  }
+  .checkout-hairline-border {
+    border-color: var(--ck-line);
   }
 
   /* Lively breathing aura for the step card — a drifting triad radial that
@@ -1044,6 +1081,28 @@
   @media (prefers-reduced-motion: no-preference) {
     .checkout-card-aura {
       animation: checkout-aura-breathe 9s ease-in-out infinite;
+    }
+  }
+
+  /* Journey-rail node glows (token-enforced shadows can't take arbitrary JSX). */
+  .checkout-node-active {
+    box-shadow: 0 6px 18px rgba(217, 119, 87, 0.45);
+  }
+  .checkout-node-done {
+    box-shadow: 0 4px 12px rgba(154, 52, 18, 0.32);
+  }
+
+  /* Journey-rail progress fill — vivid clay→amber→sage with a flowing shimmer
+     and a warm glow. Width is animated by Framer; this is the paint. */
+  .checkout-progress-fill {
+    background: linear-gradient(90deg, var(--hero-clay), #e7a866, var(--hero-sage));
+    background-size: 200% 100%;
+    box-shadow: 0 0 10px rgba(217, 119, 87, 0.55);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .checkout-progress-fill {
+      animation: checkout-progress-flow 3s ease-in-out infinite;
     }
   }
 
@@ -1628,6 +1687,17 @@
 
 /* Step-card top rail — slow triad drift */
 @keyframes checkout-rail-drift {
+  0%,
+  100% {
+    background-position: 0% 0;
+  }
+  50% {
+    background-position: 100% 0;
+  }
+}
+
+/* Journey-rail progress shimmer flow */
+@keyframes checkout-progress-flow {
   0%,
   100% {
     background-position: 0% 0;

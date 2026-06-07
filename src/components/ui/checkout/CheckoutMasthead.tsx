@@ -40,10 +40,10 @@ export function CheckoutMasthead({ step, className }: CheckoutMastheadProps) {
   return (
     <header className={className}>
       {/* Kicker — sunburst + tracked label, bilingual */}
-      <div className="flex items-center gap-2.5 text-hero-accent">
+      <div className="checkout-accent flex items-center gap-2.5">
         <HeroSunburst className="h-4 w-4" rays={8} />
         <span className="font-body text-2xs font-bold uppercase tracking-[0.22em]">Checkout</span>
-        <span aria-hidden="true" className="text-hero-line">
+        <span aria-hidden="true" className="checkout-ink-muted opacity-50">
           ·
         </span>
         <span className="font-burmese text-2xs font-semibold tracking-wide" lang="my">
@@ -52,16 +52,16 @@ export function CheckoutMasthead({ step, className }: CheckoutMastheadProps) {
       </div>
 
       {/* Hairline rule */}
-      <div className="mt-3 h-px w-full bg-hero-line" />
+      <div className="checkout-hairline mt-3 h-px w-full" />
 
       {/* Headline — Fraunces, ink, clay italic accent */}
-      <h1 className="mt-3 font-display text-3xl font-semibold leading-[1.05] tracking-tight text-hero-ink sm:text-4xl">
-        {copy.lead} <span className="italic text-hero-accent">{copy.accent}</span>
-        <span className="text-hero-accent">.</span>
+      <h1 className="checkout-ink mt-3 font-display text-3xl font-semibold leading-[1.05] tracking-tight sm:text-4xl">
+        {copy.lead} <span className="checkout-accent italic">{copy.accent}</span>
+        <span className="checkout-accent">.</span>
       </h1>
 
       {/* Bilingual subhead */}
-      <p className="mt-1.5 font-burmese text-sm text-hero-ink-muted" lang="my">
+      <p className="checkout-ink-muted mt-1.5 font-burmese text-sm" lang="my">
         {copy.my}
       </p>
     </header>

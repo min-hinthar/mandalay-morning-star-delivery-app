@@ -20,7 +20,7 @@ function AnimatedCheckmark({ shouldAnimate }: { shouldAnimate: boolean }) {
       strokeWidth="3"
       strokeLinecap="round"
       strokeLinejoin="round"
-      className="h-4 w-4"
+      className="h-[18px] w-[18px]"
       aria-hidden="true"
     >
       <m.path
@@ -28,7 +28,7 @@ function AnimatedCheckmark({ shouldAnimate }: { shouldAnimate: boolean }) {
         initial={shouldAnimate ? { pathLength: 0, opacity: 0 } : undefined}
         animate={shouldAnimate ? { pathLength: 1, opacity: 1 } : undefined}
         transition={{
-          pathLength: { duration: 0.3, ease: "easeOut" },
+          pathLength: { duration: 0.32, ease: "easeOut" },
           opacity: { duration: 0.1 },
         }}
       />
@@ -49,7 +49,8 @@ interface StepMeta {
   my: string;
   icon: typeof MapPin;
   accent: Triad;
-  varName: string;
+  /** Filled-node gradient for the active step. */
+  fill: string;
 }
 
 /**
@@ -57,25 +58,63 @@ interface StepMeta {
  * sage (Anthropic's own guideline for non-text shapes).
  */
 const STEP_CONFIG: Record<CheckoutStep, StepMeta> = {
-  address: { label: "Address", my: "လိပ်စာ", icon: MapPin, accent: "clay", varName: "--hero-clay" },
-  time: { label: "Time", my: "အချိန်", icon: Clock, accent: "blue", varName: "--hero-blue" },
-  payment: { label: "Pay", my: "ငွေပေး", icon: CreditCard, accent: "sage", varName: "--hero-sage" },
+  address: {
+    label: "Address",
+    my: "လိပ်စာ",
+    icon: MapPin,
+    accent: "clay",
+    fill: "linear-gradient(135deg, var(--hero-clay), var(--hero-accent-strong))",
+  },
+  time: {
+    label: "Time",
+    my: "အချိန်",
+    icon: Clock,
+    accent: "blue",
+    fill: "linear-gradient(135deg, var(--hero-blue), #4d7cb0)",
+  },
+  payment: {
+    label: "Pay",
+    my: "ငွေပေး",
+    icon: CreditCard,
+    accent: "sage",
+    fill: "linear-gradient(135deg, var(--hero-sage), #5d7343)",
+  },
 };
 
-const ACCENT_TEXT: Record<Triad, string> = {
-  clay: "text-hero-clay",
-  blue: "text-hero-blue",
-  sage: "text-hero-sage",
+const ACCENT_VAR: Record<Triad, string> = {
+  clay: "--hero-clay",
+  blue: "--hero-blue",
+  sage: "--hero-sage",
 };
+
+/** A single connector segment that fills with the flowing progress gradient. */
+function Connector({
+  filled,
+  getSpring,
+}: {
+  filled: boolean;
+  getSpring: ReturnType<typeof useAnimationPreference>["getSpring"];
+}) {
+  return (
+    <div className="checkout-hairline relative mx-0.5 h-[3px] flex-1 overflow-hidden rounded-full">
+      <m.div
+        className="checkout-progress-fill h-full rounded-full"
+        initial={{ width: 0 }}
+        animate={{ width: filled ? "100%" : "0%" }}
+        transition={getSpring(spring.rubbery)}
+      />
+    </div>
+  );
+}
 
 /**
  * Checkout "After Dark" journey rail.
  *
- * A warm-paper progress rail: triad-cycling nodes (clay → blue → sage), a
- * connector that draws on with a gradient as you advance, a soft radial halo
- * (no blur — iOS GPU budget) on the active node, and a drawn checkmark on
- * completed steps. Completed nodes are clickable (back-navigation only).
- * 44px tap targets, bilingual labels, reduced-motion safe.
+ * Filled triad nodes (clay → blue → sage) — current node is a glowing gradient
+ * coin with a pulsing radial halo + animated icon; completed nodes are filled
+ * with a drawn check (clickable, back-nav only); upcoming nodes are faint
+ * outlines. The connector is a vivid clay→amber→sage progress bar with a
+ * flowing shimmer + glow. Theme-aware labels, 44px taps, reduced-motion safe.
  */
 export function CheckoutStepperV8({ currentStep, onStepClick, className }: CheckoutStepperV8Props) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
@@ -95,36 +134,22 @@ export function CheckoutStepperV8({ currentStep, onStepClick, className }: Check
           return (
             <li key={step} className="flex flex-1 flex-col items-center">
               <div className="flex w-full items-center">
-                {/* Connector — left side, fills with a triad gradient */}
-                {index > 0 && (
-                  <div className="relative h-[3px] flex-1 overflow-hidden rounded-full bg-hero-line/60">
-                    <m.div
-                      className="h-full rounded-full"
-                      style={{
-                        background:
-                          "linear-gradient(90deg, var(--hero-clay), var(--hero-blue), var(--hero-sage))",
-                      }}
-                      initial={{ width: 0 }}
-                      animate={{ width: isDone ? "100%" : "0%" }}
-                      transition={getSpring(spring.rubbery)}
-                    />
-                  </div>
-                )}
+                {index > 0 && <Connector filled={isDone} getSpring={getSpring} />}
 
                 {/* Node */}
-                <div className="relative">
+                <div className="relative shrink-0">
                   {/* Active halo — radial-gradient falloff (no blur) */}
                   {isCurrent && shouldAnimate && (
                     <m.span
                       aria-hidden="true"
-                      className="absolute -inset-2 rounded-full"
+                      className="absolute -inset-2.5 rounded-full"
                       style={
                         {
-                          background: `radial-gradient(circle, var(${meta.varName}) 0%, transparent 68%)`,
+                          background: `radial-gradient(circle, var(${ACCENT_VAR[meta.accent]}) 0%, transparent 68%)`,
                         } as CSSProperties
                       }
-                      initial={{ opacity: 0.25, scale: 0.9 }}
-                      animate={{ opacity: [0.28, 0.12, 0.28], scale: [0.95, 1.12, 0.95] }}
+                      initial={{ opacity: 0.3, scale: 0.9 }}
+                      animate={{ opacity: [0.32, 0.14, 0.32], scale: [0.95, 1.18, 0.95] }}
                       transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut" }}
                     />
                   )}
@@ -133,53 +158,47 @@ export function CheckoutStepperV8({ currentStep, onStepClick, className }: Check
                     type="button"
                     onClick={() => isClickable && onStepClick?.(step)}
                     disabled={!isClickable}
-                    whileHover={shouldAnimate && isClickable ? { scale: 1.08 } : undefined}
+                    initial={shouldAnimate ? { scale: 0.6, opacity: 0 } : undefined}
+                    animate={
+                      shouldAnimate ? { scale: isCurrent ? 1.08 : 1, opacity: 1 } : undefined
+                    }
+                    whileHover={shouldAnimate && isClickable ? { scale: 1.14 } : undefined}
                     whileTap={shouldAnimate && isClickable ? { scale: 0.94 } : undefined}
-                    transition={getSpring(spring.snappy)}
+                    transition={getSpring(spring.ultraBouncy)}
+                    style={isDone ? ({ backgroundImage: meta.fill } as CSSProperties) : undefined}
                     className={cn(
                       "relative flex h-11 w-11 items-center justify-center rounded-full",
-                      "font-body text-sm font-bold transition-colors duration-200",
+                      "transition-shadow duration-200",
                       "focus:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent focus-visible:ring-offset-2",
-                      isCompleted &&
-                        "cursor-pointer border border-hero-line bg-hero-card text-hero-accent shadow-sm",
-                      isCurrent && "border-2 border-hero-accent/40 bg-hero-card shadow-md",
-                      !isDone && "border border-hero-line bg-hero-card/70 text-hero-ink-muted"
+                      isCurrent && "checkout-node-active",
+                      isCompleted && "checkout-node-done cursor-pointer",
+                      !isDone && "checkout-hairline-border border bg-transparent"
                     )}
                     aria-current={isCurrent ? "step" : undefined}
-                    aria-label={`${meta.label}${isCompleted ? " (completed)" : ""}`}
+                    aria-label={`${meta.label}${isCompleted ? " (completed)" : isCurrent ? " (current)" : ""}`}
                   >
                     {isCompleted ? (
-                      <m.span
-                        className="text-hero-accent"
-                        initial={shouldAnimate ? { scale: 0, rotate: -90 } : undefined}
-                        animate={shouldAnimate ? { scale: 1, rotate: 0 } : undefined}
-                        transition={getSpring(spring.ultraBouncy)}
-                      >
+                      <span className="text-hero-card">
                         <AnimatedCheckmark shouldAnimate={shouldAnimate} />
+                      </span>
+                    ) : isCurrent ? (
+                      <m.span
+                        className="text-hero-card"
+                        animate={
+                          shouldAnimate ? { y: [0, -1.5, 0], rotate: [0, -4, 4, 0] } : undefined
+                        }
+                        transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                      >
+                        <Icon className="h-[19px] w-[19px]" aria-hidden="true" strokeWidth={2.4} />
                       </m.span>
                     ) : (
-                      <Icon
-                        className={cn("h-[18px] w-[18px]", isCurrent && ACCENT_TEXT[meta.accent])}
-                        aria-hidden="true"
-                      />
+                      <Icon className="checkout-ink-muted h-[18px] w-[18px]" aria-hidden="true" />
                     )}
                   </m.button>
                 </div>
 
-                {/* Connector — right side */}
                 {index < CHECKOUT_STEPS.length - 1 && (
-                  <div className="relative h-[3px] flex-1 overflow-hidden rounded-full bg-hero-line/60">
-                    <m.div
-                      className="h-full rounded-full"
-                      style={{
-                        background:
-                          "linear-gradient(90deg, var(--hero-clay), var(--hero-blue), var(--hero-sage))",
-                      }}
-                      initial={{ width: 0 }}
-                      animate={{ width: isCompleted ? "100%" : "0%" }}
-                      transition={getSpring(spring.rubbery)}
-                    />
-                  </div>
+                  <Connector filled={isCompleted} getSpring={getSpring} />
                 )}
               </div>
 
@@ -189,8 +208,8 @@ export function CheckoutStepperV8({ currentStep, onStepClick, className }: Check
                 animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
                 transition={{ delay: index * 0.08, ...getSpring(spring.gentle) }}
                 className={cn(
-                  "mt-2 flex flex-col items-center gap-0.5 text-center transition-colors duration-200",
-                  isCurrent ? "text-hero-ink" : "text-hero-ink-muted"
+                  "mt-2.5 flex flex-col items-center gap-0.5 text-center transition-opacity",
+                  isCurrent ? "checkout-ink opacity-100" : "checkout-ink-muted"
                 )}
               >
                 <span className="font-body text-2xs font-bold uppercase tracking-wider">

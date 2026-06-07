@@ -105,7 +105,7 @@ export function CheckoutPreviewClient() {
       <div className="relative mx-auto max-w-4xl px-4 py-6 sm:py-8">
         {/* Non-prod review banner + step jumper */}
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-hero-clay/30 bg-hero-clay/10 px-4 py-2.5">
-          <p className="text-xs font-semibold text-hero-ink">
+          <p className="checkout-ink text-xs font-semibold">
             Non-production preview · mock cart · no login
           </p>
           <div className="flex items-center gap-1 rounded-full border border-hero-line bg-hero-card/70 p-1">
