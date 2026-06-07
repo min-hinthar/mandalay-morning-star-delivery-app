@@ -277,8 +277,8 @@ export const CategoryTabs = memo(function CategoryTabs({
                 "font-body text-sm font-semibold",
                 "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 isActive
-                  ? // Label flips cream↔ink to stay AA on the INVERTED active
-                    // pill (espresso on the light bar, gold→clay on the dark bar)
+                  ? // Warm-white label on the hero-magenta→clay active pill
+                    // (the indicator div), kept AA in both themes
                     "menu-tab-active-label"
                   : // Inactive = clean editorial text tab (no chrome), so the
                     // bold inverted active pill is unmistakable — max figure/

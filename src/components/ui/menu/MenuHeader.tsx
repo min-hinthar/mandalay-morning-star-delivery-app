@@ -91,8 +91,10 @@ export function MenuHeader({
       ref={headerRef}
       className={cn(
         "sticky top-0 z-20",
-        // Elevated warm surface so the bar floats above the page (no meld)
-        "menu-bar sm:backdrop-blur-lg"
+        // Elevated warm surface so the bar floats above the page (no meld).
+        // No backdrop-blur: .menu-bar is fully opaque (surface-elevated base),
+        // so a blur would just burn a GPU buffer for zero visible effect.
+        "menu-bar"
       )}
     >
       {/* Top row: title + search + cart — always visible */}

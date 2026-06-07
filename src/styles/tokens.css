@@ -174,7 +174,7 @@
      reads as the brand "selected" accent and pops hard on the warm bar.
      Light: deep crimson→clay; warm-white label; magenta glow + cream ring. */
   --menu-tab-active-from: #a41034; /* hero magenta (crimson) */
-  --menu-tab-active-to: #c2533f; /* magenta→clay blend */
+  --menu-tab-active-to: #b84a37; /* deep clay — keeps #fff5ef label AA (4.8:1) */
   --menu-tab-active-ink: #fff5ef; /* warm-white label */
   --menu-tab-active-ring: rgba(255, 240, 220, 0.55); /* warm cream ring */
   --menu-tab-active-glow: rgba(164, 16, 52, 0.5); /* magenta glow */
@@ -725,7 +725,7 @@
   /* Active category pill — HERO MAGENTA (brighter on the dark bar so it pops).
      Bright magenta→clay; warm-white label; magenta glow + cream ring. */
   --menu-tab-active-from: #c41844; /* brighter hero magenta */
-  --menu-tab-active-to: #d65f4e; /* magenta→clay blend */
+  --menu-tab-active-to: #b84a37; /* deep clay — keeps #fff5ef label AA (4.8:1) */
   --menu-tab-active-ink: #fff5ef; /* warm-white label */
   --menu-tab-active-ring: rgba(255, 240, 220, 0.62); /* warm cream ring */
   --menu-tab-active-glow: rgba(196, 24, 68, 0.55); /* magenta glow */
