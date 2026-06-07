@@ -411,6 +411,11 @@
   --header-height: 64px;
   --offline-banner-height: 0px; /* Set by OfflineIndicator when showing */
 
+  /* Mobile bottom-sheet ceiling: dvh (not vh — iOS vh hides behind the toolbar/
+     notch and clips the sheet top) minus the top safe-area, so Modal/Drawer
+     sheets always clear the status bar cleanly. */
+  --sheet-max-h: calc(100dvh - env(safe-area-inset-top) - 1rem);
+
   /* Live header height (published by MenuHeader) + offline banner, so sticky
      CategoryTabs always clears the full header incl. the dietary chips row. */
   --tabs-offset: calc(var(--menu-header-height, 64px) + var(--offline-banner-height, 0px));
