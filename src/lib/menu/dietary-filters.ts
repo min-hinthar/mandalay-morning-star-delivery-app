@@ -109,7 +109,8 @@ export function itemMatchesDietaryFilter(item: MenuItem, def: DietaryFilterDef):
     const declared = item.allergens.map((a) => a.toLowerCase());
     // Fail-safe: undeclared allergens = UNKNOWN → excluded, UNLESS the dish is
     // explicitly allergen-reviewed (audited complete; empty = genuinely none).
-    if (declared.length === 0 && !item.tags.includes(ALLERGEN_REVIEWED_TAG)) return false;
+    const reviewed = item.tags.some((t) => t.toLowerCase() === ALLERGEN_REVIEWED_TAG);
+    if (declared.length === 0 && !reviewed) return false;
     return !(def.excludesAllergens ?? []).some((a) => declared.includes(a));
   }
   const tags = item.tags.map((t) => t.toLowerCase());

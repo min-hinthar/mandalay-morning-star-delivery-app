@@ -327,6 +327,18 @@ items:
     allergens: []
     modifier_group_slugs: []
 
+  - slug: peas-steamed
+    category_slug: sides
+    name_en: "Peas Steamed"
+    name_my: "ပဲပြုတ် (စားတော်ပဲ)"
+    description_en: "Slow-steamed Burmese brown peas, a quintessential Burmese breakfast side."
+    base_price_cents: 500
+    is_active: true
+    is_sold_out: false
+    tags: ["vegan", "allergen-reviewed"]
+    allergens: []
+    modifier_group_slugs: []
+
   - slug: balachaung
     category_slug: sides
     name_en: "Balachaung"
