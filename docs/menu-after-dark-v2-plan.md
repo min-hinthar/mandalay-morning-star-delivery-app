@@ -5,6 +5,27 @@ After Dark theming already in PR #150 (branch `claude/homepage-menu-dark-theme-u
 Built as sequential, individually-verified pushes on the same branch (owner is
 driving this as one continuous effort; harness pins this branch).
 
+## Status (2026-06-07) — shipped in #150/#151/#152
+
+- ✅ **C. Layered dish sheet** — photo-first, un-clipped close, single-scroll
+  layered modifiers, floating glass title plate, live rolling total.
+- ✅ **D. Dietary filters** — allergen-derived **fail-safe** model
+  (`lib/menu/dietary-filters.ts`): empty allergens = _unknown_ → excluded unless
+  tagged `allergen-reviewed`; per-filter counts; "confirm with us" disclaimer.
+- ✅ **Beyond the plan** (owner-driven): **"Vegan on request"** toggle +
+  bilingual kitchen note (`lib/menu/vegan-request.ts`); full **allergen audit**
+  (#152); **iOS hardening** (live map desktop-only, `--sheet-max-h` sheets,
+  swipe-to-close via `DomMaxProvider` on `PublicShell`, no input auto-zoom,
+  baseline rolling digits); hero carousel opens the dish modal; warm-paper cards
+  everywhere.
+- ⏳ **B. Two-pane index rail + filmstrip nav** — NOT built yet.
+- ⏳ **A. ⌘K command palette search** — NOT built yet.
+
+> Next direction (owner): extend "After Dark" to the rest of the **customer
+> surfaces** (checkout first) — see
+> [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md). B and A
+> above remain available menu polish if revisited.
+
 ## Locked decisions (via AskUserQuestion, 2026-06-06)
 
 | Surface        | Direction                                                           |
