@@ -1146,11 +1146,6 @@
     filter: brightness(1.05);
   }
 
-  /* Soft clay glow for selected pills/cards (token shadows reject arbitrary JSX). */
-  .ck-glow-clay {
-    box-shadow: 0 6px 16px rgba(154, 52, 18, 0.2);
-  }
-
   /* Lively breathing aura for the step card — a drifting triad radial that
      slowly pulses. transform/opacity only (60fps, no blur, no filter). */
   .checkout-card-aura {

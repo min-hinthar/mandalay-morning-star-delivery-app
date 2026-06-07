@@ -23,7 +23,7 @@ export function PaymentMethodSelector({ value, onChange, codEnabled }: PaymentMe
           className={cn(
             "flex items-center gap-3 rounded-xl border-2 p-4 transition-colors text-left",
             value === "stripe"
-              ? "border-hero-clay bg-hero-clay/12 ck-glow-clay"
+              ? "border-hero-accent bg-hero-clay/[0.06]"
               : "border-hero-line bg-hero-card hover:border-hero-clay/50"
           )}
         >
@@ -44,7 +44,7 @@ export function PaymentMethodSelector({ value, onChange, codEnabled }: PaymentMe
           className={cn(
             "flex items-center gap-3 rounded-xl border-2 p-4 transition-colors text-left",
             value === "cod"
-              ? "border-hero-clay bg-hero-clay/12 ck-glow-clay"
+              ? "border-hero-accent bg-hero-clay/[0.06]"
               : "border-hero-line bg-hero-card hover:border-hero-clay/50"
           )}
         >

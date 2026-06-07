@@ -54,11 +54,6 @@ export function DatePill({ date, isSelected, onSelect, index, weekOffset }: Date
       transition={{ ...getSpring(spring.rubbery), delay: index * 0.05 }}
       whileHover={shouldAnimate && !date.cutoffPassed ? { scale: 1.05, y: -4 } : undefined}
       whileTap={shouldAnimate && !date.cutoffPassed ? { scale: 0.95 } : undefined}
-      style={
-        isSelected
-          ? { backgroundImage: "linear-gradient(135deg, var(--hero-clay), var(--hero-accent))" }
-          : undefined
-      }
       className={cn(
         "relative flex-shrink-0 w-20 py-4 px-2 rounded-2xl",
         "flex flex-col items-center gap-1",
@@ -66,7 +61,7 @@ export function DatePill({ date, isSelected, onSelect, index, weekOffset }: Date
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent focus-visible:ring-offset-2",
         "transform-gpu will-change-transform",
         isSelected
-          ? "border-hero-clay text-hero-card ck-glow-clay"
+          ? "border-hero-accent bg-hero-accent text-hero-card shadow-sm"
           : date.cutoffPassed
             ? "border-hero-line bg-hero-card/60 text-hero-ink-muted cursor-not-allowed opacity-50"
             : "border-hero-line bg-hero-card text-hero-ink hover:border-hero-clay/60"

@@ -70,7 +70,7 @@ export function AddressCardV8({
         "border-2 transition-colors",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent focus-visible:ring-offset-2",
         isSelected
-          ? "border-hero-clay bg-hero-clay/12 ck-glow-clay"
+          ? "border-hero-accent bg-hero-clay/[0.05]"
           : "border-hero-line bg-hero-card hover:border-hero-clay/50"
       )}
     >
@@ -89,7 +89,7 @@ export function AddressCardV8({
               }
         }
         transition={getSpring(spring.ultraBouncy)}
-        className="absolute top-3 right-3 w-6 h-6 rounded-full bg-hero-accent flex items-center justify-center ck-glow-clay"
+        className="absolute top-3 right-3 w-6 h-6 rounded-full bg-hero-accent flex items-center justify-center shadow-sm"
       >
         <Check className="w-4 h-4 text-hero-card" strokeWidth={3} />
       </m.div>

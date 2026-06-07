@@ -90,18 +90,10 @@ export function TipSelector({ subtotalCents, className }: TipSelectorProps) {
               key={percent}
               type="button"
               onClick={() => handlePresetClick(percent)}
-              style={
-                isSelected
-                  ? {
-                      backgroundImage:
-                        "linear-gradient(135deg, var(--hero-clay), var(--hero-accent))",
-                    }
-                  : undefined
-              }
               className={cn(
-                "flex flex-col items-center justify-center rounded-lg border px-2 py-2.5 transition-colors",
+                "flex flex-col items-center justify-center rounded-lg border-2 px-2 py-2.5 transition-colors",
                 isSelected
-                  ? "border-hero-clay text-hero-card ck-glow-clay"
+                  ? "border-hero-accent bg-hero-accent text-hero-card shadow-sm"
                   : "border-hero-line bg-hero-card text-hero-ink hover:border-hero-clay/60"
               )}
             >
@@ -118,17 +110,10 @@ export function TipSelector({ subtotalCents, className }: TipSelectorProps) {
         <button
           type="button"
           onClick={handleCustomClick}
-          style={
-            isCustom
-              ? {
-                  backgroundImage: "linear-gradient(135deg, var(--hero-clay), var(--hero-accent))",
-                }
-              : undefined
-          }
           className={cn(
-            "flex flex-col items-center justify-center rounded-lg border px-2 py-2.5 transition-colors",
+            "flex flex-col items-center justify-center rounded-lg border-2 px-2 py-2.5 transition-colors",
             isCustom
-              ? "border-hero-clay text-hero-card ck-glow-clay"
+              ? "border-hero-accent bg-hero-accent text-hero-card shadow-sm"
               : "border-hero-line bg-hero-card text-hero-ink hover:border-hero-clay/60"
           )}
         >
