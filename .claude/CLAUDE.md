@@ -118,12 +118,17 @@ How visual/UX work is actually driven here — learned across the hero sessions:
   includes the preview URL + PR link). Refine against the owner's feedback. Run
   the **adversarial review only once the owner is satisfied, just before merge** —
   not on every push (it wastes cycles mid-iteration).
-- **Always read the Claude auto-review before merging.** The repo runs an
-  automated Claude PR review on every push (`.github/workflows/claude-pr-review.yml`).
-  Before any merge, fetch and read its comments
-  (`pull_request_read` → `get_comments` / `get_reviews` / `get_review_comments`)
-  and **fix or explicitly justify every finding** (it has caught real
-  domMax/bundle gaps and a localStorage-migration bug).
+- **Read the Claude auto-review after EVERY push, not just before merge.** The
+  repo runs an automated Claude PR review on every push
+  (`.github/workflows/claude-pr-review.yml`) — its findings are computed for free,
+  so triage them continuously as a discipline: fetch the comments a minute or two
+  after each push (`pull_request_read` → `get_comments` / `get_reviews` /
+  `get_review_comments`) and **fix or explicitly justify every finding promptly**,
+  rather than letting them pile up to a pre-merge batch. (This differs from the
+  *self-spawned* adversarial subagent review, which stays a once-just-before-merge
+  step to avoid wasting cycles mid-iteration.) The auto-review has caught real
+  bugs: domMax/bundle gaps, a localStorage-migration bug, an allergen
+  free-from-from-absent-data safety hole, and a notes-length checkout reject.
 - **Never self-merge. Merge only on the owner's explicit, per-PR "go".** Open the
   PR, get CI green, surface the auto-review verdict, and ask. Approval of one PR
   is not approval of the next.
