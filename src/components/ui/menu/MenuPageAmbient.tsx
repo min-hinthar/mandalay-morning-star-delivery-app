@@ -1,93 +1,38 @@
-import type { CSSProperties } from "react";
+import Image from "next/image";
+import { MenuTextureBackdrop } from "./MenuTextureBackdrop";
 
 /**
- * MenuPageAmbient — full-viewport Anthropic "warm paper floating on sunset"
- * atmosphere for the menu page, mirroring the homepage hero's maximalist layered
- * depth. Fixed behind the scrolling content (`-z-10`). Layer stack (back→front):
+ * MenuPageAmbient — full-viewport menu-page backdrop, reusing the homepage menu
+ * section's treatment: the warm food photo → an 85% surface overlay for
+ * readability → the layered editorial texture (`MenuTextureBackdrop`:
+ * gradient-masked dot/line grids + triad glow blooms).
  *
- *   magenta sunset sky  (on `.menu-page-bg`, the <main>)
- *     → drifting triad orb blooms (clay / blue / sage / gold)
- *     → dot-grid + line-grid textures
- *     → paper grain
- *     → grounding vignette
+ * Fixed behind the scrolling content (`-z-10`), so the photo stays a pinned
+ * backdrop and the opaque bars/cards float over it. Decorative + a11y-inert.
  *
- * Decorative + a11y-inert (`aria-hidden`, `pointer-events-none`).
- *
- * Mobile-GPU budget (HARD constraint — stacked blur OOM-crashes iOS WebKit):
- * radial-gradient blooms ONLY (no `blur()` / `backdrop-filter`), a cheap masked
- * dot-grid, and a low floating-element count on phones. The heavier line-grid,
- * paper grain, the extra orbs, and ALL orb drift are gated to `md:+`. Drift is
- * CSS + motion-gated, so it's reduced-motion-safe by construction.
+ * Mobile-GPU budget: a single decoded image + radial-gradient glows + cheap
+ * masked grids — NO `blur()` / `backdrop-filter` (the iOS-OOM class). The
+ * heavier line-grid + grain inside `MenuTextureBackdrop` are already gated md:+.
  */
 export function MenuPageAmbient() {
-  const dotMask = "radial-gradient(130% 90% at 50% 0%, #000 30%, transparent 82%)";
-  const lineMask = "radial-gradient(120% 80% at 50% 100%, #000 20%, transparent 84%)";
-
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
-      {/* Triad orb blooms — radial falloff (no blur). Clay + blue render on all
-          viewports (2 cheap gradients); sage + gold are md:+ only. */}
-      <span
-        className="menu-orb menu-orb-drift-a absolute -left-28 -top-20 h-[28rem] w-[28rem]"
-        style={{
-          background:
-            "radial-gradient(circle, color-mix(in srgb, var(--menu-clay) 82%, transparent), transparent 66%)",
-        }}
-      />
-      <span
-        className="menu-orb menu-orb-drift-b absolute -right-24 top-20 h-[26rem] w-[26rem]"
-        style={{
-          background:
-            "radial-gradient(circle, color-mix(in srgb, var(--hero-blue) 72%, transparent), transparent 68%)",
-        }}
-      />
-      <span
-        className="menu-orb menu-orb-drift-c absolute left-1/4 top-[44%] hidden h-[24rem] w-[24rem] md:block"
-        style={{
-          background:
-            "radial-gradient(circle, color-mix(in srgb, var(--hero-sage) 66%, transparent), transparent 70%)",
-        }}
-      />
-      <span
-        className="menu-orb absolute right-[28%] bottom-12 hidden h-80 w-80 md:block"
-        style={{
-          background:
-            "radial-gradient(circle, color-mix(in srgb, var(--menu-gold) 58%, transparent), transparent 70%)",
-        }}
+      {/* Warm food photo — shared with the homepage menu section. */}
+      <Image
+        src="/images/menu-section-bg.webp"
+        alt=""
+        fill
+        sizes="100vw"
+        className="object-cover object-center"
+        quality={85}
+        priority={false}
       />
 
-      {/* Dot-grid — primary texture, all viewports, theme-aware + edge-masked. */}
-      <span
-        className="hero-dotgrid absolute inset-0 opacity-50"
-        style={
-          {
-            "--dot-color": "var(--menu-texture-dot)",
-            "--dot-gap": "22px",
-            "--dot-r": "1px",
-            WebkitMaskImage: dotMask,
-            maskImage: dotMask,
-          } as CSSProperties
-        }
-      />
+      {/* Surface overlay for legibility (matches the homepage section). */}
+      <div className="absolute inset-0 bg-surface-primary/85" />
 
-      {/* Line-grid — fainter cross-hatch, desktop only. */}
-      <span
-        className="hero-linegrid absolute inset-0 hidden opacity-40 md:block"
-        style={
-          {
-            "--line-color": "var(--menu-texture-line)",
-            "--line-gap": "46px",
-            WebkitMaskImage: lineMask,
-            maskImage: lineMask,
-          } as CSSProperties
-        }
-      />
-
-      {/* Paper grain — desktop only, very subtle living texture. */}
-      <span className="hero-paper-grain hero-grain-drift absolute inset-0 hidden opacity-[0.05] md:block" />
-
-      {/* Grounding vignette — pulls the sunset down at the edges. */}
-      <span className="menu-ambient-vignette absolute inset-0" />
+      {/* Layered editorial texture — masked dot/line grids + triad glow blooms. */}
+      <MenuTextureBackdrop />
     </div>
   );
 }

@@ -11,9 +11,9 @@ export default async function MenuPage() {
   const rules = await getBusinessRules();
 
   return (
-    <main className="menu-page-bg relative isolate min-h-screen pb-32">
-      {/* Maximalist Anthropic atmosphere — drifting triad orbs, dot/line grids,
-          grain + vignette over the magenta sunset sky. Mobile-GPU-budgeted. */}
+    <main className="relative isolate min-h-screen bg-background pb-32">
+      {/* Backdrop — shared homepage menu-section treatment: food photo + surface
+          overlay + layered editorial texture. Fixed behind the content. */}
       <MenuPageAmbient />
       <Suspense fallback={<MenuSkeleton />}>
         <MenuContent
