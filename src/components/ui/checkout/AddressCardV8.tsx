@@ -63,7 +63,7 @@ export function AddressCardV8({
       type="button"
       onClick={onSelect}
       whileHover={shouldAnimate ? { scale: 1.02, y: -2 } : undefined}
-      whileTap={shouldAnimate ? { scale: 0.98 } : undefined}
+      whileTap={shouldAnimate ? { scale: 0.98, rotate: -0.6 } : undefined}
       transition={getSpring(spring.snappy)}
       className={cn(
         "relative w-full p-4 rounded-xl text-left",

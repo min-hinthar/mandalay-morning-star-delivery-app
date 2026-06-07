@@ -36,7 +36,7 @@ export function TimeSlotPill({ slot, isSelected, isDisabled, onSelect, index }: 
       animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
       transition={{ ...getSpring(spring.snappy), delay: index * 0.04 }}
       whileHover={shouldAnimate && !isDisabled ? { scale: 1.02 } : undefined}
-      whileTap={shouldAnimate && !isDisabled ? { scale: 0.98 } : undefined}
+      whileTap={shouldAnimate && !isDisabled ? { scale: 0.98, rotate: -1 } : undefined}
       className={cn(
         "relative flex items-center gap-3 px-4 py-3 rounded-xl w-full",
         "border-2 transition-colors duration-200",
