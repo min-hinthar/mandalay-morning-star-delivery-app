@@ -39,7 +39,12 @@ import type { MenuItem, ModifierOption } from "@/types/menu";
 import { AllergenWarning, DiscardChangesDialog } from "./ItemDetailSheet/helpers";
 import { DishHero } from "./ItemDetailSheet/DishHero";
 import { VeganToggle } from "./ItemDetailSheet/VeganToggle";
-import { isVeganizable, composeNotes, splitVeganNote } from "@/lib/menu/vegan-request";
+import {
+  isVeganizable,
+  composeNotes,
+  splitVeganNote,
+  userNotesBudget,
+} from "@/lib/menu/vegan-request";
 
 // ============================================
 // TYPES
@@ -80,8 +85,12 @@ export interface ItemDetailSheetProps {
 function LivePrice({ cents, animate }: { cents: number; animate: boolean }) {
   return (
     <span className="tabular-nums">
-      {"$"}
-      <RollingNumber value={cents / 100} decimals={2} animate={animate} />
+      {/* Real price for the accessible name (rolling digits are aria-hidden) */}
+      <span className="sr-only">${(cents / 100).toFixed(2)}</span>
+      <span aria-hidden="true">
+        {"$"}
+        <RollingNumber value={cents / 100} decimals={2} animate={animate} />
+      </span>
     </span>
   );
 }
@@ -247,6 +256,9 @@ export function ItemDetailSheet({
 
   // Final notes = the kitchen "make vegan" instruction (when toggled) + user text
   const finalNotes = composeNotes(veganizable && makeVegan, notes);
+  // Keep the user's free text within budget so the composed note never trips
+  // the 500-char checkout cap.
+  const notesLimit = userNotesBudget(veganizable && makeVegan);
 
   const handleAddToCart = useCallback(() => {
     if (!item || !onAddToCart) return;
@@ -333,12 +345,14 @@ export function ItemDetailSheet({
             <Textarea
               id="item-notes"
               value={notes}
-              onChange={(e) => setNotes(e.target.value.slice(0, 500))}
+              onChange={(e) => setNotes(e.target.value.slice(0, notesLimit))}
               placeholder="Any special requests? Let us know..."
               rows={3}
               className="resize-none"
             />
-            <p className="text-xs text-text-muted text-right">{notes.length}/500</p>
+            <p className="text-xs text-text-muted text-right">
+              {notes.length}/{notesLimit}
+            </p>
           </div>
 
           {/* Quantity */}

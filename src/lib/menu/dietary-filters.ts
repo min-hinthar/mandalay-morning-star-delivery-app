@@ -5,9 +5,10 @@ import type { MenuItem } from "@/types/menu";
  *
  * Two kinds of filter:
  * - `free-from` — DERIVED from the restaurant's own per-item allergen
- *   declarations (`item.allergens`). Safe + accurate: an item passes when its
- *   declared allergens don't include the excluded one(s). (Empty allergens =
- *   "none declared" per the seed, so it passes.)
+ *   declarations (`item.allergens`). FAIL-SAFE: a dish only matches when it has
+ *   declared allergens AND none is the excluded one. An item with NO declared
+ *   allergens is treated as UNKNOWN (excluded), never as "free-from" — we don't
+ *   assert a medical-grade allergen claim from absent data.
  * - `tag` — matches only items EXPLICITLY tagged (vegetarian/vegan/spicy…).
  *   These are NOT auto-derived; veg/vegan/halal stay hidden until the owner
  *   supplies ground truth (we never fabricate a dietary claim).
@@ -94,6 +95,8 @@ const FILTER_BY_ID = new Map(MENU_DIETARY_FILTERS.map((f) => [f.id, f]));
 /** Does a single item satisfy one dietary filter? */
 export function itemMatchesDietaryFilter(item: MenuItem, def: DietaryFilterDef): boolean {
   if (def.kind === "free-from") {
+    // Fail-safe: no declared allergens = UNKNOWN, not a free-from guarantee.
+    if (item.allergens.length === 0) return false;
     const declared = item.allergens.map((a) => a.toLowerCase());
     return !(def.excludesAllergens ?? []).some((a) => declared.includes(a));
   }
