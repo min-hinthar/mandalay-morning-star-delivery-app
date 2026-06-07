@@ -140,10 +140,11 @@ How visual/UX work is actually driven here — learned across the hero sessions:
   reversible polish, just build it and show the preview.
 - **Framer features by route:** the root provider loads only `domAnimation`.
   `layout`/`popLayout`/drag need `domMax` — present on customer/admin/driver/auth
-  shells (`DomMaxProvider`) but **NOT** on public pages (homepage/menu via
-  `PublicShell`). Don't use `layout`/`popLayout` in components that render on
-  public surfaces, and don't add a nested `LazyMotion` that framer-motion test
-  mocks (e.g. `CheckoutClient.test`) don't stub — it breaks those tests.
+  shells AND now **`PublicShell`** (all via `DomMaxProvider`), since public pages
+  host swipe-to-close drawers (cart, dish sheet). So drag works everywhere now;
+  still keep heavy `layout`/`popLayout` off public surfaces for bundle/perf, and
+  don't add a nested `LazyMotion` that framer-motion test mocks (e.g.
+  `CheckoutClient.test`) don't stub — it breaks those tests.
 
 ## Paths
 
@@ -244,6 +245,12 @@ ComponentName/
 - bash `$UID` is a READONLY builtin (the real user id) — never `UID=$(...)` in a CI `run:` step (GitHub's shell is `bash -e`, so it aborts with "readonly variable"). Use any other name
 - Loyalty tier display-rename WITHOUT a migration: keep `LoyaltyTier.id` stable (internal key for coupons/tiers/early-access/DB), change only `name`/`english`/`emoji` — it auto-propagates to emails + account + admin (all read `LOYALTY_TIERS`). Watch-fors: (a) tier ACCENT color lives in TWO maps that must agree — `RewardsTab/tierStyle.ts` (account) AND `admin/referrals/TierDistribution.tsx` (admin); (b) read the emoji from `LOYALTY_TIERS[].emoji`, don't fork it in components; (c) grep `TIER_PERKS` for the old name (a renamed tier still advertising the old badge); (d) self-contained test fixtures (`TierBadge.test`, `loyalty-reward.test`) hardcode the old name and silently still pass — refresh them
 - `.hero-anim-paused` pauses CSS animations ONLY; framer-motion JS loops (`repeat: Infinity` — comet, glow pulse) keep ticking offscreen. Gate them with `useInView(ref)`: `const loop = shouldAnimate && inView`, then render/animate the loop only when `loop`
+- Mobile bottom sheets (`Modal` mobile variant + `Drawer position="bottom"`) must size with the `--sheet-max-h` token (`calc(100dvh - env(safe-area-inset-top) - 1rem)`), NOT `vh` — iOS `vh` uses the LARGE viewport (behind the toolbar/notch), so a `90vh`/`95vh` sheet's top hides under the status bar (clipped close button / checkout header). Floating close buttons go OUTSIDE any `overflow-hidden` image clip
+- A high-core iPhone reports `useDeviceTier()` = **"high"**, but a high core count does NOT lift WebKit's per-TAB memory ceiling — so the live WebGL Google map must be **`tier === "desktop"` only** (`liteMap = tier !== "desktop"`), or it OOM-reloads the tab on the menu→homepage path (cumulative image memory + WebGL). All mobile gets the static coverage map
+- iOS Safari **auto-zooms** on focusing any `<input>`/`<textarea>` with font-size <16px and never zooms back out. Shared `Textarea`/inputs use `text-base sm:text-sm` (16px on mobile). Audit every customer form (checkout) for this
+- Swipe-to-close (`useSwipeToClose`) is built on framer `drag` → needs `domMax`. Public pages were `domAnimation`-only so the dish/cart drawer swipe was inert there; `PublicShell` now wraps `DomMaxProvider` (lazy domMax). Still never add a nested `LazyMotion` that `CheckoutClient.test`-style mocks don't stub
+- `RollingDigit` (odometer reels) must sit on the text baseline via an invisible baseline anchor + `leading-none` — `items-center` vertical-centering makes digits ride HIGH vs adjacent text (visible on hero cards + the dish total). Rolling digits are `aria-hidden` → keep an `sr-only` real value so the CTA accessible name keeps the amount
+- **Dietary/allergen model** (`lib/menu/dietary-filters.ts`): free-from filters are FAIL-SAFE — an item with no declared `allergens` is _unknown_ → excluded, UNLESS tagged `allergen-reviewed` (audited; empty = genuinely none). Never assert a free-from claim from absent data; the filter row shows a "based on declared ingredients — confirm with us" disclaimer when a free-from chip is active. `vegan` matches `vegan`+`vegan-optional`; `vegetarian` matches `vegetarian`+`vegan`. **"Vegan on request"** (`lib/menu/vegan-request.ts`): a `vegan-optional` dish shows a "Make it vegan" toggle that prepends a bilingual kitchen note to the order line — `composeNotes` clamps to the 500-char checkout cap (`checkout.ts notes.max(500)`), `splitVeganNote` round-trips on the STABLE English prefix (Burmese/IDB-persisted carts may differ). Menu allergen/dietary data lives in the DB (live) + mirrored to `data/menul.seed.yaml` (the seed is stale of several DB-only items — reconcile the item you touch)
 
 ## Learnings
 

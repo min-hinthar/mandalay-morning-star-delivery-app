@@ -309,3 +309,18 @@ typecheck · test · build`) before every PR. After adding CSS utilities/keyfram
   Gold apex — only the active star's halo + one path shimmer animate (budget-safe).
 - Component specs (buttons/cards/etc.): [`frontend-design-system.md`](./frontend-design-system.md).
 - Deep-dive learnings: `.claude/learnings/{animation,design-tokens,mobile-ux,performance}.md`.
+
+### Where this language now lives (2026-06-07)
+
+This is no longer hero-only. It's the standard for the **homepage** (#143–#145)
+and the **menu** (#150–#152: warm-paper cards, layered dish sheet, dietary/
+allergen filters, vegan-on-request). Next it rolls out to the rest of the
+**customer surfaces** (checkout → cart → orders → account → auth) — sequence +
+guardrails in [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
+New, hard-won mobile rules from the menu epic (fold into any new surface):
+
+- Bottom sheets size with `--sheet-max-h` (dvh + safe-area), never `vh`.
+- Live WebGL map is `tier === "desktop"` only (high-core iPhones still OOM).
+- Inputs/textareas ≥16px on mobile (iOS focus auto-zoom).
+- `drag`/swipe-to-close needs `domMax` — `PublicShell` now has `DomMaxProvider`.
+- Rolling digits sit on the baseline + keep an `sr-only` real value.
