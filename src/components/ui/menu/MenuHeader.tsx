@@ -4,6 +4,7 @@ import { useRef, useState, useEffect, useCallback } from "react";
 import { CartButton } from "@/components/ui/cart";
 import { SearchInput } from "./SearchInput";
 import { MenuDietaryFilter } from "./MenuDietaryFilter";
+import { hasFreeFromSelected } from "@/lib/menu/dietary-filters";
 import { cn } from "@/lib/utils/cn";
 import type { MenuItem } from "@/types/menu";
 
@@ -141,6 +142,14 @@ export function MenuHeader({
             />
           )}
         </div>
+
+        {/* Allergen-safety disclaimer — shown when a free-from filter is active */}
+        {hasFreeFromSelected(dietaryFilters) && (
+          <p className="mt-1.5 text-2xs leading-snug text-text-muted">
+            Allergen filters reflect the kitchen&rsquo;s declared ingredients — please confirm with
+            us for severe allergies.
+          </p>
+        )}
       </div>
     </header>
   );

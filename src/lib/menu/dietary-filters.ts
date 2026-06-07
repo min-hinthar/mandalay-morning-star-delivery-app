@@ -92,6 +92,12 @@ export const MENU_DIETARY_FILTERS: DietaryFilterDef[] = [
 
 const FILTER_BY_ID = new Map(MENU_DIETARY_FILTERS.map((f) => [f.id, f]));
 
+/** Whether any selected filter is an allergen-derived "free-from" one (drives
+ *  the "based on declared allergens — confirm with us" disclaimer). */
+export function hasFreeFromSelected(filterIds: string[]): boolean {
+  return filterIds.some((id) => FILTER_BY_ID.get(id)?.kind === "free-from");
+}
+
 /** Does a single item satisfy one dietary filter? */
 export function itemMatchesDietaryFilter(item: MenuItem, def: DietaryFilterDef): boolean {
   if (def.kind === "free-from") {
