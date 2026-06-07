@@ -59,9 +59,9 @@ export function DishHero({ item, onClose }: DishHeroProps) {
           onClick={onClose}
           className={cn(
             "absolute right-3 top-3 z-30",
-            "flex h-10 w-10 items-center justify-center rounded-full",
+            "flex h-11 w-11 items-center justify-center rounded-full",
             "bg-surface-inverse/55 hover:bg-surface-inverse/75",
-            "text-text-inverse shadow-lg sm:backdrop-blur-sm",
+            "text-text-inverse shadow-lg md:backdrop-blur-sm",
             "transition-colors duration-150",
             "focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-primary/60"
           )}

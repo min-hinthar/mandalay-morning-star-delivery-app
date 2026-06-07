@@ -18,7 +18,7 @@ interface ModifierGroupProps {
 function optionRowClass(isSelected: boolean, disabled = false) {
   return cn(
     "flex items-center justify-between rounded-lg border p-3",
-    "bg-surface-primary transition-[transform,colors] duration-150",
+    "bg-surface-primary transition-[transform,background-color,border-color,box-shadow] duration-150",
     "motion-safe:active:scale-[0.99]",
     isSelected
       ? "border-brand-red bg-brand-red/[0.06] shadow-sm"
