@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { m, AnimatePresence } from "framer-motion";
 import { CheckoutMasthead, CheckoutStepperV8, CheckoutSummary } from "@/components/ui/checkout";
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { useCartStore } from "@/lib/stores/cart-store";
@@ -100,12 +101,7 @@ export function CheckoutPreviewClient() {
   };
 
   return (
-    <div className="relative min-h-screen bg-background pb-32">
-      <div
-        aria-hidden="true"
-        className="checkout-ambient pointer-events-none absolute inset-x-0 top-0 h-[460px]"
-      />
-
+    <div className="checkout-canvas relative min-h-screen pb-32">
       <div className="relative mx-auto max-w-4xl px-4 py-6 sm:py-8">
         {/* Non-prod review banner + step jumper */}
         <div className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-hero-clay/30 bg-hero-clay/10 px-4 py-2.5">
@@ -140,16 +136,33 @@ export function CheckoutPreviewClient() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3 lg:gap-8">
           <div className="lg:col-span-2">
             <div className="hero-surface-glass animate-hero-develop-3 relative overflow-hidden rounded-2xl p-4 sm:p-6">
-              <HeroCardLayers accent="clay" radius="rounded-2xl" ticks={false} />
-              <div className="relative flex min-h-[14rem] flex-col items-center justify-center gap-2 text-center">
-                <span className="font-display text-lg font-semibold text-hero-ink">
-                  {STEP_LABEL[step]} step
-                </span>
-                <p className="max-w-xs text-sm text-hero-ink-muted">{STEP_NOTE[step]}</p>
-                <p className="mt-1 text-2xs font-semibold uppercase tracking-wider text-hero-accent">
-                  Reskin in progress
-                </p>
-              </div>
+              <span
+                aria-hidden="true"
+                className="checkout-card-rail absolute inset-x-0 top-0 h-[3px]"
+              />
+              <span
+                aria-hidden="true"
+                className="checkout-card-aura pointer-events-none absolute inset-0 rounded-2xl"
+              />
+              <HeroCardLayers accent="clay" radius="rounded-2xl" />
+              <AnimatePresence mode="wait">
+                <m.div
+                  key={step}
+                  initial={{ opacity: 0, y: 12, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -12, scale: 0.98 }}
+                  transition={{ type: "spring", stiffness: 320, damping: 26 }}
+                  className="relative flex min-h-[14rem] flex-col items-center justify-center gap-2 text-center"
+                >
+                  <span className="font-display text-lg font-semibold text-hero-ink">
+                    {STEP_LABEL[step]} step
+                  </span>
+                  <p className="max-w-xs text-sm text-hero-ink-muted">{STEP_NOTE[step]}</p>
+                  <p className="mt-1 text-2xs font-semibold uppercase tracking-wider text-hero-accent">
+                    Reskin in progress
+                  </p>
+                </m.div>
+              </AnimatePresence>
             </div>
           </div>
 

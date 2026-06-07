@@ -320,11 +320,7 @@ export default function CheckoutClient({
 
   if (authLoading || !user) {
     return (
-      <div className="relative flex min-h-screen items-center justify-center bg-background">
-        <div
-          aria-hidden="true"
-          className="checkout-ambient pointer-events-none absolute inset-x-0 top-0 h-[420px]"
-        />
+      <div className="checkout-canvas relative flex min-h-screen items-center justify-center">
         <Loader2 className="relative h-8 w-8 animate-spin text-hero-accent" />
       </div>
     );
@@ -348,13 +344,7 @@ export default function CheckoutClient({
   };
 
   return (
-    <div className="relative min-h-screen bg-background pb-32">
-      {/* Warm sunset ambience seated at the top (radial falloff — no blur) */}
-      <div
-        aria-hidden="true"
-        className="checkout-ambient pointer-events-none absolute inset-x-0 top-0 h-[460px]"
-      />
-
+    <div className="checkout-canvas relative min-h-screen pb-32">
       <div className="relative mx-auto max-w-4xl px-4 py-6 sm:py-8">
         <CheckoutMasthead step={step} className="mb-6 animate-hero-develop-1" />
 
@@ -378,7 +368,17 @@ export default function CheckoutClient({
           {/* Main content - order form with animated transitions */}
           <div className="lg:col-span-2">
             <div className="hero-surface-glass animate-hero-develop-3 relative overflow-hidden rounded-2xl p-4 sm:p-6">
-              <HeroCardLayers accent="clay" radius="rounded-2xl" ticks={false} />
+              {/* Drifting triad top-edge rail */}
+              <span
+                aria-hidden="true"
+                className="checkout-card-rail absolute inset-x-0 top-0 h-[3px]"
+              />
+              {/* Breathing triad aura behind the form */}
+              <span
+                aria-hidden="true"
+                className="checkout-card-aura pointer-events-none absolute inset-0 rounded-2xl"
+              />
+              <HeroCardLayers accent="clay" radius="rounded-2xl" />
               <div className="relative">
                 <AnimatePresence mode="wait" custom={direction}>
                   {step === "address" && (

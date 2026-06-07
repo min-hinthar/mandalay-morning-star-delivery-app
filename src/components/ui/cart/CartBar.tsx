@@ -21,7 +21,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { ShoppingBag, ChevronUp, Truck, Sparkles } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -146,6 +146,10 @@ export function CartBar({
   minimumOrderCents = DEFAULT_MINIMUM_ORDER_CENTS,
 }: CartBarProps) {
   const router = useRouter();
+  const pathname = usePathname();
+  // The bar's only job is to jump to checkout — redundant on the checkout
+  // surface itself (and its no-login preview), which already shows the order.
+  const onCheckoutSurface = pathname === "/checkout" || pathname === "/checkout-preview";
   const {
     isEmpty,
     itemCount,
@@ -208,6 +212,10 @@ export function CartBar({
 
   // Don't render until mounted (hydration safety)
   if (!mounted) return null;
+
+  // Hide on the checkout surface — the redundant "Checkout" CTA there
+  // duplicates the page the customer is already on.
+  if (onCheckoutSurface) return null;
 
   return (
     <AnimatePresence>

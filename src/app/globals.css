@@ -1018,6 +1018,53 @@
     }
   }
 
+  /* Warm, theme-independent checkout canvas. The "After Dark" palette is
+     warm cream paper floating on a soft sunset — the hero tokens (ink, cream)
+     are fixed regardless of theme, so on a dark `bg-background` the ink text +
+     cream cards meld. This canvas keeps checkout in its intended warm light in
+     BOTH themes: cream base + triad sunset glows (radial falloff, no blur). */
+  .checkout-canvas {
+    background:
+      radial-gradient(125% 70% at 50% -12%, rgba(217, 119, 87, 0.2), transparent 56%),
+      radial-gradient(95% 60% at 90% -2%, rgba(106, 155, 204, 0.15), transparent 55%),
+      radial-gradient(85% 55% at 4% 4%, rgba(120, 140, 93, 0.14), transparent 56%),
+      linear-gradient(180deg, #faf9f5 0%, #f5f2ec 58%, #efe9df 100%);
+  }
+
+  /* Lively breathing aura for the step card — a drifting triad radial that
+     slowly pulses. transform/opacity only (60fps, no blur, no filter). */
+  .checkout-card-aura {
+    background:
+      radial-gradient(60% 70% at 18% 0%, var(--hero-clay), transparent 60%),
+      radial-gradient(55% 65% at 100% 30%, var(--hero-blue), transparent 62%),
+      radial-gradient(60% 70% at 70% 100%, var(--hero-sage), transparent 62%);
+    opacity: 0.1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .checkout-card-aura {
+      animation: checkout-aura-breathe 9s ease-in-out infinite;
+    }
+  }
+
+  /* Gradient top-edge accent bar for the step card (clay → blue → sage). */
+  .checkout-card-rail {
+    background: linear-gradient(
+      90deg,
+      var(--hero-clay),
+      var(--hero-blue),
+      var(--hero-sage),
+      var(--hero-clay)
+    );
+    background-size: 300% 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .checkout-card-rail {
+      animation: checkout-rail-drift 8s ease-in-out infinite;
+    }
+  }
+
   /* Sunburst/asterisk ray draw-on (motion-gated; drawn by default otherwise) */
   @media (prefers-reduced-motion: no-preference) {
     .animate-hero-draw {
@@ -1563,6 +1610,30 @@
   55%,
   100% {
     background-position: -40% 0;
+  }
+}
+
+/* Step-card aura — slow drift + breathe (transform/opacity only) */
+@keyframes checkout-aura-breathe {
+  0%,
+  100% {
+    opacity: 0.08;
+    transform: translate3d(-2%, -1%, 0) scale(1.02);
+  }
+  50% {
+    opacity: 0.16;
+    transform: translate3d(2%, 1%, 0) scale(1.08);
+  }
+}
+
+/* Step-card top rail — slow triad drift */
+@keyframes checkout-rail-drift {
+  0%,
+  100% {
+    background-position: 0% 0;
+  }
+  50% {
+    background-position: 100% 0;
   }
 }
 
