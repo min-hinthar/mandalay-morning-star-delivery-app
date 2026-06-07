@@ -371,7 +371,7 @@ export default function CheckoutClient({
         <div className="grid grid-cols-1 gap-6 lg:gap-8 lg:grid-cols-3">
           {/* Main content - order form with animated transitions */}
           <div className="lg:col-span-2">
-            <div className="hero-surface-glass animate-hero-develop-3 relative overflow-hidden rounded-2xl p-4 sm:p-6">
+            <div className="hero-surface-glass checkout-paper animate-hero-develop-3 relative overflow-hidden rounded-2xl p-4 sm:p-6">
               {/* Drifting triad top-edge rail */}
               <span
                 aria-hidden="true"

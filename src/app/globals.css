@@ -1096,6 +1096,42 @@
     border-color: var(--ck-line);
   }
 
+  /* Warm-paper token scope for the step bodies. The step card is cream in BOTH
+     themes, but the (old-V8) step components consume the app's THEME-AWARE
+     semantic tokens — which flip to dark values in dark mode and meld on the
+     cream card (light text on cream). Like `.menu-paper`, this pins every token
+     they consume to fixed warm-paper values, so all buttons / headings / labels
+     / inputs / cards read ink-on-cream in BOTH themes. One class, whole subtree. */
+  .checkout-paper {
+    --color-surface-primary: #fffdf8;
+    --color-surface-secondary: #f6f1e7;
+    --color-surface-tertiary: #efe7d9;
+    --color-surface-elevated: #fffefb;
+
+    --color-border-default: var(--hero-line);
+    --color-border-subtle: rgba(20, 20, 19, 0.08);
+    --color-border-strong: rgba(20, 20, 19, 0.22);
+
+    --color-text-primary: var(--hero-ink);
+    --color-text-secondary: rgba(20, 20, 19, 0.78);
+    --color-text-muted: var(--hero-ink-muted);
+    --color-text-inverse: #fbf7ef;
+    --color-text-money: var(--hero-accent);
+
+    --color-primary: var(--hero-accent);
+    --color-primary-hover: var(--hero-accent-strong);
+    --color-primary-active: var(--hero-accent-strong);
+    --color-primary-light: rgba(154, 52, 18, 0.1);
+
+    --color-green: #3f7a34;
+    --color-status-success: #3f7a34;
+    --color-status-success-bg: rgba(120, 140, 93, 0.14);
+    --color-status-warning: #97650f;
+    --color-status-warning-bg: rgba(217, 119, 87, 0.13);
+    --color-status-error: #b3261e;
+    --color-status-error-bg: rgba(179, 38, 30, 0.1);
+  }
+
   /* Lively breathing aura for the step card — a drifting triad radial that
      slowly pulses. transform/opacity only (60fps, no blur, no filter). */
   .checkout-card-aura {
