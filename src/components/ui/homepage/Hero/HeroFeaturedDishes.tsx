@@ -3,18 +3,22 @@
 /**
  * HeroFeaturedDishes — appetite carousel inside the hero
  *
- * Reuses the existing FeaturedCarousel (the same menu cards used elsewhere),
- * fed with dishes aggregated across featured sections (popular, new, etc.).
- * Tapping a card jumps straight to the menu to order.
+ * Reuses the existing FeaturedCarousel (the same warm-paper menu cards used
+ * elsewhere), fed with dishes aggregated across featured sections (popular,
+ * new, etc.). Tapping a card opens the item detail modal to order in place —
+ * same as the menu page / homepage section — instead of jumping to /menu.
  */
 
-import { type CSSProperties } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useRef, useCallback, useEffect, type CSSProperties } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { FeaturedCarousel } from "@/components/ui/menu/FeaturedCarousel";
+import { ItemDetailSheet } from "@/components/ui/menu";
 import { HeroSunburst } from "./HeroSunburst";
+import { useCart } from "@/lib/hooks/useCart";
+import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import type { MenuItem } from "@/types/menu";
+import type { SelectedModifier } from "@/types/cart";
 
 interface HeroFeaturedDishesProps {
   dishes: MenuItem[];
@@ -22,7 +26,54 @@ interface HeroFeaturedDishesProps {
 }
 
 export function HeroFeaturedDishes({ dishes, menuHref = "/menu" }: HeroFeaturedDishesProps) {
-  const router = useRouter();
+  const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { addItem } = useCart();
+  const { open: openCart } = useCartDrawer();
+
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    };
+  }, []);
+
+  const handleItemClick = useCallback((item: MenuItem) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  }, []);
+
+  // Delay clearing the item so the close animation can finish.
+  const handleClose = useCallback(() => {
+    setIsModalOpen(false);
+    if (closeTimeoutRef.current) clearTimeout(closeTimeoutRef.current);
+    closeTimeoutRef.current = setTimeout(() => setSelectedItem(null), 300);
+  }, []);
+
+  const handleAddToCart = useCallback(
+    (item: MenuItem, modifiers: SelectedModifier[], quantity: number, notes: string) => {
+      addItem({
+        menuItemId: item.id,
+        menuItemSlug: item.slug,
+        nameEn: item.nameEn,
+        nameMy: item.nameMy,
+        basePriceCents: item.basePriceCents,
+        imageUrl: item.imageUrl,
+        quantity,
+        modifiers: modifiers.map((m) => ({
+          groupId: m.groupId,
+          groupName: m.groupName,
+          optionId: m.optionId,
+          optionName: m.optionName,
+          priceDeltaCents: m.priceDeltaCents,
+        })),
+        notes,
+      });
+      handleClose();
+      openCart();
+    },
+    [addItem, handleClose, openCart]
+  );
 
   if (dishes.length === 0) return null;
 
@@ -72,7 +123,15 @@ export function HeroFeaturedDishes({ dishes, menuHref = "/menu" }: HeroFeaturedD
         className="relative"
         items={dishes}
         autoScrollInterval={5000}
-        onItemSelect={() => router.push(menuHref)}
+        onItemSelect={handleItemClick}
+      />
+
+      {/* Detail modal — order in place instead of jumping to the menu page */}
+      <ItemDetailSheet
+        item={selectedItem}
+        isOpen={isModalOpen}
+        onClose={handleClose}
+        onAddToCart={handleAddToCart}
       />
     </div>
   );
