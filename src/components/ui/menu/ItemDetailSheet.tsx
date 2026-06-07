@@ -38,6 +38,8 @@ import type { CartItem } from "@/types/cart";
 import type { MenuItem, ModifierOption } from "@/types/menu";
 import { AllergenWarning, DiscardChangesDialog } from "./ItemDetailSheet/helpers";
 import { DishHero } from "./ItemDetailSheet/DishHero";
+import { VeganToggle } from "./ItemDetailSheet/VeganToggle";
+import { isVeganizable, composeNotes, splitVeganNote } from "@/lib/menu/vegan-request";
 
 // ============================================
 // TYPES
@@ -101,13 +103,17 @@ export function ItemDetailSheet({
   const [selectedModifiers, setSelectedModifiers] = useState<SelectedModifier[]>([]);
   const [quantity, setQuantity] = useState(1);
   const [notes, setNotes] = useState("");
+  const [makeVegan, setMakeVegan] = useState(false);
   const [showDiscardDialog, setShowDiscardDialog] = useState(false);
+
+  const veganizable = isVeganizable(item?.tags);
 
   // Track initial edit values to detect dirty state
   const initialEditState = useRef<{
     modifiers: SelectedModifier[];
     quantity: number;
     notes: string;
+    makeVegan: boolean;
   } | null>(null);
 
   const isEditMode = !!editingCartItem;
@@ -131,19 +137,24 @@ export function ItemDetailSheet({
         optionName: m.optionName,
         priceDeltaCents: m.priceDeltaCents,
       }));
+      // Recover the "make it vegan" toggle from the stored notes
+      const { makeVegan: editVegan, userNotes: editNotes } = splitVeganNote(editingCartItem.notes);
       setSelectedModifiers(editModifiers);
       setQuantity(editingCartItem.quantity);
-      setNotes(editingCartItem.notes);
+      setNotes(editNotes);
+      setMakeVegan(editVegan);
       initialEditState.current = {
         modifiers: editModifiers,
         quantity: editingCartItem.quantity,
-        notes: editingCartItem.notes,
+        notes: editNotes,
+        makeVegan: editVegan,
       };
     } else {
       // Add mode: reset to empty
       setSelectedModifiers([]);
       setQuantity(1);
       setNotes("");
+      setMakeVegan(false);
       initialEditState.current = null;
     }
   }, [item, isOpen, editingCartItem]);
@@ -154,10 +165,11 @@ export function ItemDetailSheet({
     const initial = initialEditState.current;
     if (quantity !== initial.quantity) return true;
     if (notes !== initial.notes) return true;
+    if (makeVegan !== initial.makeVegan) return true;
     if (selectedModifiers.length !== initial.modifiers.length) return true;
     const initialIds = new Set(initial.modifiers.map((m) => m.optionId));
     return selectedModifiers.some((m) => !initialIds.has(m.optionId));
-  }, [isEditMode, selectedModifiers, quantity, notes]);
+  }, [isEditMode, selectedModifiers, quantity, notes, makeVegan]);
 
   // Handle close with dirty-state check
   const handleRequestClose = useCallback(() => {
@@ -233,11 +245,14 @@ export function ItemDetailSheet({
     setSelectedModifiers((prev) => prev.filter((mod) => mod.optionId !== optionId));
   }, []);
 
+  // Final notes = the kitchen "make vegan" instruction (when toggled) + user text
+  const finalNotes = composeNotes(veganizable && makeVegan, notes);
+
   const handleAddToCart = useCallback(() => {
     if (!item || !onAddToCart) return;
-    onAddToCart(item, selectedModifiers, quantity, notes.trim());
+    onAddToCart(item, selectedModifiers, quantity, finalNotes);
     onClose();
-  }, [item, onAddToCart, selectedModifiers, quantity, notes, onClose]);
+  }, [item, onAddToCart, selectedModifiers, quantity, finalNotes, onClose]);
 
   const handleUpdateCart = useCallback(() => {
     if (!item || !editingCartItem || !onUpdateCart) return;
@@ -247,12 +262,21 @@ export function ItemDetailSheet({
       editingCartItem.cartItemId,
       selectedModifiers,
       quantity,
-      notes.trim(),
+      finalNotes,
       unitPriceCents
     );
     toast({ message: "Cart updated", type: "success" });
     onClose();
-  }, [item, editingCartItem, onUpdateCart, selectedModifiers, quantity, notes, priceCalc, onClose]);
+  }, [
+    item,
+    editingCartItem,
+    onUpdateCart,
+    selectedModifiers,
+    quantity,
+    finalNotes,
+    priceCalc,
+    onClose,
+  ]);
 
   // ============================================
   // RENDER CONTENT
@@ -296,6 +320,11 @@ export function ItemDetailSheet({
                 />
               ))}
             </div>
+          )}
+
+          {/* Make it vegan — one tap attaches a bilingual kitchen instruction */}
+          {veganizable && (
+            <VeganToggle makeVegan={makeVegan} onToggle={() => setMakeVegan((v) => !v)} />
           )}
 
           {/* Special Instructions */}
@@ -364,7 +393,7 @@ export function ItemDetailSheet({
               }}
               quantity={quantity}
               modifiers={selectedModifiers}
-              notes={notes.trim()}
+              notes={finalNotes}
               disabled={item.isSoldOut || !validation.isValid}
               onAdd={handleAddToCart}
               className="w-full"
