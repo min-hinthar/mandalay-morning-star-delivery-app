@@ -98,7 +98,12 @@ export function MenuHeader({
     >
       {/* Top row: title + search + cart — always visible */}
       <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-4">
-        <h1 className="font-display text-lg text-brand-red sm:text-xl">Our Menu</h1>
+        <div className="flex items-baseline gap-2">
+          <h1 className="font-display text-xl font-bold leading-none text-text-primary sm:text-2xl">
+            Our Menu
+          </h1>
+          <span className="font-burmese text-sm text-hero-clay/90">မီနူး</span>
+        </div>
 
         <div className="flex items-center gap-2">
           <SearchInput

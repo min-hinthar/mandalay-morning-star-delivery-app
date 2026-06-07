@@ -281,7 +281,8 @@ export const CategoryTabs = memo(function CategoryTabs({
                 isActive
                   ? // Dark ink reads on the gold→clay pill in both themes
                     "text-hero-ink"
-                  : "text-text-secondary hover:text-text-primary hover:bg-surface-secondary"
+                  : // Outlined pill so inactive labels stay legible (no dark-mode meld)
+                    "border border-border-default bg-surface-secondary/50 text-text-primary/80 hover:border-hero-clay/40 hover:text-text-primary"
               )}
             >
               {/* Tab label */}

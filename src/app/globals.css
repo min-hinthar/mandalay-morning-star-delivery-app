@@ -497,7 +497,22 @@
     border-color: var(--menu-card-hairline);
     box-shadow:
       inset 0 1px 0 0 var(--menu-card-sheen),
-      var(--shadow-card);
+      var(--shadow-card),
+      0 2px 7px -3px rgba(0, 0, 0, 0.22);
+  }
+
+  /* Lit gold→clay CTA pill (the menu card "Add" button) — vibrant in both
+     themes (the deep-clay token reads dull in dark mode); dark ink keeps AA. */
+  .menu-cta-lit {
+    background: linear-gradient(105deg, var(--menu-gold), var(--menu-clay));
+    box-shadow:
+      0 6px 18px -5px rgba(217, 119, 87, 0.55),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.28);
+  }
+  .menu-cta-lit:hover {
+    box-shadow:
+      0 9px 22px -5px rgba(217, 119, 87, 0.62),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.34);
   }
 
   .menu-paper .glass-menu-card:hover,

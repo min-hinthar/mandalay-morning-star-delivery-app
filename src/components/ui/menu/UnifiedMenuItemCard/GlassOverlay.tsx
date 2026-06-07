@@ -79,6 +79,7 @@ export const GlassOverlay = memo(function GlassOverlay({
       {warmPaper && (
         <div className={cn("absolute inset-0 overflow-hidden", rounded)} aria-hidden="true">
           <span className="menu-card-dots absolute inset-0" />
+          <span className="hero-paper-grain absolute inset-0 opacity-[0.05] mix-blend-overlay" />
         </div>
       )}
 
