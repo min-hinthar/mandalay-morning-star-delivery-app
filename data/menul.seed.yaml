@@ -153,7 +153,7 @@ items:
     is_active: true
     is_sold_out: false
     tags: ["popular"]
-    allergens: []
+    allergens: ["fish"]
     modifier_group_slugs: []
 
   - slug: mee-shay
@@ -217,6 +217,18 @@ items:
     allergens: ["egg"]
     modifier_group_slugs: []
 
+  - slug: biriyani-dan-pauk
+    category_slug: rice-noodles-soups
+    name_en: "Biriyani (Dan-Pauk)"
+    name_my: "ဒံပေါက် ကြက်သား"
+    description_en: "Burmese-Indian slow-cooked Biriyani rice with Chicken."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: ["allergen-reviewed"]
+    allergens: []
+    modifier_group_slugs: []
+
   - slug: goat-marrow-soup
     category_slug: rice-noodles-soups
     name_en: "Goat-Marrow Soup"
@@ -225,7 +237,7 @@ items:
     base_price_cents: 1900 # Updated from 1200 — matched to order.online direct price (Mar 2026)
     is_active: true
     is_sold_out: false
-    tags: []
+    tags: ["allergen-reviewed"]
     allergens: []
     modifier_group_slugs: []
 
@@ -261,8 +273,8 @@ items:
     base_price_cents: 1300
     is_active: true
     is_sold_out: false
-    tags: []
-    allergens: ["egg"]
+    tags: ["vegan-optional"]
+    allergens: ["egg", "peanuts", "shellfish"]
     modifier_group_slugs: []
 
   - slug: mixed-veggie-shrimp-stir-fry-rice
@@ -287,7 +299,7 @@ items:
     is_active: true
     is_sold_out: false
     tags: []
-    allergens: ["shellfish"]
+    allergens: ["shellfish", "fish", "egg"]
     modifier_group_slugs: ["tom_yum_base"]
 
   # --- Sides ---
@@ -339,6 +351,30 @@ items:
     allergens: []
     modifier_group_slugs: []
 
+  - slug: fishcake-stuffed-salad
+    category_slug: sides
+    name_en: "Fishcake (Stuffed Salad)"
+    name_my: "ငါးဖယ်အစာသွပ်"
+    description_en: "Fried fishcake stuffed with traditional vegetable fillings, fried garlic, and seasonings."
+    base_price_cents: 1400
+    is_active: true
+    is_sold_out: false
+    tags: []
+    allergens: ["fish"]
+    modifier_group_slugs: []
+
+  - slug: lemon-salad
+    category_slug: sides
+    name_en: "Lemon Salad"
+    name_my: "ရှောက်သီးသုပ်"
+    description_en: "Refreshing traditional lemon salad with vegetables, shrimp powder, onions, fried garlic, and seasonings."
+    base_price_cents: 1200
+    is_active: true
+    is_sold_out: false
+    tags: ["vegan-optional"]
+    allergens: ["peanuts", "sesame", "shellfish"]
+    modifier_group_slugs: []
+
   - slug: balachaung
     category_slug: sides
     name_en: "Balachaung"
@@ -360,7 +396,7 @@ items:
     base_price_cents: 3000
     is_active: true
     is_sold_out: false
-    tags: ["spicy_optional"]
+    tags: ["spicy_optional", "allergen-reviewed"]
     allergens: []
     modifier_group_slugs: ["goat_curry_cut"]
 
@@ -384,7 +420,7 @@ items:
     base_price_cents: 1900
     is_active: true
     is_sold_out: false
-    tags: ["spicy"]
+    tags: ["spicy", "allergen-reviewed"]
     allergens: []
     modifier_group_slugs: []
 
@@ -408,7 +444,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: []
+    tags: ["allergen-reviewed"]
     allergens: []
     modifier_group_slugs: []
 
@@ -444,7 +480,7 @@ items:
     base_price_cents: 1500
     is_active: true
     is_sold_out: false
-    tags: []
+    tags: ["allergen-reviewed"]
     allergens: []
     modifier_group_slugs: []
 
@@ -492,7 +528,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: []
+    tags: ["allergen-reviewed"]
     allergens: []
     modifier_group_slugs: []
     # Added Mar 2026 — found on DoorDash/UberEats platforms, absent from app
@@ -505,7 +541,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["vegetarian", "vegan-optional"]
+    tags: ["vegetarian", "vegan-optional", "allergen-reviewed"]
     allergens: []
     modifier_group_slugs: []
     # Added Mar 2026 — found on DoorDash/UberEats platforms, absent from app
@@ -543,7 +579,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["vegetarian", "vegan-optional"]
+    tags: ["vegetarian", "vegan-optional", "allergen-reviewed"]
     allergens: []
     modifier_group_slugs: []
 
@@ -555,7 +591,7 @@ items:
     base_price_cents: 1400
     is_active: true
     is_sold_out: false
-    tags: ["vegetarian", "spicy_optional", "vegan-optional"]
+    tags: ["vegetarian", "spicy_optional", "vegan-optional", "allergen-reviewed"]
     allergens: []
     modifier_group_slugs: []
 
@@ -713,7 +749,7 @@ items:
     base_price_cents: 1200
     is_active: true
     is_sold_out: false
-    tags: ["vegetarian", "vegan-optional"]
+    tags: ["vegetarian", "vegan-optional", "allergen-reviewed"]
     allergens: []
     modifier_group_slugs: []
 
