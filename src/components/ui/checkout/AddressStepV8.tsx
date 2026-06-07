@@ -262,9 +262,15 @@ export function AddressStepV8({ onNext, deliveryZones }: AddressStepV8Props) {
       {/* Continue button with scale entry */}
       <m.div
         variants={shouldAnimate ? buttonEntry : undefined}
-        className="flex justify-center pt-4 border-t border-border"
+        className="flex justify-center pt-4 border-t border-hero-line"
       >
-        <Button variant="default" onClick={handleNext} disabled={!canProceed} size="lg">
+        <Button
+          variant="default"
+          onClick={handleNext}
+          disabled={!canProceed}
+          size="lg"
+          className="ck-cta"
+        >
           Continue to Time Selection
         </Button>
       </m.div>

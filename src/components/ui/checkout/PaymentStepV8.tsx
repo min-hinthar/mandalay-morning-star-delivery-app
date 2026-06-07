@@ -297,7 +297,12 @@ export function PaymentStepV8({
           variants={shouldAnimate ? buttonEntry : undefined}
           className="flex justify-between pt-4 border-t border-border"
         >
-          <Button variant="ghost" onClick={handleBack} disabled={isCreatingSession}>
+          <Button
+            variant="ghost"
+            onClick={handleBack}
+            disabled={isCreatingSession}
+            className="border border-hero-line bg-hero-card text-hero-ink hover:border-hero-clay/60 hover:bg-hero-clay/10 hover:text-hero-accent"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
@@ -308,6 +313,7 @@ export function PaymentStepV8({
             onClick={handleCheckout}
             disabled={isCreatingSession || !canProceed || cutoffModalOpen}
             isLoading={isCreatingSession}
+            className="ck-cta"
             loadingText="Processing..."
             leftIcon={
               !isCreatingSession ? (

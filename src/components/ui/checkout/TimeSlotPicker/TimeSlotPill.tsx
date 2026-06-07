@@ -39,14 +39,14 @@ export function TimeSlotPill({ slot, isSelected, isDisabled, onSelect, index }: 
       whileTap={shouldAnimate && !isDisabled ? { scale: 0.98 } : undefined}
       className={cn(
         "relative flex items-center gap-3 px-4 py-3 rounded-xl w-full",
-        "border-2 transition-all duration-200",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        "border-2 transition-colors duration-200",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent focus-visible:ring-offset-2",
         "transform-gpu will-change-transform",
         isSelected
-          ? "border-primary bg-primary-light/50 shadow-md"
+          ? "border-hero-clay bg-hero-clay/15 ck-glow-clay"
           : isDisabled
-            ? "border-border bg-surface-tertiary text-text-muted cursor-not-allowed opacity-50"
-            : "border-border bg-surface-primary hover:border-primary/50"
+            ? "border-hero-line bg-hero-card/60 text-hero-ink-muted cursor-not-allowed opacity-50"
+            : "border-hero-line bg-hero-card hover:border-hero-clay/60"
       )}
     >
       <div className="w-10 h-10 rounded-full overflow-hidden flex items-center justify-center">
@@ -62,7 +62,7 @@ export function TimeSlotPill({ slot, isSelected, isDisabled, onSelect, index }: 
           transition={{ duration: 0.5, delay: 0.1 }}
           className={cn(
             "w-10 h-10 rounded-full flex items-center justify-center",
-            isSelected ? "bg-primary text-text-inverse" : "bg-surface-secondary text-text-muted"
+            isSelected ? "bg-hero-accent text-hero-card" : "bg-hero-clay/10 text-hero-ink-muted"
           )}
         >
           <TimeIcon className="w-5 h-5" />
@@ -70,16 +70,16 @@ export function TimeSlotPill({ slot, isSelected, isDisabled, onSelect, index }: 
       </div>
 
       <div className="flex-1 text-left">
-        <p className={cn("font-semibold", isSelected ? "text-primary" : "text-text-primary")}>
+        <p className={cn("font-semibold", isSelected ? "text-hero-accent" : "text-hero-ink")}>
           {slot.label}
         </p>
-        <p className="text-xs text-text-muted">1 hour delivery window</p>
+        <p className="text-xs text-hero-ink-muted">1 hour delivery window</p>
       </div>
 
       <m.div
         className={cn(
           "w-6 h-6 rounded-full border-2 flex items-center justify-center",
-          isSelected ? "border-primary bg-primary" : "border-border bg-transparent"
+          isSelected ? "border-hero-clay bg-hero-accent" : "border-hero-line bg-transparent"
         )}
       >
         <AnimatePresence>
@@ -90,7 +90,7 @@ export function TimeSlotPill({ slot, isSelected, isDisabled, onSelect, index }: 
               exit={shouldAnimate ? { scale: 0 } : undefined}
               transition={getSpring(spring.ultraBouncy)}
             >
-              <Check className="w-4 h-4 text-text-inverse" />
+              <Check className="w-4 h-4 text-hero-card" strokeWidth={3} />
             </m.div>
           )}
         </AnimatePresence>

@@ -1130,6 +1130,25 @@
     --color-status-warning-bg: rgba(217, 119, 87, 0.13);
     --color-status-error: #b3261e;
     --color-status-error-bg: rgba(179, 38, 30, 0.1);
+
+    --color-secondary: rgba(217, 119, 87, 0.14);
+    --color-secondary-hover: rgba(217, 119, 87, 0.2);
+  }
+
+  /* Branded primary CTA on warm paper — clay gradient + cream text + glow.
+     Applied via className so it overrides the shared Button variant fill. */
+  .ck-cta {
+    background-image: linear-gradient(135deg, var(--hero-clay), var(--hero-accent));
+    color: #fbf7ef;
+    box-shadow: 0 8px 22px rgba(154, 52, 18, 0.3);
+  }
+  .ck-cta:hover {
+    filter: brightness(1.05);
+  }
+
+  /* Soft clay glow for selected pills/cards (token shadows reject arbitrary JSX). */
+  .ck-glow-clay {
+    box-shadow: 0 6px 16px rgba(154, 52, 18, 0.2);
   }
 
   /* Lively breathing aura for the step card — a drifting triad radial that

@@ -15,43 +15,53 @@ export function PaymentMethodSelector({ value, onChange, codEnabled }: PaymentMe
 
   return (
     <div className="space-y-3">
-      <h3 className="font-body text-sm font-medium text-text-primary">Payment Method</h3>
+      <h3 className="font-body text-sm font-semibold text-hero-ink">Payment Method</h3>
       <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
           onClick={() => onChange("stripe")}
           className={cn(
-            "flex items-center gap-3 rounded-lg border-2 p-4 transition-colors text-left",
+            "flex items-center gap-3 rounded-xl border-2 p-4 transition-colors text-left",
             value === "stripe"
-              ? "border-primary bg-primary/5"
-              : "border-border hover:border-primary/40"
+              ? "border-hero-clay bg-hero-clay/12 ck-glow-clay"
+              : "border-hero-line bg-hero-card hover:border-hero-clay/50"
           )}
         >
-          <CreditCard className="h-5 w-5 text-primary shrink-0" />
+          <CreditCard
+            className={cn(
+              "h-5 w-5 shrink-0",
+              value === "stripe" ? "text-hero-accent" : "text-hero-ink-muted"
+            )}
+          />
           <div>
-            <p className="font-body text-sm font-medium text-text-primary">Card Payment</p>
-            <p className="font-body text-xs text-text-muted">Pay securely online</p>
+            <p className="font-body text-sm font-medium text-hero-ink">Card Payment</p>
+            <p className="font-body text-xs text-hero-ink-muted">Pay securely online</p>
           </div>
         </button>
         <button
           type="button"
           onClick={() => onChange("cod")}
           className={cn(
-            "flex items-center gap-3 rounded-lg border-2 p-4 transition-colors text-left",
+            "flex items-center gap-3 rounded-xl border-2 p-4 transition-colors text-left",
             value === "cod"
-              ? "border-primary bg-primary/5"
-              : "border-border hover:border-primary/40"
+              ? "border-hero-clay bg-hero-clay/12 ck-glow-clay"
+              : "border-hero-line bg-hero-card hover:border-hero-clay/50"
           )}
         >
-          <Banknote className="h-5 w-5 text-primary shrink-0" />
+          <Banknote
+            className={cn(
+              "h-5 w-5 shrink-0",
+              value === "cod" ? "text-hero-accent" : "text-hero-ink-muted"
+            )}
+          />
           <div>
-            <p className="font-body text-sm font-medium text-text-primary">Cash on Delivery</p>
-            <p className="font-body text-xs text-text-muted">Pay when delivered</p>
+            <p className="font-body text-sm font-medium text-hero-ink">Cash on Delivery</p>
+            <p className="font-body text-xs text-hero-ink-muted">Pay when delivered</p>
           </div>
         </button>
       </div>
       {value === "cod" && (
-        <p className="font-body text-xs text-text-muted bg-status-warning-bg border border-status-warning/20 rounded-lg p-3">
+        <p className="font-body text-xs text-hero-ink-muted bg-hero-clay/10 border border-hero-clay/25 rounded-lg p-3">
           Your order will require confirmation from our team before being scheduled for delivery.
         </p>
       )}

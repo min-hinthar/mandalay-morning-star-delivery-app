@@ -68,10 +68,10 @@ export function AddressCardV8({
       className={cn(
         "relative w-full p-4 rounded-xl text-left",
         "border-2 transition-colors",
-        "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent focus-visible:ring-offset-2",
         isSelected
-          ? "border-primary bg-primary/5"
-          : "border-border bg-surface-primary hover:border-primary/50"
+          ? "border-hero-clay bg-hero-clay/12 ck-glow-clay"
+          : "border-hero-line bg-hero-card hover:border-hero-clay/50"
       )}
     >
       {/* Selection indicator */}
@@ -89,9 +89,9 @@ export function AddressCardV8({
               }
         }
         transition={getSpring(spring.ultraBouncy)}
-        className="absolute top-3 right-3 w-6 h-6 rounded-full bg-primary flex items-center justify-center"
+        className="absolute top-3 right-3 w-6 h-6 rounded-full bg-hero-accent flex items-center justify-center ck-glow-clay"
       >
-        <Check className="w-4 h-4 text-text-inverse" strokeWidth={3} />
+        <Check className="w-4 h-4 text-hero-card" strokeWidth={3} />
       </m.div>
 
       {/* Address content */}
@@ -99,14 +99,16 @@ export function AddressCardV8({
         <div
           className={cn(
             "p-2 rounded-lg transition-colors",
-            isSelected ? "bg-primary/10" : "bg-surface-secondary"
+            isSelected ? "bg-hero-clay/15" : "bg-hero-clay/8"
           )}
         >
-          <MapPin className={cn("w-5 h-5", isSelected ? "text-primary" : "text-text-muted")} />
+          <MapPin
+            className={cn("w-5 h-5", isSelected ? "text-hero-accent" : "text-hero-ink-muted")}
+          />
         </div>
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-2">
-            <p className="font-medium text-text-primary">{address.label}</p>
+            <p className="font-medium text-hero-ink">{address.label}</p>
             {address.isDefault && (
               <span className="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">
                 <Star className="h-3 w-3 fill-current" />
@@ -124,15 +126,15 @@ export function AddressCardV8({
               </span>
             )}
           </div>
-          <p className="text-sm text-text-muted truncate">{address.line1}</p>
-          {address.line2 && <p className="text-sm text-text-muted truncate">{address.line2}</p>}
-          <p className="text-sm text-text-muted">
+          <p className="text-sm text-hero-ink-muted truncate">{address.line1}</p>
+          {address.line2 && <p className="text-sm text-hero-ink-muted truncate">{address.line2}</p>}
+          <p className="text-sm text-hero-ink-muted">
             {address.city}, {address.state} {address.postalCode}
           </p>
           {/* Distance & fee tier */}
           {address.distanceMiles != null && (
             <div className="flex items-center gap-2 mt-1">
-              <span className="text-2xs text-text-muted">
+              <span className="text-2xs text-hero-ink-muted">
                 {address.distanceMiles.toFixed(1)} mi
               </span>
               {address.distanceMiles > 25 && (
@@ -147,7 +149,7 @@ export function AddressCardV8({
 
       {/* Action buttons */}
       {(onEdit || onDelete) && (
-        <div className="flex gap-2 mt-3 pt-3 border-t border-border">
+        <div className="flex gap-2 mt-3 pt-3 border-t border-hero-line">
           {onEdit && (
             <button
               type="button"
@@ -155,7 +157,7 @@ export function AddressCardV8({
                 e.stopPropagation();
                 onEdit();
               }}
-              className="flex items-center gap-1 text-xs text-text-muted hover:text-text-primary transition-colors"
+              className="flex items-center gap-1 text-xs text-hero-ink-muted hover:text-hero-ink transition-colors"
             >
               <Pencil className="w-3 h-3" />
               Edit
@@ -168,7 +170,7 @@ export function AddressCardV8({
                 e.stopPropagation();
                 onDelete();
               }}
-              className="flex items-center gap-1 text-xs text-destructive/70 hover:text-destructive transition-colors"
+              className="flex items-center gap-1 text-xs text-red-600/80 hover:text-red-600 transition-colors"
             >
               <Trash2 className="w-3 h-3" />
               Delete

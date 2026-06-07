@@ -202,13 +202,17 @@ export function TimeStepV8({
       {/* Navigation with button entry animation */}
       <m.div
         variants={shouldAnimate ? buttonEntry : undefined}
-        className="flex justify-between pt-4 border-t border-border"
+        className="flex justify-between pt-4 border-t border-hero-line"
       >
-        <Button variant="ghost" onClick={handleBack}>
+        <Button
+          variant="ghost"
+          onClick={handleBack}
+          className="border border-hero-line bg-hero-card text-hero-ink hover:border-hero-clay/60 hover:bg-hero-clay/10 hover:text-hero-accent"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <Button onClick={handleNext} disabled={!canProceed} size="lg">
+        <Button onClick={handleNext} disabled={!canProceed} size="lg" className="ck-cta">
           Continue to Payment
         </Button>
       </m.div>
