@@ -42,6 +42,8 @@ export { MenuEmptyState } from "./MenuEmptyState";
 
 export { MenuTextureBackdrop } from "./MenuTextureBackdrop";
 
+export { MenuPageAmbient } from "./MenuPageAmbient";
+
 export { SearchResultsGrid } from "./SearchResultsGrid";
 
 export { MenuHeader } from "./MenuHeader";
