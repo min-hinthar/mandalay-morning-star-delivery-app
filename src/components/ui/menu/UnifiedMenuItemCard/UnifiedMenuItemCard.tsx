@@ -269,7 +269,12 @@ export function UnifiedMenuItemCard({
 
         {/* Favorite button */}
         <div className={cn("absolute top-3 right-3", zClass.dropdown)}>
-          <FavoriteButton isFavorite={isItemFavorite} onToggle={handleFavoriteToggle} size="md" />
+          <FavoriteButton
+            isFavorite={isItemFavorite}
+            onToggle={handleFavoriteToggle}
+            size="md"
+            onPaper={isWarmPaper}
+          />
         </div>
 
         {/* Sold out overlay */}

@@ -98,12 +98,18 @@ export function hasFreeFromSelected(filterIds: string[]): boolean {
   return filterIds.some((id) => FILTER_BY_ID.get(id)?.kind === "free-from");
 }
 
+/** Items tagged this way have an audited, complete allergen profile — so an
+ *  EMPTY allergen list means "genuinely none" (e.g. plain rice), not "unknown".
+ *  The owner extends this by tagging more dishes as the kitchen audits them. */
+export const ALLERGEN_REVIEWED_TAG = "allergen-reviewed";
+
 /** Does a single item satisfy one dietary filter? */
 export function itemMatchesDietaryFilter(item: MenuItem, def: DietaryFilterDef): boolean {
   if (def.kind === "free-from") {
-    // Fail-safe: no declared allergens = UNKNOWN, not a free-from guarantee.
-    if (item.allergens.length === 0) return false;
     const declared = item.allergens.map((a) => a.toLowerCase());
+    // Fail-safe: undeclared allergens = UNKNOWN → excluded, UNLESS the dish is
+    // explicitly allergen-reviewed (audited complete; empty = genuinely none).
+    if (declared.length === 0 && !item.tags.includes(ALLERGEN_REVIEWED_TAG)) return false;
     return !(def.excludesAllergens ?? []).some((a) => declared.includes(a));
   }
   const tags = item.tags.map((t) => t.toLowerCase());

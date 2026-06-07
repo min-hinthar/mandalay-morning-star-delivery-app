@@ -323,7 +323,7 @@ items:
     base_price_cents: 200
     is_active: true
     is_sold_out: false
-    tags: ["vegan"]
+    tags: ["vegan", "allergen-reviewed"]
     allergens: []
     modifier_group_slugs: []
 
