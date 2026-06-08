@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useRef, useCallback, useMemo, useEffect } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { m } from "framer-motion";
 import { UtensilsCrossed, ShoppingCart, ArrowRight } from "lucide-react";
-import { ItemDetailSheet, MenuTextureBackdrop } from "@/components/ui/menu";
+import { ItemDetailSheet } from "@/components/ui/menu";
+import { PhotoBandBackdrop } from "@/components/ui/PhotoBandBackdrop";
 import { FeaturedSections } from "@/components/ui/homepage/FeaturedSections";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
@@ -101,21 +101,9 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
 
   return (
     <section className="relative overflow-hidden py-16 md:py-24 px-4 isolate" id="menu">
-      {/* Background Image */}
-      <Image
-        src="/images/menu-section-bg.webp"
-        alt=""
-        fill
-        sizes="100vw"
-        className="object-cover object-center"
-        quality={85}
-      />
-
-      {/* Dark overlay for text readability */}
-      <div className="absolute inset-0 bg-surface-primary/85 pointer-events-none" />
-
-      {/* Layered editorial texture (gradient-masked grids + triad glows) */}
-      <MenuTextureBackdrop />
+      {/* Zoomed-out photo band (shared) — section keeps a stronger cream wash for
+          the header/CTA text over it; tune `washClassName` to taste. */}
+      <PhotoBandBackdrop className="absolute inset-0" washClassName="bg-surface-primary/60" />
 
       <div className="relative z-10 max-w-7xl mx-auto">
         {/* Header */}
