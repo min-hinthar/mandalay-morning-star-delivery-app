@@ -48,9 +48,9 @@ export function MenuSection({ category, children, className }: MenuSectionProps)
       id={sectionId}
       aria-labelledby={headingId}
       className={cn(
-        // Calculated scroll margin: header (72px) + tabs (~60px) + gap (8px) = 140px
-        // eslint-disable-next-line no-restricted-syntax
-        "scroll-mt-[140px]",
+        // Clear the pinned rail (its measured height) + a small gap, so a
+        // clicked/scrolled-to heading lands just below the rail, not under it.
+        "scroll-mt-[calc(var(--tabs-offset)+0.75rem)]",
         className
       )}
     >

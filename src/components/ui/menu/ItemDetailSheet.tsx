@@ -305,7 +305,9 @@ export function ItemDetailSheet({
     if (!item) return null;
 
     return (
-      <div className={cn("relative flex flex-col", isMobile && "h-full")}>
+      <div
+        className={cn("menu-paper relative flex flex-col bg-surface-primary", isMobile && "h-full")}
+      >
         {/* Photo-first hero: clean food photo + un-clipped close + title below */}
         <DishHero item={item} onClose={handleRequestClose} />
 
@@ -375,9 +377,8 @@ export function ItemDetailSheet({
           </div>
         </div>
 
-        {/* Footer with Add to Cart / Update Cart */}
-        {/* eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution */}
-        <div className="menu-sheet-footer safe-area-inset-bottom shrink-0 border-t border-border bg-white p-4 dark:bg-black">
+        {/* Footer with Add to Cart / Update Cart — warm-paper card surface */}
+        <div className="menu-sheet-footer safe-area-inset-bottom shrink-0 border-t border-border bg-surface-secondary p-4">
           {/* Validation Error */}
           {!validation.isValid && validation.errors[0] && (
             <p className="mb-2 text-sm text-status-error">{validation.errors[0]}</p>

@@ -73,9 +73,9 @@ export function MenuSkeleton({
 }: MenuSkeletonProps) {
   return (
     <div className={className}>
-      {/* Category tabs skeleton */}
-      {/* MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes) */}
-      <div className="sticky top-[var(--tabs-offset)] z-20 border-b border-border bg-surface-primary sm:bg-surface-primary/95 sm:backdrop-blur-lg">
+      {/* Category rail skeleton — pins to the top like the real rail (the sole
+          pinned bar). MOBILE CRASH PREVENTION: no backdrop-blur on mobile. */}
+      <div className="menu-bar sticky top-[calc(var(--offline-banner-height,0px)+var(--header-height,64px))] z-30">
         <div className="flex gap-2 overflow-hidden px-4 py-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div

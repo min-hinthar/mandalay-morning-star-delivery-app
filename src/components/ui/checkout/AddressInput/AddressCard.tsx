@@ -66,7 +66,7 @@ export function AddressCard({ address, isSelected, coverageStatus, onSelect }: A
           <div className="flex items-center gap-2 mb-1">
             <span className="font-semibold text-text-primary">{address.label}</span>
             {address.isDefault && (
-              <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/20 text-secondary-hover font-medium">
+              <span className="text-xs px-2 py-0.5 rounded-full bg-secondary/20 text-text-primary font-medium">
                 Default
               </span>
             )}
