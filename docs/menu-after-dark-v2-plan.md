@@ -21,10 +21,33 @@ driving this as one continuous effort; harness pins this branch).
 - ⏳ **B. Two-pane index rail + filmstrip nav** — NOT built yet.
 - ⏳ **A. ⌘K command palette search** — NOT built yet.
 
+## Status (2026-06-08) — top-region redesign shipped in #155
+
+The owner-driven menu **top-region** rework landed on `main` (merged #155),
+superseding the "two-pane rail / filmstrip" idea (B) with a cleaner single-rail
+model and resolving A via the global header's ⌘K:
+
+- ✅ **Single pinned `MenuRail` toolbar** — replaces the old stacked
+  header+banners+tabs chrome: expand-on-tap search (on-page live filter) +
+  scroll-spy `CategoryTabs` + live `RailCutoffChip` + Filters→`MenuFiltersSheet`
+  bottom sheet. Pins below the global `AppHeader` and slides in sync with it
+  (`useHeaderVisibility`); publishes `--menu-rail-height` so section `scroll-mt`
+  and the scroll-spy both clear it.
+- ✅ **De-dup** — cart + ⌘K search are the global `AppHeader`'s; the menu no
+  longer duplicates them (was "two carts / two searches"). So **A. ⌘K palette**
+  is satisfied by the existing global command palette, not a menu-local one.
+- ✅ **Editorial scroll-away masthead** + full-page **fixed photo backdrop**
+  (`MenuPageAmbient`) behind a transparent, non-isolating `<main>`.
+- ✅ **Pills** — active `.menu-tab-active` (self-contained gold→clay; root-fixes
+  the dark-on-dark active-tab bug); inactive **vellum ghost** `.menu-tab-ghost`.
+- ✅ **Token audit** — `.menu-paper` over-photo chrome melds + the bright-yellow
+  `text-secondary`-on-light melds (homepage/checkout) fixed.
+- ❌ **B. Two-pane index rail / filmstrip** — intentionally NOT pursued; the
+  single rail proved cleaner and de-duplicated against the global header.
+
 > Next direction (owner): extend "After Dark" to the rest of the **customer
 > surfaces** (checkout first) — see
-> [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md). B and A
-> above remain available menu polish if revisited.
+> [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
 
 ## Locked decisions (via AskUserQuestion, 2026-06-06)
 

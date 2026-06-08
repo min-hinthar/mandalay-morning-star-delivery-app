@@ -35,12 +35,32 @@ Tailwind/AI-template looks = not done.
 
 - **Surfaces:** `hero-surface-{glass,vellum,paper}` + `HeroCardLayers`
   (dots/grain/ticks/glow); **warm-paper cards** via `UnifiedMenuItemCard`'s
-  `menu-paper` scope / the `warmPaper`/`onPaper` props pattern.
+  `menu-paper` scope / the `warmPaper` prop.
+- **Pinned toolbar (NEW, #155):** `MenuRail` is the reference pattern for a
+  single de-duplicated sticky toolbar that **pins below the global `AppHeader`
+  and slides in sync** with it (`useHeaderVisibility` + `getHeaderTransition`,
+  publishing its measured height as a CSS var for downstream `scroll-mt`). Lean
+  on the global header for cart + ⌘K search; don't duplicate them per-surface.
+- **Pills/chips (NEW, #155):** active = **self-contained** `.menu-tab-active`
+  (lit gold→clay gradient + dot-texture as _background layers_ + dark-ink label,
+  all on ONE element); inactive = **vellum ghost** `.menu-tab-ghost`. Active
+  filter chip = `.menu-cta-lit` / `.menu-chip-active`. Reuse; don't reinvent.
+- **Full-page photo backdrop (NEW, #155):** `MenuPageAmbient` (viewport-`fixed`
+  photo + 85% surface overlay + `MenuTextureBackdrop`) behind a **transparent,
+  non-isolating** `<main>` so it sits behind ALL content incl. the footer.
+- **Bottom-sheet filters (NEW, #155):** `MenuFiltersSheet` (shared `Drawer`
+  `position="bottom"` + a visible bilingual heading + own `px` — `Drawer`
+  renders `title` aria-only and adds no body padding).
 - **Tokens (source of truth `tokens.css` → `@theme` in `globals.css`):** hero
   palette (`--hero-ink`, cream `--hero-card-bg`, `--hero-clay/-blue/-sage`,
-  `--hero-accent`), menu accents (`--menu-clay/-gold/-amber`), textures
+  `--hero-accent`), menu accents (`--menu-clay`, `--menu-gold`), the active-pill
+  tokens (`--menu-tab-active-from/-to/-ink/-ring/-glow`) + ghost-pill tokens
+  (`--menu-tab-ghost-bg/-border/-sheen/-ink/-dot`), textures
   (`--menu-texture-dot/-line`). **Never hardcode** white/black/hex/z-index/blur —
-  ESLint bans them; add a token + `@theme` map + utility.
+  ESLint bans them; add a token + `@theme` map + utility. **Caution:**
+  `--color-secondary` is bright **yellow** (`#ebcd00`) — never use `text-secondary`
+  as body text on a light/cream/faint-yellow surface (it melds); it's only safe
+  as a decorative icon on adequate contrast, or as a fill behind dark ink.
 - **Motion:** signature springs from `motion-tokens`; hooks in
   `Hero/interactions.ts` (`useTilt`/`useMagnetic`/`useHeroParallax`/`useRipple`);
   `RollingDigits`/`RollingNumber` for **live numbers** (totals, counts — animate
@@ -75,6 +95,24 @@ Tailwind/AI-template looks = not done.
   value), ≥44px tap targets, reduced-motion paths on every signature animation.
 - **Never fabricate data to look alive** — animate real values; no invented
   dietary/allergen/price claims.
+- **`.menu-paper` (and any token-inverting scope) flips a subtree's TOKENS
+  opposite to the theme** (`--color-surface-*`, `--color-text-*`,
+  `--color-text-inverse`, `--color-primary*`). Content that _should_ invert with
+  the card (price, name, qty stepper) keeps those tokens; **chrome floating over
+  a photo** (favorite, close X, checkmark) must opt OUT — use tokens the scope
+  does NOT remap and that key off the REAL theme: `bg-surface-elevated`, and
+  icons `text-hero-ink dark:text-hero-card-strong` (both constant). Else it melds
+  dark-on-dark in light mode. (#155 root-cause; same trap applies to any future
+  inverted surface.)
+- **Selected/active state must be SELF-CONTAINED** — put the contrast background
+  AND the text on the SAME element (e.g. `.menu-tab-active` = gradient bg +
+  dark-ink label). Never rely on a _separately-measured/positioned_ indicator div
+  (placed via `offsetLeft`) to supply the background behind selected text: a
+  measurement race / null state leaves the dark label on the bare surface —
+  readable on a light rail, INVISIBLE on a dark one. (This was the recurring
+  "active tab dark-on-dark in dark mode" bug; #155 fixed it architecturally.
+  `Tabs.tsx` + `CommandPalette/SearchCategoryTabs.tsx` still use the measured
+  pattern — audit if they ever show the symptom.)
 
 ## Process
 
