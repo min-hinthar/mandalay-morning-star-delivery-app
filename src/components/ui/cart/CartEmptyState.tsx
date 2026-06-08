@@ -1,14 +1,10 @@
 "use client";
 
 /**
- * CartEmptyState Component
- * Friendly empty cart state with animation
+ * CartEmptyState — warm-paper empty cart (After Dark)
  *
- * Features:
- * - Animated floating shopping bag icon
- * - Staggered entrance animation
- * - CTA to browse menu
- * - Respects animation preferences
+ * Editorial, bilingual, calm: a warm clay disc + staggered entrance + a clear
+ * route back to the menu. No infinite loops (mobile-safe).
  */
 
 import Link from "next/link";
@@ -71,32 +67,38 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
         className
       )}
     >
-      {/* Static bag icon - removed infinite animations to prevent mobile crashes */}
+      {/* Warm clay disc */}
       <m.div
         variants={shouldAnimate ? itemVariants : undefined}
         className={cn(
           "flex h-28 w-28 items-center justify-center rounded-full",
-          "bg-gradient-cart-summary",
-          "shadow-lg shadow-amber-500/10"
+          "border border-hero-clay/20 bg-hero-clay/10"
         )}
       >
-        <ShoppingBag className="h-14 w-14 text-amber-500/70" />
+        <ShoppingBag className="h-14 w-14 text-hero-clay" />
       </m.div>
 
-      {/* Heading */}
+      {/* Heading — bilingual */}
       <m.h3
         variants={shouldAnimate ? itemVariants : undefined}
-        className="mt-6 text-xl font-display font-bold text-text-primary"
+        className="mt-6 font-display text-xl font-bold text-text-primary"
       >
         Your cart is empty
       </m.h3>
+      <m.p
+        variants={shouldAnimate ? itemVariants : undefined}
+        className="font-burmese text-sm text-text-muted"
+        lang="my"
+      >
+        သင့်ခြင်းတောင်း ဗလာဖြစ်နေပါသည်
+      </m.p>
 
       {/* Description */}
       <m.p
         variants={shouldAnimate ? itemVariants : undefined}
-        className="mt-2 text-sm font-body text-text-secondary max-w-[240px]"
+        className="mt-2 max-w-[240px] font-body text-sm text-text-muted"
       >
-        Browse our authentic Burmese dishes and add something delicious to your cart!
+        Browse our authentic Burmese dishes and add something delicious to your cart.
       </m.p>
 
       {/* Delivery schedule context */}
@@ -116,7 +118,7 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
         className="mt-8"
       >
         <Button variant="primary" size="lg" className="shadow-elevated" onClick={onClose} asChild>
-          <Link href="/menu">Browse Menu</Link>
+          <Link href="/menu">Browse Menu · မီနူးကြည့်ရန်</Link>
         </Button>
       </m.div>
     </m.div>
