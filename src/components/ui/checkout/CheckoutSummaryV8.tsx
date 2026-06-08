@@ -68,7 +68,12 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
   const itemCount = items.reduce((sum, it) => sum + it.quantity, 0);
 
   return (
-    <div className={cn("relative", className)}>
+    <m.div
+      className={cn("relative", className)}
+      initial={shouldAnimate ? { clipPath: "inset(0 0 100% 0)" } : undefined}
+      animate={shouldAnimate ? { clipPath: "inset(0 0 0% 0)" } : undefined}
+      transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+    >
       {/* Bound-ledger spine — triad gradient bar down the receipt's left edge */}
       <span
         aria-hidden="true"
@@ -322,7 +327,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
 
       {/* Torn/punched bottom edge */}
       <div className="checkout-tear" style={{ height: TEAR_HEIGHT }} aria-hidden="true" />
-    </div>
+    </m.div>
   );
 }
 

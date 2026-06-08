@@ -459,7 +459,7 @@ export default function CheckoutClient({
 
           {/* Order summary - sticky on desktop */}
           <div className="lg:col-span-1">
-            <div className="animate-hero-develop-4 lg:sticky lg:top-24">
+            <div className="lg:sticky lg:top-24">
               <div className="checkout-sheet-stack">
                 <CheckoutSummary />
               </div>
