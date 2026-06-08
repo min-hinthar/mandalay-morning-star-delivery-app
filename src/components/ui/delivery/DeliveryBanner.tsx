@@ -25,8 +25,9 @@ export interface DeliveryBannerProps {
 // ============================================
 
 /**
- * Slim persistent banner for the menu page.
- * Positioned sticky below MenuHeader (top-14).
+ * Slim delivery/cutoff banner for the menu page. In-flow (NOT sticky): it sits
+ * in the scroll-away masthead so it doesn't fight the global header + the pinned
+ * category rail for the top edge (that stacking conflict left it mis-layered).
  * Open state: countdown with urgency colors. Closed state: next delivery date.
  *
  * Supports both legacy single-day (cutoffDay/cutoffHour) and multi-day (deliveryDays) modes.
@@ -47,7 +48,7 @@ export function DeliveryBanner({
   return (
     <div
       className={cn(
-        "sticky top-14 z-10 border-b",
+        "border-b",
         "flex items-center justify-center gap-2 px-4 py-2 text-sm",
         isOpen && urgency === "normal" && "bg-surface-secondary border-border text-text-secondary",
         isOpen &&

@@ -22,9 +22,14 @@ import { memo, useRef, useState, useEffect, useCallback, useMemo } from "react";
 import { m } from "framer-motion";
 import { useActiveCategory } from "@/lib/hooks/useActiveCategory";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useHeaderVisibility, getHeaderTransition } from "@/lib/hooks/useHeaderVisibility";
 import { spring } from "@/lib/motion-tokens";
 import { cn } from "@/lib/utils/cn";
 import { CartButton } from "@/components/ui/cart";
+
+// Global AppHeader height (h-16). The rail pins directly below it and rides up
+// in sync when the header hides on scroll-down (mirrors AppHeader's behavior).
+const HEADER_HEIGHT = 64;
 
 export interface Category {
   /** URL-friendly slug for the category */
@@ -61,6 +66,11 @@ export const CategoryTabs = memo(function CategoryTabs({
   const railRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const { shouldAnimate } = useAnimationPreference();
+
+  // Track the global AppHeader's scroll show/hide so the rail (pinned just below
+  // it) rides up to the top edge when the header retracts, and back down when it
+  // returns — no overlap, no dead gap. Mirrors AppHeader's own visibility logic.
+  const { isVisible: isHeaderVisible, isFastScroll } = useHeaderVisibility();
 
   // Publish the live rail height so menu sections (scroll-mt) and the scroll-spy
   // clear the pinned rail. As the SOLE pinned bar (the masthead scrolls away),
@@ -227,16 +237,20 @@ export const CategoryTabs = memo(function CategoryTabs({
   );
 
   return (
-    <div
+    <m.div
       ref={railRef}
       className={cn(
-        // The SOLE pinned bar: pins to the top (below any offline banner) once
-        // the editorial masthead scrolls away above it.
-        "sticky top-[var(--offline-banner-height,0px)] z-30",
+        // The SOLE in-page pinned bar: pins just below the global AppHeader, and
+        // rides up to the top edge when that header retracts on scroll (the `y`
+        // animation below keeps them flush — no overlap, no gap).
+        "sticky z-30",
         // Frosted elevated surface so the rail floats above the photo page
         "menu-bar",
         className
       )}
+      style={{ top: "calc(var(--offline-banner-height, 0px) + var(--header-height, 64px))" }}
+      animate={{ y: isHeaderVisible ? 0 : -HEADER_HEIGHT }}
+      transition={getHeaderTransition(isFastScroll)}
     >
       <div className="flex items-center gap-1 pr-2 sm:pr-3">
         {/* Tabs region (relative anchor for the edge fades) */}
@@ -299,16 +313,16 @@ export const CategoryTabs = memo(function CategoryTabs({
                   className={cn(
                     "relative flex-shrink-0",
                     "rounded-pill px-5 py-2.5 min-h-[44px]",
-                    "font-body text-sm font-semibold",
+                    "font-body text-sm",
                     "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                     isActive
-                      ? // Warm-white label on the hero-magenta→clay active pill
-                        // (the indicator div), kept AA in both themes
-                        "menu-tab-active-label"
-                      : // Inactive = clean editorial text tab (no chrome), so the
-                        // bold inverted active pill is unmistakable — max figure/
-                        // ground separation, never melds in either theme
-                        "text-text-secondary hover:bg-surface-primary/70 hover:text-text-primary"
+                      ? // Bold warm-white label on the lit magenta→clay pill —
+                        // heavier weight + drop shadow reinforce the selected read
+                        "menu-tab-active-label font-bold"
+                      : // Inactive = legible full-ink/70 medium-weight text, no
+                        // chrome, faint chip on hover. Weight + the lit active pill
+                        // give clear figure/ground in both themes.
+                        "font-medium text-text-primary/70 hover:bg-surface-primary/60 hover:text-text-primary"
                   )}
                 >
                   {/* Tab label */}
@@ -335,7 +349,7 @@ export const CategoryTabs = memo(function CategoryTabs({
             scrolls away (it used to live in the now-scroll-away header). */}
         <CartButton />
       </div>
-    </div>
+    </m.div>
   );
 });
 
