@@ -36,6 +36,8 @@ import {
   getAvailableDeliveryDatesMultiDay,
   getZonedDayOfWeek,
 } from "@/lib/utils/delivery-dates";
+import { CheckoutSectionHeader } from "./CheckoutSectionHeader";
+import { CtaMagnet } from "./CtaMagnet";
 import { TimeSlotPicker } from "./TimeSlotPicker";
 import { DeliveryZoneInfoCard } from "./DeliveryZoneInfoCard";
 import { Button } from "@/components/ui/button";
@@ -167,12 +169,15 @@ export function TimeStepV8({
     >
       {/* Header with stagger */}
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
-        <div className="flex items-center gap-2 mb-1">
-          <Clock className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold text-text-primary">Delivery Time</h2>
-        </div>
-        <p className="font-body text-sm text-text-muted">Choose your preferred delivery window</p>
-        <p className="font-body text-xs text-text-muted mt-1">
+        <CheckoutSectionHeader
+          icon={Clock}
+          eyebrow="Delivery Time"
+          eyebrowMy="အချိန်"
+          lead="When it"
+          accent="arrives"
+          sub="Choose your preferred delivery window"
+        />
+        <p className="font-body text-xs text-hero-ink-muted mt-1.5">
           Time windows are preferred delivery times, not guaranteed arrival times.
         </p>
       </m.div>
@@ -202,15 +207,21 @@ export function TimeStepV8({
       {/* Navigation with button entry animation */}
       <m.div
         variants={shouldAnimate ? buttonEntry : undefined}
-        className="flex justify-between pt-4 border-t border-border"
+        className="flex justify-between pt-4 border-t border-hero-line"
       >
-        <Button variant="ghost" onClick={handleBack}>
+        <Button
+          variant="ghost"
+          onClick={handleBack}
+          className="border border-hero-line bg-hero-card text-hero-ink hover:border-hero-clay/60 hover:bg-hero-clay/10 hover:text-hero-accent"
+        >
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <Button onClick={handleNext} disabled={!canProceed} size="lg">
-          Continue to Payment
-        </Button>
+        <CtaMagnet>
+          <Button onClick={handleNext} disabled={!canProceed} size="lg" className="ck-cta">
+            Continue to Payment
+          </Button>
+        </CtaMagnet>
       </m.div>
     </m.div>
   );

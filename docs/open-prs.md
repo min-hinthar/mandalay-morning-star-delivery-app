@@ -8,13 +8,29 @@ _Last reconciled: 2026-06-08._
 
 ## In flight
 
-**Checkout "After Dark"** (**#154**, a separate session's branch
-`claude/after-dark-ui-ux-c8Zl4`) is the active rollout PR — surface #1 of the
-customer-surfaces sequence. The menu/homepage epic (**#150**), the
-allergen-reviewed + favorite follow-ups (**#151**), the allergen audit
-(**#152**), and the **menu top-region redesign** (**#155**) have all landed on
-`main`. **Next up after checkout:** cart drawer → orders → account → auth. See
-[`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
+- **#154** — **Checkout "After Dark"** (surface #1 of the customer rollout; branch
+  `claude/after-dark-ui-ux-c8Zl4`). The cumulative reskin + this session's adds:
+  living **"living receipt"** with a **thermal-print** reveal (print-head sweep +
+  tear-off; totals presentation-only); layered sheet-stack form + ledger spine;
+  magnetic+ripple CTAs; **maximal rewards card** in the sidebar (tier-tinted
+  **Star-arc gauge** + wax-seal **reward coin** w/ tooltip + Burmese-gem **tier
+  ladder**, all on REAL `useRewardsSummary` data — `spendCents` added to that
+  route); **referral offer** moved below the fold + **in-page share modal** (no
+  checkout exit); **bilingual wax-seal stamp** + tier-threaded seal on the order
+  confirmation; **menu-photo background melded** into the sunset canvas — now a
+  **shared `PhotoBandBackdrop`** (zoomed-out masked photo band + soft-light +
+  editorial texture) reused on checkout, the **menu page** (`MenuPageAmbient`),
+  and the **homepage menu section**, mobile-GPU-safe. Merged `main` in twice
+  (menu-rail #155 + #156 docs) cleanly (docs-only conflicts).
+  **Pre-merge adversarial review: SHIP** — no High/money/auth/GPU findings;
+  the one Medium (dead `rewardReady` state) fixed. Local verify green
+  (lint · lint:css · format · typecheck · **1180 tests** · build); CI blocked
+  only by the Actions quota/runner issue (merge via owner's branch-protection
+  bypass, as #155 did). **Awaiting owner's merge go.**
+
+> **Next up after checkout:** cart drawer → orders → account → auth (per the
+> customer-surfaces sequence). See
+> [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
 
 ## Watching
 

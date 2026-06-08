@@ -1,18 +1,19 @@
 "use client";
 
 /**
- * CheckoutSummaryV8 Component
- * Order summary with animated free delivery progress indicator
+ * CheckoutSummaryV8 — the "living receipt".
  *
- * Features:
- * - Animated progress bar with spring.rubbery for free delivery threshold
- * - Celebration animation when free delivery is achieved
- * - Staggered item list animation
- * - PriceTicker for animated price updates
- * - Respects animation preferences
+ * Warm-paper ticket (After Dark): editorial header, item ledger with live
+ * rolling prices, dashed perforation rules, a sage→clay free-delivery fill
+ * that bursts on unlock, a big rolling total under a slow ledger sheen, and a
+ * torn/punched bottom edge. Presentation only — every total computation is
+ * unchanged from the prior summary.
+ *
+ * Guardrails honored: opaque cream surface (no mobile backdrop-filter), radial
+ * glows via HeroCardLayers (no blur()), reduced-motion-safe, token-pure.
  */
 
-import { m, AnimatePresence } from "framer-motion";
+import { m } from "framer-motion";
 import { ShoppingBag, Truck, Sparkles, Tag, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerItem, staggerContainer } from "@/lib/motion-tokens";
@@ -20,35 +21,18 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
+import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
 import { PriceTicker } from "@/components/ui/PriceTicker";
+import { LedgerRow, FadeRow } from "./CheckoutSummaryRows";
 import { formatPrice } from "@/lib/utils/format";
 import { COVINA_TAX_RATE } from "@/lib/utils/order";
 
-// ============================================
-// TYPES
-// ============================================
-
 export interface CheckoutSummaryV8Props {
-  /** Additional className */
   className?: string;
 }
 
-// ============================================
-// ANIMATION VARIANTS
-// ============================================
-
-const summaryRowVariants = {
-  hidden: { opacity: 0, x: -10 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { type: "spring" as const, stiffness: 300, damping: 25 },
-  },
-};
-
-// ============================================
-// MAIN COMPONENT
-// ============================================
+const TEAR_HEIGHT = "0.6875rem"; // matches .checkout-tear
 
 export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
@@ -72,316 +56,318 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
   const discountLabel = useCheckoutStore((s) => s.discountLabel);
   const promoApplied = useCheckoutStore((s) => s.promoApplied);
 
-  // Compute tip cents from store state
+  // ---- Computations (unchanged) ----
   const tipCents =
     tipPercent !== null ? Math.round((itemsSubtotal * tipPercent) / 100) : customTipCents;
-
-  // Compute estimated tax
   const estimatedTaxCents = Math.round(itemsSubtotal * COVINA_TAX_RATE);
-
-  // Compute adjusted total with tip, tax, and discount
   const adjustedTotal = estimatedTotal + tipCents + estimatedTaxCents - discountCents;
-
-  // Calculate progress percentage toward free delivery
   const progressPercent = Math.min(
     100,
     ((freeDeliveryThresholdCents - amountToFreeDelivery) / freeDeliveryThresholdCents) * 100
   );
-
   const hasFreeDelivery = amountToFreeDelivery <= 0 && !isExtendedRange;
+  const itemCount = items.reduce((sum, it) => sum + it.quantity, 0);
 
   return (
-    <div
-      className={cn(
-        "overflow-hidden rounded-xl border border-border bg-surface-primary shadow-lg",
-        className
-      )}
-    >
-      {/* Header */}
-      <div className="border-b border-border bg-gradient-to-r from-primary/5 to-transparent px-5 py-4">
-        <h3 className="flex items-center gap-2 font-bold text-text-primary">
-          <ShoppingBag className="h-5 w-5 text-primary" />
-          Order Summary
-        </h3>
-      </div>
-
-      {/* Items */}
-      <m.ul
-        variants={shouldAnimate ? staggerContainer(0.05, 0.1) : undefined}
-        initial={shouldAnimate ? "hidden" : undefined}
-        animate={shouldAnimate ? "visible" : undefined}
-        className="max-h-64 space-y-3 overflow-y-auto px-5 py-4"
+    <div className={cn("relative", className)}>
+      {/* Thermal-print reveal: the receipt prints top→down (clip) while the body
+          advances + settles. The print-head light (below) rides the frontier. */}
+      <m.div
+        className="relative"
+        initial={shouldAnimate ? { clipPath: "inset(0 0 100% 0)", y: 8 } : undefined}
+        animate={shouldAnimate ? { clipPath: "inset(0 0 0% 0)", y: 0 } : undefined}
+        transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
       >
-        {/* CHANGED from mode="popLayout" to mode="sync" - popLayout causes layout thrashing that crashes mobile */}
-        <AnimatePresence mode="sync">
-          {items.map((item) => {
-            const itemTotal =
-              (item.basePriceCents +
-                item.modifiers.reduce((sum, m) => sum + m.priceDeltaCents, 0)) *
-              item.quantity;
+        {/* Bound-ledger spine — triad gradient bar down the receipt's left edge */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute left-0 top-3 bottom-5 z-10 w-[3px] rounded-full bg-gradient-to-b from-hero-clay via-hero-blue to-hero-sage opacity-70"
+        />
+        {/* Ticket body — opaque warm paper so the torn foot matches exactly */}
+        <div className="hero-surface-paper relative overflow-hidden rounded-t-2xl">
+          <HeroCardLayers accent="clay" radius="rounded-t-2xl" />
 
-            return (
-              <m.li
-                key={item.cartItemId}
-                variants={shouldAnimate ? staggerItem : undefined}
-                initial={shouldAnimate ? "hidden" : undefined}
-                animate={shouldAnimate ? "visible" : undefined}
-                exit={shouldAnimate ? "exit" : undefined}
-                // REMOVED layout prop - causes expensive layout recalculations that crash mobile
-                className="flex justify-between text-sm"
-              >
-                <div className="flex-1 min-w-0 pr-3">
-                  <div className="flex items-center gap-1.5">
-                    <m.span
-                      className="inline-flex h-5 w-5 items-center justify-center rounded bg-primary/10 text-xs font-bold text-primary"
-                      initial={shouldAnimate ? { scale: 0 } : undefined}
-                      animate={shouldAnimate ? { scale: 1 } : undefined}
-                      transition={getSpring(spring.ultraBouncy)}
-                    >
-                      {item.quantity}
-                    </m.span>
-                    <span className="font-medium text-text-primary truncate">{item.nameEn}</span>
-                  </div>
-                  {item.modifiers.length > 0 && (
-                    <p className="mt-1 text-xs text-text-muted truncate pl-6">
-                      {item.modifiers.map((m) => m.optionName).join(", ")}
-                    </p>
-                  )}
+          <div className="relative">
+            {/* Editorial header */}
+            <div className="flex items-center justify-between gap-3 border-b border-hero-line/70 px-5 py-4">
+              <div className="flex min-w-0 items-center gap-2 text-hero-accent">
+                <HeroSunburst className="h-4 w-4 shrink-0" rays={8} />
+                <div className="leading-tight">
+                  <h3 className="font-display text-base font-semibold text-hero-ink">Your order</h3>
+                  <span className="font-burmese text-2xs text-hero-ink-muted" lang="my">
+                    အော်ဒါ
+                  </span>
                 </div>
-                <span className="font-semibold text-text-primary flex-shrink-0">
-                  <PriceTicker value={itemTotal} inCents={true} size="sm" />
+              </div>
+              <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-hero-line bg-hero-card/70 px-2.5 py-1 text-2xs font-bold text-hero-ink-muted">
+                <ShoppingBag className="h-3.5 w-3.5 text-hero-clay" aria-hidden="true" />
+                <span>
+                  {itemCount} {itemCount === 1 ? "item" : "items"}
                 </span>
-              </m.li>
-            );
-          })}
-        </AnimatePresence>
-      </m.ul>
-
-      {/* Totals */}
-      <div className="border-t border-border bg-surface-secondary/80 px-5 py-4 space-y-3">
-        {/* Extended range notice */}
-        {isExtendedRange && (
-          <m.div
-            initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
-            animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-            transition={getSpring(spring.gentle)}
-            className={cn(
-              "p-3 rounded-lg",
-              "bg-blue-50 dark:bg-blue-950/30",
-              "border border-blue-200/60 dark:border-blue-800/40"
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <Truck className="w-4 h-4 text-blue-500" />
-              <span className="text-sm font-medium text-blue-700 dark:text-blue-300">
-                Extended delivery: ${(estimatedDeliveryFee / 100).toFixed(2)} flat fee
-              </span>
-            </div>
-            {addressDistanceMiles != null && (
-              <p className="text-xs text-blue-600/70 dark:text-blue-400/70 mt-1 ml-6">
-                {addressDistanceMiles.toFixed(1)} mi from kitchen
-              </p>
-            )}
-          </m.div>
-        )}
-
-        {/* Free delivery progress indicator */}
-        {!hasFreeDelivery && !isExtendedRange && (
-          <m.div
-            initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
-            animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-            transition={getSpring(spring.gentle)}
-            className={cn(
-              "p-3 rounded-lg",
-              "bg-status-warning-bg",
-              "border border-status-warning/20"
-            )}
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <m.div
-                animate={
-                  shouldAnimate
-                    ? {
-                        rotate: [0, 15, -15, 0],
-                        scale: [1, 1.1, 1.1, 1],
-                      }
-                    : undefined
-                }
-                transition={{
-                  duration: 0.6,
-                  repeat: 5,
-                  repeatDelay: 2,
-                }}
-              >
-                <Sparkles className="w-4 h-4 text-status-warning" />
-              </m.div>
-              <span className="text-sm font-medium text-text-money">
-                {formatPrice(amountToFreeDelivery)} more for free delivery!
+                <span className="font-burmese text-hero-ink-muted/80" lang="my">
+                  · {itemCount} ခု
+                </span>
               </span>
             </div>
 
-            {/* Animated progress bar */}
-            <div className="h-2 bg-surface-tertiary rounded-full overflow-hidden">
-              <m.div
-                className="h-full rounded-full bg-gradient-progress"
-                initial={{ width: 0 }}
-                animate={{ width: `${progressPercent}%` }}
-                transition={getSpring(spring.rubbery)}
-              />
-            </div>
-          </m.div>
-        )}
-
-        {/* Free delivery achieved celebration */}
-        {hasFreeDelivery && !isExtendedRange && (
-          <m.div
-            initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
-            animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
-            transition={getSpring(spring.ultraBouncy)}
-            className={cn(
-              "p-3 rounded-lg",
-              "bg-status-success-bg",
-              "border border-status-success/20"
-            )}
-          >
-            <div className="flex items-center gap-2">
-              <m.div
-                animate={
-                  shouldAnimate
-                    ? {
-                        scale: [1, 1.2, 1],
-                      }
-                    : undefined
-                }
-                transition={{
-                  duration: 0.5,
-                  repeat: 5,
-                  repeatDelay: 3,
-                }}
-              >
-                <Sparkles className="w-4 h-4 text-status-success" />
-              </m.div>
-              <span className="text-sm font-medium text-status-success">
-                You qualify for free delivery!
-              </span>
-            </div>
-          </m.div>
-        )}
-
-        {/* Subtotal */}
-        <m.div
-          variants={shouldAnimate ? summaryRowVariants : undefined}
-          initial={shouldAnimate ? "hidden" : undefined}
-          animate={shouldAnimate ? "visible" : undefined}
-          className="flex justify-between text-sm text-text-muted"
-        >
-          <span>Subtotal</span>
-          <PriceTicker value={itemsSubtotal} inCents={true} size="sm" className="text-text-money" />
-        </m.div>
-
-        {/* Delivery Fee */}
-        <m.div
-          variants={shouldAnimate ? summaryRowVariants : undefined}
-          initial={shouldAnimate ? "hidden" : undefined}
-          animate={shouldAnimate ? "visible" : undefined}
-          transition={{ delay: 0.05 }}
-          className="flex justify-between text-sm text-text-muted"
-        >
-          <span className="flex items-center gap-1.5">
-            <Truck className="h-3.5 w-3.5" />
-            {isExtendedRange ? "Extended Delivery" : "Delivery"}
-          </span>
-          {hasFreeDelivery ? (
-            <m.span
-              initial={shouldAnimate ? { scale: 0.8, opacity: 0 } : undefined}
-              animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
-              transition={getSpring(spring.ultraBouncy)}
-              className="text-text-money font-semibold flex items-center gap-1"
+            {/* Item ledger */}
+            <m.ul
+              variants={shouldAnimate ? staggerContainer(0.05, 0.08) : undefined}
+              initial={shouldAnimate ? "hidden" : undefined}
+              animate={shouldAnimate ? "visible" : undefined}
+              className="max-h-64 space-y-3 overflow-y-auto px-5 py-4"
             >
-              <Sparkles className="h-3 w-3" />
-              FREE
-            </m.span>
-          ) : (
-            <PriceTicker
-              value={estimatedDeliveryFee}
-              inCents={true}
-              size="sm"
-              className="text-text-money"
-            />
-          )}
-        </m.div>
+              {items.map((item) => {
+                const itemTotal =
+                  (item.basePriceCents +
+                    item.modifiers.reduce((sum, m) => sum + m.priceDeltaCents, 0)) *
+                  item.quantity;
 
-        {/* Tax */}
+                return (
+                  <m.li
+                    key={item.cartItemId}
+                    variants={shouldAnimate ? staggerItem : undefined}
+                    className="-mx-2 flex justify-between rounded-lg px-2 py-0.5 text-sm transition-colors hover:bg-hero-clay/[0.07]"
+                  >
+                    <div className="min-w-0 flex-1 pr-3">
+                      <div className="flex items-start gap-1.5">
+                        <m.span
+                          className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-hero-clay/12 text-xs font-bold text-hero-accent"
+                          initial={shouldAnimate ? { scale: 0 } : undefined}
+                          animate={shouldAnimate ? { scale: 1 } : undefined}
+                          transition={getSpring(spring.ultraBouncy)}
+                        >
+                          {item.quantity}
+                        </m.span>
+                        <span className="line-clamp-2 font-medium text-hero-ink">
+                          {item.nameEn}
+                        </span>
+                      </div>
+                      {item.modifiers.length > 0 && (
+                        <p className="mt-1 truncate pl-6 text-xs text-hero-ink-muted">
+                          {item.modifiers.map((mod) => mod.optionName).join(", ")}
+                        </p>
+                      )}
+                    </div>
+                    <PriceTicker
+                      value={itemTotal}
+                      inCents
+                      size="sm"
+                      className="flex-shrink-0 font-semibold text-hero-ink"
+                    />
+                  </m.li>
+                );
+              })}
+            </m.ul>
+
+            {/* Totals — on a perforated ledger */}
+            <div className="space-y-3 px-5 pb-5 pt-4">
+              <div className="checkout-perf checkout-rule-draw -mx-5 mb-1" aria-hidden="true" />
+
+              {/* Extended range notice */}
+              {isExtendedRange && (
+                <FadeRow shouldAnimate={shouldAnimate} getSpring={getSpring}>
+                  <div className="rounded-xl border border-hero-blue/25 bg-hero-blue/10 p-3">
+                    <div className="flex items-center gap-2">
+                      <Truck className="h-4 w-4 text-hero-blue" aria-hidden="true" />
+                      <span className="text-sm font-semibold text-hero-ink">
+                        Extended delivery: ${(estimatedDeliveryFee / 100).toFixed(2)} flat fee
+                      </span>
+                    </div>
+                    {addressDistanceMiles != null && (
+                      <p className="ml-6 mt-1 text-xs text-hero-ink-muted">
+                        {addressDistanceMiles.toFixed(1)} mi from kitchen
+                      </p>
+                    )}
+                  </div>
+                </FadeRow>
+              )}
+
+              {/* Free delivery progress */}
+              {!hasFreeDelivery && !isExtendedRange && (
+                <FadeRow shouldAnimate={shouldAnimate} getSpring={getSpring}>
+                  <div className="rounded-xl border border-hero-clay/25 bg-hero-clay/10 p-3">
+                    <div className="mb-2 flex items-center gap-2">
+                      <m.span
+                        animate={
+                          shouldAnimate
+                            ? { rotate: [0, 14, -14, 0], scale: [1, 1.12, 1.12, 1] }
+                            : undefined
+                        }
+                        transition={{ duration: 0.6, repeat: 4, repeatDelay: 2.5 }}
+                      >
+                        <Sparkles className="h-4 w-4 text-hero-clay" aria-hidden="true" />
+                      </m.span>
+                      <span className="text-sm font-semibold text-hero-ink">
+                        {formatPrice(amountToFreeDelivery)} more for free delivery
+                      </span>
+                    </div>
+                    <div className="h-2 overflow-hidden rounded-full bg-hero-ink/10">
+                      <m.div
+                        className="checkout-progress-fill h-full rounded-full"
+                        initial={{ width: 0 }}
+                        animate={{ width: `${progressPercent}%` }}
+                        transition={getSpring(spring.rubbery)}
+                      />
+                    </div>
+                  </div>
+                </FadeRow>
+              )}
+
+              {/* Free delivery achieved */}
+              {hasFreeDelivery && !isExtendedRange && (
+                <m.div
+                  initial={shouldAnimate ? { opacity: 0, scale: 0.92 } : undefined}
+                  animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
+                  transition={getSpring(spring.ultraBouncy)}
+                  className="rounded-xl border border-hero-sage/30 bg-hero-sage/10 p-3"
+                >
+                  <div className="flex items-center gap-2">
+                    <m.span
+                      animate={shouldAnimate ? { scale: [1, 1.2, 1] } : undefined}
+                      transition={{ duration: 0.5, repeat: 4, repeatDelay: 3 }}
+                    >
+                      <Sparkles className="h-4 w-4 text-hero-sage" aria-hidden="true" />
+                    </m.span>
+                    <span className="text-sm font-semibold text-hero-ink">
+                      You qualify for free delivery
+                    </span>
+                  </div>
+                </m.div>
+              )}
+
+              <LedgerRow label="Subtotal" shouldAnimate={shouldAnimate}>
+                <PriceTicker value={itemsSubtotal} inCents size="sm" className="text-hero-ink" />
+              </LedgerRow>
+
+              <LedgerRow
+                shouldAnimate={shouldAnimate}
+                delay={0.05}
+                label={
+                  <span className="flex items-center gap-1.5">
+                    <Truck className="h-3.5 w-3.5" aria-hidden="true" />
+                    {isExtendedRange ? "Extended Delivery" : "Delivery"}
+                  </span>
+                }
+              >
+                {hasFreeDelivery ? (
+                  <m.span
+                    initial={shouldAnimate ? { scale: 0.8, opacity: 0 } : undefined}
+                    animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
+                    transition={getSpring(spring.ultraBouncy)}
+                    className="flex items-center gap-1 font-bold text-hero-sage"
+                  >
+                    <Sparkles className="h-3 w-3" aria-hidden="true" />
+                    FREE
+                  </m.span>
+                ) : (
+                  <PriceTicker
+                    value={estimatedDeliveryFee}
+                    inCents
+                    size="sm"
+                    className="text-hero-ink"
+                  />
+                )}
+              </LedgerRow>
+
+              <LedgerRow
+                shouldAnimate={shouldAnimate}
+                delay={0.07}
+                label={
+                  <span className="flex items-center gap-1.5">
+                    <Receipt className="h-3.5 w-3.5" aria-hidden="true" />
+                    Tax (10.5%)
+                  </span>
+                }
+              >
+                <PriceTicker
+                  value={estimatedTaxCents}
+                  inCents
+                  size="sm"
+                  className="text-hero-ink"
+                />
+              </LedgerRow>
+
+              {tipCents > 0 && (
+                <LedgerRow label="Tip" shouldAnimate={shouldAnimate} delay={0.1}>
+                  <PriceTicker value={tipCents} inCents size="sm" className="text-hero-ink" />
+                </LedgerRow>
+              )}
+
+              {promoApplied && discountCents > 0 && (
+                <m.div
+                  initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
+                  animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
+                  transition={{ delay: 0.12 }}
+                  className="flex justify-between text-sm"
+                >
+                  <span className="flex items-center gap-1.5 text-hero-sage">
+                    <Tag className="h-3.5 w-3.5" aria-hidden="true" />
+                    {discountLabel}
+                  </span>
+                  <span className="flex items-baseline font-semibold text-hero-sage">
+                    <span className="mr-0.5">−</span>
+                    <PriceTicker
+                      value={discountCents}
+                      inCents
+                      size="sm"
+                      className="text-hero-sage"
+                    />
+                  </span>
+                </m.div>
+              )}
+
+              <div className="checkout-perf checkout-rule-draw -mx-5 my-1" aria-hidden="true" />
+
+              {/* Total — big rolling number under a slow ledger sheen */}
+              <div className="relative overflow-hidden rounded-xl px-3 py-2.5">
+                <span
+                  aria-hidden="true"
+                  className="checkout-total-sheen pointer-events-none absolute inset-0 rounded-xl"
+                />
+                <div className="relative flex items-center justify-between">
+                  <span className="font-display text-base font-semibold text-hero-ink">
+                    Estimated total
+                  </span>
+                  <span aria-live="polite">
+                    <PriceTicker
+                      value={adjustedTotal}
+                      inCents
+                      size="lg"
+                      className="font-bold text-hero-accent"
+                    />
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Torn/punched bottom edge — tears off with a settle once printed */}
         <m.div
-          variants={shouldAnimate ? summaryRowVariants : undefined}
-          initial={shouldAnimate ? "hidden" : undefined}
-          animate={shouldAnimate ? "visible" : undefined}
-          transition={{ delay: 0.07 }}
-          className="flex justify-between text-sm text-text-muted"
-        >
-          <span className="flex items-center gap-1.5">
-            <Receipt className="h-3.5 w-3.5" />
-            Tax (10.5%)
-          </span>
-          <PriceTicker
-            value={estimatedTaxCents}
-            inCents={true}
-            size="sm"
-            className="text-text-money"
-          />
-        </m.div>
+          className="checkout-tear"
+          style={{ height: TEAR_HEIGHT, transformOrigin: "top" }}
+          aria-hidden="true"
+          initial={shouldAnimate ? { scaleY: 0.4, opacity: 0 } : undefined}
+          animate={shouldAnimate ? { scaleY: 1, opacity: 1 } : undefined}
+          transition={{ delay: 0.95, type: "spring", stiffness: 360, damping: 18 }}
+        />
+      </m.div>
 
-        {/* Tip */}
-        {tipCents > 0 && (
-          <m.div
-            variants={shouldAnimate ? summaryRowVariants : undefined}
-            initial={shouldAnimate ? "hidden" : undefined}
-            animate={shouldAnimate ? "visible" : undefined}
-            transition={{ delay: 0.1 }}
-            className="flex justify-between text-sm text-text-muted"
-          >
-            <span>Tip</span>
-            <PriceTicker value={tipCents} inCents={true} size="sm" className="text-text-money" />
-          </m.div>
-        )}
-
-        {/* Promo Discount */}
-        {promoApplied && discountCents > 0 && (
-          <m.div
-            variants={shouldAnimate ? summaryRowVariants : undefined}
-            initial={shouldAnimate ? "hidden" : undefined}
-            animate={shouldAnimate ? "visible" : undefined}
-            transition={{ delay: 0.12 }}
-            className="flex justify-between text-sm"
-          >
-            <span className="flex items-center gap-1.5 text-status-success">
-              <Tag className="h-3.5 w-3.5" />
-              {discountLabel}
-            </span>
-            <span className="text-status-success font-medium">-{formatPrice(discountCents)}</span>
-          </m.div>
-        )}
-
-        {/* Divider */}
-        <div className="h-px bg-border" />
-
-        {/* Total */}
-        <m.div
-          variants={shouldAnimate ? summaryRowVariants : undefined}
-          initial={shouldAnimate ? "hidden" : undefined}
-          animate={shouldAnimate ? "visible" : undefined}
-          transition={{ delay: 0.15 }}
-          className="flex justify-between items-center"
-        >
-          <span className="text-base font-bold text-text-primary">Estimated Total</span>
-          <PriceTicker
-            value={adjustedTotal}
-            inCents={true}
-            size="lg"
-            className="text-text-money font-bold"
-          />
-        </m.div>
-      </div>
+      {/* Print-head light — rides the reveal frontier (not clipped) */}
+      {shouldAnimate && (
+        <m.span
+          aria-hidden="true"
+          className="checkout-printhead pointer-events-none absolute inset-x-0 z-20"
+          initial={{ top: "0%", opacity: 0 }}
+          animate={{ top: "100%", opacity: [0, 1, 1, 0] }}
+          transition={{
+            duration: 1.05,
+            ease: [0.22, 1, 0.36, 1],
+            opacity: { duration: 1.05, times: [0, 0.06, 0.9, 1] },
+          }}
+        />
+      )}
     </div>
   );
 }

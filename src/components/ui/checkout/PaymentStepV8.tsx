@@ -10,6 +10,8 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
 import type { TimeWindow } from "@/types/delivery";
+import { CheckoutSectionHeader } from "./CheckoutSectionHeader";
+import { CtaMagnet } from "./CtaMagnet";
 import { TipSelector } from "./TipSelector";
 import { PromoCodeInput } from "./PromoCodeInput";
 import { ContactInfoSection } from "./ContactInfoSection";
@@ -113,13 +115,14 @@ export function PaymentStepV8({
       animate={shouldAnimate ? "visible" : undefined}
     >
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
-        <div className="flex items-center gap-2 mb-1">
-          <CreditCard className="h-5 w-5 text-primary" />
-          <h2 className="font-display text-lg font-semibold text-text-primary">Review & Pay</h2>
-        </div>
-        <p className="font-body text-sm text-text-muted">
-          Review your order and proceed to payment
-        </p>
+        <CheckoutSectionHeader
+          icon={CreditCard}
+          eyebrow="Review & Pay"
+          eyebrowMy="ငွေပေးချေမှု"
+          lead="Almost"
+          accent="done"
+          sub="Review your order and proceed to payment"
+        />
       </m.div>
 
       <AnimatePresence mode="wait">
@@ -297,30 +300,38 @@ export function PaymentStepV8({
           variants={shouldAnimate ? buttonEntry : undefined}
           className="flex justify-between pt-4 border-t border-border"
         >
-          <Button variant="ghost" onClick={handleBack} disabled={isCreatingSession}>
+          <Button
+            variant="ghost"
+            onClick={handleBack}
+            disabled={isCreatingSession}
+            className="border border-hero-line bg-hero-card text-hero-ink hover:border-hero-clay/60 hover:bg-hero-clay/10 hover:text-hero-accent"
+          >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
 
-          <Button
-            variant="success"
-            size="lg"
-            onClick={handleCheckout}
-            disabled={isCreatingSession || !canProceed || cutoffModalOpen}
-            isLoading={isCreatingSession}
-            loadingText="Processing..."
-            leftIcon={
-              !isCreatingSession ? (
-                isCOD ? (
-                  <Banknote className="w-5 h-5" />
-                ) : (
-                  <CreditCard className="w-5 h-5" />
-                )
-              ) : undefined
-            }
-          >
-            Place Order
-          </Button>
+          <CtaMagnet>
+            <Button
+              variant="success"
+              size="lg"
+              onClick={handleCheckout}
+              disabled={isCreatingSession || !canProceed || cutoffModalOpen}
+              isLoading={isCreatingSession}
+              className="ck-cta"
+              loadingText="Processing..."
+              leftIcon={
+                !isCreatingSession ? (
+                  isCOD ? (
+                    <Banknote className="w-5 h-5" />
+                  ) : (
+                    <CreditCard className="w-5 h-5" />
+                  )
+                ) : undefined
+              }
+            >
+              Place Order
+            </Button>
+          </CtaMagnet>
         </m.div>
       )}
     </m.div>

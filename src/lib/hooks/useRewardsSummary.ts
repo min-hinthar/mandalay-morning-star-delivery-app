@@ -6,6 +6,8 @@ import type { LoyaltyTierId } from "@/lib/loyalty";
 
 export interface RewardsSummary {
   stars: number;
+  /** Lifetime net spend (cents) — drives tier + ladder progress. */
+  spendCents: number;
   ordersToNext: number;
   nextRewardCents: number;
   tier: { id: LoyaltyTierId; name: string; english: string; emoji: string };

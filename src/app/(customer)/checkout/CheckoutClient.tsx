@@ -29,6 +29,10 @@ import {
   EmptyCheckoutError,
   CheckoutErrorBanner,
 } from "@/components/ui/checkout";
+import { CheckoutBackdrop } from "@/components/ui/checkout/CheckoutBackdrop";
+import { CheckoutMasthead } from "@/components/ui/checkout/CheckoutMasthead";
+import { CheckoutRewardsCard } from "@/components/ui/checkout/CheckoutRewardsCard";
+import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import type { CheckoutStep } from "@/types/checkout";
 import type { DeliveryDayConfig, DeliveryZoneConfig, TimeWindow } from "@/types/delivery";
@@ -219,6 +223,22 @@ export default function CheckoutClient({
   // Get current direction value
   const direction = directionRef.current;
 
+  // Shared motion props for the three step panes (kept identical so the
+  // swipe transition is consistent). Each pane keeps its own literal `key`.
+  const stepMotion = {
+    custom: direction,
+    variants: stepVariants,
+    initial: shouldAnimate ? ("initial" as const) : false,
+    animate: "animate" as const,
+    exit: shouldAnimate ? ("exit" as const) : undefined,
+    transition: {
+      x: getSpring(spring.default),
+      scale: getSpring(spring.gentle),
+      opacity: { duration: 0.2 },
+      boxShadow: { duration: 0.3 },
+    },
+  };
+
   // Navigation handlers that set direction synchronously before step change.
   // Read step from getState() to avoid stale closure issues.
   const goToNextStep = () => {
@@ -318,8 +338,8 @@ export default function CheckoutClient({
 
   if (authLoading || !user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-background">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="checkout-canvas relative flex min-h-screen items-center justify-center">
+        <Loader2 className="relative h-8 w-8 animate-spin text-hero-accent" />
       </div>
     );
   }
@@ -342,20 +362,16 @@ export default function CheckoutClient({
   };
 
   return (
-    <div className="min-h-screen bg-surface-secondary pb-32">
-      <div className="mx-auto max-w-4xl px-4 py-6 sm:py-8">
-        <h1 className="mb-6 text-xl sm:text-2xl font-display font-bold text-text-primary">
-          Checkout
-        </h1>
+    <div className="checkout-canvas relative min-h-screen pb-32">
+      <CheckoutBackdrop />
+      <div className="relative mx-auto max-w-4xl px-4 py-6 sm:py-8">
+        <CheckoutMasthead step={step} className="mb-6 animate-hero-develop-1" />
 
         <CheckoutStepperV8
           currentStep={step}
           onStepClick={handleStepClick}
-          className="mb-6 sm:mb-8"
+          className="mb-6 animate-hero-develop-2 sm:mb-8"
         />
-
-        {/* Welcome + referral offers (first-order discount auto-applies at payment) */}
-        <OfferBanner source="checkout" className="mb-6" />
 
         {/* Phase 111 CHKP-02 — Price change banner, rendered above step content */}
         {priceChangeError && (
@@ -366,87 +382,69 @@ export default function CheckoutClient({
 
         <div className="grid grid-cols-1 gap-6 lg:gap-8 lg:grid-cols-3">
           {/* Main content - order form with animated transitions */}
-          <div className="lg:col-span-2">
-            <div className="rounded-lg border border-border bg-surface-primary p-4 sm:p-6 shadow-colorful overflow-hidden">
-              <AnimatePresence mode="wait" custom={direction}>
-                {step === "address" && (
-                  <m.div
-                    key="address"
-                    custom={direction}
-                    variants={stepVariants}
-                    initial={shouldAnimate ? "initial" : false}
-                    animate="animate"
-                    exit={shouldAnimate ? "exit" : undefined}
-                    transition={{
-                      x: getSpring(spring.default),
-                      scale: getSpring(spring.gentle),
-                      opacity: { duration: 0.2 },
-                      boxShadow: { duration: 0.3 },
-                    }}
-                  >
-                    <AddressStep onNext={goToNextStep} deliveryZones={deliveryZones} />
-                  </m.div>
-                )}
-                {step === "time" && (
-                  <m.div
-                    key="time"
-                    custom={direction}
-                    variants={stepVariants}
-                    initial={shouldAnimate ? "initial" : false}
-                    animate="animate"
-                    exit={shouldAnimate ? "exit" : undefined}
-                    transition={{
-                      x: getSpring(spring.default),
-                      scale: getSpring(spring.gentle),
-                      opacity: { duration: 0.2 },
-                      boxShadow: { duration: 0.3 },
-                    }}
-                  >
-                    <TimeStep
-                      onNext={goToNextStep}
-                      onBack={goToPrevStep}
-                      timeWindows={timeWindows}
-                      deliveryDays={deliveryDays}
-                      deliveryZones={deliveryZones}
-                    />
-                  </m.div>
-                )}
-                {step === "payment" && (
-                  <m.div
-                    key="payment"
-                    custom={direction}
-                    variants={stepVariants}
-                    initial={shouldAnimate ? "initial" : false}
-                    animate="animate"
-                    exit={shouldAnimate ? "exit" : undefined}
-                    transition={{
-                      x: getSpring(spring.default),
-                      scale: getSpring(spring.gentle),
-                      opacity: { duration: 0.2 },
-                      boxShadow: { duration: 0.3 },
-                    }}
-                  >
-                    <PaymentStep
-                      onBack={goToPrevStep}
-                      disableGuard={disableGuard}
-                      timeWindows={timeWindows}
-                      onCutoffPassed={() => setShowCutoffModal(true)}
-                      codEnabled={codEnabled}
-                      cutoffModalOpen={showCutoffModal}
-                    />
-                  </m.div>
-                )}
-              </AnimatePresence>
+          <div className="checkout-sheet-stack lg:col-span-2">
+            <div className="hero-surface-glass checkout-paper animate-hero-develop-3 relative overflow-hidden rounded-2xl p-4 sm:p-6">
+              {/* Drifting triad top-edge rail */}
+              <span
+                aria-hidden="true"
+                className="checkout-card-rail absolute inset-x-0 top-0 h-[3px]"
+              />
+              {/* Breathing triad aura behind the form */}
+              <span
+                aria-hidden="true"
+                className="checkout-card-aura pointer-events-none absolute inset-0 rounded-2xl"
+              />
+              <HeroCardLayers accent="clay" radius="rounded-2xl" />
+              <div className="relative">
+                <AnimatePresence mode="wait" custom={direction}>
+                  {step === "address" && (
+                    <m.div key="address" {...stepMotion}>
+                      <AddressStep onNext={goToNextStep} deliveryZones={deliveryZones} />
+                    </m.div>
+                  )}
+                  {step === "time" && (
+                    <m.div key="time" {...stepMotion}>
+                      <TimeStep
+                        onNext={goToNextStep}
+                        onBack={goToPrevStep}
+                        timeWindows={timeWindows}
+                        deliveryDays={deliveryDays}
+                        deliveryZones={deliveryZones}
+                      />
+                    </m.div>
+                  )}
+                  {step === "payment" && (
+                    <m.div key="payment" {...stepMotion}>
+                      <PaymentStep
+                        onBack={goToPrevStep}
+                        disableGuard={disableGuard}
+                        timeWindows={timeWindows}
+                        onCutoffPassed={() => setShowCutoffModal(true)}
+                        codEnabled={codEnabled}
+                        cutoffModalOpen={showCutoffModal}
+                      />
+                    </m.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
 
           {/* Order summary - sticky on desktop */}
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-24">
+              {/* Positive-reinforcement rewards nudge above the summary */}
+              <CheckoutRewardsCard className="mb-4" />
+              {/* Receipt prints itself (thermal-print reveal) — no stacked-paper
+                  decoration behind it, so the print read stays self-contained. */}
               <CheckoutSummary />
             </div>
           </div>
         </div>
+
+        {/* Welcome + referral offers below the fold — first-order discount
+            auto-applies at payment; "Share & earn" opens a modal (no exit). */}
+        <OfferBanner source="checkout" className="mt-8" />
       </div>
 
       <CartNavigationGuard

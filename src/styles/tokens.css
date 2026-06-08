@@ -136,6 +136,14 @@
   --hero-sage: #788c5d; /* sage */
   --hero-ruby: #e0556b; /* ruby red — rewards Ruby-tier accent */
   --hero-gold: #eaa92f; /* deep gold — rewards Gold-tier apex accent */
+  --hero-star: var(
+    --hero-gradient-start
+  ); /* Mandalay Morning Star deep red — tracks theme (#a41034 / #c41844) */
+  --hero-selected: color-mix(
+    in srgb,
+    var(--hero-clay) 14%,
+    #faf9f5
+  ); /* OPAQUE warm-paper selected fill (never transparent on active) */
   --hero-emoji-shadow-far: 0 2px 8px rgba(0, 0, 0, 0.3);
   --hero-emoji-shadow-mid: 0 4px 12px rgba(0, 0, 0, 0.4);
   --hero-emoji-shadow-near: 0 6px 20px rgba(0, 0, 0, 0.5);
