@@ -525,6 +525,56 @@
       0 2px 6px -3px rgba(0, 0, 0, 0.24);
   }
 
+  /* Pinned-rail live cutoff chip — a faintly recessed pill so it reads as a
+     status token on the rail; urgency variants tint the surface. */
+  .menu-rail-chip {
+    background: color-mix(in srgb, var(--color-surface-secondary) 70%, transparent);
+    border: 1px solid var(--menu-card-hairline);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.18);
+  }
+
+  .menu-rail-chip-warn {
+    background: color-mix(in srgb, var(--menu-clay) 16%, transparent);
+    border-color: color-mix(in srgb, var(--menu-clay) 40%, transparent);
+  }
+
+  .menu-rail-chip-crit {
+    background: color-mix(in srgb, var(--color-status-error) 14%, transparent);
+    border-color: color-mix(in srgb, var(--color-status-error) 38%, transparent);
+  }
+
+  /* Pinned-rail Filters button — a glassy recessed chip at rest, lifting to the
+     lit gold→clay treatment when filters are active (mirrors the dietary chip). */
+  .menu-rail-filter-btn {
+    background: color-mix(in srgb, var(--color-surface-secondary) 72%, transparent);
+    border: 1px solid var(--menu-card-hairline-strong);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+    transition:
+      background var(--duration-fast) var(--ease-out),
+      border-color var(--duration-fast) var(--ease-out),
+      box-shadow var(--duration-fast) var(--ease-out);
+  }
+
+  .menu-rail-filter-btn:hover {
+    border-color: var(--hero-clay);
+    background: color-mix(in srgb, var(--menu-clay) 12%, var(--color-surface-secondary));
+  }
+
+  .menu-rail-filter-btn-active {
+    background: linear-gradient(105deg, var(--menu-gold), var(--menu-clay));
+    border-color: transparent;
+    box-shadow:
+      0 6px 16px -5px rgba(234, 169, 47, 0.5),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.3);
+  }
+
+  /* Active-filter count badge on the Filters button — deep-ink pip on the lit
+     pill so the number stays legible. */
+  .menu-rail-filter-badge {
+    background: var(--hero-ink);
+    color: var(--menu-gold);
+  }
+
   /* Lit gold→clay CTA pill (the menu card "Add" button) — vibrant in both
      themes (the deep-clay token reads dull in dark mode); dark ink keeps AA. */
   .menu-cta-lit {

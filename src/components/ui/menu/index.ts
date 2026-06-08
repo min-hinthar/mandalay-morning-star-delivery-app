@@ -10,6 +10,13 @@
 export { CategoryTabs } from "./CategoryTabs";
 export type { CategoryTabsProps, Category } from "./CategoryTabs";
 
+export { MenuRail } from "./MenuRail";
+export type { MenuRailProps } from "./MenuRail";
+
+export { RailCutoffChip } from "./RailCutoffChip";
+
+export { MenuFiltersSheet } from "./MenuFiltersSheet";
+
 export { MenuSection } from "./MenuSection";
 export type { MenuSectionProps, MenuSectionCategory } from "./MenuSection";
 
