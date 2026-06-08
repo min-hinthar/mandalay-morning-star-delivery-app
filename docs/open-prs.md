@@ -17,22 +17,51 @@ _Last reconciled: 2026-06-08._
   ladder**, all on REAL `useRewardsSummary` data — `spendCents` added to that
   route); **referral offer** moved below the fold + **in-page share modal** (no
   checkout exit); **bilingual wax-seal stamp** + tier-threaded seal on the order
-  confirmation; **menu-photo background melded** into the sunset canvas
-  (`CheckoutBackdrop`: zoomed-out masked photo band + soft-light + editorial
-  texture, mobile-GPU-safe). Merged `main` in (menu-rail epic) cleanly.
+  confirmation; **menu-photo background melded** into the sunset canvas — now a
+  **shared `PhotoBandBackdrop`** (zoomed-out masked photo band + soft-light +
+  editorial texture) reused on checkout, the **menu page** (`MenuPageAmbient`),
+  and the **homepage menu section**, mobile-GPU-safe. Merged `main` in twice
+  (menu-rail #155 + #156 docs) cleanly (docs-only conflicts).
   **Pre-merge adversarial review: SHIP** — no High/money/auth/GPU findings;
   the one Medium (dead `rewardReady` state) fixed. Local verify green
   (lint · lint:css · format · typecheck · **1180 tests** · build); CI blocked
-  only by the Actions billing/runner issue (no runner). **Awaiting owner's merge
-  go.** Plan: [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
+  only by the Actions quota/runner issue (merge via owner's branch-protection
+  bypass, as #155 did). **Awaiting owner's merge go.**
+
+> **Next up after checkout:** cart drawer → orders → account → auth (per the
+> customer-surfaces sequence). See
+> [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
 
 ## Watching
 
-_None active._ All tracked PRs are merged or closed; subscriptions ended at
+_None active._ All tracked PRs this session are merged; subscriptions ended at
 merge/close.
+
+> **CI note (2026-06-08):** GitHub Actions hit its quota mid-session — every
+> workflow failed at _startup_ (2s, no logs) across all PRs. #155 was merged via
+> the owner's branch-protection bypass after full **local** verification
+> (lint · typecheck · lint:css · format · 1180 tests · build) + an adversarial
+> pre-merge review. Re-enable required checks once the Actions quota resets.
 
 ## Recently closed
 
+- **#155** — Menu **top-region redesign** ("After Dark" v2, owner-driven, one
+  branch): the stacked header+banners+tabs chrome collapses into a single pinned
+  **`MenuRail`** toolbar (expand-on-tap search + scroll-spy `CategoryTabs` + live
+  `RailCutoffChip` + Filters→`MenuFiltersSheet` bottom sheet); editorial
+  scroll-away **masthead**; full-page **fixed photo backdrop** (`MenuPageAmbient`,
+  transparent non-isolating `<main>` so it sits behind all content incl. the
+  footer). **De-duplicated** against the global `AppHeader` (cart + ⌘K search
+  live there — no more two-carts/two-searches). Rail pins below the header and
+  slides in sync via `useHeaderVisibility`; scroll offset is rail-aware.
+  **Pills:** active = **self-contained** `.menu-tab-active` gold→clay pill (bg +
+  label on ONE element — root-fixes the recurring dark-on-dark active-tab bug the
+  separately-measured indicator caused); inactive = **vellum ghost** pills.
+  **Token audit:** `.menu-paper` over-photo chrome (favorite heart, modal close,
+  add check) now uses theme-true non-remapped tokens; homepage/checkout
+  **yellow-on-light** (`text-secondary` = `#ebcd00`) melds fixed. Cards: softened
+  shadow, tilt disabled on desktop. **Merged** (bypassing the paused-Actions CI
+  gate — locally green + passed an adversarial pre-merge review).
 - **#150** — Menu & homepage **"After Dark"** epic (one branch, owner-driven):
   warm-paper theming + micro-interactions; photo-first **layered dish-sheet
   modal** (un-clipped close, single-scroll layered modifiers, live rolling
