@@ -24,9 +24,6 @@ export interface FavoriteButtonProps {
   className?: string;
   /** Aria label override */
   ariaLabel?: string;
-  /** Rendered on a warm-paper (cream) card — darkens the resting heart + drops
-   *  the dark favorited chip so the affordance stays legible on cream. */
-  onPaper?: boolean;
 }
 
 // ============================================
@@ -138,7 +135,6 @@ export function FavoriteButton({
   showBackground = true,
   className,
   ariaLabel,
-  onPaper = false,
 }: FavoriteButtonProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const [showBurst, setShowBurst] = useState(false);
@@ -185,12 +181,12 @@ export function FavoriteButton({
         "rounded-full",
         // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
         showBackground && [
-          "bg-surface-primary dark:bg-surface-primary sm:bg-surface-primary/90 sm:dark:bg-surface-primary/90",
-          "sm:backdrop-blur-sm",
-          "shadow-sm",
-          // On cream cards keep the favorited chip light (the dark red can't be
-          // re-skinned by .menu-paper); elsewhere keep the themed dark variant.
-          isFavorite && (onPaper ? "bg-red-50" : "bg-red-50 dark:bg-red-950/30"),
+          // surface-elevated is NOT remapped by .menu-paper, so the circle stays
+          // theme-true (light frosted in light, dark in dark) over the photo —
+          // never the espresso meld that surface-primary would inherit on the card.
+          "bg-surface-elevated/90 sm:backdrop-blur-sm",
+          "shadow-sm ring-1 ring-hero-ink/10",
+          isFavorite && "bg-red-50 dark:bg-red-950/40",
         ],
         "transition-colors duration-150",
         "focus-visible:outline-none focus-visible:ring-2",
@@ -246,9 +242,9 @@ export function FavoriteButton({
               "transition-colors duration-150",
               isFavorite
                 ? "fill-red-500 stroke-red-500"
-                : onPaper
-                  ? "fill-transparent stroke-hero-ink/55 hover:stroke-red-500"
-                  : "fill-transparent stroke-gray-400 hover:stroke-red-400"
+                : // Resting heart flips with the REAL theme (not the card
+                  // inversion): dark ink on the light circle, cream on the dark.
+                  "fill-transparent stroke-hero-ink/65 hover:stroke-red-500 dark:stroke-hero-card-strong dark:hover:stroke-red-400"
             )}
             strokeWidth={2}
           />

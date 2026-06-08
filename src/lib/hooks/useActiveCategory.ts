@@ -140,12 +140,15 @@ export function useActiveCategory(
     };
   }, [sectionIds, rootMargin, threshold, isSupported, updateActiveSection]);
 
-  // Get dynamic header offset (header + offline banner)
+  // Get dynamic scroll offset = header + offline banner + the pinned menu rail
+  // (--menu-rail-height, published by MenuRail; 0 when absent). Without the rail
+  // term, tab-click scrolls land the section heading UNDER the pinned rail.
   const getDynamicOffset = useCallback(() => {
     if (typeof window === "undefined") return headerHeight;
     const style = getComputedStyle(document.documentElement);
     const bannerHeight = parseInt(style.getPropertyValue("--offline-banner-height") || "0", 10);
-    return headerHeight + bannerHeight;
+    const railHeight = parseInt(style.getPropertyValue("--menu-rail-height") || "0", 10);
+    return headerHeight + bannerHeight + railHeight;
   }, [headerHeight]);
 
   // Scroll to category with smooth behavior

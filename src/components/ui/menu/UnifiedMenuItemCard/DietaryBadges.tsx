@@ -77,8 +77,10 @@ function getBadgeConfig(tag: string, level?: number): BadgeConfig | null {
       return {
         icon: <Sparkles className="w-3 h-3" />,
         label: "Featured",
-        bgColor: "bg-secondary/30",
-        textColor: "text-secondary-foreground",
+        // Amber tint + amber text (theme-explicit, like the sibling badges) —
+        // the old secondary-foreground melded on the yellow tint over the photo.
+        bgColor: "bg-amber-400/25",
+        textColor: "text-amber-700 dark:text-amber-300",
       };
     default:
       return null;
