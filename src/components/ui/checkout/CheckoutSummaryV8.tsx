@@ -69,6 +69,11 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
 
   return (
     <div className={cn("relative", className)}>
+      {/* Bound-ledger spine — triad gradient bar down the receipt's left edge */}
+      <span
+        aria-hidden="true"
+        className="pointer-events-none absolute left-0 top-3 bottom-5 z-10 w-[3px] rounded-full bg-gradient-to-b from-hero-clay via-hero-blue to-hero-sage opacity-70"
+      />
       {/* Ticket body — opaque warm paper so the torn foot matches exactly */}
       <div className="hero-surface-paper relative overflow-hidden rounded-t-2xl">
         <HeroCardLayers accent="clay" radius="rounded-t-2xl" />

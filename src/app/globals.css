@@ -984,6 +984,36 @@
     border-top: 1.5px dashed var(--hero-line);
   }
 
+  /* Stacked-paper depth: two faint cream sheets peek out behind the host card,
+     hand-stacked (tiny offset + rotation). Opaque rects only — no blur, so the
+     iOS GPU budget is untouched. Direct children sit above the sheets. */
+  .checkout-sheet-stack {
+    position: relative;
+  }
+  .checkout-sheet-stack > * {
+    position: relative;
+    z-index: 1;
+  }
+  .checkout-sheet-stack::before,
+  .checkout-sheet-stack::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: 1rem;
+    background: var(--hero-card-bg-strong);
+    border: 1px solid var(--hero-line);
+    pointer-events: none;
+  }
+  .checkout-sheet-stack::before {
+    transform: translate(4px, 7px) rotate(0.5deg);
+    opacity: 0.5;
+  }
+  .checkout-sheet-stack::after {
+    transform: translate(8px, 13px) rotate(1deg);
+    opacity: 0.3;
+  }
+
   /* Torn/perforated bottom edge of the receipt: a cream strip whose top is
      punched with half-circles so the page shows through (a real ticket tear).
      The strip color matches the receipt's opaque cream foot exactly. */
