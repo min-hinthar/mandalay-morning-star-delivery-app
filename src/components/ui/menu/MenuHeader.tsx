@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useEffect, useCallback } from "react";
-import { CartButton } from "@/components/ui/cart";
 import { SearchInput } from "./SearchInput";
 import { MenuDietaryFilter } from "./MenuDietaryFilter";
 import { hasFreeFromSelected } from "@/lib/menu/dietary-filters";
@@ -29,6 +28,11 @@ interface MenuHeaderProps {
 // COMPONENT
 // ============================================
 
+/**
+ * MenuHeader — the editorial MASTHEAD. It is NOT sticky: it scrolls away with
+ * the page, leaving the slim CategoryTabs rail (cart moved in there) as the sole
+ * pinned bar. Holds the bilingual title, search, and the dietary filter chips.
+ */
 export function MenuHeader({
   onQueryChange,
   onSelectItem,
@@ -36,26 +40,6 @@ export function MenuHeader({
   dietaryFilters,
   onDietaryChange,
 }: MenuHeaderProps) {
-  // Publish the live header height so CategoryTabs (sticky at --tabs-offset)
-  // always sits BELOW the full header — incl. the dietary chips row — so the
-  // chips can never hide behind / under the category tabs. The chips stay
-  // visible (no scroll-collapse) to keep the header height stable, which avoids
-  // the collapse↔expand height race that let the tabs paint over the chips.
-  const headerRef = useRef<HTMLElement>(null);
-  useEffect(() => {
-    const el = headerRef.current;
-    if (!el) return;
-    const root = document.documentElement;
-    const publish = () => root.style.setProperty("--menu-header-height", `${el.offsetHeight}px`);
-    publish();
-    const ro = new ResizeObserver(publish);
-    ro.observe(el);
-    return () => {
-      ro.disconnect();
-      root.style.removeProperty("--menu-header-height");
-    };
-  }, []);
-
   // Scroll fade indicators for the horizontally-scrollable dietary chips
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showLeftFade, setShowLeftFade] = useState(false);
@@ -87,37 +71,26 @@ export function MenuHeader({
   }, [updateFadeIndicators]);
 
   return (
-    <header
-      ref={headerRef}
-      className={cn(
-        "sticky top-0 z-20",
-        // Elevated warm surface so the bar floats above the page (no meld).
-        // No backdrop-blur: .menu-bar is fully opaque (surface-elevated base),
-        // so a blur would just burn a GPU buffer for zero visible effect.
-        "menu-bar"
-      )}
-    >
-      {/* Top row: title + search + cart — always visible */}
-      <div className="mx-auto flex h-14 max-w-5xl items-center justify-between gap-4 px-4">
+    <header className="px-4 pt-4">
+      {/* Top row: editorial title + search — scrolls away (cart lives in the
+          pinned rail so it stays reachable after the masthead leaves). */}
+      <div className="mx-auto flex max-w-5xl items-end justify-between gap-4">
         <div className="flex items-baseline gap-2">
-          <h1 className="font-display text-xl font-bold leading-none text-text-primary sm:text-2xl">
+          <h1 className="font-display text-2xl font-bold leading-none text-text-primary sm:text-3xl">
             Our Menu
           </h1>
           <span className="font-burmese text-sm text-hero-clay/90">မီနူး</span>
         </div>
 
-        <div className="flex items-center gap-2">
-          <SearchInput
-            onQueryChange={onQueryChange}
-            onSelectItem={onSelectItem}
-            mobileCollapsible={false}
-          />
-          <CartButton />
-        </div>
+        <SearchInput
+          onQueryChange={onQueryChange}
+          onSelectItem={onSelectItem}
+          mobileCollapsible={false}
+        />
       </div>
 
-      {/* Dietary chips row: always visible (stable height) */}
-      <div className="mx-auto max-w-5xl px-4 pb-2">
+      {/* Dietary chips row */}
+      <div className="mx-auto mt-3 max-w-5xl">
         <div className="relative w-full">
           {/* Left fade indicator */}
           {showLeftFade && (

@@ -425,12 +425,11 @@
      sheets always clear the status bar cleanly. */
   --sheet-max-h: calc(100dvh - env(safe-area-inset-top) - 1rem);
 
-  /* Live header height (published by MenuHeader) + offline banner, so sticky
-     CategoryTabs always clears the full header incl. the dietary chips row.
-     Fallback ≈ title row (56px) + always-on dietary chips row (~72px) so the
-     sticky tabs don't overlap the chips for the first frame before MenuHeader's
-     ResizeObserver publishes the measured --menu-header-height. */
-  --tabs-offset: calc(var(--menu-header-height, 128px) + var(--offline-banner-height, 0px));
+  /* Pinned-rail offset: the CategoryTabs rail is the SOLE pinned bar (the
+     masthead scrolls away), so sections + scroll-spy clear the rail's own
+     measured height (published as --menu-rail-height) plus any offline banner.
+     Fallback ≈ a single 64px rail row before the rail's ResizeObserver runs. */
+  --tabs-offset: calc(var(--menu-rail-height, 64px) + var(--offline-banner-height, 0px));
   --cart-bar-height: 64px;
   --driver-header-height: 48px;
   --driver-action-height: 80px;

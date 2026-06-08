@@ -24,6 +24,7 @@ import { useActiveCategory } from "@/lib/hooks/useActiveCategory";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { spring } from "@/lib/motion-tokens";
 import { cn } from "@/lib/utils/cn";
+import { CartButton } from "@/components/ui/cart";
 
 export interface Category {
   /** URL-friendly slug for the category */
@@ -57,8 +58,26 @@ export const CategoryTabs = memo(function CategoryTabs({
   className,
 }: CategoryTabsProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const railRef = useRef<HTMLDivElement>(null);
   const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const { shouldAnimate } = useAnimationPreference();
+
+  // Publish the live rail height so menu sections (scroll-mt) and the scroll-spy
+  // clear the pinned rail. As the SOLE pinned bar (the masthead scrolls away),
+  // the rail owns --tabs-offset now.
+  useEffect(() => {
+    const el = railRef.current;
+    if (!el) return;
+    const root = document.documentElement;
+    const publish = () => root.style.setProperty("--menu-rail-height", `${el.offsetHeight}px`);
+    publish();
+    const ro = new ResizeObserver(publish);
+    ro.observe(el);
+    return () => {
+      ro.disconnect();
+      root.style.removeProperty("--menu-rail-height");
+    };
+  }, []);
 
   // Determine if we're in controlled mode
   const isControlled = controlledActiveCategory !== undefined;
@@ -79,12 +98,12 @@ export const CategoryTabs = memo(function CategoryTabs({
   // Generate section IDs for scrollspy (only used in uncontrolled mode)
   const sectionIds = useMemo(() => categories.map((cat) => `category-${cat.slug}`), [categories]);
 
-  // Use scrollspy hook (only active in uncontrolled mode)
-  // Header height is 64px; offline banner offset is added dynamically by the hook
+  // Use scrollspy hook (only active in uncontrolled mode). The rail is the sole
+  // pinned bar (~64px); offline banner offset is added dynamically by the hook.
   const { activeCategory: scrollspyCategory, scrollToCategory } = useActiveCategory(
     isControlled ? [] : sectionIds, // Pass empty array when controlled to disable scrollspy
     {
-      rootMargin: "-64px 0px -80% 0px", // Account for header
+      rootMargin: "-64px 0px -80% 0px", // Account for the pinned rail
       headerHeight: 64,
     }
   );
@@ -209,101 +228,113 @@ export const CategoryTabs = memo(function CategoryTabs({
 
   return (
     <div
+      ref={railRef}
       className={cn(
-        "sticky top-[var(--tabs-offset)] z-20",
-        // Elevated warm surface so the rail floats above the page (no meld)
+        // The SOLE pinned bar: pins to the top (below any offline banner) once
+        // the editorial masthead scrolls away above it.
+        "sticky top-[var(--offline-banner-height,0px)] z-30",
+        // Frosted elevated surface so the rail floats above the photo page
         "menu-bar",
         className
       )}
     >
-      {/* Left fade indicator */}
-      {showLeftFade && (
-        <div
-          className={cn(
-            "absolute left-0 top-0 bottom-0 w-8 z-10",
-            "bg-gradient-to-r from-surface-elevated to-transparent",
-            "pointer-events-none"
-          )}
-          aria-hidden="true"
-        />
-      )}
-
-      {/* Scroll container */}
-      <div
-        ref={scrollContainerRef}
-        role="tablist"
-        aria-label="Menu categories"
-        className={cn("relative flex gap-2 overflow-x-auto scrollbar-hide", "px-4 py-3")}
-      >
-        {/* CSS-transitioned pill indicator */}
-        {indicatorStyle && (
-          <div
-            className="absolute rounded-pill menu-tab-indicator transition-all duration-200 ease-out"
-            style={{
-              left: indicatorStyle.left,
-              width: indicatorStyle.width,
-              top: 12,
-              height: "calc(100% - 24px)",
-            }}
-            aria-hidden="true"
-          />
-        )}
-
-        {allTabs.map((tab) => {
-          const isActive =
-            tab.slug === null ? activeCategory === null : activeCategory === tab.slug;
-          const key = tab.slug ?? "__all__";
-
-          return (
-            <m.button
-              key={tab.slug ?? "all"}
-              ref={(el) => {
-                if (el) {
-                  tabRefs.current.set(key, el);
-                } else {
-                  tabRefs.current.delete(key);
-                }
-              }}
-              role="tab"
-              aria-selected={isActive}
-              aria-controls={tab.slug ? `category-${tab.slug}` : undefined}
-              onClick={() => handleTabClick(tab.slug)}
-              whileHover={shouldAnimate && !isActive ? { scale: 1.05 } : undefined}
-              whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
-              transition={shouldAnimate ? spring.snappy : { duration: 0 }}
+      <div className="flex items-center gap-1 pr-2 sm:pr-3">
+        {/* Tabs region (relative anchor for the edge fades) */}
+        <div className="relative min-w-0 flex-1">
+          {/* Left fade indicator */}
+          {showLeftFade && (
+            <div
               className={cn(
-                "relative flex-shrink-0",
-                "rounded-pill px-5 py-2.5 min-h-[44px]",
-                "font-body text-sm font-semibold",
-                "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                isActive
-                  ? // Warm-white label on the hero-magenta→clay active pill
-                    // (the indicator div), kept AA in both themes
-                    "menu-tab-active-label"
-                  : // Inactive = clean editorial text tab (no chrome), so the
-                    // bold inverted active pill is unmistakable — max figure/
-                    // ground separation, never melds in either theme
-                    "text-text-secondary hover:bg-surface-primary/70 hover:text-text-primary"
+                "absolute left-0 top-0 bottom-0 w-8 z-10",
+                "bg-gradient-to-r from-surface-elevated to-transparent",
+                "pointer-events-none"
               )}
-            >
-              {/* Tab label */}
-              <span className="relative z-0">{tab.nameEn || tab.name}</span>
-            </m.button>
-          );
-        })}
-      </div>
-
-      {/* Right fade indicator */}
-      {showRightFade && (
-        <div
-          className={cn(
-            "absolute right-0 top-0 bottom-0 w-8 z-10",
-            "bg-gradient-to-l from-surface-elevated to-transparent",
-            "pointer-events-none"
+              aria-hidden="true"
+            />
           )}
-          aria-hidden="true"
-        />
-      )}
+
+          {/* Scroll container */}
+          <div
+            ref={scrollContainerRef}
+            role="tablist"
+            aria-label="Menu categories"
+            className={cn("relative flex gap-2 overflow-x-auto scrollbar-hide", "px-4 py-3")}
+          >
+            {/* CSS-transitioned pill indicator */}
+            {indicatorStyle && (
+              <div
+                className="absolute rounded-pill menu-tab-indicator transition-all duration-200 ease-out"
+                style={{
+                  left: indicatorStyle.left,
+                  width: indicatorStyle.width,
+                  top: 12,
+                  height: "calc(100% - 24px)",
+                }}
+                aria-hidden="true"
+              />
+            )}
+
+            {allTabs.map((tab) => {
+              const isActive =
+                tab.slug === null ? activeCategory === null : activeCategory === tab.slug;
+              const key = tab.slug ?? "__all__";
+
+              return (
+                <m.button
+                  key={tab.slug ?? "all"}
+                  ref={(el) => {
+                    if (el) {
+                      tabRefs.current.set(key, el);
+                    } else {
+                      tabRefs.current.delete(key);
+                    }
+                  }}
+                  role="tab"
+                  aria-selected={isActive}
+                  aria-controls={tab.slug ? `category-${tab.slug}` : undefined}
+                  onClick={() => handleTabClick(tab.slug)}
+                  whileHover={shouldAnimate && !isActive ? { scale: 1.05 } : undefined}
+                  whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
+                  transition={shouldAnimate ? spring.snappy : { duration: 0 }}
+                  className={cn(
+                    "relative flex-shrink-0",
+                    "rounded-pill px-5 py-2.5 min-h-[44px]",
+                    "font-body text-sm font-semibold",
+                    "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                    isActive
+                      ? // Warm-white label on the hero-magenta→clay active pill
+                        // (the indicator div), kept AA in both themes
+                        "menu-tab-active-label"
+                      : // Inactive = clean editorial text tab (no chrome), so the
+                        // bold inverted active pill is unmistakable — max figure/
+                        // ground separation, never melds in either theme
+                        "text-text-secondary hover:bg-surface-primary/70 hover:text-text-primary"
+                  )}
+                >
+                  {/* Tab label */}
+                  <span className="relative z-0">{tab.nameEn || tab.name}</span>
+                </m.button>
+              );
+            })}
+          </div>
+
+          {/* Right fade indicator */}
+          {showRightFade && (
+            <div
+              className={cn(
+                "absolute right-0 top-0 bottom-0 w-8 z-10",
+                "bg-gradient-to-l from-surface-elevated to-transparent",
+                "pointer-events-none"
+              )}
+              aria-hidden="true"
+            />
+          )}
+        </div>
+
+        {/* Cart — pinned in the rail so it stays reachable after the masthead
+            scrolls away (it used to live in the now-scroll-away header). */}
+        <CartButton />
+      </div>
     </div>
   );
 });
