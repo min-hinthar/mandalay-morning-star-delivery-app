@@ -46,10 +46,11 @@ export function RailCutoffChip({
         !isOpen && "text-text-muted",
         className
       )}
-      role="status"
-      aria-label={isOpen ? "Time left to order" : "Ordering closed"}
     >
+      {/* No role="status" here: DeliveryCountdown owns the polite live region
+          when open (avoids nested live regions); "Closed" is static text. */}
       <Clock className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+      <span className="sr-only">{isOpen ? "Time left to order:" : "Ordering closed"}</span>
       {isOpen ? (
         <DeliveryCountdown cutoffDate={cutoffDate} urgency={urgency} className="tabular-nums" />
       ) : (

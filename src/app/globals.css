@@ -759,7 +759,9 @@
 
   /* Rail search field — re-skin SearchInput's pill so it reads as a clearly
      recessed warm "well" instead of melding into the rail (surface-secondary ≈
-     the rail surface). Fills the container width on desktop. */
+     the rail surface). Fills the container width on desktop. NOTE: structurally
+     coupled to SearchInput — its first child is the pill (m.div); the
+     autocomplete dropdown is the 2nd sibling, so :first-child never hits it. */
   .menu-rail-search > div:first-child {
     width: 100%;
     background: var(--menu-tab-ghost-bg);

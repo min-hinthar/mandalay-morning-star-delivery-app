@@ -198,7 +198,7 @@ export const CategoryTabs = memo(function CategoryTabs({
               transition={shouldAnimate ? spring.snappy : { duration: 0 }}
               className={cn(
                 "relative flex-shrink-0 overflow-hidden",
-                "rounded-pill px-4 py-2 min-h-[40px]",
+                "rounded-pill px-4 py-2 min-h-[44px]",
                 "font-body text-sm font-semibold",
                 "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 isActive

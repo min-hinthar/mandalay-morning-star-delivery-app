@@ -112,7 +112,7 @@ export function MenuRail({
           whileTap={shouldAnimate ? { scale: 0.92 } : undefined}
           className={cn(
             "menu-rail-filter-btn relative flex shrink-0 items-center gap-1.5 rounded-pill",
-            "min-h-[40px] px-3 py-2 text-sm font-semibold",
+            "min-h-[44px] px-3 py-2 text-sm font-semibold",
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
             activeFilterCount > 0
               ? "menu-rail-filter-btn-active text-hero-ink"

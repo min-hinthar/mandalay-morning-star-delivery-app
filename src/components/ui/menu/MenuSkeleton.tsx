@@ -75,7 +75,7 @@ export function MenuSkeleton({
     <div className={className}>
       {/* Category rail skeleton — pins to the top like the real rail (the sole
           pinned bar). MOBILE CRASH PREVENTION: no backdrop-blur on mobile. */}
-      <div className="menu-bar sticky top-[var(--offline-banner-height,0px)] z-30">
+      <div className="menu-bar sticky top-[calc(var(--offline-banner-height,0px)+var(--header-height,64px))] z-30">
         <div className="flex gap-2 overflow-hidden px-4 py-3">
           {Array.from({ length: 6 }).map((_, i) => (
             <div
