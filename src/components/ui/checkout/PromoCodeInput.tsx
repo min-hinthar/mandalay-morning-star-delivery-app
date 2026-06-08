@@ -6,9 +6,10 @@
  * Shows applied discount badge or error state.
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { Tag, X, Loader2 } from "lucide-react";
+import { useBurst, Bursts } from "@/components/ui/homepage/Hero/HeroBurst";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -42,6 +43,14 @@ export function PromoCodeInput({ className }: PromoCodeInputProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Wax-seal particle flick — fires once when a code transitions to applied.
+  const { bursts, fire } = useBurst(11);
+  const prevApplied = useRef(promoApplied);
+  useEffect(() => {
+    if (promoApplied && !prevApplied.current && shouldAnimate) fire(34, 30);
+    prevApplied.current = promoApplied;
+  }, [promoApplied, shouldAnimate, fire]);
 
   // Validate + apply a code. `silent` suppresses error UI for the auto-apply
   // path (e.g. arriving from a wallet "Use" link before the cart hits $50).
@@ -112,8 +121,9 @@ export function PromoCodeInput({ className }: PromoCodeInputProps) {
           initial={shouldAnimate ? { y: 6, opacity: 0 } : undefined}
           animate={shouldAnimate ? { y: 0, opacity: 1 } : undefined}
           transition={getSpring(spring.default)}
-          className="flex items-center justify-between rounded-xl border border-hero-clay/30 bg-hero-clay/[0.07] px-4 py-3"
+          className="relative flex items-center justify-between rounded-xl border border-hero-clay/30 bg-hero-clay/[0.07] px-4 py-3"
         >
+          <Bursts bursts={bursts} />
           <div className="flex items-center gap-3">
             {/* Wax seal — presses down like a stamp on apply */}
             <m.span

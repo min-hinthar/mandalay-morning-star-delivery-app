@@ -11,6 +11,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
 import type { TimeWindow } from "@/types/delivery";
 import { CheckoutSectionHeader } from "./CheckoutSectionHeader";
+import { CtaMagnet } from "./CtaMagnet";
 import { TipSelector } from "./TipSelector";
 import { PromoCodeInput } from "./PromoCodeInput";
 import { ContactInfoSection } from "./ContactInfoSection";
@@ -309,26 +310,28 @@ export function PaymentStepV8({
             Back
           </Button>
 
-          <Button
-            variant="success"
-            size="lg"
-            onClick={handleCheckout}
-            disabled={isCreatingSession || !canProceed || cutoffModalOpen}
-            isLoading={isCreatingSession}
-            className="ck-cta"
-            loadingText="Processing..."
-            leftIcon={
-              !isCreatingSession ? (
-                isCOD ? (
-                  <Banknote className="w-5 h-5" />
-                ) : (
-                  <CreditCard className="w-5 h-5" />
-                )
-              ) : undefined
-            }
-          >
-            Place Order
-          </Button>
+          <CtaMagnet>
+            <Button
+              variant="success"
+              size="lg"
+              onClick={handleCheckout}
+              disabled={isCreatingSession || !canProceed || cutoffModalOpen}
+              isLoading={isCreatingSession}
+              className="ck-cta"
+              loadingText="Processing..."
+              leftIcon={
+                !isCreatingSession ? (
+                  isCOD ? (
+                    <Banknote className="w-5 h-5" />
+                  ) : (
+                    <CreditCard className="w-5 h-5" />
+                  )
+                ) : undefined
+              }
+            >
+              Place Order
+            </Button>
+          </CtaMagnet>
         </m.div>
       )}
     </m.div>

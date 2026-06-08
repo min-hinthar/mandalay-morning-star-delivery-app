@@ -37,6 +37,7 @@ import {
   getZonedDayOfWeek,
 } from "@/lib/utils/delivery-dates";
 import { CheckoutSectionHeader } from "./CheckoutSectionHeader";
+import { CtaMagnet } from "./CtaMagnet";
 import { TimeSlotPicker } from "./TimeSlotPicker";
 import { DeliveryZoneInfoCard } from "./DeliveryZoneInfoCard";
 import { Button } from "@/components/ui/button";
@@ -216,9 +217,11 @@ export function TimeStepV8({
           <ArrowLeft className="mr-2 h-4 w-4" />
           Back
         </Button>
-        <Button onClick={handleNext} disabled={!canProceed} size="lg" className="ck-cta">
-          Continue to Payment
-        </Button>
+        <CtaMagnet>
+          <Button onClick={handleNext} disabled={!canProceed} size="lg" className="ck-cta">
+            Continue to Payment
+          </Button>
+        </CtaMagnet>
       </m.div>
     </m.div>
   );

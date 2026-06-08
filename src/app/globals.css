@@ -992,6 +992,13 @@
     }
   }
 
+  /* Soft clay focus halo on in-card checkout inputs (additive to the base ring). */
+  .checkout-paper input:focus,
+  .checkout-paper textarea:focus {
+    border-color: var(--hero-clay);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hero-clay) 20%, transparent);
+  }
+
   /* Stacked-paper depth: two faint cream sheets peek out behind the host card,
      hand-stacked (tiny offset + rotation). Opaque rects only — no blur, so the
      iOS GPU budget is untouched. Direct children sit above the sheets. */

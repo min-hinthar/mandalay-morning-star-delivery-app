@@ -28,6 +28,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { Modal } from "@/components/ui/Modal";
 import { Drawer } from "@/components/ui/Drawer";
 import { CheckoutSectionHeader } from "./CheckoutSectionHeader";
+import { CtaMagnet } from "./CtaMagnet";
 import { AddressCardV8 } from "./AddressCardV8";
 import { AddressFormV8 } from "./AddressFormV8";
 import { CoverageErrorCard } from "./CoverageErrorCard";
@@ -268,15 +269,17 @@ export function AddressStepV8({ onNext, deliveryZones }: AddressStepV8Props) {
         variants={shouldAnimate ? buttonEntry : undefined}
         className="flex justify-center pt-4 border-t border-hero-line"
       >
-        <Button
-          variant="default"
-          onClick={handleNext}
-          disabled={!canProceed}
-          size="lg"
-          className="ck-cta"
-        >
-          Continue to Time Selection
-        </Button>
+        <CtaMagnet>
+          <Button
+            variant="default"
+            onClick={handleNext}
+            disabled={!canProceed}
+            size="lg"
+            className="ck-cta"
+          >
+            Continue to Time Selection
+          </Button>
+        </CtaMagnet>
       </m.div>
 
       {/* Responsive overlay for add/edit */}
