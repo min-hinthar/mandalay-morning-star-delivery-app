@@ -70,8 +70,8 @@ export function AddressCardV8({
         "border-2 transition-colors",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent focus-visible:ring-offset-2",
         isSelected
-          ? "border-hero-accent bg-hero-clay/[0.05]"
-          : "border-hero-line bg-hero-card hover:border-hero-clay/50"
+          ? "border-hero-star bg-hero-selected"
+          : "border-hero-line bg-hero-card hover:border-hero-star/50"
       )}
     >
       {/* Selection indicator */}

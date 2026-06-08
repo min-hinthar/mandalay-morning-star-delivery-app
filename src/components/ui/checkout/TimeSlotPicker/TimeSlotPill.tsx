@@ -43,7 +43,7 @@ export function TimeSlotPill({ slot, isSelected, isDisabled, onSelect, index }: 
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent focus-visible:ring-offset-2",
         "transform-gpu will-change-transform",
         isSelected
-          ? "border-hero-accent bg-hero-clay/[0.06]"
+          ? "border-hero-star bg-hero-selected"
           : isDisabled
             ? "border-hero-line bg-hero-card/60 text-hero-ink-muted cursor-not-allowed opacity-50"
             : "border-hero-line bg-hero-card hover:border-hero-clay/60"

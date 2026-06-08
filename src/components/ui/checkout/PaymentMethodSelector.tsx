@@ -23,8 +23,8 @@ export function PaymentMethodSelector({ value, onChange, codEnabled }: PaymentMe
           className={cn(
             "flex items-center gap-3 rounded-xl border-2 p-4 transition-colors text-left",
             value === "stripe"
-              ? "border-hero-accent bg-hero-clay/[0.06]"
-              : "border-hero-line bg-hero-card hover:border-hero-clay/50"
+              ? "border-hero-star bg-hero-selected"
+              : "border-hero-line bg-hero-card hover:border-hero-star/50"
           )}
         >
           <CreditCard
@@ -44,8 +44,8 @@ export function PaymentMethodSelector({ value, onChange, codEnabled }: PaymentMe
           className={cn(
             "flex items-center gap-3 rounded-xl border-2 p-4 transition-colors text-left",
             value === "cod"
-              ? "border-hero-accent bg-hero-clay/[0.06]"
-              : "border-hero-line bg-hero-card hover:border-hero-clay/50"
+              ? "border-hero-star bg-hero-selected"
+              : "border-hero-line bg-hero-card hover:border-hero-star/50"
           )}
         >
           <Banknote
