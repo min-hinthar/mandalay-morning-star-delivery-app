@@ -11,9 +11,10 @@ export default async function MenuPage() {
   const rules = await getBusinessRules();
 
   return (
-    <main className="relative isolate min-h-screen bg-background pb-32">
-      {/* Backdrop — shared homepage menu-section treatment: food photo + surface
-          overlay + layered editorial texture. Fixed behind the content. */}
+    <main className="relative min-h-screen pb-32">
+      {/* Full-page backdrop (photo + surface overlay + editorial texture). Main
+          is transparent + non-isolating so this viewport-fixed layer sits behind
+          ALL content — including the site footer that follows <main>. */}
       <MenuPageAmbient />
       <Suspense fallback={<MenuSkeleton />}>
         <MenuContent

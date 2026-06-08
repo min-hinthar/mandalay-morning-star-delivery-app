@@ -7,10 +7,11 @@ import { MenuTextureBackdrop } from "./MenuTextureBackdrop";
  * readability → the layered editorial texture (`MenuTextureBackdrop`:
  * gradient-masked dot/line grids + triad glow blooms).
  *
- * Scoped to the menu `<main>` (absolute, behind the content via `-z-10`), so it
- * covers the page surface but NOT the site footer that follows `<main>` — a
- * viewport-`fixed` layer would paint over the footer (main is an isolated
- * stacking context). Decorative + a11y-inert.
+ * Viewport-`fixed` behind the content (`-z-10`) so the photo stays a pinned,
+ * loosely-framed backdrop (object-cover crops to the viewport, not the full tall
+ * page). The menu `<main>` is transparent + non-isolating, so this sits in the
+ * root layer behind ALL page content incl. the trailing site footer.
+ * Decorative + a11y-inert.
  *
  * Mobile-GPU budget: a single decoded image + radial-gradient glows + cheap
  * masked grids — NO `blur()` / `backdrop-filter` (the iOS-OOM class). The
@@ -18,7 +19,7 @@ import { MenuTextureBackdrop } from "./MenuTextureBackdrop";
  */
 export function MenuPageAmbient() {
   return (
-    <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
+    <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       {/* Warm food photo — shared with the homepage menu section. */}
       <Image
         src="/images/menu-section-bg.webp"

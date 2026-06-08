@@ -505,38 +505,24 @@
       0 14px 30px -16px rgba(0, 0, 0, 0.42);
   }
 
-  /* Menu sticky bars (header + category rail). The base surface token
-     (surface-elevated) is the SAME value as the page (surface-primary) in light
-     mode, so tone alone can't separate them — these float via a strong lift +
-     crisp clay hairline, and on md+ via a FROSTED-GLASS read (the photo backdrop
-     blurs through), which reads as a distinct layer regardless of base tone.
-     Mobile stays opaque (NO blur — iOS GPU budget). */
+  /* Menu pinned rail surface. OPAQUE + identical on mobile AND desktop (no md+
+     frost divergence — the frosted-vs-opaque split made the rail read
+     differently across viewports). It separates from the photo page via a warm
+     clay top-wash, a strong drop shadow, and a crisp clay hairline (the page is
+     a textured photo, so an opaque flat bar reads as a distinct layer). No blur
+     — iOS GPU budget. */
   .menu-bar {
     background:
       linear-gradient(
         180deg,
-        color-mix(in srgb, var(--menu-clay) 10%, transparent),
+        color-mix(in srgb, var(--menu-clay) 12%, transparent),
         transparent 66%
       ),
       var(--color-surface-elevated);
     border-bottom: 1.5px solid var(--menu-card-hairline-strong);
     box-shadow:
-      0 10px 28px -14px rgba(0, 0, 0, 0.5),
-      0 2px 6px -3px rgba(0, 0, 0, 0.22);
-  }
-
-  @media (min-width: 768px) {
-    .menu-bar {
-      background:
-        linear-gradient(
-          180deg,
-          color-mix(in srgb, var(--menu-clay) 12%, transparent),
-          transparent 66%
-        ),
-        color-mix(in srgb, var(--color-surface-elevated) 78%, transparent);
-      backdrop-filter: blur(var(--blur-xl)) saturate(1.4);
-      -webkit-backdrop-filter: blur(var(--blur-xl)) saturate(1.4);
-    }
+      0 12px 30px -14px rgba(0, 0, 0, 0.55),
+      0 2px 6px -3px rgba(0, 0, 0, 0.24);
   }
 
   /* Lit gold→clay CTA pill (the menu card "Add" button) — vibrant in both
