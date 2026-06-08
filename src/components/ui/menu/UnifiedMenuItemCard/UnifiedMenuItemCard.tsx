@@ -63,7 +63,11 @@ const variantConfig = {
     imageAspect: "aspect-[4/3]",
     showDescription: true,
     showBadges: true,
-    enableTilt: true,
+    // Tilt OFF: the 18° 3D swing both rendered a square color-shadow artifact
+    // (backdrop-filter/shadow under preserve-3d) and moved the Add button out
+    // from under the cursor on desktop. Cards fall back to a clean scale-up +
+    // clay glow hover, which keeps the primary CTA reliably clickable.
+    enableTilt: false,
     rounded: "rounded-3xl",
     roundedTop: "rounded-t-3xl",
     padding: "p-4 pb-14 md:pb-4",
