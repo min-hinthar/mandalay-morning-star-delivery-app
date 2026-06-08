@@ -117,7 +117,7 @@ export function PaymentStepV8({
         <CheckoutSectionHeader
           icon={CreditCard}
           eyebrow="Review & Pay"
-          eyebrowMy="ငွေရှင်း"
+          eyebrowMy="ငွေပေးချေမှု"
           lead="Almost"
           accent="done"
           sub="Review your order and proceed to payment"

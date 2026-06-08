@@ -74,7 +74,7 @@ const STEP_CONFIG: Record<CheckoutStep, StepMeta> = {
   },
   payment: {
     label: "Pay",
-    my: "ငွေပေး",
+    my: "ငွေရှင်း",
     icon: CreditCard,
     accent: "sage",
     fill: "linear-gradient(135deg, var(--hero-sage), #5d7343)",
