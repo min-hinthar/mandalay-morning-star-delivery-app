@@ -224,7 +224,7 @@ export function TestimonialsCarousel({
         {/* Header */}
         <m.div variants={itemVariants} className="text-center mb-12">
           <m.span
-            className="inline-block px-4 py-2 bg-secondary/10 rounded-pill text-sm font-body font-medium text-secondary-hover mb-4"
+            className="inline-block px-4 py-2 bg-secondary/10 rounded-pill text-sm font-body font-medium text-primary mb-4"
             variants={itemVariants}
           >
             What LA Says · သုံးသပ်ချက်များ
