@@ -38,12 +38,13 @@ export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsC
 
   const { stars, spendCents, ordersToNext, nextRewardCents, tier } = data;
   const reward = formatPrice(nextRewardCents);
-  const rewardReady = ordersToNext <= 0;
+  // `filled` = orders completed in the current milestone cycle (stars % step);
+  // resets to 0 right after a reward is earned (issued as a coupon server-side).
   const filled = Math.max(
     0,
     Math.min(LOYALTY_MILESTONE_STEP, LOYALTY_MILESTONE_STEP - ordersToNext)
   );
-  const pct = rewardReady ? 100 : Math.round((filled / LOYALTY_MILESTONE_STEP) * 100);
+  const pct = Math.round((filled / LOYALTY_MILESTONE_STEP) * 100);
   const tint = TIER_TINT[tier.id];
 
   return (
@@ -90,51 +91,26 @@ export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsC
             <TooltipTrigger asChild>
               <button
                 type="button"
-                aria-label={
-                  rewardReady
-                    ? `Your ${reward} reward is ready for this order`
-                    : `${reward} reward — ${ordersToNext} more ${ordersToNext === 1 ? "order" : "orders"} to unlock`
-                }
+                aria-label={`${reward} reward — ${ordersToNext} more ${ordersToNext === 1 ? "order" : "orders"} to unlock`}
                 className="shrink-0 cursor-help rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/50"
               >
-                <RewardCoin
-                  label={rewardShort(nextRewardCents)}
-                  ready={rewardReady}
-                  shouldAnimate={shouldAnimate}
-                />
+                <RewardCoin label={rewardShort(nextRewardCents)} shouldAnimate={shouldAnimate} />
               </button>
             </TooltipTrigger>
             <TooltipContent side="top" className="max-w-[13rem] text-center">
-              {rewardReady ? (
-                <>Your {reward} reward is ready — applied to this order 🎉</>
-              ) : (
-                <>
-                  Your {reward} reward unlocks in {ordersToNext}{" "}
-                  {ordersToNext === 1 ? "order" : "orders"}
-                </>
-              )}
+              Your {reward} reward unlocks in {ordersToNext}{" "}
+              {ordersToNext === 1 ? "order" : "orders"}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       </div>
 
       <p className="mt-1 text-center text-xs font-medium text-hero-ink">
-        {rewardReady ? (
-          <>
-            🎉 <strong className="font-semibold text-hero-accent">{reward} off</strong> ready for
-            this order!
-          </>
-        ) : (
-          <>
-            {ordersToNext} more {ordersToNext === 1 ? "order" : "orders"} →{" "}
-            <strong className="font-semibold text-hero-accent">{reward} off</strong>
-          </>
-        )}
+        {ordersToNext} more {ordersToNext === 1 ? "order" : "orders"} →{" "}
+        <strong className="font-semibold text-hero-accent">{reward} off</strong>
       </p>
       <p lang="my" className="mt-0.5 text-center font-burmese text-2xs text-hero-ink-muted">
-        {rewardReady
-          ? `${reward} လျှော့ အသင့်ပါ 🎉`
-          : `နောက် ${ordersToNext} ခါ မှာရင် ${reward} လျှော့`}
+        {`နောက် ${ordersToNext} ခါ မှာရင် ${reward} လျှော့`}
       </p>
 
       {/* Tier axis — gem ladder */}
