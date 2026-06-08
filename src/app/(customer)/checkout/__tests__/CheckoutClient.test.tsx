@@ -103,6 +103,16 @@ vi.mock("@/lib/hooks/useAuth", () => ({
   useAuth: () => ({ user: { id: "user-1" }, isLoading: false }),
 }));
 
+// Presentational children pulled in by CheckoutClient that own their own data
+// (react-query) / Modal internals — stub them out (this suite is about the
+// cart/store/prefetch wiring, not these cards).
+vi.mock("@/components/ui/checkout/CheckoutRewardsCard", () => ({
+  CheckoutRewardsCard: () => null,
+}));
+vi.mock("@/components/ui/referrals/OfferBanner", () => ({
+  OfferBanner: () => null,
+}));
+
 // Mock navigation guard
 vi.mock("@/lib/hooks/useNavigationGuard", () => ({
   useNavigationGuard: () => ({

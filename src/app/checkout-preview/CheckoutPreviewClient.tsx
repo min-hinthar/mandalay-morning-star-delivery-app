@@ -2,12 +2,35 @@
 
 import { useEffect, useState } from "react";
 import { m, AnimatePresence } from "framer-motion";
-import { CheckoutMasthead, CheckoutStepperV8, CheckoutSummary } from "@/components/ui/checkout";
+import {
+  CheckoutMasthead,
+  CheckoutStepperV8,
+  CheckoutSummary,
+  CheckoutRewardsCard,
+} from "@/components/ui/checkout";
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
+import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { CHECKOUT_STEPS, type CheckoutStep } from "@/types/checkout";
 import type { CartItem } from "@/types/cart";
+import type { RewardsSummary } from "@/lib/hooks/useRewardsSummary";
+import type { RewardsReferral } from "@/lib/hooks/useRewards";
 import { cn } from "@/lib/utils/cn";
+
+/** Mock rewards so the preview shows the live card + share modal without login. */
+const MOCK_REWARDS: RewardsSummary = {
+  stars: 12,
+  ordersToNext: 3,
+  nextRewardCents: 500,
+  tier: { id: "jade", name: "Jade", english: "Diamond", emoji: "💎" },
+  earlyAccess: false,
+};
+const MOCK_REFERRAL: RewardsReferral = {
+  code: "MORNINGSTAR",
+  shareUrl: "https://mandalaymorningstar.com/?ref=MORNINGSTAR",
+  rewardCents: 1000,
+  stats: { pending: 1, completed: 2, earnedCents: 2000 },
+};
 
 /**
  * Mock cart so the living receipt + summary render with real, lively numbers.
@@ -190,10 +213,13 @@ export function CheckoutPreviewClient() {
 
           <div className="lg:col-span-1">
             <div className="animate-hero-develop-4 lg:sticky lg:top-24">
+              <CheckoutRewardsCard className="mb-4" previewData={MOCK_REWARDS} />
               <CheckoutSummary />
             </div>
           </div>
         </div>
+
+        <OfferBanner source="checkout-preview" className="mt-8" previewReferral={MOCK_REFERRAL} />
       </div>
     </div>
   );

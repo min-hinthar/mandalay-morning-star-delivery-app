@@ -30,6 +30,7 @@ import {
   CheckoutErrorBanner,
 } from "@/components/ui/checkout";
 import { CheckoutMasthead } from "@/components/ui/checkout/CheckoutMasthead";
+import { CheckoutRewardsCard } from "@/components/ui/checkout/CheckoutRewardsCard";
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import type { CheckoutStep } from "@/types/checkout";
@@ -221,6 +222,22 @@ export default function CheckoutClient({
   // Get current direction value
   const direction = directionRef.current;
 
+  // Shared motion props for the three step panes (kept identical so the
+  // swipe transition is consistent). Each pane keeps its own literal `key`.
+  const stepMotion = {
+    custom: direction,
+    variants: stepVariants,
+    initial: shouldAnimate ? ("initial" as const) : false,
+    animate: "animate" as const,
+    exit: shouldAnimate ? ("exit" as const) : undefined,
+    transition: {
+      x: getSpring(spring.default),
+      scale: getSpring(spring.gentle),
+      opacity: { duration: 0.2 },
+      boxShadow: { duration: 0.3 },
+    },
+  };
+
   // Navigation handlers that set direction synchronously before step change.
   // Read step from getState() to avoid stale closure issues.
   const goToNextStep = () => {
@@ -358,9 +375,6 @@ export default function CheckoutClient({
           className="mb-6 animate-hero-develop-2 sm:mb-8"
         />
 
-        {/* Welcome + referral offers (first-order discount auto-applies at payment) */}
-        <OfferBanner source="checkout" className="mb-6" />
-
         {/* Phase 111 CHKP-02 — Price change banner, rendered above step content */}
         {priceChangeError && (
           <div className="mb-6">
@@ -386,38 +400,12 @@ export default function CheckoutClient({
               <div className="relative">
                 <AnimatePresence mode="wait" custom={direction}>
                   {step === "address" && (
-                    <m.div
-                      key="address"
-                      custom={direction}
-                      variants={stepVariants}
-                      initial={shouldAnimate ? "initial" : false}
-                      animate="animate"
-                      exit={shouldAnimate ? "exit" : undefined}
-                      transition={{
-                        x: getSpring(spring.default),
-                        scale: getSpring(spring.gentle),
-                        opacity: { duration: 0.2 },
-                        boxShadow: { duration: 0.3 },
-                      }}
-                    >
+                    <m.div key="address" {...stepMotion}>
                       <AddressStep onNext={goToNextStep} deliveryZones={deliveryZones} />
                     </m.div>
                   )}
                   {step === "time" && (
-                    <m.div
-                      key="time"
-                      custom={direction}
-                      variants={stepVariants}
-                      initial={shouldAnimate ? "initial" : false}
-                      animate="animate"
-                      exit={shouldAnimate ? "exit" : undefined}
-                      transition={{
-                        x: getSpring(spring.default),
-                        scale: getSpring(spring.gentle),
-                        opacity: { duration: 0.2 },
-                        boxShadow: { duration: 0.3 },
-                      }}
-                    >
+                    <m.div key="time" {...stepMotion}>
                       <TimeStep
                         onNext={goToNextStep}
                         onBack={goToPrevStep}
@@ -428,20 +416,7 @@ export default function CheckoutClient({
                     </m.div>
                   )}
                   {step === "payment" && (
-                    <m.div
-                      key="payment"
-                      custom={direction}
-                      variants={stepVariants}
-                      initial={shouldAnimate ? "initial" : false}
-                      animate="animate"
-                      exit={shouldAnimate ? "exit" : undefined}
-                      transition={{
-                        x: getSpring(spring.default),
-                        scale: getSpring(spring.gentle),
-                        opacity: { duration: 0.2 },
-                        boxShadow: { duration: 0.3 },
-                      }}
-                    >
+                    <m.div key="payment" {...stepMotion}>
                       <PaymentStep
                         onBack={goToPrevStep}
                         disableGuard={disableGuard}
@@ -460,12 +435,18 @@ export default function CheckoutClient({
           {/* Order summary - sticky on desktop */}
           <div className="lg:col-span-1">
             <div className="lg:sticky lg:top-24">
+              {/* Positive-reinforcement rewards nudge above the summary */}
+              <CheckoutRewardsCard className="mb-4" />
               <div className="checkout-sheet-stack">
                 <CheckoutSummary />
               </div>
             </div>
           </div>
         </div>
+
+        {/* Welcome + referral offers below the fold — first-order discount
+            auto-applies at payment; "Share & earn" opens a modal (no exit). */}
+        <OfferBanner source="checkout" className="mt-8" />
       </div>
 
       <CartNavigationGuard
