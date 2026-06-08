@@ -53,7 +53,7 @@ export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsC
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={{ type: "spring", stiffness: 280, damping: 26 }}
       className={cn(
-        "group relative overflow-hidden rounded-2xl hero-surface-paper px-4 py-3.5 ring-1 ring-hero-line",
+        "group relative rounded-2xl hero-surface-paper px-4 py-3.5 ring-1 ring-hero-line",
         "transition-shadow duration-300 hover:shadow-md",
         className
       )}
@@ -74,8 +74,8 @@ export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsC
         </div>
       </div>
 
-      {/* Reward axis — Star-arc gauge + wax-seal coin (tooltip-explained) */}
-      <div className="relative mt-2 flex justify-center">
+      {/* Reward axis — Star-arc gauge + wax-seal coin beside it (tooltip-explained) */}
+      <div className="mt-2 flex items-center justify-center gap-3">
         <RewardsStarArc
           stars={stars}
           filled={filled}
@@ -95,7 +95,7 @@ export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsC
                     ? `Your ${reward} reward is ready for this order`
                     : `${reward} reward — ${ordersToNext} more ${ordersToNext === 1 ? "order" : "orders"} to unlock`
                 }
-                className="absolute right-0 top-1 cursor-help rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/50"
+                className="shrink-0 cursor-help rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/50"
               >
                 <RewardCoin
                   label={rewardShort(nextRewardCents)}
@@ -104,13 +104,13 @@ export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsC
                 />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="top" className="max-w-[15rem] text-center">
+            <TooltipContent side="top" className="max-w-[13rem] text-center">
               {rewardReady ? (
-                <>Your {reward} reward is ready — applied to this order. 🎉</>
+                <>Your {reward} reward is ready — applied to this order 🎉</>
               ) : (
                 <>
-                  Order {ordersToNext} more {ordersToNext === 1 ? "time" : "times"} to unlock a{" "}
-                  {reward} off coupon.
+                  Your {reward} reward unlocks in {ordersToNext}{" "}
+                  {ordersToNext === 1 ? "order" : "orders"}
                 </>
               )}
             </TooltipContent>

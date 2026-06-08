@@ -106,7 +106,7 @@ export function RewardsTierLadder({ tierId, spendCents, shouldAnimate }: Rewards
       </p>
       <p lang="my" className="mt-0.5 text-center font-burmese text-2xs text-hero-ink-muted">
         {next && toNext != null
-          ? `${formatPrice(toNext)} ထပ်သုံးရင် ${next.english} ဖြစ်မယ်`
+          ? `${next.english} သို့ရောက်ရန် ${formatPrice(toNext)} လို`
           : "အမြင့်ဆုံးအဆင့် — အကျိုးခံစားခွင့်အားလုံးရပြီ"}
       </p>
     </div>
