@@ -149,7 +149,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
 
           {/* Totals — on a perforated ledger */}
           <div className="space-y-3 px-5 pb-5 pt-4">
-            <div className="checkout-perf -mx-5 mb-1" aria-hidden="true" />
+            <div className="checkout-perf checkout-rule-draw -mx-5 mb-1" aria-hidden="true" />
 
             {/* Extended range notice */}
             {isExtendedRange && (
@@ -287,11 +287,14 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                   <Tag className="h-3.5 w-3.5" aria-hidden="true" />
                   {discountLabel}
                 </span>
-                <span className="font-semibold text-hero-sage">-{formatPrice(discountCents)}</span>
+                <span className="flex items-baseline font-semibold text-hero-sage">
+                  <span className="mr-0.5">−</span>
+                  <PriceTicker value={discountCents} inCents size="sm" className="text-hero-sage" />
+                </span>
               </m.div>
             )}
 
-            <div className="checkout-perf -mx-5 my-1" aria-hidden="true" />
+            <div className="checkout-perf checkout-rule-draw -mx-5 my-1" aria-hidden="true" />
 
             {/* Total — big rolling number under a slow ledger sheen */}
             <div className="relative overflow-hidden rounded-xl px-3 py-2.5">

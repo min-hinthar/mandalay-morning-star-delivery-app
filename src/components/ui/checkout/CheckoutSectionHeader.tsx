@@ -49,7 +49,7 @@ export function CheckoutSectionHeader({
         </span>
       </div>
 
-      <div className="mt-2 h-px w-full bg-hero-line" />
+      <div className="checkout-rule-draw mt-2 h-px w-full bg-hero-line" />
 
       <h2 className="mt-2 font-display text-xl font-semibold tracking-tight text-hero-ink">
         {lead} <span className="italic text-hero-accent">{accent}</span>

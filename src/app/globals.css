@@ -984,6 +984,14 @@
     border-top: 1.5px dashed var(--hero-line);
   }
 
+  /* Draw-on rule: the hairline/perforation writes itself left→right on mount. */
+  @media (prefers-reduced-motion: no-preference) {
+    .checkout-rule-draw {
+      transform-origin: left center;
+      animation: checkout-rule-draw 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+  }
+
   /* Stacked-paper depth: two faint cream sheets peek out behind the host card,
      hand-stacked (tiny offset + rotation). Opaque rects only — no blur, so the
      iOS GPU budget is untouched. Direct children sit above the sheets. */
@@ -1493,6 +1501,16 @@
   100% {
     transform: scale(2);
     opacity: 0;
+  }
+}
+
+/* Draw-on ledger rule — scales horizontally from the left on mount. */
+@keyframes checkout-rule-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
   }
 }
 
