@@ -12,6 +12,7 @@ import { useConfetti } from "@/components/ui/Confetti";
 import { OrderRewardsTeaser } from "@/components/ui/orders/OrderRewardsTeaser";
 import { CutoffCountdown } from "@/components/ui/customer";
 import { SuccessCheckmark } from "@/components/ui/success-checkmark";
+import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import type { Order } from "@/types/order";
@@ -138,6 +139,27 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             <p className="mt-2 text-sm text-text-muted">
               Order #{order.id.slice(0, 8).toUpperCase()}
             </p>
+          </m.div>
+
+          {/* Bilingual wax-seal stamp — presses in like a real stamp */}
+          <m.div
+            initial={shouldAnimate ? { scale: 1.55, rotate: -18, opacity: 0 } : undefined}
+            animate={{ scale: 1, rotate: -7, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 420, damping: 15, delay: 0.5 }}
+            className="mx-auto mb-8 flex h-28 w-28 flex-col items-center justify-center gap-0.5 rounded-full border-2 border-hero-clay/55 text-center"
+            style={{
+              background:
+                "radial-gradient(circle at 35% 28%, color-mix(in srgb, var(--hero-clay) 18%, transparent), transparent 72%)",
+            }}
+            aria-label="Thank you"
+          >
+            <HeroSunburst className="h-5 w-5 text-hero-clay" rays={10} />
+            <span className="font-display text-sm font-semibold leading-tight text-hero-accent">
+              Thank you
+            </span>
+            <span className="font-burmese text-2xs text-hero-accent" lang="my">
+              ကျေးဇူးတင်ပါသည်
+            </span>
           </m.div>
 
           {/* "Locked in for {day}" anticipation ritual — only for a confirmed
