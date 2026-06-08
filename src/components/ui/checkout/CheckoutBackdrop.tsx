@@ -23,12 +23,14 @@ const PHOTO = "/images/menu-section-bg.webp";
 export function CheckoutBackdrop() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 overflow-hidden">
-      {/* Zoomed-out photo band, dissolving into the sunset */}
+      {/* Zoomed-out photo band, dissolving gently into the sunset near its foot.
+          Taller on md+ → less crop; the fade only starts at ~72% so the photo
+          stays present (less dissolve) before handing off to the sunset. */}
       <div
-        className="absolute inset-x-0 top-0 h-[44vh] md:h-[58vh]"
+        className="absolute inset-x-0 top-0 h-[46vh] md:h-[72vh]"
         style={{
-          WebkitMaskImage: "linear-gradient(to bottom, #000 52%, transparent)",
-          maskImage: "linear-gradient(to bottom, #000 52%, transparent)",
+          WebkitMaskImage: "linear-gradient(to bottom, #000 72%, transparent)",
+          maskImage: "linear-gradient(to bottom, #000 72%, transparent)",
         }}
       >
         <Image
@@ -37,7 +39,7 @@ export function CheckoutBackdrop() {
           fill
           sizes="100vw"
           quality={85}
-          className="object-cover object-center opacity-50 mix-blend-soft-light"
+          className="object-cover object-center opacity-[0.62] mix-blend-soft-light"
         />
       </div>
 
