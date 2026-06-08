@@ -52,7 +52,43 @@ function warnIfAppUrlNotCanonical(envUrl: string): void {
   }
 }
 
+/**
+ * On Vercel Preview deployments the canonical NEXT_PUBLIC_APP_URL points at
+ * production — so an auth link built from it would send the user to prod
+ * instead of back to the preview they're testing. Resolve THIS preview's own
+ * origin instead.
+ *
+ * Precedence is security-ordered: prefer Vercel's server-set, client-unforgeable
+ * URLs (VERCEL_BRANCH_URL — the stable branch alias testers browse — then
+ * VERCEL_URL), and only fall back to the request host (bounded to *.vercel.app)
+ * if neither is present. The header carries a sign-in token URL, so we never
+ * trust it ahead of the env. The *.vercel.app bound still permits any Vercel
+ * app, so the Supabase redirect allow-list must be per-deployment, not a bare
+ * *.vercel.app wildcard.
+ */
+async function getPreviewOrigin(): Promise<string | null> {
+  const stripProto = (u: string) => u.replace(/^https?:\/\//, "");
+  if (process.env.VERCEL_BRANCH_URL) return `https://${stripProto(process.env.VERCEL_BRANCH_URL)}`;
+  if (process.env.VERCEL_URL) return `https://${stripProto(process.env.VERCEL_URL)}`;
+
+  const headerList = await headers();
+  const fwdHost = headerList.get("x-forwarded-host") ?? headerList.get("host");
+  if (fwdHost && /(^|\.)vercel\.app$/i.test(fwdHost)) {
+    const proto = headerList.get("x-forwarded-proto") ?? "https";
+    return `${proto}://${fwdHost.replace(/^www\./i, "")}`;
+  }
+  return null;
+}
+
 export async function getAppUrl(): Promise<string> {
+  // Vercel Preview: prefer the preview's own origin (NEXT_PUBLIC_APP_URL is the
+  // production host, which would bounce magic links off the preview). Prod and
+  // local dev keep using the canonical configured URL unchanged.
+  if (process.env.VERCEL_ENV === "preview") {
+    const previewUrl = await getPreviewOrigin();
+    if (previewUrl) return previewUrl;
+  }
+
   const envUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (envUrl) {
     warnIfAppUrlNotCanonical(envUrl);

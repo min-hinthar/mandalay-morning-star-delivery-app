@@ -121,3 +121,47 @@ refine on the owner's feedback → run the adversarial self-review (or
 `security-review` for checkout) **only once the owner is satisfied, just before
 merge** → triage the **auto-review after every push** → **never self-merge**
 (owner's explicit per-PR go). Mobile-first on a narrow viewport for every change.
+
+## Progress (2026-06-08)
+
+- **Surface #1 Checkout — built, in PR #154 (awaiting owner merge go).** Shipped:
+  the **"living receipt"** with a **thermal-print** reveal (print-head sweep,
+  tear-off settle; presentation-only — totals math untouched); layered
+  sheet-stack form + ledger spine; living/rolling numbers + draw-on rules;
+  magnetic + ripple CTAs; editorial section headers; opaque selected states +
+  morning-star-red outlines; cohesive light/dark token system.
+- **Rewards nudge (sidebar):** tier-tinted **Star-arc gauge** + wax-seal **reward
+  coin** (tooltip-explained) + Burmese-gem **tier ladder**, all on REAL
+  `useRewardsSummary` data (`spendCents` added to the route; next-tier derived via
+  pure loyalty helpers). Idle gem breath-glows; reduced-motion-safe.
+- **Referral:** offer banner moved **below the fold**; "Share & earn" opens an
+  **in-page share modal** (no checkout exit; guest → sign-in prompt).
+- **Order confirmation:** bilingual **wax-seal thank-you stamp**, tinted by the
+  customer's loyalty tier.
+- **Background:** menu-section photo **melded** into the sunset canvas
+  (`CheckoutBackdrop` — zoomed-out masked photo band + `soft-light` + the menu's
+  editorial dot/line-grid + triad-glow texture; mobile-GPU-safe, no blur).
+- **Pre-merge adversarial review: SHIP** (no High/money/auth/GPU findings; the one
+  Medium — dead `rewardReady` state — fixed). Verified green locally; CI blocked
+  only by the Actions billing/runner issue.
+
+## Future work / backlog
+
+- **Surfaces #2–#5 still to do:** cart drawer → order confirmation/tracking →
+  account → auth (per the sequence table above). One reviewable PR each.
+- **Zoom-out the shared menu photo on OTHER surfaces** for consistency — owner
+  liked the checkout's bounded, less-cropped photo band; `HomepageMenuSection`
+  (and anywhere else using `/images/menu-section-bg.webp`) still uses a full-bleed
+  `object-cover`. Consider extracting the `CheckoutBackdrop` band treatment into a
+  shared component. _Separate PR (touches homepage)._
+- **Mobile Stars chip above the fold** (checkout): the rewards card stacks below
+  the form on mobile; a slim Stars chip near the masthead was deferred.
+- **Post-submit wax-seal CTA** (declined for now — would delay/friction the
+  payment path; the confirmation wax-seal already pays off the "seal" narrative).
+  Revisit only as a post-submit flourish baked into the existing loading→success
+  transition, never delaying the Stripe/COD request.
+- **`.rewards-pulse`** CSS idle loop isn't offscreen-paused (negligible — 2 tiny
+  gems in a normally-in-view sidebar). Optional IO gate.
+- **`(customer)/orders/[id]/page.tsx`** is over the 400-line `max-lines` cap
+  (pre-existing warning) — split when next touched (confirmation/tracking is
+  surface #3).

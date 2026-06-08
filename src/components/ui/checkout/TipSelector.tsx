@@ -78,7 +78,7 @@ export function TipSelector({ subtotalCents, className }: TipSelectorProps) {
 
   return (
     <div className={cn("space-y-3", className)}>
-      <Label className="font-body text-sm font-medium text-text-primary">Add a tip</Label>
+      <Label className="font-body text-sm font-semibold text-hero-ink">Add a tip</Label>
 
       <div className="grid grid-cols-4 gap-2">
         {TIP_PRESETS.map((percent) => {
@@ -91,15 +91,15 @@ export function TipSelector({ subtotalCents, className }: TipSelectorProps) {
               type="button"
               onClick={() => handlePresetClick(percent)}
               className={cn(
-                "flex flex-col items-center justify-center rounded-lg border px-2 py-2.5 transition-colors",
+                "flex flex-col items-center justify-center rounded-lg border-2 px-2 py-2.5 transition-colors",
                 isSelected
-                  ? "border-primary bg-primary text-text-inverse"
-                  : "border-border bg-surface-secondary text-text-primary hover:border-primary/50"
+                  ? "border-hero-accent bg-hero-accent text-hero-card shadow-sm"
+                  : "border-hero-line bg-hero-card text-hero-ink hover:border-hero-clay/60"
               )}
             >
               <span className="text-sm font-semibold">{percent}%</span>
               <span
-                className={cn("text-xs", isSelected ? "text-text-inverse/80" : "text-text-muted")}
+                className={cn("text-xs", isSelected ? "text-hero-card/85" : "text-hero-ink-muted")}
               >
                 {formatPrice(tipCents)}
               </span>
@@ -111,17 +111,17 @@ export function TipSelector({ subtotalCents, className }: TipSelectorProps) {
           type="button"
           onClick={handleCustomClick}
           className={cn(
-            "flex flex-col items-center justify-center rounded-lg border px-2 py-2.5 transition-colors",
+            "flex flex-col items-center justify-center rounded-lg border-2 px-2 py-2.5 transition-colors",
             isCustom
-              ? "border-primary bg-primary text-text-inverse"
-              : "border-border bg-surface-secondary text-text-primary hover:border-primary/50"
+              ? "border-hero-accent bg-hero-accent text-hero-card shadow-sm"
+              : "border-hero-line bg-hero-card text-hero-ink hover:border-hero-clay/60"
           )}
         >
           <span className="text-sm font-semibold">Custom</span>
           {isCustom && customTipCents > 0 ? (
-            <span className="text-xs text-text-inverse/80">{formatPrice(customTipCents)}</span>
+            <span className="text-xs text-hero-card/85">{formatPrice(customTipCents)}</span>
           ) : (
-            <span className={cn("text-xs", isCustom ? "text-text-inverse/80" : "text-text-muted")}>
+            <span className={cn("text-xs", isCustom ? "text-hero-card/85" : "text-hero-ink-muted")}>
               Amount
             </span>
           )}
@@ -138,7 +138,7 @@ export function TipSelector({ subtotalCents, className }: TipSelectorProps) {
             className="overflow-hidden"
           >
             <div className="flex items-center gap-2 pt-1">
-              <span className="text-sm font-medium text-text-muted">$</span>
+              <span className="text-sm font-medium text-hero-ink-muted">$</span>
               <Input
                 type="text"
                 inputMode="decimal"

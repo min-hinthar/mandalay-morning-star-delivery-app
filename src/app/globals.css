@@ -146,6 +146,8 @@
   --color-hero-accent-strong: var(--hero-accent-strong);
   --color-hero-clay: var(--hero-clay);
   --color-hero-clay-2: var(--hero-clay-2);
+  --color-hero-star: var(--hero-star);
+  --color-hero-selected: var(--hero-selected);
   --color-hero-blue: var(--hero-blue);
   --color-hero-sage: var(--hero-sage);
   --color-hero-ruby: var(--hero-ruby);
@@ -1091,6 +1093,325 @@
       0 12px 30px rgba(20, 20, 19, 0.14);
   }
 
+  /* ============================================
+     CHECKOUT "AFTER DARK" — living-receipt ticket
+     Warm-paper ritual: ambient sunset glow over bg-background, dashed
+     perforation rules, and a torn/punched bottom edge. Radial-gradient
+     glows only (NO blur() — iOS GPU/memory budget).
+     ============================================ */
+
+  /* Dashed perforation rule — the receipt cue between ticket sections. */
+  .checkout-perf {
+    height: 0;
+    border-top: 1.5px dashed var(--hero-line);
+  }
+
+  /* Draw-on rule: the hairline/perforation writes itself left→right on mount. */
+  @media (prefers-reduced-motion: no-preference) {
+    .checkout-rule-draw {
+      transform-origin: left center;
+      animation: checkout-rule-draw 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+  }
+
+  /* Soft clay focus halo on in-card checkout inputs (additive to the base ring). */
+  .checkout-paper input:focus,
+  .checkout-paper textarea:focus {
+    border-color: var(--hero-clay);
+    box-shadow: 0 0 0 3px color-mix(in srgb, var(--hero-clay) 20%, transparent);
+  }
+
+  /* Stacked-paper depth: two faint cream sheets peek out behind the host card,
+     hand-stacked (tiny offset + rotation). Opaque rects only — no blur, so the
+     iOS GPU budget is untouched. Direct children sit above the sheets. */
+  .checkout-sheet-stack {
+    position: relative;
+  }
+  .checkout-sheet-stack > * {
+    position: relative;
+    z-index: 1;
+  }
+  .checkout-sheet-stack::before,
+  .checkout-sheet-stack::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: 1rem;
+    background: var(--hero-card-bg-strong);
+    border: 1px solid var(--hero-line);
+    pointer-events: none;
+  }
+  .checkout-sheet-stack::before {
+    transform: translate(4px, 7px) rotate(0.5deg);
+    opacity: 0.5;
+  }
+  .checkout-sheet-stack::after {
+    transform: translate(8px, 13px) rotate(1deg);
+    opacity: 0.3;
+  }
+
+  /* Torn/perforated bottom edge of the receipt: a cream strip whose top is
+     punched with half-circles so the page shows through (a real ticket tear).
+     The strip color matches the receipt's opaque cream foot exactly. */
+  .checkout-tear {
+    height: 11px;
+    background: rgba(250, 249, 245, 0.95);
+    -webkit-mask: radial-gradient(circle 6px at 10px -1px, transparent 6px, #000 6.5px) repeat-x;
+    mask: radial-gradient(circle 6px at 10px -1px, transparent 6px, #000 6.5px) repeat-x;
+    -webkit-mask-size: 20px 11px;
+    mask-size: 20px 11px;
+  }
+
+  /* Subtle idle glow for the rewards gauge gem + current ladder gem — a cheap
+     opacity/scale breath (no filter). Pauses under reduced-motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    .rewards-pulse {
+      animation: rewards-pulse 2.6s ease-in-out infinite;
+    }
+  }
+
+  @keyframes rewards-pulse {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.14);
+    }
+  }
+
+  /* Thermal print-head: a soft warm light band that rides the receipt's reveal
+     frontier as it "prints" top→down. Gradient only (no filter — iOS GPU
+     budget). The bright hairline is the print line itself. */
+  .checkout-printhead {
+    height: 22px;
+    margin-top: -11px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--hero-clay) 30%, transparent) 50%,
+      transparent 100%
+    );
+  }
+  .checkout-printhead::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    height: 2px;
+    margin-top: -1px;
+    border-radius: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--hero-clay) 90%, transparent) 18%,
+      color-mix(in srgb, var(--hero-clay) 90%, transparent) 82%,
+      transparent
+    );
+  }
+
+  /* A slow ledger sheen that sweeps the receipt total once data settles. */
+  @media (prefers-reduced-motion: no-preference) {
+    .checkout-total-sheen {
+      background-image: linear-gradient(
+        110deg,
+        transparent 30%,
+        rgba(217, 119, 87, 0.14) 48%,
+        transparent 66%
+      );
+      background-size: 220% 100%;
+      background-position: 120% 0;
+      animation: checkout-ledger-sheen 5.5s ease-in-out infinite;
+    }
+  }
+
+  /* Theme-aware checkout canvas. The "After Dark" identity is warm cream paper
+     cards that POP against their surround. Light = warm oat sunset; Dark = deep
+     espresso with sunset embers — the cream cards glow on it. Elements directly
+     on the canvas (masthead, stepper labels) read --ck-* (theme-flipped); card
+     interiors keep the fixed hero ink (cards are cream in BOTH themes). Radial
+     glows only (no blur — iOS GPU budget). */
+  .checkout-canvas {
+    --ck-ink: #1a1713;
+    --ck-ink-muted: rgba(26, 23, 19, 0.66);
+    --ck-line: rgba(26, 23, 19, 0.14);
+    --ck-accent: #9a3412;
+    --ck-dot: rgba(26, 23, 19, 0.07);
+
+    background:
+      radial-gradient(125% 70% at 50% -12%, rgba(217, 119, 87, 0.18), transparent 56%),
+      radial-gradient(95% 60% at 90% -2%, rgba(106, 155, 204, 0.14), transparent 55%),
+      radial-gradient(85% 55% at 4% 4%, rgba(120, 140, 93, 0.13), transparent 56%),
+      linear-gradient(180deg, #f1ebdf 0%, #ece4d4 58%, #e5dcc9 100%);
+    color: var(--ck-ink);
+  }
+
+  /* Dark = luminous twilight, NOT flat black — hero-inspired sunset (golden
+     ember → rose → violet) glowing over a warm plum base, so cream cards pop
+     with depth. Radial glows only (no blur — iOS GPU budget). */
+  .dark .checkout-canvas {
+    --ck-ink: #f4eddf;
+    --ck-ink-muted: rgba(244, 237, 223, 0.66);
+    --ck-line: rgba(244, 237, 223, 0.18);
+    --ck-accent: #ef9d73;
+    --ck-dot: rgba(244, 237, 223, 0.06);
+
+    background:
+      radial-gradient(120% 75% at 50% -14%, rgba(251, 146, 60, 0.22), transparent 56%),
+      radial-gradient(90% 62% at 88% 4%, rgba(236, 72, 153, 0.14), transparent 55%),
+      radial-gradient(85% 60% at 4% 26%, rgba(120, 140, 93, 0.14), transparent 56%),
+      radial-gradient(100% 72% at 50% 118%, rgba(124, 58, 237, 0.16), transparent 58%),
+      linear-gradient(180deg, #2c1e1a 0%, #251619 54%, #1c1115 100%);
+  }
+
+  /* Cream cards float with real elevation on the dark canvas — crisp top sheen,
+     deep drop shadow, and a faint warm ember halo (box-shadow blur is GPU-cheap,
+     unlike filter blur). Scoped to checkout so the homepage hero is untouched. */
+  .dark .checkout-canvas .hero-surface-paper,
+  .dark .checkout-canvas .hero-surface-glass {
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.65),
+      0 1px 2px rgba(0, 0, 0, 0.45),
+      0 22px 50px rgba(0, 0, 0, 0.52),
+      0 0 30px rgba(251, 146, 60, 0.09);
+  }
+
+  /* Masked dot-grid texture for the page — adds tactile, layered depth behind
+     the cards (faded by a radial mask so it sits under content, never a field).
+     Dot color flips with theme via --ck-dot. */
+  .checkout-dots {
+    background-image: radial-gradient(var(--ck-dot) 1px, transparent 1px);
+    background-size: 22px 22px;
+    -webkit-mask-image: radial-gradient(125% 95% at 50% 0%, #000 26%, transparent 80%);
+    mask-image: radial-gradient(125% 95% at 50% 0%, #000 26%, transparent 80%);
+  }
+
+  /* On-canvas text/hairline helpers (theme-flipped via --ck-*). */
+  .checkout-ink {
+    color: var(--ck-ink);
+  }
+  .checkout-ink-muted {
+    color: var(--ck-ink-muted);
+  }
+  .checkout-accent {
+    color: var(--ck-accent);
+  }
+  .checkout-hairline {
+    background-color: var(--ck-line);
+  }
+  .checkout-hairline-border {
+    border-color: var(--ck-line);
+  }
+
+  /* Warm-paper token scope for the step bodies. The step card is cream in BOTH
+     themes, but the (old-V8) step components consume the app's THEME-AWARE
+     semantic tokens — which flip to dark values in dark mode and meld on the
+     cream card (light text on cream). Like `.menu-paper`, this pins every token
+     they consume to fixed warm-paper values, so all buttons / headings / labels
+     / inputs / cards read ink-on-cream in BOTH themes. One class, whole subtree. */
+  .checkout-paper {
+    --color-surface-primary: #fffdf8;
+    --color-surface-secondary: #f6f1e7;
+    --color-surface-tertiary: #efe7d9;
+    --color-surface-elevated: #fffefb;
+
+    --color-border-default: var(--hero-line);
+    --color-border-subtle: rgba(20, 20, 19, 0.08);
+    --color-border-strong: rgba(20, 20, 19, 0.22);
+
+    --color-text-primary: var(--hero-ink);
+    --color-text-secondary: rgba(20, 20, 19, 0.78);
+    --color-text-muted: var(--hero-ink-muted);
+    --color-text-inverse: #fbf7ef;
+    --color-text-money: var(--hero-accent);
+
+    --color-primary: var(--hero-accent);
+    --color-primary-hover: var(--hero-accent-strong);
+    --color-primary-active: var(--hero-accent-strong);
+    --color-primary-light: rgba(154, 52, 18, 0.1);
+
+    --color-green: #3f7a34;
+    --color-status-success: #3f7a34;
+    --color-status-success-bg: rgba(120, 140, 93, 0.14);
+    --color-status-warning: #97650f;
+    --color-status-warning-bg: rgba(217, 119, 87, 0.13);
+    --color-status-error: #b3261e;
+    --color-status-error-bg: rgba(179, 38, 30, 0.1);
+
+    --color-secondary: rgba(217, 119, 87, 0.14);
+    --color-secondary-hover: rgba(217, 119, 87, 0.2);
+  }
+
+  /* Branded primary CTA on warm paper — clay gradient + cream text + glow.
+     Applied via className so it overrides the shared Button variant fill. */
+  .ck-cta {
+    background-image: linear-gradient(135deg, var(--hero-clay), var(--hero-accent));
+    color: #fbf7ef;
+    box-shadow: 0 8px 22px rgba(154, 52, 18, 0.3);
+  }
+  .ck-cta:hover {
+    filter: brightness(1.05);
+  }
+
+  /* Lively breathing aura for the step card — a drifting triad radial that
+     slowly pulses. transform/opacity only (60fps, no blur, no filter). */
+  .checkout-card-aura {
+    background:
+      radial-gradient(60% 70% at 18% 0%, var(--hero-clay), transparent 60%),
+      radial-gradient(55% 65% at 100% 30%, var(--hero-blue), transparent 62%),
+      radial-gradient(60% 70% at 70% 100%, var(--hero-sage), transparent 62%);
+    opacity: 0.1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .checkout-card-aura {
+      animation: checkout-aura-breathe 9s ease-in-out infinite;
+    }
+  }
+
+  /* Journey-rail node glows (token-enforced shadows can't take arbitrary JSX). */
+  .checkout-node-active {
+    box-shadow: 0 6px 18px rgba(217, 119, 87, 0.45);
+  }
+  .checkout-node-done {
+    box-shadow: 0 4px 12px rgba(154, 52, 18, 0.32);
+  }
+
+  /* Journey-rail progress fill — vivid clay→amber→sage with a flowing shimmer
+     and a warm glow. Width is animated by Framer; this is the paint. */
+  .checkout-progress-fill {
+    background: linear-gradient(90deg, var(--hero-clay), #e7a866, var(--hero-sage));
+    background-size: 200% 100%;
+    box-shadow: 0 0 10px rgba(217, 119, 87, 0.55);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .checkout-progress-fill {
+      animation: checkout-progress-flow 3s ease-in-out infinite;
+    }
+  }
+
+  /* Gradient top-edge accent bar for the step card (clay → blue → sage). */
+  .checkout-card-rail {
+    background: linear-gradient(
+      90deg,
+      var(--hero-clay),
+      var(--hero-blue),
+      var(--hero-sage),
+      var(--hero-clay)
+    );
+    background-size: 300% 100%;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .checkout-card-rail {
+      animation: checkout-rail-drift 8s ease-in-out infinite;
+    }
+  }
+
   /* Sunburst/asterisk ray draw-on (motion-gated; drawn by default otherwise) */
   @media (prefers-reduced-motion: no-preference) {
     .animate-hero-draw {
@@ -1362,6 +1683,16 @@
   }
 }
 
+/* Draw-on ledger rule — scales horizontally from the left on mount. */
+@keyframes checkout-rule-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+
 /* Animated shine sweep for touch devices (4.5 second cycle per CONTEXT.md) */
 @keyframes shine-sweep {
   0% {
@@ -1625,6 +1956,52 @@
   }
   100% {
     transform: translateX(200%) rotate(45deg);
+  }
+}
+
+/* Checkout receipt total — slow ledger sheen sweep (background-position) */
+@keyframes checkout-ledger-sheen {
+  0% {
+    background-position: 120% 0;
+  }
+  55%,
+  100% {
+    background-position: -40% 0;
+  }
+}
+
+/* Step-card aura — slow drift + breathe (transform/opacity only) */
+@keyframes checkout-aura-breathe {
+  0%,
+  100% {
+    opacity: 0.08;
+    transform: translate3d(-2%, -1%, 0) scale(1.02);
+  }
+  50% {
+    opacity: 0.16;
+    transform: translate3d(2%, 1%, 0) scale(1.08);
+  }
+}
+
+/* Step-card top rail — slow triad drift */
+@keyframes checkout-rail-drift {
+  0%,
+  100% {
+    background-position: 0% 0;
+  }
+  50% {
+    background-position: 100% 0;
+  }
+}
+
+/* Journey-rail progress shimmer flow */
+@keyframes checkout-progress-flow {
+  0%,
+  100% {
+    background-position: 0% 0;
+  }
+  50% {
+    background-position: 100% 0;
   }
 }
 

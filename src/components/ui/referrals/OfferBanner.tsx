@@ -2,11 +2,27 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { m, AnimatePresence } from "framer-motion";
 import { Gift, X, ArrowRight, ChevronRight, Sparkles } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
+import { useAuth } from "@/lib/hooks/useAuth";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { Modal } from "@/components/ui/Modal/Modal";
+import type { RewardsReferral } from "@/lib/hooks/useRewards";
+
+// Lazy — the share card (+ its referral fetch) only loads when the modal opens,
+// so it never weighs on the homepage/menu/checkout first paint.
+const ReferAFriendCard = dynamic(
+  () => import("@/components/ui/referrals/ReferAFriendCard").then((m) => m.ReferAFriendCard),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="p-8 text-center text-sm text-hero-ink-muted">Loading your link…</div>
+    ),
+  }
+);
 
 const COLLAPSE_KEY = "mms_offer_banner_collapsed";
 // Legacy permanent-dismiss flag — returning users who dismissed before now see
@@ -17,6 +33,8 @@ interface OfferBannerProps {
   className?: string;
   /** Attribution tag appended to the share link. */
   source?: string;
+  /** Preview override — opens the share modal pre-filled (skips auth/fetch). */
+  previewReferral?: RewardsReferral;
 }
 
 /**
@@ -25,10 +43,12 @@ interface OfferBannerProps {
  * re-expandable rewards pill rather than hiding it forever — so the offer
  * persists without nagging. Renders nothing until the flag is read (no flash).
  */
-export function OfferBanner({ className, source = "banner" }: OfferBannerProps) {
+export function OfferBanner({ className, source = "banner", previewReferral }: OfferBannerProps) {
   const { shouldAnimate } = useAnimationPreference();
+  const { isAuthenticated } = useAuth();
   const [ready, setReady] = useState(false);
   const [collapsed, setCollapsed] = useState(false);
+  const [shareOpen, setShareOpen] = useState(false);
 
   useEffect(() => {
     try {
@@ -138,17 +158,22 @@ export function OfferBanner({ className, source = "banner" }: OfferBannerProps) 
               </p>
             </div>
 
-            <Link
-              href={`/account?tab=settings&src=${encodeURIComponent(source)}`}
+            {/* Opens a share modal instead of leaving checkout — keeps momentum
+                on a high-intent surface. Compact (icon-only) on mobile. */}
+            <button
+              type="button"
+              onClick={() => setShareOpen(true)}
+              aria-label="Share & earn — refer a friend"
               className={cn(
-                "group hidden shrink-0 items-center gap-1 rounded-full bg-hero-accent px-4 py-1.5",
-                "text-sm font-semibold text-hero-card transition-colors hover:bg-hero-accent-strong sm:inline-flex",
+                "group inline-flex shrink-0 items-center gap-1 rounded-full bg-hero-accent px-3 py-1.5 sm:px-4",
+                "text-sm font-semibold text-hero-card transition-colors hover:bg-hero-accent-strong",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent/40"
               )}
             >
-              Share &amp; earn
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-            </Link>
+              <Gift className="h-4 w-4 sm:hidden" aria-hidden="true" />
+              <span className="hidden sm:inline">Share &amp; earn</span>
+              <ArrowRight className="hidden h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5 sm:block" />
+            </button>
 
             <button
               type="button"
@@ -165,6 +190,42 @@ export function OfferBanner({ className, source = "banner" }: OfferBannerProps) 
           </m.div>
         )}
       </AnimatePresence>
+
+      <Modal
+        isOpen={shareOpen}
+        onClose={() => setShareOpen(false)}
+        title="Refer a friend — you both get $10"
+        size="md"
+      >
+        {isAuthenticated || previewReferral ? (
+          <ReferAFriendCard data={previewReferral} />
+        ) : (
+          <div className="px-1 py-2 text-center">
+            <span className="mx-auto grid h-12 w-12 place-items-center rounded-full bg-hero-clay/15 text-hero-clay ring-1 ring-hero-clay/20">
+              <Gift className="h-6 w-6" />
+            </span>
+            <p className="mt-3 text-sm font-medium text-hero-ink">
+              Sign in to grab your link — you both get{" "}
+              <strong className="font-semibold text-hero-accent">$10</strong>.
+            </p>
+            <p className="mt-1 font-burmese text-xs text-hero-ink-muted" lang="my">
+              လင့်ခ်ရဖို့ ဝင်ပါ — နှစ်ယောက်စလုံး $၁၀ ရမယ်နော်။
+            </p>
+            <Link
+              href={`/login?src=${encodeURIComponent(source)}`}
+              onClick={() => setShareOpen(false)}
+              className={cn(
+                "mt-4 inline-flex items-center gap-1 rounded-full bg-hero-accent px-5 py-2",
+                "text-sm font-semibold text-hero-card transition-colors hover:bg-hero-accent-strong",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent/40"
+              )}
+            >
+              Sign in
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }
