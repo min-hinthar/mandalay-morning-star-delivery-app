@@ -60,10 +60,14 @@ export function DishHero({ item, onClose }: DishHeroProps) {
           className={cn(
             "absolute right-3 top-3 z-30",
             "flex h-11 w-11 items-center justify-center rounded-full",
-            "bg-surface-inverse/55 hover:bg-surface-inverse/75",
-            "text-text-inverse shadow-lg md:backdrop-blur-sm",
+            // surface-elevated + hero-ink/hero-card-strong are NOT remapped by the
+            // sheet's .menu-paper, so the chip + X stay theme-true (light frosted
+            // circle + dark X in light, dark circle + cream X in dark) instead of
+            // the dark-on-dark meld text-inverse/surface-inverse inherited.
+            "bg-surface-elevated/85 hover:bg-surface-elevated",
+            "text-hero-ink shadow-lg ring-1 ring-hero-ink/10 md:backdrop-blur-sm dark:text-hero-card-strong",
             "transition-colors duration-150",
-            "focus:outline-none focus-visible:ring-2 focus-visible:ring-surface-primary/60"
+            "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
           )}
           aria-label="Close"
         >

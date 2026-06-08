@@ -33,8 +33,13 @@ export function MenuFiltersSheet({
 
   return (
     <Drawer isOpen={isOpen} onClose={onClose} position="bottom" title="Filter the menu">
-      <div className="pb-1 pt-1">
-        <p className="mb-4 font-burmese text-sm text-hero-clay/90">အစားအစာ စစ်ထုတ်ရန်</p>
+      {/* Drawer doesn't render `title` visibly (aria-only) and has no body padding
+          — so the sheet owns its bilingual heading + horizontal padding here. */}
+      <div className="px-5 pb-1 pt-1">
+        <div className="mb-4">
+          <h2 className="font-display text-xl font-bold text-text-primary">Dietary filters</h2>
+          <p className="font-burmese text-sm text-hero-clay/90">အစားအစာ စစ်ထုတ်ရန်</p>
+        </div>
 
         <MenuDietaryFilter
           items={items}

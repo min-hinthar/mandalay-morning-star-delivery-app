@@ -256,7 +256,9 @@ export const AddButton = memo(function AddButton({
             key="adding"
             className={cn(
               "flex items-center justify-center w-10 h-10",
-              "bg-green text-text-inverse rounded-full",
+              // hero-card-strong (constant cream) keeps the check light on green —
+              // text-inverse would flip dark under the card's .menu-paper.
+              "bg-green text-hero-card-strong rounded-full",
               "shadow-lg"
             )}
             initial={shouldAnimate ? { scale: 0, rotate: -45 } : undefined}
