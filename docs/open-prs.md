@@ -8,27 +8,29 @@ _Last reconciled: 2026-06-08._
 
 ## In flight
 
-- **#154** — **Checkout "After Dark"** (surface #1 of the customer rollout; branch
-  `claude/after-dark-ui-ux-c8Zl4`). The cumulative reskin + this session's adds:
-  living **"living receipt"** with a **thermal-print** reveal (print-head sweep +
-  tear-off; totals presentation-only); layered sheet-stack form + ledger spine;
-  magnetic+ripple CTAs; **maximal rewards card** in the sidebar (tier-tinted
-  **Star-arc gauge** + wax-seal **reward coin** w/ tooltip + Burmese-gem **tier
-  ladder**, all on REAL `useRewardsSummary` data — `spendCents` added to that
-  route); **referral offer** moved below the fold + **in-page share modal** (no
-  checkout exit); **bilingual wax-seal stamp** + tier-threaded seal on the order
-  confirmation; **menu-photo background melded** into the sunset canvas — now a
-  **shared `PhotoBandBackdrop`** (zoomed-out masked photo band + soft-light +
-  editorial texture) reused on checkout, the **menu page** (`MenuPageAmbient`),
-  and the **homepage menu section**, mobile-GPU-safe. Merged `main` in twice
-  (menu-rail #155 + #156 docs) cleanly (docs-only conflicts).
-  **Pre-merge adversarial review: SHIP** — no High/money/auth/GPU findings;
-  the one Medium (dead `rewardReady` state) fixed. Local verify green
-  (lint · lint:css · format · typecheck · **1180 tests** · build); CI blocked
-  only by the Actions quota/runner issue (merge via owner's branch-protection
-  bypass, as #155 did). **Awaiting owner's merge go.**
+- **#157** — **Cart "After Dark"** (surface #2 of the customer rollout; branch
+  `claude/magical-clarke-ybykt1`). Reskins the cart funnel as the prelude to the
+  checkout receipt: **warm cart canvas** (`.cart-canvas`, doubled-class override of
+  the shared Drawer's `bg-white/black`; light cream / dark espresso, mobile-GPU-safe);
+  **photo-forward tactile line cards** (`.cart-line` — lifted warm panels, bilingual
+  EN/MY, triad ledger-spine, theme-aware so dark never melds, swipe-to-remove);
+  the **Morning-Star delivery journey** (star marker rides a clay→amber→sage fill to
+  a goal star; unlock = sparkle burst + bilingual sage stamp — replaces truck/road/
+  PartyPopper; loops `useInView`-gated; real values only); a **living-receipt
+  summary** (cream mini-receipt panel + `HeroCardLayers`, draw-on perforation rules,
+  rolling ledger + total under a ledger sheen — mirrors `CheckoutSummaryV8`, totals
+  math untouched); editorial bilingual header/footer/empty-state. Also **dish-sheet**
+  polish (bilingual section labels, warm stepper, radial-glow CTA; footer extracted
+  to `SheetFooter`). `CartDrawerParts` split into `CartHeader`/`CartItemsList`/
+  `CartFooter` (barrel preserved). Theme-safety: cream summary/journey callouts are
+  opaque cream so `hero-ink`/`hero-accent` read in both themes whether in the drawer
+  or the `/cart` page's theme-aware panel. Local verify green (lint · lint:css ·
+  format · typecheck · **1180 tests** · build); new CSS confirmed emitted.
+  CI: **GitHub Actions runs not starting** (consistent with today's quota/runner
+  pause — re-kicking won't help; merge via owner's branch-protection bypass after
+  preview review, as #154/#155 did). **Iterating on preview; awaiting owner merge go.**
 
-> **Next up after checkout:** cart drawer → orders → account → auth (per the
+> **Next up after cart:** order confirmation/tracking → account → auth (per the
 > customer-surfaces sequence). See
 > [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
 
@@ -45,6 +47,14 @@ merge/close.
 
 ## Recently closed
 
+- **#154** — Checkout **"After Dark"** (customer-rollout surface #1). Living
+  **thermal-print receipt** (presentation-only totals), layered sheet-stack form +
+  ledger spine, magnetic/ripple CTAs, maximal **rewards card** (Star-arc gauge +
+  wax-seal coin + tier ladder on REAL `useRewardsSummary` data), referral offer
+  below-fold + in-page share modal, bilingual wax-seal order-confirmation stamp,
+  and the shared **`PhotoBandBackdrop`** (melded menu photo) reused on checkout /
+  menu / homepage. **Merged** (`0706e7f`) — local-verified + adversarial review SHIP;
+  landed via branch-protection bypass during the Actions quota pause.
 - **#155** — Menu **top-region redesign** ("After Dark" v2, owner-driven, one
   branch): the stacked header+banners+tabs chrome collapses into a single pinned
   **`MenuRail`** toolbar (expand-on-tap search + scroll-spy `CategoryTabs` + live
