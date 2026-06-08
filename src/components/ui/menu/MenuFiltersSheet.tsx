@@ -33,26 +33,26 @@ export function MenuFiltersSheet({
 
   return (
     <Drawer isOpen={isOpen} onClose={onClose} position="bottom" title="Filter the menu">
-      <div className="menu-paper -mx-1 px-1 pb-2">
-        <p className="mb-3 font-burmese text-sm text-hero-clay/90">အစားအစာ စစ်ထုတ်ရန်</p>
+      <div className="pb-1 pt-1">
+        <p className="mb-4 font-burmese text-sm text-hero-clay/90">အစားအစာ စစ်ထုတ်ရန်</p>
 
         <MenuDietaryFilter
           items={items}
           selected={selected}
           onChange={onChange}
-          className="flex-wrap gap-2.5"
+          className="flex-wrap gap-x-3 gap-y-3.5"
         />
 
         {/* Allergen-safety disclaimer — shown when a free-from filter is active */}
         {hasFreeFromSelected(selected) && (
-          <p className="mt-3 text-2xs leading-snug text-text-muted">
+          <p className="mt-4 text-2xs leading-snug text-text-muted">
             Allergen filters reflect the kitchen&rsquo;s declared ingredients — please confirm with
             us for severe allergies.
           </p>
         )}
 
         {/* Footer actions */}
-        <div className="mt-5 flex items-center justify-between gap-3">
+        <div className="mt-6 flex items-center justify-between gap-3 border-t border-border-default pt-4">
           <button
             type="button"
             onClick={() => onChange([])}

@@ -96,7 +96,7 @@ export function MenuRail({
           onSelectItem={onSelectItem}
           mobileCollapsible
           placeholder="Search dishes…"
-          className="shrink-0 sm:w-52"
+          className="menu-rail-search shrink-0 sm:w-52"
         />
 
         {/* Category tabs — the flex-1 center */}

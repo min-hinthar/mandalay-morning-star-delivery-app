@@ -170,15 +170,23 @@
   --menu-gold: #eaa92f; /* category-tab pill (theme-independent) */
   --menu-clay: #d97757;
 
-  /* Active category pill — HERO MAGENTA (the homepage sunset signature), so it
-     reads as the brand "selected" accent and pops hard on the warm bar.
-     Light: deep crimson→clay; warm-white label; magenta glow + cream ring. */
-  --menu-tab-active-from: #a41034; /* hero magenta (crimson) */
-  --menu-tab-active-to: #c01548; /* magenta — stays saturated (no clay meld into
-     the warm bar); #fff5ef label AA ~5.7:1 */
-  --menu-tab-active-ink: #fff5ef; /* warm-white label */
-  --menu-tab-active-ring: rgba(255, 240, 220, 0.55); /* warm cream ring */
-  --menu-tab-active-glow: rgba(164, 16, 52, 0.5); /* magenta glow */
+  /* Active category pill — GOLD→CLAY LIT (one consistent "lit" accent shared with
+     the Add button + active filter chip). Bright/luminous, so it pops out as the
+     selected cap above the muted vellum ghost pills. Dark ink label keeps AA on
+     the gold. Same in both themes (the lit gold reads on the light AND dark rail). */
+  --menu-tab-active-from: #eaa92f; /* gold */
+  --menu-tab-active-to: #d97757; /* clay */
+  --menu-tab-active-ink: #241a12; /* dark ink label (AA on gold→clay) */
+  --menu-tab-active-ring: rgba(255, 244, 224, 0.6); /* warm cream ring */
+  --menu-tab-active-glow: rgba(234, 169, 47, 0.55); /* gold glow */
+
+  /* Vellum ghost (inactive) category pill — a soft warm-paper chip on the rail:
+     translucent fill + gold-leaf hairline + inner sheen + muted ink label. */
+  --menu-tab-ghost-bg: rgba(244, 236, 224, 0.85); /* warm vellum (visible on white rail) */
+  --menu-tab-ghost-border: rgba(234, 169, 47, 0.3); /* gold-leaf hairline */
+  --menu-tab-ghost-sheen: rgba(255, 255, 255, 0.6); /* inner top sheen */
+  --menu-tab-ghost-ink: #5a4a3a; /* muted warm ink label */
+  --menu-tab-ghost-dot: rgba(36, 28, 23, 0.1); /* whisper dot texture */
   --menu-texture-dot: rgba(20, 20, 19, 0.1); /* dark dots on the light section overlay */
   --menu-texture-line: rgba(20, 20, 19, 0.05);
   --menu-modal-accent: #9a3412; /* detail-modal price/accent — deep clay (AA on white) */
@@ -722,14 +730,20 @@
   --menu-card-cta-bg: #9a3412; /* deep clay CTA */
   --menu-card-cta-ink: #fdfcf9; /* warm-white label on clay */
 
-  /* Active category pill — HERO MAGENTA (brighter on the dark bar so it pops).
-     Bright magenta→clay; warm-white label; magenta glow + cream ring. */
-  --menu-tab-active-from: #c41844; /* brighter hero magenta */
-  --menu-tab-active-to: #d01b50; /* magenta — saturated through (no clay meld);
-     #fff5ef label AA ~4.96:1 */
-  --menu-tab-active-ink: #fff5ef; /* warm-white label */
-  --menu-tab-active-ring: rgba(255, 240, 220, 0.62); /* warm cream ring */
-  --menu-tab-active-glow: rgba(196, 24, 68, 0.55); /* magenta glow */
+  /* Active category pill — GOLD→CLAY LIT (matches light; the bright gold pops on
+     the dark rail too). Dark ink label keeps AA on the gold. */
+  --menu-tab-active-from: #eaa92f; /* gold */
+  --menu-tab-active-to: #d97757; /* clay */
+  --menu-tab-active-ink: #241a12; /* dark ink label (AA on gold→clay) */
+  --menu-tab-active-ring: rgba(255, 244, 224, 0.55); /* warm cream ring */
+  --menu-tab-active-glow: rgba(234, 169, 47, 0.5); /* gold glow */
+
+  /* Vellum ghost (inactive) pill — faint warm chip on the dark rail. */
+  --menu-tab-ghost-bg: rgba(255, 246, 235, 0.07); /* faint warm fill on dark rail */
+  --menu-tab-ghost-border: rgba(255, 240, 220, 0.14); /* warm hairline */
+  --menu-tab-ghost-sheen: rgba(255, 255, 255, 0.08); /* inner top sheen */
+  --menu-tab-ghost-ink: rgba(246, 241, 233, 0.74); /* muted cream label */
+  --menu-tab-ghost-dot: rgba(246, 241, 233, 0.08); /* whisper dot texture */
   --menu-texture-dot: rgba(246, 241, 233, 0.08); /* light dots on the dark section overlay */
   --menu-texture-line: rgba(246, 241, 233, 0.045);
   --menu-modal-accent: #f0b357; /* detail-modal price/accent — amber (AA on dark) */

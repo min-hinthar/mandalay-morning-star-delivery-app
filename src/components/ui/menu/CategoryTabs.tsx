@@ -259,16 +259,15 @@ export const CategoryTabs = memo(function CategoryTabs({
               className={cn(
                 "relative flex-shrink-0",
                 "rounded-pill px-4 py-2 min-h-[40px]",
-                "font-body text-sm",
+                "font-body text-sm font-semibold",
                 "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 isActive
-                  ? // Bold warm-white label on the lit magenta pill — heavier
-                    // weight + drop shadow reinforce the selected read
+                  ? // Dark-ink label on the lit gold→clay active pill (indicator
+                    // div sits behind) — heavier weight reinforces the selection
                     "menu-tab-active-label font-bold"
-                  : // Inactive = legible full-ink/70 medium-weight text, no chrome,
-                    // faint chip on hover. Weight + the lit active pill give clear
-                    // figure/ground in both themes.
-                    "font-medium text-text-primary/70 hover:bg-surface-primary/60 hover:text-text-primary"
+                  : // Inactive = layered vellum ghost chip (warm fill + gold
+                    // hairline + sheen + dot texture); hover warms to clay
+                    "menu-tab-ghost"
               )}
             >
               {/* Tab label */}
