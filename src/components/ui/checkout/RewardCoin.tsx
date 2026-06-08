@@ -35,6 +35,8 @@ export function RewardCoin({ label, ready, shouldAnimate, className }: RewardCoi
       <m.div
         initial={shouldAnimate ? { scale: 0, rotate: -25 } : false}
         animate={{ scale: 1, rotate: ready ? -8 : 0 }}
+        whileHover={{ scale: 1.1, rotate: ready ? -4 : 4 }}
+        whileTap={{ scale: 0.94 }}
         transition={{ delay: 0.4, type: "spring", stiffness: 420, damping: 15 }}
         className={cn(
           "relative grid h-12 w-12 place-items-center overflow-hidden rounded-full border-2",

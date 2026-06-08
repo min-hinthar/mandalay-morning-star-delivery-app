@@ -437,9 +437,9 @@ export default function CheckoutClient({
             <div className="lg:sticky lg:top-24">
               {/* Positive-reinforcement rewards nudge above the summary */}
               <CheckoutRewardsCard className="mb-4" />
-              <div className="checkout-sheet-stack">
-                <CheckoutSummary />
-              </div>
+              {/* Receipt prints itself (thermal-print reveal) — no stacked-paper
+                  decoration behind it, so the print read stays self-contained. */}
+              <CheckoutSummary />
             </div>
           </div>
         </div>

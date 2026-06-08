@@ -39,26 +39,41 @@ export function RewardsTierLadder({ tierId, spendCents, shouldAnimate }: Rewards
           return (
             <Fragment key={t.id}>
               <li>
-                <m.span
-                  className={cn(
-                    "grid h-7 w-7 place-items-center rounded-full border bg-hero-card text-sm leading-none",
-                    reached
-                      ? cn("border-current", TIER_TINT[t.id].text)
-                      : "border-hero-line text-hero-ink-muted opacity-50",
-                    isCurrent && "ring-2 ring-current"
-                  )}
-                  initial={shouldAnimate ? { scale: 0 } : false}
-                  animate={{ scale: isCurrent ? 1.12 : 1 }}
-                  transition={{
-                    delay: 0.35 + i * 0.07,
-                    type: "spring",
-                    stiffness: 380,
-                    damping: 15,
-                  }}
-                  aria-label={`${t.english}${isCurrent ? " — current tier" : ""}`}
+                <span
+                  className={cn("relative inline-grid place-items-center", TIER_TINT[t.id].text)}
                 >
-                  <span aria-hidden="true">{t.emoji}</span>
-                </m.span>
+                  {/* Idle breath glow on the current tier gem (motion-safe) */}
+                  {isCurrent && (
+                    <span
+                      aria-hidden="true"
+                      className="rewards-pulse pointer-events-none absolute h-8 w-8 rounded-full"
+                      style={{
+                        background:
+                          "radial-gradient(circle, color-mix(in srgb, currentColor 34%, transparent), transparent 70%)",
+                      }}
+                    />
+                  )}
+                  <m.span
+                    className={cn(
+                      "relative grid h-7 w-7 place-items-center rounded-full border bg-hero-card text-sm leading-none",
+                      reached
+                        ? "border-current"
+                        : "border-hero-line text-hero-ink-muted opacity-50",
+                      isCurrent && "ring-2 ring-current"
+                    )}
+                    initial={shouldAnimate ? { scale: 0 } : false}
+                    animate={{ scale: isCurrent ? 1.12 : 1 }}
+                    transition={{
+                      delay: 0.35 + i * 0.07,
+                      type: "spring",
+                      stiffness: 380,
+                      damping: 15,
+                    }}
+                    aria-label={`${t.english}${isCurrent ? " — current tier" : ""}`}
+                  >
+                    <span aria-hidden="true">{t.emoji}</span>
+                  </m.span>
+                </span>
               </li>
               {i < tiers.length - 1 && (
                 <li className="flex-1">

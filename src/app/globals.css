@@ -1041,16 +1041,36 @@
     mask-size: 20px 11px;
   }
 
+  /* Subtle idle glow for the rewards gauge gem + current ladder gem — a cheap
+     opacity/scale breath (no filter). Pauses under reduced-motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    .rewards-pulse {
+      animation: rewards-pulse 2.6s ease-in-out infinite;
+    }
+  }
+
+  @keyframes rewards-pulse {
+    0%,
+    100% {
+      opacity: 0.35;
+      transform: scale(1);
+    }
+    50% {
+      opacity: 0.7;
+      transform: scale(1.14);
+    }
+  }
+
   /* Thermal print-head: a soft warm light band that rides the receipt's reveal
      frontier as it "prints" top→down. Gradient only (no filter — iOS GPU
      budget). The bright hairline is the print line itself. */
   .checkout-printhead {
-    height: 16px;
-    margin-top: -8px;
+    height: 22px;
+    margin-top: -11px;
     background: linear-gradient(
       180deg,
       transparent 0%,
-      color-mix(in srgb, var(--hero-clay) 20%, transparent) 50%,
+      color-mix(in srgb, var(--hero-clay) 30%, transparent) 50%,
       transparent 100%
     );
   }
@@ -1059,9 +1079,16 @@
     position: absolute;
     inset-inline: 0;
     top: 50%;
-    height: 1.5px;
-    margin-top: -0.75px;
-    background: color-mix(in srgb, var(--hero-clay) 60%, transparent);
+    height: 2px;
+    margin-top: -1px;
+    border-radius: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      color-mix(in srgb, var(--hero-clay) 90%, transparent) 18%,
+      color-mix(in srgb, var(--hero-clay) 90%, transparent) 82%,
+      transparent
+    );
   }
 
   /* A slow ledger sheen that sweeps the receipt total once data settles. */

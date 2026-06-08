@@ -9,7 +9,7 @@ import { useRewardsSummary, type RewardsSummary } from "@/lib/hooks/useRewardsSu
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { formatPrice } from "@/lib/utils/currency";
 import { LOYALTY_MILESTONE_STEP } from "@/lib/loyalty";
-import { TierBadge } from "@/components/ui/TierBadge";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/Tooltip";
 import { RewardsStarArc } from "./RewardsStarArc";
 import { RewardCoin } from "./RewardCoin";
 import { RewardsTierLadder } from "./RewardsTierLadder";
@@ -58,18 +58,23 @@ export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsC
         className
       )}
     >
-      {/* Header — brand mark + live tier badge */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex min-w-0 items-center gap-2">
-          <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-hero-clay/15 text-hero-clay ring-1 ring-hero-clay/20">
-            <Sparkles className="h-4 w-4" />
-          </span>
-          <span className="truncate text-sm font-semibold text-hero-ink">Morning Star Rewards</span>
+      {/* Header — brand mark + tier identity (two lines, never truncates) */}
+      <div className="flex items-center gap-2">
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-hero-clay/15 text-hero-clay ring-1 ring-hero-clay/20">
+          <Sparkles className="h-4 w-4" />
+        </span>
+        <div className="min-w-0 leading-tight">
+          <p className="text-sm font-semibold text-hero-ink">Morning Star Rewards</p>
+          <p className="truncate text-2xs font-medium text-hero-ink-muted">
+            <span className={cn("font-semibold", tint.text)}>
+              {tier.emoji} {tier.name}
+            </span>
+            {tier.english !== tier.name && <> · {tier.english}</>}
+          </p>
         </div>
-        <TierBadge tier={tier} className="shrink-0" />
       </div>
 
-      {/* Reward axis — Star-arc gauge + wax-seal coin */}
+      {/* Reward axis — Star-arc gauge + wax-seal coin (tooltip-explained) */}
       <div className="relative mt-2 flex justify-center">
         <RewardsStarArc
           stars={stars}
@@ -80,12 +85,37 @@ export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsC
           tierEmoji={tier.emoji}
           shouldAnimate={shouldAnimate}
         />
-        <RewardCoin
-          label={rewardShort(nextRewardCents)}
-          ready={rewardReady}
-          shouldAnimate={shouldAnimate}
-          className="absolute right-0 top-1"
-        />
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <button
+                type="button"
+                aria-label={
+                  rewardReady
+                    ? `Your ${reward} reward is ready for this order`
+                    : `${reward} reward — ${ordersToNext} more ${ordersToNext === 1 ? "order" : "orders"} to unlock`
+                }
+                className="absolute right-0 top-1 cursor-help rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/50"
+              >
+                <RewardCoin
+                  label={rewardShort(nextRewardCents)}
+                  ready={rewardReady}
+                  shouldAnimate={shouldAnimate}
+                />
+              </button>
+            </TooltipTrigger>
+            <TooltipContent side="top" className="max-w-[15rem] text-center">
+              {rewardReady ? (
+                <>Your {reward} reward is ready — applied to this order. 🎉</>
+              ) : (
+                <>
+                  Order {ordersToNext} more {ordersToNext === 1 ? "time" : "times"} to unlock a{" "}
+                  {reward} off coupon.
+                </>
+              )}
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       <p className="mt-1 text-center text-xs font-medium text-hero-ink">

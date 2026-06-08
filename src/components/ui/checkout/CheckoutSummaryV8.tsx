@@ -74,9 +74,9 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           advances + settles. The print-head light (below) rides the frontier. */}
       <m.div
         className="relative"
-        initial={shouldAnimate ? { clipPath: "inset(0 0 100% 0)", y: 6 } : undefined}
+        initial={shouldAnimate ? { clipPath: "inset(0 0 100% 0)", y: 8 } : undefined}
         animate={shouldAnimate ? { clipPath: "inset(0 0 0% 0)", y: 0 } : undefined}
-        transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* Bound-ledger spine — triad gradient bar down the receipt's left edge */}
         <span
@@ -89,9 +89,9 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
 
           <div className="relative">
             {/* Editorial header */}
-            <div className="flex items-center justify-between border-b border-hero-line/70 px-5 py-4">
-              <div className="flex items-center gap-2 text-hero-accent">
-                <HeroSunburst className="h-4 w-4" rays={8} />
+            <div className="flex items-center justify-between gap-3 border-b border-hero-line/70 px-5 py-4">
+              <div className="flex min-w-0 items-center gap-2 text-hero-accent">
+                <HeroSunburst className="h-4 w-4 shrink-0" rays={8} />
                 <div className="leading-tight">
                   <h3 className="font-display text-base font-semibold text-hero-ink">Your order</h3>
                   <span className="font-burmese text-2xs text-hero-ink-muted" lang="my">
@@ -99,10 +99,12 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                   </span>
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1.5 rounded-full border border-hero-line bg-hero-card/70 px-2.5 py-1 text-2xs font-bold text-hero-ink-muted">
+              <span className="inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border border-hero-line bg-hero-card/70 px-2.5 py-1 text-2xs font-bold text-hero-ink-muted">
                 <ShoppingBag className="h-3.5 w-3.5 text-hero-clay" aria-hidden="true" />
-                {itemCount} {itemCount === 1 ? "item" : "items"}
-                <span className="font-burmese" lang="my">
+                <span>
+                  {itemCount} {itemCount === 1 ? "item" : "items"}
+                </span>
+                <span className="font-burmese text-hero-ink-muted/80" lang="my">
                   · {itemCount} ခု
                 </span>
               </span>
@@ -128,16 +130,18 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                     className="-mx-2 flex justify-between rounded-lg px-2 py-0.5 text-sm transition-colors hover:bg-hero-clay/[0.07]"
                   >
                     <div className="min-w-0 flex-1 pr-3">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-start gap-1.5">
                         <m.span
-                          className="inline-flex h-5 w-5 items-center justify-center rounded-md bg-hero-clay/12 text-xs font-bold text-hero-accent"
+                          className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-md bg-hero-clay/12 text-xs font-bold text-hero-accent"
                           initial={shouldAnimate ? { scale: 0 } : undefined}
                           animate={shouldAnimate ? { scale: 1 } : undefined}
                           transition={getSpring(spring.ultraBouncy)}
                         >
                           {item.quantity}
                         </m.span>
-                        <span className="truncate font-medium text-hero-ink">{item.nameEn}</span>
+                        <span className="line-clamp-2 font-medium text-hero-ink">
+                          {item.nameEn}
+                        </span>
                       </div>
                       {item.modifiers.length > 0 && (
                         <p className="mt-1 truncate pl-6 text-xs text-hero-ink-muted">
@@ -346,7 +350,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           aria-hidden="true"
           initial={shouldAnimate ? { scaleY: 0.4, opacity: 0 } : undefined}
           animate={shouldAnimate ? { scaleY: 1, opacity: 1 } : undefined}
-          transition={{ delay: 0.78, type: "spring", stiffness: 360, damping: 18 }}
+          transition={{ delay: 0.95, type: "spring", stiffness: 360, damping: 18 }}
         />
       </m.div>
 
@@ -358,9 +362,9 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           initial={{ top: "0%", opacity: 0 }}
           animate={{ top: "100%", opacity: [0, 1, 1, 0] }}
           transition={{
-            duration: 0.85,
+            duration: 1.05,
             ease: [0.22, 1, 0.36, 1],
-            opacity: { duration: 0.85, times: [0, 0.08, 0.85, 1] },
+            opacity: { duration: 1.05, times: [0, 0.06, 0.9, 1] },
           }}
         />
       )}

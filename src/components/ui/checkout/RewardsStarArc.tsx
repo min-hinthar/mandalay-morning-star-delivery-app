@@ -104,18 +104,29 @@ export function RewardsStarArc({
 
       {/* Center: tier gem + live Stars */}
       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-        <m.span
-          aria-hidden="true"
-          className={cn("text-2xl leading-none", tierTextClass)}
-          style={{
-            filter: "drop-shadow(0 1px 5px color-mix(in srgb, currentColor 38%, transparent))",
-          }}
-          initial={shouldAnimate ? { scale: 0, rotate: -20 } : false}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ delay: 0.45, type: "spring", stiffness: 380, damping: 14 }}
-        >
-          {tierEmoji}
-        </m.span>
+        <span className={cn("relative inline-grid place-items-center", tierTextClass)}>
+          {/* Idle breath glow behind the gem (motion-safe) */}
+          <span
+            aria-hidden="true"
+            className="rewards-pulse pointer-events-none absolute h-9 w-9 rounded-full"
+            style={{
+              background:
+                "radial-gradient(circle, color-mix(in srgb, currentColor 32%, transparent), transparent 70%)",
+            }}
+          />
+          <m.span
+            aria-hidden="true"
+            className="relative text-2xl leading-none"
+            style={{
+              filter: "drop-shadow(0 1px 5px color-mix(in srgb, currentColor 38%, transparent))",
+            }}
+            initial={shouldAnimate ? { scale: 0, rotate: -20 } : false}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ delay: 0.45, type: "spring", stiffness: 380, damping: 14 }}
+          >
+            {tierEmoji}
+          </m.span>
+        </span>
         <span className="mt-0.5 font-display text-xl font-bold leading-none text-hero-ink">
           <RollingNumber value={stars} animate={shouldAnimate} />
         </span>
