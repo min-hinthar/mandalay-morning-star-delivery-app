@@ -4,15 +4,27 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-06-07._
+_Last reconciled: 2026-06-08._
 
 ## In flight
 
-_None._ The menu/homepage "After Dark" epic (**#150**), the allergen-reviewed +
-favorite-polish follow-ups (**#151**), and the full allergen audit (**#152**)
-have all landed on `main`. **Next up: extend the Anthropic "After Dark" UI/UX
-to the remaining customer surfaces — checkout first.** See
-[`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
+- **#154** — **Checkout "After Dark"** (surface #1 of the customer rollout; branch
+  `claude/after-dark-ui-ux-c8Zl4`). The cumulative reskin + this session's adds:
+  living **"living receipt"** with a **thermal-print** reveal (print-head sweep +
+  tear-off; totals presentation-only); layered sheet-stack form + ledger spine;
+  magnetic+ripple CTAs; **maximal rewards card** in the sidebar (tier-tinted
+  **Star-arc gauge** + wax-seal **reward coin** w/ tooltip + Burmese-gem **tier
+  ladder**, all on REAL `useRewardsSummary` data — `spendCents` added to that
+  route); **referral offer** moved below the fold + **in-page share modal** (no
+  checkout exit); **bilingual wax-seal stamp** + tier-threaded seal on the order
+  confirmation; **menu-photo background melded** into the sunset canvas
+  (`CheckoutBackdrop`: zoomed-out masked photo band + soft-light + editorial
+  texture, mobile-GPU-safe). Merged `main` in (menu-rail epic) cleanly.
+  **Pre-merge adversarial review: SHIP** — no High/money/auth/GPU findings;
+  the one Medium (dead `rewardReady` state) fixed. Local verify green
+  (lint · lint:css · format · typecheck · **1180 tests** · build); CI blocked
+  only by the Actions billing/runner issue (no runner). **Awaiting owner's merge
+  go.** Plan: [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
 
 ## Watching
 
