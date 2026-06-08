@@ -1,21 +1,15 @@
 "use client";
 
 /**
- * CategoryTabs Component
- * Horizontal scrolling category tabs with scrollspy behavior
+ * CategoryTabs — horizontal category scroller with scroll-spy.
  *
- * Features:
- * - Horizontal scroll on mobile with fade indicators
- * - Active tab highlights based on scroll position via Intersection Observer
- * - Smooth CSS transition pill indicator
- * - Click to scroll to category section
- * - Accessibility: proper tablist/tab roles
+ * Pure presentational tabs region (NOT the pinned bar): the sticky surface,
+ * header-visibility tracking, search, filters and cart live in <MenuRail>, which
+ * composes this as its flex-1 center.
  *
- * @example
- * <CategoryTabs
- *   categories={[{ slug: "appetizers", name: "Appetizers" }]}
- *   onCategoryClick={(slug) => console.log(slug)}
- * />
+ * The active tab is a SELF-CONTAINED `.menu-tab-active` pill (gradient + label on
+ * the same element) — no separately-measured indicator div, so the label can
+ * never be left on the bare rail (the old "dark-on-dark in dark mode" bug).
  */
 
 import { memo, useRef, useState, useEffect, useCallback, useMemo } from "react";
@@ -46,7 +40,7 @@ export interface CategoryTabsProps {
   activeCategory?: string | null;
   /** Optional callback when a category is clicked */
   onCategoryClick?: (slug: string | null) => void;
-  /** Additional CSS classes */
+  /** Additional CSS classes (applied to the tabs region wrapper) */
   className?: string;
 }
 
@@ -57,7 +51,6 @@ export const CategoryTabs = memo(function CategoryTabs({
   className,
 }: CategoryTabsProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const { shouldAnimate } = useAnimationPreference();
 
   // Determine if we're in controlled mode
@@ -70,21 +63,15 @@ export const CategoryTabs = memo(function CategoryTabs({
   const [showLeftFade, setShowLeftFade] = useState(false);
   const [showRightFade, setShowRightFade] = useState(false);
 
-  // CSS indicator position state
-  const [indicatorStyle, setIndicatorStyle] = useState<{
-    left: number;
-    width: number;
-  } | null>(null);
-
   // Generate section IDs for scrollspy (only used in uncontrolled mode)
   const sectionIds = useMemo(() => categories.map((cat) => `category-${cat.slug}`), [categories]);
 
-  // Use scrollspy hook (only active in uncontrolled mode)
-  // Header height is 64px; offline banner offset is added dynamically by the hook
+  // Use scrollspy hook (only active in uncontrolled mode). The rail is the sole
+  // pinned bar (~64px); offline banner offset is added dynamically by the hook.
   const { activeCategory: scrollspyCategory, scrollToCategory } = useActiveCategory(
     isControlled ? [] : sectionIds, // Pass empty array when controlled to disable scrollspy
     {
-      rootMargin: "-64px 0px -80% 0px", // Account for header
+      rootMargin: "-64px 0px -80% 0px", // Account for the pinned rail
       headerHeight: 64,
     }
   );
@@ -104,48 +91,22 @@ export const CategoryTabs = memo(function CategoryTabs({
     setShowRightFade(isScrollable && scrollLeft < scrollWidth - clientWidth - 10);
   }, []);
 
-  // Calculate indicator position from active tab button
-  const updateIndicatorPosition = useCallback(() => {
-    const key = activeCategory ?? "__all__";
-    const activeButton = tabRefs.current.get(key);
-    if (!activeButton) {
-      setIndicatorStyle(null);
-      return;
-    }
-    setIndicatorStyle({
-      left: activeButton.offsetLeft,
-      width: activeButton.offsetWidth,
-    });
-  }, [activeCategory]);
-
   // Set up scroll and resize observers
   useEffect(() => {
     const container = scrollContainerRef.current;
     if (!container) return;
 
-    // Initial check
     updateFadeIndicators();
-
-    // Scroll listener
     container.addEventListener("scroll", updateFadeIndicators, { passive: true });
 
-    // Resize observer
-    const resizeObserver = new ResizeObserver(() => {
-      updateFadeIndicators();
-      updateIndicatorPosition();
-    });
+    const resizeObserver = new ResizeObserver(updateFadeIndicators);
     resizeObserver.observe(container);
 
     return () => {
       container.removeEventListener("scroll", updateFadeIndicators);
       resizeObserver.disconnect();
     };
-  }, [updateFadeIndicators, updateIndicatorPosition]);
-
-  // Update indicator when active category changes
-  useEffect(() => {
-    updateIndicatorPosition();
-  }, [updateIndicatorPosition]);
+  }, [updateFadeIndicators]);
 
   // Scroll active tab into view when category changes
   useEffect(() => {
@@ -158,19 +119,14 @@ export const CategoryTabs = memo(function CategoryTabs({
       const container = scrollContainerRef.current;
       if (!container) return;
 
-      // Query DOM directly for selected tab (more reliable than ref with conditional assignment)
+      // Query DOM directly for selected tab
       const activeTab = container.querySelector('[aria-selected="true"]') as HTMLElement | null;
       if (!activeTab) return;
 
-      // Calculate the scroll position to center the active tab
+      // Center the active tab in the scroller
       const containerWidth = container.clientWidth;
-      const tabOffsetLeft = activeTab.offsetLeft;
-      const tabWidth = activeTab.offsetWidth;
-
-      // Calculate target scroll position to center the tab
-      const targetScrollLeft = tabOffsetLeft - containerWidth / 2 + tabWidth / 2;
-
-      // Clamp to valid scroll range
+      const targetScrollLeft =
+        activeTab.offsetLeft - containerWidth / 2 + activeTab.offsetWidth / 2;
       const maxScroll = container.scrollWidth - containerWidth;
       const clampedScrollLeft = Math.max(0, Math.min(targetScrollLeft, maxScroll));
 
@@ -184,9 +140,7 @@ export const CategoryTabs = memo(function CategoryTabs({
       });
     });
 
-    return () => {
-      cancelAnimationFrame(rafId);
-    };
+    return () => cancelAnimationFrame(rafId);
   }, [activeCategory, shouldAnimate]);
 
   // Handle tab click
@@ -208,22 +162,13 @@ export const CategoryTabs = memo(function CategoryTabs({
   );
 
   return (
-    <div
-      className={cn(
-        "sticky top-[var(--tabs-offset)] z-20",
-        // Solid background - elevated in dark mode for contrast against page
-        "bg-surface-primary dark:bg-surface-elevated",
-        // Visible border for separation
-        "border-b border-border-default",
-        className
-      )}
-    >
+    <div className={cn("relative min-w-0", className)}>
       {/* Left fade indicator */}
       {showLeftFade && (
         <div
           className={cn(
             "absolute left-0 top-0 bottom-0 w-8 z-10",
-            "bg-gradient-to-r from-surface-primary dark:from-surface-elevated to-transparent",
+            "bg-gradient-to-r from-surface-elevated to-transparent",
             "pointer-events-none"
           )}
           aria-hidden="true"
@@ -235,37 +180,15 @@ export const CategoryTabs = memo(function CategoryTabs({
         ref={scrollContainerRef}
         role="tablist"
         aria-label="Menu categories"
-        className={cn("relative flex gap-2 overflow-x-auto scrollbar-hide", "px-4 py-3")}
+        className={cn("relative flex gap-2 overflow-x-auto scrollbar-hide", "px-1 py-1")}
       >
-        {/* CSS-transitioned pill indicator */}
-        {indicatorStyle && (
-          <div
-            className="absolute rounded-pill menu-tab-indicator transition-all duration-200 ease-out"
-            style={{
-              left: indicatorStyle.left,
-              width: indicatorStyle.width,
-              top: 12,
-              height: "calc(100% - 24px)",
-            }}
-            aria-hidden="true"
-          />
-        )}
-
         {allTabs.map((tab) => {
           const isActive =
             tab.slug === null ? activeCategory === null : activeCategory === tab.slug;
-          const key = tab.slug ?? "__all__";
 
           return (
             <m.button
               key={tab.slug ?? "all"}
-              ref={(el) => {
-                if (el) {
-                  tabRefs.current.set(key, el);
-                } else {
-                  tabRefs.current.delete(key);
-                }
-              }}
               role="tab"
               aria-selected={isActive}
               aria-controls={tab.slug ? `category-${tab.slug}` : undefined}
@@ -274,14 +197,17 @@ export const CategoryTabs = memo(function CategoryTabs({
               whileTap={shouldAnimate ? { scale: 0.95 } : undefined}
               transition={shouldAnimate ? spring.snappy : { duration: 0 }}
               className={cn(
-                "relative flex-shrink-0",
-                "rounded-pill px-5 py-2.5 min-h-[44px]",
+                "relative flex-shrink-0 overflow-hidden",
+                "rounded-pill px-4 py-2 min-h-[44px]",
                 "font-body text-sm font-semibold",
                 "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 isActive
-                  ? // Dark ink reads on the gold→clay pill in both themes
-                    "text-hero-ink"
-                  : "text-text-secondary hover:text-text-primary hover:bg-surface-secondary"
+                  ? // Self-contained lit gold→clay pill (bg + dark-ink label on the
+                    // SAME element — never a separate measured indicator to miss)
+                    "menu-tab-active font-bold"
+                  : // Inactive = layered vellum ghost chip (warm fill + gold
+                    // hairline + sheen + dot texture); hover warms to clay
+                    "menu-tab-ghost"
               )}
             >
               {/* Tab label */}
@@ -296,7 +222,7 @@ export const CategoryTabs = memo(function CategoryTabs({
         <div
           className={cn(
             "absolute right-0 top-0 bottom-0 w-8 z-10",
-            "bg-gradient-to-l from-surface-primary dark:from-surface-elevated to-transparent",
+            "bg-gradient-to-l from-surface-elevated to-transparent",
             "pointer-events-none"
           )}
           aria-hidden="true"

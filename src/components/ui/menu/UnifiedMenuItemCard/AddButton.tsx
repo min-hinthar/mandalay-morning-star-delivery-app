@@ -231,8 +231,8 @@ export const AddButton = memo(function AddButton({
             disabled={disabled}
             className={cn(
               "flex items-center gap-1.5 px-4 py-2",
-              "bg-primary text-text-inverse font-semibold",
-              "rounded-full shadow-lg shadow-primary/30",
+              "menu-cta-lit text-hero-ink font-semibold",
+              "rounded-full",
               "disabled:opacity-50 disabled:cursor-not-allowed",
               "focus-visible:outline-none focus-visible:ring-2",
               "focus-visible:ring-primary focus-visible:ring-offset-2"
@@ -256,7 +256,9 @@ export const AddButton = memo(function AddButton({
             key="adding"
             className={cn(
               "flex items-center justify-center w-10 h-10",
-              "bg-green text-text-inverse rounded-full",
+              // hero-card-strong (constant cream) keeps the check light on green —
+              // text-inverse would flip dark under the card's .menu-paper.
+              "bg-green text-hero-card-strong rounded-full",
               "shadow-lg"
             )}
             initial={shouldAnimate ? { scale: 0, rotate: -45 } : undefined}

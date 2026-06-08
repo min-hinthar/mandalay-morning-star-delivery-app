@@ -36,7 +36,7 @@ import { AnimatedSection, itemVariants } from "@/components/ui/scroll";
 import { DeliveryBanner } from "@/components/ui/delivery";
 import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import { MenuHeader } from "./MenuHeader";
-import { CategoryTabs } from "./CategoryTabs";
+import { MenuRail } from "./MenuRail";
 import { MenuSection } from "./MenuSection";
 import { MenuGrid } from "./MenuGrid";
 import { ItemDetailSheet } from "./ItemDetailSheet";
@@ -301,16 +301,12 @@ export function MenuContent({ className, cutoffDay, cutoffHour, deliveryDays }: 
 
   return (
     <div className={cn("relative", className)}>
-      {/* Menu Header: always-visible search + collapsible dietary chips */}
-      <MenuHeader
-        onQueryChange={setQuery}
-        onSelectItem={handleSelectItem}
-        items={allItems}
-        dietaryFilters={dietaryFilters}
-        onDietaryChange={setDietaryFilters}
-      />
+      {/* Editorial masthead — scrolls away (search/filters/cart live in the rail
+          + global header). */}
+      <MenuHeader />
 
-      {/* Delivery Banner */}
+      {/* Delivery cutoff — full countdown banner in the scroll-away masthead
+          region (a condensed live chip also lives in the pinned rail). */}
       <DeliveryBanner
         cutoffDay={cutoffDay ?? 5}
         cutoffHour={cutoffHour ?? 15}
@@ -322,8 +318,18 @@ export function MenuContent({ className, cutoffDay, cutoffHour, deliveryDays }: 
         <OfferBanner source="menu" />
       </div>
 
-      {/* Category Tabs */}
-      <CategoryTabs categories={tabCategories} />
+      {/* The single pinned toolbar: search + tabs + cutoff chip + filters */}
+      <MenuRail
+        categories={tabCategories}
+        items={allItems}
+        onQueryChange={setQuery}
+        onSelectItem={handleSelectItem}
+        dietaryFilters={dietaryFilters}
+        onDietaryChange={setDietaryFilters}
+        cutoffDay={cutoffDay}
+        cutoffHour={cutoffHour}
+        deliveryDays={deliveryDays}
+      />
 
       {/* Stale Badge - shown above menu grid when offline with cached data */}
       {showStaleBadge && (

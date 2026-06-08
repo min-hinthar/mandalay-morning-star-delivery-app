@@ -177,6 +177,24 @@
   --menu-card-cta-ink: #241a12; /* dark label on clay */
   --menu-gold: #eaa92f; /* category-tab pill (theme-independent) */
   --menu-clay: #d97757;
+
+  /* Active category pill — GOLD→CLAY LIT (one consistent "lit" accent shared with
+     the Add button + active filter chip). Bright/luminous, so it pops out as the
+     selected cap above the muted vellum ghost pills. Dark ink label keeps AA on
+     the gold. Same in both themes (the lit gold reads on the light AND dark rail). */
+  --menu-tab-active-from: #eaa92f; /* gold */
+  --menu-tab-active-to: #d97757; /* clay */
+  --menu-tab-active-ink: #241a12; /* dark ink label (AA on gold→clay) */
+  --menu-tab-active-ring: rgba(255, 244, 224, 0.6); /* warm cream ring */
+  --menu-tab-active-glow: rgba(234, 169, 47, 0.55); /* gold glow */
+
+  /* Vellum ghost (inactive) category pill — a soft warm-paper chip on the rail:
+     translucent fill + gold-leaf hairline + inner sheen + muted ink label. */
+  --menu-tab-ghost-bg: rgba(244, 236, 224, 0.85); /* warm vellum (visible on white rail) */
+  --menu-tab-ghost-border: rgba(234, 169, 47, 0.3); /* gold-leaf hairline */
+  --menu-tab-ghost-sheen: rgba(255, 255, 255, 0.6); /* inner top sheen */
+  --menu-tab-ghost-ink: #5a4a3a; /* muted warm ink label */
+  --menu-tab-ghost-dot: rgba(36, 28, 23, 0.1); /* whisper dot texture */
   --menu-texture-dot: rgba(20, 20, 19, 0.1); /* dark dots on the light section overlay */
   --menu-texture-line: rgba(20, 20, 19, 0.05);
   --menu-modal-accent: #9a3412; /* detail-modal price/accent — deep clay (AA on white) */
@@ -424,12 +442,11 @@
      sheets always clear the status bar cleanly. */
   --sheet-max-h: calc(100dvh - env(safe-area-inset-top) - 1rem);
 
-  /* Live header height (published by MenuHeader) + offline banner, so sticky
-     CategoryTabs always clears the full header incl. the dietary chips row.
-     Fallback ≈ title row (56px) + always-on dietary chips row (~72px) so the
-     sticky tabs don't overlap the chips for the first frame before MenuHeader's
-     ResizeObserver publishes the measured --menu-header-height. */
-  --tabs-offset: calc(var(--menu-header-height, 128px) + var(--offline-banner-height, 0px));
+  /* Pinned-rail offset: the CategoryTabs rail is the SOLE pinned bar (the
+     masthead scrolls away), so sections + scroll-spy clear the rail's own
+     measured height (published as --menu-rail-height) plus any offline banner.
+     Fallback ≈ a single 64px rail row before the rail's ResizeObserver runs. */
+  --tabs-offset: calc(var(--menu-rail-height, 64px) + var(--offline-banner-height, 0px));
   --cart-bar-height: 64px;
   --driver-header-height: 48px;
   --driver-action-height: 80px;
@@ -720,6 +737,21 @@
   --menu-card-price: #9a3412; /* deep clay price */
   --menu-card-cta-bg: #9a3412; /* deep clay CTA */
   --menu-card-cta-ink: #fdfcf9; /* warm-white label on clay */
+
+  /* Active category pill — GOLD→CLAY LIT (matches light; the bright gold pops on
+     the dark rail too). Dark ink label keeps AA on the gold. */
+  --menu-tab-active-from: #eaa92f; /* gold */
+  --menu-tab-active-to: #d97757; /* clay */
+  --menu-tab-active-ink: #241a12; /* dark ink label (AA on gold→clay) */
+  --menu-tab-active-ring: rgba(255, 244, 224, 0.55); /* warm cream ring */
+  --menu-tab-active-glow: rgba(234, 169, 47, 0.5); /* gold glow */
+
+  /* Vellum ghost (inactive) pill — faint warm chip on the dark rail. */
+  --menu-tab-ghost-bg: rgba(255, 246, 235, 0.07); /* faint warm fill on dark rail */
+  --menu-tab-ghost-border: rgba(255, 240, 220, 0.14); /* warm hairline */
+  --menu-tab-ghost-sheen: rgba(255, 255, 255, 0.08); /* inner top sheen */
+  --menu-tab-ghost-ink: rgba(246, 241, 233, 0.74); /* muted cream label */
+  --menu-tab-ghost-dot: rgba(246, 241, 233, 0.08); /* whisper dot texture */
   --menu-texture-dot: rgba(246, 241, 233, 0.08); /* light dots on the dark section overlay */
   --menu-texture-line: rgba(246, 241, 233, 0.045);
   --menu-modal-accent: #f0b357; /* detail-modal price/accent — amber (AA on dark) */

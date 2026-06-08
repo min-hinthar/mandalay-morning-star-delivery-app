@@ -68,13 +68,15 @@ export function CTABanner({ id }: CTABannerProps) {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.5 }}
             transition={{ delay: 0.1, ...spring.default }}
-            className="inline-flex flex-wrap items-center justify-center gap-x-2 px-4 py-2 bg-secondary/20 text-secondary rounded-pill mb-6"
+            className="mb-6 inline-flex flex-wrap items-center justify-center gap-x-2 rounded-pill bg-secondary/15 px-4 py-2 text-text-primary"
           >
-            <Truck className="w-4 h-4 shrink-0" />
+            <Truck className="w-4 h-4 shrink-0 text-hero-clay" />
             <span className="text-sm font-body font-semibold">
               {freeDeliveryHeadline()} {localRangeLabel()}
             </span>
-            <span className="text-xs font-body opacity-80">၂၅ မိုင်အတွင်း $၁၀၀ အထက် အခမဲ့ပို့</span>
+            <span className="text-xs font-body text-text-secondary">
+              ၂၅ မိုင်အတွင်း $၁၀၀ အထက် အခမဲ့ပို့
+            </span>
           </m.div>
 
           {/* EN Headline */}

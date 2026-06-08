@@ -130,10 +130,8 @@ export function HomepageMenuSection({ featuredSections }: HomepageMenuSectionPro
             variants={staggerItem}
             className="inline-flex items-center gap-2 px-4 py-2 bg-secondary/10 rounded-pill mb-4"
           >
-            <UtensilsCrossed className="w-4 h-4 text-secondary" />
-            <span className="text-sm font-body font-medium text-secondary-hover">
-              Our Menu · မီနူး
-            </span>
+            <UtensilsCrossed className="w-4 h-4 text-primary" />
+            <span className="text-sm font-body font-medium text-primary">Our Menu · မီနူး</span>
           </m.div>
 
           <m.h2
