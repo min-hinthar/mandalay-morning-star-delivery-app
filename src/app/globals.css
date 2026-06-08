@@ -1041,6 +1041,29 @@
     mask-size: 20px 11px;
   }
 
+  /* Thermal print-head: a soft warm light band that rides the receipt's reveal
+     frontier as it "prints" top→down. Gradient only (no filter — iOS GPU
+     budget). The bright hairline is the print line itself. */
+  .checkout-printhead {
+    height: 16px;
+    margin-top: -8px;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      color-mix(in srgb, var(--hero-clay) 20%, transparent) 50%,
+      transparent 100%
+    );
+  }
+  .checkout-printhead::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    top: 50%;
+    height: 1.5px;
+    margin-top: -0.75px;
+    background: color-mix(in srgb, var(--hero-clay) 60%, transparent);
+  }
+
   /* A slow ledger sheen that sweeps the receipt total once data settles. */
   @media (prefers-reduced-motion: no-preference) {
     .checkout-total-sheen {

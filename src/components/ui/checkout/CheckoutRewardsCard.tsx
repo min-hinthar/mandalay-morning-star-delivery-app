@@ -1,24 +1,19 @@
 "use client";
 
 import { m } from "framer-motion";
-import { Star, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/lib/hooks/useAuth";
 import { useRewardsSummary, type RewardsSummary } from "@/lib/hooks/useRewardsSummary";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { formatPrice } from "@/lib/utils/currency";
-import { LOYALTY_MILESTONE_STEP, type LoyaltyTierId } from "@/lib/loyalty";
+import { LOYALTY_MILESTONE_STEP } from "@/lib/loyalty";
 import { TierBadge } from "@/components/ui/TierBadge";
-import { RollingNumber } from "@/components/ui/homepage/Hero/RollingDigits";
-
-/** Progress-bar fill, tinted by tier (matches tierAccent text colors). */
-const TIER_FILL: Record<LoyaltyTierId, string> = {
-  new: "bg-hero-accent",
-  jade: "bg-accent-teal",
-  ruby: "bg-magenta",
-  gold: "bg-accent-orange",
-};
+import { RewardsStarArc } from "./RewardsStarArc";
+import { RewardCoin } from "./RewardCoin";
+import { RewardsTierLadder } from "./RewardsTierLadder";
+import { TIER_TINT, rewardShort } from "./rewards-card-style";
 
 interface CheckoutRewardsCardProps {
   className?: string;
@@ -27,11 +22,11 @@ interface CheckoutRewardsCardProps {
 }
 
 /**
- * Positive-reinforcement rewards card for the checkout sidebar. Surfaces the
- * customer's live Stars + tier and how close this order brings them to the next
- * reward — a purchase-moment nudge ("one more order → $5 off"). Self-fetches for
- * signed-in users (real data only); renders nothing for guests/loading so it
- * never shows a hollow shell. `previewData` forces it on for the preview page.
+ * Maximal rewards card for the checkout sidebar — two motivational axes at the
+ * moment of purchase: a Star-arc gauge + wax-seal reward coin (progress to the
+ * next reward) on top, and the Burmese-gem tier ladder (climb to the next gem)
+ * below. Self-fetches for signed-in users (real data only); renders nothing for
+ * guests/loading. `previewData` forces it on for the preview page.
  */
 export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsCardProps) {
   const { shouldAnimate } = useAnimationPreference();
@@ -41,7 +36,7 @@ export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsC
 
   if (!data) return null;
 
-  const { stars, ordersToNext, nextRewardCents, tier } = data;
+  const { stars, spendCents, ordersToNext, nextRewardCents, tier } = data;
   const reward = formatPrice(nextRewardCents);
   const rewardReady = ordersToNext <= 0;
   const filled = Math.max(
@@ -49,7 +44,7 @@ export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsC
     Math.min(LOYALTY_MILESTONE_STEP, LOYALTY_MILESTONE_STEP - ordersToNext)
   );
   const pct = rewardReady ? 100 : Math.round((filled / LOYALTY_MILESTONE_STEP) * 100);
-  const fill = TIER_FILL[tier.id] ?? TIER_FILL.new;
+  const tint = TIER_TINT[tier.id];
 
   return (
     <m.section
@@ -74,39 +69,29 @@ export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsC
         <TierBadge tier={tier} className="shrink-0" />
       </div>
 
-      {/* Live Stars — odometer reel rolls up on mount */}
-      <div className="mt-3 flex items-baseline gap-1.5">
-        <Star
-          className="h-5 w-5 shrink-0 translate-y-0.5 fill-amber-400 text-amber-400"
-          aria-hidden="true"
+      {/* Reward axis — Star-arc gauge + wax-seal coin */}
+      <div className="relative mt-2 flex justify-center">
+        <RewardsStarArc
+          stars={stars}
+          filled={filled}
+          total={LOYALTY_MILESTONE_STEP}
+          pct={pct}
+          tierTextClass={tint.text}
+          tierEmoji={tier.emoji}
+          shouldAnimate={shouldAnimate}
         />
-        <span className="font-display text-2xl font-bold leading-none text-hero-ink">
-          <RollingNumber value={stars} animate={shouldAnimate} />
-        </span>
-        <span className="text-sm font-medium text-hero-ink-muted">Stars</span>
-      </div>
-
-      {/* Progress to next reward — fills on mount, tinted by tier */}
-      <div
-        className="mt-3 h-2 w-full overflow-hidden rounded-full bg-hero-line/60"
-        role="progressbar"
-        aria-valuenow={pct}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label="Progress to next reward"
-      >
-        <m.span
-          className={cn("block h-full rounded-full", fill)}
-          initial={shouldAnimate ? { width: 0 } : false}
-          animate={{ width: `${pct}%` }}
-          transition={{ delay: 0.15, type: "spring", stiffness: 120, damping: 22 }}
+        <RewardCoin
+          label={rewardShort(nextRewardCents)}
+          ready={rewardReady}
+          shouldAnimate={shouldAnimate}
+          className="absolute right-0 top-1"
         />
       </div>
 
-      <p className="mt-2 text-xs font-medium text-hero-ink">
+      <p className="mt-1 text-center text-xs font-medium text-hero-ink">
         {rewardReady ? (
           <>
-            🎉 <strong className="font-semibold text-hero-accent">{reward} off</strong> is ready for
+            🎉 <strong className="font-semibold text-hero-accent">{reward} off</strong> ready for
             this order!
           </>
         ) : (
@@ -116,11 +101,15 @@ export function CheckoutRewardsCard({ className, previewData }: CheckoutRewardsC
           </>
         )}
       </p>
-      <p lang="my" className="mt-0.5 font-burmese text-2xs text-hero-ink-muted">
+      <p lang="my" className="mt-0.5 text-center font-burmese text-2xs text-hero-ink-muted">
         {rewardReady
           ? `${reward} လျှော့ အသင့်ပါ 🎉`
           : `နောက် ${ordersToNext} ခါ မှာရင် ${reward} လျှော့`}
       </p>
+
+      {/* Tier axis — gem ladder */}
+      <div className="checkout-perf my-3" aria-hidden="true" />
+      <RewardsTierLadder tierId={tier.id} spendCents={spendCents} shouldAnimate={shouldAnimate} />
     </m.section>
   );
 }

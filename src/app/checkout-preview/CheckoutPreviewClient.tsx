@@ -20,9 +20,10 @@ import { cn } from "@/lib/utils/cn";
 /** Mock rewards so the preview shows the live card + share modal without login. */
 const MOCK_REWARDS: RewardsSummary = {
   stars: 12,
+  spendCents: 58000,
   ordersToNext: 3,
   nextRewardCents: 500,
-  tier: { id: "jade", name: "Jade", english: "Diamond", emoji: "💎" },
+  tier: { id: "jade", name: "Sein", english: "Diamond", emoji: "💎" },
   earlyAccess: false,
 };
 const MOCK_REFERRAL: RewardsReferral = {

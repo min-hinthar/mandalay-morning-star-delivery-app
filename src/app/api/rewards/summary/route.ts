@@ -43,6 +43,7 @@ export async function GET() {
     return NextResponse.json({
       data: {
         stars: orderCount,
+        spendCents,
         ordersToNext: ordersToNextMilestone(orderCount),
         nextRewardCents: nextRewardCents(spendCents),
         tier: { id: tier.id, name: tier.name, english: tier.english, emoji: tier.emoji },
