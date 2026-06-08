@@ -6,6 +6,7 @@
  */
 
 // V8 Components (new animated versions)
+export { CheckoutBackdrop } from "./CheckoutBackdrop";
 export { CheckoutMasthead } from "./CheckoutMasthead";
 export { CheckoutRewardsCard } from "./CheckoutRewardsCard";
 export { CheckoutSectionHeader } from "./CheckoutSectionHeader";
