@@ -8,14 +8,16 @@ _Last reconciled: 2026-06-09._
 
 ## In flight
 
-_None._ The level-up kit (#160), the cart/account fixes (#161), and Auth (#5, #162)
-all merged 2026-06-09.
+_None._ #160–#165 all merged 2026-06-09 (kit → auth → checkout back-port + warm-dark
+overhaul → PWA resilience → nav fixes).
 
-> **Next: back-port the kit** — apply the ambient/tilt/spotlight/magnetic/celebration
-> primitives to checkout, cart, orders, account (per-surface PRs; consolidate the four
-> per-surface canvases into the single `.after-dark-canvas`). Carry-forward notes: any
-> future test mounting `TierUpCelebration` needs `useReducedMotion` in its framer mock
-> (it always renders `<Confetti>`). See [`after-dark-levelup-plan.md`](./after-dark-levelup-plan.md).
+> **Next: remaining back-ports** — cart, orders, account (per-surface PRs; finish
+> consolidating `.cart-canvas`/`.orders-canvas`/`.account-canvas` onto
+> `.after-dark-canvas` the way #163 did for checkout — their dark ramps already match).
+> Carry-forward notes: any future test mounting `TierUpCelebration` needs
+> `useReducedMotion` in its framer mock (it always renders `<Confetti>`); audit the
+> repo's `zClass.*`/JS-config z-index utilities — they DON'T emit in Tailwind v4 (no
+> `@config`), see Gotchas. See [`after-dark-levelup-plan.md`](./after-dark-levelup-plan.md).
 
 ## Watching
 
@@ -30,6 +32,25 @@ merge/close.
 
 ## Recently closed
 
+- **#165** — **Nav fixes**: profile dropdown opened off-screen left at 640–767px (anchor
+  flipped at `sm:` but the header switches at `md:`); hamburger drawer reskinned After
+  Dark (warm canvas + ambient, bilingual masthead, Order/You link groups matching the
+  profile dropdown, query-aware active state) and "Made with love in Seattle" replaced
+  with the real site-footer attribution. Review SHIP-WITH-NITS (spread-order safe-area
+  fix + a11y nits folded in). **Merged.**
+- **#164** — **PWA version-skew resilience**: homepage ChunkLoadError (Sentry-diagnosed)
+  now self-heals via one-shot reload; update banner actually works (proactive
+  `registration.update()` heartbeat + visibility/online, updatefound leak fix,
+  first-install controllerchange guard, SKIP_WAITING fail-safe) + After Dark reskin.
+  Review SHIP-WITH-NITS (spin-slow keyframes existed nowhere — added + emission
+  verified; AA contrast on Update-now; SR-safe live region). **Merged** (`4d37bdec`).
+- **#163** — **Checkout level-up back-port + warm dark overhaul**: checkout onto the
+  canonical `.after-dark-canvas`; GLOBAL dark surfaces lifted off pure black to warm
+  espresso (the owner's "too dark" fix — canvas-only lift was invisible since chrome
+  sits on the global tokens); dark texture tokens boosted; receipt tilt + GoldLeaf;
+  `TierUpCelebration` on confirmation. Review FIX-FIRST → fixed: stale contrast-audit
+  fixtures (dark text-muted → `#a8a5a1`, worst pair 4.9:1) + `z-modal-backdrop` no-op
+  → `z-50`. **Merged** (`6253ba90`).
 - **#162** — **Auth "After Dark"** (customer-rollout surface #5). Editorial-split
   `/login` + `/auth/expired` on the level-up kit: `.after-dark-canvas` +
   `AfterDarkAmbient`, a desktop brand panel carrying the appetizing menu photo

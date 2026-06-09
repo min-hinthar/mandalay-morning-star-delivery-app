@@ -270,8 +270,11 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
             animate={shouldAnimate ? "animate" : { opacity: 1 }}
             exit={shouldAnimate ? "exit" : { opacity: 0 }}
             className={cn(
-              // Position: left-aligned on mobile (avatar is on left), right-aligned on desktop
-              "absolute left-0 sm:left-auto sm:right-0 top-full mt-2",
+              // Position: left-aligned while the MOBILE header shows (avatar is
+              // on the left), right-aligned on the DESKTOP header. The header
+              // switches at md — anchoring must flip at md too, or 640-767px
+              // viewports right-align to a left-edge button (off-screen left).
+              "absolute left-0 md:left-auto md:right-0 top-full mt-2",
               "w-48 py-1 rounded-xl",
               "bg-surface-primary",
               "border border-border",
