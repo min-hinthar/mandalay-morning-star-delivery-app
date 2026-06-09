@@ -42,7 +42,7 @@ export function CartItemsList({
       variants={shouldAnimate ? staggerContainer(0.08, 0.1) : undefined}
       initial={shouldAnimate ? "hidden" : undefined}
       animate={shouldAnimate ? "visible" : undefined}
-      className="flex-1 overflow-y-auto px-4 py-4"
+      className="min-h-0 flex-1 overflow-y-auto px-4 py-4"
     >
       <AnimatePresence>
         {isValidating && (

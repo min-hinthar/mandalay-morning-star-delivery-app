@@ -66,7 +66,7 @@ export function CartHeader({ itemCount, onClose, onClearClick, showClear }: Cart
   }, [items]);
 
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3.5">
+    <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border px-5 py-3.5">
       <div className="flex min-w-0 items-center gap-2.5">
         <HeroSunburst className="h-5 w-5 shrink-0 text-hero-clay" rays={8} />
         <div className="min-w-0 leading-tight">

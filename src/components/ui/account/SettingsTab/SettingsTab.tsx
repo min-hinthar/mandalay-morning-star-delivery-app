@@ -74,8 +74,14 @@ export function SettingsTab({ initialSection }: SettingsTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Sub-tab navigation — self-contained pills (no measured-indicator dark-on-dark) */}
-      <div role="tablist" aria-label="Settings sections" className="flex flex-wrap gap-2">
+      {/* Sub-tab navigation — self-contained pills (no measured-indicator dark-on-dark)
+          inside a recessed sub-tray (secondary surface) so it nests one level below the
+          main account tab tray rather than reading as loose wrapping pills. */}
+      <div
+        role="tablist"
+        aria-label="Settings sections"
+        className="flex flex-wrap gap-1.5 rounded-2xl border border-border bg-surface-secondary p-1.5"
+      >
         {SETTINGS_TABS.map((t) => {
           const active = activeSection === t.id;
           return (

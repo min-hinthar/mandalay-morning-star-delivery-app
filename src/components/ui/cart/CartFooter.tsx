@@ -59,7 +59,7 @@ export function CartFooter({
       initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={{ delay: 0.2 }}
-      className="menu-sheet-footer border-t border-border px-5 py-4"
+      className="menu-sheet-footer shrink-0 border-t border-border px-5 py-4"
     >
       {/* Delivery info row */}
       <div className="mb-3 flex items-center justify-between rounded-lg border border-border bg-surface-elevated px-3 py-2">
