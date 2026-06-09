@@ -16,9 +16,11 @@ _Last reconciled: 2026-06-08._
   desktop-tier-gated companion. Shared `.orders-canvas` (warm light / espresso dark,
   doubled-class so it overrides the mobile info-sheet Drawer). Converts the plain
   pre-After-Dark palette (jade/charcoal/cream + raw-hex ETA ring) to hero/theme
-  tokens. **Increment 1 (tracking) pushed first** for preview; order-detail split +
-  confirmation polish are the next commits on this branch. Theme-safe (cream cards =
-  constant ink; canvas = theme-aware). Local verify in progress.
+  tokens. **All three screens done**: tracking ritual + order-detail page (split into
+  `OrderDetailView` + reskin, resolving its >400-line warning) + confirmation polish
+  (warm-paper summary/delivery cards). Theme-safe (cream cards = constant ink; canvas =
+  theme-aware). Local verify green (lint · lint:css · format · typecheck · **1180
+  tests** · build). Iterating on preview; awaiting owner merge go.
 
 > **Next up after orders:** account → auth (per the customer-surfaces sequence). See
 > [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
