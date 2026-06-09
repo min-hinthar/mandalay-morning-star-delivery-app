@@ -752,8 +752,11 @@
   --menu-tab-ghost-sheen: rgba(255, 255, 255, 0.08); /* inner top sheen */
   --menu-tab-ghost-ink: rgba(246, 241, 233, 0.74); /* muted cream label */
   --menu-tab-ghost-dot: rgba(246, 241, 233, 0.08); /* whisper dot texture */
-  --menu-texture-dot: rgba(246, 241, 233, 0.08); /* light dots on the dark section overlay */
-  --menu-texture-line: rgba(246, 241, 233, 0.045);
+
+  /* Lifted so the editorial grids/dots actually READ on the dark canvases
+     (owner: dark needs more Anthropic texture) — still whisper-level. */
+  --menu-texture-dot: rgba(246, 241, 233, 0.14); /* light dots on the dark section overlay */
+  --menu-texture-line: rgba(246, 241, 233, 0.085);
   --menu-modal-accent: #f0b357; /* detail-modal price/accent — amber (AA on dark) */
 
   /* ===========================================

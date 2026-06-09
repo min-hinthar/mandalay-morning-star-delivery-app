@@ -1110,11 +1110,14 @@
       radial-gradient(120% 58% at 50% -8%, rgba(217, 119, 87, 0.16), transparent 58%),
       linear-gradient(180deg, #f1ebdf 0%, #e8dfcd 100%);
   }
+
+  /* Lifted dark ramp — matches the canonical .after-dark-canvas (owner: dark
+     was "too dark"); full consolidation lands with the cart back-port PR. */
   .dark .cart-canvas.cart-canvas {
     background:
-      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.2), transparent 58%),
-      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.14), transparent 60%),
-      linear-gradient(180deg, #2c1e1a 0%, #1c1115 100%);
+      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.24), transparent 58%),
+      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.17), transparent 60%),
+      linear-gradient(180deg, #382a24 0%, #2f1f24 54%, #261a20 100%);
   }
 
   /* Photo-forward cart line: a warm, gently-lifted panel (soft two-tier diffuse
@@ -1161,11 +1164,13 @@
       radial-gradient(120% 58% at 50% -8%, rgba(217, 119, 87, 0.16), transparent 58%),
       linear-gradient(180deg, #f1ebdf 0%, #e8dfcd 100%);
   }
+
+  /* Lifted dark ramp — matches the canonical .after-dark-canvas. */
   .dark .orders-canvas.orders-canvas {
     background:
-      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.2), transparent 58%),
-      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.14), transparent 60%),
-      linear-gradient(180deg, #2c1e1a 0%, #1c1115 100%);
+      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.24), transparent 58%),
+      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.17), transparent 60%),
+      linear-gradient(180deg, #382a24 0%, #2f1f24 54%, #261a20 100%);
   }
 
   /* Account "After Dark" warm canvas (same palette as cart/orders/checkout — the
@@ -1175,13 +1180,15 @@
       radial-gradient(120% 58% at 50% -8%, rgba(217, 119, 87, 0.16), transparent 58%),
       linear-gradient(180deg, #f1ebdf 0%, #e8dfcd 100%);
   }
+
+  /* Lifted dark ramp — matches the canonical .after-dark-canvas. */
   .dark .account-canvas {
     background:
-      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.22), transparent 58%),
-      radial-gradient(70% 50% at -6% 24%, rgba(96, 165, 250, 0.12), transparent 62%),
-      radial-gradient(64% 46% at 106% 52%, rgba(110, 168, 137, 0.1), transparent 60%),
-      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.16), transparent 60%),
-      linear-gradient(180deg, #30211c 0%, #241620 46%, #1c1115 100%);
+      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.26), transparent 58%),
+      radial-gradient(70% 50% at -6% 24%, rgba(96, 165, 250, 0.14), transparent 62%),
+      radial-gradient(64% 46% at 106% 52%, rgba(110, 168, 137, 0.12), transparent 60%),
+      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.19), transparent 60%),
+      linear-gradient(180deg, #382a24 0%, #2f1f24 54%, #261a20 100%);
   }
 
   /* ============================================
@@ -1202,13 +1209,17 @@
       radial-gradient(85% 55% at 4% 4%, rgba(120, 140, 93, 0.13), transparent 56%),
       linear-gradient(180deg, #f1ebdf 0%, #ece4d4 58%, #e5dcc9 100%);
   }
+
+  /* Dark = LUMINOUS warm twilight, deliberately lifted off near-black (owner
+     feedback: "too dark") — brighter ember/rose/sage/violet glows over a warmer
+     espresso→plum ramp so the grids/dots + cream cards read with depth. */
   .dark .after-dark-canvas.after-dark-canvas {
     background:
-      radial-gradient(120% 75% at 50% -14%, rgba(251, 146, 60, 0.22), transparent 56%),
-      radial-gradient(90% 62% at 88% 4%, rgba(236, 72, 153, 0.14), transparent 55%),
-      radial-gradient(85% 60% at 4% 26%, rgba(120, 140, 93, 0.14), transparent 56%),
-      radial-gradient(100% 72% at 50% 118%, rgba(124, 58, 237, 0.16), transparent 58%),
-      linear-gradient(180deg, #2c1e1a 0%, #251619 54%, #1c1115 100%);
+      radial-gradient(120% 75% at 50% -14%, rgba(251, 146, 60, 0.26), transparent 58%),
+      radial-gradient(90% 62% at 88% 4%, rgba(236, 72, 153, 0.17), transparent 55%),
+      radial-gradient(85% 60% at 4% 26%, rgba(120, 140, 93, 0.16), transparent 56%),
+      radial-gradient(100% 72% at 50% 118%, rgba(124, 58, 237, 0.19), transparent 58%),
+      linear-gradient(180deg, #382a24 0%, #2f1f24 54%, #261a20 100%);
   }
 
   /* ============================================
