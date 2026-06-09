@@ -24,7 +24,7 @@ const CHUNK_RELOAD_COOLDOWN_MS = 60_000;
 function isChunkLoadError(error: Error): boolean {
   return (
     error.name === "ChunkLoadError" ||
-    /Failed to load chunk|Loading chunk \S+ failed|error loading dynamically imported module|Importing a module script failed/i.test(
+    /Failed to load chunk|Loading chunk \S+ failed|Loading CSS chunk|error loading dynamically imported module|Importing a module script failed/i.test(
       error.message
     )
   );

@@ -161,10 +161,23 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
       });
     };
 
+    /** Adopt the registration WHENEVER it first appears (on a first visit the
+        async SW registration often completes after this hook mounts) — attach
+        the updatefound listener exactly once + surface any waiting worker. */
+    const adoptRegistration = (reg: ServiceWorkerRegistration) => {
+      if (registration || disposed) return;
+      registration = reg;
+      registration.addEventListener("updatefound", handleUpdateFound);
+      if (registration.waiting) adoptWaiting(registration.waiting);
+    };
+
     /** Ask the browser to re-check sw.js NOW, then adopt any waiting worker. */
     const checkNow = async () => {
       try {
-        registration ??= (await navigator.serviceWorker.getRegistration()) ?? null;
+        if (!registration) {
+          const reg = await navigator.serviceWorker.getRegistration();
+          if (reg) adoptRegistration(reg);
+        }
         if (!registration || disposed) return;
         // update() rejects on a network blip — fine, next heartbeat retries.
         await registration.update().catch(() => {});
@@ -176,10 +189,8 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
 
     const init = async () => {
       try {
-        registration = (await navigator.serviceWorker.getRegistration()) ?? null;
-        if (!registration || disposed) return;
-        if (registration.waiting) adoptWaiting(registration.waiting);
-        registration.addEventListener("updatefound", handleUpdateFound);
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg) adoptRegistration(reg);
       } catch (error) {
         logger.error("[useUpdateBanner] Error attaching to registration", {
           error: String(error),
@@ -247,7 +258,12 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
   // ------------------------------------------
   // Apply the update (shared by countdown + button)
   // ------------------------------------------
+  const updateFiredRef = useRef(false);
   const requestUpdate = useCallback(() => {
+    // One-shot: the countdown effect can re-run at 0 (pause/unpause cycles) —
+    // a second SKIP_WAITING is a no-op but don't stack fail-safe reloads.
+    if (updateFiredRef.current) return;
+    updateFiredRef.current = true;
     try {
       sessionStorage.setItem(SESSION_KEY_UPDATED, "true");
     } catch {

@@ -40,8 +40,6 @@ export function UpdatePrompt() {
           exit={shouldAnimate ? { y: 100, opacity: 0 } : undefined}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
           className={`fixed inset-x-3 bottom-[max(0.75rem,env(safe-area-inset-bottom))] mx-auto max-w-lg sm:inset-x-auto sm:right-6 sm:w-full ${zClass.toast}`}
-          role="status"
-          aria-live="polite"
         >
           <div className="hero-surface-paper relative overflow-hidden rounded-2xl shadow-[0_2px_10px_-4px_rgba(20,20,19,0.2),0_18px_44px_-20px_rgba(20,20,19,0.45)]">
             <HeroCardLayers accent="clay" radius="rounded-2xl" ticks={false} />
@@ -68,14 +66,19 @@ export function UpdatePrompt() {
                   />
                 </span>
                 <div className="min-w-0 leading-tight">
-                  <p className="truncate text-xs font-semibold text-hero-ink">
+                  {/* Live region holds only the STATIC line — the per-second
+                      countdown below is aria-hidden so SRs aren't spammed */}
+                  <p role="status" className="truncate text-xs font-semibold text-hero-ink">
                     A fresher version is ready
                     <span lang="my" className="font-burmese font-normal text-hero-ink-muted">
                       {" "}
                       · ဗားရှင်းအသစ် ရပါပြီ
                     </span>
+                    <span className="sr-only">
+                      . The page will reload shortly to apply the update.
+                    </span>
                   </p>
-                  <p className="truncate text-xs text-hero-ink-muted">
+                  <p aria-hidden="true" className="truncate text-xs text-hero-ink-muted">
                     {version && `v${version} · `}
                     {isUpdating ? "Updating…" : isPaused ? "Paused" : `Reloading in ${countdown}s`}
                   </p>
@@ -87,7 +90,7 @@ export function UpdatePrompt() {
                 <button
                   onClick={handleUpdateNow}
                   disabled={isUpdating}
-                  className="min-h-11 whitespace-nowrap rounded-full bg-hero-clay px-4 text-xs font-bold text-hero-card-strong transition-colors hover:bg-hero-accent disabled:cursor-not-allowed disabled:opacity-60"
+                  className="min-h-11 whitespace-nowrap rounded-full bg-hero-accent px-4 text-xs font-bold text-hero-card-strong transition-colors hover:bg-hero-accent-strong disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   {isUpdating ? "Updating…" : "Update now"}
                 </button>

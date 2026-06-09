@@ -1655,6 +1655,11 @@
     animation: shine-sweep 4.5s ease-in-out infinite;
   }
 
+  /* Slow spin — update prompt / fresh-version reload spinners */
+  .animate-spin-slow {
+    animation: spin-slow 2.5s linear infinite;
+  }
+
   /* Pause animation during interaction */
   .animate-shine-sweep:active,
   .animate-shine-sweep:focus-within {
@@ -1668,6 +1673,7 @@
     .pulse-ring,
     .btn-glow::before,
     .animate-shine-sweep,
+    .animate-spin-slow,
     .animate-hero-shimmer,
     .animate-fade-in-up,
     .animate-fade-in,
@@ -1734,6 +1740,12 @@
 }
 
 /* Animated shine sweep for touch devices (4.5 second cycle per CONTEXT.md) */
+@keyframes spin-slow {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @keyframes shine-sweep {
   0% {
     transform: translateX(-100%) rotate(45deg);
