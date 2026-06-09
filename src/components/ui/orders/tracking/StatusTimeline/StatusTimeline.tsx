@@ -16,6 +16,7 @@ import type { OrderStatus } from "@/types/database";
 import { STATUS_ORDER, STATUS_CONFIG } from "./constants";
 import { TimelineStep } from "./TimelineStep";
 import { CancelledState } from "./CancelledState";
+import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 
 export interface StatusTimelineProps {
   currentStatus: OrderStatus;
@@ -70,13 +71,9 @@ export function StatusTimeline({
 
   if (currentStatus === "pending_approval") {
     return (
-      <div
-        className={cn(
-          "rounded-2xl bg-surface-primary p-6 shadow-card border border-border",
-          className
-        )}
-      >
-        <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
+      <div className={cn("hero-surface-paper relative overflow-hidden rounded-2xl p-5", className)}>
+        <HeroCardLayers accent="clay" radius="rounded-2xl" />
+        <div className="relative rounded-xl border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/30">
           <div className="flex items-center gap-3">
             <div className="rounded-full bg-amber-100 p-2 dark:bg-amber-900/50">
               <Clock className="h-5 w-5 text-amber-600 dark:text-amber-400" />
@@ -98,33 +95,36 @@ export function StatusTimeline({
       initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={getSpring(spring.default)}
-      className={cn(
-        "rounded-2xl bg-surface-primary p-6 shadow-card border border-border",
-        className
-      )}
+      className={cn("hero-surface-paper relative overflow-hidden rounded-2xl p-5", className)}
     >
+      <HeroCardLayers accent="sage" radius="rounded-2xl" />
       <m.div
         initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
         animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
-        className="flex items-center justify-between mb-6"
+        className="relative mb-6 flex items-center justify-between"
       >
-        <h3 className="font-semibold text-lg text-text-primary">Order Status</h3>
+        <h3 className="font-display text-lg font-semibold text-hero-ink">
+          Order status
+          <span className="ml-1.5 font-burmese text-xs font-normal text-hero-ink-muted" lang="my">
+            အခြေအနေ
+          </span>
+        </h3>
         {isLive && (
           <m.div
             initial={shouldAnimate ? { opacity: 0, scale: 0.8 } : undefined}
             animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
-            className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green/10"
+            className="flex items-center gap-1.5 rounded-full bg-hero-sage/12 px-2.5 py-1"
           >
             <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green opacity-75" />
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-green" />
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-hero-sage opacity-75" />
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-hero-sage" />
             </span>
-            <span className="text-xs font-medium text-green">Live</span>
+            <span className="text-xs font-medium text-hero-sage">Live</span>
           </m.div>
         )}
       </m.div>
 
-      <div>
+      <div className="relative">
         {steps.map((step, index) => (
           <TimelineStep key={step.status} {...step} isLive={isLive} index={index} />
         ))}

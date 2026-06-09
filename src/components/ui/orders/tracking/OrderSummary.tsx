@@ -1,8 +1,9 @@
 /**
- * V2 Sprint 3: Order Summary Component
+ * Order Summary — After Dark living-receipt for the tracking screen.
  *
- * Full item list visible by default (not collapsed).
- * Shows items, modifiers, delivery info, and totals.
+ * Warm-paper ledger mirroring CheckoutSummaryV8 / the cart: editorial bilingual
+ * header, delivery info, full item list, draw-on perforation rules + rolling
+ * totals. Presentation only — totals are passed in, unchanged.
  */
 
 "use client";
@@ -12,6 +13,8 @@ import { cn } from "@/lib/utils/cn";
 import type { TrackingOrderItem } from "@/types/tracking";
 import { formatPrice } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
+import { PriceTicker } from "@/components/ui/PriceTicker";
+import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 
 interface OrderSummaryProps {
   items: TrackingOrderItem[];
@@ -43,83 +46,109 @@ export function OrderSummary({
 }: OrderSummaryProps) {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
-  // Format delivery window
   let deliveryWindowText = "";
   if (deliveryWindow.start && deliveryWindow.end) {
     const startTime = format(parseISO(deliveryWindow.start), "h:mm a");
     const endTime = format(parseISO(deliveryWindow.end), "h:mm a");
     const date = format(parseISO(deliveryWindow.start), "EEEE, MMM d");
-    deliveryWindowText = `${date} \u2022 ${startTime} - ${endTime}`;
+    deliveryWindowText = `${date} • ${startTime} - ${endTime}`;
   }
 
   return (
-    <div className={cn("rounded-xl bg-surface-primary shadow-warm-sm overflow-hidden", className)}>
-      {/* Header */}
-      <div className="flex items-center gap-3 p-4 pb-0">
-        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-saffron-100">
-          <Package className="h-5 w-5 text-saffron-600" />
-        </div>
-        <div>
-          <p className="font-semibold text-charcoal">Order Details</p>
-          <p className="text-sm text-charcoal-500">
-            {itemCount} {itemCount === 1 ? "item" : "items"} \u2022 {formatPrice(totalCents)}
-          </p>
-        </div>
-      </div>
+    <div className={cn("hero-surface-paper relative overflow-hidden rounded-2xl", className)}>
+      <HeroCardLayers accent="sage" radius="rounded-2xl" />
 
-      {/* Content - always visible */}
-      <div className="px-4 py-4">
-        {/* Delivery Info */}
-        <div className="space-y-2 mb-4 pb-4 border-b border-charcoal-100">
-          {deliveryWindowText && (
-            <div className="flex items-start gap-2 text-sm">
-              <Clock className="h-4 w-4 text-charcoal-400 mt-0.5" />
-              <span className="text-charcoal-600">{deliveryWindowText}</span>
-            </div>
-          )}
-          {deliveryAddress && (
-            <div className="flex items-start gap-2 text-sm">
-              <MapPin className="h-4 w-4 text-charcoal-400 mt-0.5" />
-              <span className="text-charcoal-600">
-                {deliveryAddress.line1}, {deliveryAddress.city}, {deliveryAddress.state}
+      <div className="relative">
+        {/* Header */}
+        <div className="flex items-center gap-3 border-b border-hero-line/70 p-4">
+          <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hero-sage/12">
+            <Package className="h-5 w-5 text-hero-sage" aria-hidden="true" />
+          </span>
+          <div className="leading-tight">
+            <p className="font-display font-semibold text-hero-ink">
+              Order details
+              <span
+                className="ml-1.5 font-burmese text-2xs font-normal text-hero-ink-muted"
+                lang="my"
+              >
+                အော်ဒါ
               </span>
+            </p>
+            <p className="text-sm text-hero-ink-muted">
+              {itemCount} {itemCount === 1 ? "item" : "items"} &bull; {formatPrice(totalCents)}
+            </p>
+          </div>
+        </div>
+
+        <div className="p-4">
+          {/* Delivery Info */}
+          {(deliveryWindowText || deliveryAddress) && (
+            <div className="mb-4 space-y-2 border-b border-hero-line/60 pb-4">
+              {deliveryWindowText && (
+                <div className="flex items-start gap-2 text-sm">
+                  <Clock className="mt-0.5 h-4 w-4 shrink-0 text-hero-clay" aria-hidden="true" />
+                  <span className="text-hero-ink-muted">{deliveryWindowText}</span>
+                </div>
+              )}
+              {deliveryAddress && (
+                <div className="flex items-start gap-2 text-sm">
+                  <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-hero-blue" aria-hidden="true" />
+                  <span className="text-hero-ink-muted">
+                    {deliveryAddress.line1}, {deliveryAddress.city}, {deliveryAddress.state}
+                  </span>
+                </div>
+              )}
             </div>
           )}
-        </div>
 
-        {/* Item List - fully visible */}
-        <div className="space-y-3">
-          {items.map((item) => (
-            <div key={item.id} className="flex justify-between">
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-charcoal">
-                  {item.quantity}&times; {item.name}
-                </p>
-                {item.modifiers.length > 0 && (
-                  <p className="text-sm text-charcoal-500 truncate">{item.modifiers.join(", ")}</p>
-                )}
-              </div>
+          {/* Item list */}
+          <ul className="space-y-2.5">
+            {items.map((item) => (
+              <li key={item.id} className="flex items-start gap-2 text-sm">
+                <span className="mt-px inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-md bg-hero-clay/12 px-1 text-xs font-bold text-hero-accent">
+                  {item.quantity}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="font-medium text-hero-ink">{item.name}</p>
+                  {item.modifiers.length > 0 && (
+                    <p className="truncate text-xs text-hero-ink-muted">
+                      {item.modifiers.join(", ")}
+                    </p>
+                  )}
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          {/* Totals */}
+          <div className="checkout-perf checkout-rule-draw mt-4" aria-hidden="true" />
+          <div className="space-y-2 pt-3 text-sm">
+            <div className="flex justify-between text-hero-ink-muted">
+              <span>Subtotal</span>
+              <PriceTicker value={subtotalCents} inCents size="sm" className="text-hero-ink" />
             </div>
-          ))}
-        </div>
-
-        {/* Totals */}
-        <div className="mt-4 pt-4 border-t border-charcoal-100 space-y-2">
-          <div className="flex justify-between text-sm text-charcoal-600">
-            <span>Subtotal</span>
-            <span>{formatPrice(subtotalCents)}</span>
-          </div>
-          <div className="flex justify-between text-sm text-charcoal-600">
-            <span>Delivery Fee</span>
-            <span>{deliveryFeeCents === 0 ? "FREE" : formatPrice(deliveryFeeCents)}</span>
-          </div>
-          <div className="flex justify-between text-sm text-charcoal-600">
-            <span>Tax</span>
-            <span>{formatPrice(taxCents)}</span>
-          </div>
-          <div className="flex justify-between font-semibold text-charcoal pt-2 border-t border-charcoal-100">
-            <span>Total</span>
-            <span>{formatPrice(totalCents)}</span>
+            <div className="flex justify-between text-hero-ink-muted">
+              <span>Delivery</span>
+              {deliveryFeeCents === 0 ? (
+                <span className="font-bold text-hero-sage">FREE</span>
+              ) : (
+                <PriceTicker value={deliveryFeeCents} inCents size="sm" className="text-hero-ink" />
+              )}
+            </div>
+            <div className="flex justify-between text-hero-ink-muted">
+              <span>Tax</span>
+              <PriceTicker value={taxCents} inCents size="sm" className="text-hero-ink" />
+            </div>
+            <div className="checkout-perf checkout-rule-draw my-1" aria-hidden="true" />
+            <div className="flex items-center justify-between pt-0.5">
+              <span className="font-display text-base font-semibold text-hero-ink">Total</span>
+              <PriceTicker
+                value={totalCents}
+                inCents
+                size="lg"
+                className="font-bold text-hero-accent"
+              />
+            </div>
           </div>
         </div>
       </div>

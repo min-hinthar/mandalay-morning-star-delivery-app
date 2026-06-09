@@ -334,49 +334,49 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
   );
 
   return (
-    <div className="min-h-screen bg-cream">
+    <div className="orders-canvas min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-20 bg-cream sm:bg-cream/95 sm:backdrop-blur-sm border-b border-charcoal-100">
+      <header className="sticky top-0 z-20 border-b border-border bg-surface-elevated/80 sm:backdrop-blur-sm">
         <div className="mx-auto max-w-5xl px-4">
           <div className="flex items-center justify-between h-14">
             <Link
               href={`/orders/${orderId}`}
-              className="flex items-center gap-2 text-charcoal-600 hover:text-charcoal transition-colors"
+              className="flex items-center gap-2 text-text-secondary hover:text-text-primary transition-colors"
             >
               <ArrowLeft className="h-5 w-5" />
               <span className="text-sm font-medium">Back to Order</span>
             </Link>
-            <div className="flex items-center gap-2 text-xs text-charcoal-500">
+            <div className="flex items-center gap-2 text-xs text-text-muted">
               {subscription.isConnected ? (
                 <>
-                  <span className="flex h-2 w-2 rounded-full bg-jade-500" />
+                  <span className="flex h-2 w-2 rounded-full bg-hero-sage" />
                   <span>Live</span>
                 </>
               ) : subscription.connectionError ? (
                 <>
-                  <span className="flex h-2 w-2 rounded-full bg-saffron-500" />
+                  <span className="flex h-2 w-2 rounded-full bg-amber-500" />
                   <span>Reconnecting...</span>
                 </>
               ) : (
                 <>
-                  <span className="flex h-2 w-2 rounded-full bg-charcoal-300" />
+                  <span className="flex h-2 w-2 rounded-full bg-text-muted" />
                   <span>Connecting...</span>
                 </>
               )}
               {lastUpdateDisplay && (
-                <span className="text-charcoal-500 font-medium">&bull; {lastUpdateDisplay}</span>
+                <span className="text-text-muted font-medium">&bull; {lastUpdateDisplay}</span>
               )}
               <ShareButton orderId={orderId} orderStatus={orderStatus} />
               <MuteToggle isMuted={isMuted} onToggle={toggleMuted} />
               <button
                 onClick={() => subscription.refresh()}
-                className="p-1 hover:bg-charcoal-100 rounded-full transition-colors"
+                className="p-1 hover:bg-surface-secondary rounded-full transition-colors"
                 aria-label="Refresh tracking data"
               >
                 <RefreshCw
                   className={cn(
                     "h-3.5 w-3.5 transition-colors",
-                    subscription.isConnected ? "text-jade-500" : "text-charcoal-400"
+                    subscription.isConnected ? "text-hero-sage" : "text-text-muted"
                   )}
                 />
               </button>
@@ -403,7 +403,7 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
             type="button"
             onClick={() => setSheetOpen(true)}
             aria-label="Expand tracking details"
-            className="fixed bottom-0 inset-x-0 z-modal-backdrop h-[120px] bg-card border-t border-border-default rounded-t-3xl shadow-lg text-left"
+            className="fixed bottom-0 inset-x-0 z-modal-backdrop h-[120px] bg-surface-elevated border-t border-border rounded-t-3xl shadow-lg text-left"
           >
             <div className="flex justify-center pt-3 pb-2">
               <div className="w-12 h-1.5 rounded-full bg-border-default" aria-hidden="true" />
@@ -430,6 +430,7 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
           position="bottom"
           height="full"
           title="Tracking details"
+          className="orders-canvas"
         >
           {infoPaneContent}
         </Drawer>
