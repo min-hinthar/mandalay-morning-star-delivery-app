@@ -8,12 +8,13 @@
  * URL query param ?tab=settings&section=addresses for deep-linking
  */
 
-import { useCallback, Suspense } from "react";
+import { useCallback, useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { m } from "framer-motion";
 import { User, Package, Settings, MessageSquare, Star } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils/cn";
+import { useCartStore } from "@/lib/stores/cart-store";
 import { MenuTextureBackdrop } from "@/components/ui/menu/MenuTextureBackdrop";
 import { AccountHero } from "./AccountHero";
 import { ProfileTab } from "./ProfileTab";
@@ -41,6 +42,15 @@ function AccountClientInner() {
   const router = useRouter();
   const pathname = usePathname();
   const { shouldAnimate } = useAnimationPreference();
+
+  // The fixed CartBar (~150px incl. iOS safe-area) appears on every customer
+  // page once the cart has items. Reserve clearance only when it's actually
+  // shown — in sync with CartBar's own mount+items gate — so the page bottom
+  // stays tight (no empty gap) when the cart is empty.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const hasCartItems = useCartStore((s) => s.items.length > 0);
+  const padBottom = mounted && hasCartItems ? "pb-40" : "pb-16";
 
   // Read active tab from URL, validate, default to "profile"
   const tabParam = searchParams.get("tab");
@@ -73,7 +83,9 @@ function AccountClientInner() {
   );
 
   return (
-    <main className="account-canvas relative min-h-screen overflow-hidden px-4 pb-16 pt-8">
+    <main
+      className={cn("account-canvas relative min-h-screen overflow-hidden px-4 pt-8", padBottom)}
+    >
       <MenuTextureBackdrop />
       <div className="container relative z-10 mx-auto max-w-4xl">
         {/* Loyalty passport hero */}
