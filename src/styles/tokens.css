@@ -530,14 +530,15 @@
  *   text-secondary (#3B3B3B) on surface-secondary (#FAFAFA): ~8.5:1 OK
  *   text-muted (#5C5C5C) on surface-tertiary (#EBEBEB): ~4.9:1 OK
  *
- * Dark mode:
- *   text-primary (#F8F7F6) on surface-primary (#000): ~20:1 OK
- *   text-secondary (#C5C3C0) on surface-secondary (#0a0a0a): ~12:1 OK
- *   text-muted (#9A9794) on surface-tertiary (#141414): ~6.2:1 OK
+ * Dark mode (warm espresso surfaces):
+ *   text-primary (#F8F7F6) on surface-primary (#1e1713): ~16:1 OK
+ *   text-secondary (#C5C3C0) on surface-secondary (#251c18): ~9.5:1 OK
+ *   text-muted (#a8a5a1) on surface-tertiary (#2e231e): ~6.2:1 OK
+ *   text-muted (#a8a5a1) worst tinted surface (secondary-light): ~4.9:1 OK
  *
  * Footer-specific (dark mode):
- *   footer-text (#e0e0e0) on footer-bg (#0a0a0a): ~15:1 OK
- *   footer-text-muted (#a0a0a0) on footer-bg (#0a0a0a): ~9.5:1 OK
+ *   footer-text (#e0e0e0) on footer-bg (#1b1410): ~13:1 OK
+ *   footer-text-muted (#a0a0a0) on footer-bg (#1b1410): ~8:1 OK
  *
  * All combinations meet WCAG AA (4.5:1) for normal text.
  */
@@ -585,14 +586,16 @@
 
   /* ===========================================
      SURFACE COLORS (Dark Mode)
-     OLED-friendly pure blacks
+     Warm espresso family (Anthropic "warm paper" after dark) — deliberately
+     lifted off pure black so chrome matches the warm canvases and the
+     editorial textures read. High-contrast mode (below) keeps true black.
      =========================================== */
 
-  --color-surface-primary: #000000;
-  --color-surface-primary-85: rgba(0, 0, 0, 0.85);
-  --color-surface-secondary: #0a0a0a;
-  --color-surface-tertiary: #141414;
-  --color-surface-elevated: #1a1a1a;
+  --color-surface-primary: #1e1713;
+  --color-surface-primary-85: rgba(30, 23, 19, 0.85);
+  --color-surface-secondary: #251c18;
+  --color-surface-tertiary: #2e231e;
+  --color-surface-elevated: #2a201b;
   --color-surface-inverse: #ffffff;
 
   /* ===========================================
@@ -601,7 +604,7 @@
 
   --color-text-primary: #f8f7f6;
   --color-text-secondary: #c5c3c0;
-  --color-text-muted: #9a9794;
+  --color-text-muted: #a8a5a1;
   --color-text-inverse: #000000;
   --color-text-money: #4ade80; /* Green-400 - money/price emphasis */
 
@@ -609,9 +612,9 @@
      BORDER COLORS (Dark Mode)
      =========================================== */
 
-  --color-border-default: #3d3b38;
-  --color-border-strong: #4d4b48;
-  --color-border-subtle: #2d2b28;
+  --color-border-default: #4a3e36;
+  --color-border-strong: #574a40;
+  --color-border-subtle: #382e28;
 
   /* ===========================================
      STATUS COLORS (Dark Mode)
@@ -678,7 +681,7 @@
      OLED-optimized footer palette
      =========================================== */
 
-  --color-footer-bg: #0a0a0a;
+  --color-footer-bg: #1b1410;
   --color-footer-text: #e0e0e0;
   --color-footer-text-muted: #a0a0a0;
   --color-footer-border: rgba(255, 255, 255, 0.1);
@@ -752,8 +755,11 @@
   --menu-tab-ghost-sheen: rgba(255, 255, 255, 0.08); /* inner top sheen */
   --menu-tab-ghost-ink: rgba(246, 241, 233, 0.74); /* muted cream label */
   --menu-tab-ghost-dot: rgba(246, 241, 233, 0.08); /* whisper dot texture */
-  --menu-texture-dot: rgba(246, 241, 233, 0.08); /* light dots on the dark section overlay */
-  --menu-texture-line: rgba(246, 241, 233, 0.045);
+
+  /* Lifted so the editorial grids/dots actually READ on the dark canvases
+     (owner: dark needs more Anthropic texture) — still whisper-level. */
+  --menu-texture-dot: rgba(246, 241, 233, 0.14); /* light dots on the dark section overlay */
+  --menu-texture-line: rgba(246, 241, 233, 0.085);
   --menu-modal-accent: #f0b357; /* detail-modal price/accent — amber (AA on dark) */
 
   /* ===========================================

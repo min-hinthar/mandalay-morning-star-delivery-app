@@ -144,7 +144,7 @@ export function CheckoutPreviewClient() {
   };
 
   return (
-    <div className="checkout-canvas relative min-h-screen pb-32">
+    <div className="checkout-canvas after-dark-canvas relative min-h-screen pb-32">
       <CheckoutBackdrop />
       <div className="relative mx-auto max-w-4xl px-4 py-6 sm:py-8">
         {/* Non-prod review banner + step jumper */}

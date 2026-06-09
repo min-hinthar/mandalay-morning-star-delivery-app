@@ -243,37 +243,38 @@
 }
 
 .dark {
-  /* Warm dark backgrounds - Burmese aesthetic, no cold grays */
-  --background: #1a1918;
+  /* Warm dark backgrounds — espresso family, matches the lifted dark surfaces
+     (tokens.css) so chrome + canvases read as one warm world */
+  --background: #221a16;
   --foreground: #f5f5f5;
-  --card: #252423;
+  --card: #2b211c;
   --card-foreground: #f5f5f5;
-  --popover: #252423;
+  --popover: #2b211c;
   --popover-foreground: #f5f5f5;
   --primary: #ff6b6b;
   --primary-foreground: #ffffff;
-  --secondary: #302f2d;
+  --secondary: #362a23;
   --secondary-foreground: #f5f5f5;
-  --muted: #302f2d;
-  --muted-foreground: #a3a3a3;
+  --muted: #362a23;
+  --muted-foreground: #a8a09a;
   --accent: #e5b523;
   --accent-foreground: #1a1a1a;
   --destructive: #f87171;
-  --border: #3d3b38;
-  --input: #3d3b38;
+  --border: #4a3e36;
+  --input: #4a3e36;
   --ring: #ff6b6b;
   --chart-1: #ff6b6b;
   --chart-2: #4ade80;
   --chart-3: #e5b523;
   --chart-4: #f87171;
   --chart-5: #fbbf24;
-  --sidebar: #1a1918;
+  --sidebar: #221a16;
   --sidebar-foreground: #f5f5f5;
   --sidebar-primary: #ff6b6b;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #302f2d;
+  --sidebar-accent: #362a23;
   --sidebar-accent-foreground: #f5f5f5;
-  --sidebar-border: #3d3b38;
+  --sidebar-border: #4a3e36;
   --sidebar-ring: #ff6b6b;
 }
 
@@ -1110,11 +1111,14 @@
       radial-gradient(120% 58% at 50% -8%, rgba(217, 119, 87, 0.16), transparent 58%),
       linear-gradient(180deg, #f1ebdf 0%, #e8dfcd 100%);
   }
+
+  /* Lifted dark ramp — matches the canonical .after-dark-canvas (owner: dark
+     was "too dark"); full consolidation lands with the cart back-port PR. */
   .dark .cart-canvas.cart-canvas {
     background:
-      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.2), transparent 58%),
-      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.14), transparent 60%),
-      linear-gradient(180deg, #2c1e1a 0%, #1c1115 100%);
+      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.24), transparent 58%),
+      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.17), transparent 60%),
+      linear-gradient(180deg, #382a24 0%, #2f1f24 54%, #261a20 100%);
   }
 
   /* Photo-forward cart line: a warm, gently-lifted panel (soft two-tier diffuse
@@ -1140,7 +1144,8 @@
   .dark .cart-canvas .hero-surface-paper,
   .dark .orders-canvas .hero-surface-paper,
   .dark .account-canvas .hero-surface-paper,
-  .dark .after-dark-canvas .hero-surface-paper {
+  .dark .after-dark-canvas .hero-surface-paper,
+  .dark .after-dark-canvas .hero-surface-glass {
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.65),
       0 1px 2px rgba(0, 0, 0, 0.45),
@@ -1160,11 +1165,13 @@
       radial-gradient(120% 58% at 50% -8%, rgba(217, 119, 87, 0.16), transparent 58%),
       linear-gradient(180deg, #f1ebdf 0%, #e8dfcd 100%);
   }
+
+  /* Lifted dark ramp — matches the canonical .after-dark-canvas. */
   .dark .orders-canvas.orders-canvas {
     background:
-      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.2), transparent 58%),
-      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.14), transparent 60%),
-      linear-gradient(180deg, #2c1e1a 0%, #1c1115 100%);
+      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.24), transparent 58%),
+      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.17), transparent 60%),
+      linear-gradient(180deg, #382a24 0%, #2f1f24 54%, #261a20 100%);
   }
 
   /* Account "After Dark" warm canvas (same palette as cart/orders/checkout — the
@@ -1174,13 +1181,15 @@
       radial-gradient(120% 58% at 50% -8%, rgba(217, 119, 87, 0.16), transparent 58%),
       linear-gradient(180deg, #f1ebdf 0%, #e8dfcd 100%);
   }
+
+  /* Lifted dark ramp — matches the canonical .after-dark-canvas. */
   .dark .account-canvas {
     background:
-      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.22), transparent 58%),
-      radial-gradient(70% 50% at -6% 24%, rgba(96, 165, 250, 0.12), transparent 62%),
-      radial-gradient(64% 46% at 106% 52%, rgba(110, 168, 137, 0.1), transparent 60%),
-      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.16), transparent 60%),
-      linear-gradient(180deg, #30211c 0%, #241620 46%, #1c1115 100%);
+      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.26), transparent 58%),
+      radial-gradient(70% 50% at -6% 24%, rgba(96, 165, 250, 0.14), transparent 62%),
+      radial-gradient(64% 46% at 106% 52%, rgba(110, 168, 137, 0.12), transparent 60%),
+      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.19), transparent 60%),
+      linear-gradient(180deg, #382a24 0%, #2f1f24 54%, #261a20 100%);
   }
 
   /* ============================================
@@ -1190,16 +1199,28 @@
      a shared Drawer's `bg-white dark:bg-black` base. Pair with <AfterDarkAmbient/>
      for the living texture + aurora. Opaque + radial-gradient only (iOS GPU).
      ============================================ */
+
+  /* Light = warm oat sunset with the full clay/blue/sage triad (the recipe the
+     owner approved on checkout #154); dark = luminous twilight — golden ember →
+     rose → sage → violet over a warm plum 3-stop ramp (enriched in #161). */
   .after-dark-canvas.after-dark-canvas {
     background:
-      radial-gradient(120% 58% at 50% -8%, rgba(217, 119, 87, 0.16), transparent 58%),
-      linear-gradient(180deg, #f1ebdf 0%, #e8dfcd 100%);
+      radial-gradient(125% 70% at 50% -12%, rgba(217, 119, 87, 0.18), transparent 56%),
+      radial-gradient(95% 60% at 90% -2%, rgba(106, 155, 204, 0.14), transparent 55%),
+      radial-gradient(85% 55% at 4% 4%, rgba(120, 140, 93, 0.13), transparent 56%),
+      linear-gradient(180deg, #f1ebdf 0%, #ece4d4 58%, #e5dcc9 100%);
   }
+
+  /* Dark = LUMINOUS warm twilight, deliberately lifted off near-black (owner
+     feedback: "too dark") — brighter ember/rose/sage/violet glows over a warmer
+     espresso→plum ramp so the grids/dots + cream cards read with depth. */
   .dark .after-dark-canvas.after-dark-canvas {
     background:
-      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.2), transparent 58%),
-      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.14), transparent 60%),
-      linear-gradient(180deg, #2c1e1a 0%, #1c1115 100%);
+      radial-gradient(120% 75% at 50% -14%, rgba(251, 146, 60, 0.26), transparent 58%),
+      radial-gradient(90% 62% at 88% 4%, rgba(236, 72, 153, 0.17), transparent 55%),
+      radial-gradient(85% 60% at 4% 26%, rgba(120, 140, 93, 0.16), transparent 56%),
+      radial-gradient(100% 72% at 50% 118%, rgba(124, 58, 237, 0.19), transparent 58%),
+      linear-gradient(180deg, #382a24 0%, #2f1f24 54%, #261a20 100%);
   }
 
   /* ============================================
@@ -1337,65 +1358,25 @@
     }
   }
 
-  /* Theme-aware checkout canvas. The "After Dark" identity is warm cream paper
-     cards that POP against their surround. Light = warm oat sunset; Dark = deep
-     espresso with sunset embers — the cream cards glow on it. Elements directly
-     on the canvas (masthead, stepper labels) read --ck-* (theme-flipped); card
-     interiors keep the fixed hero ink (cards are cream in BOTH themes). Radial
-     glows only (no blur — iOS GPU budget). */
+  /* Checkout scope — vars only. The background + cream-card elevation now come
+     from the canonical `.after-dark-canvas` (level-up consolidation; pair the
+     two classes on the page root). Elements directly on the canvas (masthead,
+     stepper labels) read --ck-* (theme-flipped); card interiors keep the fixed
+     hero ink (cards are cream in BOTH themes). */
   .checkout-canvas {
     --ck-ink: #1a1713;
     --ck-ink-muted: rgba(26, 23, 19, 0.66);
     --ck-line: rgba(26, 23, 19, 0.14);
     --ck-accent: #9a3412;
-    --ck-dot: rgba(26, 23, 19, 0.07);
 
-    background:
-      radial-gradient(125% 70% at 50% -12%, rgba(217, 119, 87, 0.18), transparent 56%),
-      radial-gradient(95% 60% at 90% -2%, rgba(106, 155, 204, 0.14), transparent 55%),
-      radial-gradient(85% 55% at 4% 4%, rgba(120, 140, 93, 0.13), transparent 56%),
-      linear-gradient(180deg, #f1ebdf 0%, #ece4d4 58%, #e5dcc9 100%);
     color: var(--ck-ink);
   }
 
-  /* Dark = luminous twilight, NOT flat black — hero-inspired sunset (golden
-     ember → rose → violet) glowing over a warm plum base, so cream cards pop
-     with depth. Radial glows only (no blur — iOS GPU budget). */
   .dark .checkout-canvas {
     --ck-ink: #f4eddf;
     --ck-ink-muted: rgba(244, 237, 223, 0.66);
     --ck-line: rgba(244, 237, 223, 0.18);
     --ck-accent: #ef9d73;
-    --ck-dot: rgba(244, 237, 223, 0.06);
-
-    background:
-      radial-gradient(120% 75% at 50% -14%, rgba(251, 146, 60, 0.22), transparent 56%),
-      radial-gradient(90% 62% at 88% 4%, rgba(236, 72, 153, 0.14), transparent 55%),
-      radial-gradient(85% 60% at 4% 26%, rgba(120, 140, 93, 0.14), transparent 56%),
-      radial-gradient(100% 72% at 50% 118%, rgba(124, 58, 237, 0.16), transparent 58%),
-      linear-gradient(180deg, #2c1e1a 0%, #251619 54%, #1c1115 100%);
-  }
-
-  /* Cream cards float with real elevation on the dark canvas — crisp top sheen,
-     deep drop shadow, and a faint warm ember halo (box-shadow blur is GPU-cheap,
-     unlike filter blur). Scoped to checkout so the homepage hero is untouched. */
-  .dark .checkout-canvas .hero-surface-paper,
-  .dark .checkout-canvas .hero-surface-glass {
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.65),
-      0 1px 2px rgba(0, 0, 0, 0.45),
-      0 22px 50px rgba(0, 0, 0, 0.52),
-      0 0 30px rgba(251, 146, 60, 0.09);
-  }
-
-  /* Masked dot-grid texture for the page — adds tactile, layered depth behind
-     the cards (faded by a radial mask so it sits under content, never a field).
-     Dot color flips with theme via --ck-dot. */
-  .checkout-dots {
-    background-image: radial-gradient(var(--ck-dot) 1px, transparent 1px);
-    background-size: 22px 22px;
-    -webkit-mask-image: radial-gradient(125% 95% at 50% 0%, #000 26%, transparent 80%);
-    mask-image: radial-gradient(125% 95% at 50% 0%, #000 26%, transparent 80%);
   }
 
   /* On-canvas text/hairline helpers (theme-flipped via --ck-*). */
