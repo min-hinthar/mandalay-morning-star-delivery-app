@@ -5,7 +5,6 @@ import { m } from "framer-motion";
 import { Clock, MapPin, Package, AlertCircle, Banknote } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { formatPrice } from "@/lib/utils/currency";
 import { useConfetti } from "@/components/ui/Confetti";
@@ -13,6 +12,7 @@ import { OrderRewardsTeaser } from "@/components/ui/orders/OrderRewardsTeaser";
 import { CutoffCountdown } from "@/components/ui/customer";
 import { SuccessCheckmark } from "@/components/ui/success-checkmark";
 import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
+import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { useRewardsSummary } from "@/lib/hooks/useRewardsSummary";
 import type { LoyaltyTierId } from "@/lib/loyalty";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
@@ -100,7 +100,7 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
       {/* Confetti celebration */}
       <ConfettiComponent particleCount={30} duration={2.5} />
 
-      <div className="min-h-screen bg-gradient-to-b from-surface-secondary to-primary/5 py-12 px-4">
+      <div className="orders-canvas min-h-screen px-4 py-12">
         <div className="mx-auto max-w-2xl">
           {/* Icon Animation */}
           <m.div
@@ -203,68 +203,84 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             animate="visible"
             className="space-y-6"
           >
-            {/* Order Details Card */}
+            {/* Order Summary — warm-paper living-receipt */}
             <m.div variants={shouldAnimate ? staggerItem : undefined}>
-              <Card className="border-accent-secondary/20 shadow-lg">
-                <CardHeader className="bg-accent-secondary/5 border-b border-accent-secondary/10">
-                  <div className="flex items-center gap-2 text-accent-secondary">
-                    <Package className="h-5 w-5" />
-                    <span className="font-medium">Order Summary</span>
-                  </div>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                  {/* Order Items */}
-                  <div className="space-y-3">
-                    {order.items?.map((item) => (
-                      <div key={item.id} className="flex justify-between text-sm">
-                        <div>
-                          <span className="font-medium">{item.quantity}x</span> {item.nameSnapshot}
-                          {item.modifiers.length > 0 && (
-                            <span className="text-text-muted ml-1">
-                              ({item.modifiers.map((m) => m.nameSnapshot).join(", ")})
-                            </span>
-                          )}
-                        </div>
-                        <span>{formatPrice(item.lineTotalCents)}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Totals */}
-                  <div className="border-t pt-4 space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-text-muted">Subtotal</span>
-                      <span>{formatPrice(order.subtotalCents)}</span>
-                    </div>
-                    <div className="flex justify-between text-sm">
-                      <span className="text-text-muted">Delivery Fee</span>
-                      <span>
-                        {order.deliveryFeeCents === 0 ? (
-                          <span className="text-accent-secondary">FREE</span>
-                        ) : (
-                          formatPrice(order.deliveryFeeCents)
-                        )}
+              <div className="hero-surface-paper relative overflow-hidden rounded-2xl">
+                <HeroCardLayers accent="sage" radius="rounded-2xl" />
+                <div className="relative">
+                  <div className="flex items-center gap-2 border-b border-hero-line/70 p-4">
+                    <Package className="h-5 w-5 text-hero-sage" aria-hidden="true" />
+                    <span className="font-display font-semibold text-hero-ink">
+                      Order summary
+                      <span
+                        className="ml-1.5 font-burmese text-2xs font-normal text-hero-ink-muted"
+                        lang="my"
+                      >
+                        အော်ဒါ
                       </span>
-                    </div>
-                    {order.taxCents > 0 && (
-                      <div className="flex justify-between text-sm">
-                        <span className="text-text-muted">Tax</span>
-                        <span>{formatPrice(order.taxCents)}</span>
-                      </div>
-                    )}
-                    <div className="flex justify-between font-medium text-lg pt-2 border-t">
-                      <span>Total</span>
-                      <span className="text-text-money">{formatPrice(order.totalCents)}</span>
-                    </div>
-                    {isCOD && (
-                      <div className="flex items-center gap-2 pt-2 text-sm text-emerald-700 dark:text-emerald-400">
-                        <Banknote className="h-4 w-4" />
-                        <span className="font-medium">Cash on Delivery</span>
-                      </div>
-                    )}
+                    </span>
                   </div>
-                </CardContent>
-              </Card>
+                  <div className="space-y-4 p-5">
+                    {/* Order Items */}
+                    <ul className="space-y-3">
+                      {order.items?.map((item) => (
+                        <li key={item.id} className="flex justify-between gap-3 text-sm">
+                          <div className="min-w-0 text-hero-ink">
+                            <span className="font-medium">{item.quantity}×</span>{" "}
+                            {item.nameSnapshot}
+                            {item.modifiers.length > 0 && (
+                              <span className="ml-1 text-hero-ink-muted">
+                                ({item.modifiers.map((m) => m.nameSnapshot).join(", ")})
+                              </span>
+                            )}
+                          </div>
+                          <span className="shrink-0 font-semibold text-hero-ink">
+                            {formatPrice(item.lineTotalCents)}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Totals */}
+                    <div className="checkout-perf checkout-rule-draw" aria-hidden="true" />
+                    <div className="space-y-2 pt-1 text-sm">
+                      <div className="flex justify-between text-hero-ink-muted">
+                        <span>Subtotal</span>
+                        <span className="text-hero-ink">{formatPrice(order.subtotalCents)}</span>
+                      </div>
+                      <div className="flex justify-between text-hero-ink-muted">
+                        <span>Delivery fee</span>
+                        {order.deliveryFeeCents === 0 ? (
+                          <span className="font-semibold text-hero-sage">FREE</span>
+                        ) : (
+                          <span className="text-hero-ink">
+                            {formatPrice(order.deliveryFeeCents)}
+                          </span>
+                        )}
+                      </div>
+                      {order.taxCents > 0 && (
+                        <div className="flex justify-between text-hero-ink-muted">
+                          <span>Tax</span>
+                          <span className="text-hero-ink">{formatPrice(order.taxCents)}</span>
+                        </div>
+                      )}
+                      <div className="checkout-perf checkout-rule-draw my-1" aria-hidden="true" />
+                      <div className="flex items-center justify-between pt-0.5 text-lg font-medium">
+                        <span className="font-display text-hero-ink">Total</span>
+                        <span className="font-bold text-hero-accent">
+                          {formatPrice(order.totalCents)}
+                        </span>
+                      </div>
+                      {isCOD && (
+                        <div className="flex items-center gap-2 pt-2 text-sm text-hero-sage">
+                          <Banknote className="h-4 w-4" />
+                          <span className="font-medium">Cash on Delivery</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </m.div>
 
             {/* Delivery Info Cards */}
@@ -273,40 +289,42 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
               className="grid gap-4 md:grid-cols-2"
             >
               {/* Delivery Time */}
-              <Card>
-                <CardContent className="p-4 flex items-start gap-3">
-                  <div className="rounded-full bg-interactive/10 p-2">
-                    <Clock className="h-5 w-5 text-interactive" />
-                  </div>
+              <div className="hero-surface-paper relative overflow-hidden rounded-2xl">
+                <HeroCardLayers accent="clay" radius="rounded-2xl" />
+                <div className="relative flex items-start gap-3 p-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hero-clay/12">
+                    <Clock className="h-5 w-5 text-hero-clay" aria-hidden="true" />
+                  </span>
                   <div>
-                    <p className="font-medium text-text-primary">Delivery Time</p>
-                    <p className="text-sm text-text-muted">{deliveryDate}</p>
-                    <p className="text-sm text-text-muted">{deliveryTime}</p>
+                    <p className="font-semibold text-hero-ink">Delivery time</p>
+                    <p className="text-sm text-hero-ink-muted">{deliveryDate}</p>
+                    <p className="text-sm text-hero-ink-muted">{deliveryTime}</p>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
 
               {/* Delivery Address */}
-              <Card>
-                <CardContent className="p-4 flex items-start gap-3">
-                  <div className="rounded-full bg-accent-tertiary/10 p-2">
-                    <MapPin className="h-5 w-5 text-accent-tertiary" />
-                  </div>
+              <div className="hero-surface-paper relative overflow-hidden rounded-2xl">
+                <HeroCardLayers accent="blue" radius="rounded-2xl" />
+                <div className="relative flex items-start gap-3 p-4">
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-hero-blue/12">
+                    <MapPin className="h-5 w-5 text-hero-blue" aria-hidden="true" />
+                  </span>
                   <div>
-                    <p className="font-medium text-text-primary">Delivery Address</p>
+                    <p className="font-semibold text-hero-ink">Delivery address</p>
                     {order.address ? (
                       <>
-                        <p className="text-sm text-text-muted">{order.address.line1}</p>
-                        <p className="text-sm text-text-muted">
+                        <p className="text-sm text-hero-ink-muted">{order.address.line1}</p>
+                        <p className="text-sm text-hero-ink-muted">
                           {order.address.city}, {order.address.state} {order.address.postalCode}
                         </p>
                       </>
                     ) : (
-                      <p className="text-sm text-text-muted">Address on file</p>
+                      <p className="text-sm text-hero-ink-muted">Address on file</p>
                     )}
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </m.div>
 
             {/* Action Buttons */}

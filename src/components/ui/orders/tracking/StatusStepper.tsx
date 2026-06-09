@@ -1,16 +1,20 @@
 "use client";
 
 /**
- * StatusStepper - Horizontal status stepper for order tracking
+ * StatusStepper — the After Dark delivery journey rail.
  *
- * Shows: Confirmed -> Preparing -> Out for Delivery -> Delivered
- * Skips "pending" from display. Current step pulses, completed steps show check.
- * Cancelled orders show all steps greyed out with red badge.
+ * Confirmed → Preparing → Out for Delivery → Delivered, as a warm-paper journey:
+ * completed steps fill clay, the current step glows + pulses, the connecting line
+ * fills toward the goal. Bilingual EN/MY. Skips "pending"; cancelled greys out
+ * with a status badge. Keeps the accessible progressbar + sr-only live region.
  */
 
-import { m } from "framer-motion";
+import { useRef } from "react";
+import { m, useInView } from "framer-motion";
 import { Check, ChefHat, Truck, Package, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import type { OrderStatus } from "@/types/database";
 
 interface StatusStepperProps {
@@ -21,12 +25,13 @@ interface StatusStepperProps {
 const STEPPER_STEPS: {
   status: OrderStatus;
   label: string;
+  labelMy: string;
   icon: React.FC<{ className?: string }>;
 }[] = [
-  { status: "confirmed", label: "Confirmed", icon: ShieldCheck },
-  { status: "preparing", label: "Preparing", icon: ChefHat },
-  { status: "out_for_delivery", label: "Out for Delivery", icon: Truck },
-  { status: "delivered", label: "Delivered", icon: Package },
+  { status: "confirmed", label: "Confirmed", labelMy: "အတည်ပြု", icon: ShieldCheck },
+  { status: "preparing", label: "Preparing", labelMy: "ပြင်ဆင်", icon: ChefHat },
+  { status: "out_for_delivery", label: "Out for Delivery", labelMy: "ပို့ဆောင်", icon: Truck },
+  { status: "delivered", label: "Delivered", labelMy: "ရောက်ရှိ", icon: Package },
 ];
 
 const STATUS_INDEX: Record<string, number> = {
@@ -43,90 +48,105 @@ function getStepIndex(status: OrderStatus): number {
 }
 
 export function StatusStepper({ currentStatus, cancelledAt }: StatusStepperProps) {
+  const { shouldAnimate } = useAnimationPreference();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(rootRef, { margin: "0px 0px -10% 0px" });
+  const loop = shouldAnimate && inView;
+
   const isCancelled = currentStatus === "cancelled" || !!cancelledAt;
   const activeIndex = getStepIndex(currentStatus);
 
   const ariaValue = isCancelled ? 0 : Math.max(0, activeIndex + 1);
   const ariaMax = STEPPER_STEPS.length;
 
-  // Screen reader announcement
   const statusText = isCancelled
     ? "Order cancelled"
     : (STEPPER_STEPS[activeIndex]?.label ?? "Order placed");
 
   return (
-    <div className="rounded-xl bg-surface-primary p-4 shadow-warm-sm">
-      {/* Accessible progressbar */}
+    <div ref={rootRef} className="hero-surface-paper relative overflow-hidden rounded-2xl p-4">
+      <HeroCardLayers accent="clay" radius="rounded-2xl" />
+
       <div
         role="progressbar"
         aria-valuenow={ariaValue}
         aria-valuemin={0}
         aria-valuemax={ariaMax}
         aria-label="Order progress"
+        className="relative"
       >
-        <div className="flex items-center justify-between">
+        <div className="flex items-start justify-between">
           {STEPPER_STEPS.map((step, index) => {
             const isCompleted = !isCancelled && activeIndex > index;
             const isCurrent = !isCancelled && activeIndex === index;
             const isFuture = isCancelled || activeIndex < index;
+            const lineFilled = !isCancelled && activeIndex > index;
 
             return (
-              <div key={step.status} className="flex flex-1 items-center">
-                {/* Step dot + icon */}
+              <div key={step.status} className="flex flex-1 items-start">
                 <div className="flex flex-col items-center gap-1.5">
                   {/* Circle */}
                   {isCurrent ? (
-                    <m.div
-                      animate={{ scale: [1, 1.15, 1] }}
-                      transition={{
-                        duration: 2,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                      className="flex h-8 w-8 items-center justify-center rounded-full bg-jade-500 shadow-sm"
-                    >
-                      <step.icon className="h-4 w-4 text-text-inverse" />
-                    </m.div>
+                    <span className="relative flex h-9 w-9 items-center justify-center">
+                      {loop && (
+                        <m.span
+                          aria-hidden="true"
+                          className="absolute inset-0 rounded-full bg-hero-clay/40"
+                          animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
+                          transition={{ duration: 1.8, repeat: Infinity, ease: "easeOut" }}
+                        />
+                      )}
+                      <m.span
+                        animate={loop ? { scale: [1, 1.1, 1] } : undefined}
+                        transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                        className="relative flex h-9 w-9 items-center justify-center rounded-full bg-hero-clay shadow-md"
+                      >
+                        <step.icon className="h-4 w-4 text-hero-card-strong" />
+                      </m.span>
+                    </span>
                   ) : isCompleted ? (
-                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-jade-500">
-                      <Check className="h-4 w-4 text-text-inverse" />
-                    </div>
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full bg-hero-clay">
+                      <Check className="h-4 w-4 text-hero-card-strong" />
+                    </span>
                   ) : (
-                    <div
+                    <span className="flex h-9 w-9 items-center justify-center rounded-full border border-hero-line bg-hero-card/50">
+                      <step.icon className="h-4 w-4 text-hero-ink-muted/60" />
+                    </span>
+                  )}
+
+                  {/* Bilingual label */}
+                  <span className="max-w-[76px] text-center leading-tight">
+                    <span
                       className={cn(
-                        "flex h-8 w-8 items-center justify-center rounded-full",
-                        isCancelled ? "bg-charcoal-200" : "bg-charcoal-200"
+                        "block text-2xs font-semibold",
+                        isFuture ? "text-hero-ink-muted/70" : "text-hero-ink"
                       )}
                     >
-                      <step.icon
-                        className={cn(
-                          "h-4 w-4",
-                          isCancelled ? "text-charcoal-400" : "text-charcoal-400"
-                        )}
-                      />
-                    </div>
-                  )}
-                  {/* Label */}
-                  <span
-                    className={cn(
-                      "text-2xs font-medium text-center leading-tight max-w-[72px]",
-                      isCurrent && "text-jade-700",
-                      isCompleted && "text-jade-600",
-                      isFuture && "text-charcoal-400"
-                    )}
-                  >
-                    {step.label}
+                      {step.label}
+                    </span>
+                    <span
+                      className={cn(
+                        "block font-burmese text-2xs",
+                        isFuture ? "text-hero-ink-muted/50" : "text-hero-ink-muted"
+                      )}
+                      lang="my"
+                    >
+                      {step.labelMy}
+                    </span>
                   </span>
                 </div>
 
                 {/* Connecting line */}
                 {index < STEPPER_STEPS.length - 1 && (
-                  <div
-                    className={cn(
-                      "mx-1 h-0.5 flex-1 rounded-full",
-                      !isCancelled && activeIndex > index ? "bg-jade-500" : "bg-charcoal-200"
-                    )}
-                  />
+                  <div className="mx-1 mt-4 h-1 flex-1 overflow-hidden rounded-full bg-hero-ink/10">
+                    <m.div
+                      className="h-full rounded-full bg-hero-clay"
+                      initial={shouldAnimate ? { scaleX: 0 } : undefined}
+                      animate={shouldAnimate ? { scaleX: lineFilled ? 1 : 0 } : undefined}
+                      style={{ transformOrigin: "left center" }}
+                      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    />
+                  </div>
                 )}
               </div>
             );
@@ -136,9 +156,9 @@ export function StatusStepper({ currentStatus, cancelledAt }: StatusStepperProps
 
       {/* Cancelled badge */}
       {isCancelled && (
-        <div className="mt-3 flex justify-center">
-          <span className="rounded-full bg-error/10 px-3 py-1 text-xs font-semibold text-error">
-            Cancelled
+        <div className="relative mt-3 flex justify-center">
+          <span className="rounded-full bg-status-error/10 px-3 py-1 text-xs font-semibold text-status-error">
+            Cancelled · ပယ်ဖျက်
           </span>
         </div>
       )}
