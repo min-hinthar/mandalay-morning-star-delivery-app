@@ -73,7 +73,9 @@ export function SettingsTab({ initialSection }: SettingsTabProps) {
   }
 
   return (
-    <div className="space-y-6">
+    // Extra bottom clearance only while the floating save bar is shown, so the
+    // last control never sits under it — without the empty-bottom gap otherwise.
+    <div className={cn("space-y-6", hasChanges && "pb-20")}>
       {/* Sub-tab navigation — self-contained pills (no measured-indicator dark-on-dark)
           inside a recessed sub-tray (secondary surface) so it nests one level below the
           main account tab tray rather than reading as loose wrapping pills. */}
