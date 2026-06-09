@@ -100,10 +100,18 @@ bilingual.
 2. ✅ **Auth (#5)** (merged **#162**) — editorial-split `/login` + `/auth/expired` on the
    kit: brand-panel menu photo + bilingual wordmark, mobile photo band, warm-paper card,
    `MagneticButton` submit, `TapBurst` on success. Reskin only.
-3. ⏳ **Back-port** — apply ambient/tilt/spotlight/magnetic/celebrations to checkout, cart,
-   orders, account (per-surface PRs; consolidate the 4 canvases into `.after-dark-canvas`).
-   **Carry-forward:** any future test mounting `TierUpCelebration` needs `useReducedMotion`
-   in its framer mock (it always renders `<Confetti>`).
+3. 🟡 **Back-port** — in progress.
+   - ✅ **Checkout** (merged **#163**): canonical canvas (checkout-canvas → vars-only),
+     receipt `useTilt` + `GoldLeaf`, `TierUpCelebration` on confirmation — PLUS the
+     owner-requested **warm dark overhaul** (global dark surfaces espresso, dark texture
+     boost, all canvas ramps lifted; honest contrast-audit fixtures, dark muted `#a8a5a1`).
+   - ⏳ **Cart / Orders / Account**: same pattern — pair `after-dark-canvas`, reduce the
+     per-surface canvas to vars (their dark ramps already match), add tilt/sheen to the
+     marquee card, celebrations where rewards are fresh. `TierUpCelebration` is also
+     planned for the account passport.
+     **Carry-forward:** any future test mounting `TierUpCelebration` needs `useReducedMotion`
+     in its framer mock (it always renders `<Confetti>`); JS-config z/`zClass.*` utilities
+     don't emit in Tailwind v4 — audit before reuse (see CLAUDE.md gotcha).
 
 > Iterate on Vercel previews each push; adversarial review just before merge; never
 > self-merge (owner's per-PR go). CI Actions may still be quota-paused — verify locally
