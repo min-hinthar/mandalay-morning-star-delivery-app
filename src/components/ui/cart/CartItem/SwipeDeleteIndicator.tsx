@@ -17,7 +17,7 @@ export function SwipeDeleteIndicator({ progress }: SwipeDeleteIndicatorProps) {
       className={cn(
         "absolute right-0 inset-y-0 flex items-center justify-end pr-4",
         "bg-gradient-delete",
-        "rounded-r-xl pointer-events-none"
+        "rounded-r-2xl pointer-events-none"
       )}
       style={{ width: `${Math.min(100, progress * 150)}%` }}
     >

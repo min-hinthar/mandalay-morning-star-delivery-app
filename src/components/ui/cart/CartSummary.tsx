@@ -1,17 +1,19 @@
 "use client";
 
 /**
- * CartSummary Component
- * Order summary with animated free delivery progress indicator
+ * CartSummary — the cart's "living ledger" (prelude to the checkout receipt).
  *
- * Features:
- * - Animated progress bar for free delivery threshold
- * - PriceTicker for subtotal, delivery fee, and total
- * - Spring animations with rubbery feel
- * - Respects animation preferences
+ * After Dark: the Morning-Star free-delivery journey on top, then a warm-paper
+ * ledger with draw-on perforation rules, rolling prices, and a big rolling
+ * total under a slow ledger sheen — the same vocabulary the checkout receipt
+ * (CheckoutSummaryV8) uses, so cart → checkout reads as one continuous ticket.
+ *
+ * Presentation only: every total computation is unchanged.
  */
 
+import type { ReactNode } from "react";
 import { m } from "framer-motion";
+import { Truck, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -19,6 +21,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { COVINA_TAX_RATE } from "@/lib/utils/order";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { PriceTicker } from "@/components/ui/PriceTicker";
+import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { FreeDeliveryProgress } from "./FreeDeliveryProgress";
 
 // ============================================
@@ -30,18 +33,30 @@ export interface CartSummaryProps {
   className?: string;
 }
 
-// ============================================
-// ANIMATION VARIANTS
-// ============================================
-
-const summaryRowVariants = {
-  hidden: { opacity: 0, x: -10 },
-  visible: {
-    opacity: 1,
-    x: 0,
-    transition: { type: "spring" as const, stiffness: 300, damping: 25 },
-  },
-};
+/** A ledger row — muted label left, value right; gentle slide-in. */
+function LedgerRow({
+  label,
+  children,
+  shouldAnimate,
+  delay = 0,
+}: {
+  label: ReactNode;
+  children: ReactNode;
+  shouldAnimate: boolean;
+  delay?: number;
+}) {
+  return (
+    <m.div
+      initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
+      transition={{ delay, type: "spring", stiffness: 300, damping: 25 }}
+      className="flex justify-between text-sm text-hero-ink-muted"
+    >
+      <span className="flex items-center gap-1.5">{label}</span>
+      {children}
+    </m.div>
+  );
+}
 
 // ============================================
 // MAIN COMPONENT
@@ -61,81 +76,94 @@ export function CartSummary({ className }: CartSummaryProps) {
   return (
     <m.div
       variants={shouldAnimate ? staggerItem : undefined}
-      className={cn("space-y-3", className)}
+      className={cn("hero-surface-paper relative overflow-hidden rounded-2xl p-4", className)}
     >
-      {/* Free delivery progress indicator */}
-      <FreeDeliveryProgress
-        amountToFreeDelivery={amountToFreeDelivery}
-        isExtendedRange={isExtendedRange}
-      />
+      <HeroCardLayers accent="clay" radius="rounded-2xl" />
+      <div className="relative space-y-3">
+        {/* Morning-Star free-delivery journey */}
+        <FreeDeliveryProgress
+          amountToFreeDelivery={amountToFreeDelivery}
+          isExtendedRange={isExtendedRange}
+        />
 
-      {/* Summary rows */}
-      <div className="space-y-2 text-sm">
-        {/* Subtotal */}
-        <m.div
-          variants={shouldAnimate ? summaryRowVariants : undefined}
-          initial={shouldAnimate ? "hidden" : undefined}
-          animate={shouldAnimate ? "visible" : undefined}
-          className="flex justify-between text-text-secondary"
-        >
-          <span>Subtotal</span>
-          <PriceTicker value={itemsSubtotal} inCents={true} className="text-text-money" />
-        </m.div>
+        {/* Ledger */}
+        <div className="checkout-perf checkout-rule-draw" aria-hidden="true" />
 
-        {/* Delivery Fee */}
-        <m.div
-          variants={shouldAnimate ? summaryRowVariants : undefined}
-          initial={shouldAnimate ? "hidden" : undefined}
-          animate={shouldAnimate ? "visible" : undefined}
-          transition={{ delay: 0.05 }}
-          className="flex justify-between text-text-secondary"
-        >
-          <span>{isExtendedRange ? "Extended Delivery" : "Delivery Fee"}</span>
-          {hasFreeDelivery ? (
-            <m.span
-              initial={shouldAnimate ? { scale: 0.8, opacity: 0 } : undefined}
-              animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
-              transition={getSpring(spring.ultraBouncy)}
-              className="text-text-money font-semibold"
-            >
-              FREE
-            </m.span>
-          ) : (
-            <PriceTicker value={estimatedDeliveryFee} inCents={true} className="text-text-money" />
-          )}
-        </m.div>
+        <div className="space-y-2">
+          <LedgerRow label="Subtotal" shouldAnimate={shouldAnimate}>
+            <PriceTicker value={itemsSubtotal} inCents size="sm" className="text-hero-ink" />
+          </LedgerRow>
 
-        {/* Estimated Tax */}
-        <m.div
-          variants={shouldAnimate ? summaryRowVariants : undefined}
-          initial={shouldAnimate ? "hidden" : undefined}
-          animate={shouldAnimate ? "visible" : undefined}
-          transition={{ delay: 0.1 }}
-          className="flex justify-between text-text-secondary"
-        >
-          <span>Est. Tax</span>
-          <PriceTicker value={estimatedTaxCents} inCents={true} className="text-text-money" />
-        </m.div>
+          <LedgerRow
+            shouldAnimate={shouldAnimate}
+            delay={0.05}
+            label={
+              <>
+                <Truck className="h-3.5 w-3.5" aria-hidden="true" />
+                {isExtendedRange ? "Extended Delivery" : "Delivery Fee"}
+              </>
+            }
+          >
+            {hasFreeDelivery ? (
+              <m.span
+                initial={shouldAnimate ? { scale: 0.8, opacity: 0 } : undefined}
+                animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
+                transition={getSpring(spring.ultraBouncy)}
+                className="font-bold text-hero-sage"
+              >
+                FREE
+              </m.span>
+            ) : (
+              <PriceTicker
+                value={estimatedDeliveryFee}
+                inCents
+                size="sm"
+                className="text-hero-ink"
+              />
+            )}
+          </LedgerRow>
 
-        {/* Divider */}
-        <div className="h-px bg-border my-2" />
+          <LedgerRow
+            shouldAnimate={shouldAnimate}
+            delay={0.1}
+            label={
+              <>
+                <Receipt className="h-3.5 w-3.5" aria-hidden="true" />
+                Est. Tax
+              </>
+            }
+          >
+            <PriceTicker value={estimatedTaxCents} inCents size="sm" className="text-hero-ink" />
+          </LedgerRow>
+        </div>
 
-        {/* Estimated Total */}
-        <m.div
-          variants={shouldAnimate ? summaryRowVariants : undefined}
-          initial={shouldAnimate ? "hidden" : undefined}
-          animate={shouldAnimate ? "visible" : undefined}
-          transition={{ delay: 0.15 }}
-          className="flex justify-between items-center font-semibold text-base"
-        >
-          <span className="text-text-primary">Estimated Total</span>
-          <PriceTicker
-            value={estimatedTotal + estimatedTaxCents}
-            inCents={true}
-            size="lg"
-            className="text-text-money font-bold"
+        <div className="checkout-perf checkout-rule-draw" aria-hidden="true" />
+
+        {/* Estimated total — big rolling number under a slow ledger sheen */}
+        <div className="relative overflow-hidden rounded-xl px-3 py-2">
+          <span
+            aria-hidden="true"
+            className="checkout-total-sheen pointer-events-none absolute inset-0 rounded-xl"
           />
-        </m.div>
+          <div className="relative flex items-center justify-between">
+            <span className="leading-tight">
+              <span className="block font-display text-base font-semibold text-hero-ink">
+                Estimated total
+              </span>
+              <span className="font-burmese text-2xs text-hero-ink-muted" lang="my">
+                ခန့်မှန်းစုစုပေါင်း
+              </span>
+            </span>
+            <span aria-live="polite">
+              <PriceTicker
+                value={estimatedTotal + estimatedTaxCents}
+                inCents
+                size="lg"
+                className="font-bold text-hero-accent"
+              />
+            </span>
+          </div>
+        </div>
       </div>
     </m.div>
   );

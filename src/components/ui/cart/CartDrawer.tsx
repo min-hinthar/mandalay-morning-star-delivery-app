@@ -164,7 +164,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
         height="full"
         showDragHandle={true}
         title="Your Cart"
-        className={cn("flex flex-col", className)}
+        className={cn("cart-canvas flex flex-col", className)}
       >
         <CartContent onClose={close} />
       </Drawer>
@@ -178,7 +178,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
       position="right"
       width="lg"
       title="Your Cart"
-      className={cn("flex flex-col", className)}
+      className={cn("cart-canvas flex flex-col sm:backdrop-blur-none", className)}
     >
       <CartContent onClose={close} showFullCartLink />
     </Drawer>

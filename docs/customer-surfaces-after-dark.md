@@ -147,8 +147,14 @@ merge** → triage the **auto-review after every push** → **never self-merge**
 
 ## Future work / backlog
 
-- **Surfaces #2–#5 still to do:** cart drawer → order confirmation/tracking →
-  account → auth (per the sequence table above). One reviewable PR each.
+- **Surface #2 Cart — built, in PR #157** (branch `claude/magical-clarke-ybykt1`):
+  warm cart canvas + photo-forward tactile line cards + the **Morning-Star delivery
+  journey** (replaces the truck/road/PartyPopper) + a cream **living-receipt summary**
+  mirroring `CheckoutSummaryV8`, plus dish-sheet polish. Theme-safe (opaque cream
+  callouts so the shared `FreeDeliveryProgress`/`CartSummary` read on both the drawer
+  and the `/cart` page in dark mode). Local-verified green; awaiting owner merge go.
+- **Surfaces #3–#5 still to do:** order confirmation/tracking → account → auth
+  (per the sequence table above). One reviewable PR each.
 - **Zoom-out the shared menu photo on OTHER surfaces** for consistency — owner
   liked the checkout's bounded, less-cropped photo band; `HomepageMenuSection`
   (and anywhere else using `/images/menu-section-bg.webp`) still uses a full-bleed
