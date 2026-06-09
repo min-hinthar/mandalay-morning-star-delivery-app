@@ -118,7 +118,9 @@ export function CartEmptyState({ onClose, className }: CartEmptyStateProps) {
         className="mt-8"
       >
         <Button variant="primary" size="lg" className="shadow-elevated" onClick={onClose} asChild>
-          <Link href="/menu">Browse Menu · မီနူးကြည့်ရန်</Link>
+          <Link href="/menu">
+            Browse Menu · <span lang="my">မီနူးကြည့်ရန်</span>
+          </Link>
         </Button>
       </m.div>
     </m.div>
