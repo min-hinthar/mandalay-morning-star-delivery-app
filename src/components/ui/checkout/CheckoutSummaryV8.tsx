@@ -23,6 +23,8 @@ import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
+import { useTilt } from "@/components/ui/homepage/Hero/interactions";
+import { GoldLeaf } from "@/components/ui/GoldLeaf";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { LedgerRow, FadeRow } from "./CheckoutSummaryRows";
 import { formatPrice } from "@/lib/utils/format";
@@ -36,6 +38,9 @@ const TEAR_HEIGHT = "0.6875rem"; // matches .checkout-tear
 
 export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  // Gentle pointer tilt (level-up tactile pass). The receipt body holds no CTA,
+  // so tilt is safe here (menu-card gotcha); no preserve-3d → no shadow artifact.
+  const tilt = useTilt(3.5);
   const {
     items,
     itemsSubtotal,
@@ -69,7 +74,12 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
   const itemCount = items.reduce((sum, it) => sum + it.quantity, 0);
 
   return (
-    <div className={cn("relative", className)}>
+    <m.div
+      className={cn("relative", className)}
+      style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformPerspective: 900 }}
+      onPointerMove={tilt.onPointerMove}
+      onPointerLeave={tilt.onPointerLeave}
+    >
       {/* Thermal-print reveal: the receipt prints top→down (clip) while the body
           advances + settles. The print-head light (below) rides the frontier. */}
       <m.div
@@ -86,6 +96,8 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
         {/* Ticket body — opaque warm paper so the torn foot matches exactly */}
         <div className="hero-surface-paper relative overflow-hidden rounded-t-2xl">
           <HeroCardLayers accent="clay" radius="rounded-t-2xl" />
+          {/* Gold-leaf flecks + lacquer sheen over the receipt header (kit) */}
+          <GoldLeaf radius="rounded-t-2xl" />
 
           <div className="relative">
             {/* Editorial header */}
@@ -368,7 +380,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           }}
         />
       )}
-    </div>
+    </m.div>
   );
 }
 

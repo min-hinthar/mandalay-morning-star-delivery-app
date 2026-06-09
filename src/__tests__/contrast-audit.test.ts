@@ -56,7 +56,7 @@ function contrastRatio(fg: string, bg: string): number {
 // Light mode: text-muted
 const LIGHT_TEXT_MUTED = "#5c5c5c";
 // Dark mode: text-muted
-const DARK_TEXT_MUTED = "#9a9794";
+const DARK_TEXT_MUTED = "#a8a5a1";
 
 // Light mode surfaces (solid hex)
 const LIGHT_SURFACE_PRIMARY = "#ffffff";
@@ -65,10 +65,10 @@ const LIGHT_SURFACE_TERTIARY = "#ebebeb";
 const LIGHT_SURFACE_ELEVATED = "#ffffff"; // same as primary in light
 
 // Dark mode surfaces (solid hex)
-const DARK_SURFACE_PRIMARY = "#000000";
-const DARK_SURFACE_SECONDARY = "#0a0a0a";
-const DARK_SURFACE_TERTIARY = "#141414";
-const DARK_SURFACE_ELEVATED = "#1a1a1a";
+const DARK_SURFACE_PRIMARY = "#1e1713";
+const DARK_SURFACE_SECONDARY = "#251c18";
+const DARK_SURFACE_TERTIARY = "#2e231e";
+const DARK_SURFACE_ELEVATED = "#2a201b";
 
 // Light mode status/accent backgrounds — rgba composited on surface-primary (#ffffff)
 const LIGHT_STATUS_ERROR_BG = alphaBlend(196, 92, 74, 0.1, LIGHT_SURFACE_PRIMARY);
@@ -78,7 +78,7 @@ const LIGHT_STATUS_INFO_BG = alphaBlend(0, 151, 157, 0.1, LIGHT_SURFACE_PRIMARY)
 const LIGHT_PRIMARY_LIGHT = alphaBlend(164, 16, 52, 0.08, LIGHT_SURFACE_PRIMARY);
 const LIGHT_SECONDARY_LIGHT = alphaBlend(235, 205, 0, 0.12, LIGHT_SURFACE_PRIMARY);
 
-// Dark mode status/accent backgrounds — rgba composited on surface-primary (#000000)
+// Dark mode status/accent backgrounds — rgba composited on surface-primary (#1e1713)
 const DARK_STATUS_ERROR_BG = alphaBlend(255, 107, 107, 0.18, DARK_SURFACE_PRIMARY);
 const DARK_STATUS_WARNING_BG = alphaBlend(255, 159, 74, 0.18, DARK_SURFACE_PRIMARY);
 const DARK_STATUS_SUCCESS_BG = alphaBlend(107, 216, 75, 0.18, DARK_SURFACE_PRIMARY);
