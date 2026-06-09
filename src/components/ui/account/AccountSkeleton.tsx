@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 export function AccountSkeleton() {
   return (
     <div aria-hidden="true">
-      <main className="min-h-screen bg-gradient-to-b from-surface-secondary to-surface-primary pt-8 pb-32 px-4">
+      <main className="min-h-screen bg-gradient-to-b from-surface-secondary to-surface-primary pt-8 pb-16 px-4">
         <div className="container max-w-4xl mx-auto">
           {/* Page title "My Account" placeholder */}
           <div className="mb-6 stagger-1">

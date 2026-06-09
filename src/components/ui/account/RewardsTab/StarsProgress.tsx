@@ -59,7 +59,7 @@ export function StarsProgress({
   return (
     <section
       aria-label="Morning Star Rewards progress"
-      className="rounded-card bg-gradient-to-br from-primary/5 to-accent-orange/10 border border-primary/15 p-6"
+      className="rounded-card border border-primary/15 bg-surface-elevated bg-gradient-to-br from-primary/5 to-accent-orange/10 p-6"
     >
       <div className="flex flex-col items-center gap-4 sm:flex-row sm:gap-6">
         {/* Ring — exposed to AT as a single labeled image */}

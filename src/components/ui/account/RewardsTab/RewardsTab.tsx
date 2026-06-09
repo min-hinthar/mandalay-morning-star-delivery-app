@@ -39,7 +39,7 @@ function CelebrationBanner({ amountCents }: { amountCents: number }) {
       initial={shouldAnimate ? { opacity: 0, y: -12, scale: 0.98 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0, scale: 1 } : undefined}
       transition={{ duration: duration.slow, ease: easing.out }}
-      className="rounded-card border border-accent-orange/30 bg-gradient-to-br from-accent-orange/15 to-primary/10 p-4 text-center"
+      className="rounded-card border border-accent-orange/30 bg-surface-elevated bg-gradient-to-br from-accent-orange/15 to-primary/10 p-4 text-center"
     >
       <p className="text-base font-semibold text-text-primary">
         🎉 Kyay-Zu-Par! You unlocked {formatPrice(amountCents)} off!

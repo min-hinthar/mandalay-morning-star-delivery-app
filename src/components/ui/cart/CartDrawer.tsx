@@ -44,9 +44,11 @@ export interface CartDrawerProps {
 interface CartContentProps {
   onClose: () => void;
   showFullCartLink?: boolean;
+  /** Mobile bottom sheet → natural-flow single scroll; desktop → pinned footer. */
+  isMobile?: boolean;
 }
 
-function CartContent({ onClose, showFullCartLink }: CartContentProps) {
+function CartContent({ onClose, showFullCartLink, isMobile = false }: CartContentProps) {
   const router = useRouter();
   const { isEmpty, itemCount, removeItem, addItem } = useCart();
   const updateItemPrice = useCartStore((state) => state.updateItemPrice);
@@ -99,7 +101,7 @@ function CartContent({ onClose, showFullCartLink }: CartContentProps) {
   );
 
   return (
-    <div className="flex flex-col h-full">
+    <div className={cn("flex flex-col", !isMobile && "h-full")}>
       <CartHeader
         itemCount={itemCount}
         onClose={onClose}
@@ -123,6 +125,7 @@ function CartContent({ onClose, showFullCartLink }: CartContentProps) {
             onDismissPriceChange={handleDismissPriceChange}
             onRemoveStale={handleRemoveStale}
             onReplaceItem={handleReplaceItem}
+            scrollable={!isMobile}
           />
           <CartFooter
             onClose={onClose}
@@ -161,12 +164,12 @@ export function CartDrawer({ className }: CartDrawerProps) {
         isOpen={isOpen}
         onClose={close}
         position="bottom"
-        height="full"
+        height="auto"
         showDragHandle={true}
         title="Your Cart"
         className={cn("cart-canvas flex flex-col", className)}
       >
-        <CartContent onClose={close} />
+        <CartContent onClose={close} isMobile />
       </Drawer>
     );
   }

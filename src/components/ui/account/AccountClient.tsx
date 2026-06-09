@@ -8,12 +8,14 @@
  * URL query param ?tab=settings&section=addresses for deep-linking
  */
 
-import { useCallback, Suspense } from "react";
+import { useCallback, useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { m } from "framer-motion";
 import { User, Package, Settings, MessageSquare, Star } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils/cn";
+import { useCartStore } from "@/lib/stores/cart-store";
+import { MenuTextureBackdrop } from "@/components/ui/menu/MenuTextureBackdrop";
 import { AccountHero } from "./AccountHero";
 import { ProfileTab } from "./ProfileTab";
 import { OrdersTab } from "./OrdersTab";
@@ -40,6 +42,15 @@ function AccountClientInner() {
   const router = useRouter();
   const pathname = usePathname();
   const { shouldAnimate } = useAnimationPreference();
+
+  // The fixed CartBar (~150px incl. iOS safe-area) appears on every customer
+  // page once the cart has items. Reserve clearance only when it's actually
+  // shown — in sync with CartBar's own mount+items gate — so the page bottom
+  // stays tight (no empty gap) when the cart is empty.
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  const hasCartItems = useCartStore((s) => s.items.length > 0);
+  const padBottom = mounted && hasCartItems ? "pb-40" : "pb-16";
 
   // Read active tab from URL, validate, default to "profile"
   const tabParam = searchParams.get("tab");
@@ -72,8 +83,11 @@ function AccountClientInner() {
   );
 
   return (
-    <main className="account-canvas min-h-screen px-4 pb-32 pt-8">
-      <div className="container mx-auto max-w-4xl">
+    <main
+      className={cn("account-canvas relative min-h-screen overflow-hidden px-4 pt-8", padBottom)}
+    >
+      <MenuTextureBackdrop />
+      <div className="container relative z-10 mx-auto max-w-4xl">
         {/* Loyalty passport hero */}
         <m.div
           initial={shouldAnimate ? { opacity: 0, y: -12 } : undefined}
@@ -82,9 +96,14 @@ function AccountClientInner() {
           <AccountHero />
         </m.div>
 
-        {/* Self-contained pill rail — bg + label on one element (no measured
-            indicator), so the active label can't go dark-on-dark on the canvas. */}
-        <div role="tablist" aria-label="Account sections" className="mb-6 flex flex-wrap gap-2">
+        {/* Grouped pill tray — self-contained pills (bg + label on one element, no
+            measured indicator → no dark-on-dark) inside a solid tray that reads as one
+            segmented control instead of loose wrapping pills. */}
+        <div
+          role="tablist"
+          aria-label="Account sections"
+          className="mb-6 flex flex-wrap gap-1.5 rounded-2xl border border-border bg-surface-elevated p-1.5"
+        >
           {TABS.map((t) => {
             const active = activeTab === t.id;
             return (
@@ -129,7 +148,7 @@ export function AccountClient() {
   return (
     <Suspense
       fallback={
-        <main className="account-canvas min-h-screen px-4 pb-32 pt-8">
+        <main className="account-canvas min-h-screen px-4 pb-16 pt-8">
           <div className="container max-w-4xl mx-auto" aria-hidden="true">
             <Skeleton height={120} radius="lg" className="mb-6" />
             <div className="flex gap-2 mb-6">
