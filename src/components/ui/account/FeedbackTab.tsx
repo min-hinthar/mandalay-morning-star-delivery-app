@@ -38,7 +38,7 @@ const CATEGORY_COLORS: Record<FeedbackCategory, string> = {
   bug_report: "text-status-error",
   order_issue: "text-accent-orange",
   suggestion: "text-accent-teal",
-  general: "text-text-secondary",
+  general: "text-hero-ink-muted",
 };
 
 // ============================================
@@ -82,11 +82,11 @@ export function FeedbackTab() {
       <m.div
         initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
         animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-        className="rounded-card border border-border-subtle bg-surface-primary p-12 text-center"
+        className="hero-surface-paper rounded-card p-12 text-center"
       >
-        <MessageSquare className="mx-auto h-12 w-12 text-text-muted" />
-        <p className="mt-4 text-lg font-medium text-text-primary">No feedback submitted yet</p>
-        <p className="mt-1 text-sm text-text-secondary">
+        <MessageSquare className="mx-auto h-12 w-12 text-hero-clay" />
+        <p className="mt-4 text-lg font-medium text-hero-ink">No feedback submitted yet</p>
+        <p className="mt-1 text-sm text-hero-ink-muted">
           Have something to share? We&apos;d love to hear from you.
         </p>
         <Button onClick={() => openFeedback()} className="mt-6">
@@ -107,12 +107,12 @@ export function FeedbackTab() {
             key={item.id}
             initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
             animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-            className="rounded-card border border-border-subtle bg-surface-primary overflow-hidden"
+            className="hero-surface-paper overflow-hidden rounded-card"
           >
             <button
               type="button"
               onClick={() => setExpandedId(isExpanded ? null : item.id)}
-              className="w-full px-4 py-3 text-left hover:bg-surface-secondary/50 transition-colors"
+              className="w-full px-4 py-3 text-left transition-colors hover:bg-hero-clay/[0.06]"
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0 flex-1">
@@ -129,12 +129,12 @@ export function FeedbackTab() {
                       {STATUS_LABELS[item.status]}
                     </span>
                   </div>
-                  <p className="text-sm font-medium text-text-primary truncate">{item.subject}</p>
+                  <p className="truncate text-sm font-medium text-hero-ink">{item.subject}</p>
                   {!isExpanded && (
-                    <p className="text-xs text-text-muted mt-0.5 truncate">{item.message}</p>
+                    <p className="mt-0.5 truncate text-xs text-hero-ink-muted">{item.message}</p>
                   )}
                 </div>
-                <span className="text-xs text-text-muted whitespace-nowrap">
+                <span className="whitespace-nowrap text-xs text-hero-ink-muted">
                   {new Date(item.created_at).toLocaleDateString("en-US", {
                     month: "short",
                     day: "numeric",
@@ -144,13 +144,13 @@ export function FeedbackTab() {
             </button>
 
             {isExpanded && (
-              <div className="px-4 pb-4 border-t border-border-subtle pt-3 space-y-3">
-                <p className="text-sm text-text-primary whitespace-pre-wrap">{item.message}</p>
+              <div className="space-y-3 border-t border-hero-line/70 px-4 pb-4 pt-3">
+                <p className="whitespace-pre-wrap text-sm text-hero-ink">{item.message}</p>
 
                 {item.admin_notes && (
-                  <div className="rounded-card-sm bg-surface-secondary p-3">
-                    <p className="text-xs font-medium text-text-secondary mb-1">Admin Response</p>
-                    <p className="text-sm text-text-primary">{item.admin_notes}</p>
+                  <div className="rounded-card-sm bg-hero-ink/5 p-3">
+                    <p className="mb-1 text-xs font-medium text-hero-ink-muted">Admin Response</p>
+                    <p className="text-sm text-hero-ink">{item.admin_notes}</p>
                   </div>
                 )}
 
@@ -160,7 +160,7 @@ export function FeedbackTab() {
                     <img
                       src={item.screenshot_url}
                       alt="Feedback screenshot"
-                      className="max-h-48 rounded-card-sm border border-border-subtle object-contain"
+                      className="max-h-48 rounded-card-sm border border-hero-line object-contain"
                     />
                   </div>
                 )}

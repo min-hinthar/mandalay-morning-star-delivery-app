@@ -14,7 +14,6 @@ import {
   UtensilsCrossed,
 } from "lucide-react";
 import { m } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -227,9 +226,9 @@ export function OrdersTab() {
         className="text-center py-16"
       >
         <div className="relative w-32 h-32 mx-auto mb-6">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-curry/20 to-primary/10" />
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-hero-clay/20 to-primary/10" />
           <div className="absolute inset-0 flex items-center justify-center">
-            <ShoppingBag className="h-12 w-12 text-curry" />
+            <ShoppingBag className="h-12 w-12 text-hero-clay" />
           </div>
           <div className="absolute -top-2 -right-2 bg-surface-primary rounded-full p-2 shadow-card">
             <UtensilsCrossed className="h-5 w-5 text-primary" />
@@ -262,51 +261,51 @@ export function OrdersTab() {
             animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
             transition={{ delay: index * 0.05 }}
           >
-            <Card className="shadow-card hover:shadow-card-hover transition-shadow">
-              <CardContent className="p-4">
+            <div className="hero-surface-paper relative overflow-hidden rounded-card">
+              <div className="relative p-4">
                 <div className="flex items-start justify-between gap-4">
                   <Link
                     href={`/orders/${order.id}`}
-                    className="flex items-start gap-4 flex-1 min-w-0 group"
+                    className="group flex min-w-0 flex-1 items-start gap-4"
                   >
-                    <div className="rounded-full bg-curry/10 p-2 flex-shrink-0">
-                      <Package className="h-5 w-5 text-curry" />
+                    <div className="flex-shrink-0 rounded-full bg-hero-clay/12 p-2">
+                      <Package className="h-5 w-5 text-hero-clay" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-text-primary group-hover:text-primary transition-colors">
+                      <p className="font-medium text-hero-ink transition-colors group-hover:text-hero-accent">
                         Order #{order.id.slice(0, 8).toUpperCase()}
                       </p>
-                      <p className="text-sm text-text-secondary">
+                      <p className="text-sm text-hero-ink-muted">
                         {order.itemCount} item{order.itemCount !== 1 ? "s" : ""} &middot;{" "}
                         {format(parseISO(order.placedAt), "MMM d, yyyy")}
                       </p>
                       {order.deliveryWindowStart && (
-                        <p className="text-sm text-text-secondary">
+                        <p className="text-sm text-hero-ink-muted">
                           Delivery: {format(parseISO(order.deliveryWindowStart), "EEEE, MMM d")}
                         </p>
                       )}
                     </div>
-                    <ChevronRight className="h-5 w-5 text-text-muted flex-shrink-0 group-hover:text-primary transition-colors" />
+                    <ChevronRight className="h-5 w-5 flex-shrink-0 text-hero-ink-muted transition-colors group-hover:text-hero-accent" />
                   </Link>
-                  <div className="text-right flex-shrink-0">
-                    <p className="font-medium text-text-primary">{formatPrice(order.totalCents)}</p>
+                  <div className="flex-shrink-0 text-right">
+                    <p className="font-medium text-hero-ink">{formatPrice(order.totalCents)}</p>
                     <Badge className={STATUS_COLORS[order.status]}>
                       {STATUS_LABELS[order.status]}
                     </Badge>
                     {order.refundStatus !== "none" && (
-                      <Badge className="bg-red-50 text-red-700 border-red-200 text-xs mt-1">
+                      <Badge className="mt-1 border-red-200 bg-red-50 text-xs text-red-700">
                         {order.refundStatus === "partial" ? "Partial Refund" : "Refunded"}
                       </Badge>
                     )}
                     {order.status === "pending" && (
-                      <p className="text-xs text-amber-600 flex items-center justify-end gap-1 mt-1">
+                      <p className="mt-1 flex items-center justify-end gap-1 text-xs text-amber-600">
                         <AlertCircle className="h-3 w-3" />
                         Action required
                       </p>
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2 mt-4 pt-4 border-t border-border">
+                <div className="mt-4 flex gap-2 border-t border-hero-line pt-4">
                   <Button
                     variant="outline"
                     size="sm"
@@ -338,8 +337,8 @@ export function OrdersTab() {
                     </Button>
                   )}
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
           </m.div>
         ))}
       </div>
