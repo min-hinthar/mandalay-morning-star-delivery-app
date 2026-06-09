@@ -21,6 +21,13 @@ const MAX_DISMISSALS = 3;
 const SESSION_KEY_DISMISS_COUNT = "mms-sw-dismiss-count";
 const SESSION_KEY_UPDATED = "mms-sw-updated";
 const DEFERRED_PATHS = ["/cart", "/checkout"];
+/* Browsers only re-fetch sw.js on hard navigations (or ~daily) — a long-lived
+   tab / installed PWA never learns a deploy happened. A heartbeat + visibility/
+   online re-checks close that gap. */
+const UPDATE_CHECK_INTERVAL_MS = 10 * 60_000;
+/* If SKIP_WAITING → controllerchange never lands (stalled activation), reload
+   anyway — the document fetch picks up the new build regardless. */
+const RELOAD_FAILSAFE_MS = 4000;
 
 // ============================================
 // TYPES
@@ -120,55 +127,109 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
   // ------------------------------------------
   // Detect waiting service worker
   // ------------------------------------------
+  // Latest opener in a ref so the SW effect mounts ONCE. (It used to depend on
+  // showUpdateBanner — re-running on every navigation and stacking a fresh
+  // `updatefound` listener each time.)
+  const showUpdateBannerRef = useRef(showUpdateBanner);
+  useEffect(() => {
+    showUpdateBannerRef.current = showUpdateBanner;
+  }, [showUpdateBanner]);
+
   useEffect(() => {
     if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
       return;
     }
 
-    const handleStateChange = (worker: ServiceWorker) => {
-      if (worker.state === "installed") {
-        waitingWorkerRef.current = worker;
-        showUpdateBanner();
-      }
+    let registration: ServiceWorkerRegistration | null = null;
+    let disposed = false;
+
+    const adoptWaiting = (worker: ServiceWorker | null) => {
+      if (!worker || disposed) return;
+      waitingWorkerRef.current = worker;
+      showUpdateBannerRef.current();
     };
 
-    const checkForUpdates = async () => {
-      try {
-        const registration = await navigator.serviceWorker.getRegistration();
-        if (!registration) return;
-
-        // Already waiting
-        if (registration.waiting) {
-          waitingWorkerRef.current = registration.waiting;
-          showUpdateBanner();
+    const handleUpdateFound = () => {
+      const newWorker = registration?.installing;
+      if (!newWorker) return;
+      newWorker.addEventListener("statechange", () => {
+        // "installed" + an existing controller = a NEW version waiting. With no
+        // controller it's the very first install — never prompt for that.
+        if (newWorker.state === "installed" && navigator.serviceWorker.controller) {
+          adoptWaiting(newWorker);
         }
+      });
+    };
 
-        // Listen for new workers
-        registration.addEventListener("updatefound", () => {
-          const newWorker = registration.installing;
-          if (newWorker) {
-            newWorker.addEventListener("statechange", () => {
-              handleStateChange(newWorker);
-            });
-          }
-        });
+    /** Adopt the registration WHENEVER it first appears (on a first visit the
+        async SW registration often completes after this hook mounts) — attach
+        the updatefound listener exactly once + surface any waiting worker. */
+    const adoptRegistration = (reg: ServiceWorkerRegistration) => {
+      if (registration || disposed) return;
+      registration = reg;
+      registration.addEventListener("updatefound", handleUpdateFound);
+      if (registration.waiting) adoptWaiting(registration.waiting);
+    };
+
+    /** Ask the browser to re-check sw.js NOW, then adopt any waiting worker. */
+    const checkNow = async () => {
+      try {
+        if (!registration) {
+          const reg = await navigator.serviceWorker.getRegistration();
+          if (reg) adoptRegistration(reg);
+        }
+        if (!registration || disposed) return;
+        // update() rejects on a network blip — fine, next heartbeat retries.
+        await registration.update().catch(() => {});
+        if (registration.waiting) adoptWaiting(registration.waiting);
       } catch (error) {
         logger.error("[useUpdateBanner] Error checking for updates", { error: String(error) });
       }
     };
 
-    checkForUpdates();
+    const init = async () => {
+      try {
+        const reg = await navigator.serviceWorker.getRegistration();
+        if (reg) adoptRegistration(reg);
+      } catch (error) {
+        logger.error("[useUpdateBanner] Error attaching to registration", {
+          error: String(error),
+        });
+      }
+    };
 
-    // Listen for controllerchange -> reload
+    void init();
+
+    // Re-check when the app becomes relevant again + on a heartbeat.
+    const handleWake = () => {
+      if (document.visibilityState === "visible") void checkNow();
+    };
+    const interval = setInterval(() => void checkNow(), UPDATE_CHECK_INTERVAL_MS);
+    document.addEventListener("visibilitychange", handleWake);
+    window.addEventListener("online", handleWake);
+
+    // controllerchange → the new SW took over → reload into the new build.
+    // Guard the FIRST install: clientsClaim fires this for brand-new visitors,
+    // and reloading them mid-browse races their in-flight chunk loads.
+    let hadController = Boolean(navigator.serviceWorker.controller);
     const handleControllerChange = () => {
+      if (!hadController) {
+        hadController = true;
+        return;
+      }
       window.location.reload();
     };
     navigator.serviceWorker.addEventListener("controllerchange", handleControllerChange);
 
     return () => {
+      disposed = true;
+      clearInterval(interval);
+      document.removeEventListener("visibilitychange", handleWake);
+      window.removeEventListener("online", handleWake);
+      registration?.removeEventListener("updatefound", handleUpdateFound);
       navigator.serviceWorker.removeEventListener("controllerchange", handleControllerChange);
     };
-  }, [showUpdateBanner]);
+  }, []);
 
   // ------------------------------------------
   // Page deferral: re-show when leaving deferred path
@@ -195,6 +256,25 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
   }, [pathname, showBanner, showUpdateBanner]);
 
   // ------------------------------------------
+  // Apply the update (shared by countdown + button)
+  // ------------------------------------------
+  const updateFiredRef = useRef(false);
+  const requestUpdate = useCallback(() => {
+    // One-shot: the countdown effect can re-run at 0 (pause/unpause cycles) —
+    // a second SKIP_WAITING is a no-op but don't stack fail-safe reloads.
+    if (updateFiredRef.current) return;
+    updateFiredRef.current = true;
+    try {
+      sessionStorage.setItem(SESSION_KEY_UPDATED, "true");
+    } catch {
+      /* storage blocked — only the post-update toast is lost */
+    }
+    waitingWorkerRef.current?.postMessage({ type: "SKIP_WAITING" });
+    // Fail-safe: if controllerchange never reloads us, reload anyway.
+    window.setTimeout(() => window.location.reload(), RELOAD_FAILSAFE_MS);
+  }, []);
+
+  // ------------------------------------------
   // Countdown timer
   // ------------------------------------------
   useEffect(() => {
@@ -202,10 +282,7 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
 
     if (countdown <= 0) {
       // Countdown complete - trigger update
-      if (waitingWorkerRef.current) {
-        sessionStorage.setItem(SESSION_KEY_UPDATED, "true");
-        waitingWorkerRef.current.postMessage({ type: "SKIP_WAITING" });
-      }
+      requestUpdate();
       return;
     }
 
@@ -214,7 +291,7 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
     }, 1000);
 
     return () => clearTimeout(timer);
-  }, [showBanner, countdown, isPaused]);
+  }, [showBanner, countdown, isPaused, requestUpdate]);
 
   // ------------------------------------------
   // Interaction pause (scroll, keydown, touchstart, mousedown)
@@ -269,12 +346,11 @@ export function useUpdateBanner(): UseUpdateBannerReturn {
   const [isUpdating, setIsUpdating] = useState(false);
 
   const handleUpdateNow = useCallback(() => {
-    if (waitingWorkerRef.current && !isUpdating) {
+    if (!isUpdating) {
       setIsUpdating(true);
-      sessionStorage.setItem(SESSION_KEY_UPDATED, "true");
-      waitingWorkerRef.current.postMessage({ type: "SKIP_WAITING" });
+      requestUpdate();
     }
-  }, [isUpdating]);
+  }, [isUpdating, requestUpdate]);
 
   return {
     showBanner,
