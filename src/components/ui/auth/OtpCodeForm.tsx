@@ -91,10 +91,10 @@ export function OtpCodeForm({ email, redirectTo }: OtpCodeFormProps) {
           aria-invalid={Boolean(error)}
           className={cn(
             "h-14 w-full rounded-2xl border text-center text-2xl font-semibold tabular-nums",
-            "bg-surface-secondary/50 text-text-primary tracking-[0.5em] indent-[0.5em]",
+            "bg-hero-card text-hero-ink tracking-[0.5em] indent-[0.5em]",
             "transition-all duration-200",
-            "focus:border-primary focus:bg-surface-primary focus-visible:ring-2 focus-visible:ring-primary/20 focus:outline-none",
-            error ? "border-status-error" : "border-border",
+            "focus:border-hero-clay focus-visible:ring-2 focus-visible:ring-hero-clay/30 focus:outline-none",
+            error ? "border-status-error" : "border-hero-line",
             isSuccess && "border-green bg-green/5"
           )}
         />
