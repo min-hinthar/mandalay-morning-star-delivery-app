@@ -1,6 +1,7 @@
 "use client";
 
 import { m, AnimatePresence } from "framer-motion";
+import { cn } from "@/lib/utils/cn";
 import { staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
@@ -20,6 +21,13 @@ interface CartItemsListProps {
   onDismissPriceChange: (cartItemId: string, newPriceCents: number) => void;
   onRemoveStale: (cartItemId: string) => void;
   onReplaceItem: (cartItemId: string, suggestion: MenuItem, originalQuantity: number) => void;
+  /**
+   * When true (desktop right-drawer with a definite full height), the list owns
+   * its own scroll region and the footer pins below it. When false (mobile
+   * bottom sheet), the list flows naturally and the sheet wrapper scrolls the
+   * whole column — pinning a tall footer here would crush the items to a sliver.
+   */
+  scrollable?: boolean;
 }
 
 export function CartItemsList({
@@ -28,6 +36,7 @@ export function CartItemsList({
   onDismissPriceChange,
   onRemoveStale,
   onReplaceItem,
+  scrollable = true,
 }: CartItemsListProps) {
   const { shouldAnimate } = useAnimationPreference();
   const { items, isEmpty } = useCart();
@@ -42,7 +51,7 @@ export function CartItemsList({
       variants={shouldAnimate ? staggerContainer(0.08, 0.1) : undefined}
       initial={shouldAnimate ? "hidden" : undefined}
       animate={shouldAnimate ? "visible" : undefined}
-      className="flex-1 overflow-y-auto px-4 py-4"
+      className={cn("px-4 py-4", scrollable && "min-h-0 flex-1 overflow-y-auto")}
     >
       <AnimatePresence>
         {isValidating && (

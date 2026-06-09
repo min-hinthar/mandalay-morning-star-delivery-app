@@ -1175,9 +1175,11 @@
   }
   .dark .account-canvas {
     background:
-      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.2), transparent 58%),
-      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.14), transparent 60%),
-      linear-gradient(180deg, #2c1e1a 0%, #1c1115 100%);
+      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.22), transparent 58%),
+      radial-gradient(70% 50% at -6% 24%, rgba(96, 165, 250, 0.12), transparent 62%),
+      radial-gradient(64% 46% at 106% 52%, rgba(110, 168, 137, 0.1), transparent 60%),
+      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.16), transparent 60%),
+      linear-gradient(180deg, #30211c 0%, #241620 46%, #1c1115 100%);
   }
 
   /* ============================================
