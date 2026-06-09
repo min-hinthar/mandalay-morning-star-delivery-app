@@ -13,7 +13,8 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { m } from "framer-motion";
 import { User, Package, Settings, MessageSquare, Star } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs } from "@/components/ui/Tabs";
+import { cn } from "@/lib/utils/cn";
+import { AccountHero } from "./AccountHero";
 import { ProfileTab } from "./ProfileTab";
 import { OrdersTab } from "./OrdersTab";
 import { SettingsTab } from "./SettingsTab";
@@ -71,20 +72,44 @@ function AccountClientInner() {
   );
 
   return (
-    <main className="min-h-screen bg-gradient-to-b from-surface-secondary to-surface-primary pt-8 pb-32 px-4">
-      <div className="container max-w-4xl mx-auto">
-        <m.h1
-          initial={shouldAnimate ? { opacity: 0, y: -20 } : undefined}
+    <main className="account-canvas min-h-screen px-4 pb-32 pt-8">
+      <div className="container mx-auto max-w-4xl">
+        {/* Loyalty passport hero */}
+        <m.div
+          initial={shouldAnimate ? { opacity: 0, y: -12 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-          className="text-3xl font-display font-bold text-text-primary mb-6"
         >
-          My Account
-        </m.h1>
+          <AccountHero />
+        </m.div>
 
-        <Tabs tabs={TABS} activeTab={activeTab} onTabChange={handleTabChange} className="mb-6" />
+        {/* Self-contained pill rail — bg + label on one element (no measured
+            indicator), so the active label can't go dark-on-dark on the canvas. */}
+        <div role="tablist" aria-label="Account sections" className="mb-6 flex flex-wrap gap-2">
+          {TABS.map((t) => {
+            const active = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                role="tab"
+                aria-selected={active}
+                onClick={() => handleTabChange(t.id)}
+                className={cn(
+                  "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold",
+                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                  active ? "menu-tab-active" : "menu-tab-ghost"
+                )}
+              >
+                {t.icon}
+                {t.label}
+              </button>
+            );
+          })}
+        </div>
 
         <m.div
           key={activeTab}
+          role="tabpanel"
           initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={{ duration: 0.2 }}
@@ -104,9 +129,9 @@ export function AccountClient() {
   return (
     <Suspense
       fallback={
-        <main className="min-h-screen bg-gradient-to-b from-surface-secondary to-surface-primary pt-8 pb-32 px-4">
+        <main className="account-canvas min-h-screen px-4 pb-32 pt-8">
           <div className="container max-w-4xl mx-auto" aria-hidden="true">
-            <Skeleton height={28} width="50%" radius="sm" className="mb-6" />
+            <Skeleton height={120} radius="lg" className="mb-6" />
             <div className="flex gap-2 mb-6">
               {Array.from({ length: 4 }).map((_, i) => (
                 <Skeleton key={i} height={36} width={80} radius="lg" />

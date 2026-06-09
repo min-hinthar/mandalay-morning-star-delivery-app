@@ -13,7 +13,6 @@ import {
   Navigation,
 } from "lucide-react";
 import { m } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -256,12 +255,12 @@ export function AddressesTab() {
       {addresses.length === 0 ? (
         <div className="text-center py-12">
           <div className="relative w-32 h-32 mx-auto mb-6">
-            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-curry/10" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/20 to-hero-clay/10" />
             <div className="absolute inset-0 flex items-center justify-center">
               <MapPin className="h-12 w-12 text-primary" />
             </div>
             <div className="absolute -top-2 -right-2 bg-surface-primary rounded-full p-2 shadow-card">
-              <Navigation className="h-5 w-5 text-curry" />
+              <Navigation className="h-5 w-5 text-hero-clay" />
             </div>
             <div className="absolute -bottom-1 -left-1 bg-surface-primary rounded-full p-1.5 shadow-card">
               <Home className="h-4 w-4 text-text-muted" />
@@ -287,30 +286,30 @@ export function AddressesTab() {
               animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
               transition={{ delay: index * 0.05 }}
             >
-              <Card className="shadow-card">
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start">
+              <div className="hero-surface-paper relative overflow-hidden rounded-card">
+                <div className="relative p-4">
+                  <div className="flex items-start justify-between">
                     <div className="flex items-start gap-3">
-                      <div className="rounded-full bg-primary/10 p-2 flex-shrink-0 mt-1">
-                        <Home className="h-4 w-4 text-primary" />
+                      <div className="mt-1 flex-shrink-0 rounded-full bg-hero-clay/12 p-2">
+                        <Home className="h-4 w-4 text-hero-clay" />
                       </div>
                       <div>
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-medium text-text-primary">
+                        <div className="mb-1 flex items-center gap-2">
+                          <span className="font-medium text-hero-ink">
                             {address.label || "Address"}
                           </span>
                           {address.isDefault && (
                             <Badge variant="secondary" size="sm">
-                              <Star className="h-3 w-3 mr-1 fill-current" />
+                              <Star className="mr-1 h-3 w-3 fill-current" />
                               Default
                             </Badge>
                           )}
                         </div>
-                        <p className="text-sm text-text-secondary">{address.line1}</p>
+                        <p className="text-sm text-hero-ink-muted">{address.line1}</p>
                         {address.line2 && (
-                          <p className="text-sm text-text-secondary">{address.line2}</p>
+                          <p className="text-sm text-hero-ink-muted">{address.line2}</p>
                         )}
-                        <p className="text-sm text-text-secondary">
+                        <p className="text-sm text-hero-ink-muted">
                           {address.city}, {address.state} {address.postalCode}
                         </p>
                       </div>
@@ -348,8 +347,8 @@ export function AddressesTab() {
                       </Button>
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </div>
+              </div>
             </m.div>
           ))}
         </div>
