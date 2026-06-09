@@ -12,6 +12,7 @@ import { PriceTicker } from "@/components/ui/PriceTicker";
 import { QuantitySelector } from "../QuantitySelector";
 import type { CartItem as CartItemType, CartItemValidationStatus } from "@/types/cart";
 import { triggerHaptic, getFallbackEmoji } from "./helpers";
+import { TapBurst, useTapBurst } from "@/components/ui/TapBurst";
 import { SwipeDeleteIndicator } from "./SwipeDeleteIndicator";
 import { ValidationOverlay } from "./ValidationOverlay";
 import { PriceChangeBadge } from "./PriceChangeBadge";
@@ -58,6 +59,7 @@ export const CartItem = memo(function CartItem({
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { updateQuantity, removeItem, getItemTotal } = useCart();
   const containerRef = useRef<HTMLDivElement>(null);
+  const { fireKey: burstKey, fire: fireBurst } = useTapBurst();
 
   const isStale = validationStatus === "sold-out" || validationStatus === "unavailable";
   const hasPriceChange = validationStatus === "price-changed";
@@ -121,8 +123,11 @@ export const CartItem = memo(function CartItem({
   );
 
   const handleIncrement = useCallback(() => {
+    // Kit micro-celebration: light haptic + triad tap-burst on "one more"
+    triggerHaptic("light");
+    fireBurst();
     updateQuantity(item.cartItemId, item.quantity + 1);
-  }, [item.cartItemId, item.quantity, updateQuantity]);
+  }, [item.cartItemId, item.quantity, updateQuantity, fireBurst]);
 
   const handleDecrement = useCallback(() => {
     if (item.quantity === 1) {
@@ -303,13 +308,16 @@ export const CartItem = memo(function CartItem({
 
             <div className="mt-2 flex items-center justify-between">
               {!isStale && (
-                <QuantitySelector
-                  quantity={item.quantity}
-                  onIncrement={handleIncrement}
-                  onDecrement={handleDecrement}
-                  min={0}
-                  size={compact ? "sm" : "md"}
-                />
+                <span className="relative inline-flex">
+                  <QuantitySelector
+                    quantity={item.quantity}
+                    onIncrement={handleIncrement}
+                    onDecrement={handleDecrement}
+                    min={0}
+                    size={compact ? "sm" : "md"}
+                  />
+                  <TapBurst fireKey={burstKey} />
+                </span>
               )}
               <m.div className={cn("text-right", isStale && "ml-auto")}>
                 <PriceTicker

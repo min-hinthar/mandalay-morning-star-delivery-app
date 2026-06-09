@@ -123,7 +123,7 @@ export function FreeDeliveryProgress({
             </span>
           </div>
 
-          {/* The journey track — fill + a Morning Star marker riding the frontier */}
+          {/* The journey track — fill + a Morning Star convoy riding the frontier */}
           <div className="relative px-1.5">
             <div className="relative h-2.5 overflow-hidden rounded-full bg-hero-ink/10">
               <m.div
@@ -132,6 +132,23 @@ export function FreeDeliveryProgress({
                 animate={{ width: `${progressPercent}%` }}
                 transition={getSpring(spring.rubbery)}
               />
+              {/* Comet trail — a warm gradient streak chasing the fill frontier
+                  (clipped by the track; pure gradient, no blur) */}
+              {shouldAnimate && progressPercent > 8 && (
+                <m.div
+                  aria-hidden="true"
+                  className="absolute top-0 h-full"
+                  initial={{ left: "0%", width: "0%" }}
+                  animate={{
+                    left: `${Math.max(0, progressPercent - 18)}%`,
+                    width: `${Math.min(18, progressPercent)}%`,
+                  }}
+                  transition={getSpring(spring.rubbery)}
+                  style={{
+                    background: "linear-gradient(to right, transparent, rgba(251,191,36,0.55))",
+                  }}
+                />
+              )}
             </div>
 
             {/* Goal star at the finish — lights up as you approach */}
@@ -160,7 +177,42 @@ export function FreeDeliveryProgress({
               />
             </m.div>
 
-            {/* Morning Star marker — rides the fill frontier with a gentle bob */}
+            {/* Convoy — two smaller stars trailing the lead marker, phase-shifted
+                bobs (renders only once there's road behind the convoy) */}
+            {shouldAnimate &&
+              progressPercent >= 14 &&
+              [
+                { back: 8, size: "h-4 w-4", star: "h-2 w-2", opacity: 0.85, delay: 0.25 },
+                { back: 15, size: "h-3 w-3", star: "h-1.5 w-1.5", opacity: 0.6, delay: 0.5 },
+              ].map((c) => (
+                <m.div
+                  key={c.back}
+                  aria-hidden="true"
+                  className="absolute top-1/2"
+                  initial={{ left: "0%" }}
+                  animate={{ left: `${Math.max(2, progressPercent - c.back)}%` }}
+                  transition={getSpring(spring.rubbery)}
+                  style={{ translateX: "-50%", translateY: "-50%", opacity: c.opacity }}
+                >
+                  <m.div
+                    className={cn(
+                      "flex items-center justify-center rounded-full border border-amber-400/70 bg-hero-clay/80",
+                      c.size
+                    )}
+                    animate={loop ? { y: [0, -2, 0] } : undefined}
+                    transition={{
+                      duration: 1.6,
+                      repeat: Infinity,
+                      ease: "easeInOut",
+                      delay: c.delay,
+                    }}
+                  >
+                    <Star className={cn("fill-amber-300 text-amber-200", c.star)} />
+                  </m.div>
+                </m.div>
+              ))}
+
+            {/* Morning Star marker — leads the convoy with a gentle bob */}
             <m.div
               aria-hidden="true"
               className="absolute top-1/2"

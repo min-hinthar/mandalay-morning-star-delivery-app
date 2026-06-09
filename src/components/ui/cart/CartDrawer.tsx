@@ -22,6 +22,8 @@ import { useCartValidation } from "@/lib/hooks/useCartValidation";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { Drawer } from "@/components/ui/Drawer";
+import { AfterDarkAmbient } from "@/components/ui/AfterDarkAmbient";
+import { AfterDarkSpotlight } from "@/components/ui/AfterDarkSpotlight";
 import { CartEmptyState } from "./CartEmptyState";
 import { ClearCartConfirmation, useClearCartConfirmation } from "./ClearCartConfirmation";
 import { CartHeader, CartItemsList, CartFooter } from "./CartDrawerParts";
@@ -101,7 +103,12 @@ function CartContent({ onClose, showFullCartLink, isMobile = false }: CartConten
   );
 
   return (
-    <div className={cn("flex flex-col", !isMobile && "h-full")}>
+    <div className={cn("relative isolate flex flex-col", !isMobile && "h-full")}>
+      {/* Kit living texture + desktop cursor spotlight — -z-10 inside the
+          isolated context so they paint under ALL content (incl. positioned
+          children) without touching the child components */}
+      <AfterDarkAmbient className="-z-10" />
+      {!isMobile && <AfterDarkSpotlight className="-z-10" />}
       <CartHeader
         itemCount={itemCount}
         onClose={onClose}
@@ -167,7 +174,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
         height="auto"
         showDragHandle={true}
         title="Your Cart"
-        className={cn("cart-canvas flex flex-col", className)}
+        className={cn("after-dark-canvas flex flex-col", className)}
       >
         <CartContent onClose={close} isMobile />
       </Drawer>
@@ -181,7 +188,7 @@ export function CartDrawer({ className }: CartDrawerProps) {
       position="right"
       width="lg"
       title="Your Cart"
-      className={cn("cart-canvas flex flex-col sm:backdrop-blur-none", className)}
+      className={cn("after-dark-canvas flex flex-col sm:backdrop-blur-none", className)}
     >
       <CartContent onClose={close} showFullCartLink />
     </Drawer>
