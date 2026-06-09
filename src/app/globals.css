@@ -1138,7 +1138,8 @@
      is GPU-cheap, unlike filter blur). Mirrors the checkout canvas treatment so
      cart → checkout reads as one world. */
   .dark .cart-canvas .hero-surface-paper,
-  .dark .orders-canvas .hero-surface-paper {
+  .dark .orders-canvas .hero-surface-paper,
+  .dark .account-canvas .hero-surface-paper {
     box-shadow:
       inset 0 1px 0 rgba(255, 255, 255, 0.65),
       0 1px 2px rgba(0, 0, 0, 0.45),
@@ -1159,6 +1160,20 @@
       linear-gradient(180deg, #f1ebdf 0%, #e8dfcd 100%);
   }
   .dark .orders-canvas.orders-canvas {
+    background:
+      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.2), transparent 58%),
+      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.14), transparent 60%),
+      linear-gradient(180deg, #2c1e1a 0%, #1c1115 100%);
+  }
+
+  /* Account "After Dark" warm canvas (same palette as cart/orders/checkout — the
+     account `<main>` has no Drawer bg to override, so a single class suffices). */
+  .account-canvas {
+    background:
+      radial-gradient(120% 58% at 50% -8%, rgba(217, 119, 87, 0.16), transparent 58%),
+      linear-gradient(180deg, #f1ebdf 0%, #e8dfcd 100%);
+  }
+  .dark .account-canvas {
     background:
       radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.2), transparent 58%),
       radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.14), transparent 60%),

@@ -8,10 +8,18 @@ _Last reconciled: 2026-06-08._
 
 ## In flight
 
-_None._
+- **Account "After Dark"** (surface #4; branch `claude/account-after-dark`). Chosen
+  direction: a **loyalty passport** hero. **Increment 1 (shell) pushed first:** a warm
+  `.account-canvas`, the **`AccountHero` passport** (bilingual greeting + tier crest in
+  constant hero-jewel tokens + rolling-digit Stars + reward-cycle progress + tier-climb
+  - member-since, on real `useRewards`/profile data), and a **self-contained pill tab
+    rail** replacing the generic `Tabs` (removes the measured-indicator dark-on-dark
+    risk). Tab-BODY reskins (Profile / Orders list / Addresses / Settings / Feedback +
+    Rewards cohesion) are the next commits on this branch. Theme-safe; local verify green
+    (typecheck · eslint · lint:css · 1180 tests · build).
 
-> **Next up:** account (surface #4) → auth (surface #5), per the customer-surfaces
-> sequence. See [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
+> **Next up after account:** auth (surface #5), per the customer-surfaces sequence.
+> See [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
 
 ## Watching
 
