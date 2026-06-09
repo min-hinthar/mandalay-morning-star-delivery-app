@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/lib/hooks/useToastV8";
 import { AuthBackground } from "@/components/ui/auth";
+import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 
 function ExpiredContent() {
   const searchParams = useSearchParams();
@@ -74,19 +75,20 @@ function ExpiredContent() {
 
   return (
     <AuthBackground>
-      <div className="w-full sm:max-w-md bg-surface-primary sm:bg-surface-primary/70 sm:backdrop-blur-xl rounded-t-3xl sm:rounded-3xl shadow-2xl ring-1 ring-white/30 dark:ring-white/10">
-        <div className="h-1.5 bg-gradient-to-r from-status-error via-primary to-status-error rounded-t-3xl" />
-        <div className="p-7 sm:p-9 text-center space-y-6">
+      <div className="hero-surface-paper relative w-full overflow-hidden rounded-t-3xl shadow-[0_2px_10px_-4px_rgba(20,20,19,0.18),0_24px_60px_-28px_rgba(20,20,19,0.4)] sm:max-w-md sm:rounded-3xl">
+        <HeroCardLayers accent="clay" radius="rounded-3xl" />
+        <div className="relative h-1.5 rounded-t-3xl bg-gradient-to-r from-status-error via-primary to-status-error" />
+        <div className="relative space-y-6 p-7 text-center sm:p-9">
           {/* Error icon */}
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-status-error/10 to-status-error/5 border border-status-error/15 text-status-error">
+          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full border border-status-error/15 bg-status-error/10 text-status-error">
             <AlertCircle className="h-8 w-8" />
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-2xl font-display font-bold text-text-primary">
+            <h1 className="font-display text-2xl font-bold text-hero-ink">
               {isDriverInvite ? "Driver invite link expired" : "Link expired"}
             </h1>
-            <p className="text-sm text-muted-foreground leading-relaxed">
+            <p className="text-sm leading-relaxed text-hero-ink-muted">
               {isDriverInvite ? (
                 "Your driver invite link has expired. Tap below to receive a new one."
               ) : (
@@ -108,7 +110,7 @@ function ExpiredContent() {
                 value={email}
                 onChange={(event) => setEmail(event.target.value)}
                 error={error ?? undefined}
-                className="rounded-2xl h-12"
+                className="h-12 rounded-2xl border-hero-line bg-hero-card text-hero-ink"
               />
             )}
             {error && isDriverInvite && <p className="text-sm text-status-error">{error}</p>}

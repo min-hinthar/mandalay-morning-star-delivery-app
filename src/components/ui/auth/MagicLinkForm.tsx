@@ -9,6 +9,7 @@ import { m } from "framer-motion";
 import { Mail } from "lucide-react";
 import { signInWithMagicLink } from "@/lib/supabase/actions";
 import { Button } from "@/components/ui/button";
+import { MagneticButton } from "@/components/ui/MagneticButton";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
 
@@ -90,9 +91,9 @@ export function MagicLinkForm({ onSuccess, redirectTo }: MagicLinkFormProps) {
         transition={{ duration: 0.4 }}
         className="space-y-1.5"
       >
-        <div className="relative group">
+        <div className="group relative">
           {/* Icon */}
-          <div className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors duration-200 z-10 pointer-events-none">
+          <div className="pointer-events-none absolute left-4 top-1/2 z-10 -translate-y-1/2 text-hero-ink-muted transition-colors duration-200 group-focus-within:text-hero-clay">
             <Mail className="h-4.5 w-4.5" />
           </div>
 
@@ -102,10 +103,9 @@ export function MagicLinkForm({ onSuccess, redirectTo }: MagicLinkFormProps) {
             placeholder=" "
             autoComplete="email"
             className={cn(
-              "peer w-full rounded-2xl border border-border bg-surface-secondary/50 pl-11 pr-4 pt-6 pb-2 text-base text-text-primary",
+              "peer w-full rounded-2xl border border-hero-line bg-hero-card pb-2 pl-11 pr-4 pt-6 text-base text-hero-ink",
               "transition-all duration-200",
-              "focus:border-primary focus:bg-surface-primary focus-visible:ring-2 focus-visible:ring-primary/20 focus:shadow-[0_0_0_4px_rgba(164,16,52,0.08)] focus:outline-none",
-              "dark:focus:shadow-[0_0_0_4px_rgba(255,107,107,0.08)]",
+              "focus:border-hero-clay focus:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/30",
               errorMessage && "border-status-error ring-2 ring-status-error/20"
             )}
             aria-invalid={Boolean(errorMessage)}
@@ -115,9 +115,9 @@ export function MagicLinkForm({ onSuccess, redirectTo }: MagicLinkFormProps) {
           <label
             htmlFor="email"
             className={cn(
-              "absolute left-11 top-1/2 -translate-y-1/2 text-sm text-muted-foreground",
-              "transition-all duration-200 pointer-events-none",
-              "peer-focus:top-3 peer-focus:text-xs peer-focus:text-primary peer-focus:font-medium",
+              "absolute left-11 top-1/2 -translate-y-1/2 text-sm text-hero-ink-muted",
+              "pointer-events-none transition-all duration-200",
+              "peer-focus:top-3 peer-focus:text-xs peer-focus:font-medium peer-focus:text-hero-clay",
               "peer-[:not(:placeholder-shown)]:top-3 peer-[:not(:placeholder-shown)]:text-xs"
             )}
           >
@@ -125,36 +125,38 @@ export function MagicLinkForm({ onSuccess, redirectTo }: MagicLinkFormProps) {
           </label>
         </div>
         {errorMessage && (
-          <p id="email-error" className="text-status-error text-sm pl-1">
+          <p id="email-error" className="pl-1 text-sm text-status-error">
             {errorMessage}
           </p>
         )}
       </m.div>
 
-      <Button
-        type="submit"
-        className="relative w-full overflow-hidden h-12 text-base font-semibold rounded-2xl shadow-[0_2px_8px_-2px_rgba(164,16,52,0.3)] hover:shadow-[0_4px_16px_-4px_rgba(164,16,52,0.4)] transition-shadow"
-        disabled={isPending}
-      >
-        {buttonProgress}
-        <span className="relative z-10">{buttonLabel}</span>
-      </Button>
+      <MagneticButton className="w-full" radiusClass="rounded-2xl">
+        <Button
+          type="submit"
+          className="relative h-12 w-full overflow-hidden rounded-2xl text-base font-semibold shadow-elevated"
+          disabled={isPending}
+        >
+          {buttonProgress}
+          <span className="relative z-10">{buttonLabel}</span>
+        </Button>
+      </MagneticButton>
 
       {/* Trust signal */}
-      <p className="text-center text-sm text-muted-foreground">Trusted by local families</p>
+      <p className="text-center text-sm text-hero-ink-muted">Trusted by local families</p>
 
-      <p className="text-center text-xs text-muted-foreground leading-relaxed">
+      <p className="text-center text-xs leading-relaxed text-hero-ink-muted">
         By continuing, you agree to our{" "}
         <Link
           href="/terms"
-          className="underline underline-offset-2 hover:text-text-primary transition-colors"
+          className="underline underline-offset-2 transition-colors hover:text-hero-ink"
         >
           Terms
         </Link>{" "}
         and{" "}
         <Link
           href="/privacy"
-          className="underline underline-offset-2 hover:text-text-primary transition-colors"
+          className="underline underline-offset-2 transition-colors hover:text-hero-ink"
         >
           Privacy Policy
         </Link>

@@ -124,12 +124,12 @@ export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkCo
       {/* Envelope with sparkles and glow */}
       <div className="flex justify-center">
         <div id="envelope-container" className="relative">
-          {/* Golden glow behind */}
+          {/* Golden glow behind — radial-gradient falloff (no blur, iOS-safe) */}
           <div
             id="envelope-glow"
-            className="absolute -inset-4 rounded-full blur-2xl opacity-30"
+            className="absolute -inset-6 rounded-full opacity-50"
             style={{
-              background: "radial-gradient(circle, hsla(40, 80%, 60%, 0.6), transparent 70%)",
+              background: "radial-gradient(circle, var(--hero-gold), transparent 68%)",
             }}
             aria-hidden="true"
           />
@@ -139,7 +139,7 @@ export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkCo
             SPARKLE_POSITIONS.map((pos, i) => (
               <m.div
                 key={i}
-                className="absolute text-secondary z-10"
+                className="absolute z-10 text-amber-400"
                 style={{ top: pos.top, left: pos.left, right: pos.right, bottom: pos.bottom }}
                 animate={{ opacity: [0, 1, 0], scale: [0.5, 1, 0.5] }}
                 transition={{ duration: 2, repeat: Infinity, delay: pos.delay, ease: "easeInOut" }}
@@ -151,7 +151,7 @@ export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkCo
           {/* Envelope circle */}
           <div
             id="envelope-icon"
-            className="relative flex h-22 w-22 items-center justify-center rounded-full bg-gradient-to-br from-primary/10 to-secondary/10 border border-primary/10 text-primary"
+            className="relative flex h-22 w-22 items-center justify-center rounded-full border border-hero-clay/20 bg-hero-clay/10 text-hero-clay"
           >
             <Mail className="h-10 w-10" aria-hidden="true" />
           </div>
@@ -159,22 +159,22 @@ export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkCo
       </div>
 
       <div className="space-y-2 text-center">
-        <h2 className="text-xl font-display font-bold text-text-primary">Check your email</h2>
-        <p className="text-sm text-muted-foreground leading-relaxed">
+        <h2 className="font-display text-xl font-bold text-hero-ink">Check your email</h2>
+        <p className="text-sm leading-relaxed text-hero-ink-muted">
           We sent a sign-in link and a one-time code to{" "}
-          <strong className="text-text-primary font-medium">{email}</strong>.
+          <strong className="font-medium text-hero-ink">{email}</strong>.
         </p>
       </div>
 
       {/* In-tab code entry — finishing here keeps the cart (no browser switch) */}
       <div className="space-y-3">
         <div className="flex items-center gap-3" aria-hidden="true">
-          <div className="h-px flex-1 bg-border" />
-          <span className="text-xs text-muted-foreground">enter the code to stay here</span>
-          <div className="h-px flex-1 bg-border" />
+          <div className="h-px flex-1 bg-hero-line" />
+          <span className="text-xs text-hero-ink-muted">enter the code to stay here</span>
+          <div className="h-px flex-1 bg-hero-line" />
         </div>
         <OtpCodeForm email={email} redirectTo={redirectTo} />
-        <p className="text-xs text-muted-foreground text-center leading-relaxed">
+        <p className="text-center text-xs leading-relaxed text-hero-ink-muted">
           Prefer the link? Tap it in the email — just note it may open a new browser.
         </p>
       </div>
@@ -182,8 +182,8 @@ export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkCo
       <div className="space-y-3">
         <Button
           type="button"
-          variant="secondary"
-          className="w-full h-11 rounded-2xl font-medium"
+          variant="outline"
+          className="h-11 w-full rounded-2xl border-hero-line bg-hero-card font-medium text-hero-ink hover:border-hero-clay/60 hover:bg-hero-clay/10"
           onClick={handleResend}
           disabled={isPending || countdown > 0}
         >
@@ -192,7 +192,7 @@ export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkCo
         <button
           type="button"
           onClick={onBack}
-          className="text-sm text-primary hover:underline underline-offset-2 w-full text-center"
+          className="w-full text-center text-sm text-primary underline-offset-2 hover:underline"
         >
           Use a different email
         </button>
@@ -202,7 +202,7 @@ export function MagicLinkConfirmation({ email, onBack, redirectTo }: MagicLinkCo
         <m.p
           initial={shouldAnimate ? { opacity: 0, y: 4 } : false}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : { opacity: 1 }}
-          className="text-xs text-muted-foreground text-center bg-surface-secondary/50 rounded-xl px-4 py-2.5"
+          className="rounded-xl bg-hero-clay/[0.06] px-4 py-2.5 text-center text-xs text-hero-ink-muted"
         >
           Don&apos;t see it? Check your spam or promotions folder.
         </m.p>

@@ -154,8 +154,19 @@ merge** → triage the **auto-review after every push** → **never self-merge**
   tracking (Morning-Star journey rail + rolling-digit ETA hero + warm-paper
   driver/living-receipt cards + warm `.orders-canvas`), the order-detail reskin (split
   into `OrderDetailView`), and confirmation polish. `OrderTimeline` → hero tokens.
-- **Surfaces #4–#5 still to do:** account (settings / rewards / orders list) → auth
-  (per the sequence table above). One reviewable PR each.
+- **Surface #4 Account — DONE (merged #159; polished #161).** Loyalty passport hero,
+  self-contained pill tab rail, warm-paper tabs; #161 added grouped tab/sub-tab trays,
+  `MenuTextureBackdrop` layering, opaque reward cards, an enriched dark canvas, and
+  `CartBar`/floating-bar bottom clearance.
+- **Surface #5 Auth — DONE (merged #162).** Editorial-split `/login` + `/auth/expired`
+  on the level-up kit: `.after-dark-canvas` + `AfterDarkAmbient`, a desktop brand panel
+  with the appetizing menu photo + bilingual wordmark, a mobile masked photo band, a
+  warm-paper `AuthCard`, `MagneticButton` submit, and `TapBurst` on sign-in success.
+  Reskin only (auth logic untouched); removed dead `auth-gradient` CSS + latent iOS blurs.
+- **All five customer surfaces now ship the "After Dark" language.** Remaining: the
+  **level-up back-port** (ambient/tilt/spotlight/magnetic/celebrations to the shipped
+  surfaces; consolidate the four per-surface canvases into `.after-dark-canvas`) — see
+  [`after-dark-levelup-plan.md`](./after-dark-levelup-plan.md).
 - **Zoom-out the shared menu photo on OTHER surfaces** for consistency — owner
   liked the checkout's bounded, less-cropped photo band; `HomepageMenuSection`
   (and anywhere else using `/images/menu-section-bg.webp`) still uses a full-bleed
