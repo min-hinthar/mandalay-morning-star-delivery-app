@@ -8,20 +8,18 @@ _Last reconciled: 2026-06-08._
 
 ## In flight
 
-- **#159 — Account "After Dark"** (surface #4; branch `claude/account-after-dark`).
-  **Complete.** A **loyalty passport** hero (`AccountHero`: bilingual greeting + tier
-  crest in constant hero-jewel tokens + rolling-digit Stars + reward-cycle progress +
-  tier-climb + member-since, on real `useRewards`/profile data) on a warm
-  `.account-canvas`, a **self-contained pill tab rail** (AccountClient + SettingsTab
-  sub-nav — removes the measured-indicator dark-on-dark risk), and warm-paper tab bodies
-  (Profile / Orders list / Addresses / Feedback; Rewards left as-is — already
-  loyalty-styled). Theme-safe, presentation-only. **Pre-merge adversarial review: SHIP**
-  (no High; the one Medium — FeedbackTab badge meld on the cream card — fixed, + a
-  passport progress-clamp Low). Local verify green (lint · lint:css · format · typecheck
-  · **1180 tests** · build). **Awaiting owner merge go.**
+- **After Dark "level-up" kit + Auth (#5)** (branch `claude/after-dark-levelup`, off
+  post-#159 `main`). Owner greenlit all four level-up tracks built as a shared living-FX
+  kit alongside Auth, then back-ported. Plan + guardrails:
+  [`after-dark-levelup-plan.md`](./after-dark-levelup-plan.md). **PR ① (kit foundation)
+  in progress:** started with the shared **`MagneticButton`** (promoted from checkout's
+  `CtaMagnet`, which now delegates). Next: `AfterDarkAmbient` + `.after-dark-canvas`
+  tokens, `useTapBurst`, `useScrollReveal`, `goldleaf` HeroCardLayers accent,
+  `TierUpCelebration` — then Auth (#5) on the kit, then back-port. Pure-additive;
+  verify + adversarial review before merge.
 
-> **Next up after account:** auth (surface #5), per the customer-surfaces sequence.
-> See [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
+> **After this:** Auth (#5) on the kit → back-port to checkout/cart/orders/account.
+> See [`after-dark-levelup-plan.md`](./after-dark-levelup-plan.md).
 
 ## Watching
 
@@ -36,6 +34,13 @@ merge/close.
 
 ## Recently closed
 
+- **#159** — Account **"After Dark"** (customer-rollout surface #4). Loyalty passport
+  hero (`AccountHero`: tier crest + rolling Stars + reward-cycle progress + spend-climb +
+  bilingual greeting on real `useRewards`/profile data), self-contained pill tab rail
+  (removes the measured-indicator dark-on-dark risk), warm-paper Profile/Orders/Addresses/
+  Feedback tabs + warm Settings sub-rail (Rewards left as-is). Presentation-only,
+  theme-safe. **Merged** (`f5819a6`) — pre-merge adversarial review SHIP (FeedbackTab
+  badge meld fixed); landed via branch-protection bypass during the Actions quota pause.
 - **#158** — Orders **"After Dark"** (customer-rollout surface #3). The **Living
   delivery ritual** on tracking (Morning-Star journey rail + rolling-digit ETA hero +
   warm-paper driver/living-receipt cards + warm `.orders-canvas`), the order-detail
