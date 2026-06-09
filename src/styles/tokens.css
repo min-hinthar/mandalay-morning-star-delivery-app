@@ -585,14 +585,16 @@
 
   /* ===========================================
      SURFACE COLORS (Dark Mode)
-     OLED-friendly pure blacks
+     Warm espresso family (Anthropic "warm paper" after dark) — deliberately
+     lifted off pure black so chrome matches the warm canvases and the
+     editorial textures read. High-contrast mode (below) keeps true black.
      =========================================== */
 
-  --color-surface-primary: #000000;
-  --color-surface-primary-85: rgba(0, 0, 0, 0.85);
-  --color-surface-secondary: #0a0a0a;
-  --color-surface-tertiary: #141414;
-  --color-surface-elevated: #1a1a1a;
+  --color-surface-primary: #1e1713;
+  --color-surface-primary-85: rgba(30, 23, 19, 0.85);
+  --color-surface-secondary: #251c18;
+  --color-surface-tertiary: #2e231e;
+  --color-surface-elevated: #2a201b;
   --color-surface-inverse: #ffffff;
 
   /* ===========================================
@@ -609,9 +611,9 @@
      BORDER COLORS (Dark Mode)
      =========================================== */
 
-  --color-border-default: #3d3b38;
-  --color-border-strong: #4d4b48;
-  --color-border-subtle: #2d2b28;
+  --color-border-default: #4a3e36;
+  --color-border-strong: #574a40;
+  --color-border-subtle: #382e28;
 
   /* ===========================================
      STATUS COLORS (Dark Mode)
