@@ -19,14 +19,12 @@
 import { useEffect, useMemo, useState, useCallback, useRef } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Drawer } from "@/components/ui/Drawer";
-import { AddToCartButton, QuantitySelector } from "@/components/ui/cart";
+import { QuantitySelector } from "@/components/ui/cart";
 import { ModifierGroup } from "./ModifierGroup";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useReducedMotion } from "framer-motion";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
-import { RollingNumber } from "@/components/ui/homepage/Hero/RollingDigits";
 import {
   calculateItemPrice,
   validateModifierSelection,
@@ -39,6 +37,7 @@ import type { MenuItem, ModifierOption } from "@/types/menu";
 import { AllergenWarning, DiscardChangesDialog } from "./ItemDetailSheet/helpers";
 import { DishHero } from "./ItemDetailSheet/DishHero";
 import { VeganToggle } from "./ItemDetailSheet/VeganToggle";
+import { SheetFooter } from "./ItemDetailSheet/SheetFooter";
 import {
   isVeganizable,
   composeNotes,
@@ -76,23 +75,6 @@ export interface ItemDetailSheetProps {
   ) => void;
   /** Extra className for the Drawer/Modal wrapper (e.g. z-index override) */
   className?: string;
-}
-
-// ============================================
-// LIVE PRICE — rolls the total as modifiers / quantity change
-// ============================================
-
-function LivePrice({ cents, animate }: { cents: number; animate: boolean }) {
-  return (
-    <span className="tabular-nums">
-      {/* Real price for the accessible name (rolling digits are aria-hidden) */}
-      <span className="sr-only">${(cents / 100).toFixed(2)}</span>
-      <span aria-hidden="true">
-        {"$"}
-        <RollingNumber value={cents / 100} decimals={2} animate={animate} />
-      </span>
-    </span>
-  );
 }
 
 // ============================================
@@ -329,6 +311,12 @@ export function ItemDetailSheet({
           {/* Modifier Groups — flow in the single sheet scroll (no nested box) */}
           {item.modifierGroups && item.modifierGroups.length > 0 && (
             <div className="space-y-3">
+              <p className="flex items-baseline gap-2 font-display text-sm font-semibold text-text-primary">
+                Customize
+                <span className="font-burmese text-2xs font-normal text-text-muted" lang="my">
+                  မိမိစိတ်ကြိုက်
+                </span>
+              </p>
               {item.modifierGroups.map((group) => (
                 <ModifierGroup
                   key={group.id}
@@ -350,7 +338,13 @@ export function ItemDetailSheet({
 
           {/* Special Instructions */}
           <div className="space-y-2">
-            <Label htmlFor="item-notes">Special Instructions (Optional)</Label>
+            <Label htmlFor="item-notes" className="flex items-baseline gap-2">
+              Special Instructions
+              <span className="font-burmese text-2xs font-normal text-text-muted" lang="my">
+                မှာကြားချက်
+              </span>
+              <span className="text-text-muted">(Optional)</span>
+            </Label>
             <Textarea
               id="item-notes"
               value={notes}
@@ -364,9 +358,14 @@ export function ItemDetailSheet({
             </p>
           </div>
 
-          {/* Quantity */}
-          <div className="flex items-center justify-between">
-            <Label>Quantity</Label>
+          {/* Quantity — warm stepper panel */}
+          <div className="flex items-center justify-between rounded-xl border border-border bg-surface-secondary/40 px-3.5 py-3">
+            <Label className="flex items-baseline gap-2">
+              Quantity
+              <span className="font-burmese text-2xs font-normal text-text-muted" lang="my">
+                အရေအတွက်
+              </span>
+            </Label>
             <QuantitySelector
               quantity={quantity}
               onIncrement={() => !item.isSoldOut && setQuantity((q) => Math.min(q + 1, 99))}
@@ -378,60 +377,19 @@ export function ItemDetailSheet({
         </div>
 
         {/* Footer with Add to Cart / Update Cart — warm-paper card surface */}
-        <div className="menu-sheet-footer safe-area-inset-bottom shrink-0 border-t border-border bg-surface-secondary p-4">
-          {/* Validation Error */}
-          {!validation.isValid && validation.errors[0] && (
-            <p className="mb-2 text-sm text-status-error">{validation.errors[0]}</p>
-          )}
-
-          {isEditMode ? (
-            item.isSoldOut ? (
-              <Button variant="danger" size="lg" onClick={handleRequestClose} className="w-full">
-                Item Unavailable - Remove from Cart
-              </Button>
-            ) : (
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={handleUpdateCart}
-                disabled={!validation.isValid}
-                className="w-full"
-              >
-                <span className="inline-flex items-center gap-1">
-                  Update Cart -
-                  <LivePrice cents={priceCalc?.totalCents ?? 0} animate={animatePrice} />
-                </span>
-              </Button>
-            )
-          ) : (
-            <AddToCartButton
-              item={{
-                menuItemId: item.id,
-                menuItemSlug: item.slug,
-                nameEn: item.nameEn,
-                nameMy: item.nameMy,
-                imageUrl: item.imageUrl,
-                basePriceCents: priceCalc?.totalCents ?? item.basePriceCents,
-              }}
-              quantity={quantity}
-              modifiers={selectedModifiers}
-              notes={finalNotes}
-              disabled={item.isSoldOut || !validation.isValid}
-              onAdd={handleAddToCart}
-              className="w-full"
-              size="lg"
-            >
-              {item.isSoldOut ? (
-                "Sold Out"
-              ) : (
-                <span className="inline-flex items-center gap-1">
-                  Add to Cart -
-                  <LivePrice cents={priceCalc?.totalCents ?? 0} animate={animatePrice} />
-                </span>
-              )}
-            </AddToCartButton>
-          )}
-        </div>
+        <SheetFooter
+          isEditMode={isEditMode}
+          item={item}
+          validation={validation}
+          totalCents={priceCalc?.totalCents ?? 0}
+          animatePrice={animatePrice}
+          quantity={quantity}
+          selectedModifiers={selectedModifiers}
+          finalNotes={finalNotes}
+          onUpdate={handleUpdateCart}
+          onAdd={handleAddToCart}
+          onRequestClose={handleRequestClose}
+        />
 
         {/* Discard changes confirmation dialog */}
         <DiscardChangesDialog

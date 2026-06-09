@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useState, useCallback, useRef, useEffect } from "react";
+import { memo, useState, useCallback, useRef, useEffect, type CSSProperties } from "react";
 import Image from "next/image";
 import { m, AnimatePresence, useMotionValue, useTransform, type PanInfo } from "framer-motion";
 import { Trash2, Edit3 } from "lucide-react";
@@ -23,6 +23,8 @@ export interface CartItemProps {
   className?: string;
   /** When true, shows a one-time swipe hint bounce animation */
   isFirstItem?: boolean;
+  /** Cycles the left ledger-spine accent (clay → blue → sage), tying the line to the receipt. */
+  accentIndex?: number;
   // Validation props (optional -- only provided when validation is active)
   validationStatus?: CartItemValidationStatus;
   priceDirection?: "up" | "down";
@@ -38,12 +40,16 @@ const cartItemVariants = {
   exit: { opacity: 0, x: -50, transition: { duration: 0.15 } },
 };
 
+// Triad ledger-spine accents (mirror the receipt's bound-ledger spine).
+const SPINE = ["var(--hero-clay)", "var(--hero-blue)", "var(--hero-sage)"] as const;
+
 export const CartItem = memo(function CartItem({
   item,
   onEdit,
   compact = false,
   className,
   isFirstItem,
+  accentIndex = 0,
   validationStatus,
   priceDirection,
   onDismissPriceChange,
@@ -170,19 +176,25 @@ export const CartItem = memo(function CartItem({
         onDragEnd={handleDragEnd}
         style={{ x: dragX }}
         className={cn(
-          "relative glass-menu-card rounded-2xl",
-          "border border-white/20 dark:border-white/10",
-          "shadow-colorful shadow-lg",
-          "touch-pan-y sm:backdrop-blur-xl",
+          "cart-line relative overflow-hidden rounded-2xl",
+          "border border-border bg-surface-elevated",
+          "touch-pan-y",
           compact ? "p-3" : "p-4"
         )}
-        whileHover={shouldAnimate && !isDragging && !isStale ? { scale: 1.02, y: -2 } : undefined}
+        whileHover={shouldAnimate && !isDragging && !isStale ? { y: -2 } : undefined}
         animate={showSwipeHint ? { x: [0, -30, 0] } : undefined}
         transition={showSwipeHint ? spring.ultraBouncy : springConfig}
         onAnimationComplete={() => {
           if (showSwipeHint) handleSwipeHintComplete();
         }}
       >
+        {/* Triad ledger-spine — ties each line to the receipt's bound-ledger edge */}
+        <span
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-y-2.5 left-0 w-1 rounded-full opacity-80"
+          style={{ background: SPINE[accentIndex % SPINE.length] } as CSSProperties}
+        />
+
         {/* Validation overlay for sold-out/unavailable items */}
         {isStale && onRemoveStale && (
           <ValidationOverlay
@@ -191,12 +203,12 @@ export const CartItem = memo(function CartItem({
           />
         )}
 
-        <div className={cn("flex gap-3", isStale && "opacity-50 pointer-events-none")}>
+        <div className={cn("flex gap-3 pl-1.5", isStale && "opacity-50 pointer-events-none")}>
           {/* Image */}
           <m.div
             className={cn(
-              "flex-shrink-0 rounded-xl overflow-hidden bg-surface-secondary/50",
-              compact ? "w-16 h-16" : "w-20 h-20"
+              "flex-shrink-0 overflow-hidden rounded-xl bg-surface-secondary ring-1 ring-border",
+              compact ? "h-16 w-16" : "h-20 w-20"
             )}
             whileHover={shouldAnimate && !isStale ? { scale: 1.05 } : undefined}
             transition={getSpring(spring.snappy)}
@@ -207,11 +219,11 @@ export const CartItem = memo(function CartItem({
                 alt={item.nameEn}
                 width={80}
                 height={80}
-                className="w-full h-full object-cover"
+                className="h-full w-full object-cover"
                 onError={() => setImgError(true)}
               />
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-3xl">
+              <div className="flex h-full w-full items-center justify-center text-3xl">
                 <span role="img" aria-label="Food">
                   {getFallbackEmoji(item.nameEn)}
                 </span>
@@ -220,28 +232,33 @@ export const CartItem = memo(function CartItem({
           </m.div>
 
           {/* Content */}
-          <div className="flex-1 min-w-0">
-            <div className="flex justify-between items-start gap-2">
+          <div className="min-w-0 flex-1">
+            <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
                 <h3
                   className={cn(
-                    "font-semibold text-text-primary truncate",
+                    "truncate font-semibold text-text-primary",
                     compact ? "text-sm" : "text-base"
                   )}
                 >
                   {item.nameEn}
                 </h3>
+                {item.nameMy && (
+                  <p className="truncate font-burmese text-xs text-text-muted" lang="my">
+                    {item.nameMy}
+                  </p>
+                )}
                 {item.modifiers.length > 0 && (
                   <m.p
                     initial={shouldAnimate ? { opacity: 0 } : undefined}
                     animate={shouldAnimate ? { opacity: 1 } : undefined}
-                    className={cn("text-text-secondary truncate", compact ? "text-xs" : "text-sm")}
+                    className={cn("truncate text-text-secondary", compact ? "text-xs" : "text-sm")}
                   >
                     {item.modifiers.map((m) => m.optionName).join(", ")}
                   </m.p>
                 )}
                 {item.notes && (
-                  <p className="text-xs text-text-muted mt-1 italic truncate">
+                  <p className="mt-1 truncate text-xs italic text-text-muted">
                     &quot;{item.notes}&quot;
                   </p>
                 )}
@@ -252,16 +269,16 @@ export const CartItem = memo(function CartItem({
                     type="button"
                     onClick={() => onEdit(item)}
                     className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center",
-                      "text-text-muted hover:text-text-primary",
-                      "hover:bg-surface-tertiary transition-colors",
+                      "flex h-8 w-8 items-center justify-center rounded-full",
+                      "text-text-muted hover:bg-surface-secondary hover:text-text-primary",
+                      "transition-colors",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     )}
                     whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
                     whileTap={shouldAnimate ? { scale: 0.9 } : undefined}
                     aria-label="Edit item"
                   >
-                    <Edit3 className="w-4 h-4" />
+                    <Edit3 className="h-4 w-4" />
                   </m.button>
                 )}
                 {!isStale && (
@@ -269,22 +286,22 @@ export const CartItem = memo(function CartItem({
                     type="button"
                     onClick={handleRemove}
                     className={cn(
-                      "w-8 h-8 rounded-full flex items-center justify-center",
-                      "text-text-muted hover:text-red-500",
-                      "hover:bg-red-50 dark:hover:bg-red-950/30 transition-colors",
+                      "flex h-8 w-8 items-center justify-center rounded-full",
+                      "text-text-muted hover:bg-status-error/10 hover:text-status-error",
+                      "transition-colors",
                       "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-error focus-visible:ring-offset-2"
                     )}
                     whileHover={shouldAnimate ? { scale: 1.1 } : undefined}
                     whileTap={shouldAnimate ? { scale: 0.9 } : undefined}
                     aria-label="Remove item"
                   >
-                    <Trash2 className="w-4 h-4" />
+                    <Trash2 className="h-4 w-4" />
                   </m.button>
                 )}
               </div>
             </div>
 
-            <div className="flex items-center justify-between mt-2">
+            <div className="mt-2 flex items-center justify-between">
               {!isStale && (
                 <QuantitySelector
                   quantity={item.quantity}
@@ -298,7 +315,10 @@ export const CartItem = memo(function CartItem({
                 <PriceTicker
                   value={itemTotal}
                   inCents={true}
-                  className={cn("font-semibold text-primary", compact ? "text-sm" : "text-base")}
+                  className={cn(
+                    "font-semibold text-text-primary",
+                    compact ? "text-sm" : "text-base"
+                  )}
                 />
                 {item.quantity > 1 && (
                   <p className="text-xs text-text-muted">

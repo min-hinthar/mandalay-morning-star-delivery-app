@@ -1,16 +1,21 @@
 "use client";
 
 /**
- * FreeDeliveryProgress Component
- * Animated progress bar toward free delivery threshold
+ * FreeDeliveryProgress — the "Morning Star delivery journey".
  *
- * Two visual states:
- * - Progress: animated truck on road-styled track
- * - Celebration: green badge with party popper when threshold met
+ * After Dark: a warm-paper callout (mirrors the checkout receipt's
+ * free-delivery row) with a clay→amber→sage progress fill, a small Morning
+ * Star marker that rides the fill toward a goal star, and — on unlock — a
+ * tasteful sparkle burst + a bilingual sage "free delivery" stamp.
+ *
+ * Guardrails: animates REAL values only (no fabricated progress); opaque
+ * surface + radial-gradient glows (no blur / backdrop-filter — iOS GPU
+ * budget); every loop gates on `shouldAnimate`; bilingual EN/MY.
  */
 
-import { m } from "framer-motion";
-import { Truck, Sparkles, PartyPopper } from "lucide-react";
+import { useRef } from "react";
+import { m, useInView } from "framer-motion";
+import { Star, Sparkles, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -30,6 +35,9 @@ export interface FreeDeliveryProgressProps {
   isExtendedRange?: boolean;
 }
 
+// Sparkle burst offsets (deg) — fired once when free delivery unlocks.
+const BURST = [-60, -20, 20, 60, 110, 160];
+
 // ============================================
 // MAIN COMPONENT
 // ============================================
@@ -40,6 +48,10 @@ export function FreeDeliveryProgress({
   isExtendedRange = false,
 }: FreeDeliveryProgressProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  // Gate the continuous marker/goal loops to in-view (cart also renders on the
+  // scrollable /cart page) — framer JS loops keep ticking offscreen otherwise.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(rootRef, { margin: "0px 0px -10% 0px" });
   const freeDeliveryThresholdCents = useCartStore((state) => state.freeDeliveryThresholdCents);
   const longDistanceFeeCents = useCartStore((state) => state.longDistanceFeeCents);
   const longDistanceThresholdMiles = useCartStore((state) => state.longDistanceThresholdMiles);
@@ -51,12 +63,17 @@ export function FreeDeliveryProgress({
 
   const progressPercent = Math.min(
     100,
-    ((freeDeliveryThresholdCents - amountToFreeDelivery) / freeDeliveryThresholdCents) * 100
+    Math.max(
+      0,
+      ((freeDeliveryThresholdCents - amountToFreeDelivery) / freeDeliveryThresholdCents) * 100
+    )
   );
 
-  const hasFreeDelivery = amountToFreeDelivery === 0;
+  const hasFreeDelivery = amountToFreeDelivery <= 0;
+  const nearGoal = progressPercent >= 88;
+  const loop = shouldAnimate && inView;
 
-  // Extended range: show flat fee message instead of progress
+  // Extended range: show flat-fee notice instead of the journey (mirrors receipt)
   if (isExtendedRange) {
     return (
       <div className={className}>
@@ -64,149 +81,162 @@ export function FreeDeliveryProgress({
           initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={getSpring(spring.gentle)}
-          className={cn(
-            "p-4 rounded-xl",
-            "bg-blue-50 dark:bg-blue-950/30",
-            "border border-blue-200/60 dark:border-blue-800/40",
-            "shadow-sm"
-          )}
+          className="rounded-xl border border-hero-blue/25 bg-hero-card p-3"
         >
           <div className="flex items-center gap-2">
-            <Truck className="w-4 h-4 text-blue-500" />
-            <span className="text-sm font-semibold text-blue-700 dark:text-blue-300">
+            <Truck className="h-4 w-4 text-hero-blue" aria-hidden="true" />
+            <span className="text-sm font-semibold text-hero-ink">
               Extended delivery: ${(longDistanceFeeCents / 100).toFixed(2)} flat fee
             </span>
           </div>
+          <p className="mt-1 pl-6 font-burmese text-xs text-hero-ink-muted" lang="my">
+            ဝေးကွာသောပို့ဆောင်မှု
+          </p>
         </m.div>
       </div>
     );
   }
 
   return (
-    <div className={className}>
-      {/* Progress state */}
+    <div ref={rootRef} className={className}>
+      {/* Journey (in progress) */}
       {!hasFreeDelivery && (
         <m.div
           initial={shouldAnimate ? { opacity: 0, y: 10 } : undefined}
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={getSpring(spring.gentle)}
-          className={cn(
-            "p-4 rounded-xl",
-            "bg-gradient-cart-summary",
-            "border border-amber-200/60 dark:border-amber-800/40",
-            "shadow-sm"
-          )}
+          className="rounded-xl border border-hero-clay/25 bg-hero-card p-3"
         >
-          <div className="flex items-center gap-2 mb-3">
-            <Sparkles className="w-4 h-4 text-amber-500" />
-            <span className="text-sm font-semibold text-text-money">
-              ${(amountToFreeDelivery / 100).toFixed(2)} away from free delivery!
+          <div className="mb-2.5 flex items-center gap-2">
+            <m.span
+              animate={
+                shouldAnimate ? { rotate: [0, 14, -14, 0], scale: [1, 1.14, 1.14, 1] } : undefined
+              }
+              transition={{ duration: 0.7, repeat: 4, repeatDelay: 2.6 }}
+              className="shrink-0"
+            >
+              <Star className="h-4 w-4 fill-amber-400 text-amber-500" aria-hidden="true" />
+            </m.span>
+            <span className="text-sm font-semibold text-hero-ink">
+              <span className="text-hero-accent">${(amountToFreeDelivery / 100).toFixed(2)}</span>{" "}
+              more for free delivery
             </span>
           </div>
 
-          {/* Enhanced progress bar with truck */}
-          <div className="relative">
-            {/* Track background with gradient */}
-            <div className="h-3 bg-gradient-delivery-track rounded-full overflow-visible relative">
-              {/* Dashed road effect */}
-              <div className="absolute inset-y-0 inset-x-2 flex items-center justify-evenly">
-                {[...Array(8)].map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-2 h-0.5 bg-amber-300/50 dark:bg-amber-700/50 rounded-full"
-                  />
-                ))}
-              </div>
-
-              {/* Filled progress */}
+          {/* The journey track — fill + a Morning Star marker riding the frontier */}
+          <div className="relative px-1.5">
+            <div className="relative h-2.5 overflow-hidden rounded-full bg-hero-ink/10">
               <m.div
-                className={cn(
-                  "h-full rounded-full relative",
-                  "bg-gradient-progress",
-                  "shadow-glow-amber"
-                )}
+                className="checkout-progress-fill h-full rounded-full"
+                initial={shouldAnimate ? { width: 0 } : undefined}
                 animate={{ width: `${progressPercent}%` }}
                 transition={getSpring(spring.rubbery)}
               />
             </div>
 
-            {/* Truck on progress */}
+            {/* Goal star at the finish — lights up as you approach */}
             <m.div
-              className="absolute top-1/2 -translate-y-1/2"
-              animate={{ left: `calc(${progressPercent}% - 12px)` }}
-              transition={getSpring(spring.rubbery)}
+              aria-hidden="true"
+              className="absolute right-0 top-1/2 flex h-6 w-6 -translate-y-1/2 translate-x-2 items-center justify-center rounded-full border border-hero-sage/50 bg-hero-card"
+              animate={
+                loop && nearGoal
+                  ? {
+                      scale: [1, 1.16, 1],
+                      boxShadow: [
+                        "0 0 0 0 rgba(120,140,93,0)",
+                        "0 0 10px 2px rgba(120,140,93,0.45)",
+                        "0 0 0 0 rgba(120,140,93,0)",
+                      ],
+                    }
+                  : undefined
+              }
+              transition={{ duration: 1.4, repeat: Infinity }}
             >
-              <div
+              <Star
                 className={cn(
-                  "flex items-center justify-center",
-                  "w-6 h-6 rounded-full",
-                  "bg-surface-primary dark:bg-surface-tertiary",
-                  "border-2 border-amber-500",
-                  "shadow-lg"
+                  "h-3.5 w-3.5",
+                  nearGoal ? "fill-hero-sage text-hero-sage" : "text-hero-sage/60"
                 )}
-              >
-                <Truck className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
-              </div>
+              />
             </m.div>
 
-            {/* Goal flag at end */}
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-2">
-              <div className="w-5 h-5 rounded-full bg-green-100 dark:bg-green-900/50 border border-green-300 dark:border-green-700 flex items-center justify-center">
-                <span className="text-xs">🏁</span>
-              </div>
-            </div>
+            {/* Morning Star marker — rides the fill frontier with a gentle bob */}
+            <m.div
+              aria-hidden="true"
+              className="absolute top-1/2"
+              initial={shouldAnimate ? { left: "0%" } : { left: `${progressPercent}%` }}
+              animate={{ left: `${progressPercent}%` }}
+              transition={getSpring(spring.rubbery)}
+              style={{ translateX: "-50%", translateY: "-50%" }}
+            >
+              <m.div
+                className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-amber-400 bg-hero-clay shadow-md"
+                animate={loop ? { y: [0, -2.5, 0] } : undefined}
+                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+              >
+                <Star className="h-3 w-3 fill-amber-300 text-amber-200" />
+              </m.div>
+            </m.div>
           </div>
 
-          {/* Progress percentage */}
-          <div className="flex justify-between items-center mt-2 text-xs">
-            <span className="text-amber-600 dark:text-amber-400 font-medium">
+          <div className="mt-2.5 flex items-center justify-between text-xs">
+            <span className="font-medium text-hero-accent">
               {Math.round(progressPercent)}% there
             </span>
-            <span className="text-text-money font-medium">
+            <span className="font-medium text-hero-ink-muted">
               Free at ${(freeDeliveryThresholdCents / 100).toFixed(0)}
             </span>
           </div>
 
           {/* Honest qualifier — free delivery applies to local orders only */}
-          <p className="mt-1.5 text-2xs text-amber-700/70 dark:text-amber-400/70 leading-snug">
+          <p className="mt-1.5 text-2xs leading-snug text-hero-ink-muted/80">
             Free {freeDeliveryQualifier(promoOpts)}
           </p>
         </m.div>
       )}
 
-      {/* Celebration state */}
+      {/* Unlocked — sparkle burst + bilingual sage stamp */}
       {hasFreeDelivery && (
         <m.div
-          initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
+          initial={shouldAnimate ? { opacity: 0, scale: 0.92 } : undefined}
           animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
           transition={getSpring(spring.ultraBouncy)}
-          className={cn(
-            "p-4 rounded-xl relative overflow-hidden",
-            "bg-gradient-delivery-success",
-            "border border-green-200/60 dark:border-green-800/40",
-            "shadow-sm"
-          )}
+          className="relative overflow-hidden rounded-xl border border-hero-sage/30 bg-hero-card p-3"
         >
-          <div className="flex items-center gap-3 relative">
-            <div
-              className={cn(
-                "flex items-center justify-center",
-                "w-10 h-10 rounded-full",
-                "bg-green-100 dark:bg-green-900/50",
-                "border border-green-300 dark:border-green-700"
-              )}
+          <div className="flex items-center gap-3">
+            {/* Wax-seal-style stamp that settles in with a slight rotate */}
+            <m.div
+              className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-hero-sage/40 bg-hero-sage/15"
+              initial={shouldAnimate ? { rotate: -16, scale: 0.7 } : undefined}
+              animate={shouldAnimate ? { rotate: 0, scale: 1 } : undefined}
+              transition={getSpring(spring.ultraBouncy)}
             >
-              <Truck className="w-5 h-5 text-green-600 dark:text-green-400" />
-            </div>
+              <Star className="h-5 w-5 fill-hero-sage text-hero-sage" aria-hidden="true" />
+              {/* One-shot sparkle burst on unlock */}
+              {shouldAnimate &&
+                BURST.map((deg, i) => (
+                  <m.span
+                    key={deg}
+                    aria-hidden="true"
+                    className="absolute left-1/2 top-1/2 h-1 w-1 rounded-full bg-amber-400"
+                    initial={{ opacity: 1, x: "-50%", y: "-50%", scale: 1 }}
+                    animate={{
+                      opacity: 0,
+                      x: `calc(-50% + ${Math.cos((deg * Math.PI) / 180) * 22}px)`,
+                      y: `calc(-50% + ${Math.sin((deg * Math.PI) / 180) * 22}px)`,
+                      scale: 0.4,
+                    }}
+                    transition={{ duration: 0.7, delay: 0.1 + i * 0.02, ease: "easeOut" }}
+                  />
+                ))}
+            </m.div>
             <div>
               <div className="flex items-center gap-1.5">
-                <span className="text-sm font-bold text-green-700 dark:text-green-300">
-                  Free Delivery Unlocked!
-                </span>
-                <PartyPopper className="w-4 h-4 text-green-500" />
+                <span className="text-sm font-bold text-hero-ink">Free delivery unlocked</span>
+                <Sparkles className="h-4 w-4 text-hero-sage" aria-hidden="true" />
               </div>
-              <span className="text-xs text-green-600/80 dark:text-green-400/80">
-                On local delivery {localRangeLabel(promoOpts)}
+              <span className="font-burmese text-xs text-hero-ink-muted" lang="my">
+                အခမဲ့ပို့ဆောင်ပြီ · {localRangeLabel(promoOpts)}
               </span>
             </div>
           </div>
