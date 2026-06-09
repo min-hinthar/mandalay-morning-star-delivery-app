@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, type ReactNode } from "react";
 import { m, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer80, duration } from "@/lib/motion-tokens";
@@ -8,12 +8,14 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
 import { useSwipeToClose } from "@/lib/swipe-gestures";
 import { zClass } from "@/lib/design-system/tokens/z-index";
-import { Home, UtensilsCrossed, Package, User, X } from "lucide-react";
+import { Home, UtensilsCrossed, Package, User, Star, X } from "lucide-react";
 
 import { DrawerNavLink } from "./DrawerNavLink";
 import { DrawerUserSection } from "./DrawerUserSection";
 import { DrawerFooter } from "./DrawerFooter";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
+import { AfterDarkAmbient } from "@/components/ui/AfterDarkAmbient";
+import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
 
 // ============================================
 // TYPES
@@ -29,16 +31,45 @@ export interface MobileDrawerProps {
 // NAV ITEMS
 // ============================================
 
-const navItems = [
-  { href: "/", label: "Home", icon: <Home className="w-5 h-5" /> },
-  { href: "/menu", label: "Menu", icon: <UtensilsCrossed className="w-5 h-5" /> },
-  { href: "/orders", label: "Orders", icon: <Package className="w-5 h-5" /> },
-  { href: "/account", label: "Account", icon: <User className="w-5 h-5" /> },
+/* Grouped nav — "Order" (browse + buy) and "You" (account-side), matching the
+   AccountIndicator dropdown's destinations so the two menus agree. */
+const navGroups: Array<{
+  kicker: string;
+  kickerMy: string;
+  items: Array<{ href: string; label: string; icon: ReactNode }>;
+}> = [
+  {
+    kicker: "Order",
+    kickerMy: "မှာယူရန်",
+    items: [
+      { href: "/", label: "Home", icon: <Home className="w-5 h-5" /> },
+      { href: "/menu", label: "Menu", icon: <UtensilsCrossed className="w-5 h-5" /> },
+      { href: "/orders", label: "My Orders", icon: <Package className="w-5 h-5" /> },
+    ],
+  },
+  {
+    kicker: "You",
+    kickerMy: "သင့်အကောင့်",
+    items: [
+      { href: "/account", label: "Account", icon: <User className="w-5 h-5" /> },
+      { href: "/account?tab=rewards", label: "Rewards", icon: <Star className="w-5 h-5" /> },
+    ],
+  },
 ];
 
 // Memoize stagger variants at module level to prevent re-creation on every render
 // This prevents animation re-triggers during exit and improves performance
 const navStaggerVariants = staggerContainer80(0.15);
+
+/* Active state — query-aware so "Account" and "Rewards" (same path, different
+   ?tab=) can't both light up. */
+function isItemActive(href: string, pathname: string, search: string): boolean {
+  const [path, query] = href.split("?");
+  if (query) return pathname.startsWith(path) && search.includes(query);
+  if (path === "/") return pathname === "/";
+  if (path === "/account") return pathname.startsWith(path) && !search.includes("tab=rewards");
+  return pathname === path || pathname.startsWith(path);
+}
 
 // ============================================
 // COMPONENT
@@ -71,8 +102,9 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isOpen, onClose]);
 
-  // Get current path for active state
+  // Get current path + query for active state
   const pathname = typeof window !== "undefined" ? window.location.pathname : "/";
+  const search = typeof window !== "undefined" ? window.location.search : "";
 
   return (
     <AnimatePresence onExitComplete={restoreScrollPosition}>
@@ -101,10 +133,11 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
           key="drawer-panel"
           className={cn(
             "fixed left-0 top-0 bottom-0 w-[85%] max-w-sm",
-            // eslint-disable-next-line no-restricted-syntax -- explicit colors needed for mobile CSS var resolution
-            "bg-white dark:bg-black",
+            // Warm After Dark canvas (opaque, doubled-specificity rule beats any
+            // utility bg) — replaces the old hardcoded bg-white dark:bg-black.
+            "after-dark-canvas",
             "rounded-r-2xl shadow-2xl",
-            "flex flex-col",
+            "flex flex-col overflow-hidden",
             zClass.modal
           )}
           style={{
@@ -119,9 +152,22 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
           role="navigation"
           aria-label="Mobile navigation"
         >
-          {/* Header with close button and theme toggle */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border-subtle">
-            <span className="text-lg font-semibold text-text-primary">Menu</span>
+          {/* Editorial texture — masked dot/line grids + warm blooms (a11y-inert) */}
+          <AfterDarkAmbient />
+
+          {/* Header — editorial bilingual masthead + theme toggle + close */}
+          <div className="relative flex items-center justify-between border-b border-border-subtle px-4 py-3">
+            <div className="flex items-center gap-2">
+              <HeroSunburst className="h-4 w-4 text-hero-clay" rays={8} aria-hidden="true" />
+              <div className="leading-tight">
+                <span className="font-display text-lg font-semibold tracking-tight text-text-primary">
+                  Menu
+                </span>
+                <span lang="my" className="ml-1.5 font-burmese text-xs text-text-muted">
+                  မီနူး
+                </span>
+              </div>
+            </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
               <m.button
@@ -142,34 +188,47 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
           </div>
 
           {/* User section */}
-          <DrawerUserSection user={user ?? null} onClose={onClose} />
+          <div className="relative">
+            <DrawerUserSection user={user ?? null} onClose={onClose} />
+          </div>
 
-          {/* Nav links with stagger animation
+          {/* Grouped nav links with stagger animation
               Note: Using module-level memoized variants to prevent re-creation on render.
               Removed exit="exit" - let parent drawer handle exit animation to prevent
               nested animation conflicts that can cause crashes on mobile. */}
           <m.div
-            className="flex-1 overflow-y-auto px-2 py-2"
+            className="relative flex-1 overflow-y-auto px-2 py-2"
             variants={navStaggerVariants}
             initial="hidden"
             animate="visible"
           >
-            {navItems.map((item) => (
-              <DrawerNavLink
-                key={item.href}
-                href={item.href}
-                label={item.label}
-                icon={item.icon}
-                isActive={
-                  pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href))
-                }
-                onClick={onClose}
-              />
+            {navGroups.map((group) => (
+              <div key={group.kicker} className="mb-2">
+                {/* Editorial kicker — bilingual section label */}
+                <p className="px-3 pb-1 pt-2 text-2xs font-semibold uppercase tracking-[0.18em] text-text-muted">
+                  {group.kicker}
+                  <span lang="my" className="ml-1.5 font-burmese normal-case tracking-normal">
+                    · {group.kickerMy}
+                  </span>
+                </p>
+                {group.items.map((item) => (
+                  <DrawerNavLink
+                    key={item.href}
+                    href={item.href}
+                    label={item.label}
+                    icon={item.icon}
+                    isActive={isItemActive(item.href, pathname, search)}
+                    onClick={onClose}
+                  />
+                ))}
+              </div>
             ))}
           </m.div>
 
           {/* Footer */}
-          <DrawerFooter />
+          <div className="relative">
+            <DrawerFooter />
+          </div>
         </m.nav>
       )}
     </AnimatePresence>

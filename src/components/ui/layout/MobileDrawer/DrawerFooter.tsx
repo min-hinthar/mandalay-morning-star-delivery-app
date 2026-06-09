@@ -1,11 +1,13 @@
 "use client";
 
 import { m } from "framer-motion";
+import { Heart } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { FooterLink } from "@/components/ui/AnimatedLink";
 import { useFeedbackStore } from "@/components/ui/feedback/feedback-store";
+import { MyanmarFlagIcon, CaliforniaFlagIcon } from "@/components/ui/icons/BrandIcons";
 
 // ============================================
 // TYPES
@@ -56,8 +58,15 @@ export function DrawerFooter({ className }: DrawerFooterProps) {
         </button>
       </div>
 
-      {/* Copyright */}
-      <p className="mt-3 text-center text-2xs text-text-muted">Made with love in Seattle</p>
+      {/* Attribution — mirrors the site footer's line */}
+      <p className="mt-3 flex flex-wrap items-center justify-center gap-1 text-center text-2xs text-text-muted">
+        <span>Cooked with Love</span>
+        <Heart className="h-3 w-3 fill-red-500 text-red-500" aria-hidden="true" />
+        <span>for the Burmese</span>
+        <MyanmarFlagIcon className="h-3 w-4" />
+        <span>Community of Los Angeles</span>
+        <CaliforniaFlagIcon className="h-3 w-4" />
+      </p>
     </m.div>
   );
 }

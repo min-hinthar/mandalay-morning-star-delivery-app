@@ -26,7 +26,7 @@ export function DrawerUserSection({ user, onClose }: DrawerUserSectionProps) {
 
   return (
     <m.div
-      className="px-4 py-4"
+      className="mx-3 my-3 rounded-2xl border border-hero-clay/15 bg-hero-clay/[0.08] px-3 py-3"
       initial={shouldAnimate ? { opacity: 0, y: -10 } : undefined}
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={{ delay: 0.1, ...getSpring(spring.gentle) }}
