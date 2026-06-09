@@ -86,11 +86,11 @@ function ProgressRing({
 // ALMOST HERE BADGE
 // ============================================
 
-function AlmostHereBadge({ loop }: { loop: boolean }) {
+function AlmostHereBadge({ loop, shouldAnimate }: { loop: boolean; shouldAnimate: boolean }) {
   return (
     <m.div
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={{ opacity: 1, scale: 1 }}
+      initial={shouldAnimate ? { opacity: 0, scale: 0.9 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, scale: 1 } : undefined}
       className="flex items-center gap-3 rounded-xl border border-hero-sage/30 bg-hero-sage/10 px-4 py-3"
     >
       <m.div
@@ -246,7 +246,7 @@ export function ETACountdown({
       {/* Almost-here badge (≤5 min) */}
       {isNearby && (
         <div className="relative px-5 pb-5">
-          <AlmostHereBadge loop={loop} />
+          <AlmostHereBadge loop={loop} shouldAnimate={shouldAnimate} />
         </div>
       )}
     </m.div>
