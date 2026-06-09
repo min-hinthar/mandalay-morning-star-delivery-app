@@ -1,23 +1,11 @@
 import { redirect, notFound } from "next/navigation";
-import Link from "next/link";
-import { ArrowLeft, MapPin, Clock, Package } from "lucide-react";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe/server";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { OrderTimeline } from "@/components/ui/orders/OrderTimeline";
-import { PendingOrderActions } from "@/components/ui/orders/PendingOrderActions";
-import { RatingBanner } from "./RatingBanner";
-import { ReorderButton } from "./ReorderButton";
-import { OrderShareButton } from "./OrderShareButton";
-import { cn } from "@/lib/utils/cn";
-import { formatPrice } from "@/lib/utils/currency";
 import { format, parseISO } from "date-fns";
 import { isPastCutoff } from "@/lib/utils/delivery-dates";
 import { getBusinessRules } from "@/lib/settings";
 import type { Order, OrderItem, OrderItemModifier, OrderAddress, OrderStatus } from "@/types/order";
-import { ORDER_STATUS_LABELS, ORDER_STATUS_COLORS } from "@/types/order";
+import { OrderDetailView } from "./OrderDetailView";
 
 interface OrderQueryResult {
   id: string;
@@ -233,209 +221,23 @@ export default async function OrderDetailPage({ params }: PageProps) {
       ? `${format(parseISO(ws), "h:mm a")} - ${format(parseISO(we), "h:mm a")}`
       : "Time slot selected";
 
+  const pastCutoff = order.deliveryWindowStart
+    ? isPastCutoff(
+        parseISO(order.deliveryWindowStart),
+        new Date(),
+        rules.cutoffDay,
+        rules.cutoffHour
+      )
+    : false;
+
   return (
-    <main className="min-h-screen bg-gradient-to-b from-cream to-lotus/30 pt-8 pb-20 px-4">
-      <div className="mx-auto max-w-2xl">
-        {/* Back + Share */}
-        <div className="flex items-center justify-between mb-6">
-          <Button variant="ghost" asChild>
-            <Link href="/orders" className="flex items-center gap-2">
-              <ArrowLeft className="h-4 w-4" />
-              Back to Orders
-            </Link>
-          </Button>
-          <OrderShareButton orderId={order.id} />
-        </div>
-
-        {/* Rating Banner (delivered orders only) */}
-        {order.status === "delivered" && <RatingBanner orderId={order.id} />}
-
-        {/* Order Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-display text-charcoal">
-              Order #{order.id.slice(0, 8).toUpperCase()}
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Placed on {format(parseISO(order.placedAt), "MMM d, yyyy 'at' h:mm a")}
-            </p>
-          </div>
-          <Badge className={ORDER_STATUS_COLORS[order.status]}>
-            {ORDER_STATUS_LABELS[order.status]}
-          </Badge>
-        </div>
-
-        {/* Order Timeline */}
-        <Card className="mb-6">
-          <CardHeader>
-            <h2 className="font-medium text-charcoal">Order Status</h2>
-          </CardHeader>
-          <CardContent>
-            <OrderTimeline
-              currentStatus={order.status}
-              placedAt={order.placedAt}
-              confirmedAt={order.confirmedAt}
-              deliveredAt={order.deliveredAt}
-            />
-          </CardContent>
-        </Card>
-
-        {/* Delivery Info */}
-        <div className="grid gap-4 md:grid-cols-2 mb-6">
-          {/* Delivery Time */}
-          <Card>
-            <CardContent className="p-4 flex items-start gap-3">
-              <div className="rounded-full bg-saffron/10 p-2">
-                <Clock className="h-5 w-5 text-saffron" />
-              </div>
-              <div>
-                <p className="font-medium text-charcoal">Delivery Time</p>
-                <p className="text-sm text-muted-foreground">{deliveryDate}</p>
-                <p className="text-sm text-muted-foreground">{deliveryTime}</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Delivery Address */}
-          <Card>
-            <CardContent className="p-4 flex items-start gap-3">
-              <div className="rounded-full bg-curry/10 p-2">
-                <MapPin className="h-5 w-5 text-curry" />
-              </div>
-              <div>
-                <p className="font-medium text-charcoal">Delivery Address</p>
-                {address ? (
-                  <>
-                    <p className="text-sm text-muted-foreground">{address.line1}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {address.city}, {address.state} {address.postalCode}
-                    </p>
-                  </>
-                ) : (
-                  <p className="text-sm text-muted-foreground">Address on file</p>
-                )}
-                {order.deliveryInstructions && (
-                  <p className="text-sm text-muted-foreground italic mt-2">
-                    {order.deliveryInstructions}
-                  </p>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Order Items */}
-        <Card className="mb-6">
-          <CardHeader className="border-b flex-row items-center gap-2">
-            <Package className="h-5 w-5 text-charcoal" />
-            <span className="font-medium">Order Items</span>
-          </CardHeader>
-          <CardContent className="p-6 space-y-4">
-            <div className="space-y-3">
-              {items.map((item) => (
-                <div key={item.id} className="flex justify-between text-sm">
-                  <div>
-                    <span className="font-medium">{item.quantity}x</span> {item.nameSnapshot}
-                    {item.modifiers.length > 0 && (
-                      <span className="text-muted-foreground ml-1">
-                        ({item.modifiers.map((m) => m.nameSnapshot).join(", ")})
-                      </span>
-                    )}
-                    {item.specialInstructions && (
-                      <p className="text-xs text-muted-foreground italic mt-1">
-                        Note: {item.specialInstructions}
-                      </p>
-                    )}
-                  </div>
-                  <span>{formatPrice(item.lineTotalCents)}</span>
-                </div>
-              ))}
-            </div>
-
-            {/* Special Instructions */}
-            {order.specialInstructions && (
-              <div className="border-t pt-4">
-                <p className="text-sm font-medium text-charcoal mb-1">Special Instructions</p>
-                <p className="text-sm text-muted-foreground">{order.specialInstructions}</p>
-              </div>
-            )}
-
-            {/* Totals */}
-            <div className="border-t pt-4 space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Subtotal</span>
-                <span>{formatPrice(order.subtotalCents)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">Delivery Fee</span>
-                {order.deliveryFeeCents === 0 ? (
-                  <span className="text-jade">FREE</span>
-                ) : (
-                  <span>{formatPrice(order.deliveryFeeCents)}</span>
-                )}
-              </div>
-              {order.taxCents > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tax</span>
-                  <span>{formatPrice(order.taxCents)}</span>
-                </div>
-              )}
-              {order.discountCents > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">
-                    Discount{order.promoCode ? ` (${order.promoCode})` : ""}
-                  </span>
-                  <span className="text-jade">-{formatPrice(order.discountCents)}</span>
-                </div>
-              )}
-              {order.tipCents > 0 && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tip</span>
-                  <span>{formatPrice(order.tipCents)}</span>
-                </div>
-              )}
-              <div className="flex justify-between font-medium text-lg pt-2 border-t">
-                <span>Total</span>
-                <span className="text-brand-red">{formatPrice(order.totalCents)}</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Actions */}
-        <div className="space-y-4">
-          {order.status === "pending" && (
-            <PendingOrderActions
-              orderId={order.id}
-              isPastCutoff={
-                order.deliveryWindowStart
-                  ? isPastCutoff(
-                      parseISO(order.deliveryWindowStart),
-                      new Date(),
-                      rules.cutoffDay,
-                      rules.cutoffHour
-                    )
-                  : false
-              }
-            />
-          )}
-        </div>
-
-        {/* Sticky Reorder (per D-24) */}
-        <div
-          className={cn(
-            "sticky bottom-0 z-20",
-            "bg-surface-primary border-t border-border",
-            "shadow-lg",
-            "px-4 py-3",
-            "-mx-4 mt-6",
-            "flex justify-center"
-          )}
-          style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
-        >
-          <ReorderButton orderId={order.id} />
-        </div>
-      </div>
-    </main>
+    <OrderDetailView
+      order={order}
+      address={address}
+      items={items}
+      deliveryDate={deliveryDate}
+      deliveryTime={deliveryTime}
+      isPastCutoff={pastCutoff}
+    />
   );
 }

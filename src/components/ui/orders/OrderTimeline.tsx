@@ -55,16 +55,14 @@ export function OrderTimeline({
   // Handle cancelled status separately
   if (currentStatus === "cancelled") {
     return (
-      <div className="rounded-lg border border-[var(--color-status-error)]/20 bg-[var(--color-status-error-bg)] p-4">
+      <div className="rounded-lg border border-status-error/20 bg-status-error/5 p-4">
         <div className="flex items-center gap-3">
-          <div className="rounded-full bg-[var(--color-status-error)]/10 p-2">
-            <Circle className="h-5 w-5 text-[var(--color-status-error)]" />
+          <div className="rounded-full bg-status-error/10 p-2">
+            <Circle className="h-5 w-5 text-status-error" />
           </div>
           <div>
-            <p className="font-medium text-[var(--color-status-error)]">Order Cancelled</p>
-            <p className="text-sm text-[var(--color-status-error)]/80">
-              This order has been cancelled.
-            </p>
+            <p className="font-medium text-status-error">Order Cancelled</p>
+            <p className="text-sm text-status-error/80">This order has been cancelled.</p>
           </div>
         </div>
       </div>
@@ -90,7 +88,7 @@ export function OrderTimeline({
       status: "preparing",
       label: "Preparing",
       icon: <Package className="h-5 w-5" />,
-      timestamp: null, // We don't track this timestamp yet
+      timestamp: null,
     },
     {
       status: "out_for_delivery",
@@ -122,12 +120,9 @@ export function OrderTimeline({
               <div
                 className={cn(
                   "flex h-10 w-10 items-center justify-center rounded-full border-2 transition-colors",
-                  isCompleted &&
-                    "border-[var(--color-accent-secondary)] bg-[var(--color-accent-secondary)] text-[var(--color-text-inverse)]",
-                  isCurrent &&
-                    "border-[var(--color-interactive-primary)] bg-[var(--color-interactive-primary)] text-[var(--color-text-inverse)]",
-                  isPending &&
-                    "border-[var(--color-border)] bg-[var(--color-surface)] text-[var(--color-text-secondary)]"
+                  isCompleted && "border-hero-sage bg-hero-sage text-hero-card-strong",
+                  isCurrent && "border-hero-clay bg-hero-clay text-hero-card-strong",
+                  isPending && "border-hero-line bg-hero-card/50 text-hero-ink-muted/60"
                 )}
               >
                 {step.icon}
@@ -136,7 +131,7 @@ export function OrderTimeline({
                 <div
                   className={cn(
                     "w-0.5 flex-1 min-h-8",
-                    isCompleted ? "bg-[var(--color-accent-secondary)]" : "bg-[var(--color-border)]"
+                    isCompleted ? "bg-hero-clay" : "bg-hero-ink/10"
                   )}
                 />
               )}
@@ -147,20 +142,20 @@ export function OrderTimeline({
               <p
                 className={cn(
                   "font-medium",
-                  isCompleted && "text-[var(--color-accent-secondary)]",
-                  isCurrent && "text-[var(--color-interactive-primary)]",
-                  isPending && "text-[var(--color-text-secondary)]"
+                  isCompleted && "text-hero-sage",
+                  isCurrent && "text-hero-accent",
+                  isPending && "text-hero-ink-muted/70"
                 )}
               >
                 {step.label}
               </p>
               {step.timestamp && (isCompleted || isCurrent) && (
-                <p className="text-sm text-[var(--color-text-secondary)]">
+                <p className="text-sm text-hero-ink-muted">
                   {format(parseISO(step.timestamp), "MMM d, yyyy 'at' h:mm a")}
                 </p>
               )}
               {isCurrent && !step.timestamp && (
-                <p className="text-sm text-[var(--color-interactive-primary)]">In progress...</p>
+                <p className="text-sm text-hero-accent">In progress…</p>
               )}
             </div>
           </div>

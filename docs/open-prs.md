@@ -8,31 +8,10 @@ _Last reconciled: 2026-06-08._
 
 ## In flight
 
-- **#157** — **Cart "After Dark"** (surface #2 of the customer rollout; branch
-  `claude/magical-clarke-ybykt1`). Reskins the cart funnel as the prelude to the
-  checkout receipt: **warm cart canvas** (`.cart-canvas`, doubled-class override of
-  the shared Drawer's `bg-white/black`; light cream / dark espresso, mobile-GPU-safe);
-  **photo-forward tactile line cards** (`.cart-line` — lifted warm panels, bilingual
-  EN/MY, triad ledger-spine, theme-aware so dark never melds, swipe-to-remove);
-  the **Morning-Star delivery journey** (star marker rides a clay→amber→sage fill to
-  a goal star; unlock = sparkle burst + bilingual sage stamp — replaces truck/road/
-  PartyPopper; loops `useInView`-gated; real values only); a **living-receipt
-  summary** (cream mini-receipt panel + `HeroCardLayers`, draw-on perforation rules,
-  rolling ledger + total under a ledger sheen — mirrors `CheckoutSummaryV8`, totals
-  math untouched); editorial bilingual header/footer/empty-state. Also **dish-sheet**
-  polish (bilingual section labels, warm stepper, radial-glow CTA; footer extracted
-  to `SheetFooter`). `CartDrawerParts` split into `CartHeader`/`CartItemsList`/
-  `CartFooter` (barrel preserved). Theme-safety: cream summary/journey callouts are
-  opaque cream so `hero-ink`/`hero-accent` read in both themes whether in the drawer
-  or the `/cart` page's theme-aware panel. Local verify green (lint · lint:css ·
-  format · typecheck · **1180 tests** · build); new CSS confirmed emitted.
-  CI: **GitHub Actions runs not starting** (consistent with today's quota/runner
-  pause — re-kicking won't help; merge via owner's branch-protection bypass after
-  preview review, as #154/#155 did). **Iterating on preview; awaiting owner merge go.**
+_None._
 
-> **Next up after cart:** order confirmation/tracking → account → auth (per the
-> customer-surfaces sequence). See
-> [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
+> **Next up:** account (surface #4) → auth (surface #5), per the customer-surfaces
+> sequence. See [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
 
 ## Watching
 
@@ -47,6 +26,23 @@ merge/close.
 
 ## Recently closed
 
+- **#158** — Orders **"After Dark"** (customer-rollout surface #3). The **Living
+  delivery ritual** on tracking (Morning-Star journey rail + rolling-digit ETA hero +
+  warm-paper driver/living-receipt cards + warm `.orders-canvas`), the order-detail
+  page reskin (split into `OrderDetailView`, resolving its >400-line warning;
+  `OrderTimeline` → hero tokens), and confirmation polish (warm-paper summary/delivery
+  cards). Presentation only (totals + lifecycle untouched), theme-safe, bilingual.
+  **Merged** — pre-merge adversarial review **SHIP** (no High/Med; one Low fixed —
+  reduced-motion guard on the "Almost here" badge); local verify green (lint · lint:css
+  · format · typecheck · **1180 tests** · build); landed via branch-protection bypass
+  during the Actions quota pause.
+- **#157** — Cart **"After Dark"** (customer-rollout surface #2). Warm cart canvas,
+  photo-forward tactile line cards (bilingual, triad ledger-spine, swipe-to-remove),
+  the **Morning-Star free-delivery journey** (replaced the truck/PartyPopper), a cream
+  living-receipt summary mirroring `CheckoutSummaryV8`, + dish-sheet polish. Presentation
+  only (totals untouched), theme-safe. **Merged** (`4dc3f4e`) — pre-merge adversarial
+  review SHIP (one Low fixed: bilingual `lang` tag); landed via branch-protection bypass
+  during the Actions quota pause.
 - **#154** — Checkout **"After Dark"** (customer-rollout surface #1). Living
   **thermal-print receipt** (presentation-only totals), layered sheet-stack form +
   ledger spine, magnetic/ripple CTAs, maximal **rewards card** (Star-arc gauge +
