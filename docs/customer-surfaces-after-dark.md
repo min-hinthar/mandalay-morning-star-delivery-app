@@ -147,13 +147,14 @@ merge** → triage the **auto-review after every push** → **never self-merge**
 
 ## Future work / backlog
 
-- **Surface #2 Cart — built, in PR #157** (branch `claude/magical-clarke-ybykt1`):
-  warm cart canvas + photo-forward tactile line cards + the **Morning-Star delivery
-  journey** (replaces the truck/road/PartyPopper) + a cream **living-receipt summary**
-  mirroring `CheckoutSummaryV8`, plus dish-sheet polish. Theme-safe (opaque cream
-  callouts so the shared `FreeDeliveryProgress`/`CartSummary` read on both the drawer
-  and the `/cart` page in dark mode). Local-verified green; awaiting owner merge go.
-- **Surfaces #3–#5 still to do:** order confirmation/tracking → account → auth
+- **Surface #2 Cart — DONE (merged #157).** Warm cart canvas + photo-forward tactile
+  line cards + the **Morning-Star free-delivery journey** + a cream living-receipt
+  summary + dish-sheet polish.
+- **Surface #3 Orders — DONE (merged #158).** The **Living delivery ritual** on
+  tracking (Morning-Star journey rail + rolling-digit ETA hero + warm-paper
+  driver/living-receipt cards + warm `.orders-canvas`), the order-detail reskin (split
+  into `OrderDetailView`), and confirmation polish. `OrderTimeline` → hero tokens.
+- **Surfaces #4–#5 still to do:** account (settings / rewards / orders list) → auth
   (per the sequence table above). One reviewable PR each.
 - **Zoom-out the shared menu photo on OTHER surfaces** for consistency — owner
   liked the checkout's bounded, less-cropped photo band; `HomepageMenuSection`
@@ -168,6 +169,5 @@ merge** → triage the **auto-review after every push** → **never self-merge**
   transition, never delaying the Stripe/COD request.
 - **`.rewards-pulse`** CSS idle loop isn't offscreen-paused (negligible — 2 tiny
   gems in a normally-in-view sidebar). Optional IO gate.
-- **`(customer)/orders/[id]/page.tsx`** is over the 400-line `max-lines` cap
-  (pre-existing warning) — split when next touched (confirmation/tracking is
-  surface #3).
+- **`(customer)/orders/[id]/page.tsx`** 400-line cap — RESOLVED in #158 by splitting
+  the presentational layout into a co-located `OrderDetailView`.

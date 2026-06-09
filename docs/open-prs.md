@@ -8,22 +8,10 @@ _Last reconciled: 2026-06-08._
 
 ## In flight
 
-- **Orders "After Dark"** (surface #3; branch `claude/orders-after-dark`). The order
-  confirmation / **tracking** / detail screens. Chosen direction: the **Living
-  delivery ritual** — tracking centerpiece is a rolling-digit ETA hero + a
-  **Morning-Star journey rail** (Confirmed→Preparing→Out→Delivered, glowing current
-  step) + a cream **living-receipt** order summary, with the live map as a framed,
-  desktop-tier-gated companion. Shared `.orders-canvas` (warm light / espresso dark,
-  doubled-class so it overrides the mobile info-sheet Drawer). Converts the plain
-  pre-After-Dark palette (jade/charcoal/cream + raw-hex ETA ring) to hero/theme
-  tokens. **All three screens done**: tracking ritual + order-detail page (split into
-  `OrderDetailView` + reskin, resolving its >400-line warning) + confirmation polish
-  (warm-paper summary/delivery cards). Theme-safe (cream cards = constant ink; canvas =
-  theme-aware). Local verify green (lint · lint:css · format · typecheck · **1180
-  tests** · build). Iterating on preview; awaiting owner merge go.
+_None._
 
-> **Next up after orders:** account → auth (per the customer-surfaces sequence). See
-> [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
+> **Next up:** account (surface #4) → auth (surface #5), per the customer-surfaces
+> sequence. See [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
 
 ## Watching
 
@@ -38,6 +26,16 @@ merge/close.
 
 ## Recently closed
 
+- **#158** — Orders **"After Dark"** (customer-rollout surface #3). The **Living
+  delivery ritual** on tracking (Morning-Star journey rail + rolling-digit ETA hero +
+  warm-paper driver/living-receipt cards + warm `.orders-canvas`), the order-detail
+  page reskin (split into `OrderDetailView`, resolving its >400-line warning;
+  `OrderTimeline` → hero tokens), and confirmation polish (warm-paper summary/delivery
+  cards). Presentation only (totals + lifecycle untouched), theme-safe, bilingual.
+  **Merged** — pre-merge adversarial review **SHIP** (no High/Med; one Low fixed —
+  reduced-motion guard on the "Almost here" badge); local verify green (lint · lint:css
+  · format · typecheck · **1180 tests** · build); landed via branch-protection bypass
+  during the Actions quota pause.
 - **#157** — Cart **"After Dark"** (customer-rollout surface #2). Warm cart canvas,
   photo-forward tactile line cards (bilingual, triad ledger-spine, swipe-to-remove),
   the **Morning-Star free-delivery journey** (replaced the truck/PartyPopper), a cream
