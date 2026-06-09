@@ -338,7 +338,7 @@ export default function CheckoutClient({
 
   if (authLoading || !user) {
     return (
-      <div className="checkout-canvas relative flex min-h-screen items-center justify-center">
+      <div className="checkout-canvas after-dark-canvas relative flex min-h-screen items-center justify-center">
         <Loader2 className="relative h-8 w-8 animate-spin text-hero-accent" />
       </div>
     );
@@ -362,7 +362,7 @@ export default function CheckoutClient({
   };
 
   return (
-    <div className="checkout-canvas relative min-h-screen pb-32">
+    <div className="checkout-canvas after-dark-canvas relative min-h-screen pb-32">
       <CheckoutBackdrop />
       <div className="relative mx-auto max-w-4xl px-4 py-6 sm:py-8">
         <CheckoutMasthead step={step} className="mb-6 animate-hero-develop-1" />
