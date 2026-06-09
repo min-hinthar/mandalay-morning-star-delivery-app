@@ -140,6 +140,9 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
             "flex flex-col overflow-hidden",
             zClass.modal
           )}
+          {...motionProps}
+          // style AFTER motionProps — the hook's own style:{touchAction} would
+          // otherwise replace this whole prop, killing the safe-area padding
           style={{
             paddingTop: "env(safe-area-inset-top)",
             touchAction: isDragging ? "none" : "pan-y",
@@ -148,7 +151,6 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
           animate={shouldAnimate ? { x: 0 } : undefined}
           exit={shouldAnimate ? { x: "-100%" } : undefined}
           transition={getSpring(spring.default)}
-          {...motionProps}
           role="navigation"
           aria-label="Mobile navigation"
         >
@@ -158,7 +160,7 @@ export function MobileDrawer({ isOpen, onClose, user }: MobileDrawerProps) {
           {/* Header — editorial bilingual masthead + theme toggle + close */}
           <div className="relative flex items-center justify-between border-b border-border-subtle px-4 py-3">
             <div className="flex items-center gap-2">
-              <HeroSunburst className="h-4 w-4 text-hero-clay" rays={8} aria-hidden="true" />
+              <HeroSunburst className="h-4 w-4 text-hero-clay" rays={8} />
               <div className="leading-tight">
                 <span className="font-display text-lg font-semibold tracking-tight text-text-primary">
                   Menu

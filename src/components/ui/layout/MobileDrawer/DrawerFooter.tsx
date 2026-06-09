@@ -63,9 +63,13 @@ export function DrawerFooter({ className }: DrawerFooterProps) {
         <span>Cooked with Love</span>
         <Heart className="h-3 w-3 fill-red-500 text-red-500" aria-hidden="true" />
         <span>for the Burmese</span>
-        <MyanmarFlagIcon className="h-3 w-4" />
+        <span aria-hidden="true">
+          <MyanmarFlagIcon className="h-3 w-4" />
+        </span>
         <span>Community of Los Angeles</span>
-        <CaliforniaFlagIcon className="h-3 w-4" />
+        <span aria-hidden="true">
+          <CaliforniaFlagIcon className="h-3 w-4" />
+        </span>
       </p>
     </m.div>
   );
