@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { User, Calendar, Mail, Phone, Check } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
-import { Card, CardContent } from "@/components/ui/card";
+import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/hooks/useToastV8";
@@ -122,24 +122,25 @@ export function ProfileTab() {
 
   if (hasError || !profile) {
     return (
-      <Card className="shadow-card">
-        <CardContent className="p-6">
-          <div className="text-center py-8">
-            <div className="rounded-full bg-status-error/10 w-16 h-16 mx-auto flex items-center justify-center mb-4">
+      <div className="hero-surface-paper relative overflow-hidden rounded-card">
+        <HeroCardLayers accent="clay" radius="rounded-card" />
+        <div className="relative p-6">
+          <div className="py-8 text-center">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-status-error/10">
               <User className="h-8 w-8 text-status-error" />
             </div>
-            <h3 className="text-lg font-display font-bold text-text-primary mb-2">
+            <h3 className="mb-2 font-display text-lg font-bold text-hero-ink">
               Failed to load profile
             </h3>
-            <p className="font-body text-text-secondary mb-4">
+            <p className="mb-4 font-body text-hero-ink-muted">
               We couldn&apos;t load your profile information.
             </p>
             <Button variant="primary" onClick={() => window.location.reload()}>
               Try Again
             </Button>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     );
   }
 
@@ -152,17 +153,16 @@ export function ProfileTab() {
       initial={shouldAnimate ? { opacity: 0 } : undefined}
       animate={shouldAnimate ? { opacity: 1 } : undefined}
     >
-      <Card className="shadow-card">
-        <CardContent className="p-6">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="rounded-full bg-primary/10 p-4">
-              <User className="h-8 w-8 text-primary" />
+      <div className="hero-surface-paper relative overflow-hidden rounded-card">
+        <HeroCardLayers accent="clay" radius="rounded-card" />
+        <div className="relative p-6">
+          <div className="mb-6 flex items-center gap-4">
+            <div className="rounded-full bg-hero-clay/12 p-4">
+              <User className="h-8 w-8 text-hero-clay" />
             </div>
             <div className="flex-1">
-              <h2 className="text-xl font-display font-bold text-text-primary">
-                Profile Information
-              </h2>
-              <p className="text-sm text-text-secondary">Manage your personal details</p>
+              <h2 className="font-display text-xl font-bold text-hero-ink">Profile Information</h2>
+              <p className="text-sm text-hero-ink-muted">Manage your personal details</p>
             </div>
             {rewards && rewards.tier.id !== "new" && (
               <TierBadge tier={rewards.tier} variant="pill" />
@@ -172,10 +172,7 @@ export function ProfileTab() {
           <div className="space-y-6">
             {/* Full Name */}
             <div>
-              <label
-                htmlFor="fullName"
-                className="block text-sm font-medium text-text-primary mb-2"
-              >
+              <label htmlFor="fullName" className="mb-2 block text-sm font-medium text-hero-ink">
                 Full Name
               </label>
               <Input
@@ -207,7 +204,7 @@ export function ProfileTab() {
 
             {/* Phone */}
             <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-text-primary mb-2">
+              <label htmlFor="phone" className="mb-2 block text-sm font-medium text-hero-ink">
                 <span className="flex items-center gap-2">
                   <Phone className="h-4 w-4" />
                   Phone Number
@@ -242,29 +239,29 @@ export function ProfileTab() {
 
             {/* Email - Display Only */}
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
+              <label className="mb-2 block text-sm font-medium text-hero-ink">
                 <span className="flex items-center gap-2">
                   <Mail className="h-4 w-4" />
                   Email Address
                 </span>
               </label>
-              <div className="bg-surface-secondary rounded-input px-4 py-3 text-text-secondary">
+              <div className="rounded-input bg-hero-ink/5 px-4 py-3 text-hero-ink-muted">
                 {profile.email || "No email set"}
               </div>
-              <p className="mt-1 text-xs text-text-muted">
+              <p className="mt-1 text-xs text-hero-ink-muted">
                 Contact support to change your email address
               </p>
             </div>
 
             {/* Member Since */}
             <div>
-              <label className="block text-sm font-medium text-text-primary mb-2">
+              <label className="mb-2 block text-sm font-medium text-hero-ink">
                 <span className="flex items-center gap-2">
                   <Calendar className="h-4 w-4" />
                   Member Since
                 </span>
               </label>
-              <div className="bg-surface-secondary rounded-input px-4 py-3 text-text-secondary">
+              <div className="rounded-input bg-hero-ink/5 px-4 py-3 text-hero-ink-muted">
                 {memberSince}
               </div>
             </div>
@@ -305,8 +302,8 @@ export function ProfileTab() {
               </Button>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </m.div>
   );
 }

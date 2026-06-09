@@ -11,7 +11,7 @@
 
 import { useState } from "react";
 import { Heart, MapPin, Bell, Palette } from "lucide-react";
-import { Tabs } from "@/components/ui/Tabs";
+import { cn } from "@/lib/utils/cn";
 import { FloatingUnsavedBar } from "@/components/ui/admin/settings/FloatingUnsavedBar";
 import { AddressesTab } from "@/components/ui/account/AddressesTab";
 import { useCustomerSettings } from "./useCustomerSettings";
@@ -74,12 +74,29 @@ export function SettingsTab({ initialSection }: SettingsTabProps) {
 
   return (
     <div className="space-y-6">
-      {/* Sub-tab navigation */}
-      <Tabs
-        tabs={SETTINGS_TABS}
-        activeTab={activeSection}
-        onTabChange={(id) => setActiveSection(id as SettingsSection)}
-      />
+      {/* Sub-tab navigation — self-contained pills (no measured-indicator dark-on-dark) */}
+      <div role="tablist" aria-label="Settings sections" className="flex flex-wrap gap-2">
+        {SETTINGS_TABS.map((t) => {
+          const active = activeSection === t.id;
+          return (
+            <button
+              key={t.id}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              onClick={() => setActiveSection(t.id)}
+              className={cn(
+                "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
+                active ? "menu-tab-active" : "menu-tab-ghost"
+              )}
+            >
+              {t.icon}
+              {t.label}
+            </button>
+          );
+        })}
+      </div>
 
       {/* Error message */}
       {error && (
