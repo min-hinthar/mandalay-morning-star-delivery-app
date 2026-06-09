@@ -13,11 +13,14 @@ import type { CustomerFeedback, FeedbackCategory, FeedbackStatus } from "@/types
 // CONSTANTS
 // ============================================
 
+// On the cream warm-paper card, badge text must use constant-on-cream tokens
+// (theme-aware accents flip bright in dark mode and wash out on cream). The tint
+// hue + label carry the status; dark ink keeps it legible in both themes.
 const STATUS_STYLES: Record<FeedbackStatus, string> = {
-  new: "bg-status-info/10 text-status-info",
-  in_review: "bg-status-warning/10 text-status-warning",
-  resolved: "bg-status-success/10 text-status-success",
-  dismissed: "bg-surface-tertiary text-text-muted",
+  new: "bg-hero-blue/15 text-hero-ink",
+  in_review: "bg-amber-400/20 text-hero-ink",
+  resolved: "bg-hero-sage/20 text-hero-ink",
+  dismissed: "bg-hero-ink/[0.06] text-hero-ink-muted",
 };
 
 const STATUS_LABELS: Record<FeedbackStatus, string> = {
@@ -36,8 +39,8 @@ const CATEGORY_LABELS: Record<FeedbackCategory, string> = {
 
 const CATEGORY_COLORS: Record<FeedbackCategory, string> = {
   bug_report: "text-status-error",
-  order_issue: "text-accent-orange",
-  suggestion: "text-accent-teal",
+  order_issue: "text-hero-accent",
+  suggestion: "text-hero-sage",
   general: "text-hero-ink-muted",
 };
 

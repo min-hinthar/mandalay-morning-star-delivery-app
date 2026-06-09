@@ -65,7 +65,9 @@ export function AccountHero() {
   const tier = rewards?.tier;
   const jewel = TIER_JEWEL[tier?.id ?? "new"];
   const cycleFraction =
-    rewards && rewards.milestoneStep > 0 ? rewards.progressInCycle / rewards.milestoneStep : 0;
+    rewards && rewards.milestoneStep > 0
+      ? Math.min(1, rewards.progressInCycle / rewards.milestoneStep)
+      : 0;
   const reward = rewards ? formatPrice(rewards.nextRewardCents) : "";
   const progressCopy = rewards ? ordersToReward(rewards.ordersToNext, reward) : null;
 

@@ -8,15 +8,17 @@ _Last reconciled: 2026-06-08._
 
 ## In flight
 
-- **Account "After Dark"** (surface #4; branch `claude/account-after-dark`). Chosen
-  direction: a **loyalty passport** hero. **Increment 1 (shell) pushed first:** a warm
-  `.account-canvas`, the **`AccountHero` passport** (bilingual greeting + tier crest in
-  constant hero-jewel tokens + rolling-digit Stars + reward-cycle progress + tier-climb
-  - member-since, on real `useRewards`/profile data), and a **self-contained pill tab
-    rail** replacing the generic `Tabs` (removes the measured-indicator dark-on-dark
-    risk). Tab-BODY reskins (Profile / Orders list / Addresses / Settings / Feedback +
-    Rewards cohesion) are the next commits on this branch. Theme-safe; local verify green
-    (typecheck · eslint · lint:css · 1180 tests · build).
+- **#159 — Account "After Dark"** (surface #4; branch `claude/account-after-dark`).
+  **Complete.** A **loyalty passport** hero (`AccountHero`: bilingual greeting + tier
+  crest in constant hero-jewel tokens + rolling-digit Stars + reward-cycle progress +
+  tier-climb + member-since, on real `useRewards`/profile data) on a warm
+  `.account-canvas`, a **self-contained pill tab rail** (AccountClient + SettingsTab
+  sub-nav — removes the measured-indicator dark-on-dark risk), and warm-paper tab bodies
+  (Profile / Orders list / Addresses / Feedback; Rewards left as-is — already
+  loyalty-styled). Theme-safe, presentation-only. **Pre-merge adversarial review: SHIP**
+  (no High; the one Medium — FeedbackTab badge meld on the cream card — fixed, + a
+  passport progress-clamp Low). Local verify green (lint · lint:css · format · typecheck
+  · **1180 tests** · build). **Awaiting owner merge go.**
 
 > **Next up after account:** auth (surface #5), per the customer-surfaces sequence.
 > See [`customer-surfaces-after-dark.md`](./customer-surfaces-after-dark.md).
