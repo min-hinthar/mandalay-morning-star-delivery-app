@@ -13,6 +13,7 @@ import { CutoffCountdown } from "@/components/ui/customer";
 import { SuccessCheckmark } from "@/components/ui/success-checkmark";
 import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
+import { TierUpCelebration } from "@/components/ui/TierUpCelebration";
 import { useRewardsSummary } from "@/lib/hooks/useRewardsSummary";
 import type { LoyaltyTierId } from "@/lib/loyalty";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
@@ -99,6 +100,9 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
     <>
       {/* Confetti celebration */}
       <ConfettiComponent particleCount={30} duration={2.5} />
+
+      {/* Tier-up moment — fires only on a real tier crossing (kit; self-deduped) */}
+      <TierUpCelebration />
 
       <div className="orders-canvas min-h-screen px-4 py-12">
         <div className="mx-auto max-w-2xl">
