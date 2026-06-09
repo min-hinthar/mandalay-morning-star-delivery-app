@@ -93,12 +93,17 @@ bilingual.
 
 ## Build sequence (one reviewable PR each, off the post-#159 `main`)
 
-1. **Kit foundation** — `AfterDarkAmbient` + `.after-dark-canvas` tokens, `MagneticButton`,
-   `useTapBurst`, `useScrollReveal`, `goldleaf` layer + `TierUpCelebration`. Storybook
-   stories; no surface wired yet (pure additive). Verify + adversarial review.
-2. **Auth (#5)** — the auth surface built ON the kit (ships maximal).
-3. **Back-port** — apply ambient/tilt/spotlight/magnetic/celebrations to checkout, cart,
+1. ✅ **Kit foundation** (merged **#160**) — `AfterDarkAmbient` + `.after-dark-canvas`
+   tokens, `MagneticButton`, `useTapBurst`, `useScrollReveal`, `GoldLeaf` +
+   `TierUpCelebration`, Storybook story. Pure-additive. (Review nit: `ScrollReveal`
+   reduced-motion gate fixed at source.)
+2. ✅ **Auth (#5)** (merged **#162**) — editorial-split `/login` + `/auth/expired` on the
+   kit: brand-panel menu photo + bilingual wordmark, mobile photo band, warm-paper card,
+   `MagneticButton` submit, `TapBurst` on success. Reskin only.
+3. ⏳ **Back-port** — apply ambient/tilt/spotlight/magnetic/celebrations to checkout, cart,
    orders, account (per-surface PRs; consolidate the 4 canvases into `.after-dark-canvas`).
+   **Carry-forward:** any future test mounting `TierUpCelebration` needs `useReducedMotion`
+   in its framer mock (it always renders `<Confetti>`).
 
 > Iterate on Vercel previews each push; adversarial review just before merge; never
 > self-merge (owner's per-PR go). CI Actions may still be quota-paused — verify locally

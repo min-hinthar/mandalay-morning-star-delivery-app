@@ -6,6 +6,8 @@ import { AnimatePresence, m } from "framer-motion";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
+import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
+import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
 
 export type AuthState = "form" | "confirmation" | "success" | "error";
 
@@ -80,32 +82,32 @@ export function AuthCard({ children, className }: AuthCardProps) {
       <m.div
         {...cardMotion}
         className={cn(
-          "w-full sm:max-w-md",
-          /* Solid on mobile, glass on desktop (Safari crash prevention) */
-          "bg-surface-primary sm:bg-surface-primary/70 sm:backdrop-blur-xl",
-          "rounded-t-3xl sm:rounded-3xl overflow-hidden",
-          /* Layered shadows for depth */
-          "shadow-[0_8px_40px_-12px_rgba(0,0,0,0.15),0_0_0_1px_rgba(0,0,0,0.04)]",
-          "dark:shadow-[0_8px_40px_-12px_rgba(0,0,0,0.5),0_0_0_1px_rgba(255,255,255,0.06)]",
-          /* Subtle border glow */
-          "ring-1 ring-white/30 dark:ring-white/10",
+          "relative w-full overflow-hidden sm:max-w-md",
+          /* Warm-paper card — constant cream in both themes (opaque, no blur) */
+          "hero-surface-paper rounded-t-3xl sm:rounded-3xl",
+          /* Soft two-tier diffuse shadow so it reads as a gently-lifted panel */
+          "shadow-[0_2px_10px_-4px_rgba(20,20,19,0.18),0_24px_60px_-28px_rgba(20,20,19,0.4)]",
           className
         )}
       >
-        {/* Warm gradient accent bar */}
-        <div className="h-1.5 bg-gradient-to-r from-primary via-secondary to-primary" />
+        {/* Layered backdrop — dot-grid + grain + corner ticks + clay edge-glow */}
+        <HeroCardLayers accent="clay" radius="rounded-3xl" />
 
-        <div className="p-7 sm:p-9">
+        {/* Warm gradient accent bar */}
+        <div className="relative h-1.5 bg-gradient-to-r from-hero-clay via-hero-gold to-hero-clay" />
+
+        <div className="relative p-7 sm:p-9">
           {showHeader && (
             <div className="flex flex-col items-center text-center">
-              <m.div className="flex flex-col items-center gap-3" layoutId="app-logo">
-                {/* Logo with soft golden glow */}
+              {/* Compact bilingual masthead — mobile/tablet only (desktop uses the
+                  AuthBrandPanel). Keeps the logo + layoutId for the success morph. */}
+              <m.div className="flex flex-col items-center gap-2.5 lg:hidden" layoutId="app-logo">
                 <div className="relative">
+                  {/* Gold halo — radial-gradient falloff (no blur, iOS-safe) */}
                   <div
-                    className="absolute inset-0 rounded-full blur-xl opacity-40"
+                    className="absolute -inset-2 rounded-full opacity-60"
                     style={{
-                      background:
-                        "radial-gradient(circle, hsla(40, 80%, 60%, 0.5), transparent 70%)",
+                      background: "radial-gradient(circle, var(--hero-gold), transparent 68%)",
                     }}
                     aria-hidden="true"
                   />
@@ -115,17 +117,18 @@ export function AuthCard({ children, className }: AuthCardProps) {
                     width={80}
                     height={53}
                     priority
-                    className="relative h-18 w-18 object-contain"
+                    className="relative h-16 w-16 object-contain"
                   />
                 </div>
-                <div>
-                  <p className="text-lg font-display font-bold text-text-primary tracking-tight">
+                <div className="flex items-center gap-2 text-hero-clay">
+                  <HeroSunburst className="h-4 w-4" rays={8} />
+                  <p className="font-display text-lg font-bold tracking-tight text-hero-ink">
                     Mandalay Morning Star
                   </p>
-                  <p className="text-xs text-muted-foreground tracking-wide uppercase">
-                    Burmese kitchen &bull; Weekly delivery
-                  </p>
                 </div>
+                <p lang="my" className="font-burmese text-xs leading-relaxed text-hero-ink-muted">
+                  မြန်မာ အရသာ · LA အိမ်ရောက်ပို့ဆောင်
+                </p>
               </m.div>
 
               <AnimatePresence mode="wait">
@@ -135,13 +138,13 @@ export function AuthCard({ children, className }: AuthCardProps) {
                   animate={{ opacity: 1, y: 0 }}
                   exit={shouldAnimate ? { opacity: 0, y: -4 } : undefined}
                   transition={{ duration: 0.2 }}
-                  className="mt-7"
+                  className="mt-7 lg:mt-0"
                 >
-                  <h1 className="text-2xl font-display font-bold text-text-primary">
+                  <h1 className="text-2xl font-display font-bold text-hero-ink">
                     {headingCopy[state]}
                   </h1>
                   {subheadingCopy[state] && (
-                    <p className="mt-1.5 text-sm text-muted-foreground">{subheadingCopy[state]}</p>
+                    <p className="mt-1.5 text-sm text-hero-ink-muted">{subheadingCopy[state]}</p>
                   )}
                 </m.div>
               </AnimatePresence>

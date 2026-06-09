@@ -47,10 +47,10 @@ export function SocialLoginButtons({ onOAuthStart, redirectTo }: SocialLoginButt
   };
 
   const buttonClass = cn(
-    "w-full h-12 rounded-2xl border border-border bg-surface-primary text-text-primary",
+    "h-12 w-full rounded-2xl border border-hero-line bg-hero-card text-hero-ink",
     "flex items-center justify-center gap-3 text-sm font-medium",
     "transition-all duration-200",
-    "hover:shadow-md hover:border-border-strong hover:bg-surface-secondary/50",
+    "hover:border-hero-clay/60 hover:bg-hero-clay/10 hover:shadow-md",
     "active:scale-[0.98]"
   );
 
@@ -59,10 +59,10 @@ export function SocialLoginButtons({ onOAuthStart, redirectTo }: SocialLoginButt
       {/* Divider */}
       <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-border" />
+          <span className="w-full border-t border-hero-line" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-surface-primary px-3 text-muted-foreground tracking-wider">or</span>
+          <span className="bg-hero-card px-3 tracking-wider text-hero-ink-muted">or</span>
         </div>
       </div>
 

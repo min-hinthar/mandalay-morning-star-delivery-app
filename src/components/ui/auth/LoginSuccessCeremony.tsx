@@ -7,6 +7,7 @@ import { m } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { spring } from "@/lib/motion-tokens";
+import { TapBurst, useTapBurst } from "@/components/ui/TapBurst";
 
 interface LoginSuccessCeremonyProps {
   userName?: string | null;
@@ -34,6 +35,7 @@ export function LoginSuccessCeremony({
 }: LoginSuccessCeremonyProps) {
   const router = useRouter();
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  const { fireKey, fire } = useTapBurst();
 
   useEffect(() => {
     const duration = shouldAnimate ? 2800 : 1000;
@@ -44,6 +46,11 @@ export function LoginSuccessCeremony({
     return () => clearTimeout(timeout);
   }, [router, shouldAnimate, redirectTo]);
 
+  // Kit signature: one-shot triad-particle burst on sign-in success.
+  useEffect(() => {
+    fire();
+  }, [fire]);
+
   const welcomeMessage = userName ? `Welcome, ${userName}!` : "Welcome!";
 
   return (
@@ -53,18 +60,18 @@ export function LoginSuccessCeremony({
         {/* Expanding golden ring */}
         {shouldAnimate && (
           <m.div
-            className="absolute inset-0 rounded-full border-2 border-secondary"
+            className="absolute inset-0 rounded-full border-2 border-hero-gold"
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: [0.8, 1.6, 2], opacity: [0, 0.6, 0] }}
             transition={{ duration: 1.5, ease: "easeOut" }}
           />
         )}
 
-        {/* Golden glow behind */}
+        {/* Golden glow behind — radial-gradient falloff (no blur, iOS-safe) */}
         <m.div
-          className="absolute -inset-4 rounded-full blur-2xl"
+          className="absolute -inset-6 rounded-full"
           style={{
-            background: "radial-gradient(circle, hsla(40, 80%, 60%, 0.5), transparent 70%)",
+            background: "radial-gradient(circle, var(--hero-gold), transparent 66%)",
           }}
           initial={shouldAnimate ? { opacity: 0 } : false}
           animate={{ opacity: 0.6 }}
@@ -72,12 +79,15 @@ export function LoginSuccessCeremony({
           aria-hidden="true"
         />
 
+        {/* Kit triad-particle burst — one-shot on mount */}
+        <TapBurst fireKey={fireKey} />
+
         {/* Sparkle ring burst */}
         {shouldAnimate &&
           SPARKLE_RING.map((spark, i) => (
             <m.div
               key={i}
-              className="absolute top-1/2 left-1/2 text-secondary"
+              className="absolute left-1/2 top-1/2 text-amber-400"
               initial={{ x: 0, y: 0, opacity: 0, scale: 0 }}
               animate={{
                 x: spark.x,
@@ -143,7 +153,7 @@ export function LoginSuccessCeremony({
             />
           </div>
         )}
-        <p className="text-xl font-display font-bold text-text-primary">{welcomeMessage}</p>
+        <p className="font-display text-xl font-bold text-hero-ink">{welcomeMessage}</p>
       </m.div>
 
       {/* Subtitle */}
@@ -151,7 +161,7 @@ export function LoginSuccessCeremony({
         initial={shouldAnimate ? { opacity: 0 } : false}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 0.5 }}
-        className="text-sm text-muted-foreground"
+        className="text-sm text-hero-ink-muted"
       >
         {roleMessage ?? "Taking you to your dashboard\u2026"}
       </m.p>

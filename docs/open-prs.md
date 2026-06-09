@@ -4,22 +4,18 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-06-08._
+_Last reconciled: 2026-06-09._
 
 ## In flight
 
-- **After Dark "level-up" kit + Auth (#5)** (branch `claude/after-dark-levelup`, off
-  post-#159 `main`). Owner greenlit all four level-up tracks built as a shared living-FX
-  kit alongside Auth, then back-ported. Plan + guardrails:
-  [`after-dark-levelup-plan.md`](./after-dark-levelup-plan.md). **PR ① (kit foundation)
-  in progress:** started with the shared **`MagneticButton`** (promoted from checkout's
-  `CtaMagnet`, which now delegates). Next: `AfterDarkAmbient` + `.after-dark-canvas`
-  tokens, `useTapBurst`, `useScrollReveal`, `goldleaf` HeroCardLayers accent,
-  `TierUpCelebration` — then Auth (#5) on the kit, then back-port. Pure-additive;
-  verify + adversarial review before merge.
+_None._ The level-up kit (#160), the cart/account fixes (#161), and Auth (#5, #162)
+all merged 2026-06-09.
 
-> **After this:** Auth (#5) on the kit → back-port to checkout/cart/orders/account.
-> See [`after-dark-levelup-plan.md`](./after-dark-levelup-plan.md).
+> **Next: back-port the kit** — apply the ambient/tilt/spotlight/magnetic/celebration
+> primitives to checkout, cart, orders, account (per-surface PRs; consolidate the four
+> per-surface canvases into the single `.after-dark-canvas`). Carry-forward notes: any
+> future test mounting `TierUpCelebration` needs `useReducedMotion` in its framer mock
+> (it always renders `<Confetti>`). See [`after-dark-levelup-plan.md`](./after-dark-levelup-plan.md).
 
 ## Watching
 
@@ -34,6 +30,34 @@ merge/close.
 
 ## Recently closed
 
+- **#162** — **Auth "After Dark"** (customer-rollout surface #5). Editorial-split
+  `/login` + `/auth/expired` on the level-up kit: `.after-dark-canvas` +
+  `AfterDarkAmbient`, a desktop brand panel carrying the appetizing menu photo
+  (`menu-section-bg.webp`, masked + warm scrim) with a bilingual "Mandalay Morning
+  Star" wordmark, a mobile masked photo band, a warm-paper `AuthCard` (+ bilingual
+  mobile masthead), `MagneticButton` submit, and the kit `TapBurst` on sign-in
+  success. Reskin only — magic-link/OTP/OAuth state machine, role redirects, rate
+  limits, driver-invite all untouched. Also removed the dead `auth-gradient`/
+  `auth-steam-drift` CSS and fixed several latent iOS `blur()` layers. **Merged**
+  (`<sha>`) — pre-merge adversarial review **SHIP** (no High/Med; logic-unchanged,
+  theme-safe, blur-free); local verify green (lint · lint:css · format · typecheck ·
+  1180 tests · build); landed via branch-protection bypass during the Actions quota pause.
+- **#161** — Cart + Account **"After Dark" fixes** (owner feedback). Cart: mode-aware
+  drawer layout (desktop pins footer + scrolls items; mobile sheet single-scrolls,
+  `height` auto) so the cream receipt no longer overlaps/squeezes items. Account:
+  reimagined tab + Settings sub-tab trays, `MenuTextureBackdrop` layering, opaque
+  bases on previously-transparent reward cards, enriched dark canvas (full triad +
+  3-stop ramp), conditional bottom clearance so the fixed `CartBar` + floating save
+  bar never overlap content while staying tight when idle. **Merged** (`e1a4393`) —
+  adversarial review SHIP-WITH-NITS (the one actionable nit, floating-bar clearance,
+  fixed); local verify green.
+- **#160** — After Dark **level-up kit** (PR ① of the epic). Six pure-additive
+  shared living-FX primitives: `MagneticButton` (checkout `CtaMagnet` delegates),
+  `AfterDarkAmbient` + the canonical `.after-dark-canvas`, `GoldLeaf`, `TapBurst` +
+  `useTapBurst`, `ScrollReveal` + `useScrollReveal`, `TierUpCelebration` + a Storybook
+  story. Not yet wired to surfaces. **Merged** (`c5150f8`) — adversarial review
+  SHIP-WITH-NITS (the `ScrollReveal` reduced-motion gate fixed at source); iOS-GPU-safe,
+  framer-mock-safe, local verify green (1180 tests).
 - **#159** — Account **"After Dark"** (customer-rollout surface #4). Loyalty passport
   hero (`AccountHero`: tier crest + rolling Stars + reward-cycle progress + spend-climb +
   bilingual greeting on real `useRewards`/profile data), self-contained pill tab rail
