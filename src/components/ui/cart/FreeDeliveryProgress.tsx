@@ -132,8 +132,8 @@ export function FreeDeliveryProgress({
                 animate={{ width: `${progressPercent}%` }}
                 transition={getSpring(spring.rubbery)}
               />
-              {/* Comet trail — a warm gradient streak chasing the fill frontier
-                  (clipped by the track; pure gradient, no blur) */}
+              {/* Motion wake — a warm streak trailing the truck (clipped by the
+                  track; pure gradient, no blur) */}
               {shouldAnimate && progressPercent > 8 && (
                 <m.div
                   aria-hidden="true"
@@ -145,13 +145,13 @@ export function FreeDeliveryProgress({
                   }}
                   transition={getSpring(spring.rubbery)}
                   style={{
-                    background: "linear-gradient(to right, transparent, rgba(251,191,36,0.55))",
+                    background: "linear-gradient(to right, transparent, rgba(251,191,36,0.5))",
                   }}
                 />
               )}
             </div>
 
-            {/* Goal star at the finish — lights up as you approach */}
+            {/* Goal star at the finish — the reward incentive; lights up as you approach */}
             <m.div
               aria-hidden="true"
               className="absolute right-0 top-1/2 flex h-6 w-6 -translate-y-1/2 translate-x-2 items-center justify-center rounded-full border border-hero-sage/50 bg-hero-card"
@@ -177,42 +177,8 @@ export function FreeDeliveryProgress({
               />
             </m.div>
 
-            {/* Convoy — two smaller stars trailing the lead marker, phase-shifted
-                bobs (renders only once there's road behind the convoy) */}
-            {shouldAnimate &&
-              progressPercent >= 14 &&
-              [
-                { back: 8, size: "h-4 w-4", star: "h-2 w-2", opacity: 0.85, delay: 0.25 },
-                { back: 15, size: "h-3 w-3", star: "h-1.5 w-1.5", opacity: 0.6, delay: 0.5 },
-              ].map((c) => (
-                <m.div
-                  key={c.back}
-                  aria-hidden="true"
-                  className="absolute top-1/2"
-                  initial={{ left: "0%" }}
-                  animate={{ left: `${Math.max(2, progressPercent - c.back)}%` }}
-                  transition={getSpring(spring.rubbery)}
-                  style={{ translateX: "-50%", translateY: "-50%", opacity: c.opacity }}
-                >
-                  <m.div
-                    className={cn(
-                      "flex items-center justify-center rounded-full border border-amber-400/70 bg-hero-clay/80",
-                      c.size
-                    )}
-                    animate={loop ? { y: [0, -2, 0] } : undefined}
-                    transition={{
-                      duration: 1.6,
-                      repeat: Infinity,
-                      ease: "easeInOut",
-                      delay: c.delay,
-                    }}
-                  >
-                    <Star className={cn("fill-amber-300 text-amber-200", c.star)} />
-                  </m.div>
-                </m.div>
-              ))}
-
-            {/* Morning Star marker — leads the convoy with a gentle bob */}
+            {/* Delivery truck — drives the fill frontier toward the goal star, with
+                a gentle road bob + lean (the star is the reward it's driving to) */}
             <m.div
               aria-hidden="true"
               className="absolute top-1/2"
@@ -222,11 +188,11 @@ export function FreeDeliveryProgress({
               style={{ translateX: "-50%", translateY: "-50%" }}
             >
               <m.div
-                className="flex h-6 w-6 items-center justify-center rounded-full border-2 border-amber-400 bg-hero-clay shadow-md"
-                animate={loop ? { y: [0, -2.5, 0] } : undefined}
-                transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
+                className="flex h-7 w-7 items-center justify-center rounded-full border-2 border-amber-400 bg-hero-clay shadow-md"
+                animate={loop ? { y: [0, -2, 0], rotate: [-3, 2, -3] } : undefined}
+                transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
               >
-                <Star className="h-3 w-3 fill-amber-300 text-amber-200" />
+                <Truck className="h-3.5 w-3.5 text-amber-100" aria-hidden="true" />
               </m.div>
             </m.div>
           </div>
