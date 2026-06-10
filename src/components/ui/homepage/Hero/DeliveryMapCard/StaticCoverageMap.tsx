@@ -12,7 +12,7 @@
  */
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import { m, AnimatePresence } from "framer-motion";
+import { m, AnimatePresence, useInView } from "framer-motion";
 import { Truck, Package } from "lucide-react";
 import { KITCHEN_LOCATION, COVERAGE_LIMITS } from "@/types/address";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -102,6 +102,10 @@ export function StaticCoverageMap() {
   const [box, setBox] = useState({ w: 0, h: 0 });
   const [active, setActive] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
+  // Pause the city-cycle + ripple loops when the map scrolls offscreen — this is
+  // the LITE (mobile/low-tier) map, and offscreen JS loops feed the iOS hero OOM.
+  const inView = useInView(ref, { margin: "150px" });
+  const loop = shouldAnimate && inView;
 
   // Measure the container so the overlay can match the image's object-cover fit.
   useEffect(() => {
@@ -115,12 +119,12 @@ export function StaticCoverageMap() {
     return () => ro.disconnect();
   }, []);
 
-  // Auto-cycle the "active" pin to surface each city's info in turn.
+  // Auto-cycle the "active" pin to surface each city's info in turn (paused offscreen).
   useEffect(() => {
-    if (!shouldAnimate) return;
+    if (!loop) return;
     const id = setInterval(() => setActive((a) => (a + 1) % CITY_PX.length), 2600);
     return () => clearInterval(id);
-  }, [shouldAnimate]);
+  }, [loop]);
 
   if (!KEY || imgError) return <SvgFallback />;
 
@@ -155,7 +159,7 @@ export function StaticCoverageMap() {
             style={pos(IMG_W / 2, IMG_H / 2)}
           >
             <span className="block h-3.5 w-3.5 rounded-full bg-hero-clay ring-2 ring-hero-card shadow-md" />
-            {shouldAnimate && (
+            {loop && (
               <m.span
                 className="absolute inset-0 rounded-full"
                 style={{ background: "var(--hero-clay)" }}
@@ -188,7 +192,7 @@ export function StaticCoverageMap() {
                 >
                   <Icon className="h-3 w-3" style={{ color: DIR_VAR[c.dir] }} />
                 </span>
-                {shouldAnimate && isActive && (
+                {loop && isActive && (
                   <m.span
                     className="absolute inset-0 rounded-full"
                     style={{ background: DIR_VAR[c.dir] }}

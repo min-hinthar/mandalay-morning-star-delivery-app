@@ -6,8 +6,8 @@
  * (mobile-friendly), and a tap ripple. Reduced-motion safe.
  */
 
-import { useEffect, useState } from "react";
-import { m } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { m, useInView } from "framer-motion";
 import { Moon, Sun, Sunrise, Sunset } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -35,6 +35,11 @@ function useClock() {
 export function HeroGreetingPill({ className }: { className?: string }) {
   const { shouldAnimate } = useAnimationPreference();
   const { timeOfDay } = useDynamicTheme();
+  // Gate the icon's repeat:Infinity loop to in-view (offscreen JS loops compound
+  // into the iOS hero OOM — CLAUDE.md gotcha).
+  const rootRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(rootRef, { margin: "200px" });
+  const loop = shouldAnimate && inView;
   const magnet = useMagnetic(0.5);
   const { ripples, onPointerDown } = useRipple();
   const now = useClock();
@@ -45,6 +50,7 @@ export function HeroGreetingPill({ className }: { className?: string }) {
 
   return (
     <m.div
+      ref={rootRef}
       className={cn("relative inline-flex", className)}
       style={{ x: magnet.x, y: magnet.y }}
       onPointerMove={magnet.onPointerMove}
@@ -53,10 +59,10 @@ export function HeroGreetingPill({ className }: { className?: string }) {
       whileHover={shouldAnimate ? { scale: 1.04 } : undefined}
       whileTap={shouldAnimate ? { scale: 0.97 } : undefined}
     >
-      {/* Breathing clay halo */}
+      {/* Breathing clay halo — desktop only (blur-lg is a mobile GPU cost) */}
       <span
         aria-hidden="true"
-        className="hero-halo-breathe pointer-events-none absolute -inset-2 rounded-full bg-hero-clay/30 blur-lg"
+        className="hero-halo-breathe pointer-events-none absolute -inset-2 hidden rounded-full bg-hero-clay/30 blur-lg md:block"
       />
       <span className="hero-surface-paper relative inline-flex items-center gap-2 overflow-hidden rounded-full px-4 py-2">
         {/* Auto sheen (mobile vibrance) */}
@@ -78,7 +84,7 @@ export function HeroGreetingPill({ className }: { className?: string }) {
         <m.span
           aria-hidden="true"
           className="relative text-hero-clay"
-          animate={shouldAnimate ? { rotate: [0, 12, -8, 0] } : undefined}
+          animate={loop ? { rotate: [0, 12, -8, 0] } : undefined}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         >
           <Icon className="h-4 w-4" />
