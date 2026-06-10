@@ -68,9 +68,9 @@ export function TierUpCelebration() {
       <AnimatePresence>
         {celebrate && (
           <m.div
-            // z-50, not z-modal-backdrop — the JS-config z tokens don't emit in
-            // Tailwind v4 (no @config), so that class is a silent no-op
-            className="fixed inset-0 z-50 flex items-center justify-center px-6"
+            // z-modal (50) — named z utilities are defined as @utility rules in
+            // globals.css (the JS-config zIndex scale never loads in Tailwind v4)
+            className="fixed inset-0 z-modal flex items-center justify-center px-6"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
