@@ -20,6 +20,8 @@ import { ArrowLeft, RefreshCw } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils/cn";
 import { Drawer } from "@/components/ui/Drawer";
+import { AfterDarkAmbient } from "@/components/ui/AfterDarkAmbient";
+import { AfterDarkSpotlight } from "@/components/ui/AfterDarkSpotlight";
 import { StatusTimeline } from "./StatusTimeline";
 import { StatusStepper } from "./StatusStepper";
 import { ETACountdown } from "./ETACountdown";
@@ -334,7 +336,11 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
   );
 
   return (
-    <div className="orders-canvas min-h-screen">
+    <div className="after-dark-canvas relative isolate min-h-screen">
+      {/* Kit living texture + desktop cursor spotlight, behind all content */}
+      <AfterDarkAmbient className="-z-10" />
+      <AfterDarkSpotlight className="-z-10" />
+
       {/* Header */}
       <header className="sticky top-0 z-20 border-b border-border bg-surface-elevated/80 sm:backdrop-blur-sm">
         <div className="mx-auto max-w-5xl px-4">
@@ -430,7 +436,7 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
           position="bottom"
           height="full"
           title="Tracking details"
-          className="orders-canvas"
+          className="after-dark-canvas"
         >
           {infoPaneContent}
         </Drawer>

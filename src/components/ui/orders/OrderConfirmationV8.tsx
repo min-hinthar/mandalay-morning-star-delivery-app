@@ -13,6 +13,8 @@ import { CutoffCountdown } from "@/components/ui/customer";
 import { SuccessCheckmark } from "@/components/ui/success-checkmark";
 import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
+import { AfterDarkAmbient } from "@/components/ui/AfterDarkAmbient";
+import { AfterDarkSpotlight } from "@/components/ui/AfterDarkSpotlight";
 import { TierUpCelebration } from "@/components/ui/TierUpCelebration";
 import { useRewardsSummary } from "@/lib/hooks/useRewardsSummary";
 import type { LoyaltyTierId } from "@/lib/loyalty";
@@ -104,7 +106,11 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
       {/* Tier-up moment — fires only on a real tier crossing (kit; self-deduped) */}
       <TierUpCelebration />
 
-      <div className="orders-canvas min-h-screen px-4 py-12">
+      <div className="after-dark-canvas relative isolate min-h-screen px-4 py-12">
+        {/* Kit living texture + desktop cursor spotlight, under all content */}
+        <AfterDarkAmbient className="-z-10" />
+        <AfterDarkSpotlight className="-z-10" />
+
         <div className="mx-auto max-w-2xl">
           {/* Icon Animation */}
           <m.div

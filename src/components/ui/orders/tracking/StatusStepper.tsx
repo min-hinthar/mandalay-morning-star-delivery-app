@@ -81,6 +81,12 @@ export function StatusStepper({ currentStatus, cancelledAt }: StatusStepperProps
             const isCurrent = !isCancelled && activeIndex === index;
             const isFuture = isCancelled || activeIndex < index;
             const lineFilled = !isCancelled && activeIndex > index;
+            // The frontier line leads INTO the active stop (last filled segment) —
+            // the comet rides here. Skip when delivered (no further frontier).
+            const isFrontierLine =
+              !isCancelled &&
+              activeIndex < STEPPER_STEPS.length - 1 &&
+              index === activeIndex - 1;
 
             return (
               <div key={step.status} className="flex flex-1 items-start">
@@ -97,7 +103,21 @@ export function StatusStepper({ currentStatus, cancelledAt }: StatusStepperProps
                         />
                       )}
                       <m.span
-                        animate={loop ? { scale: [1, 1.1, 1] } : undefined}
+                        // Arrival glow — a warm box-shadow pulse on the active stop
+                        // (the frontier the journey has reached). Box-shadow blur is
+                        // GPU-cheap (no filter blur). Loop gated shouldAnimate && inView.
+                        animate={
+                          loop
+                            ? {
+                                scale: [1, 1.1, 1],
+                                boxShadow: [
+                                  "0 0 0 0 rgba(217,119,87,0)",
+                                  "0 0 16px 3px rgba(217,119,87,0.55)",
+                                  "0 0 0 0 rgba(217,119,87,0)",
+                                ],
+                              }
+                            : undefined
+                        }
                         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                         className="relative flex h-9 w-9 items-center justify-center rounded-full bg-hero-clay shadow-md"
                       >
@@ -138,7 +158,7 @@ export function StatusStepper({ currentStatus, cancelledAt }: StatusStepperProps
 
                 {/* Connecting line */}
                 {index < STEPPER_STEPS.length - 1 && (
-                  <div className="mx-1 mt-4 h-1 flex-1 overflow-hidden rounded-full bg-hero-ink/10">
+                  <div className="relative mx-1 mt-4 h-1 flex-1 overflow-hidden rounded-full bg-hero-ink/10">
                     <m.div
                       className="h-full rounded-full bg-hero-clay"
                       initial={shouldAnimate ? { scaleX: 0 } : undefined}
@@ -146,6 +166,22 @@ export function StatusStepper({ currentStatus, cancelledAt }: StatusStepperProps
                       style={{ transformOrigin: "left center" }}
                       transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                     />
+                    {/* Journey comet — a warm gradient streak that travels along the
+                        FILLED segment at the current frontier (the line leading into
+                        the active stop). Pure gradient strip (no blur). Loop gated. */}
+                    {loop && isFrontierLine && (
+                      <m.span
+                        aria-hidden="true"
+                        className="absolute top-0 h-full w-1/3 rounded-full"
+                        style={{
+                          background:
+                            "linear-gradient(to right, transparent, rgba(251,191,36,0.85))",
+                        }}
+                        initial={{ left: "-33%" }}
+                        animate={{ left: ["-33%", "100%"] }}
+                        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+                      />
+                    )}
                   </div>
                 )}
               </div>
