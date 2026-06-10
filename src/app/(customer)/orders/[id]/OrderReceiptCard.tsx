@@ -40,7 +40,10 @@ export function OrderReceiptCard({ order, items }: OrderReceiptCardProps) {
           <Package className="h-5 w-5 text-hero-sage" aria-hidden="true" />
           <span className="font-display font-semibold text-hero-ink">
             Order items
-            <span className="ml-1.5 font-burmese text-2xs font-normal text-hero-ink-muted" lang="my">
+            <span
+              className="ml-1.5 font-burmese text-2xs font-normal text-hero-ink-muted"
+              lang="my"
+            >
               ပစ္စည်းများ
             </span>
           </span>

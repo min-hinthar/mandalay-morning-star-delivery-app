@@ -13,6 +13,7 @@ import { RatingBanner } from "./RatingBanner";
 import { ReorderButton } from "./ReorderButton";
 import { OrderShareButton } from "./OrderShareButton";
 import { OrderReceiptCard } from "./OrderReceiptCard";
+import { OrderStatusCrest } from "./OrderStatusCrest";
 import { cn } from "@/lib/utils/cn";
 import { format, parseISO } from "date-fns";
 import type { Order, OrderItem, OrderAddress } from "@/types/order";
@@ -101,15 +102,19 @@ export function OrderDetailView({
         {/* Order Status — near the fold, instant develop */}
         <div className="animate-hero-develop-3 mb-6">
           <PaperCard accent="clay" className="p-5">
-            <h2 className="mb-4 font-display text-lg font-semibold text-hero-ink">
-              Order status
-              <span
-                className="ml-1.5 font-burmese text-xs font-normal text-hero-ink-muted"
-                lang="my"
-              >
-                အခြေအနေ
-              </span>
-            </h2>
+            <div className="mb-4 flex items-center justify-between gap-3">
+              <h2 className="font-display text-lg font-semibold text-hero-ink">
+                Order status
+                <span
+                  className="ml-1.5 font-burmese text-xs font-normal text-hero-ink-muted"
+                  lang="my"
+                >
+                  အခြေအနေ
+                </span>
+              </h2>
+              {/* Tier-tinted crest — morphs from the confirmation wax seal (vt-nav) */}
+              <OrderStatusCrest />
+            </div>
             <OrderTimeline
               currentStatus={order.status}
               placedAt={order.placedAt}

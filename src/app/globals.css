@@ -2119,19 +2119,32 @@
   transition: background 300ms var(--ease-in-out);
 }
 
-/* View Transition API - Theme circular reveal */
-::view-transition-old(root),
-::view-transition-new(root) {
+/* View Transition API - Theme circular reveal.
+   Scoped to html.vt-theme (toggled by useThemeTransition) so it ONLY governs the
+   theme-toggle clip reveal — leaving the nav shared-element morphs below free to
+   animate their own group/old/new. An unscoped `(root)` rule here corrupts nav
+   transitions (stacks the whole new root over the morph). */
+html.vt-theme::view-transition-old(root),
+html.vt-theme::view-transition-new(root) {
   animation: none;
   mix-blend-mode: normal;
 }
 
-::view-transition-old(root) {
+html.vt-theme::view-transition-old(root) {
   z-index: 1;
 }
 
-::view-transition-new(root) {
+html.vt-theme::view-transition-new(root) {
   z-index: var(--zindex-max);
+}
+
+/* Nav shared-element morphs (cart/checkout → confirmation ↔ order detail).
+   The wax-seal crest and the order-total row morph between routes via matching
+   `view-transition-name`s. Only active during a vt-nav navigation. */
+html.vt-nav::view-transition-group(wax-seal),
+html.vt-nav::view-transition-group(order-total) {
+  animation-duration: 450ms;
+  animation-timing-function: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Disable view transition for reduced motion */

@@ -84,9 +84,7 @@ export function StatusStepper({ currentStatus, cancelledAt }: StatusStepperProps
             // The frontier line leads INTO the active stop (last filled segment) —
             // the comet rides here. Skip when delivered (no further frontier).
             const isFrontierLine =
-              !isCancelled &&
-              activeIndex < STEPPER_STEPS.length - 1 &&
-              index === activeIndex - 1;
+              !isCancelled && activeIndex < STEPPER_STEPS.length - 1 && index === activeIndex - 1;
 
             return (
               <div key={step.status} className="flex flex-1 items-start">
