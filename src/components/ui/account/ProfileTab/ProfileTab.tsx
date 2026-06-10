@@ -10,6 +10,7 @@ import { toast } from "@/lib/hooks/useToastV8";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useRewardsSummary } from "@/lib/hooks/useRewardsSummary";
 import { TierBadge } from "@/components/ui/TierBadge";
+import { TapBurst, useTapBurst } from "@/components/ui/TapBurst";
 import { format, parseISO } from "date-fns";
 import type { Profile, FormErrors } from "./types";
 import { VALIDATION } from "./types";
@@ -27,6 +28,7 @@ export function ProfileTab() {
   const [hasError, setHasError] = useState(false);
   const { shouldAnimate } = useAnimationPreference();
   const { data: rewards } = useRewardsSummary(true);
+  const { fireKey, fire } = useTapBurst();
 
   useEffect(() => {
     async function fetchProfile() {
@@ -108,6 +110,9 @@ export function ProfileTab() {
       setShowSuccess(true);
       setTimeout(() => setShowSuccess(false), 2000);
       toast({ message: "Profile updated successfully", type: "success" });
+      // Celebratory tap-burst + light haptic on a successful save (kit).
+      fire();
+      navigator.vibrate?.(10);
     } catch (error) {
       toast({
         message: error instanceof Error ? error.message : "Failed to update profile",
@@ -268,38 +273,41 @@ export function ProfileTab() {
 
             {/* Save Button */}
             <div className="pt-4">
-              <Button
-                variant="primary"
-                size="lg"
-                onClick={handleSave}
-                disabled={!hasChanges || isSaving}
-                isLoading={isSaving}
-                className="w-full sm:w-auto min-w-[140px]"
-              >
-                <AnimatePresence mode="wait">
-                  {showSuccess ? (
-                    <m.span
-                      key="success"
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="flex items-center gap-2"
-                    >
-                      <Check className="h-4 w-4" />
-                      Saved!
-                    </m.span>
-                  ) : (
-                    <m.span
-                      key="default"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                    >
-                      {isSaving ? "Saving..." : "Save Changes"}
-                    </m.span>
-                  )}
-                </AnimatePresence>
-              </Button>
+              <div className="relative inline-block w-full sm:w-auto">
+                <TapBurst fireKey={fireKey} />
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={handleSave}
+                  disabled={!hasChanges || isSaving}
+                  isLoading={isSaving}
+                  className="w-full sm:w-auto min-w-[140px]"
+                >
+                  <AnimatePresence mode="wait">
+                    {showSuccess ? (
+                      <m.span
+                        key="success"
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        className="flex items-center gap-2"
+                      >
+                        <Check className="h-4 w-4" />
+                        Saved!
+                      </m.span>
+                    ) : (
+                      <m.span
+                        key="default"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                      >
+                        {isSaving ? "Saving..." : "Save Changes"}
+                      </m.span>
+                    )}
+                  </AnimatePresence>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
