@@ -1176,7 +1176,6 @@
      is GPU-cheap, unlike filter blur). Mirrors the checkout canvas treatment so
      cart → checkout reads as one world. */
   .dark .orders-canvas .hero-surface-paper,
-  .dark .account-canvas .hero-surface-paper,
   .dark .after-dark-canvas .hero-surface-paper,
   .dark .after-dark-canvas .hero-surface-glass {
     box-shadow:
@@ -1204,24 +1203,6 @@
     background:
       radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.24), transparent 58%),
       radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.17), transparent 60%),
-      linear-gradient(180deg, #382a24 0%, #2f1f24 54%, #261a20 100%);
-  }
-
-  /* Account "After Dark" warm canvas (same palette as cart/orders/checkout — the
-     account `<main>` has no Drawer bg to override, so a single class suffices). */
-  .account-canvas {
-    background:
-      radial-gradient(120% 58% at 50% -8%, rgba(217, 119, 87, 0.16), transparent 58%),
-      linear-gradient(180deg, #f1ebdf 0%, #e8dfcd 100%);
-  }
-
-  /* Lifted dark ramp — matches the canonical .after-dark-canvas. */
-  .dark .account-canvas {
-    background:
-      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.26), transparent 58%),
-      radial-gradient(70% 50% at -6% 24%, rgba(96, 165, 250, 0.14), transparent 62%),
-      radial-gradient(64% 46% at 106% 52%, rgba(110, 168, 137, 0.12), transparent 60%),
-      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.19), transparent 60%),
       linear-gradient(180deg, #382a24 0%, #2f1f24 54%, #261a20 100%);
   }
 
@@ -1674,6 +1655,30 @@
     animation: spin-slow 2.5s linear infinite;
   }
 
+  /* One-shot gold sheen sweep when an account tab pill becomes active. A clipped
+     diagonal gold highlight crosses the pill once (no blur — iOS GPU budget); the
+     caller re-triggers it by keying the element on the active id. */
+  .pill-sheen-activate {
+    position: relative;
+  }
+
+  .pill-sheen-activate::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    background: linear-gradient(
+      105deg,
+      transparent 38%,
+      color-mix(in srgb, var(--hero-gold) 70%, transparent) 50%,
+      transparent 62%
+    );
+    background-size: 220% 100%;
+    background-position: 150% 0;
+    animation: pill-sheen-sweep 0.7s ease-out;
+  }
+
   /* Pause animation during interaction */
   .animate-shine-sweep:active,
   .animate-shine-sweep:focus-within {
@@ -1688,6 +1693,7 @@
     .btn-glow::before,
     .animate-shine-sweep,
     .animate-spin-slow,
+    .pill-sheen-activate::after,
     .animate-hero-shimmer,
     .animate-fade-in-up,
     .animate-fade-in,
@@ -1777,6 +1783,16 @@
   100% {
     transform: translateX(200%) rotate(45deg);
     opacity: 0;
+  }
+}
+
+/* One-shot gold sheen crossing an activated account pill (left → right) */
+@keyframes pill-sheen-sweep {
+  from {
+    background-position: 150% 0;
+  }
+  to {
+    background-position: -50% 0;
   }
 }
 

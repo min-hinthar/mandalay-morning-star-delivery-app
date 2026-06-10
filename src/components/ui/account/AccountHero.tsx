@@ -23,6 +23,8 @@ import type { LoyaltyTierId } from "@/lib/loyalty";
 import { RollingNumber } from "@/components/ui/homepage/Hero/RollingDigits";
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
+import { useTilt } from "@/components/ui/homepage/Hero/interactions";
+import { GoldLeaf } from "@/components/ui/GoldLeaf";
 
 interface AccountProfile {
   fullName: string | null;
@@ -30,7 +32,9 @@ interface AccountProfile {
   createdAt: string | null;
 }
 
-// Tier → CONSTANT hero-jewel tokens (read on the cream card in both themes).
+// Tier → CONSTANT hero-jewel tokens (read on the cream card in both themes —
+// deliberately NOT the theme-aware RewardsTab/tierStyle accents, which flip
+// bright in dark mode and would meld on this constant-cream passport).
 const TIER_JEWEL: Record<
   LoyaltyTierId,
   { text: string; bg: string; layer: "clay" | "blue" | "sage" }
@@ -58,22 +62,33 @@ export function AccountHero() {
   const { shouldAnimate } = useAnimationPreference();
   const { data: rewards } = useRewards(true);
   const { data: profile } = useAccountProfile();
+  // Gentle pointer tilt (kit tactile pass). The passport body holds no primary
+  // CTA (display-only greeting/crest/stars/links), so tilting the card wrapper is
+  // safe — no preserve-3d (avoids the menu-card shadow-artifact + CTA-drift gotcha).
+  const tilt = useTilt(3.5);
 
   const firstName = profile?.fullName?.trim().split(/\s+/)[0] ?? null;
   const memberSince = profile?.createdAt ? format(parseISO(profile.createdAt), "MMM yyyy") : null;
 
   const tier = rewards?.tier;
   const jewel = TIER_JEWEL[tier?.id ?? "new"];
-  const cycleFraction =
-    rewards && rewards.milestoneStep > 0
-      ? Math.min(1, rewards.progressInCycle / rewards.milestoneStep)
-      : 0;
+  // Reward-cycle progress (real data) — drives the editorial progress bar.
+  const milestoneStep = rewards?.milestoneStep ?? 0;
+  const progressInCycle = rewards?.progressInCycle ?? 0;
+  const cycleFraction = milestoneStep > 0 ? Math.min(1, progressInCycle / milestoneStep) : 0;
   const reward = rewards ? formatPrice(rewards.nextRewardCents) : "";
   const progressCopy = rewards ? ordersToReward(rewards.ordersToNext, reward) : null;
 
   return (
-    <div className="hero-surface-paper relative mb-6 overflow-hidden rounded-3xl">
+    <m.div
+      className="hero-surface-paper relative mb-6 overflow-hidden rounded-3xl"
+      style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformPerspective: 1100 }}
+      onPointerMove={tilt.onPointerMove}
+      onPointerLeave={tilt.onPointerLeave}
+    >
       <HeroCardLayers accent={jewel.layer} radius="rounded-3xl" />
+      {/* Gold-leaf flecks + lacquer sheen (kit) — over the card layers, under content. */}
+      <GoldLeaf radius="rounded-3xl" />
 
       <div className="relative p-5 sm:p-6">
         {/* Greeting */}
@@ -90,7 +105,7 @@ export function AccountHero() {
         </div>
 
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-          {/* Tier crest */}
+          {/* Tier crest — editorial warm-paper chip (no orbit; restrained) */}
           <div className="flex items-center gap-3">
             <span
               className={cn(
@@ -173,7 +188,7 @@ export function AccountHero() {
           </div>
         )}
       </div>
-    </div>
+    </m.div>
   );
 }
 
