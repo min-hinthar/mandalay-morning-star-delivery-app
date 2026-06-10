@@ -22,6 +22,8 @@ import { COVINA_TAX_RATE } from "@/lib/utils/order";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
+import { useTilt } from "@/components/ui/homepage/Hero/interactions";
+import { GoldLeaf } from "@/components/ui/GoldLeaf";
 import { FreeDeliveryProgress } from "./FreeDeliveryProgress";
 
 // ============================================
@@ -64,6 +66,7 @@ function LedgerRow({
 
 export function CartSummary({ className }: CartSummaryProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
+  const tilt = useTilt(3);
   const { itemsSubtotal, estimatedDeliveryFee, estimatedTotal, amountToFreeDelivery } = useCart();
   const addressDistanceMiles = useCartStore((s) => s.addressDistanceMiles);
   const longDistanceThresholdMiles = useCartStore((s) => s.longDistanceThresholdMiles);
@@ -77,8 +80,15 @@ export function CartSummary({ className }: CartSummaryProps) {
     <m.div
       variants={shouldAnimate ? staggerItem : undefined}
       className={cn("hero-surface-paper relative overflow-hidden rounded-2xl p-4", className)}
+      // Gentle pointer tilt (kit tactile pass) — no CTA inside the receipt body,
+      // no preserve-3d (menu-card + shadow-artifact gotchas respected)
+      style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformPerspective: 900 }}
+      onPointerMove={tilt.onPointerMove}
+      onPointerLeave={tilt.onPointerLeave}
     >
       <HeroCardLayers accent="clay" radius="rounded-2xl" />
+      {/* Gold-leaf flecks + lacquer sheen (kit) */}
+      <GoldLeaf radius="rounded-2xl" />
       <div className="relative space-y-3">
         {/* Morning-Star free-delivery journey */}
         <FreeDeliveryProgress

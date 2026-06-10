@@ -71,7 +71,8 @@ export function CartItemsList({
         )}
       </AnimatePresence>
 
-      <ul className="space-y-3">
+      {/* Ticket ledger — dashed perforation rules between line items */}
+      <ul className="[&>li+li]:mt-3 [&>li+li]:border-t [&>li+li]:border-dashed [&>li+li]:border-hero-ink/15 [&>li+li]:pt-3 dark:[&>li+li]:border-hero-card/20">
         <AnimatePresence mode="sync">
           {items.map((item, index) => {
             const itemValidation = validation.validations.get(item.cartItemId);

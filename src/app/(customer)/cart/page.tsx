@@ -5,6 +5,8 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useNavigationGuard } from "@/lib/hooks/useNavigationGuard";
 import { CartNavigationGuard } from "@/components/ui/cart/CartNavigationGuard";
 import { CartPageContent } from "@/components/ui/cart/CartPage";
+import { AfterDarkAmbient } from "@/components/ui/AfterDarkAmbient";
+import { AfterDarkSpotlight } from "@/components/ui/AfterDarkSpotlight";
 
 /**
  * Phase 110 CFIX-01 — Mobile cart white flash fix.
@@ -31,17 +33,21 @@ export default function CartPage() {
   });
 
   return (
-    <main className="min-h-screen bg-background pb-40">
+    <main className="after-dark-canvas relative isolate min-h-screen pb-40">
+      {/* Kit living texture + desktop cursor spotlight, under all content */}
+      <AfterDarkAmbient className="-z-10" />
+      <AfterDarkSpotlight className="-z-10" />
+
       {/* Mobile subview — visible below md breakpoint, identical SSR/CSR markup */}
       <div className="md:hidden">
-        <div className="px-4 py-4">
+        <div className="animate-hero-develop-1 px-4 py-4">
           <CartPageContent />
         </div>
       </div>
 
       {/* Desktop layout — visible at md+ breakpoint */}
       <div className="hidden md:block">
-        <div className="max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
+        <div className="animate-hero-develop-1 max-w-6xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
           <CartPageContent />
         </div>
       </div>

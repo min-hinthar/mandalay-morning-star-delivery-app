@@ -1152,25 +1152,8 @@
      glows only (NO blur() / backdrop-filter — iOS GPU/memory budget).
      ============================================ */
 
-  /* Warm canvas for the cart drawer / bottom sheet. The class is DOUBLED so it
-     deterministically beats the shared Drawer's `bg-white dark:bg-black` base:
-     both live in @layer utilities, so a single-class selector would only tie on
-     source order. Shares the checkout canvas' sunset palette so cart → checkout
-     reads as one world. */
-  .cart-canvas.cart-canvas {
-    background:
-      radial-gradient(120% 58% at 50% -8%, rgba(217, 119, 87, 0.16), transparent 58%),
-      linear-gradient(180deg, #f1ebdf 0%, #e8dfcd 100%);
-  }
-
-  /* Lifted dark ramp — matches the canonical .after-dark-canvas (owner: dark
-     was "too dark"); full consolidation lands with the cart back-port PR. */
-  .dark .cart-canvas.cart-canvas {
-    background:
-      radial-gradient(120% 62% at 50% -10%, rgba(251, 146, 60, 0.24), transparent 58%),
-      radial-gradient(90% 70% at 50% 116%, rgba(124, 58, 237, 0.17), transparent 60%),
-      linear-gradient(180deg, #382a24 0%, #2f1f24 54%, #261a20 100%);
-  }
+  /* Cart canvas — CONSOLIDATED onto the canonical .after-dark-canvas
+     (level-up back-port); the old .cart-canvas rules are gone. */
 
   /* Photo-forward cart line: a warm, gently-lifted panel (soft two-tier diffuse
      shadow + crisp inner sheen — NOT a hard square frame) that pops off the
@@ -1192,7 +1175,6 @@
      cart canvas (crisp sheen + deep shadow + faint ember halo — box-shadow blur
      is GPU-cheap, unlike filter blur). Mirrors the checkout canvas treatment so
      cart → checkout reads as one world. */
-  .dark .cart-canvas .hero-surface-paper,
   .dark .orders-canvas .hero-surface-paper,
   .dark .account-canvas .hero-surface-paper,
   .dark .after-dark-canvas .hero-surface-paper,
