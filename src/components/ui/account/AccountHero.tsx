@@ -25,7 +25,6 @@ import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
 import { useTilt } from "@/components/ui/homepage/Hero/interactions";
 import { GoldLeaf } from "@/components/ui/GoldLeaf";
-import { ConstellationOrbit } from "./ConstellationOrbit";
 
 interface AccountProfile {
   fullName: string | null;
@@ -33,33 +32,17 @@ interface AccountProfile {
   createdAt: string | null;
 }
 
-// Tier → CONSTANT hero-jewel tokens (read on the cream card in both themes).
-// `aurora` is the constant CSS var driving the tier-tinted bloom behind the card
-// — deliberately NOT the theme-aware RewardsTab/tierStyle accents (those flip
+// Tier → CONSTANT hero-jewel tokens (read on the cream card in both themes —
+// deliberately NOT the theme-aware RewardsTab/tierStyle accents, which flip
 // bright in dark mode and would meld on this constant-cream passport).
 const TIER_JEWEL: Record<
   LoyaltyTierId,
-  { text: string; bg: string; layer: "clay" | "blue" | "sage"; aurora: string }
+  { text: string; bg: string; layer: "clay" | "blue" | "sage" }
 > = {
-  new: { text: "text-hero-clay", bg: "bg-hero-clay/12", layer: "clay", aurora: "var(--hero-clay)" },
-  jade: {
-    text: "text-hero-blue",
-    bg: "bg-hero-blue/12",
-    layer: "blue",
-    aurora: "var(--hero-blue)",
-  },
-  ruby: {
-    text: "text-hero-ruby",
-    bg: "bg-hero-ruby/12",
-    layer: "clay",
-    aurora: "var(--hero-ruby)",
-  },
-  gold: {
-    text: "text-hero-gold",
-    bg: "bg-hero-gold/15",
-    layer: "sage",
-    aurora: "var(--hero-gold)",
-  },
+  new: { text: "text-hero-clay", bg: "bg-hero-clay/12", layer: "clay" },
+  jade: { text: "text-hero-blue", bg: "bg-hero-blue/12", layer: "blue" },
+  ruby: { text: "text-hero-ruby", bg: "bg-hero-ruby/12", layer: "clay" },
+  gold: { text: "text-hero-gold", bg: "bg-hero-gold/15", layer: "sage" },
 };
 
 function useAccountProfile() {
@@ -89,7 +72,7 @@ export function AccountHero() {
 
   const tier = rewards?.tier;
   const jewel = TIER_JEWEL[tier?.id ?? "new"];
-  // Reward-cycle progress — the SINGLE source the progress bar AND the orbit read.
+  // Reward-cycle progress (real data) — drives the editorial progress bar.
   const milestoneStep = rewards?.milestoneStep ?? 0;
   const progressInCycle = rewards?.progressInCycle ?? 0;
   const cycleFraction = milestoneStep > 0 ? Math.min(1, progressInCycle / milestoneStep) : 0;
@@ -103,23 +86,6 @@ export function AccountHero() {
       onPointerMove={tilt.onPointerMove}
       onPointerLeave={tilt.onPointerLeave}
     >
-      {/* Slow tier-tinted aurora bloom behind the card chrome (gradient only, no
-          blur — iOS GPU budget). Decorative + a11y-inert. */}
-      <span aria-hidden="true" className="pointer-events-none absolute inset-0 rounded-3xl">
-        <span
-          className="absolute -left-16 -top-20 h-64 w-72 rounded-full opacity-40"
-          style={{
-            background: `radial-gradient(60% 60% at 50% 50%, ${jewel.aurora}, transparent 70%)`,
-          }}
-        />
-        <span
-          className="absolute -bottom-24 -right-12 h-60 w-72 rounded-full opacity-25"
-          style={{
-            background: `radial-gradient(60% 60% at 50% 50%, ${jewel.aurora}, transparent 72%)`,
-          }}
-        />
-      </span>
-
       <HeroCardLayers accent={jewel.layer} radius="rounded-3xl" />
       {/* Gold-leaf flecks + lacquer sheen (kit) — over the card layers, under content. */}
       <GoldLeaf radius="rounded-3xl" />
@@ -139,25 +105,16 @@ export function AccountHero() {
         </div>
 
         <div className="flex flex-col gap-5 sm:flex-row sm:items-center">
-          {/* Tier crest with a constellation orbit (lit stars = real cycle progress) */}
+          {/* Tier crest — editorial warm-paper chip (no orbit; restrained) */}
           <div className="flex items-center gap-3">
-            <span className="relative flex h-16 w-16 shrink-0 items-center justify-center">
-              {milestoneStep > 0 && (
-                <ConstellationOrbit
-                  litCount={progressInCycle}
-                  totalCount={milestoneStep}
-                  accentClass={jewel.text}
-                />
+            <span
+              className={cn(
+                "flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl text-3xl",
+                jewel.bg
               )}
-              <span
-                className={cn(
-                  "flex h-16 w-16 items-center justify-center rounded-2xl text-3xl",
-                  jewel.bg
-                )}
-                aria-hidden="true"
-              >
-                {tier?.emoji ?? "⭐"}
-              </span>
+              aria-hidden="true"
+            >
+              {tier?.emoji ?? "⭐"}
             </span>
             <div>
               <p className="text-2xs font-semibold uppercase tracking-wide text-hero-ink-muted">
