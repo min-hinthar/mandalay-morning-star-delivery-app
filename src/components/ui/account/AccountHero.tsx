@@ -42,9 +42,24 @@ const TIER_JEWEL: Record<
   { text: string; bg: string; layer: "clay" | "blue" | "sage"; aurora: string }
 > = {
   new: { text: "text-hero-clay", bg: "bg-hero-clay/12", layer: "clay", aurora: "var(--hero-clay)" },
-  jade: { text: "text-hero-blue", bg: "bg-hero-blue/12", layer: "blue", aurora: "var(--hero-blue)" },
-  ruby: { text: "text-hero-ruby", bg: "bg-hero-ruby/12", layer: "clay", aurora: "var(--hero-ruby)" },
-  gold: { text: "text-hero-gold", bg: "bg-hero-gold/15", layer: "sage", aurora: "var(--hero-gold)" },
+  jade: {
+    text: "text-hero-blue",
+    bg: "bg-hero-blue/12",
+    layer: "blue",
+    aurora: "var(--hero-blue)",
+  },
+  ruby: {
+    text: "text-hero-ruby",
+    bg: "bg-hero-ruby/12",
+    layer: "clay",
+    aurora: "var(--hero-ruby)",
+  },
+  gold: {
+    text: "text-hero-gold",
+    bg: "bg-hero-gold/15",
+    layer: "sage",
+    aurora: "var(--hero-gold)",
+  },
 };
 
 function useAccountProfile() {
@@ -77,8 +92,7 @@ export function AccountHero() {
   // Reward-cycle progress — the SINGLE source the progress bar AND the orbit read.
   const milestoneStep = rewards?.milestoneStep ?? 0;
   const progressInCycle = rewards?.progressInCycle ?? 0;
-  const cycleFraction =
-    milestoneStep > 0 ? Math.min(1, progressInCycle / milestoneStep) : 0;
+  const cycleFraction = milestoneStep > 0 ? Math.min(1, progressInCycle / milestoneStep) : 0;
   const reward = rewards ? formatPrice(rewards.nextRewardCents) : "";
   const progressCopy = rewards ? ordersToReward(rewards.ordersToNext, reward) : null;
 

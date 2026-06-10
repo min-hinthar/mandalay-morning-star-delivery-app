@@ -51,19 +51,11 @@ export function ConstellationOrbit({
   const spinning = shouldAnimate && inView;
 
   return (
-    <span
-      ref={ref}
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0"
-    >
+    <span ref={ref} aria-hidden="true" className="pointer-events-none absolute inset-0">
       <m.span
         className="absolute inset-0"
         animate={spinning ? { rotate: 360 } : { rotate: 0 }}
-        transition={
-          spinning
-            ? { duration: 24, ease: "linear", repeat: Infinity }
-            : { duration: 0 }
-        }
+        transition={spinning ? { duration: 24, ease: "linear", repeat: Infinity } : { duration: 0 }}
         style={{ transformOrigin: "50% 50%" }}
       >
         {Array.from({ length: total }).map((_, i) => {
@@ -82,9 +74,7 @@ export function ConstellationOrbit({
               <Star
                 className={cn(
                   "h-2 w-2",
-                  isLit
-                    ? cn("fill-current", accentClass)
-                    : "fill-hero-ink/10 text-hero-ink/15"
+                  isLit ? cn("fill-current", accentClass) : "fill-hero-ink/10 text-hero-ink/15"
                 )}
               />
             </span>
