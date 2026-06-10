@@ -15,7 +15,10 @@ import { User, Package, Settings, MessageSquare, Star } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils/cn";
 import { useCartStore } from "@/lib/stores/cart-store";
-import { MenuTextureBackdrop } from "@/components/ui/menu/MenuTextureBackdrop";
+import { AfterDarkAmbient } from "@/components/ui/AfterDarkAmbient";
+import { AfterDarkSpotlight } from "@/components/ui/AfterDarkSpotlight";
+import { ScrollReveal } from "@/components/ui/ScrollReveal";
+import { TierUpCelebration } from "@/components/ui/TierUpCelebration";
 import { AccountHero } from "./AccountHero";
 import { ProfileTab } from "./ProfileTab";
 import { OrdersTab } from "./OrdersTab";
@@ -84,31 +87,39 @@ function AccountClientInner() {
 
   return (
     <main
-      className={cn("account-canvas relative min-h-screen overflow-hidden px-4 pt-8", padBottom)}
+      className={cn(
+        "after-dark-canvas relative isolate min-h-screen overflow-hidden px-4 pt-8",
+        padBottom
+      )}
     >
-      <MenuTextureBackdrop />
+      {/* Kit living texture + desktop cursor spotlight, under all content */}
+      <AfterDarkAmbient className="-z-10" />
+      <AfterDarkSpotlight className="-z-10" />
+
+      {/* Tier-up confetti + wax-seal stamp; self-deduping (once per crossing). */}
+      <TierUpCelebration />
+
       <div className="container relative z-10 mx-auto max-w-4xl">
-        {/* Loyalty passport hero */}
-        <m.div
-          initial={shouldAnimate ? { opacity: 0, y: -12 } : undefined}
-          animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-        >
+        {/* Loyalty passport hero — instant develop-rise on load (above the fold). */}
+        <div className="animate-hero-develop-1">
           <AccountHero />
-        </m.div>
+        </div>
 
         {/* Grouped pill tray — self-contained pills (bg + label on one element, no
             measured indicator → no dark-on-dark) inside a solid tray that reads as one
-            segmented control instead of loose wrapping pills. */}
+            segmented control instead of loose wrapping pills. Instant on load. */}
         <div
           role="tablist"
           aria-label="Account sections"
-          className="mb-6 flex flex-wrap gap-1.5 rounded-2xl border border-border bg-surface-elevated p-1.5"
+          className="animate-hero-develop-2 mb-6 flex flex-wrap gap-1.5 rounded-2xl border border-border bg-surface-elevated p-1.5"
         >
           {TABS.map((t) => {
             const active = activeTab === t.id;
             return (
               <button
-                key={t.id}
+                // Key the active pill on its id so the one-shot gold sheen sweep
+                // (.pill-sheen-activate) replays each time a pill becomes active.
+                key={active ? `${t.id}-active` : t.id}
                 type="button"
                 role="tab"
                 aria-selected={active}
@@ -116,7 +127,7 @@ function AccountClientInner() {
                 className={cn(
                   "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-sm font-semibold",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                  active ? "menu-tab-active" : "menu-tab-ghost"
+                  active ? "menu-tab-active pill-sheen-activate" : "menu-tab-ghost"
                 )}
               >
                 {t.icon}
@@ -126,6 +137,9 @@ function AccountClientInner() {
           })}
         </div>
 
+        {/* Tab content reveals as it scrolls into view (below-the-fold cards). The
+            outer m.div keeps the quick tab-switch cross-fade; ScrollReveal handles
+            the on-scroll rise. */}
         <m.div
           key={activeTab}
           role="tabpanel"
@@ -133,11 +147,13 @@ function AccountClientInner() {
           animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
           transition={{ duration: 0.2 }}
         >
-          {activeTab === "profile" && <ProfileTab />}
-          {activeTab === "orders" && <OrdersTab />}
-          {activeTab === "rewards" && <RewardsTab />}
-          {activeTab === "feedback" && <FeedbackTab />}
-          {activeTab === "settings" && <SettingsTab initialSection={section} />}
+          <ScrollReveal>
+            {activeTab === "profile" && <ProfileTab />}
+            {activeTab === "orders" && <OrdersTab />}
+            {activeTab === "rewards" && <RewardsTab />}
+            {activeTab === "feedback" && <FeedbackTab />}
+            {activeTab === "settings" && <SettingsTab initialSection={section} />}
+          </ScrollReveal>
         </m.div>
       </div>
     </main>
@@ -148,7 +164,7 @@ export function AccountClient() {
   return (
     <Suspense
       fallback={
-        <main className="account-canvas min-h-screen px-4 pb-16 pt-8">
+        <main className="after-dark-canvas min-h-screen px-4 pb-16 pt-8">
           <div className="container max-w-4xl mx-auto" aria-hidden="true">
             <Skeleton height={120} radius="lg" className="mb-6" />
             <div className="flex gap-2 mb-6">
