@@ -351,12 +351,19 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
               variants={shouldAnimate ? staggerItem : undefined}
               className="flex flex-col sm:flex-row gap-4 justify-center pt-2"
             >
-              <Button
-                variant="default"
-                size="lg"
-                onClick={() => navigateWithViewTransition(router, `/orders/${order.id}`)}
-              >
-                Track Order
+              <Button asChild variant="default" size="lg">
+                {/* Stays a real anchor (crawlable, ⌘/middle-click opens a tab) —
+                    plain left-click is intercepted for the wax-seal VT morph. */}
+                <Link
+                  href={`/orders/${order.id}`}
+                  onClick={(e) => {
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                    e.preventDefault();
+                    navigateWithViewTransition(router, `/orders/${order.id}`);
+                  }}
+                >
+                  Track Order
+                </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link href="/menu">Continue Shopping</Link>

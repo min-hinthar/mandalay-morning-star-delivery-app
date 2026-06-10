@@ -46,9 +46,10 @@ const vehicleLabels: Record<VehicleType, string> = {
 };
 
 export function DriverCard({ driver, stopProgress, onContactDriver, className }: DriverCardProps) {
-  // Gentle pointer tilt (kit tactile pass). Small 3° swing + no preserve-3d so
-  // the "Call" tel button stays put under the cursor (menu-card gotcha respected).
-  const tilt = useTilt(3);
+  // Gentle pointer tilt (kit tactile pass). useTilt doubles its arg → ±3° swing;
+  // kept small + no preserve-3d so the "Call" tel button barely shifts under the
+  // cursor (this card holds a CTA — menu-card gotcha respected).
+  const tilt = useTilt(1.5);
   const displayName = driver.fullName || "Your Driver";
   const initials = displayName
     .split(" ")
