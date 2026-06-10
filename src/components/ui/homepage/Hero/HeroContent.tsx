@@ -7,9 +7,9 @@
  * Bilingual EN/MY display with multi-day delivery support.
  */
 
-import type { PointerEvent as ReactPointerEvent } from "react";
+import { useRef, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
-import { m } from "framer-motion";
+import { m, useInView } from "framer-motion";
 import { ArrowRight, CalendarClock, Gift, MapPin, Star, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
@@ -72,6 +72,13 @@ export function HeroContent({
   deliveriesThisMonth = 0,
 }: HeroContentProps) {
   const { shouldAnimate } = useAnimationPreference();
+  // Gate every repeat:Infinity loop below to in-view. Framer JS loops keep
+  // ticking offscreen (CSS `.hero-anim-paused` doesn't touch them), and on
+  // repeated scroll up/down that compounding allocation OOM-crashes the iOS
+  // tab (no Sentry — the tab dies first). CLAUDE.md gotcha.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(rootRef, { margin: "200px" });
+  const loop = shouldAnimate && inView;
   const ctaMagnet = useMagnetic(0.3);
   const cardTilt = useTilt(5);
   const { bursts: ctaBursts, fire: fireCta } = useBurst(12);
@@ -123,7 +130,10 @@ export function HeroContent({
   ];
 
   return (
-    <div className="relative flex flex-col items-center justify-start px-4 pt-16 pb-12 pb-safe md:pt-24 md:pb-16">
+    <div
+      ref={rootRef}
+      className="relative flex flex-col items-center justify-start px-4 pt-16 pb-12 pb-safe md:pt-24 md:pb-16"
+    >
       <div className="max-w-4xl mx-auto text-center">
         {/* Standalone live greeting pill */}
         <div className="mb-5 flex justify-center animate-hero-develop-1">
@@ -180,11 +190,12 @@ export function HeroContent({
               onPointerEnter={shouldAnimate ? handleCtaBurst : undefined}
             >
               <Bursts bursts={ctaBursts} />
-              {/* Pulsing sunset glow halo */}
-              {shouldAnimate && (
+              {/* Pulsing sunset glow halo — desktop only (blur-xl is a mobile GPU
+                  cost) + loop gated to in-view so it never ticks/composites offscreen */}
+              {loop && (
                 <m.span
                   aria-hidden="true"
-                  className="pointer-events-none absolute -inset-2.5 rounded-full bg-gradient-to-r from-amber-400/50 via-secondary/50 to-orange-400/50 blur-xl"
+                  className="pointer-events-none absolute -inset-2.5 hidden rounded-full bg-gradient-to-r from-amber-400/50 via-secondary/50 to-orange-400/50 blur-xl md:block"
                   animate={{ opacity: [0.45, 0.8, 0.45], scale: [0.97, 1.03, 0.97] }}
                   transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut" }}
                 />
@@ -252,7 +263,7 @@ export function HeroContent({
                     transition={spring.snappy}
                   >
                     <m.div
-                      animate={shouldAnimate ? { rotate: [0, -8, 8, 0] } : undefined}
+                      animate={loop ? { rotate: [0, -8, 8, 0] } : undefined}
                       transition={{ duration: 3, repeat: Infinity, repeatDelay: 5 }}
                     >
                       <CalendarClock className="w-6 h-6 text-hero-clay flex-shrink-0" />
@@ -285,7 +296,7 @@ export function HeroContent({
                   transition={spring.snappy}
                 >
                   <m.div
-                    animate={shouldAnimate ? { x: [0, 4, 0] } : undefined}
+                    animate={loop ? { x: [0, 4, 0] } : undefined}
                     transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 4 }}
                   >
                     <Truck className="w-5 h-5 text-hero-sage flex-shrink-0" />
@@ -301,7 +312,7 @@ export function HeroContent({
                 {/* Closed state */}
                 <div className="flex items-center gap-3 mb-4">
                   <m.div
-                    animate={shouldAnimate ? { scale: [1, 1.15, 1] } : undefined}
+                    animate={loop ? { scale: [1, 1.15, 1] } : undefined}
                     transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
                   >
                     <CalendarClock className="w-6 h-6 text-amber-500 flex-shrink-0" />
