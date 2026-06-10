@@ -4,7 +4,9 @@
  *
  * Use zIndex.modal for inline styles
  * Use zIndexVar.modal for style objects needing CSS var syntax
- * Use z-modal class for TailwindCSS
+ * Use z-modal class for TailwindCSS — named z utilities are @utility rules in
+ * globals.css (the tailwind.config.ts zIndex scale never loads in Tailwind v4).
+ * Keep this file, tokens.css --zindex-*, and the globals.css @utility block in sync.
  */
 
 export const zIndex = {

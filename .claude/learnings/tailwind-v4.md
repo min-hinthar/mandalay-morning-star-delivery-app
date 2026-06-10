@@ -16,7 +16,7 @@ Tailwind v4 auto-scans ALL files. Wildcards in docs generate invalid CSS. Add `@
 
 ## Z-Index Utilities
 
-Custom `zIndex` theme extensions don't generate classes. Use `z-50` or `z-[60]`. CSS vars use `--z-index-modal`, utilities strip to `z-modal`.
+Custom `zIndex` theme extensions in `tailwind.config.ts` don't generate classes (config never loads). HEALED: named utilities (`z-base`…`z-max`) are now `@utility` rules in `globals.css` referencing `--zindex-*` from `tokens.css` — keep in sync with `src/lib/design-system/tokens/z-index.ts`. Numeric `z-50` / `z-[60]` (what `zClass.*` emits) remain equivalent. `@utility` only EMITS a class that appears in scanned source — verify in built CSS when adding a new usage.
 
 ---
 

@@ -209,12 +209,15 @@ const config = [
     rules: {
       "no-restricted-syntax": [
         "error",
-        // NOTE: z-index token rules disabled because Tailwind CSS 4 doesn't generate
-        // custom z-index utility classes (z-modal, z-sticky, etc.) from tailwind.config.ts.
-        // Use standard Tailwind numeric classes instead:
-        // - z-0 (base), z-10 (dropdown), z-20 (sticky), z-30 (fixed)
-        // - z-40 (modal-backdrop), z-50 (modal)
-        // - z-[60] (popover), z-[70] (tooltip), z-[80] (toast), z-[100] (max)
+        // NOTE: named z-index utilities (z-modal, z-sticky, etc.) are defined as
+        // @utility rules in src/app/globals.css (Tailwind v4 never loads the
+        // tailwind.config.ts zIndex scale — no @config directive). Both spellings
+        // are valid and equivalent:
+        // - named: z-base (0), z-dropdown (10), z-sticky (20), z-fixed (30),
+        //   z-modal-backdrop (40), z-modal (50), z-popover (60), z-tooltip (70),
+        //   z-toast (80), z-max (100)
+        // - numeric (zClass.*): z-0, z-10, z-20, z-30, z-40, z-50,
+        //   z-[60], z-[70], z-[80], z-[100]
         {
           // Catch inline zIndex in style objects: style={{ zIndex: 50 }}
           // Exception: allow zIndex from design-system/tokens/z-index
