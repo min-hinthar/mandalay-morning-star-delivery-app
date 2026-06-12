@@ -20,6 +20,8 @@ export interface PromoValidationResult {
   maxRedemptions: number | null;
   /** Redemptions Stripe has counted natively (promotion-code checkouts). */
   timesRedeemed: number;
+  /** Dashboard restriction: code valid only for a customer's first order. */
+  firstTimeTransaction: boolean;
 }
 
 export interface PromoValidationError {
@@ -61,6 +63,7 @@ export async function validatePromoCode(
     const minimumAmountCents = promo.restrictions?.minimum_amount ?? null;
     const maxRedemptions = promo.max_redemptions ?? null;
     const timesRedeemed = promo.times_redeemed ?? 0;
+    const firstTimeTransaction = promo.restrictions?.first_time_transaction ?? false;
 
     if (coupon.amount_off) {
       return {
@@ -72,6 +75,7 @@ export async function validatePromoCode(
         minimumAmountCents,
         maxRedemptions,
         timesRedeemed,
+        firstTimeTransaction,
       };
     }
 
@@ -85,6 +89,7 @@ export async function validatePromoCode(
         minimumAmountCents,
         maxRedemptions,
         timesRedeemed,
+        firstTimeTransaction,
       };
     }
 

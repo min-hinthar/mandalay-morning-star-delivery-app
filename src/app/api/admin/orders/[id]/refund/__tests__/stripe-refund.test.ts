@@ -92,7 +92,7 @@ describe("issueStripeRefundDelta", () => {
         amount: 1500,
         metadata: expect.objectContaining({ source: "admin-item-refund" }),
       }),
-      expect.objectContaining({ idempotencyKey: "admin-refund-order-1-1500" })
+      expect.objectContaining({ idempotencyKey: "admin-refund-order-1-1500-0" })
     );
   });
 
@@ -127,7 +127,7 @@ describe("issueStripeRefundDelta", () => {
     expect(outcome.refundedNowCents).toBe(700);
     expect(create).toHaveBeenCalledWith(
       expect.objectContaining({ amount: 700 }),
-      expect.objectContaining({ idempotencyKey: "admin-refund-order-1-1500" })
+      expect.objectContaining({ idempotencyKey: "admin-refund-order-1-1500-800" })
     );
   });
 

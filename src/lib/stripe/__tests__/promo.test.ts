@@ -42,6 +42,7 @@ describe("validatePromoCode", () => {
       minimumAmountCents: 5000,
       maxRedemptions: null,
       timesRedeemed: 0,
+      firstTimeTransaction: false,
     });
   });
 

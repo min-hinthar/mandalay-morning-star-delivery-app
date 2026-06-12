@@ -24,6 +24,9 @@ interface RpcResult {
   refundedItems: RefundedItem[];
   shippingRefundCents: number;
   totalRefundCents: number;
+  /** Present once the atomic-audit RPC migration is live (audit row written
+   * in the RPC's transaction); absent from the legacy RPC. */
+  audit_log_id?: string;
 }
 
 /**
@@ -117,6 +120,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
                 success: true,
                 orderId,
                 recovered: true,
+                refundedItems: [],
+                shippingRefundCents: 0,
+                totalRefundCents: recovery.refundedNowCents,
                 stripeRefund: recovery,
                 message: `Recovered a previously failed card refund: ${recovery.message}`,
               });
@@ -135,46 +141,50 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return apiError("INTERNAL_ERROR", "Failed to process refund", 500);
     }
 
-    const { refundedItems, shippingRefundCents, totalRefundCents } =
+    const { refundedItems, shippingRefundCents, totalRefundCents, audit_log_id } =
       rpcResult as unknown as RpcResult;
 
-    // Create audit log entry
-    const auditReason = items[0].reason || `Refund processed for ${refundedItems.length} item(s)`;
+    // The atomic-audit RPC writes the audit entry in its own transaction and
+    // returns its id. The legacy RPC doesn't — insert here for compatibility
+    // until the migration is live (deploy-order safe in both directions).
+    if (!audit_log_id) {
+      const auditReason = items[0].reason || `Refund processed for ${refundedItems.length} item(s)`;
+      const newValue = {
+        items: refundedItems.map((ri: RefundedItem) => ({
+          orderItemId: ri.orderItemId,
+          name: ri.name,
+          quantityRefunded: ri.quantityRefunded,
+          refundAmountCents: ri.refundAmountCents,
+        })),
+        shippingRefundCents,
+        totalRefundCents,
+      };
 
-    const newValue = {
-      items: refundedItems.map((ri: RefundedItem) => ({
-        orderItemId: ri.orderItemId,
-        name: ri.name,
-        quantityRefunded: ri.quantityRefunded,
-        refundAmountCents: ri.refundAmountCents,
-      })),
-      shippingRefundCents,
-      totalRefundCents,
-    };
-
-    const { error: auditError } = await supabase.from("order_audit_log").insert({
-      order_id: orderId,
-      action: "refund",
-      actor_id: userId,
-      actor_role: "admin",
-      old_value: null as Json,
-      new_value: newValue as Json,
-      reason: auditReason,
-    });
-
-    if (auditError) {
-      // The audit entry is the durable record the card refund reconciles
-      // against — without it the Stripe delta would under-refund. Surface the
-      // failure; re-submitting the refund retries safely.
-      logger.exception(auditError, {
-        api: "admin/orders/[id]/refund",
-        message: "Failed to create audit log",
+      const { error: auditError } = await supabase.from("order_audit_log").insert({
+        order_id: orderId,
+        action: "refund",
+        actor_id: userId,
+        actor_role: "admin",
+        old_value: null as Json,
+        new_value: newValue as Json,
+        reason: auditReason,
       });
-      return apiError(
-        "INTERNAL_ERROR",
-        "Items were marked refunded but the audit record failed — re-submit this refund to complete the card refund.",
-        500
-      );
+
+      if (auditError) {
+        // Items are marked refunded but the audit record (the card-refund
+        // reconciliation target) is missing. Do NOT advise re-submitting the
+        // same items: the RPC would double-mark remaining quantity.
+        logger.exception(auditError, {
+          api: "admin/orders/[id]/refund",
+          orderId,
+          message: "Audit record failed after refund marking (legacy RPC path)",
+        });
+        return apiError(
+          "INTERNAL_ERROR",
+          "Items were marked refunded but the audit record failed. Do NOT re-submit — refund the card manually in the Stripe dashboard and contact support to reconcile.",
+          500
+        );
+      }
     }
 
     // Move the actual money for card orders (COD has no payment rail; the

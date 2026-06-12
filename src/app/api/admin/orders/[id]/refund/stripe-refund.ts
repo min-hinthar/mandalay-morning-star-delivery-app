@@ -50,7 +50,15 @@ export function computeRefundDeltaCents(
 /**
  * Bring the Stripe-side refunded amount up to the cumulative audited refund
  * total for the order. Idempotent: the idempotency key is derived from the
- * cumulative target, so re-submitting the same state never double-refunds.
+ * (cumulative target, already-refunded) pair, so re-submitting the same state
+ * never double-refunds, and an interleaved external refund changes the key
+ * instead of locking retries out for 24h.
+ *
+ * POLICY: `charge.amount_refunded` counts ALL refunds, including ones issued
+ * directly from the Stripe dashboard. The invariant maintained here is
+ * "total returned to the customer >= cumulative audited item refunds" — an
+ * external goodwill refund therefore absorbs a later item refund instead of
+ * stacking on top of it.
  */
 export async function issueStripeRefundDelta(opts: {
   stripe: Stripe;
@@ -99,8 +107,11 @@ export async function issueStripeRefundDelta(opts: {
       amount: deltaCents,
       metadata: { order_id: orderId, source: "admin-item-refund" },
     },
-    // Keyed on the cumulative target: a retry of the same state is a no-op.
-    { idempotencyKey: `admin-refund-${orderId}-${cumulativeAuditedCents}` }
+    // Keyed on the (target, already-refunded) state: a retry of the same
+    // state dedupes; a changed state gets a fresh key.
+    {
+      idempotencyKey: `admin-refund-${orderId}-${cumulativeAuditedCents}-${alreadyRefundedCents}`,
+    }
   );
 
   logger.info("Stripe refund issued for admin item refund", {
@@ -109,6 +120,30 @@ export async function issueStripeRefundDelta(opts: {
     refundedNowCents: deltaCents,
     api: "admin/orders/[id]/refund",
   });
+
+  // Concurrent refunds on the same order can both read a stale
+  // amount_refunded and overshoot the audited target (rare: refunds are an
+  // admin action). Detect and alert rather than serialize.
+  try {
+    const after = await stripe.paymentIntents.retrieve(paymentIntentId, {
+      expand: ["latest_charge"],
+    });
+    const afterCharge = after.latest_charge;
+    if (
+      afterCharge &&
+      typeof afterCharge !== "string" &&
+      afterCharge.amount_refunded > Math.min(cumulativeAuditedCents, afterCharge.amount)
+    ) {
+      logger.error("Stripe refunded MORE than the audited total — reconcile manually", {
+        orderId,
+        amountRefunded: afterCharge.amount_refunded,
+        cumulativeAuditedCents,
+        api: "admin/orders/[id]/refund",
+      });
+    }
+  } catch {
+    // Verification is best-effort; the refund itself succeeded.
+  }
 
   return {
     attempted: true,
