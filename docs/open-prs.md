@@ -8,25 +8,20 @@ _Last reconciled: 2026-06-12._
 
 ## In flight
 
-- **#173** — **Security lockdown + orders RLS repair + grocery launch review**
-  (`claude/focused-goldberg-ci0h2h`). The grocery-readiness review doc
-  (`docs/grocery-launch-review-2026-06.md`) + fixes: auth-bound
-  `create_order_with_items` (was anon-forgeable), guarded route/driver-telemetry
-  RPCs, private `feedback-attachments` bucket + signed URLs, and the orders RLS
-  repair (driver transitions + customer cancel were silently no-opped by the
-  admin-only policy — prod audit log confirmed). **Adversarial pre-merge review:
-  FIX-FIRST → fixed (`a6d1b95`)** — the inline driver policies closed an
-  `orders↔route_stops` RLS recursion cycle (would have 500'd every authenticated
-  orders read; invisible to CI). Fix = `app_private.order_on_my_route()`
-  SECURITY DEFINER helper (non-public schema → types-neutral); verified on a
-  scratch PG16 behavior matrix. Verdict after fix: SHIP. **Owner approved
-  merge + prod hotfix.** Migrations `…120000` + `…120002` (PUBLIC-grant revoke —
-  prod ACLs carried `=X`, see migration header) **already applied to prod** and
-  live-verified (anon locked out; forged-user RPC raises 42501; customer reads
-  clean). `…120001` (revoke `authenticated` on the order RPC) applies AFTER the
-  post-merge Vercel deploy. Local verify green (1180 tests). Follow-ups tracked
-  in the review doc: refund-Stripe wiring, percent-off coupon vs tax/tip lines,
-  grocery Phases 1–3.
+- **money-correctness-fixes** (branch `claude/money-correctness-fixes`, PR pending —
+  GitHub connector dropped mid-session; open via compare link or /mcp re-auth).
+  Two live money bugs from the grocery-launch review: (1) percent-off promo codes
+  discounted the Stripe tax/tip line items (charge < stored total, tip shaved) —
+  now converted at session creation to a one-off amount_off coupon equal to the
+  food-subtotal discount, with app-side max_redemptions (cutover-scoped),
+  first_time_transaction enforcement, and promo-code normalization; (2) admin item
+  refunds never called Stripe — now an idempotent delta against the cumulative
+  audited total (audit row written atomically inside apply_item_refunds, migration
+  `…160000`, **apply only AFTER deploy** — ordering note in header), recovery path
+  for failed card refunds, COD cash-refund email wording, webhook double-email
+  guard. Adversarial review FIX-FIRST → all H/M findings fixed (+4 Lows); local
+  verify green (1199 tests). Follow-ups: per-line tax/discount-proportional refund
+  math, RPC shipping double-refund guard.
 
 The After Dark **level-up back-port is COMPLETE** — all four shipped surfaces
 (checkout #163, cart #166, orders #171, account #170) now run the canonical
@@ -50,6 +45,17 @@ merge/close.
 > pre-merge review. Re-enable required checks once the Actions quota resets.
 
 ## Recently closed
+
+- **#173** — **Security lockdown + orders RLS repair + grocery launch review.**
+  Review doc `docs/grocery-launch-review-2026-06.md`; auth-bound order RPC,
+  guarded route/driver-telemetry RPCs, PUBLIC/anon execute revokes (prod ACLs
+  carried `=X` — migration `…120002`), orders RLS repair (driver transitions +
+  customer cancel were silent no-ops; recursion-safe via
+  `app_private.order_on_my_route()`), private feedback bucket + signed URLs.
+  Adversarial review FIX-FIRST → fixed → SHIP; verified on scratch PG16 + live
+  prod smoke tests. **Merged** (`a967949`) via bypass (Actions quota still out);
+  all three migrations applied to prod + live-verified (anon locked out, forged
+  orders raise 42501, order RPC service-role-only).
 
 - **#171** — **Orders "Twilight Procession" + View-Transitions seal** (back-port 3/4).
   `.orders-canvas` → canonical `.after-dark-canvas`; OrderDetailView split
