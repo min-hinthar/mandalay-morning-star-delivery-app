@@ -43,9 +43,19 @@ export function useThemeTransition() {
         Math.max(y, window.innerHeight - y)
       );
 
+      // Scope the theme circular-reveal CSS (globals.css `html.vt-theme`
+      // ::view-transition-*) to THIS transition only, so it can't corrupt the
+      // nav shared-element morphs (wax-seal / order-total).
+      const root = document.documentElement;
+      root.classList.add("vt-theme");
+
       // Start view transition
       const transition = document.startViewTransition(() => {
         toggleFn();
+      });
+
+      void transition.finished.finally(() => {
+        root.classList.remove("vt-theme");
       });
 
       try {

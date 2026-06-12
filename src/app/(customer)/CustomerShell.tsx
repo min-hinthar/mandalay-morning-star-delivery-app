@@ -8,6 +8,7 @@ import { ReferralCapture } from "@/components/ui/referrals/ReferralCapture";
 import { OfflineBanner } from "@/components/ui/customer";
 import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
 import { FeedbackFAB, FeedbackSheet } from "@/components/ui/feedback";
+import { VtNavSync } from "@/components/ui/VtNavSync";
 import type { DeliveryDayConfig } from "@/types/delivery";
 
 interface CustomerShellProps {
@@ -33,6 +34,7 @@ export function CustomerShell({
 }: CustomerShellProps) {
   return (
     <DomMaxProvider>
+      <VtNavSync />
       <OfflineBanner />
       <DeliverySettingsSync
         deliveryFeeCents={deliveryFeeCents}

@@ -24,6 +24,16 @@ export function OrderDetailSkeleton() {
           {/* Section 3: Timeline card */}
           <Card className="shadow-card stagger-2">
             <CardContent className="p-4 space-y-4">
+              {/* Status-crest placeholder — same `view-transition-name` as the real
+                  crest so the wax-seal morph has a stable target during a vt-nav
+                  navigation while the detail page is still loading. */}
+              <div className="flex items-center justify-between">
+                <Skeleton height={18} width={120} radius="sm" />
+                <span
+                  className="h-7 w-7 rounded-full bg-surface-tertiary"
+                  style={{ viewTransitionName: "wax-seal" }}
+                />
+              </div>
               {Array.from({ length: 4 }).map((_, i) => (
                 <div key={i} className="flex items-center gap-4">
                   <Skeleton width={40} height={40} radius="full" />
