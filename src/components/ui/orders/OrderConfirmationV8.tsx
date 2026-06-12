@@ -4,7 +4,9 @@ import { useEffect } from "react";
 import { m } from "framer-motion";
 import { Clock, MapPin, Package, AlertCircle, Banknote } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
+import { navigateWithViewTransition } from "@/lib/navigation/view-transition-nav";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { formatPrice } from "@/lib/utils/currency";
 import { useConfetti } from "@/components/ui/Confetti";
@@ -13,6 +15,8 @@ import { CutoffCountdown } from "@/components/ui/customer";
 import { SuccessCheckmark } from "@/components/ui/success-checkmark";
 import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
+import { AfterDarkAmbient } from "@/components/ui/AfterDarkAmbient";
+import { AfterDarkSpotlight } from "@/components/ui/AfterDarkSpotlight";
 import { TierUpCelebration } from "@/components/ui/TierUpCelebration";
 import { useRewardsSummary } from "@/lib/hooks/useRewardsSummary";
 import type { LoyaltyTierId } from "@/lib/loyalty";
@@ -53,6 +57,7 @@ interface OrderConfirmationV8Props {
  * - Reduced motion support
  */
 export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
+  const router = useRouter();
   const clearCart = useCartStore((state) => state.clearCart);
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { trigger, Confetti: ConfettiComponent } = useConfetti();
@@ -104,7 +109,11 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
       {/* Tier-up moment — fires only on a real tier crossing (kit; self-deduped) */}
       <TierUpCelebration />
 
-      <div className="orders-canvas min-h-screen px-4 py-12">
+      <div className="after-dark-canvas relative isolate min-h-screen px-4 py-12">
+        {/* Kit living texture + desktop cursor spotlight, under all content */}
+        <AfterDarkAmbient className="-z-10" />
+        <AfterDarkSpotlight className="-z-10" />
+
         <div className="mx-auto max-w-2xl">
           {/* Icon Animation */}
           <m.div
@@ -168,6 +177,8 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
             className={`mx-auto mb-8 flex h-28 w-28 flex-col items-center justify-center gap-0.5 rounded-full border-2 text-center ${seal.ring}`}
             style={{
               background: `radial-gradient(circle at 35% 28%, color-mix(in srgb, var(${seal.varName}) 18%, transparent), transparent 72%)`,
+              // Shared-element morph target ↔ the order-detail status-card crest.
+              viewTransitionName: "wax-seal",
             }}
             aria-label="Thank you"
           >
@@ -269,7 +280,11 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                         </div>
                       )}
                       <div className="checkout-perf checkout-rule-draw my-1" aria-hidden="true" />
-                      <div className="flex items-center justify-between pt-0.5 text-lg font-medium">
+                      <div
+                        className="flex items-center justify-between pt-0.5 text-lg font-medium"
+                        // Shared-element morph ↔ the checkout receipt total row.
+                        style={{ viewTransitionName: "order-total" }}
+                      >
                         <span className="font-display text-hero-ink">Total</span>
                         <span className="font-bold text-hero-accent">
                           {formatPrice(order.totalCents)}
@@ -337,7 +352,18 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
               className="flex flex-col sm:flex-row gap-4 justify-center pt-2"
             >
               <Button asChild variant="default" size="lg">
-                <Link href={`/orders/${order.id}`}>Track Order</Link>
+                {/* Stays a real anchor (crawlable, ⌘/middle-click opens a tab) —
+                    plain left-click is intercepted for the wax-seal VT morph. */}
+                <Link
+                  href={`/orders/${order.id}`}
+                  onClick={(e) => {
+                    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+                    e.preventDefault();
+                    navigateWithViewTransition(router, `/orders/${order.id}`);
+                  }}
+                >
+                  Track Order
+                </Link>
               </Button>
               <Button asChild variant="outline" size="lg">
                 <Link href="/menu">Continue Shopping</Link>

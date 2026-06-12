@@ -29,6 +29,7 @@ import { PriceTicker } from "@/components/ui/PriceTicker";
 import { LedgerRow, FadeRow } from "./CheckoutSummaryRows";
 import { formatPrice } from "@/lib/utils/format";
 import { COVINA_TAX_RATE } from "@/lib/utils/order";
+import { wasVtNav } from "@/lib/navigation/view-transition-nav";
 
 export interface CheckoutSummaryV8Props {
   className?: string;
@@ -41,6 +42,10 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
   // Gentle pointer tilt (level-up tactile pass). The receipt body holds no CTA,
   // so tilt is safe here (menu-card gotcha); no preserve-3d → no shadow artifact.
   const tilt = useTilt(3.5);
+  // Arrival guard — when this receipt mounts as a vt-nav DESTINATION, skip the
+  // thermal print-reveal so it lands at rest instead of fighting the shared-element
+  // morph. `wasVtNav()` is a timestamp read (true within ~2.5s of a vt-nav push).
+  const printReveal = shouldAnimate && !wasVtNav();
   const {
     items,
     itemsSubtotal,
@@ -84,8 +89,8 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           advances + settles. The print-head light (below) rides the frontier. */}
       <m.div
         className="relative"
-        initial={shouldAnimate ? { clipPath: "inset(0 0 100% 0)", y: 8 } : undefined}
-        animate={shouldAnimate ? { clipPath: "inset(0 0 0% 0)", y: 0 } : undefined}
+        initial={printReveal ? { clipPath: "inset(0 0 100% 0)", y: 8 } : undefined}
+        animate={printReveal ? { clipPath: "inset(0 0 0% 0)", y: 0 } : undefined}
         transition={{ duration: 1.05, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* Bound-ledger spine — triad gradient bar down the receipt's left edge */}
@@ -331,8 +336,12 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
 
               <div className="checkout-perf checkout-rule-draw -mx-5 my-1" aria-hidden="true" />
 
-              {/* Total — big rolling number under a slow ledger sheen */}
-              <div className="relative overflow-hidden rounded-xl px-3 py-2.5">
+              {/* Total — big rolling number under a slow ledger sheen.
+                  Shared-element morph target ↔ the confirmation total row (vt-nav). */}
+              <div
+                className="relative overflow-hidden rounded-xl px-3 py-2.5"
+                style={{ viewTransitionName: "order-total" }}
+              >
                 <span
                   aria-hidden="true"
                   className="checkout-total-sheen pointer-events-none absolute inset-0 rounded-xl"
@@ -360,14 +369,14 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
           className="checkout-tear"
           style={{ height: TEAR_HEIGHT, transformOrigin: "top" }}
           aria-hidden="true"
-          initial={shouldAnimate ? { scaleY: 0.4, opacity: 0 } : undefined}
-          animate={shouldAnimate ? { scaleY: 1, opacity: 1 } : undefined}
+          initial={printReveal ? { scaleY: 0.4, opacity: 0 } : undefined}
+          animate={printReveal ? { scaleY: 1, opacity: 1 } : undefined}
           transition={{ delay: 0.95, type: "spring", stiffness: 360, damping: 18 }}
         />
       </m.div>
 
       {/* Print-head light — rides the reveal frontier (not clipped) */}
-      {shouldAnimate && (
+      {printReveal && (
         <m.span
           aria-hidden="true"
           className="checkout-printhead pointer-events-none absolute inset-x-0 z-20"

@@ -11,6 +11,8 @@ import { cn } from "@/lib/utils/cn";
 import type { VehicleType } from "@/types/driver";
 import { Button } from "@/components/ui/button";
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
+import { useTilt } from "@/components/ui/homepage/Hero/interactions";
+import { GoldLeaf } from "@/components/ui/GoldLeaf";
 
 interface DriverCardProps {
   driver: {
@@ -44,6 +46,10 @@ const vehicleLabels: Record<VehicleType, string> = {
 };
 
 export function DriverCard({ driver, stopProgress, onContactDriver, className }: DriverCardProps) {
+  // Gentle pointer tilt (kit tactile pass). useTilt doubles its arg → ±3° swing;
+  // kept small + no preserve-3d so the "Call" tel button barely shifts under the
+  // cursor (this card holds a CTA — menu-card gotcha respected).
+  const tilt = useTilt(1.5);
   const displayName = driver.fullName || "Your Driver";
   const initials = displayName
     .split(" ")
@@ -70,8 +76,13 @@ export function DriverCard({ driver, stopProgress, onContactDriver, className }:
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       className={cn("hero-surface-paper relative overflow-hidden rounded-2xl p-4", className)}
+      style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformPerspective: 900 }}
+      onPointerMove={tilt.onPointerMove}
+      onPointerLeave={tilt.onPointerLeave}
     >
       <HeroCardLayers accent="blue" radius="rounded-2xl" />
+      {/* Gold-leaf flecks + lacquer sheen (kit) */}
+      <GoldLeaf radius="rounded-2xl" />
 
       <div className="relative flex items-start gap-4">
         {/* Driver Avatar */}

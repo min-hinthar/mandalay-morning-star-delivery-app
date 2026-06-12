@@ -6,6 +6,8 @@ import { logger } from "@/lib/utils/logger";
 import { Button } from "@/components/ui/button";
 import { OrdersHeader } from "@/components/ui/orders/OrdersHeader";
 import { OrderListPaginated } from "@/components/ui/orders/OrderListPaginated";
+import { AfterDarkAmbient } from "@/components/ui/AfterDarkAmbient";
+import { AfterDarkSpotlight } from "@/components/ui/AfterDarkSpotlight";
 import type { OrderStatus } from "@/types/order";
 import type { RefundStatus } from "@/types/database";
 
@@ -82,9 +84,13 @@ export default async function OrdersPage() {
 
   return (
     <main
-      className="min-h-screen bg-gradient-to-b from-surface-secondary to-surface-primary pt-8 pb-32 px-4"
+      className="after-dark-canvas relative isolate min-h-screen px-4 pb-32 pt-8"
       style={{ viewTransitionName: "orders-page" }}
     >
+      {/* Kit living texture + desktop cursor spotlight, behind all content */}
+      <AfterDarkAmbient className="-z-10" />
+      <AfterDarkSpotlight className="-z-10" />
+
       <div className="mx-auto max-w-2xl">
         {/* Animated Header (client component) */}
         <OrdersHeader />
