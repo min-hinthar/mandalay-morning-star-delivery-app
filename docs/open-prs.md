@@ -17,6 +17,12 @@ _Last reconciled: 2026-06-12._
   admin-only policy — prod audit log confirmed). **Deploy sequencing matters:**
   migration `…120000` safe immediately; `…120001` (revoke `authenticated` on the
   order RPC) only AFTER the Vercel deploy. Local verify green (1180 tests).
+  **Adversarial pre-merge review: FIX-FIRST → fixed (`a6d1b95`)** — the inline
+  driver policies closed an `orders↔route_stops` RLS recursion cycle (would have
+  500'd every authenticated orders read; invisible to CI). Fix =
+  `app_private.order_on_my_route()` SECURITY DEFINER helper (non-public schema →
+  types-neutral); empirically verified on a scratch PG16 with the full
+  customer/driver/stranger behavior matrix. Verdict after fix: SHIP.
   Awaiting owner merge-gate. Follow-ups tracked in the review doc: refund-Stripe
   wiring, percent-off coupon vs tax/tip lines, grocery Phases 1–3.
 
