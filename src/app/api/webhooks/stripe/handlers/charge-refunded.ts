@@ -1,6 +1,7 @@
 import React from "react";
 import { after } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
+import { stripe } from "@/lib/stripe/server";
 import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import { RefundNotification } from "@/emails/RefundNotification";
@@ -85,6 +86,32 @@ export async function handleChargeRefunded(
       orderId: order.id,
       amountRefunded: charge.amount_refunded,
       totalAmount: charge.amount,
+      api: "stripe-webhook",
+      flowId: "refund",
+    });
+  }
+
+  // Admin item-refunds already send the customer an ITEMIZED notification
+  // from the refund route — skip the generic webhook email for those so the
+  // customer isn't emailed twice. (Status handling above still ran.)
+  try {
+    const recentRefunds = await stripe.refunds.list({
+      payment_intent: paymentIntentId,
+      limit: 1,
+    });
+    if (recentRefunds.data[0]?.metadata?.source === "admin-item-refund") {
+      logger.info("Skipping duplicate refund email (admin-initiated item refund)", {
+        orderId: order.id,
+        api: "stripe-webhook",
+        flowId: "refund",
+      });
+      return;
+    }
+  } catch (listErr) {
+    // Fall through to emailing — a duplicate email beats a missing one.
+    logger.warn("Could not inspect refund metadata; sending generic refund email", {
+      orderId: order.id,
+      error: listErr instanceof Error ? listErr.message : String(listErr),
       api: "stripe-webhook",
       flowId: "refund",
     });

@@ -26,7 +26,14 @@ export const createCheckoutSessionSchema = z.object({
   items: z.array(checkoutItemSchema).min(1, "Cart cannot be empty").max(50, "Too many items"),
   customerNotes: z.string().max(1000, "Notes too long").optional(),
   tipCents: z.number().int().min(0).max(100_000, "Maximum tip is $1000").optional(),
-  promoCode: z.string().max(50, "Promo code too long").optional(),
+  promoCode: z
+    .string()
+    .max(50, "Promo code too long")
+    // Stripe matches codes case-insensitively; normalize so orders.promo_code
+    // storage and the app-side redemption count can never be bypassed by
+    // case variants.
+    .transform((v) => v.trim().toUpperCase())
+    .optional(),
   deliveryInstructions: z.string().max(500, "Delivery instructions too long").optional(),
   paymentMethod: z.enum(["stripe", "cod"]).default("stripe"),
   customerPhone: z
