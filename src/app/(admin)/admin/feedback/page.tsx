@@ -135,6 +135,26 @@ export default async function FeedbackPage({ searchParams }: FeedbackPageProps) 
 
   const feedback = (feedbackRows ?? []) as unknown as FeedbackWithProfile[];
 
+  // Screenshots live in a private bucket: swap stored paths (and legacy
+  // public URLs) for short-lived signed URLs before rendering.
+  const legacyPublicPrefix = "/storage/v1/object/public/feedback-attachments/";
+  await Promise.all(
+    feedback.map(async (item) => {
+      const legacyPath = item.screenshot_url?.includes(legacyPublicPrefix)
+        ? decodeURIComponent(item.screenshot_url.split(legacyPublicPrefix)[1] ?? "")
+        : null;
+      const path = item.screenshot_path ?? (legacyPath || null);
+      if (!path) {
+        item.screenshot_url = null;
+        return;
+      }
+      const { data: signed } = await serviceClient.storage
+        .from("feedback-attachments")
+        .createSignedUrl(path, 60 * 60);
+      item.screenshot_url = signed?.signedUrl ?? null;
+    })
+  );
+
   // Build filter URLs
   const baseUrl = "/admin/feedback";
   function filterUrl(params: Record<string, string | undefined>) {

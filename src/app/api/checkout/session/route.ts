@@ -221,8 +221,12 @@ export async function POST(request: Request) {
       if (mod.item_index < 0 || mod.item_index >= rpcItems.length)
         return errorResponse("VALIDATION_ERROR", "Invalid modifier item index", 400);
     }
+    // Order creation runs on the service client: the create_order_with_items
+    // RPC is locked to service_role (totals above are server-computed; the
+    // user-scoped grant is revoked so clients can't call it with forged prices).
+    const orderClient = createServiceClient();
     if (input.paymentMethod === "cod") {
-      const codResult = await createCODOrder(supabase, {
+      const codResult = await createCODOrder(orderClient, {
         userId: user.id,
         addressId: input.addressId,
         scheduledDate: input.scheduledDate,
@@ -288,7 +292,7 @@ export async function POST(request: Request) {
       });
     }
 
-    const { data: rpcResult, error: rpcError } = await supabase.rpc("create_order_with_items", {
+    const { data: rpcResult, error: rpcError } = await orderClient.rpc("create_order_with_items", {
       p_order: {
         user_id: user.id,
         address_id: input.addressId,

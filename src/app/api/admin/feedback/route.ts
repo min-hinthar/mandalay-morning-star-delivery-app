@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import type { ProfileRole } from "@/types/database";
 import type { FeedbackCategory, FeedbackStatus } from "@/types/feedback";
@@ -68,7 +68,32 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Failed to fetch feedback" }, { status: 500 });
     }
 
-    return NextResponse.json({ feedback: feedback ?? [] });
+    // Screenshots live in a private bucket: swap stored paths (and legacy
+    // public URLs) for short-lived signed URLs.
+    const service = createServiceClient();
+    const legacyPublicPrefix = "/storage/v1/object/public/feedback-attachments/";
+    const rows = (feedback ?? []) as unknown as Array<{
+      screenshot_url: string | null;
+      screenshot_path: string | null;
+    }>;
+    await Promise.all(
+      rows.map(async (item) => {
+        const legacyPath = item.screenshot_url?.includes(legacyPublicPrefix)
+          ? decodeURIComponent(item.screenshot_url.split(legacyPublicPrefix)[1] ?? "")
+          : null;
+        const path = item.screenshot_path ?? (legacyPath || null);
+        if (!path) {
+          item.screenshot_url = null;
+          return;
+        }
+        const { data: signed } = await service.storage
+          .from("feedback-attachments")
+          .createSignedUrl(path, 60 * 60);
+        item.screenshot_url = signed?.signedUrl ?? null;
+      })
+    );
+
+    return NextResponse.json({ feedback: rows });
   } catch (err) {
     logger.error("Admin feedback GET error");
     logger.exception(err, { flowId: "admin-feedback" });

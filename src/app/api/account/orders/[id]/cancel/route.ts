@@ -107,8 +107,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       ? `${existingNotes}\n\n${cancellationNote}`
       : cancellationNote;
 
-    // Cancel the order
-    const { error: updateError } = await supabase
+    // Cancel the order. RLS no-ops (not just errors) must not be reported as
+    // success — verify the affected row via .select() before emailing.
+    const { data: cancelledRows, error: updateError } = await supabase
       .from("orders")
       .update({
         status: "cancelled",
@@ -116,7 +117,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         updated_at: cancelledAt,
       })
       .eq("id", orderId)
-      .in("status", CANCELLABLE_STATUSES); // Idempotency check
+      .in("status", CANCELLABLE_STATUSES) // Idempotency check
+      .select("id");
 
     if (updateError) {
       logger.exception(updateError, {
@@ -127,6 +129,23 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json(
         { error: { code: "INTERNAL_ERROR", message: "Failed to cancel order" } },
         { status: 500 }
+      );
+    }
+
+    if (!cancelledRows || cancelledRows.length === 0) {
+      logger.warn("Order cancel affected no rows (status raced or not permitted)", {
+        api: "account/orders/[id]/cancel",
+        orderId,
+        userId: user.id,
+      });
+      return NextResponse.json(
+        {
+          error: {
+            code: "CONFLICT",
+            message: "This order can no longer be cancelled. Please contact us for help.",
+          },
+        },
+        { status: 409 }
       );
     }
 
