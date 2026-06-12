@@ -1,4 +1,5 @@
 import { Link, Section, Text } from "@react-email/components";
+import { LOYALTY_MILESTONE_STEP } from "@/lib/loyalty";
 import { BODY_FONT, BURMESE_FONT, C, DISPLAY_FONT } from "./theme";
 
 /** Computed server-side at send time from real loyalty data — never fabricated. */
@@ -21,7 +22,7 @@ interface LoyaltyProgressProps {
 }
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
-const CYCLE = 5;
+const CYCLE = LOYALTY_MILESTONE_STEP;
 
 /**
  * Compact Morning Star Rewards strip for order emails: five star slots, the
@@ -90,6 +91,8 @@ export function LoyaltyProgress({ loyalty }: LoyaltyProgressProps) {
             >
               {"✨"} You just earned a {reward} reward!
             </Text>
+            {/* "on its way", not "waiting": issuance can lag the email on some
+                payment paths — never promise a wallet row that may not exist yet */}
             <Text
               style={{
                 fontSize: "13px",
@@ -98,7 +101,7 @@ export function LoyaltyProgress({ loyalty }: LoyaltyProgressProps) {
                 margin: "0 0 8px 0",
               }}
             >
-              It&apos;s waiting in your rewards wallet for your next order.
+              It&apos;s on its way to your rewards wallet {"—"} use it on your next order.
             </Text>
           </>
         ) : (

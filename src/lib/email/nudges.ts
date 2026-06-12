@@ -83,6 +83,10 @@ export async function getNextDeliveryCutoffText(): Promise<string | null> {
     if (!deliveryDays.length) return null;
     const nextDate = getNextDeliveryDate(new Date(), deliveryDays);
     if (!nextDate) return null;
+    // getNextCutoffText re-finds the day config by day-of-week. If two ACTIVE
+    // configs ever share a DOW (direction-split days with different cutoffs),
+    // this can name the other config's cutoff — pass the chosen config through
+    // instead if that setup lands. Fine under the current one-config-per-day.
     const text = getNextCutoffText(getZonedDayOfWeek(nextDate), deliveryDays);
     return text === "No upcoming delivery windows" ? null : text;
   } catch (error) {
