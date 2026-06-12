@@ -4,6 +4,10 @@ name: One-off — delete pre-rewrite tags
 # tag refs from the session environment. Dispatch once, then delete this file.
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/delete-stale-tags.yml"
 
 permissions:
   contents: write
