@@ -4,11 +4,31 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-06-10._
+_Last reconciled: 2026-06-12._
 
 ## In flight
 
-_None._ The After Dark **level-up back-port is COMPLETE** — all four shipped surfaces
+- **#173** — **Security lockdown + orders RLS repair + grocery launch review**
+  (`claude/focused-goldberg-ci0h2h`). The grocery-readiness review doc
+  (`docs/grocery-launch-review-2026-06.md`) + fixes: auth-bound
+  `create_order_with_items` (was anon-forgeable), guarded route/driver-telemetry
+  RPCs, private `feedback-attachments` bucket + signed URLs, and the orders RLS
+  repair (driver transitions + customer cancel were silently no-opped by the
+  admin-only policy — prod audit log confirmed). **Adversarial pre-merge review:
+  FIX-FIRST → fixed (`a6d1b95`)** — the inline driver policies closed an
+  `orders↔route_stops` RLS recursion cycle (would have 500'd every authenticated
+  orders read; invisible to CI). Fix = `app_private.order_on_my_route()`
+  SECURITY DEFINER helper (non-public schema → types-neutral); verified on a
+  scratch PG16 behavior matrix. Verdict after fix: SHIP. **Owner approved
+  merge + prod hotfix.** Migrations `…120000` + `…120002` (PUBLIC-grant revoke —
+  prod ACLs carried `=X`, see migration header) **already applied to prod** and
+  live-verified (anon locked out; forged-user RPC raises 42501; customer reads
+  clean). `…120001` (revoke `authenticated` on the order RPC) applies AFTER the
+  post-merge Vercel deploy. Local verify green (1180 tests). Follow-ups tracked
+  in the review doc: refund-Stripe wiring, percent-off coupon vs tax/tip lines,
+  grocery Phases 1–3.
+
+The After Dark **level-up back-port is COMPLETE** — all four shipped surfaces
 (checkout #163, cart #166, orders #171, account #170) now run the canonical
 `.after-dark-canvas` + kit FX, plus auth (#162) and the homepage. #160–#171 all merged.
 
