@@ -4,20 +4,19 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-06-09._
+_Last reconciled: 2026-06-10._
 
 ## In flight
 
-_None._ #160–#165 all merged 2026-06-09 (kit → auth → checkout back-port + warm-dark
-overhaul → PWA resilience → nav fixes).
+_None._ The After Dark **level-up back-port is COMPLETE** — all four shipped surfaces
+(checkout #163, cart #166, orders #171, account #170) now run the canonical
+`.after-dark-canvas` + kit FX, plus auth (#162) and the homepage. #160–#171 all merged.
 
-> **Next: remaining back-ports** — cart, orders, account (per-surface PRs; finish
-> consolidating `.cart-canvas`/`.orders-canvas`/`.account-canvas` onto
-> `.after-dark-canvas` the way #163 did for checkout — their dark ramps already match).
-> Carry-forward notes: any future test mounting `TierUpCelebration` needs
-> `useReducedMotion` in its framer mock (it always renders `<Confetti>`); audit the
-> repo's `zClass.*`/JS-config z-index utilities — they DON'T emit in Tailwind v4 (no
-> `@config`), see Gotchas. See [`after-dark-levelup-plan.md`](./after-dark-levelup-plan.md).
+> **Possible next work (none committed):**
+>
+> - **Stable preview review-alias** so cross-PR sessions don't re-auth (offered to owner; one Vercel-config change).
+> - Per-tier audit if any surface wants further restraint/polish.
+>   See [`after-dark-levelup-plan.md`](./after-dark-levelup-plan.md) (back-port marked done).
 
 ## Watching
 
@@ -32,6 +31,33 @@ merge/close.
 
 ## Recently closed
 
+- **#171** — **Orders "Twilight Procession" + View-Transitions seal** (back-port 3/4).
+  `.orders-canvas` → canonical `.after-dark-canvas`; OrderDetailView split
+  (`OrderReceiptCard`); ScrollReveal cascades; tracking journey comet + arrival-glow
+  (real status, `useInView`-gated); tilt/GoldLeaf cards; **manual `document.startViewTransition`**
+  wax-seal + order-total morph (isolated, feature-detected, reduced-motion-safe, 1.8s
+  cap; theme-toggle root VT CSS scoped under `html.vt-theme`). Review SHIP-WITH-NITS →
+  fixed (Track Order anchor semantics; DriverCard ±3° tilt). **Merged** (`609b16ba`).
+- **#170** — **Account "Constellation Shrine" → restrained passport** (back-port 4/4).
+  Canvas consolidation + warm-paper passport (GoldLeaf + tilt + editorial crest +
+  rolling Stars + real cycle progress) + TierUpCelebration + TapBurst-on-save + pill
+  sheen. **Owner pulled it back from maximal**: removed the orbiting star ring + aurora
+  (read cosmic, not Anthropic); `ConstellationOrbit.tsx` deleted. Review SHIP. **Merged** (`f045bdc2`).
+- **#169** — `/cart` page summary warm-paper parity with the drawer receipt (review LOW
+  follow-up). Review SHIP. **Merged** (`566c68f9`).
+- **#168** — **iOS homepage OOM crash fix**: 6 hero `repeat:Infinity` loops gated only by
+  `shouldAnimate` ticked offscreen → memory growth on scroll → tab crash (no Sentry).
+  Gated all with `useInView`; moved two mobile blur halos to `md:`. Pre-existing since
+  #136; not the cart PR. **Merged** (`0a8a6977`).
+- **#167** — **z-index scale heal**: Tailwind v4 never loads `tailwind.config.ts`, so
+  named z utilities were silent no-ops; healed with one `@utility` block (all 10 emit).
+  Only 3 literal-class victims (`zClass.*` was already numeric). **Merged** (`eac9e2c4`).
+- **#166** — Cart back-port (2/4): canonical canvas + new `AfterDarkSpotlight` kit
+  primitive + **truck-led** free-delivery journey (owner pref over the star-convoy) +
+  ticket perforation + tilt/GoldLeaf receipt + TapBurst-on-qty. **Merged** (`77cdd34d`).
+- **#163** — Checkout back-port (1/4) + **warm dark overhaul** (global dark surfaces
+  espresso, not pure black — the visible "too dark" fix; honest contrast-audit fixtures,
+  dark muted `#a8a5a1`). **Merged** (`6253ba90`).
 - **#165** — **Nav fixes**: profile dropdown opened off-screen left at 640–767px (anchor
   flipped at `sm:` but the header switches at `md:`); hamburger drawer reskinned After
   Dark (warm canvas + ambient, bilingual masthead, Order/You link groups matching the
@@ -44,13 +70,6 @@ merge/close.
   first-install controllerchange guard, SKIP_WAITING fail-safe) + After Dark reskin.
   Review SHIP-WITH-NITS (spin-slow keyframes existed nowhere — added + emission
   verified; AA contrast on Update-now; SR-safe live region). **Merged** (`4d37bdec`).
-- **#163** — **Checkout level-up back-port + warm dark overhaul**: checkout onto the
-  canonical `.after-dark-canvas`; GLOBAL dark surfaces lifted off pure black to warm
-  espresso (the owner's "too dark" fix — canvas-only lift was invisible since chrome
-  sits on the global tokens); dark texture tokens boosted; receipt tilt + GoldLeaf;
-  `TierUpCelebration` on confirmation. Review FIX-FIRST → fixed: stale contrast-audit
-  fixtures (dark text-muted → `#a8a5a1`, worst pair 4.9:1) + `z-modal-backdrop` no-op
-  → `z-50`. **Merged** (`6253ba90`).
 - **#162** — **Auth "After Dark"** (customer-rollout surface #5). Editorial-split
   `/login` + `/auth/expired` on the level-up kit: `.after-dark-canvas` +
   `AfterDarkAmbient`, a desktop brand panel carrying the appetizing menu photo

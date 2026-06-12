@@ -100,18 +100,31 @@ bilingual.
 2. ✅ **Auth (#5)** (merged **#162**) — editorial-split `/login` + `/auth/expired` on the
    kit: brand-panel menu photo + bilingual wordmark, mobile photo band, warm-paper card,
    `MagneticButton` submit, `TapBurst` on success. Reskin only.
-3. 🟡 **Back-port** — in progress.
-   - ✅ **Checkout** (merged **#163**): canonical canvas (checkout-canvas → vars-only),
-     receipt `useTilt` + `GoldLeaf`, `TierUpCelebration` on confirmation — PLUS the
-     owner-requested **warm dark overhaul** (global dark surfaces espresso, dark texture
-     boost, all canvas ramps lifted; honest contrast-audit fixtures, dark muted `#a8a5a1`).
-   - ⏳ **Cart / Orders / Account**: same pattern — pair `after-dark-canvas`, reduce the
-     per-surface canvas to vars (their dark ramps already match), add tilt/sheen to the
-     marquee card, celebrations where rewards are fresh. `TierUpCelebration` is also
-     planned for the account passport.
-     **Carry-forward:** any future test mounting `TierUpCelebration` needs `useReducedMotion`
-     in its framer mock (it always renders `<Confetti>`); JS-config z/`zClass.*` utilities
-     don't emit in Tailwind v4 — audit before reuse (see CLAUDE.md gotcha).
+3. ✅ **Back-port — COMPLETE.** Every shipped surface now runs the canonical
+   `.after-dark-canvas` + kit FX (the per-surface `.checkout/.cart/.orders/.account-canvas`
+   rules are all retired):
+   - **Checkout** (**#163**): canonical canvas + receipt `useTilt`/`GoldLeaf` +
+     `TierUpCelebration` on confirmation, PLUS the owner-requested **warm dark overhaul**
+     (global dark surfaces lifted to espresso; honest contrast-audit fixtures; dark muted `#a8a5a1`).
+   - **Cart** (**#166** + **#169**): `AfterDarkSpotlight` kit primitive, **truck-led**
+     free-delivery journey (owner pref over the star-convoy), perforation ledger,
+     tilt/GoldLeaf receipt (drawer + `/cart` page), TapBurst-on-qty.
+   - **Orders** (**#171**): Twilight Procession (ScrollReveal cascades, journey comet +
+     arrival-glow, tilt/GoldLeaf cards) + the **View-Transitions wax-seal/order-total morph**
+     (manual `document.startViewTransition`, feature-detected, reduced-motion-safe, isolated).
+   - **Account** (**#170**): warm-paper loyalty passport — **restrained** per owner taste
+     (the maximal "Constellation Shrine" orbit + aurora were removed: cosmic ≠ Anthropic);
+     kept GoldLeaf + tilt + editorial crest + rolling Stars + real cycle progress;
+     `TierUpCelebration` + TapBurst-on-save + pill sheen.
+
+   **Crash/correctness fixes shipped alongside:** iOS homepage OOM (offscreen `repeat:Infinity`
+   loops → `useInView`, **#168**), the z-index `@utility` heal (Tailwind v4 never loads the
+   JS config, **#167**), and the PWA chunk-crash/update-banner overhaul (**#164**).
+
+   **Carry-forward gotchas (now in `.claude/CLAUDE.md`):** test mounting `TierUpCelebration`
+   needs `useReducedMotion` in its framer mock (always renders `<Confetti>`); JS-config
+   `zClass.*`/named-z utilities don't emit in Tailwind v4 — verify in built CSS; gate every
+   `repeat:Infinity` framer loop with `useInView` (offscreen ticking OOMs iOS).
 
 > Iterate on Vercel previews each push; adversarial review just before merge; never
 > self-merge (owner's per-PR go). CI Actions may still be quota-paused — verify locally
