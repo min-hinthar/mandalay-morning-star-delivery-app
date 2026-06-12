@@ -1,6 +1,9 @@
-import { Button, Section, Text } from "@react-email/components";
+import { Section, Text } from "@react-email/components";
+
+import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
-import { APP_URL, FONT_STACK, SERIF_STACK } from "./helpers";
+import { BODY_FONT, C, bodyStyle, headingStyle, labelStyle } from "./components/theme";
+import { APP_URL } from "./helpers";
 import type { FeedbackCategory } from "@/types/feedback";
 
 // ─── Types ────────────────────────────────────────────────
@@ -28,30 +31,11 @@ export function FeedbackConfirmation({
   const shortId = feedbackId.slice(0, 8).toUpperCase();
 
   return (
-    <EmailLayout emailType="confirmation" previewText={`We received your feedback — #${shortId}`}>
+    <EmailLayout emailType="feedback" previewText={`We received your feedback — #${shortId}`}>
       {/* Header */}
-      <Section style={{ padding: "32px 24px 0 24px" }}>
-        <Text
-          style={{
-            fontSize: "22px",
-            fontFamily: SERIF_STACK,
-            color: "#8B4513",
-            fontWeight: 700,
-            margin: "0 0 8px 0",
-            lineHeight: "1.3",
-          }}
-        >
-          Thank You for Your Feedback
-        </Text>
-        <Text
-          style={{
-            fontSize: "15px",
-            fontFamily: FONT_STACK,
-            color: "#374151",
-            margin: "0 0 24px 0",
-            lineHeight: "1.6",
-          }}
-        >
+      <Section style={{ padding: "30px 28px 0 28px" }}>
+        <Text style={headingStyle(22)}>Thank You for Your Feedback</Text>
+        <Text style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
           We&apos;ve received your feedback and our team will review it shortly.
         </Text>
       </Section>
@@ -59,82 +43,47 @@ export function FeedbackConfirmation({
       {/* Details */}
       <Section
         style={{
-          margin: "0 24px",
+          margin: "0 28px 20px 28px",
           padding: "16px 20px",
-          backgroundColor: "#F9FAFB",
-          borderRadius: "8px",
-          marginBottom: "20px",
+          backgroundColor: C.vellum,
+          border: `1px solid ${C.line}`,
+          borderRadius: "12px",
         }}
       >
-        <Text
-          style={{
-            fontSize: "13px",
-            fontFamily: FONT_STACK,
-            color: "#6B7280",
-            margin: "0 0 4px 0",
-          }}
-        >
-          Reference
-        </Text>
+        <Text style={labelStyle()}>Reference</Text>
         <Text
           style={{
             fontSize: "16px",
-            fontFamily: FONT_STACK,
+            fontFamily: BODY_FONT,
             fontWeight: 700,
-            color: "#111111",
+            color: C.ink,
             margin: "0 0 12px 0",
           }}
         >
           #{shortId}
         </Text>
 
-        <Text
-          style={{
-            fontSize: "13px",
-            fontFamily: FONT_STACK,
-            color: "#6B7280",
-            margin: "0 0 4px 0",
-          }}
-        >
-          Category
-        </Text>
+        <Text style={labelStyle()}>Category</Text>
         <Text
           style={{
             fontSize: "14px",
-            fontFamily: FONT_STACK,
-            color: "#111111",
+            fontFamily: BODY_FONT,
+            color: C.ink,
             margin: "0 0 12px 0",
           }}
         >
           {CATEGORY_LABELS[category]}
         </Text>
 
-        <Text
-          style={{
-            fontSize: "13px",
-            fontFamily: FONT_STACK,
-            color: "#6B7280",
-            margin: "0 0 4px 0",
-          }}
-        >
-          Subject
-        </Text>
-        <Text style={{ fontSize: "14px", fontFamily: FONT_STACK, color: "#111111", margin: "0" }}>
+        <Text style={labelStyle()}>Subject</Text>
+        <Text style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0" }}>
           {subject}
         </Text>
       </Section>
 
       {/* Next steps */}
-      <Section style={{ padding: "0 24px 16px 24px" }}>
-        <Text
-          style={{
-            fontSize: "14px",
-            fontFamily: FONT_STACK,
-            color: "#374151",
-            margin: "0",
-            lineHeight: "1.6",
-          }}
-        >
+      <Section style={{ padding: "0 28px 16px 28px" }}>
+        <Text style={bodyStyle(14)}>
           We&apos;ll review your feedback and get back to you if needed. You can track the status of
           your feedback from your account page.
         </Text>
@@ -142,25 +91,13 @@ export function FeedbackConfirmation({
 
       {/* CTA — only for authenticated users */}
       {isAuthenticated && (
-        <Section style={{ padding: "8px 24px 24px 24px", textAlign: "center" as const }}>
-          <Button
-            href={`${APP_URL}/account?tab=feedback`}
-            style={{
-              backgroundColor: "#D4A017",
-              color: "#FFFFFF",
-              fontFamily: FONT_STACK,
-              fontSize: "16px",
-              fontWeight: 700,
-              borderRadius: "8px",
-              padding: "14px 32px",
-              textDecoration: "none",
-              display: "inline-block",
-            }}
-          >
-            View My Feedback
-          </Button>
+        <Section style={{ padding: "8px 28px 24px 28px", textAlign: "center" as const }}>
+          <EmailButton href={`${APP_URL}/account?tab=feedback`}>View My Feedback</EmailButton>
         </Section>
       )}
+
+      {/* close the card with breathing room */}
+      <Section style={{ height: "8px" }} />
     </EmailLayout>
   );
 }

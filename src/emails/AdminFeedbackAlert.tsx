@@ -1,6 +1,15 @@
-import { Button, Link, Section, Text } from "@react-email/components";
+import { Section, Text } from "@react-email/components";
+import {
+  AdminCtas,
+  AdminTitle,
+  DataField,
+  DataPanel,
+  StatusPill,
+  type PillTone,
+} from "./components/AdminBits";
 import { EmailLayout } from "./components/EmailLayout";
-import { APP_URL, FONT_STACK, SERIF_STACK } from "./helpers";
+import { BODY_FONT, C } from "./components/theme";
+import { APP_URL } from "./helpers";
 import type { FeedbackCategory } from "@/types/feedback";
 
 // ─── Types ────────────────────────────────────────────────
@@ -21,11 +30,11 @@ const CATEGORY_LABELS: Record<FeedbackCategory, string> = {
   general: "General Feedback",
 };
 
-const CATEGORY_COLORS: Record<FeedbackCategory, string> = {
-  bug_report: "#DC2626",
-  order_issue: "#EA580C",
-  suggestion: "#0D9488",
-  general: "#6B7280",
+const CATEGORY_TONES: Record<FeedbackCategory, PillTone> = {
+  bug_report: "error",
+  order_issue: "warn",
+  suggestion: "info",
+  general: "neutral",
 };
 
 // ─── Component ────────────────────────────────────────────
@@ -43,162 +52,40 @@ export function AdminFeedbackAlert({
   return (
     <EmailLayout
       emailType="confirmation"
+      variant="admin"
       showReferral={false}
       previewText={`[Feedback] ${CATEGORY_LABELS[category]}: ${subject}`}
     >
       {/* Header */}
-      <Section style={{ padding: "32px 24px 0 24px" }}>
-        <Text
-          style={{
-            fontSize: "22px",
-            fontFamily: SERIF_STACK,
-            color: "#8B4513",
-            fontWeight: 700,
-            margin: "0 0 8px 0",
-            lineHeight: "1.3",
-          }}
-        >
-          New Feedback Received
-        </Text>
-        <Text
-          style={{
-            fontSize: "15px",
-            fontFamily: FONT_STACK,
-            color: "#374151",
-            margin: "0 0 24px 0",
-            lineHeight: "1.6",
-          }}
-        >
-          A customer has submitted feedback that needs your attention.
-        </Text>
-      </Section>
+      <AdminTitle
+        title="New Feedback Received"
+        subtitle="A customer has submitted feedback that needs your attention."
+      />
 
       {/* Category Badge */}
-      <Section
-        style={{
-          margin: "0 24px 16px 24px",
-          padding: "8px 16px",
-          backgroundColor: `${CATEGORY_COLORS[category]}10`,
-          borderRadius: "8px",
-          border: `1px solid ${CATEGORY_COLORS[category]}30`,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: "14px",
-            fontFamily: FONT_STACK,
-            fontWeight: 700,
-            color: CATEGORY_COLORS[category],
-            margin: "0",
-          }}
-        >
-          {CATEGORY_LABELS[category]}
-        </Text>
+      <Section style={{ padding: "0 28px 16px 28px" }}>
+        <StatusPill tone={CATEGORY_TONES[category]}>{CATEGORY_LABELS[category]}</StatusPill>
       </Section>
 
       {/* Details */}
-      <Section
-        style={{
-          margin: "0 24px",
-          padding: "16px 20px",
-          backgroundColor: "#F9FAFB",
-          borderRadius: "8px",
-          marginBottom: "20px",
-        }}
-      >
-        <Text
-          style={{
-            fontSize: "13px",
-            fontFamily: FONT_STACK,
-            color: "#6B7280",
-            margin: "0 0 4px 0",
-          }}
-        >
-          Feedback ID
-        </Text>
-        <Text
-          style={{
-            fontSize: "14px",
-            fontFamily: FONT_STACK,
-            fontWeight: 700,
-            color: "#111111",
-            margin: "0 0 12px 0",
-          }}
-        >
+      <DataPanel>
+        <DataField label="Feedback ID" bold>
           #{shortId}
-        </Text>
-
-        <Text
-          style={{
-            fontSize: "13px",
-            fontFamily: FONT_STACK,
-            color: "#6B7280",
-            margin: "0 0 4px 0",
-          }}
-        >
-          From
-        </Text>
-        <Text
-          style={{
-            fontSize: "14px",
-            fontFamily: FONT_STACK,
-            color: "#111111",
-            margin: "0 0 12px 0",
-          }}
-        >
-          {customerEmail}
-        </Text>
-
-        <Text
-          style={{
-            fontSize: "13px",
-            fontFamily: FONT_STACK,
-            color: "#6B7280",
-            margin: "0 0 4px 0",
-          }}
-        >
-          Subject
-        </Text>
-        <Text
-          style={{
-            fontSize: "14px",
-            fontFamily: FONT_STACK,
-            fontWeight: 700,
-            color: "#111111",
-            margin: "0 0 12px 0",
-          }}
-        >
+        </DataField>
+        <DataField label="From">{customerEmail}</DataField>
+        <DataField label="Subject" bold>
           {subject}
-        </Text>
-
-        <Text
-          style={{
-            fontSize: "13px",
-            fontFamily: FONT_STACK,
-            color: "#6B7280",
-            margin: "0 0 4px 0",
-          }}
-        >
-          Message
-        </Text>
-        <Text
-          style={{
-            fontSize: "14px",
-            fontFamily: FONT_STACK,
-            color: "#111111",
-            margin: "0",
-            lineHeight: "1.5",
-          }}
-        >
+        </DataField>
+        <DataField label="Message" last>
           {message}
-        </Text>
+        </DataField>
 
         {hasScreenshot && (
           <Text
             style={{
               fontSize: "13px",
-              fontFamily: FONT_STACK,
-              color: "#D4A017",
+              fontFamily: BODY_FONT,
+              color: C.goldDeep,
               margin: "12px 0 0 0",
               fontStyle: "italic",
             }}
@@ -206,41 +93,15 @@ export function AdminFeedbackAlert({
             Screenshot attached — view in admin panel
           </Text>
         )}
-      </Section>
+      </DataPanel>
 
-      {/* CTA */}
-      <Section style={{ padding: "24px 24px 0 24px", textAlign: "center" as const }}>
-        <Button
-          href={adminUrl}
-          style={{
-            backgroundColor: "#D4A017",
-            color: "#FFFFFF",
-            fontFamily: FONT_STACK,
-            fontSize: "16px",
-            fontWeight: 700,
-            borderRadius: "8px",
-            padding: "14px 32px",
-            textDecoration: "none",
-            display: "inline-block",
-          }}
-        >
-          View Feedback
-        </Button>
-      </Section>
-
-      <Section style={{ padding: "12px 24px 24px 24px", textAlign: "center" as const }}>
-        <Link
-          href={`${APP_URL}/admin`}
-          style={{
-            fontSize: "14px",
-            fontFamily: FONT_STACK,
-            color: "#D4A017",
-            textDecoration: "underline",
-          }}
-        >
-          Go to Admin Dashboard
-        </Link>
-      </Section>
+      {/* CTA + Dashboard Link */}
+      <AdminCtas
+        primaryHref={adminUrl}
+        primaryLabel="View Feedback"
+        secondaryHref={`${APP_URL}/admin`}
+        secondaryLabel="Go to Admin Dashboard"
+      />
     </EmailLayout>
   );
 }

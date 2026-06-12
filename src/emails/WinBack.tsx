@@ -1,52 +1,40 @@
-import { Button, Section, Text } from "@react-email/components";
+import { Section, Text } from "@react-email/components";
 
+import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
-import { FONT_STACK, SERIF_STACK } from "./helpers";
+import { NextDeliveryTeaser } from "./components/NextDeliveryTeaser";
+import { TierPerkCard, type TierPerkData } from "./components/TierPerkCard";
+import { BODY_FONT, C, bodyStyle, headingStyle } from "./components/theme";
 import { freeDeliveryPromoLine } from "@/lib/utils/delivery-promo";
 
 export interface WinBackProps {
   customerName: string;
   /** Link to the menu / current week's offerings. */
   menuUrl: string;
+  /** Tier badge + headline perk (real data) — renders nothing when absent. */
+  tier?: TierPerkData | null;
+  /** Live "order by … for … delivery" line — renders nothing when absent. */
+  nextDeliveryCutoffText?: string | null;
 }
 
-export function WinBack({ customerName, menuUrl }: WinBackProps) {
+export function WinBack({ customerName, menuUrl, tier, nextDeliveryCutoffText }: WinBackProps) {
   return (
     <EmailLayout
-      emailType="reminder"
+      emailType="winback"
       previewText="We've missed you — your Burmese favorites are waiting 🍜"
     >
       {/* Hero */}
-      <Section style={{ padding: "32px 24px 8px 24px", textAlign: "center" as const }}>
+      <Section style={{ padding: "30px 28px 8px 28px", textAlign: "center" as const }}>
         <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{"🍜"}</Text>
-        <Text
-          style={{
-            fontSize: "22px",
-            fontFamily: SERIF_STACK,
-            color: "#8B4513",
-            fontWeight: 700,
-            margin: "0 0 8px 0",
-            lineHeight: "1.3",
-          }}
-        >
-          We&apos;ve missed you, {customerName}!
-        </Text>
-        <Text
-          style={{
-            fontSize: "15px",
-            fontFamily: FONT_STACK,
-            color: "#374151",
-            margin: "0",
-            lineHeight: "1.6",
-          }}
-        >
+        <Text style={headingStyle(22)}>We&apos;ve missed you, {customerName}!</Text>
+        <Text style={bodyStyle(15)}>
           It&apos;s been a little while since your last feast. Our kitchen is still cooking up the
           Mandalay classics you love — fresh, every delivery day.
         </Text>
       </Section>
 
       {/* Reassurance row */}
-      <Section style={{ padding: "16px 24px 0 24px" }}>
+      <Section style={{ padding: "16px 28px 0 28px" }}>
         <table
           cellPadding="0"
           cellSpacing="0"
@@ -67,8 +55,9 @@ export function WinBack({ customerName, menuUrl }: WinBackProps) {
                   <Text
                     style={{
                       fontSize: "12px",
-                      fontFamily: FONT_STACK,
-                      color: "#6B7280",
+                      fontFamily: BODY_FONT,
+                      fontWeight: 600,
+                      color: C.inkMuted,
                       margin: "0",
                     }}
                   >
@@ -81,36 +70,27 @@ export function WinBack({ customerName, menuUrl }: WinBackProps) {
         </table>
       </Section>
 
+      {/* Tier perk (real data) — remind them what their loyalty earned */}
+      <TierPerkCard tier={tier} />
+
       {/* CTA */}
-      <Section style={{ padding: "20px 24px 0 24px", textAlign: "center" as const }}>
-        <Button
-          href={menuUrl}
-          style={{
-            backgroundColor: "#A41034",
-            color: "#FFFFFF",
-            fontFamily: FONT_STACK,
-            fontSize: "16px",
-            fontWeight: 700,
-            borderRadius: "8px",
-            padding: "14px 36px",
-            textDecoration: "none",
-            display: "inline-block",
-          }}
-        >
-          See this week&apos;s menu
-        </Button>
+      <Section style={{ padding: "20px 28px 0 28px", textAlign: "center" as const }}>
+        <EmailButton href={menuUrl}>See this week&apos;s menu</EmailButton>
       </Section>
 
+      {/* Next delivery cutoff (live schedule) */}
+      <NextDeliveryTeaser cutoffText={nextDeliveryCutoffText} />
+
       {/* Promo line */}
-      <Section style={{ padding: "20px 24px 32px 24px" }}>
+      <Section style={{ padding: "20px 28px 32px 28px" }}>
         <Text
           style={{
             fontSize: "12px",
-            fontFamily: FONT_STACK,
-            color: "#9CA3AF",
+            fontFamily: BODY_FONT,
+            color: C.inkFaint,
             margin: "0",
             textAlign: "center" as const,
-            lineHeight: "1.6",
+            lineHeight: 1.6,
           }}
         >
           {freeDeliveryPromoLine()}. We hope to see you back at the table soon.

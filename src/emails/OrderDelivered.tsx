@@ -1,9 +1,13 @@
-import { Button, Column, Heading, Row, Section, Text } from "@react-email/components";
+import { Column, Heading, Row, Section, Text } from "@react-email/components";
+import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
+import { LoyaltyProgress, type LoyaltyProgressData } from "./components/LoyaltyProgress";
+import { NextDeliveryTeaser } from "./components/NextDeliveryTeaser";
 import { OrderStatusTracker } from "./components/OrderStatusTracker";
 import { ReferralCallout } from "./components/ReferralCallout";
 import { SupportSection } from "./components/SupportSection";
-import { APP_URL, FONT_STACK, SERIF_STACK, shortOrderId } from "./helpers";
+import { BODY_FONT, C, DISPLAY_FONT } from "./components/theme";
+import { APP_URL, shortOrderId } from "./helpers";
 
 // ============================================
 // TYPES
@@ -16,6 +20,10 @@ export interface OrderDeliveredProps {
   itemNames: string[];
   totalCents: number;
   deliveredAt?: string | null;
+  /** Real loyalty progress at send time — renders nothing when absent. */
+  loyalty?: LoyaltyProgressData | null;
+  /** Live "order by … for … delivery" line — renders nothing when absent. */
+  nextDeliveryCutoffText?: string | null;
 }
 
 // ============================================
@@ -28,46 +36,49 @@ export function OrderDelivered({
   itemCount,
   itemNames,
   totalCents,
+  loyalty,
+  nextDeliveryCutoffText,
 }: OrderDeliveredProps) {
   const shortId = shortOrderId(orderId);
   const previewText = `Your order #${shortId} has been delivered!`;
   const formattedTotal = `$${(totalCents / 100).toFixed(2)}`;
 
   return (
-    <EmailLayout emailType="confirmation" previewText={previewText} showReferral={false}>
+    <EmailLayout emailType="delivered" previewText={previewText} showReferral={false}>
       {/* Hero */}
       <Section
         style={{
-          padding: "32px 24px 16px 24px",
-          backgroundColor: "#F0FFF4",
+          padding: "30px 28px 22px 28px",
+          backgroundColor: C.sageTint,
           textAlign: "center" as const,
         }}
       >
-        <Text style={{ fontSize: "40px", margin: "0 0 8px 0" }}>{"\u2705"}</Text>
+        <Text style={{ fontSize: "38px", margin: "0 0 8px 0" }}>{"✨"}</Text>
         <Heading
           as="h2"
           style={{
-            fontSize: "24px",
-            fontWeight: 700,
-            color: "#3D8B22",
-            fontFamily: SERIF_STACK,
-            margin: "0 0 12px 0",
-            lineHeight: "1.3",
+            fontSize: "25px",
+            fontWeight: 600,
+            color: C.ink,
+            fontFamily: DISPLAY_FONT,
+            margin: "0 0 10px 0",
+            lineHeight: "1.25",
           }}
         >
           Your order has been delivered!
         </Heading>
         <Text
           style={{
-            fontSize: "16px",
-            color: "#374151",
-            fontFamily: FONT_STACK,
+            fontSize: "15px",
+            color: C.inkMuted,
+            fontFamily: BODY_FONT,
             margin: "0",
-            lineHeight: "1.5",
+            lineHeight: "1.55",
           }}
         >
           Hi {customerName}, your order #{shortId} with {itemCount}{" "}
-          {itemCount === 1 ? "item" : "items"} ({formattedTotal}) has arrived.
+          {itemCount === 1 ? "item" : "items"} ({formattedTotal}) has arrived. Ta-meh-sa-pa {"—"}{" "}
+          enjoy your meal! {"🍽"}
         </Text>
       </Section>
 
@@ -76,82 +87,67 @@ export function OrderDelivered({
 
       {/* Item Summary */}
       {itemNames.length > 0 && (
-        <Section style={{ padding: "16px 24px" }}>
+        <Section style={{ padding: "18px 28px 0 28px" }}>
           <Text
             style={{
-              fontSize: "14px",
-              color: "#6B7280",
-              fontFamily: FONT_STACK,
-              margin: "0 0 8px 0",
+              fontSize: "11px",
+              fontFamily: BODY_FONT,
+              fontWeight: 700,
+              color: C.inkFaint,
+              textTransform: "uppercase" as const,
+              letterSpacing: "1.2px",
+              margin: "0 0 6px 0",
             }}
           >
-            Items delivered:
+            Items delivered
           </Text>
           <Text
             style={{
               fontSize: "15px",
-              color: "#374151",
-              fontFamily: FONT_STACK,
+              color: C.ink,
+              fontFamily: DISPLAY_FONT,
               margin: "0",
               lineHeight: "1.6",
             }}
           >
-            {itemNames.join(", ")}
+            {itemNames.join(" · ")}
           </Text>
         </Section>
       )}
 
-      {/* CTAs */}
-      <Section style={{ padding: "8px 24px 24px 24px" }}>
+      {/* CTAs — reorder is the hero action at peak satisfaction */}
+      <Section style={{ padding: "22px 28px 0 28px" }}>
         <Row style={{ width: "100%" }}>
           <Column style={{ width: "50%", paddingRight: "6px" }}>
-            <Button
-              href={`${APP_URL}/orders/${orderId}`}
-              style={{
-                backgroundColor: "#A41034",
-                color: "#FFFFFF",
-                fontFamily: FONT_STACK,
-                fontSize: "14px",
-                fontWeight: 700,
-                textDecoration: "none",
-                textAlign: "center" as const,
-                display: "block",
-                padding: "12px 16px",
-                borderRadius: "8px",
-                width: "100%",
-              }}
-            >
-              View Order
-            </Button>
+            <EmailButton href={`${APP_URL}/menu?src=email_delivered_reorder`} fullWidth size="sm">
+              {"🍜"} Order Again
+            </EmailButton>
           </Column>
           <Column style={{ width: "50%", paddingLeft: "6px" }}>
-            <Button
-              href={`${APP_URL}/menu`}
-              style={{
-                backgroundColor: "#FFFFFF",
-                color: "#A41034",
-                fontFamily: FONT_STACK,
-                fontSize: "14px",
-                fontWeight: 700,
-                textDecoration: "none",
-                textAlign: "center" as const,
-                display: "block",
-                padding: "12px 16px",
-                borderRadius: "8px",
-                width: "100%",
-                border: "2px solid #A41034",
-              }}
+            <EmailButton
+              href={`${APP_URL}/orders/${orderId}`}
+              variant="secondary"
+              fullWidth
+              size="sm"
             >
-              Order Again
-            </Button>
+              View Order
+            </EmailButton>
           </Column>
         </Row>
       </Section>
+
+      {/* Morning Star Rewards progress (real data) */}
+      <LoyaltyProgress loyalty={loyalty} />
+
+      {/* Next delivery window teaser (live schedule) */}
+      <NextDeliveryTeaser cutoffText={nextDeliveryCutoffText} />
 
       {/* Peak goodwill — invite a referral */}
       <ReferralCallout source="email_delivered" />
 
       <SupportSection />
+
+      <Section style={{ height: "8px" }} />
     </EmailLayout>
   );
 }

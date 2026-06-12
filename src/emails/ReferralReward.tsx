@@ -1,7 +1,9 @@
-import { Button, Section, Text } from "@react-email/components";
+import { Section, Text } from "@react-email/components";
 
+import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
-import { FONT_STACK, SERIF_STACK, formatPrice } from "./helpers";
+import { BODY_FONT, C, DISPLAY_FONT, bodyStyle, headingStyle } from "./components/theme";
+import { formatPrice } from "./helpers";
 
 export interface ReferralRewardProps {
   referrerName: string;
@@ -21,99 +23,79 @@ export function ReferralReward({
 
   return (
     <EmailLayout
-      emailType="confirmation"
+      emailType="reward"
       showReferral={false}
       previewText={`Your friend ordered — here's ${amount} off 🎉`}
     >
       {/* Hero */}
-      <Section style={{ padding: "32px 24px 8px 24px", textAlign: "center" as const }}>
+      <Section style={{ padding: "30px 28px 0 28px", textAlign: "center" as const }}>
         <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{"🎉"}</Text>
-        <Text
-          style={{
-            fontSize: "22px",
-            fontFamily: SERIF_STACK,
-            color: "#8B4513",
-            fontWeight: 700,
-            margin: "0 0 8px 0",
-            lineHeight: "1.3",
-          }}
-        >
-          Thank you for spreading the word, {referrerName}!
-        </Text>
-        <Text
-          style={{
-            fontSize: "15px",
-            fontFamily: FONT_STACK,
-            color: "#374151",
-            margin: "0",
-            lineHeight: "1.6",
-          }}
-        >
+        <Text style={headingStyle(22)}>Thank you for spreading the word, {referrerName}!</Text>
+        <Text style={bodyStyle(15)}>
           A friend you referred just placed their first order — so here&apos;s{" "}
           <strong>{amount} off</strong> your next Burmese feast, on us.
         </Text>
       </Section>
 
-      {/* Code */}
-      <Section style={{ padding: "20px 24px 0 24px", textAlign: "center" as const }}>
+      {/* Code ticket */}
+      <Section style={{ padding: "20px 28px 0 28px" }}>
         <Text
           style={{
             fontSize: "13px",
-            fontFamily: FONT_STACK,
-            color: "#6B7280",
+            fontFamily: BODY_FONT,
+            color: C.inkMuted,
             margin: "0 0 8px 0",
+            textAlign: "center" as const,
           }}
         >
           Enter this code at checkout:
         </Text>
-        <Text
+        <Section
           style={{
-            fontSize: "26px",
-            fontFamily: FONT_STACK,
-            fontWeight: 700,
-            letterSpacing: "3px",
-            color: "#8B4513",
-            backgroundColor: "#FFF9E6",
-            border: "1px solid #F3E2B3",
-            borderRadius: "10px",
-            padding: "14px 0",
-            margin: "0",
-            display: "block",
+            backgroundColor: C.vellum,
+            border: `1px solid ${C.goldLeaf}`,
+            borderRadius: "12px",
+            padding: "5px",
           }}
         >
-          {promoCode}
-        </Text>
+          <Section
+            style={{
+              border: `1px dashed ${C.goldLeaf}`,
+              borderRadius: "8px",
+              padding: "14px 12px",
+              textAlign: "center" as const,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: "22px",
+                fontFamily: DISPLAY_FONT,
+                fontWeight: 600,
+                letterSpacing: "3px",
+                color: C.accentStrong,
+                margin: "0",
+              }}
+            >
+              {promoCode}
+            </Text>
+          </Section>
+        </Section>
       </Section>
 
       {/* CTA */}
-      <Section style={{ padding: "20px 24px 0 24px", textAlign: "center" as const }}>
-        <Button
-          href={menuUrl}
-          style={{
-            backgroundColor: "#A41034",
-            color: "#FFFFFF",
-            fontFamily: FONT_STACK,
-            fontSize: "16px",
-            fontWeight: 700,
-            borderRadius: "8px",
-            padding: "14px 36px",
-            textDecoration: "none",
-            display: "inline-block",
-          }}
-        >
-          Order with my reward
-        </Button>
+      <Section style={{ padding: "22px 28px 0 28px", textAlign: "center" as const }}>
+        <EmailButton href={menuUrl}>Order with my reward</EmailButton>
       </Section>
 
-      <Section style={{ padding: "20px 24px 32px 24px" }}>
+      <Section style={{ padding: "20px 28px 32px 28px" }}>
         <Text
           style={{
             fontSize: "12px",
-            fontFamily: FONT_STACK,
-            color: "#9CA3AF",
+            fontFamily: BODY_FONT,
+            color: C.inkFaint,
             margin: "0",
             textAlign: "center" as const,
-            lineHeight: "1.6",
+            lineHeight: 1.6,
           }}
         >
           Keep sharing your referral link — every friend who orders earns you another reward.

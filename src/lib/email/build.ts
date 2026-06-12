@@ -38,6 +38,7 @@ export function buildEmailElement(type: EmailType, orderData: any): React.ReactE
         suggestedItems: orderData.suggestedItems,
         isPendingApproval: orderData.isPendingApproval,
         isExtendedRange: orderData.isExtendedRange,
+        loyalty: orderData.loyalty,
       });
 
     case "cancellation":
@@ -110,6 +111,8 @@ export function buildEmailElement(type: EmailType, orderData: any): React.ReactE
         itemNames: orderData.itemNames,
         totalCents: orderData.totalCents,
         deliveredAt: orderData.deliveredAt,
+        loyalty: orderData.loyalty,
+        nextDeliveryCutoffText: orderData.nextDeliveryCutoffText,
       });
 
     default:

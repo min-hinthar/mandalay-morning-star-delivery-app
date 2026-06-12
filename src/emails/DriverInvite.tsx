@@ -1,9 +1,8 @@
-import { Button, Section, Text } from "@react-email/components";
-import { EmailLayout } from "./components/EmailLayout";
+import { Section, Text } from "@react-email/components";
 
-const SERIF = "Georgia, 'Palatino Linotype', serif";
-const SANS =
-  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+import { EmailButton } from "./components/EmailButton";
+import { EmailLayout } from "./components/EmailLayout";
+import { BODY_FONT, C, bodyStyle, headingStyle, labelStyle } from "./components/theme";
 
 export interface DriverInviteProps {
   driverEmail: string;
@@ -14,33 +13,14 @@ export interface DriverInviteProps {
 export function DriverInvite({ driverEmail, magicLink, expiresIn }: DriverInviteProps) {
   return (
     <EmailLayout
-      emailType="confirmation"
+      emailType="auth"
       showReferral={false}
       previewText="You're invited to drive for Mandalay Morning Star"
     >
       {/* Greeting */}
-      <Section style={{ padding: "32px 24px 0 24px" }}>
-        <Text
-          style={{
-            fontSize: "22px",
-            fontFamily: SERIF,
-            color: "#8B4513",
-            fontWeight: 700,
-            margin: "0 0 8px 0",
-            lineHeight: "1.3",
-          }}
-        >
-          Mingalabar!
-        </Text>
-        <Text
-          style={{
-            fontSize: "15px",
-            fontFamily: SANS,
-            color: "#374151",
-            margin: "0 0 24px 0",
-            lineHeight: "1.6",
-          }}
-        >
+      <Section style={{ padding: "30px 28px 0 28px" }}>
+        <Text style={headingStyle(22)}>Mingalabar!</Text>
+        <Text style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
           You&apos;ve been invited to join the Mandalay Morning Star delivery team as a driver. Tap
           the button below to get started.
         </Text>
@@ -49,22 +29,20 @@ export function DriverInvite({ driverEmail, magicLink, expiresIn }: DriverInvite
       {/* Invite Details */}
       <Section
         style={{
-          margin: "0 24px",
+          margin: "0 28px 20px 28px",
           padding: "16px 20px",
-          backgroundColor: "#F9FAFB",
-          borderRadius: "8px",
-          marginBottom: "20px",
+          backgroundColor: C.vellum,
+          border: `1px solid ${C.line}`,
+          borderRadius: "12px",
         }}
       >
-        <Text style={{ fontSize: "13px", fontFamily: SANS, color: "#6B7280", margin: "0 0 4px 0" }}>
-          Invitation for
-        </Text>
+        <Text style={labelStyle()}>Invitation for</Text>
         <Text
           style={{
             fontSize: "16px",
-            fontFamily: SANS,
+            fontFamily: BODY_FONT,
             fontWeight: 700,
-            color: "#111111",
+            color: C.ink,
             margin: "0",
           }}
         >
@@ -73,34 +51,20 @@ export function DriverInvite({ driverEmail, magicLink, expiresIn }: DriverInvite
       </Section>
 
       {/* CTA */}
-      <Section style={{ padding: "8px 24px 0 24px", textAlign: "center" as const }}>
-        <Button
-          href={magicLink}
-          style={{
-            backgroundColor: "#D4A017",
-            color: "#FFFFFF",
-            fontFamily: SANS,
-            fontSize: "16px",
-            fontWeight: 700,
-            borderRadius: "8px",
-            padding: "14px 32px",
-            textDecoration: "none",
-            display: "inline-block",
-          }}
-        >
-          Accept Invitation
-        </Button>
+      <Section style={{ padding: "8px 28px 0 28px", textAlign: "center" as const }}>
+        <EmailButton href={magicLink}>Accept Invitation</EmailButton>
       </Section>
 
       {/* Expiry Note */}
-      <Section style={{ padding: "16px 24px 32px 24px" }}>
+      <Section style={{ padding: "16px 28px 32px 28px" }}>
         <Text
           style={{
             fontSize: "13px",
-            fontFamily: SANS,
-            color: "#9CA3AF",
+            fontFamily: BODY_FONT,
+            color: C.inkFaint,
             margin: "0",
             textAlign: "center" as const,
+            lineHeight: 1.6,
           }}
         >
           This link expires in {expiresIn}. If you didn&apos;t expect this invitation, you can

@@ -1,8 +1,11 @@
-import { Button, Hr, Section, Text } from "@react-email/components";
+import { Hr, Section, Text } from "@react-email/components";
 
+import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
+import { NextDeliveryTeaser } from "./components/NextDeliveryTeaser";
 import { OrderItemsTable } from "./components/OrderItemsTable";
-import { FONT_STACK, SERIF_STACK, formatPrice } from "./helpers";
+import { BODY_FONT, C, bodyStyle, headingStyle } from "./components/theme";
+import { formatPrice } from "./helpers";
 import { freeDeliveryPromoLine } from "@/lib/utils/delivery-promo";
 
 interface AbandonedCartItem {
@@ -23,6 +26,8 @@ export interface AbandonedCartProps {
   cartUrl: string;
   /** Cents remaining until free delivery (omit/0 to hide the nudge). */
   amountToFreeDeliveryCents?: number;
+  /** Live "order by … for … delivery" line — renders nothing when absent. */
+  nextDeliveryCutoffText?: string | null;
 }
 
 export function AbandonedCart({
@@ -32,6 +37,7 @@ export function AbandonedCart({
   subtotalCents,
   cartUrl,
   amountToFreeDeliveryCents,
+  nextDeliveryCutoffText,
 }: AbandonedCartProps) {
   const freeDeliveryGap =
     amountToFreeDeliveryCents != null && amountToFreeDeliveryCents > 0
@@ -40,33 +46,14 @@ export function AbandonedCart({
 
   return (
     <EmailLayout
-      emailType="reminder"
+      emailType="cart"
       previewText={`Your ${items[0]?.name ?? "cart"} is still waiting 🍜`}
     >
       {/* Hero */}
-      <Section style={{ padding: "32px 24px 8px 24px", textAlign: "center" as const }}>
+      <Section style={{ padding: "30px 28px 8px 28px", textAlign: "center" as const }}>
         <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{"🍜"}</Text>
-        <Text
-          style={{
-            fontSize: "22px",
-            fontFamily: SERIF_STACK,
-            color: "#8B4513",
-            fontWeight: 700,
-            margin: "0 0 8px 0",
-            lineHeight: "1.3",
-          }}
-        >
-          You left something delicious behind
-        </Text>
-        <Text
-          style={{
-            fontSize: "15px",
-            fontFamily: FONT_STACK,
-            color: "#374151",
-            margin: "0",
-            lineHeight: "1.6",
-          }}
-        >
+        <Text style={headingStyle(22)}>You left something delicious behind</Text>
+        <Text style={bodyStyle(15)}>
           Hi {customerName}, your {itemCount} item{itemCount !== 1 ? "s" : ""} are still in your
           cart — ready whenever you are.
         </Text>
@@ -76,8 +63,8 @@ export function AbandonedCart({
       <OrderItemsTable items={items} />
 
       {/* Subtotal */}
-      <Section style={{ padding: "16px 24px 0 24px" }}>
-        <Hr style={{ borderColor: "#E5E7EB", margin: "0 0 12px 0" }} />
+      <Section style={{ padding: "16px 28px 0 28px" }}>
+        <Hr style={{ borderColor: C.line, margin: "0 0 12px 0" }} />
         <table
           cellPadding="0"
           cellSpacing="0"
@@ -86,23 +73,14 @@ export function AbandonedCart({
           <tbody>
             <tr>
               <td>
-                <Text
-                  style={{
-                    fontSize: "15px",
-                    fontFamily: FONT_STACK,
-                    color: "#374151",
-                    margin: "0",
-                  }}
-                >
-                  Subtotal
-                </Text>
+                <Text style={bodyStyle(15)}>Subtotal</Text>
               </td>
               <td style={{ textAlign: "right" as const }}>
                 <Text
                   style={{
                     fontSize: "16px",
-                    fontFamily: FONT_STACK,
-                    color: "#111111",
+                    fontFamily: BODY_FONT,
+                    color: C.ink,
                     fontWeight: 700,
                     margin: "0",
                   }}
@@ -117,8 +95,8 @@ export function AbandonedCart({
           <Text
             style={{
               fontSize: "13px",
-              fontFamily: FONT_STACK,
-              color: "#3D8B22",
+              fontFamily: BODY_FONT,
+              color: C.sageDeep,
               fontWeight: 600,
               margin: "8px 0 0 0",
             }}
@@ -129,28 +107,13 @@ export function AbandonedCart({
       </Section>
 
       {/* CTA */}
-      <Section style={{ padding: "20px 24px 0 24px", textAlign: "center" as const }}>
-        <Button
-          href={cartUrl}
-          style={{
-            backgroundColor: "#A41034",
-            color: "#FFFFFF",
-            fontFamily: FONT_STACK,
-            fontSize: "16px",
-            fontWeight: 700,
-            borderRadius: "8px",
-            padding: "14px 36px",
-            textDecoration: "none",
-            display: "inline-block",
-          }}
-        >
-          Complete your order
-        </Button>
+      <Section style={{ padding: "20px 28px 0 28px", textAlign: "center" as const }}>
+        <EmailButton href={cartUrl}>Complete your order</EmailButton>
         <Text
           style={{
             fontSize: "12px",
-            fontFamily: FONT_STACK,
-            color: "#9CA3AF",
+            fontFamily: BODY_FONT,
+            color: C.inkFaint,
             margin: "10px 0 0 0",
           }}
         >
@@ -158,16 +121,19 @@ export function AbandonedCart({
         </Text>
       </Section>
 
+      {/* Next delivery cutoff (live schedule) — the real urgency */}
+      <NextDeliveryTeaser cutoffText={nextDeliveryCutoffText} />
+
       {/* Promo reassurance */}
-      <Section style={{ padding: "20px 24px 32px 24px" }}>
+      <Section style={{ padding: "20px 28px 32px 28px" }}>
         <Text
           style={{
             fontSize: "12px",
-            fontFamily: FONT_STACK,
-            color: "#9CA3AF",
+            fontFamily: BODY_FONT,
+            color: C.inkFaint,
             margin: "0",
             textAlign: "center" as const,
-            lineHeight: "1.6",
+            lineHeight: 1.6,
           }}
         >
           {freeDeliveryPromoLine()}. Prices may change if items sell out — we&apos;ll always show

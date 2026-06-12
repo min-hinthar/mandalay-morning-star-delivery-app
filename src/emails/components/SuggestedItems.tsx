@@ -1,9 +1,6 @@
 import { Img, Link, Section, Text } from "@react-email/components";
 import type { SuggestedItem } from "@/lib/email/suggestions";
-
-const SERIF = "Georgia, 'Palatino Linotype', serif";
-const SANS =
-  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+import { BODY_FONT, C, DISPLAY_FONT } from "./theme";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 
@@ -21,14 +18,28 @@ export interface SuggestedItemsProps {
 export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
   const suggestions = items && items.length > 0 ? items : DEFAULT_SUGGESTIONS;
   return (
-    <Section style={{ padding: "24px 24px 0 24px" }}>
+    <Section style={{ padding: "26px 28px 0 28px" }}>
       <Text
         style={{
-          fontSize: "14px",
-          fontFamily: SERIF,
+          fontSize: "10px",
+          fontFamily: BODY_FONT,
           fontWeight: 700,
-          color: "#8B4513",
-          margin: "0 0 12px 0",
+          color: C.accent,
+          textTransform: "uppercase" as const,
+          letterSpacing: "2px",
+          margin: "0 0 4px 0",
+          textAlign: "center" as const,
+        }}
+      >
+        From our kitchen
+      </Text>
+      <Text
+        style={{
+          fontSize: "17px",
+          fontFamily: DISPLAY_FONT,
+          fontWeight: 600,
+          color: C.ink,
+          margin: "0 0 14px 0",
           textAlign: "center" as const,
         }}
       >
@@ -55,38 +66,41 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
                     <Img
                       src={item.imageUrl}
                       alt={item.name}
-                      width="64"
-                      height="48"
+                      width="72"
+                      height="54"
                       style={{
-                        width: "64px",
-                        height: "48px",
-                        borderRadius: "8px",
+                        width: "72px",
+                        height: "54px",
+                        borderRadius: "10px",
                         objectFit: "cover" as const,
                         margin: "0 auto 8px auto",
                         display: "block",
+                        border: `1px solid ${C.line}`,
                       }}
                     />
                   ) : (
                     <div
                       style={{
-                        width: "64px",
-                        height: "48px",
-                        borderRadius: "8px",
-                        backgroundColor: "#FFF9E6",
+                        width: "72px",
+                        height: "54px",
+                        borderRadius: "10px",
+                        backgroundColor: C.vellum,
+                        border: `1px solid ${C.line}`,
                         margin: "0 auto 8px auto",
-                        lineHeight: "48px",
+                        lineHeight: "54px",
                         textAlign: "center" as const,
                         fontSize: "20px",
                       }}
                     >
-                      {"\uD83C\uDF5C"}
+                      {"🍜"}
                     </div>
                   )}
                   <Text
                     style={{
                       fontSize: "12px",
-                      fontFamily: SANS,
-                      color: "#374151",
+                      fontFamily: BODY_FONT,
+                      fontWeight: 600,
+                      color: C.inkMuted,
                       margin: "0",
                     }}
                   >

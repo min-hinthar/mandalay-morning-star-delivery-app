@@ -1,7 +1,16 @@
-import { Button, Section, Text } from "@react-email/components";
+import { Section, Text } from "@react-email/components";
 
+import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
-import { FONT_STACK, SERIF_STACK, formatPrice } from "./helpers";
+import {
+  BODY_FONT,
+  BURMESE_FONT,
+  C,
+  DISPLAY_FONT,
+  bodyStyle,
+  headingStyle,
+} from "./components/theme";
+import { formatPrice } from "./helpers";
 
 export interface WelcomeOfferProps {
   customerName: string;
@@ -15,94 +24,80 @@ export function WelcomeOffer({ customerName, discountCents, menuUrl }: WelcomeOf
 
   return (
     <EmailLayout
-      emailType="confirmation"
+      emailType="welcome"
       previewText={`Welcome! Here's ${amount} off your first order 🎁`}
     >
       {/* Hero */}
-      <Section style={{ padding: "32px 24px 8px 24px", textAlign: "center" as const }}>
+      <Section style={{ padding: "30px 28px 0 28px", textAlign: "center" as const }}>
         <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{"🙏"}</Text>
-        <Text
-          style={{
-            fontSize: "22px",
-            fontFamily: SERIF_STACK,
-            color: "#8B4513",
-            fontWeight: 700,
-            margin: "0 0 6px 0",
-            lineHeight: "1.3",
-          }}
-        >
+        <Text style={{ ...headingStyle(22), margin: "0 0 6px 0" }}>
           Mingalabar, {customerName}! Welcome to the family
         </Text>
-        <Text
-          style={{
-            fontSize: "15px",
-            fontFamily: FONT_STACK,
-            color: "#374151",
-            margin: "0",
-            lineHeight: "1.6",
-          }}
-        >
+        <Text style={bodyStyle(15)}>
           We cook real Burmese food, fresh for every delivery across LA. So glad you&apos;re here —
           here&apos;s a little welcome gift.
         </Text>
       </Section>
 
-      {/* Offer */}
-      <Section style={{ padding: "20px 24px 0 24px", textAlign: "center" as const }}>
+      {/* Offer ticket */}
+      <Section style={{ padding: "20px 28px 0 28px" }}>
         <Section
           style={{
-            background: "linear-gradient(135deg, #FFF9E6 0%, #FBEFC8 100%)",
-            border: "1px solid #F3E2B3",
+            backgroundColor: C.vellum,
+            border: `1px solid ${C.goldLeaf}`,
             borderRadius: "14px",
-            padding: "22px 20px",
+            padding: "5px",
           }}
         >
-          <Text
+          <Section
             style={{
-              fontSize: "30px",
-              fontFamily: SERIF_STACK,
-              fontWeight: 700,
-              color: "#A41034",
-              margin: "0 0 2px 0",
+              border: `1px dashed ${C.goldLeaf}`,
+              borderRadius: "10px",
+              padding: "18px 16px",
+              textAlign: "center" as const,
             }}
           >
-            {amount} off your first order
-          </Text>
-          <Text style={{ fontSize: "13px", fontFamily: FONT_STACK, color: "#92400E", margin: "0" }}>
-            Applied automatically on orders $50+ · ပထမဆုံးအော်ဒါ {amount} လျှော့ပေးထားတယ်နော် 😊
-          </Text>
+            <Text
+              style={{
+                fontSize: "26px",
+                fontFamily: DISPLAY_FONT,
+                fontWeight: 600,
+                color: C.accentStrong,
+                margin: "0 0 4px 0",
+                lineHeight: 1.25,
+              }}
+            >
+              {amount} off your first order
+            </Text>
+            <Text
+              style={{
+                fontSize: "13px",
+                fontFamily: BURMESE_FONT,
+                color: C.goldDeep,
+                margin: "0",
+                lineHeight: 1.7,
+              }}
+            >
+              Applied automatically on orders $50+ · ပထမဆုံးအော်ဒါ {amount} လျှော့ပေးထားတယ်နော် 😊
+            </Text>
+          </Section>
         </Section>
       </Section>
 
       {/* CTA */}
-      <Section style={{ padding: "20px 24px 0 24px", textAlign: "center" as const }}>
-        <Button
-          href={menuUrl}
-          style={{
-            backgroundColor: "#A41034",
-            color: "#FFFFFF",
-            fontFamily: FONT_STACK,
-            fontSize: "16px",
-            fontWeight: 700,
-            borderRadius: "8px",
-            padding: "14px 36px",
-            textDecoration: "none",
-            display: "inline-block",
-          }}
-        >
-          Explore the menu · မီနူးကြည့်မယ်
-        </Button>
+      <Section style={{ padding: "22px 28px 0 28px", textAlign: "center" as const }}>
+        <EmailButton href={menuUrl}>Explore the menu · မီနူးကြည့်မယ်</EmailButton>
       </Section>
 
-      <Section style={{ padding: "20px 24px 32px 24px" }}>
+      <Section style={{ padding: "20px 28px 32px 28px" }}>
         <Text
           style={{
             fontSize: "12px",
-            fontFamily: FONT_STACK,
-            color: "#9CA3AF",
+            fontFamily: BODY_FONT,
+            color: C.inkFaint,
             margin: "0",
             textAlign: "center" as const,
-            lineHeight: "1.6",
+            lineHeight: 1.6,
           }}
         >
           Delivered Mon · Wed · Thu · Sat across Los Angeles. We can&apos;t wait to feed you.
