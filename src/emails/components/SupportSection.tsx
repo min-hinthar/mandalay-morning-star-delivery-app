@@ -1,18 +1,16 @@
 import { Hr, Link, Section, Text } from "@react-email/components";
-
-const SANS =
-  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+import { BODY_FONT, C, DISPLAY_FONT } from "./theme";
 
 export function SupportSection() {
   return (
-    <Section style={{ padding: "24px" }}>
-      <Hr style={{ borderColor: "#E5E7EB", margin: "0 0 20px 0" }} />
+    <Section style={{ padding: "26px 28px 0 28px" }}>
+      <Hr style={{ borderColor: C.line, borderWidth: "1px 0 0 0", margin: "0 0 18px 0" }} />
       <Text
         style={{
-          fontSize: "14px",
-          fontFamily: SANS,
-          color: "#374151",
-          margin: "0 0 8px 0",
+          fontSize: "15px",
+          fontFamily: DISPLAY_FONT,
+          color: C.ink,
+          margin: "0 0 6px 0",
           textAlign: "center" as const,
           fontWeight: 600,
         }}
@@ -22,8 +20,8 @@ export function SupportSection() {
       <Text
         style={{
           fontSize: "13px",
-          fontFamily: SANS,
-          color: "#6B7280",
+          fontFamily: BODY_FONT,
+          color: C.inkMuted,
           margin: "0",
           textAlign: "center" as const,
           lineHeight: "1.6",
@@ -32,7 +30,7 @@ export function SupportSection() {
         Simply reply to this email or contact us at{" "}
         <Link
           href="mailto:admin@mandalaymorningstar.com"
-          style={{ color: "#D4A017", textDecoration: "underline" }}
+          style={{ color: C.accent, textDecoration: "underline" }}
         >
           admin@mandalaymorningstar.com
         </Link>

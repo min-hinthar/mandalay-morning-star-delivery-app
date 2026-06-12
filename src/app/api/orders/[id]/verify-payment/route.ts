@@ -3,6 +3,7 @@ import { after, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe/server";
 import { sendEmail, fetchSuggestedItems, fetchDietaryRestrictions } from "@/lib/email";
+import { getLoyaltyNudge } from "@/lib/email/nudges";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
@@ -181,9 +182,10 @@ export async function POST(request: Request, { params }: RouteParams) {
         try {
           // Fetch real menu items for "you might also like" section
           const orderedNames = items.map((item) => item.name_snapshot);
-          const [suggestedItems, dietaryRestrictions] = await Promise.all([
+          const [suggestedItems, dietaryRestrictions, loyalty] = await Promise.all([
             fetchSuggestedItems(serviceClient, orderedNames),
             fetchDietaryRestrictions(serviceClient, emailUserId),
+            getLoyaltyNudge(serviceClient, emailUserId),
           ]);
 
           await sendEmail({
@@ -224,6 +226,7 @@ export async function POST(request: Request, { params }: RouteParams) {
               dietaryRestrictions: dietaryRestrictions.length > 0 ? dietaryRestrictions : undefined,
               placedAt: orderData.placed_at,
               suggestedItems,
+              loyalty,
             }),
             type: "order_confirmation",
             orderId: emailOrderId,

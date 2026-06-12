@@ -1,6 +1,16 @@
-import { Button, Column, Hr, Link, Row, Section, Text } from "@react-email/components";
+import { Column, Hr, Link, Row, Section, Text } from "@react-email/components";
+import { Callout } from "./components/Callout";
+import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
-import { APP_URL, FONT_STACK, SERIF_STACK, formatDate, formatPrice, shortOrderId } from "./helpers";
+import {
+  BODY_FONT,
+  C,
+  DISPLAY_FONT,
+  bodyStyle,
+  headingStyle,
+  kickerStyle,
+} from "./components/theme";
+import { APP_URL, formatDate, formatPrice, shortOrderId } from "./helpers";
 
 // ============================================
 // TYPES
@@ -42,32 +52,15 @@ export function RefundNotification({
   processedAt,
 }: RefundNotificationProps) {
   const previewText = `Your refund of ${formatPrice(refundAmountCents)} has been processed`;
-  const accentColor = isPartialRefund ? "#D97706" : "#3D8B22";
-  const accentBg = isPartialRefund ? "#FFFBEB" : "#F0FFF4";
+  const accentBorder = isPartialRefund ? C.gold : C.sage;
+  const accentBg = isPartialRefund ? C.goldTint : C.sageTint;
 
   return (
     <EmailLayout emailType="refund" previewText={previewText} showReferral={false}>
       {/* Greeting */}
-      <Section style={{ padding: "32px 24px 0 24px" }}>
-        <Text
-          style={{
-            fontSize: "16px",
-            color: "#111111",
-            fontFamily: FONT_STACK,
-            margin: "0 0 12px 0",
-          }}
-        >
-          Dear {customerName},
-        </Text>
-        <Text
-          style={{
-            fontSize: "15px",
-            color: "#374151",
-            fontFamily: FONT_STACK,
-            margin: "0 0 24px 0",
-            lineHeight: "1.6",
-          }}
-        >
+      <Section style={{ padding: "30px 28px 0 28px" }}>
+        <Text style={headingStyle(20)}>Dear {customerName},</Text>
+        <Text style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
           {isPartialRefund
             ? `We've processed a partial refund for your order #${shortOrderId(orderId)}.`
             : `We've processed a full refund for your order #${shortOrderId(orderId)}.`}{" "}
@@ -78,25 +71,14 @@ export function RefundNotification({
       {/* Refund Breakdown Table */}
       <Section
         style={{
-          margin: "0 24px",
+          margin: "0 28px",
           padding: "20px",
-          backgroundColor: "#FFF9E6",
-          borderRadius: "8px",
+          backgroundColor: C.vellum,
+          borderRadius: "12px",
+          border: `1px solid ${C.line}`,
         }}
       >
-        <Text
-          style={{
-            fontSize: "14px",
-            fontWeight: 700,
-            color: "#8B4513",
-            fontFamily: SERIF_STACK,
-            margin: "0 0 12px 0",
-            textTransform: "uppercase" as const,
-            letterSpacing: "0.5px",
-          }}
-        >
-          Refund Breakdown
-        </Text>
+        <Text style={{ ...kickerStyle(), margin: "0 0 12px 0" }}>Refund Breakdown</Text>
 
         {/* Original order total */}
         <Row style={{ width: "100%" }}>
@@ -104,8 +86,8 @@ export function RefundNotification({
             <Text
               style={{
                 fontSize: "14px",
-                color: "#374151",
-                fontFamily: FONT_STACK,
+                color: C.ink,
+                fontFamily: BODY_FONT,
                 margin: "0 0 8px 0",
               }}
             >
@@ -116,8 +98,8 @@ export function RefundNotification({
             <Text
               style={{
                 fontSize: "14px",
-                color: "#374151",
-                fontFamily: FONT_STACK,
+                color: C.ink,
+                fontFamily: BODY_FONT,
                 margin: "0 0 8px 0",
                 textAlign: "right" as const,
               }}
@@ -127,7 +109,7 @@ export function RefundNotification({
           </Column>
         </Row>
 
-        <Hr style={{ borderColor: "#E5D5A0", borderWidth: "1px 0 0 0", margin: "8px 0" }} />
+        <Hr style={{ borderColor: C.goldLeaf, borderWidth: "1px 0 0 0", margin: "8px 0" }} />
 
         {/* Refunded items */}
         {refundedItems.map((item, idx) => (
@@ -136,8 +118,8 @@ export function RefundNotification({
               <Text
                 style={{
                   fontSize: "13px",
-                  color: "#6B7280",
-                  fontFamily: FONT_STACK,
+                  color: C.inkMuted,
+                  fontFamily: BODY_FONT,
                   margin: "4px 0",
                 }}
               >
@@ -148,8 +130,8 @@ export function RefundNotification({
               <Text
                 style={{
                   fontSize: "13px",
-                  color: "#6B7280",
-                  fontFamily: FONT_STACK,
+                  color: C.inkMuted,
+                  fontFamily: BODY_FONT,
                   margin: "4px 0",
                   textAlign: "right" as const,
                 }}
@@ -167,8 +149,8 @@ export function RefundNotification({
               <Text
                 style={{
                   fontSize: "13px",
-                  color: "#6B7280",
-                  fontFamily: FONT_STACK,
+                  color: C.inkMuted,
+                  fontFamily: BODY_FONT,
                   margin: "4px 0",
                 }}
               >
@@ -179,8 +161,8 @@ export function RefundNotification({
               <Text
                 style={{
                   fontSize: "13px",
-                  color: "#6B7280",
-                  fontFamily: FONT_STACK,
+                  color: C.inkMuted,
+                  fontFamily: BODY_FONT,
                   margin: "4px 0",
                   textAlign: "right" as const,
                 }}
@@ -191,17 +173,17 @@ export function RefundNotification({
           </Row>
         )}
 
-        <Hr style={{ borderColor: "#E5D5A0", borderWidth: "1px 0 0 0", margin: "8px 0" }} />
+        <Hr style={{ borderColor: C.goldLeaf, borderWidth: "1px 0 0 0", margin: "8px 0" }} />
 
-        {/* Total refund */}
+        {/* Total refund — editorial serif figure */}
         <Row style={{ width: "100%" }}>
           <Column style={{ width: "70%" }}>
             <Text
               style={{
                 fontSize: "16px",
-                fontWeight: 700,
-                color: "#111111",
-                fontFamily: FONT_STACK,
+                fontWeight: 600,
+                color: C.ink,
+                fontFamily: DISPLAY_FONT,
                 margin: "4px 0",
               }}
             >
@@ -211,10 +193,10 @@ export function RefundNotification({
           <Column style={{ width: "30%" }}>
             <Text
               style={{
-                fontSize: "16px",
+                fontSize: "18px",
                 fontWeight: 700,
-                color: "#3D8B22",
-                fontFamily: FONT_STACK,
+                color: C.accentStrong,
+                fontFamily: DISPLAY_FONT,
                 margin: "4px 0",
                 textAlign: "right" as const,
               }}
@@ -228,19 +210,19 @@ export function RefundNotification({
       {/* Refund Details Box */}
       <Section
         style={{
-          margin: "16px 24px 0 24px",
+          margin: "16px 28px 0 28px",
           padding: "16px 20px",
           backgroundColor: accentBg,
-          borderRadius: "8px",
-          borderLeft: `4px solid ${accentColor}`,
+          borderRadius: "10px",
+          borderLeft: `4px solid ${accentBorder}`,
         }}
       >
         <Text
           style={{
             fontSize: "14px",
             fontWeight: 700,
-            color: "#111111",
-            fontFamily: FONT_STACK,
+            color: C.ink,
+            fontFamily: BODY_FONT,
             margin: "0 0 8px 0",
           }}
         >
@@ -249,8 +231,8 @@ export function RefundNotification({
         <Text
           style={{
             fontSize: "13px",
-            color: "#374151",
-            fontFamily: FONT_STACK,
+            color: C.ink,
+            fontFamily: BODY_FONT,
             margin: "0 0 4px 0",
             lineHeight: "1.6",
           }}
@@ -260,8 +242,8 @@ export function RefundNotification({
         <Text
           style={{
             fontSize: "13px",
-            color: "#374151",
-            fontFamily: FONT_STACK,
+            color: C.ink,
+            fontFamily: BODY_FONT,
             margin: "0 0 4px 0",
             lineHeight: "1.6",
           }}
@@ -271,8 +253,8 @@ export function RefundNotification({
         <Text
           style={{
             fontSize: "13px",
-            color: "#374151",
-            fontFamily: FONT_STACK,
+            color: C.ink,
+            fontFamily: BODY_FONT,
             margin: "0",
             lineHeight: "1.6",
           }}
@@ -283,59 +265,25 @@ export function RefundNotification({
 
       {/* Partial Refund Notice */}
       {isPartialRefund && (
-        <Section
-          style={{
-            margin: "16px 24px 0 24px",
-            padding: "14px 16px",
-            backgroundColor: "#FFFBEB",
-            borderRadius: "8px",
-            border: "1px solid #FDE68A",
-          }}
-        >
-          <Text
-            style={{
-              fontSize: "13px",
-              color: "#92400E",
-              fontFamily: FONT_STACK,
-              margin: "0",
-              lineHeight: "1.5",
-            }}
-          >
-            {"\u26A0\uFE0F"} <strong>Partial Refund:</strong> This is a partial refund. Your
-            remaining order items are unaffected and will be delivered as scheduled.
-          </Text>
-        </Section>
+        <Callout tone="warn" style={{ margin: "16px 28px 0 28px" }}>
+          {"⚠️"} <strong>Partial Refund:</strong> This is a partial refund. Your remaining order
+          items are unaffected and will be delivered as scheduled.
+        </Callout>
       )}
 
       {/* Primary CTA */}
-      <Section style={{ padding: "24px 24px 0 24px", textAlign: "center" as const }}>
-        <Button
-          href={`${APP_URL}/orders/${orderId}`}
-          style={{
-            backgroundColor: "#A41034",
-            color: "#FFFFFF",
-            fontFamily: FONT_STACK,
-            fontSize: "16px",
-            fontWeight: 700,
-            textDecoration: "none",
-            textAlign: "center" as const,
-            display: "inline-block",
-            padding: "14px 32px",
-            borderRadius: "8px",
-          }}
-        >
-          View Order Details
-        </Button>
+      <Section style={{ padding: "24px 28px 0 28px", textAlign: "center" as const }}>
+        <EmailButton href={`${APP_URL}/orders/${orderId}`}>View Order Details</EmailButton>
       </Section>
 
       {/* Secondary CTA */}
-      <Section style={{ padding: "12px 24px 0 24px", textAlign: "center" as const }}>
+      <Section style={{ padding: "12px 28px 0 28px", textAlign: "center" as const }}>
         <Link
           href={`${APP_URL}/menu`}
           style={{
-            color: "#D4A017",
+            color: C.accent,
             fontSize: "14px",
-            fontFamily: FONT_STACK,
+            fontFamily: BODY_FONT,
             textDecoration: "underline",
           }}
         >
@@ -344,13 +292,13 @@ export function RefundNotification({
       </Section>
 
       {/* Need help? section */}
-      <Section style={{ padding: "24px" }}>
-        <Hr style={{ borderColor: "#E5E7EB", borderWidth: "1px 0 0 0", margin: "0 0 16px 0" }} />
+      <Section style={{ padding: "26px 28px 0 28px" }}>
+        <Hr style={{ borderColor: C.line, borderWidth: "1px 0 0 0", margin: "0 0 18px 0" }} />
         <Text
           style={{
             fontSize: "13px",
-            color: "#9CA3AF",
-            fontFamily: FONT_STACK,
+            color: C.inkFaint,
+            fontFamily: BODY_FONT,
             margin: "0",
             textAlign: "center" as const,
             lineHeight: "1.6",
@@ -359,13 +307,16 @@ export function RefundNotification({
           Need help?{" "}
           <Link
             href="mailto:admin@mandalaymorningstar.com"
-            style={{ color: "#D4A017", textDecoration: "underline" }}
+            style={{ color: C.accent, textDecoration: "underline" }}
           >
             Contact our support team
           </Link>{" "}
           and we&apos;ll be happy to assist you.
         </Text>
       </Section>
+
+      {/* close the card with breathing room */}
+      <Section style={{ height: "8px" }} />
     </EmailLayout>
   );
 }

@@ -5,6 +5,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import { LoyaltyReward } from "@/emails/LoyaltyReward";
 import { getResendClient } from "@/lib/email/client";
 import { EMAIL_CC, EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
+import { tierPerkFromTier } from "@/lib/email/nudges";
 import type { Database } from "@/types/database";
 import { LOYALTY_REWARD_CENTS } from ".";
 import { mintLoyaltyPromoCode } from "./mint";
@@ -47,6 +48,7 @@ export async function issueLoyaltyThankYou(
     tierName: tier.name,
     tierEnglish: tier.english,
     tierEmoji: tier.emoji,
+    tier: tierPerkFromTier(tier),
   });
   const [html, text] = await Promise.all([
     render(emailComponent),

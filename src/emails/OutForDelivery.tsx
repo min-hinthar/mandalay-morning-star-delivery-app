@@ -1,9 +1,11 @@
-import { Button, Heading, Section, Text } from "@react-email/components";
+import { Heading, Section, Text } from "@react-email/components";
 import { DeliveryBlock } from "./components/DeliveryBlock";
+import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
 import { OrderStatusTracker } from "./components/OrderStatusTracker";
 import { SupportSection } from "./components/SupportSection";
-import { APP_URL, FONT_STACK, SERIF_STACK, shortOrderId } from "./helpers";
+import { C, DISPLAY_FONT, bodyStyle, headingStyle } from "./components/theme";
+import { APP_URL, shortOrderId } from "./helpers";
 
 // ============================================
 // TYPES
@@ -48,38 +50,20 @@ export function OutForDelivery({
   const previewText = `Your order #${shortId} is on its way!`;
 
   return (
-    <EmailLayout emailType="confirmation" previewText={previewText}>
+    <EmailLayout emailType="delivery" previewText={previewText}>
       {/* Hero */}
       <Section
         style={{
-          padding: "32px 24px 16px 24px",
-          backgroundColor: "#FFF9E6",
+          padding: "32px 28px 16px 28px",
+          backgroundColor: C.blueTint,
           textAlign: "center" as const,
         }}
       >
-        <Text style={{ fontSize: "40px", margin: "0 0 8px 0" }}>{"\uD83D\uDE9A"}</Text>
-        <Heading
-          as="h2"
-          style={{
-            fontSize: "24px",
-            fontWeight: 700,
-            color: "#8B4513",
-            fontFamily: SERIF_STACK,
-            margin: "0 0 12px 0",
-            lineHeight: "1.3",
-          }}
-        >
+        <Text style={{ fontSize: "40px", margin: "0 0 8px 0" }}>{"🚚"}</Text>
+        <Heading as="h2" style={{ ...headingStyle(24), margin: "0 0 12px 0" }}>
           Your order is on its way!
         </Heading>
-        <Text
-          style={{
-            fontSize: "16px",
-            color: "#374151",
-            fontFamily: FONT_STACK,
-            margin: "0",
-            lineHeight: "1.5",
-          }}
-        >
+        <Text style={{ ...bodyStyle(16), lineHeight: "1.5" }}>
           Hi {customerName}, your order #{shortId} with {itemCount}{" "}
           {itemCount === 1 ? "item" : "items"} is out for delivery.
         </Text>
@@ -103,22 +87,13 @@ export function OutForDelivery({
 
       {/* Item Preview */}
       {itemNames.length > 0 && (
-        <Section style={{ padding: "0 24px 16px 24px" }}>
-          <Text
-            style={{
-              fontSize: "14px",
-              color: "#6B7280",
-              fontFamily: FONT_STACK,
-              margin: "0 0 8px 0",
-            }}
-          >
-            Items on the way:
-          </Text>
+        <Section style={{ padding: "0 28px 16px 28px" }}>
+          <Text style={{ ...bodyStyle(14), margin: "0 0 8px 0" }}>Items on the way:</Text>
           <Text
             style={{
               fontSize: "15px",
-              color: "#374151",
-              fontFamily: FONT_STACK,
+              color: C.ink,
+              fontFamily: DISPLAY_FONT,
               margin: "0",
               lineHeight: "1.6",
             }}
@@ -129,27 +104,14 @@ export function OutForDelivery({
       )}
 
       {/* CTA */}
-      <Section style={{ padding: "8px 24px 24px 24px", textAlign: "center" as const }}>
-        <Button
-          href={`${APP_URL}/orders/${orderId}`}
-          style={{
-            backgroundColor: "#A41034",
-            color: "#FFFFFF",
-            fontFamily: FONT_STACK,
-            fontSize: "15px",
-            fontWeight: 700,
-            textDecoration: "none",
-            textAlign: "center" as const,
-            display: "inline-block",
-            padding: "14px 32px",
-            borderRadius: "8px",
-          }}
-        >
-          Track Your Order
-        </Button>
+      <Section style={{ padding: "8px 28px 0 28px", textAlign: "center" as const }}>
+        <EmailButton href={`${APP_URL}/orders/${orderId}`}>Track Your Order</EmailButton>
       </Section>
 
       <SupportSection />
+
+      {/* close the card with breathing room */}
+      <Section style={{ height: "8px" }} />
     </EmailLayout>
   );
 }

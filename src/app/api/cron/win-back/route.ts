@@ -11,6 +11,7 @@ import React from "react";
 import { NextResponse } from "next/server";
 
 import { WinBack } from "@/emails/WinBack";
+import { getNextDeliveryCutoffText, getTierPerkNudge } from "@/lib/email/nudges";
 import { getResendClient } from "@/lib/email/client";
 import { EMAIL_CC, EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
 import { getAppUrl } from "@/lib/supabase/actions";
@@ -68,6 +69,9 @@ export async function GET(request: Request) {
   const menuUrl = `${appUrl}/menu`;
   const resend = getResendClient();
 
+  // Same for every recipient in this run; per-customer tier is fetched in-loop.
+  const nextDeliveryCutoffText = await getNextDeliveryCutoffText();
+
   let sent = 0;
   let failed = 0;
 
@@ -83,9 +87,12 @@ export async function GET(request: Request) {
     if (!customer.email) continue;
 
     try {
+      const tier = await getTierPerkNudge(supabase, customer.user_id);
       const emailComponent = React.createElement(WinBack, {
         customerName: customer.full_name?.split(" ")[0] || "friend",
         menuUrl,
+        tier,
+        nextDeliveryCutoffText,
       });
       const [html, text] = await Promise.all([
         render(emailComponent),

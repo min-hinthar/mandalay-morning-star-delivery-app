@@ -1,11 +1,17 @@
-import { Button, Link, Section, Text } from "@react-email/components";
+import { Link, Section, Text } from "@react-email/components";
+import { Callout } from "./components/Callout";
+import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
-import { APP_URL } from "./helpers";
 import { SupportSection } from "./components/SupportSection";
-
-const SANS =
-  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
-const SERIF = "Georgia, 'Palatino Linotype', serif";
+import {
+  BODY_FONT,
+  C,
+  DISPLAY_FONT,
+  bodyStyle,
+  headingStyle,
+  labelStyle,
+} from "./components/theme";
+import { APP_URL } from "./helpers";
 
 // ─── Helpers ──────────────────────────────────────────────
 function formatPrice(cents: number): string {
@@ -65,28 +71,9 @@ export function OrderCancellation({
       previewText={`Your order #${shortId} has been cancelled`}
     >
       {/* ── Greeting ─────────────────────────────────── */}
-      <Section style={{ padding: "32px 24px 0 24px" }}>
-        <Text
-          style={{
-            fontSize: "22px",
-            fontFamily: SERIF,
-            color: "#8B4513",
-            fontWeight: 700,
-            margin: "0 0 8px 0",
-            lineHeight: "1.3",
-          }}
-        >
-          Dear {customerName},
-        </Text>
-        <Text
-          style={{
-            fontSize: "15px",
-            fontFamily: SANS,
-            color: "#374151",
-            margin: "0 0 24px 0",
-            lineHeight: "1.6",
-          }}
-        >
+      <Section style={{ padding: "30px 28px 0 28px" }}>
+        <Text style={headingStyle(22)}>Dear {customerName},</Text>
+        <Text style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
           We&apos;re sorry to see this order go. Your order has been cancelled.
         </Text>
       </Section>
@@ -94,50 +81,42 @@ export function OrderCancellation({
       {/* ── Cancellation Details Box ─────────────────── */}
       <Section
         style={{
-          margin: "0 24px 20px 24px",
+          margin: "0 28px 20px 28px",
           padding: "16px 20px",
-          backgroundColor: "#FEF2F2",
-          borderRadius: "8px",
-          border: "1px solid #FECACA",
+          backgroundColor: C.clayTint,
+          borderRadius: "12px",
+          border: `1px solid ${C.clayTintBorder}`,
         }}
       >
-        <Text style={{ fontSize: "13px", fontFamily: SANS, color: "#6B7280", margin: "0 0 4px 0" }}>
-          Order Number
-        </Text>
+        <Text style={labelStyle()}>Order Number</Text>
         <Text
           style={{
             fontSize: "16px",
-            fontFamily: SANS,
+            fontFamily: BODY_FONT,
             fontWeight: 700,
-            color: "#111111",
+            color: C.ink,
             margin: "0 0 12px 0",
           }}
         >
           <Link
             href={orderUrl}
-            style={{ color: "#D4A017", textDecoration: "underline", fontWeight: 700 }}
+            style={{ color: C.accent, textDecoration: "underline", fontWeight: 700 }}
           >
             #{shortId}
           </Link>
         </Text>
 
-        <Text style={{ fontSize: "13px", fontFamily: SANS, color: "#6B7280", margin: "0 0 4px 0" }}>
-          Cancelled
-        </Text>
+        <Text style={labelStyle()}>Cancelled</Text>
         <Text
-          style={{ fontSize: "14px", fontFamily: SANS, color: "#111111", margin: "0 0 12px 0" }}
+          style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0 0 12px 0" }}
         >
           {formatDate(cancelledAt)}
         </Text>
 
         {cancellationReason && (
           <>
-            <Text
-              style={{ fontSize: "13px", fontFamily: SANS, color: "#6B7280", margin: "0 0 4px 0" }}
-            >
-              Reason
-            </Text>
-            <Text style={{ fontSize: "14px", fontFamily: SANS, color: "#111111", margin: "0" }}>
+            <Text style={labelStyle()}>Reason</Text>
+            <Text style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0" }}>
               {cancellationReason}
             </Text>
           </>
@@ -145,18 +124,8 @@ export function OrderCancellation({
       </Section>
 
       {/* ── Order Summary ────────────────────────────── */}
-      <Section style={{ padding: "0 24px 16px 24px" }}>
-        <Text
-          style={{
-            fontSize: "14px",
-            fontFamily: SANS,
-            fontWeight: 700,
-            color: "#374151",
-            margin: "0 0 12px 0",
-          }}
-        >
-          Order Summary
-        </Text>
+      <Section style={{ padding: "0 28px 16px 28px" }}>
+        <Text style={{ ...headingStyle(17), margin: "0 0 12px 0" }}>Order Summary</Text>
         <table
           cellPadding="0"
           cellSpacing="0"
@@ -165,9 +134,9 @@ export function OrderCancellation({
           <tbody>
             {items.map((item, idx) => (
               <tr key={idx}>
-                <td style={{ padding: "6px 0", borderBottom: "1px solid #F3F4F6" }}>
+                <td style={{ padding: "6px 0", borderBottom: `1px solid ${C.line}` }}>
                   <Text
-                    style={{ fontSize: "14px", fontFamily: SANS, color: "#374151", margin: "0" }}
+                    style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0" }}
                   >
                     {item.quantity}x {item.name}
                   </Text>
@@ -175,7 +144,7 @@ export function OrderCancellation({
               </tr>
             ))}
 
-            {/* Total */}
+            {/* Total — gold-leaf rule, editorial serif figures */}
             <tr>
               <td style={{ padding: "12px 0 0 0" }}>
                 <table cellPadding="0" cellSpacing="0" style={{ width: "100%" }}>
@@ -184,10 +153,10 @@ export function OrderCancellation({
                       <td>
                         <Text
                           style={{
-                            fontSize: "15px",
-                            fontFamily: SANS,
-                            fontWeight: 700,
-                            color: "#8B4513",
+                            fontSize: "16px",
+                            fontFamily: DISPLAY_FONT,
+                            fontWeight: 600,
+                            color: C.ink,
                             margin: "0",
                           }}
                         >
@@ -197,10 +166,10 @@ export function OrderCancellation({
                       <td style={{ textAlign: "right" as const }}>
                         <Text
                           style={{
-                            fontSize: "15px",
-                            fontFamily: SANS,
+                            fontSize: "18px",
+                            fontFamily: DISPLAY_FONT,
                             fontWeight: 700,
-                            color: "#8B4513",
+                            color: C.accentStrong,
                             margin: "0",
                           }}
                         >
@@ -217,82 +186,50 @@ export function OrderCancellation({
       </Section>
 
       {/* ── Refund Status Section ────────────────────── */}
-      <Section style={{ padding: "0 24px 24px 24px" }}>
-        {refundIssued ? (
-          <div
-            style={{
-              padding: "16px 20px",
-              backgroundColor: "#F0FDF4",
-              borderRadius: "8px",
-              border: "1px solid #BBF7D0",
-            }}
-          >
-            <Text
-              style={{
-                fontSize: "14px",
-                fontFamily: SANS,
-                color: "#166534",
-                margin: "0",
-                lineHeight: "1.6",
-              }}
-            >
-              {"\u2705"} A refund of{" "}
-              <strong>
-                {refundAmountCents != null
-                  ? formatPrice(refundAmountCents)
-                  : formatPrice(totalCents)}
-              </strong>{" "}
-              will be returned to your {refundMethod || "original payment method"} within{" "}
-              {refundTimeline || "3-5 business days"}.
-            </Text>
-          </div>
-        ) : (
-          <div
-            style={{
-              padding: "16px 20px",
-              backgroundColor: "#F9FAFB",
-              borderRadius: "8px",
-              border: "1px solid #E5E7EB",
-            }}
-          >
-            <Text
-              style={{
-                fontSize: "14px",
-                fontFamily: SANS,
-                color: "#374151",
-                margin: "0",
-                lineHeight: "1.6",
-              }}
-            >
-              No refund has been issued for this order. If you believe this is an error, please
-              contact us.
-            </Text>
-          </div>
-        )}
-      </Section>
-
-      {/* ── Primary CTA ──────────────────────────────── */}
-      <Section style={{ padding: "0 24px 12px 24px", textAlign: "center" as const }}>
-        <Button
-          href={`${APP_URL}/menu`}
+      {refundIssued ? (
+        <Callout tone="success" style={{ margin: "0 28px 24px 28px" }}>
+          {"✅"} A refund of{" "}
+          <strong style={{ fontFamily: DISPLAY_FONT, color: C.accentStrong }}>
+            {refundAmountCents != null ? formatPrice(refundAmountCents) : formatPrice(totalCents)}
+          </strong>{" "}
+          will be returned to your {refundMethod || "original payment method"} within{" "}
+          {refundTimeline || "3-5 business days"}.
+        </Callout>
+      ) : (
+        <Section
           style={{
-            backgroundColor: "#D4A017",
-            color: "#FFFFFF",
-            fontFamily: SANS,
-            fontSize: "16px",
-            fontWeight: 700,
-            borderRadius: "8px",
-            padding: "14px 32px",
-            textDecoration: "none",
-            display: "inline-block",
+            margin: "0 28px 24px 28px",
+            padding: "16px 20px",
+            backgroundColor: C.vellum,
+            borderRadius: "10px",
+            border: `1px solid ${C.line}`,
           }}
         >
-          Place a New Order
-        </Button>
+          <Text
+            style={{
+              fontSize: "14px",
+              fontFamily: BODY_FONT,
+              color: C.ink,
+              margin: "0",
+              lineHeight: "1.6",
+            }}
+          >
+            No refund has been issued for this order. If you believe this is an error, please
+            contact us.
+          </Text>
+        </Section>
+      )}
+
+      {/* ── Primary CTA ──────────────────────────────── */}
+      <Section style={{ padding: "0 28px 12px 28px", textAlign: "center" as const }}>
+        <EmailButton href={`${APP_URL}/menu`}>Place a New Order</EmailButton>
       </Section>
 
       {/* ── Need Help ────────────────────────────────── */}
       <SupportSection />
+
+      {/* close the card with breathing room */}
+      <Section style={{ height: "8px" }} />
     </EmailLayout>
   );
 }

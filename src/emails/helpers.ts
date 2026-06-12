@@ -3,10 +3,7 @@
  */
 import { TIMEZONE } from "@/types/delivery";
 
-export const FONT_STACK =
-  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
-
-export const SERIF_STACK = "Georgia, 'Palatino Linotype', serif";
+export { BODY_FONT as FONT_STACK, DISPLAY_FONT as SERIF_STACK } from "./components/theme";
 
 export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 

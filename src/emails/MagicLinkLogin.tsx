@@ -1,9 +1,15 @@
-import { Button, Section, Text } from "@react-email/components";
-import { EmailLayout } from "./components/EmailLayout";
+import { Section, Text } from "@react-email/components";
 
-const SERIF = "Georgia, 'Palatino Linotype', serif";
-const SANS =
-  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+import { EmailButton } from "./components/EmailButton";
+import { EmailLayout } from "./components/EmailLayout";
+import {
+  BODY_FONT,
+  C,
+  DISPLAY_FONT,
+  bodyStyle,
+  headingStyle,
+  labelStyle,
+} from "./components/theme";
 
 export interface MagicLinkLoginProps {
   email: string;
@@ -17,33 +23,14 @@ export interface MagicLinkLoginProps {
 export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkLoginProps) {
   return (
     <EmailLayout
-      emailType="confirmation"
+      emailType="auth"
       showReferral={false}
       previewText="Your secure sign-in link for Mandalay Morning Star"
     >
       {/* Greeting */}
-      <Section style={{ padding: "32px 24px 0 24px" }}>
-        <Text
-          style={{
-            fontSize: "22px",
-            fontFamily: SERIF,
-            color: "#8B4513",
-            fontWeight: 700,
-            margin: "0 0 8px 0",
-            lineHeight: "1.3",
-          }}
-        >
-          Mingalabar! Welcome back
-        </Text>
-        <Text
-          style={{
-            fontSize: "15px",
-            fontFamily: SANS,
-            color: "#374151",
-            margin: "0 0 24px 0",
-            lineHeight: "1.6",
-          }}
-        >
+      <Section style={{ padding: "30px 28px 0 28px" }}>
+        <Text style={headingStyle(22)}>Mingalabar! Welcome back</Text>
+        <Text style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
           Tap the button below to sign in to Mandalay Morning Star. No password needed — this link
           signs you in securely.
         </Text>
@@ -52,22 +39,20 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
       {/* Account */}
       <Section
         style={{
-          margin: "0 24px",
+          margin: "0 28px 20px 28px",
           padding: "16px 20px",
-          backgroundColor: "#F9FAFB",
-          borderRadius: "8px",
-          marginBottom: "20px",
+          backgroundColor: C.vellum,
+          border: `1px solid ${C.line}`,
+          borderRadius: "12px",
         }}
       >
-        <Text style={{ fontSize: "13px", fontFamily: SANS, color: "#6B7280", margin: "0 0 4px 0" }}>
-          Signing in as
-        </Text>
+        <Text style={labelStyle()}>Signing in as</Text>
         <Text
           style={{
             fontSize: "16px",
-            fontFamily: SANS,
+            fontFamily: BODY_FONT,
             fontWeight: 700,
-            color: "#111111",
+            color: C.ink,
             margin: "0",
           }}
         >
@@ -76,65 +61,64 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
       </Section>
 
       {/* CTA */}
-      <Section style={{ padding: "8px 24px 0 24px", textAlign: "center" as const }}>
-        <Button
-          href={magicLink}
-          style={{
-            backgroundColor: "#D4A017",
-            color: "#FFFFFF",
-            fontFamily: SANS,
-            fontSize: "16px",
-            fontWeight: 700,
-            borderRadius: "8px",
-            padding: "14px 32px",
-            textDecoration: "none",
-            display: "inline-block",
-          }}
-        >
-          Sign in to Mandalay Morning Star
-        </Button>
+      <Section style={{ padding: "8px 28px 0 28px", textAlign: "center" as const }}>
+        <EmailButton href={magicLink}>Sign in to Mandalay Morning Star</EmailButton>
       </Section>
 
-      {/* One-time code (lets you finish in the same tab) */}
+      {/* One-time code ticket (lets you finish in the same tab) */}
       {code && (
-        <Section style={{ padding: "20px 24px 0 24px", textAlign: "center" as const }}>
+        <Section style={{ padding: "20px 28px 0 28px" }}>
           <Text
             style={{
               fontSize: "13px",
-              fontFamily: SANS,
-              color: "#6B7280",
+              fontFamily: BODY_FONT,
+              color: C.inkMuted,
               margin: "0 0 8px 0",
+              textAlign: "center" as const,
             }}
           >
             Or enter this code on the sign-in screen:
           </Text>
-          <Text
+          <Section
             style={{
-              fontSize: "30px",
-              fontFamily: SANS,
-              fontWeight: 700,
-              letterSpacing: "8px",
-              color: "#8B4513",
-              backgroundColor: "#FFF9E6",
-              border: "1px solid #F3E2B3",
-              borderRadius: "10px",
-              padding: "14px 0",
-              margin: "0",
-              display: "block",
+              backgroundColor: C.vellum,
+              border: `1px solid ${C.goldLeaf}`,
+              borderRadius: "12px",
+              padding: "5px",
             }}
           >
-            {code}
-          </Text>
+            <Section
+              style={{
+                border: `1px dashed ${C.goldLeaf}`,
+                borderRadius: "8px",
+                padding: "14px 12px",
+                textAlign: "center" as const,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: "22px",
+                  fontFamily: DISPLAY_FONT,
+                  fontWeight: 600,
+                  letterSpacing: "6px",
+                  color: C.accentStrong,
+                  margin: "0",
+                }}
+              >
+                {code}
+              </Text>
+            </Section>
+          </Section>
         </Section>
       )}
 
       {/* Fallback link */}
-      <Section style={{ padding: "16px 24px 0 24px" }}>
+      <Section style={{ padding: "16px 28px 0 28px" }}>
         <Text
           style={{
             fontSize: "12px",
-            fontFamily: SANS,
-            color: "#9CA3AF",
+            fontFamily: BODY_FONT,
+            color: C.inkFaint,
             margin: "0 0 4px 0",
             textAlign: "center" as const,
           }}
@@ -144,8 +128,8 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
         <Text
           style={{
             fontSize: "12px",
-            fontFamily: SANS,
-            color: "#D4A017",
+            fontFamily: BODY_FONT,
+            color: C.accent,
             margin: "0",
             textAlign: "center" as const,
             wordBreak: "break-all" as const,
@@ -156,15 +140,15 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
       </Section>
 
       {/* Expiry + security note */}
-      <Section style={{ padding: "20px 24px 32px 24px" }}>
+      <Section style={{ padding: "20px 28px 32px 28px" }}>
         <Text
           style={{
             fontSize: "13px",
-            fontFamily: SANS,
-            color: "#9CA3AF",
+            fontFamily: BODY_FONT,
+            color: C.inkFaint,
             margin: "0",
             textAlign: "center" as const,
-            lineHeight: "1.6",
+            lineHeight: 1.6,
           }}
         >
           This link expires in {expiresIn} and can only be used once. If you didn&apos;t request it,
