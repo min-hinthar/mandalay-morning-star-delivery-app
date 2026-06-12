@@ -134,11 +134,17 @@ export async function POST(request: NextRequest) {
 
     const feedbackId = (feedback as unknown as Record<string, unknown>).id as string;
 
-    // Upload screenshot to storage if provided
-    let screenshotUrl: string | null = null;
+    // Upload screenshot to storage if provided. The bucket is private —
+    // admins view screenshots via short-lived signed URLs generated from
+    // screenshot_path; no public URL is stored. The storage key is
+    // server-generated (never the client-supplied filename).
+    let screenshotPath: string | null = null;
     if (screenshotFile) {
       const buffer = Buffer.from(await screenshotFile.arrayBuffer());
-      const storagePath = `${feedbackId}/${screenshotFile.name}`;
+      const extension =
+        { "image/jpeg": "jpg", "image/png": "png", "image/webp": "webp" }[screenshotFile.type] ??
+        "bin";
+      const storagePath = `${feedbackId}/screenshot.${extension}`;
 
       const { error: uploadError } = await service.storage
         .from("feedback-attachments")
@@ -147,18 +153,12 @@ export async function POST(request: NextRequest) {
       if (uploadError) {
         logger.error("Failed to upload screenshot", { error: uploadError.message, feedbackId });
       } else {
-        const {
-          data: { publicUrl },
-        } = service.storage.from("feedback-attachments").getPublicUrl(storagePath);
+        screenshotPath = storagePath;
 
-        screenshotUrl = publicUrl;
-
-        // Update feedback row with screenshot URL + path
         await service
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           .from("customer_feedback" as any)
           .update({
-            screenshot_url: publicUrl,
             screenshot_path: storagePath,
           } as Record<string, unknown>)
           .eq("id", feedbackId);
@@ -185,7 +185,7 @@ export async function POST(request: NextRequest) {
               subject,
               message: message.slice(0, 200),
               customerEmail: resolvedEmail ?? "Unknown",
-              hasScreenshot: !!screenshotUrl,
+              hasScreenshot: !!screenshotPath,
             }),
             type: "admin_feedback_alert" as never,
             orderId: orderId ?? feedbackId,
