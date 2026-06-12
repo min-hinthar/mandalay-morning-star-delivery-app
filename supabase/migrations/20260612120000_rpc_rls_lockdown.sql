@@ -536,41 +536,48 @@ CREATE POLICY orders_update_admin ON public.orders AS PERMISSIVE FOR UPDATE TO p
   USING (is_admin())
   WITH CHECK (is_admin());
 
+-- The driver policies must NOT reference route_stops inline: route_stops'
+-- own SELECT policy references orders, and an inline reference here closes a
+-- mutual policy cycle — Postgres aborts EVERY authenticated orders query with
+-- "infinite recursion detected in policy". The cross-table check therefore
+-- lives in a STABLE SECURITY DEFINER helper (same pattern as is_admin() /
+-- get_my_driver_id()), whose internal route_stops/routes reads bypass RLS and
+-- break the cycle. It lives in a non-API schema so the public generated types
+-- are unchanged (gen:types is --schema public) and PostgREST never exposes it.
+CREATE SCHEMA IF NOT EXISTS app_private;
+GRANT USAGE ON SCHEMA app_private TO authenticated;
+
+CREATE OR REPLACE FUNCTION app_private.order_on_my_route(p_order_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM route_stops rs
+    JOIN routes r ON r.id = rs.route_id
+    WHERE rs.order_id = p_order_id
+      AND r.driver_id = public.get_my_driver_id()
+  );
+$$;
+
+REVOKE ALL ON FUNCTION app_private.order_on_my_route(uuid) FROM PUBLIC;
+GRANT EXECUTE ON FUNCTION app_private.order_on_my_route(uuid) TO authenticated;
+
 -- Drivers may read orders that have a stop on one of their routes (also
 -- required for UPDATE ... RETURNING visibility).
 CREATE POLICY orders_select_driver ON public.orders AS PERMISSIVE FOR SELECT TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1
-      FROM route_stops rs
-      JOIN routes r ON r.id = rs.route_id
-      WHERE rs.order_id = orders.id
-        AND r.driver_id = get_my_driver_id()
-    )
-  );
+  USING (app_private.order_on_my_route(id));
 
 -- Drivers may transition orders on their routes within delivery-flow statuses
 -- (route start: confirmed/preparing -> out_for_delivery; stop delivery:
 -- out_for_delivery -> delivered; exception flag: needs_contact, status kept).
 CREATE POLICY orders_update_driver ON public.orders AS PERMISSIVE FOR UPDATE TO authenticated
-  USING (
-    EXISTS (
-      SELECT 1
-      FROM route_stops rs
-      JOIN routes r ON r.id = rs.route_id
-      WHERE rs.order_id = orders.id
-        AND r.driver_id = get_my_driver_id()
-    )
-  )
+  USING (app_private.order_on_my_route(id))
   WITH CHECK (
     status = ANY (ARRAY['confirmed', 'preparing', 'out_for_delivery', 'delivered']::order_status[])
-    AND EXISTS (
-      SELECT 1
-      FROM route_stops rs
-      JOIN routes r ON r.id = rs.route_id
-      WHERE rs.order_id = orders.id
-        AND r.driver_id = get_my_driver_id()
-    )
+    AND app_private.order_on_my_route(id)
   );
 
 -- Customers may cancel their own orders while still cancellable; the new row
