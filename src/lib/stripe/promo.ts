@@ -16,6 +16,10 @@ export interface PromoValidationResult {
   percentOff: number | null;
   /** Minimum order subtotal (cents) required by the promo code, if any. */
   minimumAmountCents: number | null;
+  /** Stripe's redemption cap for the code (null = unlimited). */
+  maxRedemptions: number | null;
+  /** Redemptions Stripe has counted natively (promotion-code checkouts). */
+  timesRedeemed: number;
 }
 
 export interface PromoValidationError {
@@ -55,6 +59,8 @@ export async function validatePromoCode(
 
     // The code's per-redemption minimum lives in restrictions.minimum_amount.
     const minimumAmountCents = promo.restrictions?.minimum_amount ?? null;
+    const maxRedemptions = promo.max_redemptions ?? null;
+    const timesRedeemed = promo.times_redeemed ?? 0;
 
     if (coupon.amount_off) {
       return {
@@ -64,6 +70,8 @@ export async function validatePromoCode(
         promotionCodeId: promo.id,
         percentOff: null,
         minimumAmountCents,
+        maxRedemptions,
+        timesRedeemed,
       };
     }
 
@@ -75,6 +83,8 @@ export async function validatePromoCode(
         promotionCodeId: promo.id,
         percentOff: coupon.percent_off,
         minimumAmountCents,
+        maxRedemptions,
+        timesRedeemed,
       };
     }
 

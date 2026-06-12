@@ -2,7 +2,7 @@ import { after, NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
-import { resolveCheckoutDiscount } from "./discount";
+import { resolveCheckoutDiscount, resolveStripeSessionDiscounts } from "./discount";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
 import { calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
 import {
@@ -173,11 +173,7 @@ export async function POST(request: Request) {
     if (!discountResult.ok) {
       return errorResponse("VALIDATION_ERROR", discountResult.message, 400);
     }
-    const {
-      discountCents,
-      couponId: validatedCouponId,
-      promotionCodeId: validatedPromotionCodeId,
-    } = discountResult.discount;
+    const { discountCents } = discountResult.discount;
 
     const baseDeliveryFeeCents = dayConfig?.deliveryFeeCents ?? rules.deliveryFeeCents;
     const isExtendedRange =
@@ -376,6 +372,12 @@ export async function POST(request: Request) {
     );
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
+    const sessionDiscounts = await resolveStripeSessionDiscounts(
+      stripe,
+      discountResult.discount,
+      input.promoCode
+    );
+
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
       customer: stripeCustomerId,
       mode: "payment",
@@ -397,14 +399,12 @@ export async function POST(request: Request) {
       success_url: `${baseUrl}/orders/${order.id}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${baseUrl}/checkout?cancelled=true`,
       expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-      // Customer-entered codes apply as a promotion_code (Stripe enforces
-      // max_redemptions / minimum_amount / expires_at); the server-gated
-      // first-order discount applies as a bare coupon.
-      ...(validatedPromotionCodeId
-        ? { discounts: [{ promotion_code: validatedPromotionCodeId }] }
-        : validatedCouponId
-          ? { discounts: [{ coupon: validatedCouponId }] }
-          : {}),
+      // amount_off codes apply as a promotion_code (Stripe enforces
+      // max_redemptions / minimum_amount / expires_at); percent codes are
+      // converted to a one-off amount_off coupon so the discount never
+      // touches the tax/tip line items; the server-gated first-order
+      // discount applies as a bare coupon.
+      ...(sessionDiscounts ? { discounts: sessionDiscounts } : {}),
     };
 
     // Phase 110 CFIX-04 — TODO(Phase 111+): the idempotency key is keyed
