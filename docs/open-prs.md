@@ -8,17 +8,6 @@ _Last reconciled: 2026-06-12._
 
 ## In flight
 
-- **email warm-paper redesign** (branch `claude/zen-edison-4aasf2`,
-  [PR #175](https://github.com/min-hinthar/mandalay-morning-star-delivery-app/pull/175)).
-  All 18 React Email templates ported to the hero warm-paper language: new design
-  core (`src/emails/components/theme.ts`, redesigned EmailLayout/BrandHeader/
-  BrandFooter, EmailButton/Callout/AdminBits primitives), admin mail on a compact
-  utilitarian variant, and three real-data fail-soft nudges (loyalty star strip,
-  next-delivery cutoff teaser, tier perk card) wired through order routes, crons,
-  and loyalty send sites (`src/lib/email/nudges.ts`). Local verify fully green
-  (1207 tests incl. 8 new). Owning session is watching CI + auto-review; merge
-  only on owner's explicit go.
-
 - **money-correctness-fixes** (branch `claude/money-correctness-fixes`, PR pending —
   GitHub connector dropped mid-session; open via compare link or /mcp re-auth).
   Two live money bugs from the grocery-launch review: (1) percent-off promo codes
@@ -46,8 +35,13 @@ The After Dark **level-up back-port is COMPLETE** — all four shipped surfaces
 
 ## Watching
 
-- **#175** (email warm-paper redesign) — owning session subscribed; watching
-  blocking CI (`verify`, `db-drift`) + the Claude auto-review on every push.
+_None active._ **#175** (email warm-paper redesign) MERGED 2026-06-12 as
+`760dd61` on the owner's explicit go — local verify green + local adversarial
+review (findings fixed) substituted for CI/auto-review, merged via bypass
+because **GitHub Actions quota has been exhausted since 2026-06-07** (all
+workflows fail ~5s at startup; no runs register at all — see CLAUDE.md gotcha).
+Owner is moving the repo public for free Actions minutes; security audit run
+2026-06-12.
 
 > **CI note (2026-06-08):** GitHub Actions hit its quota mid-session — every
 > workflow failed at _startup_ (2s, no logs) across all PRs. #155 was merged via
