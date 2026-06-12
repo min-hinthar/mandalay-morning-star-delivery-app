@@ -1,7 +1,18 @@
-import { Button, Section, Text } from "@react-email/components";
+import { Section, Text } from "@react-email/components";
 
+import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
-import { FONT_STACK, SERIF_STACK, formatPrice } from "./helpers";
+import { TierPerkCard, type TierPerkData } from "./components/TierPerkCard";
+import {
+  BODY_FONT,
+  BURMESE_FONT,
+  C,
+  DISPLAY_FONT,
+  bodyStyle,
+  burmeseStyle,
+  headingStyle,
+} from "./components/theme";
+import { formatPrice } from "./helpers";
 
 export interface LoyaltyRewardProps {
   customerName: string;
@@ -22,6 +33,8 @@ export interface LoyaltyRewardProps {
   tierName?: string;
   tierEnglish?: string;
   tierEmoji?: string;
+  /** Tier + headline perk (real data) — renders nothing when absent. */
+  tier?: TierPerkData | null;
 }
 
 export function LoyaltyReward({
@@ -36,6 +49,7 @@ export function LoyaltyReward({
   tierName,
   tierEnglish,
   tierEmoji,
+  tier,
 }: LoyaltyRewardProps) {
   const amount = formatPrice(rewardCents);
   const isMilestone = variant === "milestone" && typeof milestone === "number";
@@ -83,31 +97,20 @@ export function LoyaltyReward({
     : `Kyay-Zu-Par! Here's ${amount} off, with love 💛`;
 
   return (
-    <EmailLayout emailType="confirmation" showReferral={false} previewText={previewText}>
+    <EmailLayout emailType="reward" showReferral={false} previewText={previewText}>
       {/* Hero */}
-      <Section style={{ padding: "32px 24px 8px 24px", textAlign: "center" as const }}>
+      <Section style={{ padding: "30px 28px 0 28px", textAlign: "center" as const }}>
         <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{heroEmoji}</Text>
-        <Text
-          style={{
-            fontSize: "22px",
-            fontFamily: SERIF_STACK,
-            color: "#8B4513",
-            fontWeight: 700,
-            margin: "0 0 8px 0",
-            lineHeight: "1.3",
-          }}
-        >
-          {heading}
-        </Text>
+        <Text style={headingStyle(22)}>{heading}</Text>
         {showTier && (
           <Text
             style={{
               fontSize: "13px",
-              fontFamily: FONT_STACK,
+              fontFamily: BODY_FONT,
               fontWeight: 700,
-              color: "#8B4513",
-              backgroundColor: "#FFF9E6",
-              border: "1px solid #F3E2B3",
+              color: C.goldDeep,
+              backgroundColor: C.goldTint,
+              border: `1px solid ${C.goldTintBorder}`,
               borderRadius: "999px",
               padding: "5px 14px",
               margin: "0 0 10px 0",
@@ -117,90 +120,76 @@ export function LoyaltyReward({
             {tierEmoji} {tierName} · {tierEnglish} tier
           </Text>
         )}
-        <Text
-          style={{
-            fontSize: "15px",
-            fontFamily: FONT_STACK,
-            color: "#374151",
-            margin: "0",
-            lineHeight: "1.6",
-          }}
-        >
+        <Text style={bodyStyle(15)}>
           {customerName}, {intro}
         </Text>
-        <Text
-          style={{
-            fontSize: "14px",
-            fontFamily: FONT_STACK,
-            color: "#92400E",
-            margin: "10px 0 0 0",
-            lineHeight: "1.6",
-          }}
-        >
+        <Text style={{ ...burmeseStyle(14), color: C.goldDeep, margin: "10px 0 0 0" }}>
           ကျေးဇူးအများကြီးတင်ပါတယ်နော် — နောက်ထပ်အော်ဒါအတွက် {amount} လျှော့ပေးလိုက်တယ် 💛
         </Text>
       </Section>
 
-      {/* Code */}
-      <Section style={{ padding: "20px 24px 0 24px", textAlign: "center" as const }}>
+      {/* Code ticket */}
+      <Section style={{ padding: "20px 28px 0 28px" }}>
         <Text
           style={{
             fontSize: "13px",
-            fontFamily: FONT_STACK,
-            color: "#6B7280",
+            fontFamily: BURMESE_FONT,
+            color: C.inkMuted,
             margin: "0 0 8px 0",
+            textAlign: "center" as const,
           }}
         >
           Use this code at checkout ($50+) · ချက်အောက်မှာသုံးပါ
         </Text>
-        <Text
+        <Section
           style={{
-            fontSize: "26px",
-            fontFamily: FONT_STACK,
-            fontWeight: 700,
-            letterSpacing: "3px",
-            color: "#8B4513",
-            backgroundColor: "#FFF9E6",
-            border: "1px solid #F3E2B3",
-            borderRadius: "10px",
-            padding: "14px 0",
-            margin: "0",
-            display: "block",
+            backgroundColor: C.vellum,
+            border: `1px solid ${C.goldLeaf}`,
+            borderRadius: "12px",
+            padding: "5px",
           }}
         >
-          {promoCode}
-        </Text>
+          <Section
+            style={{
+              border: `1px dashed ${C.goldLeaf}`,
+              borderRadius: "8px",
+              padding: "14px 12px",
+              textAlign: "center" as const,
+            }}
+          >
+            <Text
+              style={{
+                fontSize: "22px",
+                fontFamily: DISPLAY_FONT,
+                fontWeight: 600,
+                letterSpacing: "3px",
+                color: C.accentStrong,
+                margin: "0",
+              }}
+            >
+              {promoCode}
+            </Text>
+          </Section>
+        </Section>
       </Section>
+
+      {/* Tier perk (real data) — adds the headline perk under the reward */}
+      <TierPerkCard tier={tier} />
 
       {/* CTA */}
-      <Section style={{ padding: "20px 24px 0 24px", textAlign: "center" as const }}>
-        <Button
-          href={menuUrl}
-          style={{
-            backgroundColor: "#A41034",
-            color: "#FFFFFF",
-            fontFamily: FONT_STACK,
-            fontSize: "16px",
-            fontWeight: 700,
-            borderRadius: "8px",
-            padding: "14px 36px",
-            textDecoration: "none",
-            display: "inline-block",
-          }}
-        >
-          Order with my reward · မီနူးကြည့်မယ်
-        </Button>
+      <Section style={{ padding: "22px 28px 0 28px", textAlign: "center" as const }}>
+        <EmailButton href={menuUrl}>Order with my reward · မီနူးကြည့်မယ်</EmailButton>
       </Section>
 
-      <Section style={{ padding: "20px 24px 32px 24px" }}>
+      <Section style={{ padding: "20px 28px 32px 28px" }}>
         <Text
           style={{
             fontSize: "12px",
-            fontFamily: FONT_STACK,
-            color: "#9CA3AF",
+            fontFamily: BODY_FONT,
+            color: C.inkFaint,
             margin: "0",
             textAlign: "center" as const,
-            lineHeight: "1.6",
+            lineHeight: 1.6,
           }}
         >
           Every order earns a Star ⭐ — keep collecting toward your next thank-you.

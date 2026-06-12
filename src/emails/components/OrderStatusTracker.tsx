@@ -1,4 +1,5 @@
 import { Section, Text } from "@react-email/components";
+import { BODY_FONT, C } from "./theme";
 
 type OrderStep = "received" | "confirmed" | "preparing" | "out_for_delivery" | "delivered";
 
@@ -27,52 +28,56 @@ function getStepState(stepIndex: number, currentIndex: number): "completed" | "a
   return "future";
 }
 
+/** Completed = quiet sage; active = clay with a soft halo; future = paper ghosts. */
 const STEP_STYLES = {
   completed: {
     circle: {
       width: "28px",
       height: "28px",
       borderRadius: "50%",
-      backgroundColor: "#3D8B22",
-      color: "#FFFFFF",
+      backgroundColor: C.sage,
+      border: `1px solid ${C.sage}`,
+      color: C.white,
       fontSize: "14px",
       fontWeight: 700 as const,
       lineHeight: "28px",
       textAlign: "center" as const,
       margin: "0 auto",
     },
-    label: { color: "#3D8B22", fontWeight: 600 as const },
+    label: { color: C.sageDeep, fontWeight: 600 as const },
   },
   active: {
     circle: {
       width: "28px",
       height: "28px",
       borderRadius: "50%",
-      backgroundColor: "#3D8B22",
-      color: "#FFFFFF",
+      backgroundColor: C.clay,
+      border: `1px solid ${C.clayDeep}`,
+      color: C.white,
       fontSize: "14px",
       fontWeight: 700 as const,
       lineHeight: "28px",
       textAlign: "center" as const,
       margin: "0 auto",
-      boxShadow: "0 0 0 4px rgba(61, 139, 34, 0.2)",
+      boxShadow: `0 0 0 4px ${C.clayTint}`,
     },
-    label: { color: "#3D8B22", fontWeight: 700 as const },
+    label: { color: C.accent, fontWeight: 700 as const },
   },
   future: {
     circle: {
       width: "28px",
       height: "28px",
       borderRadius: "50%",
-      backgroundColor: "#E5E7EB",
-      color: "#9CA3AF",
-      fontSize: "14px",
+      backgroundColor: C.paper,
+      border: `1px solid ${C.lineStrong}`,
+      color: C.inkFaint,
+      fontSize: "13px",
       fontWeight: 600 as const,
       lineHeight: "28px",
       textAlign: "center" as const,
       margin: "0 auto",
     },
-    label: { color: "#9CA3AF", fontWeight: 400 as const },
+    label: { color: C.inkFaint, fontWeight: 400 as const },
   },
 };
 
@@ -81,7 +86,7 @@ export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
   const currentIndex = steps.findIndex((s) => s.key === currentStep);
 
   return (
-    <Section style={{ padding: "24px", backgroundColor: "#FAFAFA" }}>
+    <Section style={{ padding: "22px 24px", backgroundColor: C.vellum }}>
       <table
         cellPadding="0"
         cellSpacing="0"
@@ -115,7 +120,7 @@ export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
                         left: "0",
                         right: "50%",
                         height: "2px",
-                        backgroundColor: i <= currentIndex ? "#3D8B22" : "#E5E7EB",
+                        backgroundColor: i <= currentIndex ? C.sage : C.lineStrong,
                         borderStyle: i <= currentIndex ? "solid" : "dashed",
                       }}
                     />
@@ -129,7 +134,7 @@ export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
                         left: "50%",
                         right: "0",
                         height: "2px",
-                        backgroundColor: i < currentIndex ? "#3D8B22" : "#E5E7EB",
+                        backgroundColor: i < currentIndex ? C.sage : C.lineStrong,
                         borderStyle: i < currentIndex ? "solid" : "dashed",
                       }}
                     />
@@ -142,7 +147,7 @@ export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
                       zIndex: 1,
                     }}
                   >
-                    {isCompleted ? "\u2713" : i + 1}
+                    {isCompleted ? "✓" : i + 1}
                   </div>
                 </td>
               );
@@ -167,8 +172,7 @@ export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
                       fontSize: "11px",
                       margin: "0",
                       lineHeight: "1.3",
-                      fontFamily:
-                        "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                      fontFamily: BODY_FONT,
                       ...styles.label,
                     }}
                   >

@@ -1,4 +1,6 @@
+import { Fragment } from "react";
 import { Section, Text } from "@react-email/components";
+import { BODY_FONT, BURMESE_FONT, C, DISPLAY_FONT } from "./theme";
 
 interface OrderItemModifier {
   name: string;
@@ -39,7 +41,7 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
   const groups = hasCategories ? groupByCategory(items) : new Map([["Items", items]]);
 
   return (
-    <Section style={{ padding: "0 24px" }}>
+    <Section style={{ padding: "0 28px" }}>
       <table
         cellPadding="0"
         cellSpacing="0"
@@ -47,30 +49,30 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
       >
         <tbody>
           {Array.from(groups.entries()).map(([category, categoryItems]) => (
-            <>
+            <Fragment key={category}>
               {/* Category heading (only if there are real categories) */}
               {hasCategories && (
-                <tr key={`cat-${category}`}>
+                <tr>
                   <td
                     colSpan={3}
                     style={{
-                      paddingTop: "16px",
+                      paddingTop: "18px",
                       paddingBottom: "8px",
-                      borderBottom: "1px solid #E5E7EB",
+                      borderBottom: `1px solid ${C.lineStrong}`,
                     }}
                   >
                     <Text
                       style={{
-                        fontSize: "12px",
+                        fontSize: "11px",
                         fontWeight: 700,
-                        color: "#8B4513",
+                        color: C.accent,
                         textTransform: "uppercase" as const,
-                        letterSpacing: "0.5px",
+                        letterSpacing: "1.5px",
                         margin: "0",
-                        fontFamily:
-                          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                        fontFamily: BODY_FONT,
                       }}
                     >
+                      {"★ "}
                       {category}
                     </Text>
                   </td>
@@ -84,24 +86,24 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
                   <td
                     style={{
                       padding: "12px 0",
-                      borderBottom: "1px solid #F3F4F6",
+                      borderBottom: `1px solid ${C.line}`,
                       width: "40px",
                       verticalAlign: "top",
                     }}
                   >
                     <div
                       style={{
-                        backgroundColor: "#FFF9E6",
-                        color: "#8B4513",
-                        borderRadius: "4px",
+                        backgroundColor: C.clayTint,
+                        border: `1px solid ${C.clayTintBorder}`,
+                        color: C.accent,
+                        borderRadius: "8px",
                         width: "28px",
                         height: "28px",
                         lineHeight: "28px",
                         textAlign: "center" as const,
                         fontSize: "13px",
                         fontWeight: 700,
-                        fontFamily:
-                          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                        fontFamily: BODY_FONT,
                       }}
                     >
                       {item.quantity}x
@@ -112,18 +114,18 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
                   <td
                     style={{
                       padding: "12px 8px",
-                      borderBottom: "1px solid #F3F4F6",
+                      borderBottom: `1px solid ${C.line}`,
                       verticalAlign: "top",
                     }}
                   >
                     <Text
                       style={{
-                        fontSize: "14px",
+                        fontSize: "15px",
                         fontWeight: 600,
-                        color: "#111111",
+                        color: C.ink,
                         margin: "0",
-                        fontFamily:
-                          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                        fontFamily: DISPLAY_FONT,
+                        lineHeight: 1.35,
                       }}
                     >
                       {item.name}
@@ -133,9 +135,10 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
                         style={{
                           fontSize: "12px",
                           fontWeight: 500,
-                          color: "#8B4513",
+                          color: C.inkMuted,
                           margin: "2px 0 0 0",
-                          fontFamily: "Georgia, 'Palatino Linotype', serif",
+                          fontFamily: BURMESE_FONT,
+                          lineHeight: 1.6,
                         }}
                       >
                         {item.nameMy}
@@ -145,10 +148,9 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
                       <Text
                         style={{
                           fontSize: "12px",
-                          color: "#6B7280",
+                          color: C.inkMuted,
                           margin: "2px 0 0 0",
-                          fontFamily:
-                            "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                          fontFamily: BODY_FONT,
                         }}
                       >
                         (
@@ -165,10 +167,9 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
                         style={{
                           fontSize: "12px",
                           fontStyle: "italic" as const,
-                          color: "#92400E",
+                          color: C.goldDeep,
                           margin: "4px 0 0 0",
-                          fontFamily:
-                            "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                          fontFamily: BODY_FONT,
                         }}
                       >
                         {"📝 "}
@@ -181,7 +182,7 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
                   <td
                     style={{
                       padding: "12px 0",
-                      borderBottom: "1px solid #F3F4F6",
+                      borderBottom: `1px solid ${C.line}`,
                       textAlign: "right" as const,
                       verticalAlign: "top",
                       whiteSpace: "nowrap" as const,
@@ -191,10 +192,9 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
                       style={{
                         fontSize: "14px",
                         fontWeight: 600,
-                        color: "#111111",
+                        color: C.ink,
                         margin: "0",
-                        fontFamily:
-                          "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+                        fontFamily: BODY_FONT,
                       }}
                     >
                       {formatPrice(item.lineTotalCents)}
@@ -202,7 +202,7 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
                   </td>
                 </tr>
               ))}
-            </>
+            </Fragment>
           ))}
         </tbody>
       </table>

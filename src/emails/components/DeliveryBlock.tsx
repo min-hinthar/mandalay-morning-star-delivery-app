@@ -1,5 +1,6 @@
 import { Section, Text } from "@react-email/components";
 import { TIMEZONE } from "@/types/delivery";
+import { BODY_FONT, C } from "./theme";
 
 interface DeliveryAddress {
   line1: string;
@@ -64,11 +65,12 @@ export function DeliveryBlock({
   return (
     <Section
       style={{
-        margin: "0 24px",
-        padding: "20px",
-        backgroundColor: "#FFF9E6",
-        borderLeft: "4px solid #3D8B22",
-        borderRadius: "0 8px 8px 0",
+        margin: "0 28px",
+        padding: "18px 20px",
+        backgroundColor: C.sageTint,
+        border: `1px solid ${C.sageTintBorder}`,
+        borderLeft: `4px solid ${C.sage}`,
+        borderRadius: "0 12px 12px 0",
       }}
     >
       {/* Delivery Date + Time */}
@@ -76,22 +78,22 @@ export function DeliveryBlock({
         <Text
           style={{
             fontSize: "14px",
-            color: "#111111",
+            color: C.ink,
             margin: "0 0 4px 0",
-            fontWeight: 600,
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            fontWeight: 700,
+            fontFamily: BODY_FONT,
           }}
         >
-          {"\uD83D\uDCC5"} {deliveryDate}
+          {"📅"} {deliveryDate}
         </Text>
       )}
       {deliveryTimeRange && (
         <Text
           style={{
             fontSize: "13px",
-            color: "#6B7280",
+            color: C.inkMuted,
             margin: "0 0 2px 0",
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            fontFamily: BODY_FONT,
           }}
         >
           {deliveryTimeRange}
@@ -101,10 +103,10 @@ export function DeliveryBlock({
         <Text
           style={{
             fontSize: "11px",
-            color: "#9CA3AF",
+            color: C.inkFaint,
             margin: "0 0 12px 0",
             fontStyle: "italic",
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            fontFamily: BODY_FONT,
           }}
         >
           This is your preferred delivery window, not a guaranteed arrival time.
@@ -115,21 +117,21 @@ export function DeliveryBlock({
       <Text
         style={{
           fontSize: "14px",
-          color: "#111111",
+          color: C.ink,
           margin: "0 0 2px 0",
-          fontWeight: 600,
-          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          fontWeight: 700,
+          fontFamily: BODY_FONT,
         }}
       >
-        {"\uD83D\uDCCD"} Delivery Address
+        {"📍"} Delivery Address
       </Text>
       <Text
         style={{
           fontSize: "13px",
-          color: "#374151",
+          color: C.inkMuted,
           margin: "0 0 4px 0",
           lineHeight: "1.5",
-          fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+          fontFamily: BODY_FONT,
         }}
       >
         {address.line1}
@@ -148,12 +150,12 @@ export function DeliveryBlock({
         <Text
           style={{
             fontSize: "13px",
-            color: "#374151",
+            color: C.inkMuted,
             margin: "8px 0 0 0",
-            fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+            fontFamily: BODY_FONT,
           }}
         >
-          {"\uD83D\uDE97"} Driver: <strong>{driverName}</strong>
+          {"🚗"} Driver: <strong style={{ color: C.ink }}>{driverName}</strong>
         </Text>
       )}
 
@@ -163,28 +165,28 @@ export function DeliveryBlock({
           style={{
             marginTop: "12px",
             padding: "10px 12px",
-            backgroundColor: "#FFFBEB",
-            borderRadius: "6px",
-            border: "1px solid #FDE68A",
+            backgroundColor: C.paper,
+            borderRadius: "8px",
+            border: `1px solid ${C.sageTintBorder}`,
           }}
         >
           <Text
             style={{
               fontSize: "12px",
-              color: "#92400E",
+              color: C.sageDeep,
               margin: "0",
-              fontWeight: 600,
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+              fontWeight: 700,
+              fontFamily: BODY_FONT,
             }}
           >
-            {"\uD83D\uDCDD"} Special Instructions
+            {"📝"} Special Instructions
           </Text>
           <Text
             style={{
               fontSize: "13px",
-              color: "#78350F",
+              color: C.ink,
               margin: "4px 0 0 0",
-              fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
+              fontFamily: BODY_FONT,
             }}
           >
             {instructions}

@@ -5,6 +5,7 @@ import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
 import { apiError } from "@/lib/utils/api-error";
 import { sendEmail, buildEmailElement } from "@/lib/email";
+import { getLoyaltyNudge, getNextDeliveryCutoffText } from "@/lib/email/nudges";
 import { OrderCancellation } from "@/emails/OrderCancellation";
 import type { OrderStatus, Json } from "@/types/database";
 import type { EmailType } from "@/lib/email/types";
@@ -364,6 +365,14 @@ async function sendStatusEmail(
   };
   const subject = SUBJECT_MAP[emailType] ?? `Update for order #${shortId}`;
 
+  // Decorative nudges (fail-soft): real loyalty progress at send time; the
+  // delivered email also teases the next live delivery window.
+  const wantsLoyalty = emailType === "order_confirmation" || emailType === "delivered";
+  const [loyalty, nextCutoff] = await Promise.all([
+    wantsLoyalty ? getLoyaltyNudge(createServiceClient(), orderUserId) : Promise.resolve(null),
+    emailType === "delivered" ? getNextDeliveryCutoffText() : Promise.resolve(null),
+  ]);
+
   const react = buildEmailElement(emailType, {
     customerName,
     orderId,
@@ -381,6 +390,8 @@ async function sendStatusEmail(
     itemCount: items.length,
     itemNames: items.map((i: { name: string }) => i.name),
     deliveredAt: newStatus === "delivered" ? new Date().toISOString() : null,
+    loyalty,
+    nextDeliveryCutoffText: nextCutoff,
   });
 
   const result = await sendEmail({

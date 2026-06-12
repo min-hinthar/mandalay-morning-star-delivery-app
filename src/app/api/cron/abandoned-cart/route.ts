@@ -14,6 +14,7 @@ import { NextResponse } from "next/server";
 
 import { AbandonedCart } from "@/emails/AbandonedCart";
 import { getResendClient } from "@/lib/email/client";
+import { getNextDeliveryCutoffText } from "@/lib/email/nudges";
 import { EMAIL_CC, EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
 import { getAppUrl } from "@/lib/supabase/actions";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -92,6 +93,9 @@ export async function GET(request: Request) {
   const cartUrl = `${appUrl}/menu`;
   const resend = getResendClient();
 
+  // Same for every recipient in this run — the real "order by" line.
+  const nextDeliveryCutoffText = await getNextDeliveryCutoffText();
+
   let sent = 0;
   let skipped = 0;
   let failed = 0;
@@ -153,6 +157,7 @@ export async function GET(request: Request) {
         subtotalCents: cart.subtotal_cents,
         cartUrl,
         amountToFreeDeliveryCents: amountToFreeDelivery(cart.subtotal_cents),
+        nextDeliveryCutoffText,
       });
       const [html, text] = await Promise.all([
         render(emailComponent),

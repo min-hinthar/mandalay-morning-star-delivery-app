@@ -1,19 +1,19 @@
-import { Button, Link, Section, Text } from "@react-email/components";
+import { Link, Section, Text } from "@react-email/components";
+import { Callout } from "./components/Callout";
 import { DeliveryBlock } from "./components/DeliveryBlock";
+import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
-import { APP_URL } from "./helpers";
-import { TIMEZONE } from "@/types/delivery";
+import { LoyaltyProgress, type LoyaltyProgressData } from "./components/LoyaltyProgress";
 import { OrderItemsTable } from "./components/OrderItemsTable";
 import { OrderStatusTracker } from "./components/OrderStatusTracker";
 import { OrderTotalsTable } from "./components/OrderTotalsTable";
-import { SuggestedItems } from "./components/SuggestedItems";
-import type { SuggestedItem } from "@/lib/email/suggestions";
 import { ReferralCallout } from "./components/ReferralCallout";
+import { SuggestedItems } from "./components/SuggestedItems";
 import { SupportSection } from "./components/SupportSection";
-
-const SERIF = "Georgia, 'Palatino Linotype', serif";
-const SANS =
-  "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif";
+import { BODY_FONT, C, bodyStyle, headingStyle, labelStyle } from "./components/theme";
+import { APP_URL } from "./helpers";
+import { TIMEZONE } from "@/types/delivery";
+import type { SuggestedItem } from "@/lib/email/suggestions";
 
 // ─── Helpers ──────────────────────────────────────────────
 function formatDate(iso: string): string {
@@ -72,6 +72,8 @@ export interface OrderConfirmationProps {
   placedAt: string;
   suggestedItems?: SuggestedItem[];
   isExtendedRange?: boolean;
+  /** Real loyalty progress at send time — renders nothing when absent. */
+  loyalty?: LoyaltyProgressData | null;
 }
 
 // ─── Component ────────────────────────────────────────────
@@ -96,6 +98,7 @@ export function OrderConfirmation({
   placedAt,
   suggestedItems,
   isExtendedRange,
+  loyalty,
 }: OrderConfirmationProps) {
   const shortId = orderId.slice(0, 8).toUpperCase();
   const orderUrl = `${APP_URL}/orders/${orderId}`;
@@ -107,66 +110,30 @@ export function OrderConfirmation({
       showReferral={false}
       previewText={
         isCODPending
-          ? `\uD83C\uDF5C Mingalabar! Your order #${shortId} has been received`
-          : `\uD83C\uDF5C Mingalabar! Your order #${shortId} is confirmed`
+          ? `🍜 Mingalabar! Your order #${shortId} has been received`
+          : `🍜 Mingalabar! Your order #${shortId} is confirmed`
       }
     >
       {/* ── Greeting ─────────────────────────────────── */}
-      <Section style={{ padding: "32px 24px 0 24px" }}>
-        <Text
-          style={{
-            fontSize: "22px",
-            fontFamily: SERIF,
-            color: "#8B4513",
-            fontWeight: 700,
-            margin: "0 0 8px 0",
-            lineHeight: "1.3",
-          }}
-        >
-          Mingalabar! {customerName},
-        </Text>
-        <Text
-          style={{
-            fontSize: "15px",
-            fontFamily: SANS,
-            color: "#374151",
-            margin: "0 0 24px 0",
-            lineHeight: "1.6",
-          }}
-        >
+      <Section style={{ padding: "30px 28px 0 28px" }}>
+        <Text style={headingStyle(23)}>Mingalabar, {customerName}!</Text>
+        <Text style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
           {isCODPending
-            ? "Thank you for your order! We\u2019ve received it and our team will confirm it shortly."
-            : "Thank you for your order! We\u2019re excited to prepare your delicious Burmese meal."}
+            ? "Thank you for your order! We’ve received it and our team will confirm it shortly."
+            : "Thank you for your order! We’re excited to prepare your delicious Burmese meal."}
         </Text>
       </Section>
 
       {/* ── COD Pending Notice ─────────────────────────── */}
       {isCODPending && (
-        <Section
-          style={{
-            margin: "0 24px 16px 24px",
-            padding: "12px 16px",
-            backgroundColor: "#FFFBEB",
-            borderRadius: "8px",
-            border: "1px solid #FDE68A",
-          }}
+        <Callout
+          tone="warn"
+          title={<>{"⏳"} Awaiting Confirmation</>}
+          style={{ margin: "0 28px 16px 28px" }}
         >
-          <Text
-            style={{
-              fontSize: "13px",
-              fontFamily: SANS,
-              fontWeight: 700,
-              color: "#92400E",
-              margin: "0 0 4px 0",
-            }}
-          >
-            {"\u23F3"} Awaiting Confirmation
-          </Text>
-          <Text style={{ fontSize: "13px", fontFamily: SANS, color: "#78350F", margin: "0" }}>
-            Your cash-on-delivery order is being reviewed. You&apos;ll receive a confirmation email
-            once approved.
-          </Text>
-        </Section>
+          Your cash-on-delivery order is being reviewed. You&apos;ll receive a confirmation email
+          once approved.
+        </Callout>
       )}
 
       {/* ── Status Tracker ───────────────────────────── */}
@@ -175,36 +142,32 @@ export function OrderConfirmation({
       {/* ── Order Details Box ────────────────────────── */}
       <Section
         style={{
-          margin: "0 24px",
+          margin: "20px 28px",
           padding: "16px 20px",
-          backgroundColor: "#F9FAFB",
-          borderRadius: "8px",
-          marginBottom: "20px",
+          backgroundColor: C.vellum,
+          border: `1px solid ${C.line}`,
+          borderRadius: "12px",
         }}
       >
-        <Text style={{ fontSize: "13px", fontFamily: SANS, color: "#6B7280", margin: "0 0 4px 0" }}>
-          Order Number
-        </Text>
+        <Text style={labelStyle()}>Order Number</Text>
         <Text
           style={{
             fontSize: "16px",
-            fontFamily: SANS,
+            fontFamily: BODY_FONT,
             fontWeight: 700,
-            color: "#111111",
+            color: C.ink,
             margin: "0 0 12px 0",
           }}
         >
           <Link
             href={orderUrl}
-            style={{ color: "#D4A017", textDecoration: "underline", fontWeight: 700 }}
+            style={{ color: C.accent, textDecoration: "underline", fontWeight: 700 }}
           >
             #{shortId}
           </Link>
         </Text>
-        <Text style={{ fontSize: "13px", fontFamily: SANS, color: "#6B7280", margin: "0 0 4px 0" }}>
-          Placed
-        </Text>
-        <Text style={{ fontSize: "14px", fontFamily: SANS, color: "#111111", margin: "0" }}>
+        <Text style={labelStyle()}>Placed</Text>
+        <Text style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0" }}>
           {formatDate(placedAt)}
         </Text>
       </Section>
@@ -222,30 +185,13 @@ export function OrderConfirmation({
 
       {/* ── Dietary Restrictions Callout ──────────────── */}
       {dietaryRestrictions && dietaryRestrictions.length > 0 && (
-        <Section
-          style={{
-            margin: "0 24px 20px 24px",
-            padding: "12px 16px",
-            backgroundColor: "#FFFBEB",
-            borderRadius: "8px",
-            border: "1px solid #FDE68A",
-          }}
+        <Callout
+          tone="warn"
+          title={<>{"⚠️"} Dietary Restrictions</>}
+          style={{ margin: "0 28px 20px 28px" }}
         >
-          <Text
-            style={{
-              fontSize: "13px",
-              fontFamily: SANS,
-              fontWeight: 700,
-              color: "#92400E",
-              margin: "0 0 4px 0",
-            }}
-          >
-            {"\u26A0\uFE0F"} Dietary Restrictions
-          </Text>
-          <Text style={{ fontSize: "13px", fontFamily: SANS, color: "#78350F", margin: "0" }}>
-            {dietaryRestrictions.join(", ")}
-          </Text>
-        </Section>
+          {dietaryRestrictions.join(", ")}
+        </Callout>
       )}
 
       {/* ── Items Table ──────────────────────────────── */}
@@ -255,19 +201,19 @@ export function OrderConfirmation({
       {items.some((i) => i.notes && i.notes.trim().length > 0) && (
         <Section
           style={{
-            margin: "16px 24px 0 24px",
-            padding: "12px 16px",
-            backgroundColor: "#FFFBEB",
-            borderRadius: "8px",
-            border: "1px solid #FDE68A",
+            margin: "16px 28px 0 28px",
+            padding: "13px 16px",
+            backgroundColor: C.goldTint,
+            borderRadius: "10px",
+            border: `1px solid ${C.goldTintBorder}`,
           }}
         >
           <Text
             style={{
               fontSize: "13px",
-              fontFamily: SANS,
+              fontFamily: BODY_FONT,
               fontWeight: 700,
-              color: "#92400E",
+              color: C.goldDeep,
               margin: "0 0 4px 0",
             }}
           >
@@ -280,9 +226,10 @@ export function OrderConfirmation({
                 key={`prep-${idx}`}
                 style={{
                   fontSize: "13px",
-                  fontFamily: SANS,
-                  color: "#78350F",
+                  fontFamily: BODY_FONT,
+                  color: C.ink,
                   margin: "0 0 2px 0",
+                  lineHeight: 1.5,
                 }}
               >
                 <strong>{i.name}:</strong> {i.notes}
@@ -293,30 +240,13 @@ export function OrderConfirmation({
 
       {/* ── Special Instructions Callout ──────────────── */}
       {specialInstructions && (
-        <Section
-          style={{
-            margin: "16px 24px 0 24px",
-            padding: "12px 16px",
-            backgroundColor: "#FFFBEB",
-            borderRadius: "8px",
-            border: "1px solid #FDE68A",
-          }}
+        <Callout
+          tone="warn"
+          title={<>{"📝"} Special Instructions</>}
+          style={{ margin: "16px 28px 0 28px" }}
         >
-          <Text
-            style={{
-              fontSize: "13px",
-              fontFamily: SANS,
-              fontWeight: 700,
-              color: "#92400E",
-              margin: "0 0 4px 0",
-            }}
-          >
-            {"\uD83D\uDCDD"} Special Instructions
-          </Text>
-          <Text style={{ fontSize: "13px", fontFamily: SANS, color: "#78350F", margin: "0" }}>
-            {specialInstructions}
-          </Text>
-        </Section>
+          {specialInstructions}
+        </Callout>
       )}
 
       {/* ── Totals ───────────────────────────────────── */}
@@ -331,39 +261,27 @@ export function OrderConfirmation({
       />
 
       {/* ── Primary CTA ──────────────────────────────── */}
-      <Section style={{ padding: "24px 24px 0 24px", textAlign: "center" as const }}>
-        <Button
-          href={orderUrl}
-          style={{
-            backgroundColor: "#D4A017",
-            color: "#FFFFFF",
-            fontFamily: SANS,
-            fontSize: "16px",
-            fontWeight: 700,
-            borderRadius: "8px",
-            padding: "14px 32px",
-            textDecoration: "none",
-            display: "inline-block",
-          }}
-        >
-          View Your Order
-        </Button>
+      <Section style={{ padding: "26px 28px 0 28px", textAlign: "center" as const }}>
+        <EmailButton href={orderUrl}>View Your Order</EmailButton>
       </Section>
 
       {/* ── Secondary CTA: Reorder ───────────────────── */}
-      <Section style={{ padding: "12px 24px 0 24px", textAlign: "center" as const }}>
+      <Section style={{ padding: "12px 28px 0 28px", textAlign: "center" as const }}>
         <Link
           href={`${APP_URL}/menu`}
           style={{
             fontSize: "14px",
-            fontFamily: SANS,
-            color: "#D4A017",
+            fontFamily: BODY_FONT,
+            color: C.accent,
             textDecoration: "underline",
           }}
         >
           Reorder from our menu
         </Link>
       </Section>
+
+      {/* ── Morning Star Rewards progress (real data) ── */}
+      <LoyaltyProgress loyalty={loyalty} />
 
       {/* ── You Might Also Like ──────────────────────── */}
       <SuggestedItems items={suggestedItems} />
@@ -373,6 +291,9 @@ export function OrderConfirmation({
 
       {/* ── Need Help ────────────────────────────────── */}
       <SupportSection />
+
+      {/* close the card with breathing room */}
+      <Section style={{ height: "8px" }} />
     </EmailLayout>
   );
 }

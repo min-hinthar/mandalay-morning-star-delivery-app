@@ -10,6 +10,7 @@ import {
   fetchDietaryRestrictions,
   getAdminEmails,
 } from "@/lib/email";
+import { getLoyaltyNudge } from "@/lib/email/nudges";
 import { logger } from "@/lib/utils/logger";
 import { AdminNewOrderAlert } from "@/emails/AdminNewOrderAlert";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
@@ -169,9 +170,10 @@ export async function handleCheckoutSessionCompleted(
     try {
       // Fetch real menu items for "you might also like" section
       const orderedNames = items.map((item) => item.name_snapshot);
-      const [suggestedItems, dietaryRestrictions] = await Promise.all([
+      const [suggestedItems, dietaryRestrictions, loyalty] = await Promise.all([
         fetchSuggestedItems(supabase, orderedNames),
         fetchDietaryRestrictions(supabase, orderData.user_id),
+        getLoyaltyNudge(supabase, orderData.user_id),
       ]);
 
       const mappedItems = items.map((item) => ({
@@ -214,6 +216,7 @@ export async function handleCheckoutSessionCompleted(
           dietaryRestrictions: dietaryRestrictions.length > 0 ? dietaryRestrictions : undefined,
           placedAt: orderData.placed_at,
           suggestedItems,
+          loyalty,
         }),
         type: "order_confirmation",
         orderId,

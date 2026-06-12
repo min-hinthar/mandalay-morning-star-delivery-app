@@ -5,6 +5,7 @@ import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 import { sendEmail, fetchSuggestedItems, fetchDietaryRestrictions } from "@/lib/email";
+import { getLoyaltyNudge } from "@/lib/email/nudges";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import { createServiceClient } from "@/lib/supabase/server";
 import { maybeIssueMilestoneReward } from "@/lib/loyalty/reward";
@@ -146,9 +147,10 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
 
         // Fetch real menu items for "you might also like" section
         const orderedNames = items.map((item) => item.name_snapshot);
-        const [suggestedItems, dietaryRestrictions] = await Promise.all([
+        const [suggestedItems, dietaryRestrictions, loyalty] = await Promise.all([
           fetchSuggestedItems(approvedSupabase, orderedNames),
           fetchDietaryRestrictions(approvedSupabase, fullOrder.user_id),
+          getLoyaltyNudge(createServiceClient(), fullOrder.user_id),
         ]);
 
         await sendEmail({
@@ -195,6 +197,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
             isPendingApproval: false,
             placedAt: fullOrder.placed_at,
             suggestedItems,
+            loyalty,
           }),
         });
       } catch (emailErr) {

@@ -1,7 +1,8 @@
-/* eslint-disable max-lines */
-import { Button, Hr, Link, Section, Text } from "@react-email/components";
+import { Hr, Link, Section, Text } from "@react-email/components";
+import { AdminCtas, AdminTitle, StatTile, StatusPill, type PillTone } from "./components/AdminBits";
 import { EmailLayout } from "./components/EmailLayout";
-import { APP_URL, FONT_STACK, SERIF_STACK, formatPrice, shortOrderId } from "./helpers";
+import { BODY_FONT, BURMESE_FONT, C, hairline, headingStyle, labelStyle } from "./components/theme";
+import { APP_URL, formatPrice, shortOrderId } from "./helpers";
 import { TIMEZONE } from "@/types/delivery";
 
 // ─── Types ────────────────────────────────────────────────
@@ -72,21 +73,21 @@ export interface AdminDailyDigestProps {
 }
 
 // ─── Helpers ──────────────────────────────────────────────
-const STATUS_LABELS: Record<string, { label: string; color: string }> = {
-  pending_approval: { label: "Pending Approval", color: "#F59E0B" },
-  confirmed: { label: "Confirmed", color: "#3B82F6" },
-  preparing: { label: "Preparing", color: "#8B5CF6" },
-  out_for_delivery: { label: "Out for Delivery", color: "#F97316" },
-  delivered: { label: "Delivered", color: "#22C55E" },
-  cancelled: { label: "Cancelled", color: "#EF4444" },
+const STATUS_META: Record<string, { label: string; tone: PillTone }> = {
+  pending_approval: { label: "Pending Approval", tone: "warn" },
+  confirmed: { label: "Confirmed", tone: "info" },
+  preparing: { label: "Preparing", tone: "neutral" },
+  out_for_delivery: { label: "Out for Delivery", tone: "warn" },
+  delivered: { label: "Delivered", tone: "success" },
+  cancelled: { label: "Cancelled", tone: "error" },
 };
 
 function statusLabel(status: string): string {
-  return STATUS_LABELS[status]?.label ?? status;
+  return STATUS_META[status]?.label ?? status;
 }
 
-function statusColor(status: string): string {
-  return STATUS_LABELS[status]?.color ?? "#6B7280";
+function statusTone(status: string): PillTone {
+  return STATUS_META[status]?.tone ?? "neutral";
 }
 
 function formatTimeRange(start?: string | null, end?: string | null): string | null {
@@ -115,6 +116,11 @@ function modifiersLabel(modifiers?: OrderItemModifier[]): string | null {
     .join(", ");
 }
 
+/** Dense ink-on-paper body text for card rows. */
+function rowText(size: number, color: string, extra?: React.CSSProperties): React.CSSProperties {
+  return { fontSize: `${size}px`, fontFamily: BODY_FONT, color, margin: "0", ...extra };
+}
+
 // ─── Per-order detail card (kitchen/driver-ready) ─────────
 function DigestOrderCard({ order }: { order: OrderSummary }) {
   const isCancelled = order.status === "cancelled";
@@ -128,47 +134,40 @@ function DigestOrderCard({ order }: { order: OrderSummary }) {
       cellSpacing="0"
       style={{
         width: "100%",
-        borderCollapse: "collapse" as const,
-        border: `1px solid ${isCancelled ? "#FECACA" : "#E5E7EB"}`,
-        borderRadius: "8px",
+        borderCollapse: "separate" as const,
+        borderSpacing: 0,
+        border: `1px solid ${isCancelled ? C.clayTintBorder : C.line}`,
+        borderRadius: "10px",
         marginBottom: "12px",
-        backgroundColor: isCancelled ? "#FEF2F2" : "#FFFFFF",
+        backgroundColor: isCancelled ? C.clayTint : C.vellum,
       }}
     >
       <tbody>
         {/* Header: order # + status + total */}
         <tr>
-          <td style={{ padding: "12px 14px 6px 14px" }}>
+          <td style={{ padding: "10px 14px 6px 14px" }}>
             <Link
               href={`${APP_URL}/admin/orders/${order.id}`}
               style={{
                 fontSize: "14px",
-                fontFamily: FONT_STACK,
-                color: "#D4A017",
+                fontFamily: BODY_FONT,
+                color: C.accent,
                 textDecoration: "underline",
                 fontWeight: 700,
               }}
             >
               #{shortOrderId(order.id)}
             </Link>
-            <span
-              style={{
-                fontSize: "12px",
-                fontFamily: FONT_STACK,
-                color: statusColor(order.status),
-                fontWeight: 700,
-                marginLeft: "8px",
-              }}
-            >
-              {statusLabel(order.status)}
+            <span style={{ display: "inline-block", marginLeft: "8px" }}>
+              <StatusPill tone={statusTone(order.status)}>{statusLabel(order.status)}</StatusPill>
             </span>
           </td>
-          <td style={{ padding: "12px 14px 6px 14px", textAlign: "right" as const }}>
+          <td style={{ padding: "10px 14px 6px 14px", textAlign: "right" as const }}>
             <span
               style={{
                 fontSize: "15px",
-                fontFamily: FONT_STACK,
-                color: isCancelled ? "#9CA3AF" : "#111111",
+                fontFamily: BODY_FONT,
+                color: isCancelled ? C.inkFaint : C.ink,
                 fontWeight: 700,
                 textDecoration: isCancelled ? "line-through" : "none",
               }}
@@ -181,17 +180,9 @@ function DigestOrderCard({ order }: { order: OrderSummary }) {
         {/* Customer + payment + window */}
         <tr>
           <td colSpan={2} style={{ padding: "0 14px 8px 14px" }}>
-            <Text
-              style={{
-                fontSize: "13px",
-                fontFamily: FONT_STACK,
-                color: "#374151",
-                margin: "0",
-                fontWeight: 600,
-              }}
-            >
+            <Text style={rowText(13, C.ink, { fontWeight: 600 })}>
               {order.customerName}
-              <span style={{ color: "#9CA3AF", fontWeight: 400 }}>
+              <span style={{ color: C.inkFaint, fontWeight: 400 }}>
                 {"  ·  "}
                 {order.itemCount} item{order.itemCount !== 1 ? "s" : ""}
                 {"  ·  "}
@@ -199,28 +190,14 @@ function DigestOrderCard({ order }: { order: OrderSummary }) {
               </span>
             </Text>
             {windowLabel && (
-              <Text
-                style={{
-                  fontSize: "12px",
-                  fontFamily: FONT_STACK,
-                  color: "#6B7280",
-                  margin: "2px 0 0 0",
-                }}
-              >
+              <Text style={rowText(12, C.inkMuted, { margin: "2px 0 0 0" })}>
                 {"🕒 "}
                 {windowLabel}
                 {order.customerPhone ? `  ·  📞 ${order.customerPhone}` : ""}
               </Text>
             )}
             {addressLabel && (
-              <Text
-                style={{
-                  fontSize: "12px",
-                  fontFamily: FONT_STACK,
-                  color: "#6B7280",
-                  margin: "2px 0 0 0",
-                }}
-              >
+              <Text style={rowText(12, C.inkMuted, { margin: "2px 0 0 0" })}>
                 {"📍 "}
                 {addressLabel}
               </Text>
@@ -237,7 +214,7 @@ function DigestOrderCard({ order }: { order: OrderSummary }) {
                 return (
                   <div
                     key={`${order.id}-item-${idx}`}
-                    style={{ borderTop: "1px solid #F3F4F6", padding: "6px 0" }}
+                    style={{ borderTop: `1px solid ${C.line}`, padding: "6px 0" }}
                   >
                     <table
                       cellPadding="0"
@@ -247,25 +224,17 @@ function DigestOrderCard({ order }: { order: OrderSummary }) {
                       <tbody>
                         <tr>
                           <td style={{ verticalAlign: "top" as const }}>
-                            <Text
-                              style={{
-                                fontSize: "13px",
-                                fontFamily: FONT_STACK,
-                                color: "#111111",
-                                margin: "0",
-                                fontWeight: 600,
-                              }}
-                            >
-                              <span style={{ color: "#8B4513", fontWeight: 700 }}>
+                            <Text style={rowText(13, C.ink, { fontWeight: 600 })}>
+                              <span style={{ color: C.accent, fontWeight: 700 }}>
                                 {item.quantity}×
                               </span>{" "}
                               {item.name}
                               {item.nameMy ? (
                                 <span
                                   style={{
-                                    color: "#8B4513",
+                                    color: C.inkMuted,
                                     fontWeight: 500,
-                                    fontFamily: "Georgia, 'Palatino Linotype', serif",
+                                    fontFamily: BURMESE_FONT,
                                   }}
                                 >
                                   {"  "}
@@ -274,26 +243,16 @@ function DigestOrderCard({ order }: { order: OrderSummary }) {
                               ) : null}
                             </Text>
                             {mods && (
-                              <Text
-                                style={{
-                                  fontSize: "12px",
-                                  fontFamily: FONT_STACK,
-                                  color: "#6B7280",
-                                  margin: "1px 0 0 0",
-                                }}
-                              >
+                              <Text style={rowText(12, C.inkMuted, { margin: "1px 0 0 0" })}>
                                 ({mods})
                               </Text>
                             )}
                             {item.notes && (
                               <Text
-                                style={{
-                                  fontSize: "12px",
-                                  fontStyle: "italic" as const,
-                                  fontFamily: FONT_STACK,
-                                  color: "#92400E",
+                                style={rowText(12, C.goldDeep, {
                                   margin: "1px 0 0 0",
-                                }}
+                                  fontStyle: "italic" as const,
+                                })}
                               >
                                 {"📝 "}
                                 {item.notes}
@@ -308,14 +267,7 @@ function DigestOrderCard({ order }: { order: OrderSummary }) {
                               paddingLeft: "8px",
                             }}
                           >
-                            <Text
-                              style={{
-                                fontSize: "13px",
-                                fontFamily: FONT_STACK,
-                                color: "#374151",
-                                margin: "0",
-                              }}
-                            >
+                            <Text style={rowText(13, C.ink)}>
                               {formatPrice(item.lineTotalCents)}
                             </Text>
                           </td>
@@ -334,19 +286,16 @@ function DigestOrderCard({ order }: { order: OrderSummary }) {
           <tr>
             <td colSpan={2} style={{ padding: "0 14px 10px 14px" }}>
               <Text
-                style={{
-                  fontSize: "12px",
-                  fontFamily: FONT_STACK,
-                  color: "#92400E",
-                  margin: "0",
-                  backgroundColor: "#FFFBEB",
-                  border: "1px solid #FDE68A",
+                style={rowText(12, C.ink, {
+                  backgroundColor: C.goldTint,
+                  border: `1px solid ${C.goldTintBorder}`,
                   borderRadius: "6px",
                   padding: "6px 8px",
-                }}
+                })}
               >
                 {"📋 "}
-                <strong>Order note:</strong> {order.specialInstructions}
+                <strong style={{ color: C.goldDeep }}>Order note:</strong>{" "}
+                {order.specialInstructions}
               </Text>
             </td>
           </tr>
@@ -372,37 +321,41 @@ export function AdminDailyDigest({
   return (
     <EmailLayout
       emailType="confirmation"
+      variant="admin"
       showReferral={false}
       previewText={`${title}: ${totalOrders} orders, ${formatPrice(totalRevenueCents)} revenue`}
     >
       {/* ── Header ─────────────────────────────────── */}
-      <Section style={{ padding: "32px 24px 0 24px" }}>
-        <Text
-          style={{
-            fontSize: "22px",
-            fontFamily: SERIF_STACK,
-            color: "#8B4513",
-            fontWeight: 700,
-            margin: "0 0 4px 0",
-            lineHeight: "1.3",
-          }}
-        >
-          {title}
-        </Text>
-        <Text
-          style={{
-            fontSize: "14px",
-            fontFamily: FONT_STACK,
-            color: "#6B7280",
-            margin: "0 0 24px 0",
-          }}
-        >
-          {dateLabel}
-        </Text>
-      </Section>
+      <AdminTitle title={title} subtitle={dateLabel} />
 
       {/* ── Key Metrics ────────────────────────────── */}
-      <Section style={{ padding: "0 24px", marginBottom: "24px" }}>
+      <Section style={{ padding: "0 28px", marginBottom: "24px" }}>
+        <table
+          cellPadding="0"
+          cellSpacing="0"
+          style={{ width: "100%", borderCollapse: "separate" as const, borderSpacing: 0 }}
+        >
+          <tbody>
+            <tr>
+              <StatTile value={totalOrders} label="Total Orders" />
+              <td style={{ width: "12px", fontSize: 0 }} />
+              <StatTile
+                value={formatPrice(totalRevenueCents)}
+                label="Confirmed Revenue"
+                note={
+                  cancelledOrders > 0
+                    ? `excl. ${cancelledOrders} cancelled (${formatPrice(cancelledRevenueCents)})`
+                    : undefined
+                }
+              />
+            </tr>
+          </tbody>
+        </table>
+      </Section>
+
+      {/* ── Status Breakdown ───────────────────────── */}
+      <Section style={{ padding: "0 28px", marginBottom: "24px" }}>
+        <Text style={{ ...headingStyle(16), margin: "0 0 10px 0" }}>Orders by Status</Text>
         <table
           cellPadding="0"
           cellSpacing="0"
@@ -410,139 +363,34 @@ export function AdminDailyDigest({
         >
           <tbody>
             <tr>
-              <td
-                style={{
-                  width: "50%",
-                  padding: "16px",
-                  backgroundColor: "#F0FDF4",
-                  borderRadius: "8px 0 0 8px",
-                  textAlign: "center" as const,
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: "28px",
-                    fontFamily: FONT_STACK,
-                    fontWeight: 700,
-                    color: "#166534",
-                    margin: "0",
-                  }}
-                >
-                  {totalOrders}
-                </Text>
-                <Text
-                  style={{
-                    fontSize: "13px",
-                    fontFamily: FONT_STACK,
-                    color: "#6B7280",
-                    margin: "4px 0 0 0",
-                  }}
-                >
-                  Total Orders
-                </Text>
+              <td style={{ padding: "0 0 6px 0", borderBottom: `1px solid ${C.lineStrong}` }}>
+                <Text style={{ ...labelStyle(), margin: "0" }}>Status</Text>
               </td>
               <td
                 style={{
-                  width: "50%",
-                  padding: "16px",
-                  backgroundColor: "#FFF9E6",
-                  borderRadius: "0 8px 8px 0",
-                  textAlign: "center" as const,
+                  padding: "0 0 6px 0",
+                  borderBottom: `1px solid ${C.lineStrong}`,
+                  textAlign: "right" as const,
                 }}
               >
-                <Text
-                  style={{
-                    fontSize: "28px",
-                    fontFamily: FONT_STACK,
-                    fontWeight: 700,
-                    color: "#8B4513",
-                    margin: "0",
-                  }}
-                >
-                  {formatPrice(totalRevenueCents)}
-                </Text>
-                <Text
-                  style={{
-                    fontSize: "13px",
-                    fontFamily: FONT_STACK,
-                    color: "#6B7280",
-                    margin: "4px 0 0 0",
-                  }}
-                >
-                  Confirmed Revenue
-                </Text>
-                {cancelledOrders > 0 && (
-                  <Text
-                    style={{
-                      fontSize: "11px",
-                      fontFamily: FONT_STACK,
-                      color: "#9CA3AF",
-                      margin: "2px 0 0 0",
-                    }}
-                  >
-                    excl. {cancelledOrders} cancelled ({formatPrice(cancelledRevenueCents)})
-                  </Text>
-                )}
+                <Text style={{ ...labelStyle(), margin: "0" }}>Count</Text>
               </td>
             </tr>
-          </tbody>
-        </table>
-      </Section>
-
-      {/* ── Status Breakdown ───────────────────────── */}
-      <Section style={{ padding: "0 24px", marginBottom: "24px" }}>
-        <Text
-          style={{
-            fontSize: "14px",
-            fontFamily: FONT_STACK,
-            fontWeight: 700,
-            color: "#374151",
-            margin: "0 0 12px 0",
-          }}
-        >
-          Orders by Status
-        </Text>
-        <table
-          cellPadding="0"
-          cellSpacing="0"
-          style={{ width: "100%", borderCollapse: "collapse" as const }}
-        >
-          <tbody>
             {Object.entries(statusBreakdown)
               .filter(([, count]) => count > 0)
               .map(([status, count]) => (
                 <tr key={status}>
-                  <td style={{ padding: "6px 0", borderBottom: "1px solid #F3F4F6" }}>
-                    <Text
-                      style={{
-                        fontSize: "14px",
-                        fontFamily: FONT_STACK,
-                        color: statusColor(status),
-                        margin: "0",
-                        fontWeight: 600,
-                      }}
-                    >
-                      {statusLabel(status)}
-                    </Text>
+                  <td style={{ padding: "8px 0", borderBottom: `1px solid ${C.line}` }}>
+                    <StatusPill tone={statusTone(status)}>{statusLabel(status)}</StatusPill>
                   </td>
                   <td
                     style={{
-                      padding: "6px 0",
-                      borderBottom: "1px solid #F3F4F6",
+                      padding: "8px 0",
+                      borderBottom: `1px solid ${C.line}`,
                       textAlign: "right" as const,
                     }}
                   >
-                    <Text
-                      style={{
-                        fontSize: "14px",
-                        fontFamily: FONT_STACK,
-                        color: "#111111",
-                        margin: "0",
-                        fontWeight: 700,
-                      }}
-                    >
-                      {count}
-                    </Text>
+                    <Text style={rowText(14, C.ink, { fontWeight: 700 })}>{count}</Text>
                   </td>
                 </tr>
               ))}
@@ -550,22 +398,12 @@ export function AdminDailyDigest({
         </table>
       </Section>
 
-      <Hr style={{ borderColor: "#E5E7EB", margin: "0 24px 24px 24px" }} />
+      <Hr style={{ ...hairline, margin: "0 28px 24px 28px" }} />
 
       {/* ── Individual Orders (full detail) ──────────── */}
       {orders.length > 0 && (
-        <Section style={{ padding: "0 24px", marginBottom: "24px" }}>
-          <Text
-            style={{
-              fontSize: "14px",
-              fontFamily: FONT_STACK,
-              fontWeight: 700,
-              color: "#374151",
-              margin: "0 0 12px 0",
-            }}
-          >
-            Order Details
-          </Text>
+        <Section style={{ padding: "0 28px", marginBottom: "12px" }}>
+          <Text style={{ ...headingStyle(16), margin: "0 0 10px 0" }}>Order Details</Text>
           {orders.map((order) => (
             <DigestOrderCard key={order.id} order={order} />
           ))}
@@ -573,24 +411,7 @@ export function AdminDailyDigest({
       )}
 
       {/* ── CTA ──────────────────────────────────────── */}
-      <Section style={{ padding: "0 24px 24px 24px", textAlign: "center" as const }}>
-        <Button
-          href={`${APP_URL}/admin/orders`}
-          style={{
-            backgroundColor: "#D4A017",
-            color: "#FFFFFF",
-            fontFamily: FONT_STACK,
-            fontSize: "16px",
-            fontWeight: 700,
-            borderRadius: "8px",
-            padding: "14px 32px",
-            textDecoration: "none",
-            display: "inline-block",
-          }}
-        >
-          View All Orders
-        </Button>
-      </Section>
+      <AdminCtas primaryHref={`${APP_URL}/admin/orders`} primaryLabel="View All Orders" />
     </EmailLayout>
   );
 }
