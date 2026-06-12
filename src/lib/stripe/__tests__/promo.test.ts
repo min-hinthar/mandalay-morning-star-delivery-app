@@ -40,6 +40,9 @@ describe("validatePromoCode", () => {
       promotionCodeId: "promo_kyayzu123",
       percentOff: null,
       minimumAmountCents: 5000,
+      maxRedemptions: null,
+      timesRedeemed: 0,
+      firstTimeTransaction: false,
     });
   });
 
