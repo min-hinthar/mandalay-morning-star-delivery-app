@@ -4,11 +4,23 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-06-09._
+_Last reconciled: 2026-06-12._
 
 ## In flight
 
-_None._ #160–#165 all merged 2026-06-09 (kit → auth → checkout back-port + warm-dark
+- **#173** — **Security lockdown + orders RLS repair + grocery launch review**
+  (`claude/focused-goldberg-ci0h2h`). The grocery-readiness review doc
+  (`docs/grocery-launch-review-2026-06.md`) + fixes: auth-bound
+  `create_order_with_items` (was anon-forgeable), guarded route/driver-telemetry
+  RPCs, private `feedback-attachments` bucket + signed URLs, and the orders RLS
+  repair (driver transitions + customer cancel were silently no-opped by the
+  admin-only policy — prod audit log confirmed). **Deploy sequencing matters:**
+  migration `…120000` safe immediately; `…120001` (revoke `authenticated` on the
+  order RPC) only AFTER the Vercel deploy. Local verify green (1180 tests).
+  Awaiting owner merge-gate. Follow-ups tracked in the review doc: refund-Stripe
+  wiring, percent-off coupon vs tax/tip lines, grocery Phases 1–3.
+
+#160–#165 merged 2026-06-09 (kit → auth → checkout back-port + warm-dark
 overhaul → PWA resilience → nav fixes).
 
 > **Next: remaining back-ports** — cart, orders, account (per-surface PRs; finish
