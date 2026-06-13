@@ -224,7 +224,8 @@ export function DigestOrderCard({ order }: { order: OrderSummary }) {
                                 className={cls.accent}
                                 style={{ color: C.accent, fontWeight: 700 }}
                               >
-                                {item.quantity}×
+                                {"×"}
+                                {item.quantity}
                               </span>{" "}
                               {item.name}
                               {item.nameMy ? (
