@@ -26,7 +26,13 @@ import { AfterDarkAmbient } from "@/components/ui/AfterDarkAmbient";
 import { AfterDarkSpotlight } from "@/components/ui/AfterDarkSpotlight";
 import { CartEmptyState } from "./CartEmptyState";
 import { ClearCartConfirmation, useClearCartConfirmation } from "./ClearCartConfirmation";
-import { CartHeader, CartItemsList, CartFooter } from "./CartDrawerParts";
+import {
+  CartHeader,
+  CartItemsList,
+  CartReceipt,
+  CartActions,
+  useCartDeliveryGate,
+} from "./CartDrawerParts";
 import { CartValidationTimeoutBanner } from "./CartValidationTimeoutBanner";
 import type { MenuItem } from "@/types/menu";
 
@@ -58,6 +64,12 @@ function CartContent({ onClose, showFullCartLink, isMobile = false }: CartConten
   const cutoffHour = useCartStore((state) => state.cutoffHour);
   const deliveryDays = useCartStore((state) => state.deliveryDays);
   const validation = useCartValidation();
+  const gateState = useCartDeliveryGate({
+    hasBlockingIssues: validation.hasBlockingIssues,
+    deliveryDays,
+    cutoffDay,
+    cutoffHour,
+  });
   const {
     isOpen: isClearOpen,
     openConfirmation,
@@ -122,26 +134,34 @@ function CartContent({ onClose, showFullCartLink, isMobile = false }: CartConten
         <>
           {/* Phase 110 CFIX-05 — cart validation timeout banner (SECONDARY consumer) */}
           {validation.timedOut && (
-            <div className="px-4 pt-2">
+            <div className="shrink-0 px-4 pt-2">
               <CartValidationTimeoutBanner onProceedAnyway={validation.proceedAnyway} />
             </div>
           )}
-          <CartItemsList
-            onClose={onClose}
-            validation={validation}
-            onDismissPriceChange={handleDismissPriceChange}
-            onRemoveStale={handleRemoveStale}
-            onReplaceItem={handleReplaceItem}
-            scrollable={!isMobile}
-          />
-          <CartFooter
+
+          {/* Single scroll region (items + receipt). On the desktop right-drawer
+              it owns the scroll, so the tall receipt can never crush the item
+              list or overflow its own CTA on short/constrained viewports (iPad
+              Chrome). On the mobile bottom sheet the sheet wrapper scrolls, so
+              this stays a natural-flow block. */}
+          <div className={cn(!isMobile && "flex min-h-0 flex-1 flex-col overflow-y-auto")}>
+            <CartItemsList
+              onClose={onClose}
+              validation={validation}
+              onDismissPriceChange={handleDismissPriceChange}
+              onRemoveStale={handleRemoveStale}
+              onReplaceItem={handleReplaceItem}
+              scrollable={false}
+            />
+            <CartReceipt gateState={gateState} />
+          </div>
+
+          <CartActions
+            gateState={gateState}
             onClose={onClose}
             onCheckout={handleCheckout}
             hasBlockingIssues={validation.hasBlockingIssues}
             showFullCartLink={showFullCartLink}
-            deliveryDays={deliveryDays}
-            cutoffDay={cutoffDay}
-            cutoffHour={cutoffHour}
           />
         </>
       )}
