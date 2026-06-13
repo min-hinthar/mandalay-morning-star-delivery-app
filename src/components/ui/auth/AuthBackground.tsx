@@ -25,14 +25,17 @@ export function AuthBackground({ children }: AuthBackgroundProps) {
       {/* Living texture — dot/line grids + triad aurora (a11y-inert, blur-free) */}
       <AfterDarkAmbient />
 
-      {/* Mobile/tablet appetizing photo band — above the card, dissolves into canvas */}
+      {/* Mobile/tablet appetizing photo band — above the card, dissolves into canvas.
+          Taller on tablets (sm/md) so the band fills a tall portrait viewport
+          instead of leaving a dark dead-zone, and so object-cover scales by
+          height (showing the full bowls) rather than slicing them at the top. */}
       <div
         aria-hidden="true"
-        className="absolute inset-x-0 top-0 h-[42vh] overflow-hidden lg:hidden"
+        className="absolute inset-x-0 top-0 h-[48vh] overflow-hidden sm:h-[56vh] md:h-[62vh] lg:hidden"
         style={
           {
-            WebkitMaskImage: "linear-gradient(to bottom, #000 60%, transparent)",
-            maskImage: "linear-gradient(to bottom, #000 60%, transparent)",
+            WebkitMaskImage: "linear-gradient(to bottom, #000 62%, transparent)",
+            maskImage: "linear-gradient(to bottom, #000 62%, transparent)",
           } as CSSProperties
         }
       >
