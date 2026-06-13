@@ -10,7 +10,7 @@ import { OrderTotalsTable } from "./components/OrderTotalsTable";
 import { ReferralCallout } from "./components/ReferralCallout";
 import { SuggestedItems } from "./components/SuggestedItems";
 import { SupportSection } from "./components/SupportSection";
-import { BODY_FONT, C, bodyStyle, headingStyle, labelStyle } from "./components/theme";
+import { BODY_FONT, C, bodyStyle, cls, headingStyle, labelStyle } from "./components/theme";
 import { APP_URL } from "./helpers";
 import { TIMEZONE } from "@/types/delivery";
 import type { SuggestedItem } from "@/lib/email/suggestions";
@@ -41,6 +41,7 @@ interface OrderItem {
   category?: string;
   modifiers?: OrderItemModifier[];
   notes?: string | null;
+  imageUrl?: string | null;
 }
 
 interface DeliveryAddress {
@@ -116,8 +117,10 @@ export function OrderConfirmation({
     >
       {/* ── Greeting ─────────────────────────────────── */}
       <Section style={{ padding: "30px 28px 0 28px" }}>
-        <Text style={headingStyle(23)}>Mingalabar, {customerName}!</Text>
-        <Text style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
+        <Text className={cls.ink} style={headingStyle(23)}>
+          Mingalabar, {customerName}!
+        </Text>
+        <Text className={cls.muted} style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
           {isCODPending
             ? "Thank you for your order! We’ve received it and our team will confirm it shortly."
             : "Thank you for your order! We’re excited to prepare your delicious Burmese meal."}
@@ -141,6 +144,7 @@ export function OrderConfirmation({
 
       {/* ── Order Details Box ────────────────────────── */}
       <Section
+        className={`${cls.vellum} ${cls.line}`}
         style={{
           margin: "20px 28px",
           padding: "16px 20px",
@@ -149,8 +153,11 @@ export function OrderConfirmation({
           borderRadius: "12px",
         }}
       >
-        <Text style={labelStyle()}>Order Number</Text>
+        <Text className={cls.faint} style={labelStyle()}>
+          Order Number
+        </Text>
         <Text
+          className={cls.ink}
           style={{
             fontSize: "16px",
             fontFamily: BODY_FONT,
@@ -160,14 +167,20 @@ export function OrderConfirmation({
           }}
         >
           <Link
+            className={cls.accent}
             href={orderUrl}
             style={{ color: C.accent, textDecoration: "underline", fontWeight: 700 }}
           >
             #{shortId}
           </Link>
         </Text>
-        <Text style={labelStyle()}>Placed</Text>
-        <Text style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0" }}>
+        <Text className={cls.faint} style={labelStyle()}>
+          Placed
+        </Text>
+        <Text
+          className={cls.ink}
+          style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0" }}
+        >
           {formatDate(placedAt)}
         </Text>
       </Section>
@@ -200,6 +213,7 @@ export function OrderConfirmation({
       {/* ── Preparation Notes Summary (per-item) ──────── */}
       {items.some((i) => i.notes && i.notes.trim().length > 0) && (
         <Section
+          className={`${cls.goldTint} ${cls.goldBorder}`}
           style={{
             margin: "16px 28px 0 28px",
             padding: "13px 16px",
@@ -209,6 +223,7 @@ export function OrderConfirmation({
           }}
         >
           <Text
+            className={cls.goldDeep}
             style={{
               fontSize: "13px",
               fontFamily: BODY_FONT,
@@ -224,6 +239,7 @@ export function OrderConfirmation({
             .map((i, idx) => (
               <Text
                 key={`prep-${idx}`}
+                className={cls.ink}
                 style={{
                   fontSize: "13px",
                   fontFamily: BODY_FONT,
@@ -268,6 +284,7 @@ export function OrderConfirmation({
       {/* ── Secondary CTA: Reorder ───────────────────── */}
       <Section style={{ padding: "12px 28px 0 28px", textAlign: "center" as const }}>
         <Link
+          className={cls.accent}
           href={`${APP_URL}/menu`}
           style={{
             fontSize: "14px",

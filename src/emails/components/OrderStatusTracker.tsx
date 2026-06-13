@@ -1,5 +1,5 @@
 import { Section, Text } from "@react-email/components";
-import { BODY_FONT, C } from "./theme";
+import { BODY_FONT, C, cls } from "./theme";
 
 type OrderStep = "received" | "confirmed" | "preparing" | "out_for_delivery" | "delivered";
 
@@ -44,7 +44,10 @@ const STEP_STYLES = {
       textAlign: "center" as const,
       margin: "0 auto",
     },
+    // circle uses only constant chroma (sage/white) — no dark class
+    circleCls: "",
     label: { color: C.sageDeep, fontWeight: 600 as const },
+    labelCls: cls.sageDeep,
   },
   active: {
     circle: {
@@ -61,7 +64,10 @@ const STEP_STYLES = {
       margin: "0 auto",
       boxShadow: `0 0 0 4px ${C.clayTint}`,
     },
+    // circle uses only constant chroma (clay/white) — no dark class
+    circleCls: "",
     label: { color: C.accent, fontWeight: 700 as const },
+    labelCls: cls.accent,
   },
   future: {
     circle: {
@@ -77,7 +83,9 @@ const STEP_STYLES = {
       textAlign: "center" as const,
       margin: "0 auto",
     },
+    circleCls: `${cls.card} ${cls.lineStrong} ${cls.faint}`,
     label: { color: C.inkFaint, fontWeight: 400 as const },
+    labelCls: cls.faint,
   },
 };
 
@@ -86,7 +94,7 @@ export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
   const currentIndex = steps.findIndex((s) => s.key === currentStep);
 
   return (
-    <Section style={{ padding: "22px 24px", backgroundColor: C.vellum }}>
+    <Section className={cls.vellum} style={{ padding: "22px 24px", backgroundColor: C.vellum }}>
       <table
         cellPadding="0"
         cellSpacing="0"
@@ -141,6 +149,7 @@ export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
                   )}
                   {/* Circle */}
                   <div
+                    className={styles.circleCls}
                     style={{
                       ...styles.circle,
                       position: "relative" as const,
@@ -168,6 +177,7 @@ export function OrderStatusTracker({ currentStep }: OrderStatusTrackerProps) {
                   }}
                 >
                   <Text
+                    className={styles.labelCls}
                     style={{
                       fontSize: "11px",
                       margin: "0",

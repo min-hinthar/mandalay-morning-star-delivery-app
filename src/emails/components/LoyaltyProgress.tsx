@@ -1,6 +1,6 @@
 import { Link, Section, Text } from "@react-email/components";
 import { LOYALTY_MILESTONE_STEP } from "@/lib/loyalty";
-import { BODY_FONT, BURMESE_FONT, C, DISPLAY_FONT } from "./theme";
+import { BODY_FONT, BURMESE_FONT, C, DISPLAY_FONT, cls } from "./theme";
 
 /** Computed server-side at send time from real loyalty data — never fabricated. */
 export interface LoyaltyProgressData {
@@ -40,6 +40,7 @@ export function LoyaltyProgress({ loyalty }: LoyaltyProgressProps) {
   return (
     <Section style={{ padding: "20px 28px 0 28px" }}>
       <Section
+        className={`${cls.vellum} ${cls.goldLeaf}`}
         style={{
           backgroundColor: C.vellum,
           border: `1px solid ${C.goldLeaf}`,
@@ -49,6 +50,7 @@ export function LoyaltyProgress({ loyalty }: LoyaltyProgressProps) {
         }}
       >
         <Text
+          className={cls.goldDeep}
           style={{
             fontSize: "10px",
             fontFamily: BODY_FONT,
@@ -81,6 +83,7 @@ export function LoyaltyProgress({ loyalty }: LoyaltyProgressProps) {
         {justEarned ? (
           <>
             <Text
+              className={cls.ink}
               style={{
                 fontSize: "15px",
                 fontFamily: DISPLAY_FONT,
@@ -94,6 +97,7 @@ export function LoyaltyProgress({ loyalty }: LoyaltyProgressProps) {
             {/* "on its way", not "waiting": issuance can lag the email on some
                 payment paths — never promise a wallet row that may not exist yet */}
             <Text
+              className={cls.muted}
               style={{
                 fontSize: "13px",
                 fontFamily: BODY_FONT,
@@ -107,6 +111,7 @@ export function LoyaltyProgress({ loyalty }: LoyaltyProgressProps) {
         ) : (
           <>
             <Text
+              className={cls.ink}
               style={{
                 fontSize: "14px",
                 fontFamily: BODY_FONT,
@@ -120,6 +125,7 @@ export function LoyaltyProgress({ loyalty }: LoyaltyProgressProps) {
               to your next <strong>{reward} reward</strong>
             </Text>
             <Text
+              className={cls.muted}
               style={{
                 fontSize: "12px",
                 fontFamily: BURMESE_FONT,
@@ -135,6 +141,7 @@ export function LoyaltyProgress({ loyalty }: LoyaltyProgressProps) {
 
         <Link
           href={`${APP_URL}/account?tab=rewards&src=email_loyalty`}
+          className={cls.accent}
           style={{
             fontSize: "12px",
             fontFamily: BODY_FONT,

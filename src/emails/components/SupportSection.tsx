@@ -1,11 +1,15 @@
 import { Hr, Link, Section, Text } from "@react-email/components";
-import { BODY_FONT, C, DISPLAY_FONT } from "./theme";
+import { BODY_FONT, C, DISPLAY_FONT, cls } from "./theme";
 
 export function SupportSection() {
   return (
     <Section style={{ padding: "26px 28px 0 28px" }}>
-      <Hr style={{ borderColor: C.line, borderWidth: "1px 0 0 0", margin: "0 0 18px 0" }} />
+      <Hr
+        className={cls.line}
+        style={{ borderColor: C.line, borderWidth: "1px 0 0 0", margin: "0 0 18px 0" }}
+      />
       <Text
+        className={cls.ink}
         style={{
           fontSize: "15px",
           fontFamily: DISPLAY_FONT,
@@ -18,6 +22,7 @@ export function SupportSection() {
         Need help?
       </Text>
       <Text
+        className={cls.muted}
         style={{
           fontSize: "13px",
           fontFamily: BODY_FONT,
@@ -30,6 +35,7 @@ export function SupportSection() {
         Simply reply to this email or contact us at{" "}
         <Link
           href="mailto:admin@mandalaymorningstar.com"
+          className={cls.accent}
           style={{ color: C.accent, textDecoration: "underline" }}
         >
           admin@mandalaymorningstar.com

@@ -1,5 +1,5 @@
 import { Link, Section, Text } from "@react-email/components";
-import { BODY_FONT, BURMESE_FONT, C, DISPLAY_FONT } from "./theme";
+import { BODY_FONT, BURMESE_FONT, C, DISPLAY_FONT, cls } from "./theme";
 
 interface BrandFooterProps {
   unsubscribeUrl: string;
@@ -45,6 +45,7 @@ export function BrandFooter({
       {/* Referral nudge — every customer email quietly invites a share */}
       {referralUrl && (
         <Section
+          className={`${cls.vellum} ${cls.goldLeaf}`}
           style={{
             backgroundColor: C.vellum,
             border: `1px solid ${C.goldLeaf}`,
@@ -55,6 +56,7 @@ export function BrandFooter({
           }}
         >
           <Text
+            className={cls.ink}
             style={{
               fontSize: "15px",
               fontFamily: DISPLAY_FONT,
@@ -66,6 +68,7 @@ export function BrandFooter({
             {"💛"} Love it? Tell a friend {"—"} you both get $10
           </Text>
           <Text
+            className={cls.muted}
             style={{
               fontSize: "13px",
               fontFamily: BURMESE_FONT,
@@ -78,6 +81,7 @@ export function BrandFooter({
           </Text>
           <Link
             href={referralUrl}
+            className={cls.accent}
             style={{
               fontSize: "13px",
               fontFamily: BODY_FONT,
@@ -95,6 +99,7 @@ export function BrandFooter({
 
       {/* Morning Star colophon */}
       <Text
+        className={cls.accent}
         style={{
           textAlign: "center" as const,
           color: C.accent,
@@ -110,6 +115,7 @@ export function BrandFooter({
 
       {/* Business Address */}
       <Text
+        className={cls.faint}
         style={{
           textAlign: "center" as const,
           color: C.inkFaint,
@@ -126,6 +132,7 @@ export function BrandFooter({
 
       {/* Support Email */}
       <Text
+        className={cls.faint}
         style={{
           textAlign: "center" as const,
           color: C.inkFaint,
@@ -137,6 +144,7 @@ export function BrandFooter({
         Questions?{" "}
         <Link
           href="mailto:admin@mandalaymorningstar.com"
+          className={cls.accent}
           style={{ color: C.accent, textDecoration: "underline" }}
         >
           admin@mandalaymorningstar.com
@@ -145,6 +153,7 @@ export function BrandFooter({
 
       {/* Social Links */}
       <Text
+        className={cls.faint}
         style={{
           textAlign: "center" as const,
           color: C.inkFaint,
@@ -155,6 +164,7 @@ export function BrandFooter({
       >
         <Link
           href="https://www.instagram.com/mandalays.morningstar/"
+          className={cls.muted}
           style={{ color: C.inkMuted, textDecoration: "underline", marginRight: "12px" }}
         >
           Instagram
@@ -162,6 +172,7 @@ export function BrandFooter({
         {" · "}
         <Link
           href="https://www.facebook.com/MandalayMorningStarLA/"
+          className={cls.muted}
           style={{ color: C.inkMuted, textDecoration: "underline" }}
         >
           Facebook
@@ -171,6 +182,7 @@ export function BrandFooter({
       {/* Unsubscribe + Privacy */}
       {!isAdmin && (
         <Text
+          className={cls.faint}
           style={{
             textAlign: "center" as const,
             color: C.inkFaint,
@@ -182,7 +194,11 @@ export function BrandFooter({
         >
           You&apos;re receiving this because you placed an order with Mandalay Morning Star.
           <br />
-          <Link href={unsubscribeUrl} style={{ color: C.inkMuted, textDecoration: "underline" }}>
+          <Link
+            href={unsubscribeUrl}
+            className={cls.muted}
+            style={{ color: C.inkMuted, textDecoration: "underline" }}
+          >
             Manage notification preferences
           </Link>
         </Text>

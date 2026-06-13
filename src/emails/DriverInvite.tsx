@@ -2,7 +2,7 @@ import { Section, Text } from "@react-email/components";
 
 import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
-import { BODY_FONT, C, bodyStyle, headingStyle, labelStyle } from "./components/theme";
+import { BODY_FONT, C, bodyStyle, cls, headingStyle, labelStyle } from "./components/theme";
 
 export interface DriverInviteProps {
   driverEmail: string;
@@ -19,8 +19,10 @@ export function DriverInvite({ driverEmail, magicLink, expiresIn }: DriverInvite
     >
       {/* Greeting */}
       <Section style={{ padding: "30px 28px 0 28px" }}>
-        <Text style={headingStyle(22)}>Mingalabar!</Text>
-        <Text style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
+        <Text className={cls.ink} style={headingStyle(22)}>
+          Mingalabar!
+        </Text>
+        <Text className={cls.muted} style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
           You&apos;ve been invited to join the Mandalay Morning Star delivery team as a driver. Tap
           the button below to get started.
         </Text>
@@ -28,6 +30,7 @@ export function DriverInvite({ driverEmail, magicLink, expiresIn }: DriverInvite
 
       {/* Invite Details */}
       <Section
+        className={`${cls.vellum} ${cls.line}`}
         style={{
           margin: "0 28px 20px 28px",
           padding: "16px 20px",
@@ -36,8 +39,11 @@ export function DriverInvite({ driverEmail, magicLink, expiresIn }: DriverInvite
           borderRadius: "12px",
         }}
       >
-        <Text style={labelStyle()}>Invitation for</Text>
+        <Text className={cls.faint} style={labelStyle()}>
+          Invitation for
+        </Text>
         <Text
+          className={cls.ink}
           style={{
             fontSize: "16px",
             fontFamily: BODY_FONT,
@@ -58,6 +64,7 @@ export function DriverInvite({ driverEmail, magicLink, expiresIn }: DriverInvite
       {/* Expiry Note */}
       <Section style={{ padding: "16px 28px 32px 28px" }}>
         <Text
+          className={cls.faint}
           style={{
             fontSize: "13px",
             fontFamily: BODY_FONT,

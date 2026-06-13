@@ -1,6 +1,6 @@
 import { Link, Section, Text } from "@react-email/components";
 import { EmailButton } from "./EmailButton";
-import { BODY_FONT, C, DISPLAY_FONT, bodyStyle, headingStyle, labelStyle } from "./theme";
+import { BODY_FONT, C, DISPLAY_FONT, bodyStyle, cls, headingStyle, labelStyle } from "./theme";
 
 /**
  * Shared building blocks for admin/ops mail — the utilitarian variant of the
@@ -10,12 +10,50 @@ import { BODY_FONT, C, DISPLAY_FONT, bodyStyle, headingStyle, labelStyle } from 
 // ─── Status pill ──────────────────────────────────────────
 export type PillTone = "success" | "warn" | "error" | "info" | "neutral";
 
-const PILL_TONES: Record<PillTone, { text: string; bg: string; border: string }> = {
-  success: { text: C.sageDeep, bg: C.sageTint, border: C.sageTintBorder },
-  warn: { text: C.goldDeep, bg: C.goldTint, border: C.goldTintBorder },
-  error: { text: C.accentStrong, bg: C.clayTint, border: C.clayTintBorder },
-  info: { text: C.blueDeep, bg: C.blueTint, border: C.blueTintBorder },
-  neutral: { text: C.inkMuted, bg: C.vellum, border: C.lineStrong },
+const PILL_TONES: Record<
+  PillTone,
+  { text: string; bg: string; border: string; textCls: string; bgCls: string; borderCls: string }
+> = {
+  success: {
+    text: C.sageDeep,
+    bg: C.sageTint,
+    border: C.sageTintBorder,
+    textCls: cls.sageDeep,
+    bgCls: cls.sageTint,
+    borderCls: cls.sageBorder,
+  },
+  warn: {
+    text: C.goldDeep,
+    bg: C.goldTint,
+    border: C.goldTintBorder,
+    textCls: cls.goldDeep,
+    bgCls: cls.goldTint,
+    borderCls: cls.goldBorder,
+  },
+  error: {
+    text: C.accentStrong,
+    bg: C.clayTint,
+    border: C.clayTintBorder,
+    textCls: cls.accentStrong,
+    bgCls: cls.clayTint,
+    borderCls: cls.clayBorder,
+  },
+  info: {
+    text: C.blueDeep,
+    bg: C.blueTint,
+    border: C.blueTintBorder,
+    textCls: cls.blueDeep,
+    bgCls: cls.blueTint,
+    borderCls: cls.blueBorder,
+  },
+  neutral: {
+    text: C.inkMuted,
+    bg: C.vellum,
+    border: C.lineStrong,
+    textCls: cls.muted,
+    bgCls: cls.vellum,
+    borderCls: cls.lineStrong,
+  },
 };
 
 /** Compact status pill — deep tone text on its matching tint, 1px tint border. */
@@ -23,6 +61,7 @@ export function StatusPill({ tone, children }: { tone: PillTone; children: React
   const t = PILL_TONES[tone];
   return (
     <span
+      className={`${t.bgCls} ${t.borderCls} ${t.textCls}`}
       style={{
         display: "inline-block",
         padding: "3px 10px",
@@ -51,11 +90,16 @@ interface AdminTitleProps {
 export function AdminTitle({ title, subtitle }: AdminTitleProps) {
   return (
     <Section style={{ padding: "24px 28px 0 28px" }}>
-      <Text style={{ ...headingStyle(18), margin: subtitle != null ? "0 0 4px 0" : "0 0 16px 0" }}>
+      <Text
+        className={cls.ink}
+        style={{ ...headingStyle(18), margin: subtitle != null ? "0 0 4px 0" : "0 0 16px 0" }}
+      >
         {title}
       </Text>
       {subtitle != null && (
-        <Text style={{ ...bodyStyle(14), margin: "0 0 16px 0" }}>{subtitle}</Text>
+        <Text className={cls.muted} style={{ ...bodyStyle(14), margin: "0 0 16px 0" }}>
+          {subtitle}
+        </Text>
       )}
     </Section>
   );
@@ -72,6 +116,7 @@ export function DataPanel({
 }) {
   return (
     <Section
+      className={`${cls.vellum} ${cls.line}`}
       style={{
         margin: "0 28px 20px 28px",
         padding: "14px 18px",
@@ -105,8 +150,11 @@ export function DataField({
 }: DataFieldProps) {
   return (
     <>
-      <Text style={labelStyle()}>{label}</Text>
+      <Text className={cls.faint} style={labelStyle()}>
+        {label}
+      </Text>
       <Text
+        className={cls.ink}
         style={{
           fontSize: "14px",
           fontFamily: BODY_FONT,
@@ -134,6 +182,7 @@ interface StatTileProps {
 export function StatTile({ value, label, note }: StatTileProps) {
   return (
     <td
+      className={`${cls.vellum} ${cls.line}`}
       style={{
         width: "50%",
         padding: "14px 12px",
@@ -145,6 +194,7 @@ export function StatTile({ value, label, note }: StatTileProps) {
       }}
     >
       <Text
+        className={cls.ink}
         style={{
           fontSize: "24px",
           fontFamily: DISPLAY_FONT,
@@ -156,9 +206,12 @@ export function StatTile({ value, label, note }: StatTileProps) {
       >
         {value}
       </Text>
-      <Text style={{ ...labelStyle(), margin: "5px 0 0 0" }}>{label}</Text>
+      <Text className={cls.faint} style={{ ...labelStyle(), margin: "5px 0 0 0" }}>
+        {label}
+      </Text>
       {note != null && (
         <Text
+          className={cls.faint}
           style={{
             fontSize: "11px",
             fontFamily: BODY_FONT,
@@ -203,6 +256,7 @@ export function AdminCtas({
         <Section style={{ padding: "12px 28px 24px 28px", textAlign: "center" as const }}>
           <Link
             href={secondaryHref}
+            className={cls.accent}
             style={{
               fontSize: "13px",
               fontFamily: BODY_FONT,

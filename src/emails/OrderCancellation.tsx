@@ -8,6 +8,7 @@ import {
   C,
   DISPLAY_FONT,
   bodyStyle,
+  cls,
   headingStyle,
   labelStyle,
 } from "./components/theme";
@@ -72,14 +73,17 @@ export function OrderCancellation({
     >
       {/* ── Greeting ─────────────────────────────────── */}
       <Section style={{ padding: "30px 28px 0 28px" }}>
-        <Text style={headingStyle(22)}>Dear {customerName},</Text>
-        <Text style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
+        <Text className={cls.ink} style={headingStyle(22)}>
+          Dear {customerName},
+        </Text>
+        <Text className={cls.muted} style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
           We&apos;re sorry to see this order go. Your order has been cancelled.
         </Text>
       </Section>
 
       {/* ── Cancellation Details Box ─────────────────── */}
       <Section
+        className={`${cls.clayTint} ${cls.clayBorder}`}
         style={{
           margin: "0 28px 20px 28px",
           padding: "16px 20px",
@@ -88,8 +92,11 @@ export function OrderCancellation({
           border: `1px solid ${C.clayTintBorder}`,
         }}
       >
-        <Text style={labelStyle()}>Order Number</Text>
+        <Text className={cls.faint} style={labelStyle()}>
+          Order Number
+        </Text>
         <Text
+          className={cls.ink}
           style={{
             fontSize: "16px",
             fontFamily: BODY_FONT,
@@ -99,6 +106,7 @@ export function OrderCancellation({
           }}
         >
           <Link
+            className={cls.accent}
             href={orderUrl}
             style={{ color: C.accent, textDecoration: "underline", fontWeight: 700 }}
           >
@@ -106,8 +114,11 @@ export function OrderCancellation({
           </Link>
         </Text>
 
-        <Text style={labelStyle()}>Cancelled</Text>
+        <Text className={cls.faint} style={labelStyle()}>
+          Cancelled
+        </Text>
         <Text
+          className={cls.ink}
           style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0 0 12px 0" }}
         >
           {formatDate(cancelledAt)}
@@ -115,8 +126,13 @@ export function OrderCancellation({
 
         {cancellationReason && (
           <>
-            <Text style={labelStyle()}>Reason</Text>
-            <Text style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0" }}>
+            <Text className={cls.faint} style={labelStyle()}>
+              Reason
+            </Text>
+            <Text
+              className={cls.ink}
+              style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0" }}
+            >
               {cancellationReason}
             </Text>
           </>
@@ -125,7 +141,9 @@ export function OrderCancellation({
 
       {/* ── Order Summary ────────────────────────────── */}
       <Section style={{ padding: "0 28px 16px 28px" }}>
-        <Text style={{ ...headingStyle(17), margin: "0 0 12px 0" }}>Order Summary</Text>
+        <Text className={cls.ink} style={{ ...headingStyle(17), margin: "0 0 12px 0" }}>
+          Order Summary
+        </Text>
         <table
           cellPadding="0"
           cellSpacing="0"
@@ -134,8 +152,12 @@ export function OrderCancellation({
           <tbody>
             {items.map((item, idx) => (
               <tr key={idx}>
-                <td style={{ padding: "6px 0", borderBottom: `1px solid ${C.line}` }}>
+                <td
+                  className={cls.line}
+                  style={{ padding: "6px 0", borderBottom: `1px solid ${C.line}` }}
+                >
                   <Text
+                    className={cls.ink}
                     style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0" }}
                   >
                     {item.quantity}x {item.name}
@@ -152,6 +174,7 @@ export function OrderCancellation({
                     <tr>
                       <td>
                         <Text
+                          className={cls.ink}
                           style={{
                             fontSize: "16px",
                             fontFamily: DISPLAY_FONT,
@@ -165,6 +188,7 @@ export function OrderCancellation({
                       </td>
                       <td style={{ textAlign: "right" as const }}>
                         <Text
+                          className={cls.accentStrong}
                           style={{
                             fontSize: "18px",
                             fontFamily: DISPLAY_FONT,
@@ -189,7 +213,10 @@ export function OrderCancellation({
       {refundIssued ? (
         <Callout tone="success" style={{ margin: "0 28px 24px 28px" }}>
           {"✅"} A refund of{" "}
-          <strong style={{ fontFamily: DISPLAY_FONT, color: C.accentStrong }}>
+          <strong
+            className={cls.accentStrong}
+            style={{ fontFamily: DISPLAY_FONT, color: C.accentStrong }}
+          >
             {refundAmountCents != null ? formatPrice(refundAmountCents) : formatPrice(totalCents)}
           </strong>{" "}
           will be returned to your {refundMethod || "original payment method"} within{" "}
@@ -197,6 +224,7 @@ export function OrderCancellation({
         </Callout>
       ) : (
         <Section
+          className={`${cls.vellum} ${cls.line}`}
           style={{
             margin: "0 28px 24px 28px",
             padding: "16px 20px",
@@ -206,6 +234,7 @@ export function OrderCancellation({
           }}
         >
           <Text
+            className={cls.ink}
             style={{
               fontSize: "14px",
               fontFamily: BODY_FONT,

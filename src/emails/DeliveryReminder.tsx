@@ -4,7 +4,7 @@ import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
 import { OrderItemsTable } from "./components/OrderItemsTable";
 import { OrderTotalsTable } from "./components/OrderTotalsTable";
-import { BODY_FONT, C, DISPLAY_FONT, bodyStyle, headingStyle } from "./components/theme";
+import { BODY_FONT, C, DISPLAY_FONT, bodyStyle, cls, headingStyle } from "./components/theme";
 import { APP_URL } from "./helpers";
 
 // ============================================
@@ -115,6 +115,7 @@ export function DeliveryReminder({
     <EmailLayout emailType="reminder" previewText={previewText}>
       {/* Excitement Section */}
       <Section
+        className={cls.goldTint}
         style={{
           padding: "32px 28px 16px 28px",
           backgroundColor: C.goldTint,
@@ -124,13 +125,17 @@ export function DeliveryReminder({
         <Text style={{ fontSize: "32px", margin: "0 0 8px 0" }}>
           {"🍜"} {"🍲"} {"🥢"}
         </Text>
-        <Heading as="h2" style={{ ...headingStyle(24), margin: "0 0 12px 0" }}>
+        <Heading as="h2" className={cls.ink} style={{ ...headingStyle(24), margin: "0 0 12px 0" }}>
           Your Burmese feast is arriving today!
         </Heading>
-        <Text style={{ ...bodyStyle(16), margin: "0 0 8px 0", lineHeight: "1.5" }}>
+        <Text
+          className={cls.muted}
+          style={{ ...bodyStyle(16), margin: "0 0 8px 0", lineHeight: "1.5" }}
+        >
           Dear {customerName}, get ready for
         </Text>
         <Text
+          className={cls.accent}
           style={{
             fontSize: "18px",
             fontWeight: 600,
@@ -143,6 +148,7 @@ export function DeliveryReminder({
           {itemPreview}
           {itemCount > 2 && (
             <span
+              className={cls.muted}
               style={{
                 fontSize: "14px",
                 fontWeight: 400,
@@ -186,8 +192,12 @@ export function DeliveryReminder({
             />
           </Link>
         )}
-        <Text style={{ ...bodyStyle(13), margin: "8px 0 0 0", textAlign: "center" as const }}>
+        <Text
+          className={cls.muted}
+          style={{ ...bodyStyle(13), margin: "8px 0 0 0", textAlign: "center" as const }}
+        >
           <Link
+            className={cls.accent}
             href={mapsDirectionsUrl}
             style={{ color: C.accent, textDecoration: "underline", fontSize: "13px" }}
           >
@@ -200,11 +210,11 @@ export function DeliveryReminder({
       {detailItems.length > 0 && (
         <>
           <Section style={{ padding: "8px 28px 0 28px" }}>
-            <Hr style={{ borderColor: C.line, margin: "0 0 12px 0" }} />
-            <Text style={{ ...headingStyle(17), margin: "0 0 4px 0" }}>
+            <Hr className={cls.line} style={{ borderColor: C.line, margin: "0 0 12px 0" }} />
+            <Text className={cls.ink} style={{ ...headingStyle(17), margin: "0 0 4px 0" }}>
               Your Order ({itemCount} item{itemCount !== 1 ? "s" : ""})
             </Text>
-            <Text style={bodyStyle(13)}>
+            <Text className={cls.muted} style={bodyStyle(13)}>
               Order #{orderId.slice(0, 8).toUpperCase()} — here&apos;s everything you ordered.
             </Text>
           </Section>
@@ -214,6 +224,7 @@ export function DeliveryReminder({
           {/* Per-item preparation notes */}
           {prepNotes.length > 0 && (
             <Section
+              className={`${cls.goldTint} ${cls.goldBorder}`}
               style={{
                 margin: "16px 28px 0 28px",
                 padding: "13px 16px",
@@ -223,6 +234,7 @@ export function DeliveryReminder({
               }}
             >
               <Text
+                className={cls.goldDeep}
                 style={{
                   fontSize: "13px",
                   fontFamily: BODY_FONT,
@@ -236,6 +248,7 @@ export function DeliveryReminder({
               {prepNotes.map((i, idx) => (
                 <Text
                   key={`prep-${idx}`}
+                  className={cls.ink}
                   style={{
                     fontSize: "13px",
                     fontFamily: BODY_FONT,
@@ -263,7 +276,7 @@ export function DeliveryReminder({
           )}
 
           <Section style={{ padding: "16px 28px 0 28px" }}>
-            <Hr style={{ borderColor: C.line, margin: "0" }} />
+            <Hr className={cls.line} style={{ borderColor: C.line, margin: "0" }} />
           </Section>
         </>
       )}
@@ -291,8 +304,12 @@ export function DeliveryReminder({
 
       {/* Need help? section */}
       <Section style={{ padding: "26px 28px 0 28px" }}>
-        <Hr style={{ borderColor: C.line, borderWidth: "1px 0 0 0", margin: "0 0 18px 0" }} />
+        <Hr
+          className={cls.line}
+          style={{ borderColor: C.line, borderWidth: "1px 0 0 0", margin: "0 0 18px 0" }}
+        />
         <Text
+          className={cls.faint}
           style={{
             fontSize: "13px",
             color: C.inkFaint,
@@ -304,6 +321,7 @@ export function DeliveryReminder({
         >
           Need help?{" "}
           <Link
+            className={cls.accent}
             href="mailto:admin@mandalaymorningstar.com"
             style={{ color: C.accent, textDecoration: "underline" }}
           >

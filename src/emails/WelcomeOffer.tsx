@@ -8,6 +8,7 @@ import {
   C,
   DISPLAY_FONT,
   bodyStyle,
+  cls,
   headingStyle,
 } from "./components/theme";
 import { formatPrice } from "./helpers";
@@ -30,10 +31,10 @@ export function WelcomeOffer({ customerName, discountCents, menuUrl }: WelcomeOf
       {/* Hero */}
       <Section style={{ padding: "30px 28px 0 28px", textAlign: "center" as const }}>
         <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{"🙏"}</Text>
-        <Text style={{ ...headingStyle(22), margin: "0 0 6px 0" }}>
+        <Text className={cls.ink} style={{ ...headingStyle(22), margin: "0 0 6px 0" }}>
           Mingalabar, {customerName}! Welcome to the family
         </Text>
-        <Text style={bodyStyle(15)}>
+        <Text className={cls.muted} style={bodyStyle(15)}>
           We cook real Burmese food, fresh for every delivery across LA. So glad you&apos;re here —
           here&apos;s a little welcome gift.
         </Text>
@@ -42,6 +43,7 @@ export function WelcomeOffer({ customerName, discountCents, menuUrl }: WelcomeOf
       {/* Offer ticket */}
       <Section style={{ padding: "20px 28px 0 28px" }}>
         <Section
+          className={`${cls.vellum} ${cls.goldLeaf}`}
           style={{
             backgroundColor: C.vellum,
             border: `1px solid ${C.goldLeaf}`,
@@ -50,6 +52,7 @@ export function WelcomeOffer({ customerName, discountCents, menuUrl }: WelcomeOf
           }}
         >
           <Section
+            className={cls.goldLeaf}
             style={{
               border: `1px dashed ${C.goldLeaf}`,
               borderRadius: "10px",
@@ -58,6 +61,7 @@ export function WelcomeOffer({ customerName, discountCents, menuUrl }: WelcomeOf
             }}
           >
             <Text
+              className={cls.accentStrong}
               style={{
                 fontSize: "26px",
                 fontFamily: DISPLAY_FONT,
@@ -70,6 +74,7 @@ export function WelcomeOffer({ customerName, discountCents, menuUrl }: WelcomeOf
               {amount} off your first order
             </Text>
             <Text
+              className={cls.goldDeep}
               style={{
                 fontSize: "13px",
                 fontFamily: BURMESE_FONT,
@@ -91,6 +96,7 @@ export function WelcomeOffer({ customerName, discountCents, menuUrl }: WelcomeOf
 
       <Section style={{ padding: "20px 28px 32px 28px" }}>
         <Text
+          className={cls.faint}
           style={{
             fontSize: "12px",
             fontFamily: BODY_FONT,

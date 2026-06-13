@@ -7,6 +7,7 @@ import {
   C,
   DISPLAY_FONT,
   bodyStyle,
+  cls,
   headingStyle,
   kickerStyle,
 } from "./components/theme";
@@ -59,8 +60,10 @@ export function RefundNotification({
     <EmailLayout emailType="refund" previewText={previewText} showReferral={false}>
       {/* Greeting */}
       <Section style={{ padding: "30px 28px 0 28px" }}>
-        <Text style={headingStyle(20)}>Dear {customerName},</Text>
-        <Text style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
+        <Text className={cls.ink} style={headingStyle(20)}>
+          Dear {customerName},
+        </Text>
+        <Text className={cls.muted} style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
           {isPartialRefund
             ? `We've processed a partial refund for your order #${shortOrderId(orderId)}.`
             : `We've processed a full refund for your order #${shortOrderId(orderId)}.`}{" "}
@@ -70,6 +73,7 @@ export function RefundNotification({
 
       {/* Refund Breakdown Table */}
       <Section
+        className={`${cls.vellum} ${cls.line}`}
         style={{
           margin: "0 28px",
           padding: "20px",
@@ -78,12 +82,15 @@ export function RefundNotification({
           border: `1px solid ${C.line}`,
         }}
       >
-        <Text style={{ ...kickerStyle(), margin: "0 0 12px 0" }}>Refund Breakdown</Text>
+        <Text className={cls.accent} style={{ ...kickerStyle(), margin: "0 0 12px 0" }}>
+          Refund Breakdown
+        </Text>
 
         {/* Original order total */}
         <Row style={{ width: "100%" }}>
           <Column style={{ width: "70%" }}>
             <Text
+              className={cls.ink}
               style={{
                 fontSize: "14px",
                 color: C.ink,
@@ -96,6 +103,7 @@ export function RefundNotification({
           </Column>
           <Column style={{ width: "30%" }}>
             <Text
+              className={cls.ink}
               style={{
                 fontSize: "14px",
                 color: C.ink,
@@ -109,13 +117,17 @@ export function RefundNotification({
           </Column>
         </Row>
 
-        <Hr style={{ borderColor: C.goldLeaf, borderWidth: "1px 0 0 0", margin: "8px 0" }} />
+        <Hr
+          className={cls.goldLeaf}
+          style={{ borderColor: C.goldLeaf, borderWidth: "1px 0 0 0", margin: "8px 0" }}
+        />
 
         {/* Refunded items */}
         {refundedItems.map((item, idx) => (
           <Row key={`refund-item-${idx}`} style={{ width: "100%" }}>
             <Column style={{ width: "70%" }}>
               <Text
+                className={cls.muted}
                 style={{
                   fontSize: "13px",
                   color: C.inkMuted,
@@ -128,6 +140,7 @@ export function RefundNotification({
             </Column>
             <Column style={{ width: "30%" }}>
               <Text
+                className={cls.muted}
                 style={{
                   fontSize: "13px",
                   color: C.inkMuted,
@@ -147,6 +160,7 @@ export function RefundNotification({
           <Row style={{ width: "100%" }}>
             <Column style={{ width: "70%" }}>
               <Text
+                className={cls.muted}
                 style={{
                   fontSize: "13px",
                   color: C.inkMuted,
@@ -159,6 +173,7 @@ export function RefundNotification({
             </Column>
             <Column style={{ width: "30%" }}>
               <Text
+                className={cls.muted}
                 style={{
                   fontSize: "13px",
                   color: C.inkMuted,
@@ -173,12 +188,16 @@ export function RefundNotification({
           </Row>
         )}
 
-        <Hr style={{ borderColor: C.goldLeaf, borderWidth: "1px 0 0 0", margin: "8px 0" }} />
+        <Hr
+          className={cls.goldLeaf}
+          style={{ borderColor: C.goldLeaf, borderWidth: "1px 0 0 0", margin: "8px 0" }}
+        />
 
         {/* Total refund — editorial serif figure */}
         <Row style={{ width: "100%" }}>
           <Column style={{ width: "70%" }}>
             <Text
+              className={cls.ink}
               style={{
                 fontSize: "16px",
                 fontWeight: 600,
@@ -192,6 +211,7 @@ export function RefundNotification({
           </Column>
           <Column style={{ width: "30%" }}>
             <Text
+              className={cls.accentStrong}
               style={{
                 fontSize: "18px",
                 fontWeight: 700,
@@ -209,6 +229,7 @@ export function RefundNotification({
 
       {/* Refund Details Box */}
       <Section
+        className={isPartialRefund ? cls.goldTint : cls.sageTint}
         style={{
           margin: "16px 28px 0 28px",
           padding: "16px 20px",
@@ -218,6 +239,7 @@ export function RefundNotification({
         }}
       >
         <Text
+          className={cls.ink}
           style={{
             fontSize: "14px",
             fontWeight: 700,
@@ -229,6 +251,7 @@ export function RefundNotification({
           Refund Details
         </Text>
         <Text
+          className={cls.ink}
           style={{
             fontSize: "13px",
             color: C.ink,
@@ -240,6 +263,7 @@ export function RefundNotification({
           <strong>Method:</strong> {refundMethod}
         </Text>
         <Text
+          className={cls.ink}
           style={{
             fontSize: "13px",
             color: C.ink,
@@ -251,6 +275,7 @@ export function RefundNotification({
           <strong>Timeline:</strong> Funds will appear within {refundTimeline}
         </Text>
         <Text
+          className={cls.ink}
           style={{
             fontSize: "13px",
             color: C.ink,
@@ -279,6 +304,7 @@ export function RefundNotification({
       {/* Secondary CTA */}
       <Section style={{ padding: "12px 28px 0 28px", textAlign: "center" as const }}>
         <Link
+          className={cls.accent}
           href={`${APP_URL}/menu`}
           style={{
             color: C.accent,
@@ -293,8 +319,12 @@ export function RefundNotification({
 
       {/* Need help? section */}
       <Section style={{ padding: "26px 28px 0 28px" }}>
-        <Hr style={{ borderColor: C.line, borderWidth: "1px 0 0 0", margin: "0 0 18px 0" }} />
+        <Hr
+          className={cls.line}
+          style={{ borderColor: C.line, borderWidth: "1px 0 0 0", margin: "0 0 18px 0" }}
+        />
         <Text
+          className={cls.faint}
           style={{
             fontSize: "13px",
             color: C.inkFaint,
@@ -306,6 +336,7 @@ export function RefundNotification({
         >
           Need help?{" "}
           <Link
+            className={cls.accent}
             href="mailto:admin@mandalaymorningstar.com"
             style={{ color: C.accent, textDecoration: "underline" }}
           >

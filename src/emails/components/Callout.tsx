@@ -1,5 +1,5 @@
 import { Section, Text } from "@react-email/components";
-import { BODY_FONT, C } from "./theme";
+import { BODY_FONT, C, cls } from "./theme";
 
 export type CalloutTone = "info" | "warn" | "success" | "accent";
 
@@ -11,11 +11,54 @@ interface CalloutProps {
   style?: React.CSSProperties;
 }
 
-const TONES: Record<CalloutTone, { bg: string; border: string; title: string; body: string }> = {
-  info: { bg: C.blueTint, border: C.blueTintBorder, title: C.blueDeep, body: C.ink },
-  warn: { bg: C.goldTint, border: C.goldTintBorder, title: C.goldDeep, body: C.ink },
-  success: { bg: C.sageTint, border: C.sageTintBorder, title: C.sageDeep, body: C.ink },
-  accent: { bg: C.clayTint, border: C.clayTintBorder, title: C.accent, body: C.ink },
+const TONES: Record<
+  CalloutTone,
+  {
+    bg: string;
+    border: string;
+    title: string;
+    body: string;
+    bgCls: string;
+    borderCls: string;
+    titleCls: string;
+  }
+> = {
+  info: {
+    bg: C.blueTint,
+    border: C.blueTintBorder,
+    title: C.blueDeep,
+    body: C.ink,
+    bgCls: cls.blueTint,
+    borderCls: cls.blueBorder,
+    titleCls: cls.blueDeep,
+  },
+  warn: {
+    bg: C.goldTint,
+    border: C.goldTintBorder,
+    title: C.goldDeep,
+    body: C.ink,
+    bgCls: cls.goldTint,
+    borderCls: cls.goldBorder,
+    titleCls: cls.goldDeep,
+  },
+  success: {
+    bg: C.sageTint,
+    border: C.sageTintBorder,
+    title: C.sageDeep,
+    body: C.ink,
+    bgCls: cls.sageTint,
+    borderCls: cls.sageBorder,
+    titleCls: cls.sageDeep,
+  },
+  accent: {
+    bg: C.clayTint,
+    border: C.clayTintBorder,
+    title: C.accent,
+    body: C.ink,
+    bgCls: cls.clayTint,
+    borderCls: cls.clayBorder,
+    titleCls: cls.accent,
+  },
 };
 
 /** Tinted paper panel — the one way emails set copy apart from the page. */
@@ -23,6 +66,7 @@ export function Callout({ tone = "warn", title, children, style }: CalloutProps)
   const t = TONES[tone];
   return (
     <Section
+      className={`${t.bgCls} ${t.borderCls}`}
       style={{
         padding: "13px 16px",
         backgroundColor: t.bg,
@@ -33,6 +77,7 @@ export function Callout({ tone = "warn", title, children, style }: CalloutProps)
     >
       {title != null && (
         <Text
+          className={t.titleCls}
           style={{
             fontSize: "13px",
             fontFamily: BODY_FONT,
@@ -47,6 +92,7 @@ export function Callout({ tone = "warn", title, children, style }: CalloutProps)
       )}
       {children != null && (
         <Text
+          className={cls.ink}
           style={{
             fontSize: "13px",
             fontFamily: BODY_FONT,
