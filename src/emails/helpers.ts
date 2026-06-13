@@ -2,10 +2,11 @@
  * Shared helpers for email templates.
  */
 import { TIMEZONE } from "@/types/delivery";
+import { appOrigin } from "./components/origin";
 
 export { BODY_FONT as FONT_STACK, DISPLAY_FONT as SERIF_STACK } from "./components/theme";
 
-export const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
+export const APP_URL = appOrigin();
 
 export function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;

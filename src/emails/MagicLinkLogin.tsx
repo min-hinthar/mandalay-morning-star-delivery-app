@@ -7,6 +7,7 @@ import {
   C,
   DISPLAY_FONT,
   bodyStyle,
+  cls,
   headingStyle,
   labelStyle,
 } from "./components/theme";
@@ -29,8 +30,10 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
     >
       {/* Greeting */}
       <Section style={{ padding: "30px 28px 0 28px" }}>
-        <Text style={headingStyle(22)}>Mingalabar! Welcome back</Text>
-        <Text style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
+        <Text className={cls.ink} style={headingStyle(22)}>
+          Mingalabar! Welcome back
+        </Text>
+        <Text className={cls.muted} style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
           Tap the button below to sign in to Mandalay Morning Star. No password needed — this link
           signs you in securely.
         </Text>
@@ -38,6 +41,7 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
 
       {/* Account */}
       <Section
+        className={`${cls.vellum} ${cls.line}`}
         style={{
           margin: "0 28px 20px 28px",
           padding: "16px 20px",
@@ -46,8 +50,11 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
           borderRadius: "12px",
         }}
       >
-        <Text style={labelStyle()}>Signing in as</Text>
+        <Text className={cls.faint} style={labelStyle()}>
+          Signing in as
+        </Text>
         <Text
+          className={cls.ink}
           style={{
             fontSize: "16px",
             fontFamily: BODY_FONT,
@@ -69,6 +76,7 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
       {code && (
         <Section style={{ padding: "20px 28px 0 28px" }}>
           <Text
+            className={cls.muted}
             style={{
               fontSize: "13px",
               fontFamily: BODY_FONT,
@@ -80,6 +88,7 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
             Or enter this code on the sign-in screen:
           </Text>
           <Section
+            className={`${cls.vellum} ${cls.goldLeaf}`}
             style={{
               backgroundColor: C.vellum,
               border: `1px solid ${C.goldLeaf}`,
@@ -88,6 +97,7 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
             }}
           >
             <Section
+              className={cls.goldLeaf}
               style={{
                 border: `1px dashed ${C.goldLeaf}`,
                 borderRadius: "8px",
@@ -96,6 +106,7 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
               }}
             >
               <Text
+                className={cls.accentStrong}
                 style={{
                   fontSize: "22px",
                   fontFamily: DISPLAY_FONT,
@@ -115,6 +126,7 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
       {/* Fallback link */}
       <Section style={{ padding: "16px 28px 0 28px" }}>
         <Text
+          className={cls.faint}
           style={{
             fontSize: "12px",
             fontFamily: BODY_FONT,
@@ -126,6 +138,7 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
           Button not working? Copy and paste this link into your browser:
         </Text>
         <Text
+          className={cls.accent}
           style={{
             fontSize: "12px",
             fontFamily: BODY_FONT,
@@ -142,6 +155,7 @@ export function MagicLinkLogin({ email, magicLink, code, expiresIn }: MagicLinkL
       {/* Expiry + security note */}
       <Section style={{ padding: "20px 28px 32px 28px" }}>
         <Text
+          className={cls.faint}
           style={{
             fontSize: "13px",
             fontFamily: BODY_FONT,

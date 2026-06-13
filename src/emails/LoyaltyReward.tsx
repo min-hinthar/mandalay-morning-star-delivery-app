@@ -10,6 +10,7 @@ import {
   DISPLAY_FONT,
   bodyStyle,
   burmeseStyle,
+  cls,
   headingStyle,
 } from "./components/theme";
 import { formatPrice } from "./helpers";
@@ -101,9 +102,12 @@ export function LoyaltyReward({
       {/* Hero */}
       <Section style={{ padding: "30px 28px 0 28px", textAlign: "center" as const }}>
         <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{heroEmoji}</Text>
-        <Text style={headingStyle(22)}>{heading}</Text>
+        <Text className={cls.ink} style={headingStyle(22)}>
+          {heading}
+        </Text>
         {showTier && (
           <Text
+            className={`${cls.goldTint} ${cls.goldBorder} ${cls.goldDeep}`}
             style={{
               fontSize: "13px",
               fontFamily: BODY_FONT,
@@ -120,10 +124,13 @@ export function LoyaltyReward({
             {tierEmoji} {tierName} · {tierEnglish} tier
           </Text>
         )}
-        <Text style={bodyStyle(15)}>
+        <Text className={cls.muted} style={bodyStyle(15)}>
           {customerName}, {intro}
         </Text>
-        <Text style={{ ...burmeseStyle(14), color: C.goldDeep, margin: "10px 0 0 0" }}>
+        <Text
+          className={cls.goldDeep}
+          style={{ ...burmeseStyle(14), color: C.goldDeep, margin: "10px 0 0 0" }}
+        >
           ကျေးဇူးအများကြီးတင်ပါတယ်နော် — နောက်ထပ်အော်ဒါအတွက် {amount} လျှော့ပေးလိုက်တယ် 💛
         </Text>
       </Section>
@@ -131,6 +138,7 @@ export function LoyaltyReward({
       {/* Code ticket */}
       <Section style={{ padding: "20px 28px 0 28px" }}>
         <Text
+          className={cls.muted}
           style={{
             fontSize: "13px",
             fontFamily: BURMESE_FONT,
@@ -142,6 +150,7 @@ export function LoyaltyReward({
           Use this code at checkout ($50+) · ချက်အောက်မှာသုံးပါ
         </Text>
         <Section
+          className={`${cls.vellum} ${cls.goldLeaf}`}
           style={{
             backgroundColor: C.vellum,
             border: `1px solid ${C.goldLeaf}`,
@@ -150,6 +159,7 @@ export function LoyaltyReward({
           }}
         >
           <Section
+            className={cls.goldLeaf}
             style={{
               border: `1px dashed ${C.goldLeaf}`,
               borderRadius: "8px",
@@ -158,6 +168,7 @@ export function LoyaltyReward({
             }}
           >
             <Text
+              className={cls.accentStrong}
               style={{
                 fontSize: "22px",
                 fontFamily: DISPLAY_FONT,
@@ -183,6 +194,7 @@ export function LoyaltyReward({
 
       <Section style={{ padding: "20px 28px 32px 28px" }}>
         <Text
+          className={cls.faint}
           style={{
             fontSize: "12px",
             fontFamily: BODY_FONT,

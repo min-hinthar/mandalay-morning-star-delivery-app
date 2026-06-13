@@ -5,7 +5,7 @@ import { DeliveryBlock } from "./components/DeliveryBlock";
 import { EmailLayout } from "./components/EmailLayout";
 import { OrderItemsTable } from "./components/OrderItemsTable";
 import { OrderTotalsTable } from "./components/OrderTotalsTable";
-import { BODY_FONT, C } from "./components/theme";
+import { BODY_FONT, C, cls } from "./components/theme";
 import { APP_URL, formatDate, shortOrderId } from "./helpers";
 
 // ─── Types ────────────────────────────────────────────────
@@ -108,6 +108,7 @@ export function AdminNewOrderAlert({
         <DataField label="Order Number" bold>
           <Link
             href={adminOrderUrl}
+            className={cls.accent}
             style={{ color: C.accent, textDecoration: "underline", fontWeight: 700 }}
           >
             #{shortId}
@@ -116,7 +117,10 @@ export function AdminNewOrderAlert({
         <DataField label="Customer">
           {customerName}
           <br />
-          <span style={{ fontSize: "13px", fontFamily: BODY_FONT, color: C.inkMuted }}>
+          <span
+            className={cls.muted}
+            style={{ fontSize: "13px", fontFamily: BODY_FONT, color: C.inkMuted }}
+          >
             {customerEmail}
           </span>
         </DataField>
@@ -153,6 +157,7 @@ export function AdminNewOrderAlert({
       {/* ── Preparation Notes Summary (per-item) ──────── */}
       {items.some((i) => i.notes && i.notes.trim().length > 0) && (
         <Section
+          className={`${cls.goldTint} ${cls.goldBorder}`}
           style={{
             margin: "16px 28px 0 28px",
             padding: "13px 16px",
@@ -162,6 +167,7 @@ export function AdminNewOrderAlert({
           }}
         >
           <Text
+            className={cls.goldDeep}
             style={{
               fontSize: "13px",
               fontFamily: BODY_FONT,
@@ -177,6 +183,7 @@ export function AdminNewOrderAlert({
             .map((i, idx) => (
               <Text
                 key={`prep-${idx}`}
+                className={cls.ink}
                 style={{
                   fontSize: "13px",
                   fontFamily: BODY_FONT,

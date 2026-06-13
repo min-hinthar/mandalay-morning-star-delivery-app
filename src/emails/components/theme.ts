@@ -16,6 +16,8 @@
  * them) — depth from hairlines, tinted panels, dot-grids, letterpress edges.
  */
 
+import { appOrigin } from "./origin";
+
 /** Theme-flipping tokens: [light, dark]. Drives both `C` and the head CSS. */
 const TOKENS = {
   ink: ["#141413", "#f4f1ea"],
@@ -44,35 +46,38 @@ const TOKENS = {
 
 type TokenKey = keyof typeof TOKENS;
 
-/** A theme-flipping token → `var(--eml-key, lightFallback)`. */
-function v(key: TokenKey): string {
-  return `var(--eml-${key}, ${TOKENS[key][0]})`;
-}
-
+/**
+ * Inline values are FLAT LIGHT HEX (the light value of each token). Dark mode is
+ * driven entirely by the `.eml-*` classes + `@media (prefers-color-scheme: dark)`
+ * / `[data-ogsc]` overrides in EMAIL_HEAD_CSS — NOT by CSS vars: the Word-based
+ * Outlook desktop renderer discards `var()` declarations wholesale (it never
+ * applies the in-`var()` fallback), which would blank the card/text. Flat hex
+ * renders everywhere; the class overrides flip only in dark-capable clients.
+ */
 export const C = {
-  // Theme-flipping (light fallback baked into the var)
-  ink: v("ink"),
-  inkMuted: v("inkMuted"),
-  inkFaint: v("inkFaint"),
-  paper: v("paper"),
-  vellum: v("vellum"),
-  canvas: v("canvas"),
-  line: v("line"),
-  lineStrong: v("lineStrong"),
-  goldLeaf: v("goldLeaf"),
-  accent: v("accent"),
-  accentStrong: v("accentStrong"),
-  clayTint: v("clayTint"),
-  clayTintBorder: v("clayTintBorder"),
-  blueDeep: v("blueDeep"),
-  blueTint: v("blueTint"),
-  blueTintBorder: v("blueTintBorder"),
-  sageDeep: v("sageDeep"),
-  sageTint: v("sageTint"),
-  sageTintBorder: v("sageTintBorder"),
-  goldDeep: v("goldDeep"),
-  goldTint: v("goldTint"),
-  goldTintBorder: v("goldTintBorder"),
+  // Theme-flipping tokens (flat light hex; pair the matching `cls.*` class for dark)
+  ink: TOKENS.ink[0],
+  inkMuted: TOKENS.inkMuted[0],
+  inkFaint: TOKENS.inkFaint[0],
+  paper: TOKENS.paper[0],
+  vellum: TOKENS.vellum[0],
+  canvas: TOKENS.canvas[0],
+  line: TOKENS.line[0],
+  lineStrong: TOKENS.lineStrong[0],
+  goldLeaf: TOKENS.goldLeaf[0],
+  accent: TOKENS.accent[0],
+  accentStrong: TOKENS.accentStrong[0],
+  clayTint: TOKENS.clayTint[0],
+  clayTintBorder: TOKENS.clayTintBorder[0],
+  blueDeep: TOKENS.blueDeep[0],
+  blueTint: TOKENS.blueTint[0],
+  blueTintBorder: TOKENS.blueTintBorder[0],
+  sageDeep: TOKENS.sageDeep[0],
+  sageTint: TOKENS.sageTint[0],
+  sageTintBorder: TOKENS.sageTintBorder[0],
+  goldDeep: TOKENS.goldDeep[0],
+  goldTint: TOKENS.goldTint[0],
+  goldTintBorder: TOKENS.goldTintBorder[0],
 
   // Static brand chroma — reads on both light & dark, never flips
   clay: "#d97757", // book cloth — CTAs/shapes
@@ -171,14 +176,16 @@ export const hairline: React.CSSProperties = {
 };
 
 // ── Brand assets (hosted; loaded by clients that show images) ──
-const ORIGIN = (process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com").replace(
-  /^http:\/\/https:\/\//,
-  "https://"
-);
+const ORIGIN = appOrigin();
 /** Full logo (3:2 oval badge). Rendered at natural ratio — never cropped. */
 export const LOGO_URL = `${ORIGIN}/logo.png`;
-/** The warm menu photo used across the app's hero/menu/checkout surfaces. */
-export const PHOTO_URL = `${ORIGIN}/images/menu-section-bg.webp`;
+/**
+ * Masthead banner — a pre-cropped 4:1 JPEG (NOT the .webp: WebP is unsupported
+ * in Outlook desktop/.com & some webmail, which would show a broken-image box).
+ * Already cropped to the display ratio so clients that ignore object-fit don't
+ * squash it.
+ */
+export const MASTHEAD_URL = `${ORIGIN}/images/email-masthead.jpg`;
 
 // ── Anthropic thematic textures (email-safe: degrade to flat color) ──
 /** Faint dot-grid — a repeating radial-gradient (Apple Mail/iOS; ignored elsewhere). */
@@ -187,53 +194,101 @@ export function dotGrid(color = "rgba(20,20,19,.05)"): string {
 }
 export const DOT_GRID_LIGHT = dotGrid("rgba(20,20,19,.05)");
 export const DOT_GRID_SIZE = "16px 16px";
-/** Warm vellum wash + dot grid, layered for the canvas behind the card. */
-export const CANVAS_TEXTURE = `${DOT_GRID_LIGHT}`;
 
-// ── Dark-mode class hooks (texture + Outlook.com belt-and-suspenders) ──
-/** Classes used by the head CSS — `dot` adds the dot-grid; others aid Outlook.com. */
+// ── Dark-mode classes (paired with the flat-hex inline token) ──
+/**
+ * Each theme-flipping token has a matching class. Add the class wherever the
+ * inline style uses that token; the head CSS flips it under dark mode. Inline
+ * flat-hex is the universal base (Outlook included); the class only bites in
+ * dark-capable clients (Apple Mail / iOS; Outlook.com via [data-ogsc]).
+ */
 export const cls = {
-  body: "eml-body",
-  card: "eml-card",
-  vellum: "eml-vellum",
+  // text color
   ink: "eml-ink",
   muted: "eml-muted",
   faint: "eml-faint",
-  hairline: "eml-hairline",
   accent: "eml-accent",
+  accentStrong: "eml-accent-strong",
+  blueDeep: "eml-blue-deep",
+  sageDeep: "eml-sage-deep",
+  goldDeep: "eml-gold-deep",
+  // surface bg
+  card: "eml-card", // paper
+  vellum: "eml-vellum",
+  body: "eml-body", // canvas
+  clayTint: "eml-clay-tint",
+  blueTint: "eml-blue-tint",
+  sageTint: "eml-sage-tint",
+  goldTint: "eml-gold-tint",
+  // border color
+  line: "eml-line",
+  lineStrong: "eml-line-strong",
+  goldLeaf: "eml-gold-leaf",
+  clayBorder: "eml-clay-bd",
+  blueBorder: "eml-blue-bd",
+  sageBorder: "eml-sage-bd",
+  goldBorder: "eml-gold-bd",
+  // texture
   dot: "eml-dot",
 } as const;
 
-/** `:root` light var block + `@media dark` flip, generated from TOKENS. */
-function rootVars(theme: 0 | 1): string {
-  return (Object.keys(TOKENS) as TokenKey[])
-    .map((k) => `--eml-${k}: ${TOKENS[k][theme]};`)
-    .join(" ");
+/** Which CSS property each token-class overrides in dark mode. */
+const TEXT_CLASSES: [string, TokenKey][] = [
+  [cls.ink, "ink"],
+  [cls.muted, "inkMuted"],
+  [cls.faint, "inkFaint"],
+  [cls.accent, "accent"],
+  [cls.accentStrong, "accentStrong"],
+  [cls.blueDeep, "blueDeep"],
+  [cls.sageDeep, "sageDeep"],
+  [cls.goldDeep, "goldDeep"],
+];
+const BG_CLASSES: [string, TokenKey][] = [
+  [cls.card, "paper"],
+  [cls.vellum, "vellum"],
+  [cls.body, "canvas"],
+  [cls.clayTint, "clayTint"],
+  [cls.blueTint, "blueTint"],
+  [cls.sageTint, "sageTint"],
+  [cls.goldTint, "goldTint"],
+];
+const BORDER_CLASSES: [string, TokenKey][] = [
+  [cls.line, "line"],
+  [cls.lineStrong, "lineStrong"],
+  [cls.goldLeaf, "goldLeaf"],
+  [cls.clayBorder, "clayTintBorder"],
+  [cls.blueBorder, "blueTintBorder"],
+  [cls.sageBorder, "sageTintBorder"],
+  [cls.goldBorder, "goldTintBorder"],
+];
+
+function darkRules(prefix: string): string {
+  const text = TEXT_CLASSES.map(
+    ([c, k]) => `${prefix} .${c} { color: ${TOKENS[k][1]} !important; }`
+  );
+  const bg = BG_CLASSES.map(
+    ([c, k]) => `${prefix} .${c} { background-color: ${TOKENS[k][1]} !important; }`
+  );
+  const bd = BORDER_CLASSES.map(
+    ([c, k]) => `${prefix} .${c} { border-color: ${TOKENS[k][1]} !important; }`
+  );
+  return [...text, ...bg, ...bd].join("\n  ");
 }
 
 /**
- * Head payload: webfonts + the light/dark CSS-var system + dot-grid utility.
- * Injected once in EmailLayout's <Head>. Apple Mail / iOS Mail honor the var
- * flip (true dark theme); Gmail / Outlook strip <style> and use the inline
- * light-hex fallbacks baked into every `var(--eml-x, #light)`.
+ * Head payload: webfonts + base color-scheme + the dot-grid utility + the
+ * class-based dark overrides (@media prefers-color-scheme + Outlook.com
+ * [data-ogsc]). Injected once in EmailLayout's <Head>. Clients that strip
+ * <style> (Outlook desktop, some webmail) keep the flat-hex light inline
+ * styles — no regression.
  */
 export const EMAIL_HEAD_CSS = `
 ${FONTS_IMPORT_CSS}
-:root { color-scheme: light dark; supported-color-schemes: light dark; ${rootVars(0)} }
+:root { color-scheme: light dark; supported-color-schemes: light dark; }
 .eml-dot { background-image: ${DOT_GRID_LIGHT}; background-size: ${DOT_GRID_SIZE}; }
 @media (prefers-color-scheme: dark) {
-  :root { ${rootVars(1)} }
-  .eml-body { background-color: ${TOKENS.canvas[1]} !important; }
-  .eml-card { background-color: ${TOKENS.paper[1]} !important; border-color: ${TOKENS.line[1]} !important; }
-  .eml-vellum { background-color: ${TOKENS.vellum[1]} !important; }
-  .eml-ink { color: ${TOKENS.ink[1]} !important; }
-  .eml-muted { color: ${TOKENS.inkMuted[1]} !important; }
-  .eml-faint { color: ${TOKENS.inkFaint[1]} !important; }
-  .eml-accent { color: ${TOKENS.accent[1]} !important; }
   .eml-dot { background-image: ${dotGrid("rgba(244,241,234,.06)")} !important; }
+  ${darkRules("")}
 }
-[data-ogsc] .eml-body { background-color: ${TOKENS.canvas[1]} !important; }
-[data-ogsc] .eml-card { background-color: ${TOKENS.paper[1]} !important; }
-[data-ogsc] .eml-ink { color: ${TOKENS.ink[1]} !important; }
-[data-ogsc] .eml-muted { color: ${TOKENS.inkMuted[1]} !important; }
+${darkRules("[data-ogsc]")}
 `;

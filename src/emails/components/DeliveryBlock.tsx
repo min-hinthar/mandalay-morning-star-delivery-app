@@ -1,6 +1,6 @@
 import { Section, Text } from "@react-email/components";
 import { TIMEZONE } from "@/types/delivery";
-import { BODY_FONT, C } from "./theme";
+import { BODY_FONT, C, cls } from "./theme";
 
 interface DeliveryAddress {
   line1: string;
@@ -64,6 +64,7 @@ export function DeliveryBlock({
 
   return (
     <Section
+      className={`${cls.sageTint} ${cls.sageBorder}`}
       style={{
         margin: "0 28px",
         padding: "18px 20px",
@@ -76,6 +77,7 @@ export function DeliveryBlock({
       {/* Delivery Date + Time */}
       {deliveryDate && (
         <Text
+          className={cls.ink}
           style={{
             fontSize: "14px",
             color: C.ink,
@@ -89,6 +91,7 @@ export function DeliveryBlock({
       )}
       {deliveryTimeRange && (
         <Text
+          className={cls.muted}
           style={{
             fontSize: "13px",
             color: C.inkMuted,
@@ -101,6 +104,7 @@ export function DeliveryBlock({
       )}
       {deliveryTimeRange && (
         <Text
+          className={cls.faint}
           style={{
             fontSize: "11px",
             color: C.inkFaint,
@@ -115,6 +119,7 @@ export function DeliveryBlock({
 
       {/* Address */}
       <Text
+        className={cls.ink}
         style={{
           fontSize: "14px",
           color: C.ink,
@@ -126,6 +131,7 @@ export function DeliveryBlock({
         {"📍"} Delivery Address
       </Text>
       <Text
+        className={cls.muted}
         style={{
           fontSize: "13px",
           color: C.inkMuted,
@@ -148,6 +154,7 @@ export function DeliveryBlock({
       {/* Driver name */}
       {driverName && (
         <Text
+          className={cls.muted}
           style={{
             fontSize: "13px",
             color: C.inkMuted,
@@ -155,13 +162,17 @@ export function DeliveryBlock({
             fontFamily: BODY_FONT,
           }}
         >
-          {"🚗"} Driver: <strong style={{ color: C.ink }}>{driverName}</strong>
+          {"🚗"} Driver:{" "}
+          <strong className={cls.ink} style={{ color: C.ink }}>
+            {driverName}
+          </strong>
         </Text>
       )}
 
       {/* Special instructions */}
       {instructions && (
         <div
+          className={`${cls.card} ${cls.sageBorder}`}
           style={{
             marginTop: "12px",
             padding: "10px 12px",
@@ -171,6 +182,7 @@ export function DeliveryBlock({
           }}
         >
           <Text
+            className={cls.sageDeep}
             style={{
               fontSize: "12px",
               color: C.sageDeep,
@@ -182,6 +194,7 @@ export function DeliveryBlock({
             {"📝"} Special Instructions
           </Text>
           <Text
+            className={cls.ink}
             style={{
               fontSize: "13px",
               color: C.ink,

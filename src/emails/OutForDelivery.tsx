@@ -4,7 +4,7 @@ import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
 import { OrderStatusTracker } from "./components/OrderStatusTracker";
 import { SupportSection } from "./components/SupportSection";
-import { C, DISPLAY_FONT, bodyStyle, headingStyle } from "./components/theme";
+import { C, DISPLAY_FONT, bodyStyle, cls, headingStyle } from "./components/theme";
 import { APP_URL, shortOrderId } from "./helpers";
 
 // ============================================
@@ -53,6 +53,7 @@ export function OutForDelivery({
     <EmailLayout emailType="delivery" previewText={previewText}>
       {/* Hero */}
       <Section
+        className={cls.blueTint}
         style={{
           padding: "32px 28px 16px 28px",
           backgroundColor: C.blueTint,
@@ -60,10 +61,10 @@ export function OutForDelivery({
         }}
       >
         <Text style={{ fontSize: "40px", margin: "0 0 8px 0" }}>{"🚚"}</Text>
-        <Heading as="h2" style={{ ...headingStyle(24), margin: "0 0 12px 0" }}>
+        <Heading as="h2" className={cls.ink} style={{ ...headingStyle(24), margin: "0 0 12px 0" }}>
           Your order is on its way!
         </Heading>
-        <Text style={{ ...bodyStyle(16), lineHeight: "1.5" }}>
+        <Text className={cls.muted} style={{ ...bodyStyle(16), lineHeight: "1.5" }}>
           Hi {customerName}, your order #{shortId} with {itemCount}{" "}
           {itemCount === 1 ? "item" : "items"} is out for delivery.
         </Text>
@@ -88,8 +89,11 @@ export function OutForDelivery({
       {/* Item Preview */}
       {itemNames.length > 0 && (
         <Section style={{ padding: "0 28px 16px 28px" }}>
-          <Text style={{ ...bodyStyle(14), margin: "0 0 8px 0" }}>Items on the way:</Text>
+          <Text className={cls.muted} style={{ ...bodyStyle(14), margin: "0 0 8px 0" }}>
+            Items on the way:
+          </Text>
           <Text
+            className={cls.ink}
             style={{
               fontSize: "15px",
               color: C.ink,

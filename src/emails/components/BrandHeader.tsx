@@ -1,5 +1,5 @@
 import { Heading, Img, Section, Text } from "@react-email/components";
-import { BODY_FONT, BURMESE_FONT, C, DISPLAY_FONT, LOGO_URL, PHOTO_URL, cls } from "./theme";
+import { BODY_FONT, BURMESE_FONT, C, DISPLAY_FONT, LOGO_URL, MASTHEAD_URL, cls } from "./theme";
 
 /** One mood per email family — sets the chip under the wordmark. */
 export type EmailMood =
@@ -90,7 +90,7 @@ function BrandLogo({ width = 168 }: { width?: number }) {
 function AdminHeader() {
   return (
     <Section
-      className={cls.hairline}
+      className={cls.line}
       style={{ padding: "16px 28px 14px 28px", borderBottom: `1px solid ${C.line}` }}
     >
       <table cellPadding="0" cellSpacing="0" role="presentation" style={{ width: "100%" }}>
@@ -107,7 +107,7 @@ function AdminHeader() {
             </td>
             <td style={{ verticalAlign: "middle", textAlign: "right" as const }}>
               <Text
-                className={cls.accent}
+                className={cls.blueDeep}
                 style={{
                   fontSize: "10px",
                   fontFamily: BODY_FONT,
@@ -138,7 +138,7 @@ export function BrandHeader({ emailType, variant = "default" }: BrandHeaderProps
       {/* Thematic masthead — the warm menu photo as an editorial banner (the
           "appetite" cue + depth). Decorative; degrades to nothing if blocked. */}
       <Img
-        src={PHOTO_URL}
+        src={MASTHEAD_URL}
         alt=""
         width={600}
         height={150}

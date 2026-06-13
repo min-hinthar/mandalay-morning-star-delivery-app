@@ -1,6 +1,6 @@
 import { Img, Link, Section, Text } from "@react-email/components";
 import type { SuggestedItem } from "@/lib/email/suggestions";
-import { BODY_FONT, C, DISPLAY_FONT } from "./theme";
+import { BODY_FONT, C, DISPLAY_FONT, cls } from "./theme";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 
@@ -20,6 +20,7 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
   return (
     <Section style={{ padding: "26px 28px 0 28px" }}>
       <Text
+        className={cls.accent}
         style={{
           fontSize: "10px",
           fontFamily: BODY_FONT,
@@ -34,6 +35,7 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
         From our kitchen
       </Text>
       <Text
+        className={cls.ink}
         style={{
           fontSize: "17px",
           fontFamily: DISPLAY_FONT,
@@ -80,6 +82,7 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
                     />
                   ) : (
                     <div
+                      className={`${cls.vellum} ${cls.line}`}
                       style={{
                         width: "72px",
                         height: "54px",
@@ -96,6 +99,7 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
                     </div>
                   )}
                   <Text
+                    className={cls.muted}
                     style={{
                       fontSize: "12px",
                       fontFamily: BODY_FONT,
