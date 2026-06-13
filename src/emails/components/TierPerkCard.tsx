@@ -1,5 +1,5 @@
 import { Section, Text } from "@react-email/components";
-import { BODY_FONT, BURMESE_FONT, C, DISPLAY_FONT } from "./theme";
+import { BODY_FONT, BURMESE_FONT, C, DISPLAY_FONT, cls } from "./theme";
 
 /** Computed server-side from real lifetime spend — display only. */
 export interface TierPerkData {
@@ -24,6 +24,7 @@ export function TierPerkCard({ tier }: TierPerkCardProps) {
   return (
     <Section style={{ padding: "20px 28px 0 28px" }}>
       <Section
+        className={`${cls.clayTint} ${cls.clayBorder}`}
         style={{
           backgroundColor: C.clayTint,
           border: `1px solid ${C.clayTintBorder}`,
@@ -33,6 +34,7 @@ export function TierPerkCard({ tier }: TierPerkCardProps) {
         }}
       >
         <Text
+          className={cls.accentStrong}
           style={{
             fontSize: "14px",
             fontFamily: DISPLAY_FONT,
@@ -45,6 +47,7 @@ export function TierPerkCard({ tier }: TierPerkCardProps) {
           {tier.tierName !== tier.tierEnglish ? ` — ${tier.tierName}` : ""}
         </Text>
         <Text
+          className={cls.ink}
           style={{
             fontSize: "13px",
             fontFamily: BODY_FONT,
@@ -56,6 +59,7 @@ export function TierPerkCard({ tier }: TierPerkCardProps) {
           {tier.perkEn}
         </Text>
         <Text
+          className={cls.muted}
           style={{
             fontSize: "12px",
             fontFamily: BURMESE_FONT,

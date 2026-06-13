@@ -1,6 +1,7 @@
 import { Img, Link, Section, Text } from "@react-email/components";
 import type { SuggestedItem } from "@/lib/email/suggestions";
-import { BODY_FONT, C, DISPLAY_FONT } from "./theme";
+import { isHostableEmailImage } from "./DishThumb";
+import { BODY_FONT, C, DISPLAY_FONT, cls } from "./theme";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 
@@ -20,6 +21,7 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
   return (
     <Section style={{ padding: "26px 28px 0 28px" }}>
       <Text
+        className={cls.accent}
         style={{
           fontSize: "10px",
           fontFamily: BODY_FONT,
@@ -34,6 +36,7 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
         From our kitchen
       </Text>
       <Text
+        className={cls.ink}
         style={{
           fontSize: "17px",
           fontFamily: DISPLAY_FONT,
@@ -61,8 +64,11 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
                   padding: "8px",
                 }}
               >
-                <Link href={`${APP_URL}/menu`} style={{ textDecoration: "none" }}>
-                  {item.imageUrl ? (
+                <Link
+                  href={`${APP_URL}/menu?src=email_suggested`}
+                  style={{ textDecoration: "none" }}
+                >
+                  {isHostableEmailImage(item.imageUrl) ? (
                     <Img
                       src={item.imageUrl}
                       alt={item.name}
@@ -80,22 +86,27 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
                     />
                   ) : (
                     <div
+                      className={`${cls.vellum} ${cls.clayBorder} ${cls.accent}`}
                       style={{
                         width: "72px",
                         height: "54px",
                         borderRadius: "10px",
                         backgroundColor: C.vellum,
-                        border: `1px solid ${C.line}`,
+                        border: `1px solid ${C.clayTintBorder}`,
                         margin: "0 auto 8px auto",
                         lineHeight: "54px",
                         textAlign: "center" as const,
-                        fontSize: "20px",
+                        fontFamily: DISPLAY_FONT,
+                        fontSize: "26px",
+                        fontWeight: 600,
+                        color: C.accent,
                       }}
                     >
-                      {"🍜"}
+                      {(item.name.trim()[0] || "★").toUpperCase()}
                     </div>
                   )}
                   <Text
+                    className={cls.muted}
                     style={{
                       fontSize: "12px",
                       fontFamily: BODY_FONT,

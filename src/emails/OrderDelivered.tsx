@@ -6,7 +6,7 @@ import { NextDeliveryTeaser } from "./components/NextDeliveryTeaser";
 import { OrderStatusTracker } from "./components/OrderStatusTracker";
 import { ReferralCallout } from "./components/ReferralCallout";
 import { SupportSection } from "./components/SupportSection";
-import { BODY_FONT, C, DISPLAY_FONT } from "./components/theme";
+import { BODY_FONT, C, DISPLAY_FONT, cls } from "./components/theme";
 import { APP_URL, shortOrderId } from "./helpers";
 
 // ============================================
@@ -47,6 +47,7 @@ export function OrderDelivered({
     <EmailLayout emailType="delivered" previewText={previewText} showReferral={false}>
       {/* Hero */}
       <Section
+        className={cls.sageTint}
         style={{
           padding: "30px 28px 22px 28px",
           backgroundColor: C.sageTint,
@@ -56,6 +57,7 @@ export function OrderDelivered({
         <Text style={{ fontSize: "38px", margin: "0 0 8px 0" }}>{"✨"}</Text>
         <Heading
           as="h2"
+          className={cls.ink}
           style={{
             fontSize: "25px",
             fontWeight: 600,
@@ -68,6 +70,7 @@ export function OrderDelivered({
           Your order has been delivered!
         </Heading>
         <Text
+          className={cls.muted}
           style={{
             fontSize: "15px",
             color: C.inkMuted,
@@ -89,6 +92,7 @@ export function OrderDelivered({
       {itemNames.length > 0 && (
         <Section style={{ padding: "18px 28px 0 28px" }}>
           <Text
+            className={cls.faint}
             style={{
               fontSize: "11px",
               fontFamily: BODY_FONT,
@@ -102,6 +106,7 @@ export function OrderDelivered({
             Items delivered
           </Text>
           <Text
+            className={cls.ink}
             style={{
               fontSize: "15px",
               color: C.ink,

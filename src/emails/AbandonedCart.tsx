@@ -4,7 +4,7 @@ import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
 import { NextDeliveryTeaser } from "./components/NextDeliveryTeaser";
 import { OrderItemsTable } from "./components/OrderItemsTable";
-import { BODY_FONT, C, bodyStyle, headingStyle } from "./components/theme";
+import { BODY_FONT, C, bodyStyle, cls, headingStyle } from "./components/theme";
 import { formatPrice } from "./helpers";
 import { freeDeliveryPromoLine } from "@/lib/utils/delivery-promo";
 
@@ -52,8 +52,10 @@ export function AbandonedCart({
       {/* Hero */}
       <Section style={{ padding: "30px 28px 8px 28px", textAlign: "center" as const }}>
         <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{"🍜"}</Text>
-        <Text style={headingStyle(22)}>You left something delicious behind</Text>
-        <Text style={bodyStyle(15)}>
+        <Text className={cls.ink} style={headingStyle(22)}>
+          You left something delicious behind
+        </Text>
+        <Text className={cls.muted} style={bodyStyle(15)}>
           Hi {customerName}, your {itemCount} item{itemCount !== 1 ? "s" : ""} are still in your
           cart — ready whenever you are.
         </Text>
@@ -64,7 +66,7 @@ export function AbandonedCart({
 
       {/* Subtotal */}
       <Section style={{ padding: "16px 28px 0 28px" }}>
-        <Hr style={{ borderColor: C.line, margin: "0 0 12px 0" }} />
+        <Hr className={cls.line} style={{ borderColor: C.line, margin: "0 0 12px 0" }} />
         <table
           cellPadding="0"
           cellSpacing="0"
@@ -73,10 +75,13 @@ export function AbandonedCart({
           <tbody>
             <tr>
               <td>
-                <Text style={bodyStyle(15)}>Subtotal</Text>
+                <Text className={cls.muted} style={bodyStyle(15)}>
+                  Subtotal
+                </Text>
               </td>
               <td style={{ textAlign: "right" as const }}>
                 <Text
+                  className={cls.ink}
                   style={{
                     fontSize: "16px",
                     fontFamily: BODY_FONT,
@@ -93,6 +98,7 @@ export function AbandonedCart({
         </table>
         {freeDeliveryGap != null && (
           <Text
+            className={cls.sageDeep}
             style={{
               fontSize: "13px",
               fontFamily: BODY_FONT,
@@ -110,6 +116,7 @@ export function AbandonedCart({
       <Section style={{ padding: "20px 28px 0 28px", textAlign: "center" as const }}>
         <EmailButton href={cartUrl}>Complete your order</EmailButton>
         <Text
+          className={cls.faint}
           style={{
             fontSize: "12px",
             fontFamily: BODY_FONT,
@@ -127,6 +134,7 @@ export function AbandonedCart({
       {/* Promo reassurance */}
       <Section style={{ padding: "20px 28px 32px 28px" }}>
         <Text
+          className={cls.faint}
           style={{
             fontSize: "12px",
             fontFamily: BODY_FONT,

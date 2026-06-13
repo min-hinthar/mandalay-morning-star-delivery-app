@@ -2,7 +2,7 @@ import { Section, Text } from "@react-email/components";
 
 import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
-import { BODY_FONT, C, DISPLAY_FONT, bodyStyle, headingStyle } from "./components/theme";
+import { BODY_FONT, C, DISPLAY_FONT, bodyStyle, cls, headingStyle } from "./components/theme";
 import { formatPrice } from "./helpers";
 
 export interface ReferralRewardProps {
@@ -30,8 +30,10 @@ export function ReferralReward({
       {/* Hero */}
       <Section style={{ padding: "30px 28px 0 28px", textAlign: "center" as const }}>
         <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{"🎉"}</Text>
-        <Text style={headingStyle(22)}>Thank you for spreading the word, {referrerName}!</Text>
-        <Text style={bodyStyle(15)}>
+        <Text className={cls.ink} style={headingStyle(22)}>
+          Thank you for spreading the word, {referrerName}!
+        </Text>
+        <Text className={cls.muted} style={bodyStyle(15)}>
           A friend you referred just placed their first order — so here&apos;s{" "}
           <strong>{amount} off</strong> your next Burmese feast, on us.
         </Text>
@@ -40,6 +42,7 @@ export function ReferralReward({
       {/* Code ticket */}
       <Section style={{ padding: "20px 28px 0 28px" }}>
         <Text
+          className={cls.muted}
           style={{
             fontSize: "13px",
             fontFamily: BODY_FONT,
@@ -51,6 +54,7 @@ export function ReferralReward({
           Enter this code at checkout:
         </Text>
         <Section
+          className={`${cls.vellum} ${cls.goldLeaf}`}
           style={{
             backgroundColor: C.vellum,
             border: `1px solid ${C.goldLeaf}`,
@@ -59,6 +63,7 @@ export function ReferralReward({
           }}
         >
           <Section
+            className={cls.goldLeaf}
             style={{
               border: `1px dashed ${C.goldLeaf}`,
               borderRadius: "8px",
@@ -67,6 +72,7 @@ export function ReferralReward({
             }}
           >
             <Text
+              className={cls.accentStrong}
               style={{
                 fontSize: "22px",
                 fontFamily: DISPLAY_FONT,
@@ -89,6 +95,7 @@ export function ReferralReward({
 
       <Section style={{ padding: "20px 28px 32px 28px" }}>
         <Text
+          className={cls.faint}
           style={{
             fontSize: "12px",
             fontFamily: BODY_FONT,

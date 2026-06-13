@@ -1,6 +1,6 @@
 import { Section, Text } from "@react-email/components";
 import { EmailButton } from "./EmailButton";
-import { BURMESE_FONT, C, DISPLAY_FONT } from "./theme";
+import { BURMESE_FONT, C, DISPLAY_FONT, cls } from "./theme";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
 
@@ -18,6 +18,7 @@ export function ReferralCallout({ source = "email" }: ReferralCalloutProps) {
   return (
     <Section style={{ padding: "20px 28px 0 28px" }}>
       <Section
+        className={`${cls.vellum} ${cls.goldLeaf}`}
         style={{
           backgroundColor: C.vellum,
           border: `1px solid ${C.goldLeaf}`,
@@ -28,6 +29,7 @@ export function ReferralCallout({ source = "email" }: ReferralCalloutProps) {
       >
         <Text style={{ fontSize: "26px", margin: "0 0 8px 0" }}>{"💛"}</Text>
         <Text
+          className={cls.ink}
           style={{
             fontSize: "18px",
             fontFamily: DISPLAY_FONT,
@@ -40,6 +42,7 @@ export function ReferralCallout({ source = "email" }: ReferralCalloutProps) {
           Loved it? Share the love {"—"} you both get $10
         </Text>
         <Text
+          className={cls.muted}
           style={{
             fontSize: "14px",
             fontFamily: BURMESE_FONT,

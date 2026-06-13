@@ -4,7 +4,7 @@ import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
 import { NextDeliveryTeaser } from "./components/NextDeliveryTeaser";
 import { TierPerkCard, type TierPerkData } from "./components/TierPerkCard";
-import { BODY_FONT, C, bodyStyle, headingStyle } from "./components/theme";
+import { BODY_FONT, C, bodyStyle, cls, headingStyle } from "./components/theme";
 import { freeDeliveryPromoLine } from "@/lib/utils/delivery-promo";
 
 export interface WinBackProps {
@@ -26,8 +26,10 @@ export function WinBack({ customerName, menuUrl, tier, nextDeliveryCutoffText }:
       {/* Hero */}
       <Section style={{ padding: "30px 28px 8px 28px", textAlign: "center" as const }}>
         <Text style={{ fontSize: "30px", margin: "0 0 8px 0" }}>{"🍜"}</Text>
-        <Text style={headingStyle(22)}>We&apos;ve missed you, {customerName}!</Text>
-        <Text style={bodyStyle(15)}>
+        <Text className={cls.ink} style={headingStyle(22)}>
+          We&apos;ve missed you, {customerName}!
+        </Text>
+        <Text className={cls.muted} style={bodyStyle(15)}>
           It&apos;s been a little while since your last feast. Our kitchen is still cooking up the
           Mandalay classics you love — fresh, every delivery day.
         </Text>
@@ -53,6 +55,7 @@ export function WinBack({ customerName, menuUrl, tier, nextDeliveryCutoffText }:
                 >
                   <Text style={{ fontSize: "22px", margin: "0 0 4px 0" }}>{cell.icon}</Text>
                   <Text
+                    className={cls.muted}
                     style={{
                       fontSize: "12px",
                       fontFamily: BODY_FONT,
@@ -84,6 +87,7 @@ export function WinBack({ customerName, menuUrl, tier, nextDeliveryCutoffText }:
       {/* Promo line */}
       <Section style={{ padding: "20px 28px 32px 28px" }}>
         <Text
+          className={cls.faint}
           style={{
             fontSize: "12px",
             fontFamily: BODY_FONT,

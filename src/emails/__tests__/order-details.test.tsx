@@ -56,7 +56,7 @@ describe("DeliveryReminder — full order details", () => {
     expect(html).toContain("Mohinga");
     expect(html).toContain("Shan Noodles");
     // Quantities, modifiers and per-item notes
-    expect(html).toContain("2x");
+    expect(html).toContain("×2");
     expect(html).toContain("Extra Fish Cake");
     expect(html).toContain("Sauce on the side, please.");
     // Full financial breakdown

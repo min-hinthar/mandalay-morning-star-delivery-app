@@ -1,5 +1,5 @@
 import { Link, Section, Text } from "@react-email/components";
-import { BODY_FONT, C } from "./theme";
+import { BODY_FONT, C, cls } from "./theme";
 
 interface NextDeliveryTeaserProps {
   /** e.g. "Order by Tuesday 3 PM for Wednesday delivery" — from live delivery_days config. */
@@ -15,6 +15,7 @@ export function NextDeliveryTeaser({ cutoffText }: NextDeliveryTeaserProps) {
   return (
     <Section style={{ padding: "20px 28px 0 28px" }}>
       <Section
+        className={`${cls.blueTint} ${cls.blueBorder}`}
         style={{
           backgroundColor: C.blueTint,
           border: `1px solid ${C.blueTintBorder}`,
@@ -24,6 +25,7 @@ export function NextDeliveryTeaser({ cutoffText }: NextDeliveryTeaserProps) {
         }}
       >
         <Text
+          className={cls.ink}
           style={{
             fontSize: "13px",
             fontFamily: BODY_FONT,
@@ -36,6 +38,7 @@ export function NextDeliveryTeaser({ cutoffText }: NextDeliveryTeaserProps) {
         </Text>
         <Link
           href={`${APP_URL}/menu?src=email_next_delivery`}
+          className={cls.blueDeep}
           style={{
             fontSize: "12px",
             fontFamily: BODY_FONT,

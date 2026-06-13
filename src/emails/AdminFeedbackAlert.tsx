@@ -8,7 +8,7 @@ import {
   type PillTone,
 } from "./components/AdminBits";
 import { EmailLayout } from "./components/EmailLayout";
-import { BODY_FONT, C } from "./components/theme";
+import { BODY_FONT, C, cls } from "./components/theme";
 import { APP_URL } from "./helpers";
 import type { FeedbackCategory } from "@/types/feedback";
 
@@ -82,6 +82,7 @@ export function AdminFeedbackAlert({
 
         {hasScreenshot && (
           <Text
+            className={cls.goldDeep}
             style={{
               fontSize: "13px",
               fontFamily: BODY_FONT,

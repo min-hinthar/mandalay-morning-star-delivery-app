@@ -1,5 +1,5 @@
 import { Section, Text } from "@react-email/components";
-import { BODY_FONT, C, DISPLAY_FONT } from "./theme";
+import { BODY_FONT, C, DISPLAY_FONT, cls } from "./theme";
 
 function formatPrice(cents: number): string {
   return `$${(cents / 100).toFixed(2)}`;
@@ -17,7 +17,10 @@ interface OrderTotalsTableProps {
 
 function RowLabel({ children }: { children: React.ReactNode }) {
   return (
-    <Text style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.inkMuted, margin: "0" }}>
+    <Text
+      className={cls.muted}
+      style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.inkMuted, margin: "0" }}
+    >
       {children}
     </Text>
   );
@@ -26,14 +29,17 @@ function RowLabel({ children }: { children: React.ReactNode }) {
 function RowValue({
   children,
   color = C.ink,
+  className = cls.ink,
   bold = false,
 }: {
   children: React.ReactNode;
   color?: string;
+  className?: string;
   bold?: boolean;
 }) {
   return (
     <Text
+      className={className}
       style={{
         fontSize: "14px",
         fontFamily: BODY_FONT,
@@ -80,6 +86,7 @@ export function OrderTotalsTable({
             <td style={{ padding: "4px 0", textAlign: "right" as const }}>
               <RowValue
                 color={deliveryFeeCents === 0 ? C.sageDeep : C.ink}
+                className={deliveryFeeCents === 0 ? cls.sageDeep : cls.ink}
                 bold={deliveryFeeCents === 0}
               >
                 {deliveryFeeCents === 0 ? "FREE" : formatPrice(deliveryFeeCents)}
@@ -109,8 +116,12 @@ export function OrderTotalsTable({
 
           {/* Total — gold-leaf rule above, editorial serif figures */}
           <tr>
-            <td style={{ padding: "12px 0 4px 0", borderTop: `1px solid ${C.goldLeaf}` }}>
+            <td
+              className={cls.goldLeaf}
+              style={{ padding: "12px 0 4px 0", borderTop: `1px solid ${C.goldLeaf}` }}
+            >
               <Text
+                className={cls.ink}
                 style={{
                   fontSize: "16px",
                   fontFamily: DISPLAY_FONT,
@@ -123,6 +134,7 @@ export function OrderTotalsTable({
               </Text>
             </td>
             <td
+              className={cls.goldLeaf}
               style={{
                 padding: "12px 0 4px 0",
                 borderTop: `1px solid ${C.goldLeaf}`,
@@ -130,6 +142,7 @@ export function OrderTotalsTable({
               }}
             >
               <Text
+                className={cls.accentStrong}
                 style={{
                   fontSize: "20px",
                   fontFamily: DISPLAY_FONT,
@@ -148,6 +161,7 @@ export function OrderTotalsTable({
       {/* Payment Method */}
       {paymentMethod && (
         <Text
+          className={cls.muted}
           style={{
             fontSize: "13px",
             fontFamily: BODY_FONT,

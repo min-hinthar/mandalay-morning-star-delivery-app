@@ -2,7 +2,7 @@ import { Section, Text } from "@react-email/components";
 
 import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
-import { BODY_FONT, C, bodyStyle, headingStyle, labelStyle } from "./components/theme";
+import { BODY_FONT, C, bodyStyle, cls, headingStyle, labelStyle } from "./components/theme";
 import { APP_URL } from "./helpers";
 import type { FeedbackCategory } from "@/types/feedback";
 
@@ -34,14 +34,17 @@ export function FeedbackConfirmation({
     <EmailLayout emailType="feedback" previewText={`We received your feedback — #${shortId}`}>
       {/* Header */}
       <Section style={{ padding: "30px 28px 0 28px" }}>
-        <Text style={headingStyle(22)}>Thank You for Your Feedback</Text>
-        <Text style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
+        <Text className={cls.ink} style={headingStyle(22)}>
+          Thank You for Your Feedback
+        </Text>
+        <Text className={cls.muted} style={{ ...bodyStyle(15), margin: "0 0 24px 0" }}>
           We&apos;ve received your feedback and our team will review it shortly.
         </Text>
       </Section>
 
       {/* Details */}
       <Section
+        className={`${cls.vellum} ${cls.line}`}
         style={{
           margin: "0 28px 20px 28px",
           padding: "16px 20px",
@@ -50,8 +53,11 @@ export function FeedbackConfirmation({
           borderRadius: "12px",
         }}
       >
-        <Text style={labelStyle()}>Reference</Text>
+        <Text className={cls.faint} style={labelStyle()}>
+          Reference
+        </Text>
         <Text
+          className={cls.ink}
           style={{
             fontSize: "16px",
             fontFamily: BODY_FONT,
@@ -63,8 +69,11 @@ export function FeedbackConfirmation({
           #{shortId}
         </Text>
 
-        <Text style={labelStyle()}>Category</Text>
+        <Text className={cls.faint} style={labelStyle()}>
+          Category
+        </Text>
         <Text
+          className={cls.ink}
           style={{
             fontSize: "14px",
             fontFamily: BODY_FONT,
@@ -75,15 +84,20 @@ export function FeedbackConfirmation({
           {CATEGORY_LABELS[category]}
         </Text>
 
-        <Text style={labelStyle()}>Subject</Text>
-        <Text style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0" }}>
+        <Text className={cls.faint} style={labelStyle()}>
+          Subject
+        </Text>
+        <Text
+          className={cls.ink}
+          style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0" }}
+        >
           {subject}
         </Text>
       </Section>
 
       {/* Next steps */}
       <Section style={{ padding: "0 28px 16px 28px" }}>
-        <Text style={bodyStyle(14)}>
+        <Text className={cls.muted} style={bodyStyle(14)}>
           We&apos;ll review your feedback and get back to you if needed. You can track the status of
           your feedback from your account page.
         </Text>
