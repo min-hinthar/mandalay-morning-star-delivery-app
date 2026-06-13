@@ -2,13 +2,15 @@
  * Email design tokens — the hero "warm paper" language translated for email.
  * Mirrors `src/styles/tokens.css` (hero-ink / clay / blue / sage / cream).
  *
- * Light + DARK MODE via CSS custom properties: each theme-flipping token is a
- * `var(--eml-x, <light-hex>)`. The vars are defined in EMAIL_HEAD_CSS — `:root`
- * (light) and flipped under `@media (prefers-color-scheme: dark)`. Clients that
- * honor embedded <style> + CSS vars (Apple Mail / iOS Mail — the dark-mode
- * audience) get a true warm-espresso dark theme for FREE on every inline style;
- * Gmail / Outlook strip <style> and fall back to the light hex. One mechanism,
- * no per-element classes. (Static brand chroma — clay/blue/sage/gold/star — does
+ * Light + DARK MODE via flat-hex inline + paired classes (NOT CSS vars — the
+ * Word-based Outlook renderer discards `var()` declarations wholesale, which
+ * would blank the card/text). `C` holds flat LIGHT hex; each theme-flipping
+ * token has a matching `cls.*` class. Add that class wherever the inline style
+ * uses the token; EMAIL_HEAD_CSS flips the class under
+ * `@media (prefers-color-scheme: dark)` + `[data-ogsc]` (Outlook.com). Clients
+ * that honor embedded <style> (Apple Mail / iOS Mail — the dark-mode audience)
+ * get a warm-espresso dark theme; everywhere else the flat-hex light inline
+ * wins — no regression. (Static brand chroma — clay/blue/sage/gold/star — does
  * NOT flip; it reads on both grounds.)
  *
  * Rendering constraints: web fonts load in Apple Mail & some webmail (Georgia /
