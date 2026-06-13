@@ -1,6 +1,7 @@
 import { Body, Container, Head, Html, Preview, Text } from "@react-email/components";
 import { BrandFooter } from "./BrandFooter";
 import { BrandHeader, type EmailMood } from "./BrandHeader";
+import { appOrigin } from "./origin";
 import { BODY_FONT, C, EMAIL_HEAD_CSS, cls } from "./theme";
 
 interface EmailLayoutProps {
@@ -13,10 +14,7 @@ interface EmailLayoutProps {
   variant?: "default" | "admin";
 }
 
-const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com").replace(
-  /^http:\/\/https:\/\//,
-  "https://"
-);
+const APP_URL = appOrigin();
 
 /** Clay / blue / sage ribbon along the top edge of the paper card. */
 function TriadBar() {
