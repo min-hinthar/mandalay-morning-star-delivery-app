@@ -1,5 +1,14 @@
-import { Heading, Img, Section, Text } from "@react-email/components";
-import { BODY_FONT, BURMESE_FONT, C, DISPLAY_FONT, LOGO_URL, MASTHEAD_URL, cls } from "./theme";
+import { Heading, Img, Link, Section, Text } from "@react-email/components";
+import {
+  BODY_FONT,
+  BURMESE_FONT,
+  C,
+  DISPLAY_FONT,
+  HOME_URL,
+  LOGO_URL,
+  MASTHEAD_URL,
+  cls,
+} from "./theme";
 
 /** One mood per email family — sets the chip under the wordmark. */
 export type EmailMood =
@@ -65,24 +74,30 @@ const TYPE_MOOD: Record<EmailMood, { emoji: string; greeting: string; my: string
   },
 };
 
-/** The full Morning Star badge — rendered at its natural 3:2 ratio, never cropped. */
+/**
+ * The full Morning Star badge, clickable → homepage. Rendered at the asset's
+ * true 8:5 ratio (400×250) so Outlook (which obeys the height attr) doesn't
+ * squish it. A true-PNG raster (see LOGO_URL) — decodes everywhere.
+ */
 function BrandLogo({ width = 168 }: { width?: number }) {
-  const height = Math.round(width * 0.64);
+  const height = Math.round(width * 0.625);
   return (
-    <Img
-      src={LOGO_URL}
-      alt="Mandalay Morning Star"
-      width={width}
-      height={height}
-      style={{
-        display: "block",
-        margin: "0 auto",
-        width: `${width}px`,
-        height: "auto",
-        maxWidth: `${width}px`,
-        objectFit: "contain" as const,
-      }}
-    />
+    <Link href={HOME_URL}>
+      <Img
+        src={LOGO_URL}
+        alt="Mandalay Morning Star"
+        width={width}
+        height={height}
+        style={{
+          display: "block",
+          margin: "0 auto",
+          width: `${width}px`,
+          height: "auto",
+          maxWidth: `${width}px`,
+          objectFit: "contain" as const,
+        }}
+      />
+    </Link>
   );
 }
 
@@ -97,13 +112,15 @@ function AdminHeader() {
         <tbody>
           <tr>
             <td style={{ width: "120px", verticalAlign: "middle" }}>
-              <Img
-                src={LOGO_URL}
-                alt="Mandalay Morning Star"
-                width={108}
-                height={69}
-                style={{ display: "block", width: "108px", height: "auto", objectFit: "contain" }}
-              />
+              <Link href={HOME_URL}>
+                <Img
+                  src={LOGO_URL}
+                  alt="Mandalay Morning Star"
+                  width={108}
+                  height={68}
+                  style={{ display: "block", width: "108px", height: "auto", objectFit: "contain" }}
+                />
+              </Link>
             </td>
             <td style={{ verticalAlign: "middle", textAlign: "right" as const }}>
               <Text

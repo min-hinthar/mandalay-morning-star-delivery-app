@@ -1,4 +1,4 @@
-import { Body, Container, Head, Html, Preview, Text } from "@react-email/components";
+import { Body, Container, Head, Html, Link, Preview, Text } from "@react-email/components";
 import { BrandFooter } from "./BrandFooter";
 import { BrandHeader, type EmailMood } from "./BrandHeader";
 import { appOrigin } from "./origin";
@@ -62,6 +62,27 @@ export function EmailLayout({
           padding: "12px 12px 0 12px",
         }}
       >
+        {/* Top utility link — opens the customer's orders/account in the browser */}
+        <Container style={{ maxWidth: "600px" }}>
+          <Text
+            className={cls.faint}
+            style={{
+              textAlign: "center" as const,
+              fontSize: "11px",
+              color: C.inkFaint,
+              margin: "0 0 10px 0",
+            }}
+          >
+            <Link
+              href={`${APP_URL}/account?tab=orders`}
+              className={cls.faint}
+              style={{ color: C.inkFaint, textDecoration: "underline" }}
+            >
+              View your orders in the browser
+            </Link>
+          </Text>
+        </Container>
+
         {/* The paper card */}
         <Container
           className={cls.card}

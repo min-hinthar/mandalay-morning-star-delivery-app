@@ -1,5 +1,6 @@
 import { Img, Link, Section, Text } from "@react-email/components";
 import type { SuggestedItem } from "@/lib/email/suggestions";
+import { isHostableEmailImage } from "./DishThumb";
 import { BODY_FONT, C, DISPLAY_FONT, cls } from "./theme";
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
@@ -63,8 +64,11 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
                   padding: "8px",
                 }}
               >
-                <Link href={`${APP_URL}/menu`} style={{ textDecoration: "none" }}>
-                  {item.imageUrl ? (
+                <Link
+                  href={`${APP_URL}/menu?src=email_suggested`}
+                  style={{ textDecoration: "none" }}
+                >
+                  {isHostableEmailImage(item.imageUrl) ? (
                     <Img
                       src={item.imageUrl}
                       alt={item.name}
@@ -82,20 +86,23 @@ export function SuggestedItems({ items }: SuggestedItemsProps = {}) {
                     />
                   ) : (
                     <div
-                      className={`${cls.vellum} ${cls.line}`}
+                      className={`${cls.vellum} ${cls.clayBorder} ${cls.accent}`}
                       style={{
                         width: "72px",
                         height: "54px",
                         borderRadius: "10px",
                         backgroundColor: C.vellum,
-                        border: `1px solid ${C.line}`,
+                        border: `1px solid ${C.clayTintBorder}`,
                         margin: "0 auto 8px auto",
                         lineHeight: "54px",
                         textAlign: "center" as const,
-                        fontSize: "20px",
+                        fontFamily: DISPLAY_FONT,
+                        fontSize: "26px",
+                        fontWeight: 600,
+                        color: C.accent,
                       }}
                     >
-                      {"🍜"}
+                      {(item.name.trim()[0] || "★").toUpperCase()}
                     </div>
                   )}
                   <Text

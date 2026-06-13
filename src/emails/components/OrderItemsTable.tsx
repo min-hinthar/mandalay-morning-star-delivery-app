@@ -1,5 +1,6 @@
 import { Fragment } from "react";
 import { Section, Text } from "@react-email/components";
+import { DishThumb } from "./DishThumb";
 import { BODY_FONT, BURMESE_FONT, C, DISPLAY_FONT, cls } from "./theme";
 
 interface OrderItemModifier {
@@ -15,6 +16,8 @@ interface OrderItem {
   category?: string;
   modifiers?: OrderItemModifier[];
   notes?: string | null;
+  /** Dish photo (hostable raster only renders; else an initial tile). */
+  imageUrl?: string | null;
 }
 
 interface OrderItemsTableProps {
@@ -84,33 +87,35 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
               {/* Item rows */}
               {categoryItems.map((item, idx) => (
                 <tr key={`${category}-${idx}`}>
-                  {/* Quantity badge */}
+                  {/* Dish photo (real when hostable, else initial tile) + qty */}
                   <td
                     className={cls.line}
                     style={{
                       padding: "12px 0",
                       borderBottom: `1px solid ${C.line}`,
-                      width: "40px",
+                      width: "56px",
                       verticalAlign: "top",
                     }}
                   >
+                    <DishThumb imageUrl={item.imageUrl} name={item.name} size={48} />
                     <div
                       className={`${cls.clayTint} ${cls.clayBorder} ${cls.accent}`}
                       style={{
                         backgroundColor: C.clayTint,
                         border: `1px solid ${C.clayTintBorder}`,
                         color: C.accent,
-                        borderRadius: "8px",
-                        width: "28px",
-                        height: "28px",
-                        lineHeight: "28px",
+                        borderRadius: "999px",
+                        width: "48px",
+                        margin: "5px 0 0 0",
+                        lineHeight: "16px",
                         textAlign: "center" as const,
-                        fontSize: "13px",
+                        fontSize: "11px",
                         fontWeight: 700,
                         fontFamily: BODY_FONT,
                       }}
                     >
-                      {item.quantity}x
+                      {"×"}
+                      {item.quantity}
                     </div>
                   </td>
 
@@ -118,7 +123,7 @@ export function OrderItemsTable({ items }: OrderItemsTableProps) {
                   <td
                     className={cls.line}
                     style={{
-                      padding: "12px 8px",
+                      padding: "12px 10px",
                       borderBottom: `1px solid ${C.line}`,
                       verticalAlign: "top",
                     }}

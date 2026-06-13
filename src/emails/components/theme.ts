@@ -177,8 +177,14 @@ export const hairline: React.CSSProperties = {
 
 // ── Brand assets (hosted; loaded by clients that show images) ──
 const ORIGIN = appOrigin();
-/** Full logo (3:2 oval badge). Rendered at natural ratio — never cropped. */
-export const LOGO_URL = `${ORIGIN}/logo.png`;
+/**
+ * Logo for email — a TRUE PNG (transparent) at `/images/email-logo.png`. The
+ * app's `/logo.png` is WebP-bytes-with-a-.png-name, which Outlook desktop/.com
+ * can't decode (broken-image box); this raster renders everywhere. ~400×250 (8:5).
+ */
+export const LOGO_URL = `${ORIGIN}/images/email-logo.png`;
+/** Homepage origin (logo + masthead click-through). */
+export const HOME_URL = ORIGIN;
 /**
  * Masthead banner — a pre-cropped 4:1 JPEG (NOT the .webp: WebP is unsupported
  * in Outlook desktop/.com & some webmail, which would show a broken-image box).

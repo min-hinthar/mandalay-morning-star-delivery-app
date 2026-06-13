@@ -41,6 +41,7 @@ interface OrderItem {
   category?: string;
   modifiers?: OrderItemModifier[];
   notes?: string | null;
+  imageUrl?: string | null;
 }
 
 interface DeliveryAddress {
