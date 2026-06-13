@@ -15,14 +15,18 @@ import { CartSummary } from "./CartSummary";
 import type { DeliveryDayConfig } from "@/types/delivery";
 
 // ============================================
-// CART FOOTER — warm-paper panel (After Dark)
+// CART FOOTER — split into a scrollable receipt + a pinned action bar.
+//
+// The receipt (delivery row + CartSummary) is ~600px tall; pinning it as a
+// non-scrolling block buried the item list and overflowed its own buttons on
+// short/constrained drawers (iPad Chrome, esp. landscape — the toolbar steals
+// height). So the receipt now lives INSIDE the drawer's single scroll region
+// (see CartDrawer), and only the compact checkout CTA stays pinned at the
+// bottom — reachable at every viewport height.
 // ============================================
 
-interface CartFooterProps {
-  onClose: () => void;
-  onCheckout: () => void;
+interface CartGateInput {
   hasBlockingIssues?: boolean;
-  showFullCartLink?: boolean;
   /** Multi-day delivery configs from DB */
   deliveryDays?: DeliveryDayConfig[];
   /** @deprecated Legacy cutoff day (0=Sun..6=Sat). Use deliveryDays. */
@@ -31,19 +35,18 @@ interface CartFooterProps {
   cutoffHour?: number;
 }
 
-export function CartFooter({
-  onClose,
-  onCheckout,
+/**
+ * Compute the delivery gate once for the drawer so the receipt's delivery row
+ * and the pinned checkout CTA share a single, consistent source of truth
+ * (avoids two countdown timers / divergent open-state).
+ */
+export function useCartDeliveryGate({
   hasBlockingIssues = false,
-  showFullCartLink,
   deliveryDays,
   cutoffDay = 5,
   cutoffHour = 15,
-}: CartFooterProps) {
-  const { shouldAnimate, getSpring } = useAnimationPreference();
-
-  // Use multi-day gate if deliveryDays available, fallback to legacy
-  const hasMultiDay = deliveryDays && deliveryDays.length > 0;
+}: CartGateInput) {
+  const hasMultiDay = deliveryDays !== undefined && deliveryDays.length > 0;
   const multiDayGate = useDeliveryGateMultiDay(deliveryDays ?? []);
   const legacyGate = useDeliveryGate(cutoffDay, cutoffHour);
   const gate = hasMultiDay ? multiDayGate : legacyGate;
@@ -54,13 +57,25 @@ export function CartFooter({
       ? getNextCutoffText(gate.deliveryDayOfWeek, deliveryDays!)
       : `Checkout opens Friday at 3:00 PM`;
 
+  return { gate, isDisabled, closedText };
+}
+
+export type CartDeliveryGateState = ReturnType<typeof useCartDeliveryGate>;
+
+// ============================================
+// RECEIPT — delivery row + living ledger. Flows inside the scroll region.
+// ============================================
+
+interface CartReceiptProps {
+  gateState: CartDeliveryGateState;
+  className?: string;
+}
+
+export function CartReceipt({ gateState, className }: CartReceiptProps) {
+  const { gate, closedText } = gateState;
+
   return (
-    <m.div
-      initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
-      animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
-      transition={{ delay: 0.2 }}
-      className="menu-sheet-footer shrink-0 border-t border-border px-5 py-4"
-    >
+    <div className={cn("px-5 pb-4 pt-1", className)}>
       {/* Delivery info row */}
       <div className="mb-3 flex items-center justify-between rounded-lg border border-border bg-surface-elevated px-3 py-2">
         <div className="flex items-center gap-2">
@@ -88,8 +103,40 @@ export function CartFooter({
       </div>
 
       <CartSummary />
+    </div>
+  );
+}
 
-      <div className="mt-4 flex flex-col gap-3">
+// ============================================
+// ACTIONS — compact CTA bar. Pinned at the drawer bottom (always reachable).
+// ============================================
+
+interface CartActionsProps {
+  gateState: CartDeliveryGateState;
+  onClose: () => void;
+  onCheckout: () => void;
+  hasBlockingIssues?: boolean;
+  showFullCartLink?: boolean;
+}
+
+export function CartActions({
+  gateState,
+  onClose,
+  onCheckout,
+  hasBlockingIssues = false,
+  showFullCartLink,
+}: CartActionsProps) {
+  const { shouldAnimate, getSpring } = useAnimationPreference();
+  const { gate, isDisabled, closedText } = gateState;
+
+  return (
+    <m.div
+      initial={shouldAnimate ? { opacity: 0, y: 20 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
+      transition={{ delay: 0.2 }}
+      className="menu-sheet-footer safe-area-inset-bottom shrink-0 border-t border-border px-5 py-4"
+    >
+      <div className="flex flex-col gap-3">
         <m.div
           whileHover={shouldAnimate && !isDisabled ? { scale: 1.01 } : undefined}
           whileTap={shouldAnimate && !isDisabled ? { scale: 0.99 } : undefined}
@@ -152,5 +199,3 @@ export function CartFooter({
     </m.div>
   );
 }
-
-export default CartFooter;

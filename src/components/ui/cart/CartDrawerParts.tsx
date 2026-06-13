@@ -7,4 +7,4 @@
 
 export { CartHeader } from "./CartHeader";
 export { CartItemsList } from "./CartItemsList";
-export { CartFooter } from "./CartFooter";
+export { CartReceipt, CartActions, useCartDeliveryGate } from "./CartFooter";
