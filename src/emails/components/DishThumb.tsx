@@ -37,6 +37,7 @@ export function DishThumb({ imageUrl, name, size = 48, radius = 10 }: DishThumbP
         alt={name}
         width={size}
         height={size}
+        className={cls.line}
         style={{
           width: `${size}px`,
           height: `${size}px`,
