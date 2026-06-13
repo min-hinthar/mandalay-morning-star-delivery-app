@@ -1,7 +1,7 @@
-import { Body, Container, Head, Html, Link, Preview, Text } from "@react-email/components";
+import { Body, Container, Head, Html, Preview, Text } from "@react-email/components";
 import { BrandFooter } from "./BrandFooter";
 import { BrandHeader, type EmailMood } from "./BrandHeader";
-import { BODY_FONT, C, FONTS_IMPORT_CSS } from "./theme";
+import { BODY_FONT, C, EMAIL_HEAD_CSS, cls } from "./theme";
 
 interface EmailLayoutProps {
   children: React.ReactNode;
@@ -13,7 +13,10 @@ interface EmailLayoutProps {
   variant?: "default" | "admin";
 }
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
+const APP_URL = (process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com").replace(
+  /^http:\/\/https:\/\//,
+  "https://"
+);
 
 /** Clay / blue / sage ribbon along the top edge of the paper card. */
 function TriadBar() {
@@ -47,40 +50,23 @@ export function EmailLayout({
   return (
     <Html lang="en" dir="ltr">
       <Head>
-        <meta name="color-scheme" content="light" />
-        <meta name="supported-color-schemes" content="light" />
-        <style>{FONTS_IMPORT_CSS}</style>
+        <meta name="color-scheme" content="light dark" />
+        <meta name="supported-color-schemes" content="light dark" />
+        <style>{EMAIL_HEAD_CSS}</style>
       </Head>
       <Preview>{previewText}</Preview>
       <Body
+        className={`${cls.body} eml-dot`}
         style={{
           backgroundColor: C.canvas,
           fontFamily: BODY_FONT,
           margin: "0",
-          padding: "0 12px",
+          padding: "12px 12px 0 12px",
         }}
       >
-        {/* View in browser link */}
-        <Container style={{ maxWidth: "600px" }}>
-          <Text
-            style={{
-              textAlign: "center" as const,
-              fontSize: "11px",
-              color: C.inkFaint,
-              margin: "10px 0",
-            }}
-          >
-            <Link
-              href={`${APP_URL}/emails/view`}
-              style={{ color: C.inkFaint, textDecoration: "underline" }}
-            >
-              View in browser
-            </Link>
-          </Text>
-        </Container>
-
         {/* The paper card */}
         <Container
+          className={cls.card}
           style={{
             maxWidth: "600px",
             backgroundColor: C.paper,
@@ -109,16 +95,31 @@ export function EmailLayout({
         {/* Sign-off below the card */}
         <Container style={{ maxWidth: "600px" }}>
           <Text
+            className={cls.faint}
             style={{
               textAlign: "center" as const,
               fontSize: "11px",
               fontFamily: BODY_FONT,
               color: C.inkFaint,
-              margin: "14px 0 20px 0",
+              margin: "14px 0 6px 0",
               letterSpacing: "0.3px",
             }}
           >
             Cooked &amp; sent with {"♥"} from Covina, California
+          </Text>
+          <Text
+            className={cls.faint}
+            style={{
+              textAlign: "center" as const,
+              fontSize: "11px",
+              fontFamily: BODY_FONT,
+              color: C.inkFaint,
+              margin: "0 0 20px 0",
+              letterSpacing: "0.3px",
+            }}
+            lang="my"
+          >
+            ကိုဗီနာမြို့မှ ချစ်ခြင်းမေတ္တာဖြင့် ချက်ပြုတ်ပို့ဆောင်ပါသည်
           </Text>
         </Container>
       </Body>

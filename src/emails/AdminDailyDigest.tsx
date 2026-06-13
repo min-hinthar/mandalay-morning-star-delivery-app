@@ -90,16 +90,24 @@ function statusTone(status: string): PillTone {
   return STATUS_META[status]?.tone ?? "neutral";
 }
 
-function formatTimeRange(start?: string | null, end?: string | null): string | null {
+function formatDeliveryWhen(start?: string | null, end?: string | null): string | null {
   if (!start) return null;
+  const day = new Date(start).toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+    timeZone: TIMEZONE,
+  });
   const opts: Intl.DateTimeFormatOptions = {
     hour: "numeric",
     minute: "2-digit",
     timeZone: TIMEZONE,
   };
   const startStr = new Date(start).toLocaleTimeString("en-US", opts);
-  if (!end) return startStr;
-  return `${startStr} – ${new Date(end).toLocaleTimeString("en-US", opts)}`;
+  const timeRange = end
+    ? `${startStr} – ${new Date(end).toLocaleTimeString("en-US", opts)}`
+    : startStr;
+  return `${day} · ${timeRange}`;
 }
 
 function formatAddress(addr?: DigestAddress | null): string | null {
@@ -124,7 +132,7 @@ function rowText(size: number, color: string, extra?: React.CSSProperties): Reac
 // ─── Per-order detail card (kitchen/driver-ready) ─────────
 function DigestOrderCard({ order }: { order: OrderSummary }) {
   const isCancelled = order.status === "cancelled";
-  const windowLabel = formatTimeRange(order.deliveryWindowStart, order.deliveryWindowEnd);
+  const windowLabel = formatDeliveryWhen(order.deliveryWindowStart, order.deliveryWindowEnd);
   const addressLabel = formatAddress(order.address);
   const items = order.items ?? [];
 
@@ -191,7 +199,7 @@ function DigestOrderCard({ order }: { order: OrderSummary }) {
             </Text>
             {windowLabel && (
               <Text style={rowText(12, C.inkMuted, { margin: "2px 0 0 0" })}>
-                {"🕒 "}
+                {"📅 "}
                 {windowLabel}
                 {order.customerPhone ? `  ·  📞 ${order.customerPhone}` : ""}
               </Text>
