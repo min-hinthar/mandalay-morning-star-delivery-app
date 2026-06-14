@@ -84,11 +84,13 @@ async function migrate(): Promise<void> {
   const dryRun = process.argv.slice(2).includes("--dry-run");
   const supabase = client();
 
+  // Durable backstop: every menu_item (incl. inactive — they may be reactivated)
+  // on any drive.google.com/ form (http/https, ?id= or /file/d/). The Supabase
+  // public URL won't match, so re-runs are no-ops.
   const { data, error } = await supabase
     .from("menu_items")
     .select("id, name_en, image_url")
-    .eq("is_active", true)
-    .ilike("image_url", "https://drive.google.com/%")
+    .ilike("image_url", "%drive.google.com/%")
     .order("name_en");
   if (error) throw error;
   const rows = (data ?? []).filter((r): r is DriveItem => !!r.image_url) as DriveItem[];
