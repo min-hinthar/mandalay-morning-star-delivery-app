@@ -20,6 +20,8 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import sharp from "sharp";
 import type { Database } from "../src/types/database";
 
+// Some deploy/dev envs set NEXT_PUBLIC_SUPABASE_URL with a doubled protocol
+// (`http://https://host`); scrub it so storage/public URLs come out well-formed.
 const SUPABASE_URL = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(
   /^https?:\/\/https:\/\//,
   "https://"
@@ -49,18 +51,33 @@ function driveId(url: string): string | null {
   return m ? m[1] : null;
 }
 
+interface NormalizedImage {
+  jpg: Buffer;
+  width: number;
+  height: number;
+}
+
 /** Fetch Drive thumbnail bytes → normalized baseline JPEG (EXIF-stripped, ≤1200w). */
-async function fetchNormalizedJpeg(id: string): Promise<Buffer> {
+async function fetchNormalizedJpeg(id: string): Promise<NormalizedImage> {
   const res = await fetch(`https://drive.google.com/thumbnail?id=${id}&sz=w${THUMB_WIDTH}`, {
     redirect: "follow",
+    signal: AbortSignal.timeout(15_000),
   });
   if (!res.ok) throw new Error(`drive fetch ${res.status}`);
   const raw = Buffer.from(await res.arrayBuffer());
-  return sharp(raw)
+  const jpg = await sharp(raw)
     .rotate() // bake EXIF orientation, then strip metadata
     .resize(THUMB_WIDTH, null, { withoutEnlargement: true })
     .jpeg({ quality: 82, mozjpeg: true })
     .toBuffer();
+  // Drive returns HTTP 200 + a generic "no preview" placeholder for private/
+  // deleted/too-large files; reject the obvious ones so we never upload junk.
+  const meta = await sharp(jpg).metadata();
+  const width = meta.width ?? 0;
+  if (width < 200 || jpg.length < 8_000) {
+    throw new Error("looks like a Drive placeholder (private/deleted/too-large file?)");
+  }
+  return { jpg, width, height: meta.height ?? 0 };
 }
 
 async function migrate(): Promise<void> {
@@ -90,10 +107,9 @@ async function migrate(): Promise<void> {
       continue;
     }
     try {
-      const jpg = await fetchNormalizedJpeg(id);
-      const meta = await sharp(jpg).metadata();
+      const { jpg, width, height } = await fetchNormalizedJpeg(id);
       if (dryRun) {
-        console.log(`${tag} — ok ${meta.width}x${meta.height} ${Math.round(jpg.length / 1024)}KB`);
+        console.log(`${tag} — ok ${width}x${height} ${Math.round(jpg.length / 1024)}KB`);
         ok++;
         continue;
       }
