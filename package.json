@@ -23,6 +23,7 @@
     "rls:test": "node scripts/rls-isolation-test.mjs",
     "seed:menu": "npx tsx scripts/seed-menu.ts",
     "seed:photos": "npx tsx scripts/seed-photos.ts",
+    "migrate:drive-photos": "npx tsx scripts/migrate-drive-photos.ts",
     "verify:menu": "npx tsx scripts/verify-menu.ts",
     "analyze": "ANALYZE=true next build",
     "analyze:server": "ANALYZE=true BUNDLE_ANALYZE=server next build",
