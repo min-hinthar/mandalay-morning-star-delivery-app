@@ -45,9 +45,9 @@ function client(): SupabaseClient<Database> {
   });
 }
 
-/** Extract the Drive file id from `…?id=<ID>` (uc or thumbnail form). */
+/** Extract the Drive file id from the `…?id=<ID>` (uc/thumbnail) or `/file/d/<ID>/` (share) form. */
 function driveId(url: string): string | null {
-  const m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  const m = url.match(/[?&]id=([a-zA-Z0-9_-]+)/) ?? url.match(/\/d\/([a-zA-Z0-9_-]+)/);
   return m ? m[1] : null;
 }
 
