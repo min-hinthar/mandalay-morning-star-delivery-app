@@ -103,8 +103,15 @@ async function migrate(): Promise<void> {
         .upload(path, jpg, { contentType: "image/jpeg", upsert: true });
       if (up.error) throw up.error;
       const publicUrl = supabase.storage.from(BUCKET).getPublicUrl(path).data.publicUrl;
-      const upd = await supabase.from("menu_items").update({ image_url: publicUrl }).eq("id", r.id);
+      const upd = await supabase
+        .from("menu_items")
+        .update({ image_url: publicUrl })
+        .eq("id", r.id)
+        .select("id");
       if (upd.error) throw upd.error;
+      if (!upd.data || upd.data.length === 0) {
+        throw new Error("update matched 0 rows (row gone?) — storage object orphaned");
+      }
       console.log(`${tag} — migrated → ${publicUrl}`);
       ok++;
     } catch (e) {
