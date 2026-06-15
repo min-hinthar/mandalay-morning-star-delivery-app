@@ -12,6 +12,10 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       cutoffDay={rules.cutoffDay}
       cutoffHour={rules.cutoffHour}
       deliveryDays={rules.deliveryDays}
+      deliveryZones={rules.deliveryZones}
+      deliveryStartHour={rules.deliveryStartHour}
+      deliveryEndHour={rules.deliveryEndHour}
+      prepTimeBufferMinutes={rules.prepTimeBufferMinutes}
       longDistanceFeeCents={rules.longDistanceFeeCents}
       longDistanceThresholdMiles={rules.longDistanceThresholdMiles}
     >

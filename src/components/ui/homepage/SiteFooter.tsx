@@ -2,7 +2,7 @@
 
 import { m, type Variants } from "framer-motion";
 import Link from "next/link";
-import { MapPin, Phone, Mail, Clock, Heart } from "lucide-react";
+import { MapPin, Phone, Mail, Heart } from "lucide-react";
 import {
   YelpIcon,
   GoogleMapsIcon,
@@ -16,6 +16,8 @@ import { easing } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { KITCHEN_LOCATION } from "@/types/address";
 import { useFeedbackStore } from "@/components/ui/feedback/feedback-store";
+import { FooterDeliverySchedule } from "@/components/ui/homepage/FooterDeliverySchedule";
+import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 
 /**
  * Column variants for staggered footer reveals.
@@ -86,7 +88,23 @@ const BUSINESS_LISTINGS = [
  * Added to (public)/layout.tsx so it appears on /, /menu, /privacy, /terms
  * but NOT on authenticated routes (/admin, /driver, /cart, /checkout).
  */
-export function SiteFooter() {
+export interface SiteFooterProps {
+  deliveryDays?: DeliveryDayConfig[];
+  deliveryZones?: DeliveryZoneConfig[];
+  deliveryStartHour?: number;
+  deliveryEndHour?: number;
+  prepTimeBufferMinutes?: number;
+  freeDeliveryThresholdCents?: number;
+}
+
+export function SiteFooter({
+  deliveryDays,
+  deliveryZones,
+  deliveryStartHour,
+  deliveryEndHour,
+  prepTimeBufferMinutes,
+  freeDeliveryThresholdCents,
+}: SiteFooterProps = {}) {
   const { shouldAnimate } = useAnimationPreference();
   const openFeedback = useFeedbackStore((s) => s.open);
 
@@ -142,22 +160,14 @@ export function SiteFooter() {
             <h3 className="font-display text-xl text-footer-text font-semibold mb-4">
               Delivery Hours
             </h3>
-            <div className="space-y-3">
-              <div className="flex items-center gap-3">
-                <Clock className="w-5 h-5" />
-                <div>
-                  <p className="text-sm font-body font-medium">Weekly Delivery</p>
-                  <p className="text-sm font-body text-footer-text-muted">
-                    Check schedule for details
-                  </p>
-                </div>
-              </div>
-              <div className="p-3 bg-footer-text/10 rounded-input">
-                <p className="text-sm font-body">
-                  <strong className="text-secondary">Order Cutoff:</strong> See delivery schedule
-                </p>
-              </div>
-            </div>
+            <FooterDeliverySchedule
+              deliveryDays={deliveryDays}
+              deliveryZones={deliveryZones}
+              deliveryStartHour={deliveryStartHour}
+              deliveryEndHour={deliveryEndHour}
+              prepTimeBufferMinutes={prepTimeBufferMinutes}
+              freeDeliveryThresholdCents={freeDeliveryThresholdCents}
+            />
           </m.div>
 
           {/* Column 3: Find Us Online */}
