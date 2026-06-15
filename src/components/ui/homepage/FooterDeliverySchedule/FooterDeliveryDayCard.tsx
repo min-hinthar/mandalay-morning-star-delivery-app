@@ -23,11 +23,13 @@ import {
   fullCutoff,
   shortCutoff,
 } from "./schedule-meta";
-import { useCutoffCountdown } from "./useCutoffCountdown";
+import { cutoffCountdown } from "./cutoff-countdown";
 
 interface FooterDeliveryDayCardProps {
   day: DeliveryDayConfig;
   zones: DeliveryZoneConfig[];
+  /** Shared `now` tick from the parent (null on SSR / offscreen). */
+  now: Date | null;
   /** Pre-computed delivery window, e.g. "12 – 7 PM". */
   windowRange: string | null;
   windowSlots: number;
@@ -40,6 +42,7 @@ interface FooterDeliveryDayCardProps {
 export function FooterDeliveryDayCard({
   day,
   zones,
+  now,
   windowRange,
   windowSlots,
   feeDollars,
@@ -53,7 +56,7 @@ export function FooterDeliveryDayCard({
   const meta = DIRECTION_META[day.direction ?? "all"];
   const accent = ACCENT_CLASSES[meta.accent];
   const Icon = meta.icon;
-  const cd = useCutoffCountdown(day);
+  const cd = cutoffCountdown(day, now);
   const cities = citiesForDay(day, zones);
 
   return (

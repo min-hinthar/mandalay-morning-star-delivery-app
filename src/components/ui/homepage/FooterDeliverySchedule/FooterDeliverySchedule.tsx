@@ -3,17 +3,21 @@
 /**
  * FooterDeliverySchedule — the footer "Delivery Hours" column, reworked into a
  * per-day accordion of glassy cards (one per active delivery day) with real
- * direction → cities → cutoff → time-slot detail. The soonest upcoming day is
- * flagged "Next" client-side (post-mount, so it can't hydration-mismatch).
+ * direction → cities → cutoff → time-slot detail. Owns ONE `now` tick shared by
+ * every card (gated to in-view via `useInView`, so the per-minute timer pauses
+ * while the footer is offscreen — which it almost always is on load). The
+ * soonest upcoming day is flagged "Next", derived from the same `now` so it
+ * self-corrects across a cutoff rollover and can't drift from the live pills.
  * Degrades to a simple line when no schedule is configured (e.g. CI/empty DB).
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useInView } from "framer-motion";
 import { Clock } from "lucide-react";
 import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
-import { getCutoffForDeliveryDay, getNextDeliveryDate } from "@/lib/utils/delivery-dates";
 import { FooterDeliveryDayCard } from "./FooterDeliveryDayCard";
 import { activeDeliveryDays, deliveryWindowRange } from "./schedule-meta";
+import { msUntilCutoff } from "./cutoff-countdown";
 
 export interface FooterDeliveryScheduleProps {
   deliveryDays?: DeliveryDayConfig[];
@@ -24,7 +28,7 @@ export interface FooterDeliveryScheduleProps {
   freeDeliveryThresholdCents?: number;
 }
 
-const cents = (c: number) => Math.round(c / 100);
+const toDollars = (cents: number) => Math.round(cents / 100);
 
 export function FooterDeliverySchedule({
   deliveryDays = [],
@@ -40,30 +44,33 @@ export function FooterDeliverySchedule({
     [deliveryStartHour, deliveryEndHour, prepTimeBufferMinutes]
   );
   const freeThresholdDollars =
-    freeDeliveryThresholdCents !== undefined ? cents(freeDeliveryThresholdCents) : undefined;
+    freeDeliveryThresholdCents !== undefined ? toDollars(freeDeliveryThresholdCents) : undefined;
 
-  // Flag the soonest upcoming day — resolved AFTER mount so SSR markup (no
-  // highlight) and the first client render match (no hydration mismatch).
-  // Re-evaluated each minute (same cadence as the countdown pills) so "Next"
-  // self-corrects when the flagged day's cutoff rolls past on a long-open tab.
-  const [nextDayId, setNextDayId] = useState<string | null>(null);
+  // ONE shared per-minute `now` tick for the whole schedule, gated to in-view so
+  // it pauses while the footer is offscreen. `null` on SSR + first paint (and
+  // until scrolled into view) → live values resolve post-mount, no hydration
+  // mismatch and no forever-ticking offscreen timers.
+  const rootRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(rootRef, { margin: "200px 0px" });
+  const [now, setNow] = useState<Date | null>(null);
   useEffect(() => {
-    const compute = () => {
-      const now = new Date();
-      let best: { id: string; ms: number } | null = null;
-      for (const day of days) {
-        const date = getNextDeliveryDate(now, [day]);
-        const cutoff = date ? getCutoffForDeliveryDay(date, day) : null;
-        if (!cutoff) continue;
-        const ms = cutoff.getTime() - now.getTime();
-        if (ms > 0 && (!best || ms < best.ms)) best = { id: day.id, ms };
-      }
-      setNextDayId(best?.id ?? null);
-    };
-    compute();
-    const id = window.setInterval(compute, 60_000);
+    if (!inView) return;
+    setNow(new Date());
+    const id = window.setInterval(() => setNow(new Date()), 60_000);
     return () => window.clearInterval(id);
-  }, [days]);
+  }, [inView]);
+
+  // Soonest upcoming day — derived from the same shared `now`, so it self-
+  // corrects each tick and never drifts from the per-card countdowns.
+  const nextDayId = useMemo(() => {
+    if (!now) return null;
+    let best: { id: string; ms: number } | null = null;
+    for (const day of days) {
+      const ms = msUntilCutoff(day, now);
+      if (ms != null && (!best || ms < best.ms)) best = { id: day.id, ms };
+    }
+    return best?.id ?? null;
+  }, [days, now]);
 
   // Graceful fallback — no schedule configured.
   if (days.length === 0) {
@@ -81,16 +88,17 @@ export function FooterDeliverySchedule({
   }
 
   return (
-    <div className="space-y-2">
+    <div ref={rootRef} className="space-y-2">
       <ul className="space-y-2">
         {days.map((day) => (
           <li key={day.id}>
             <FooterDeliveryDayCard
               day={day}
               zones={deliveryZones}
+              now={now}
               windowRange={slotWindow?.range ?? null}
               windowSlots={slotWindow?.slots ?? 0}
-              feeDollars={cents(day.deliveryFeeCents)}
+              feeDollars={toDollars(day.deliveryFeeCents)}
               freeThresholdDollars={freeThresholdDollars}
               isNext={day.id === nextDayId}
             />
