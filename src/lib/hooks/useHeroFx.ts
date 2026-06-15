@@ -32,6 +32,11 @@ export interface HeroFxBudget {
   spotlight: boolean;
   /** Float emojis in FRONT of the cards (visible on mobile) vs behind */
   frontEmojis: boolean;
+  /** Split the emojis across TWO layers — alternating ones float in front of
+   *  the cards, the rest behind — for a layered parallax depth effect. Desktop
+   *  only (the front layer is pure decoration); mobile stays single-layer to
+   *  hold the iOS GPU budget. */
+  splitEmojis: boolean;
   /** Emojis are tappable (burst) — only when behind the cards */
   interactiveEmojis: boolean;
   /** How many floating emojis to render */
@@ -46,6 +51,7 @@ const BUDGETS: Record<FxProfile, Omit<HeroFxBudget, "profile">> = {
     auroras: true,
     spotlight: true,
     frontEmojis: false,
+    splitEmojis: true,
     interactiveEmojis: true,
     emojiCount: 17,
   },
@@ -58,6 +64,7 @@ const BUDGETS: Record<FxProfile, Omit<HeroFxBudget, "profile">> = {
     auroras: false,
     spotlight: false,
     frontEmojis: true,
+    splitEmojis: false,
     interactiveEmojis: false,
     emojiCount: 12,
   },
@@ -68,6 +75,7 @@ const BUDGETS: Record<FxProfile, Omit<HeroFxBudget, "profile">> = {
     auroras: false,
     spotlight: false,
     frontEmojis: false,
+    splitEmojis: false,
     interactiveEmojis: false,
     emojiCount: 7,
   },

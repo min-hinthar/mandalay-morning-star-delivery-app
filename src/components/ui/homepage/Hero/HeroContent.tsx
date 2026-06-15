@@ -10,7 +10,7 @@
 import { useRef, type PointerEvent as ReactPointerEvent } from "react";
 import Link from "next/link";
 import { m, useInView } from "framer-motion";
-import { ArrowRight, CalendarClock, Gift, MapPin, Star, Truck } from "lucide-react";
+import { ArrowRight, CalendarClock, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -25,7 +25,6 @@ import { HeroCountdown } from "./HeroCountdown";
 import { HeroSunburst } from "./HeroSunburst";
 import { HeroGreetingPill } from "./HeroGreetingPill";
 import { HeroCardLayers } from "./HeroCardLayers";
-import { HeroFactChips, type FactChip } from "./HeroFactChips";
 import { useBurst, Bursts } from "./HeroBurst";
 import { useMagnetic, useTilt } from "./interactions";
 import type { DeliveryDayConfig } from "@/types/delivery";
@@ -114,21 +113,6 @@ export function HeroContent({
   const freeThresholdDollars = toDollars(freeDeliveryThresholdCents);
   const longDistanceFeeDollars = toDollars(longDistanceFeeCents);
 
-  // Vibrant fact-chips (triad-accented frosted pills)
-  const factChips: FactChip[] = [
-    { icon: Truck, label: deliveryDaysList, accent: "sage" },
-    ...(freeThresholdDollars !== undefined
-      ? [{ icon: Gift, label: `Free over $${freeThresholdDollars}`, accent: "clay" as const }]
-      : []),
-    {
-      icon: MapPin,
-      label: `${COVERAGE_LIMITS.maxDistanceMiles}mi`,
-      sub: `${COVERAGE_LIMITS.maxDurationMinutes}min`,
-      accent: "blue",
-    },
-    { icon: Star, label: "5.0", sub: "rated", accent: "amber" },
-  ];
-
   return (
     <div
       ref={rootRef}
@@ -168,16 +152,13 @@ export function HeroContent({
         </div>
 
         {/* Morning Star Rewards — replaces the generic taglines */}
-        <HeroRewards className="mb-7 animate-hero-develop-3" />
+        <HeroRewards className="mb-9 animate-hero-develop-3" />
         {/* Bilingual context retained for SEO / screen readers */}
         <p className="sr-only">
           {tagline}. {subheadline}
         </p>
 
-        {/* Vibrant fact-chips */}
-        <HeroFactChips chips={factChips} className="mb-9 animate-hero-develop-4" />
-
-        <div className="flex flex-col items-center gap-6 mb-10 animate-hero-develop-5">
+        <div className="flex flex-col items-center gap-6 mb-10 animate-hero-develop-4">
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <m.div
               className="relative"

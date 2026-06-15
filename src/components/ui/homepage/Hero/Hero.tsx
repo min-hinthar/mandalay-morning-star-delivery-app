@@ -112,6 +112,37 @@ export function Hero({
     [fireEmoji]
   );
 
+  // Floating-emoji layering. On capable (desktop/rich) devices the budget
+  // SPLITS the emojis across two layers — alternating ones in FRONT of the
+  // cards (z6, decoration), the rest BEHIND (z3, tappable) — for parallax
+  // depth. Mobile stays single-layer (all-front on lite, all-behind on
+  // baseline) to hold the iOS GPU budget.
+  const emojiItems = EMOJI_CONFIG.slice(0, fx.emojiCount);
+  const emojiInFront = (i: number) => (fx.splitEmojis ? i % 2 === 1 : fx.frontEmojis);
+  const EMOJI_MASK =
+    "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)";
+  // Sparkles ride the SAME layer the pre-split code put them on: front (z6) on
+  // the all-front `lite` profile, behind (z3) otherwise — so this refactor
+  // doesn't silently flip their depth on mid-tier mobile.
+  const sparklesInFront = fx.frontEmojis;
+  const sparkleEls = SPARKLES.map((s, i) => (
+    <span
+      key={`sparkle-${i}`}
+      className="hero-sparkle absolute select-none text-amber-300"
+      style={
+        {
+          left: `${s.x}%`,
+          top: `${s.y}%`,
+          fontSize: s.size,
+          "--sparkle-dur": s.dur,
+          "--sparkle-delay": s.delay,
+        } as React.CSSProperties
+      }
+    >
+      ✦
+    </span>
+  ));
+
   const heroContent = (
     <HeroContent
       headline={headline}
@@ -175,51 +206,70 @@ export function Hero({
       </div>
 
       {/* Layer 4: Floating emojis + sparkles. The FX budget decides count and
-          whether they sit IN FRONT of the cards (visible, mobile) or BEHIND
-          (tappable, desktop). Content layer is z-index 5. */}
+          layering — on desktop the emojis SPLIT across two layers (alternating
+          in front of / behind the cards) for parallax depth; on mobile they
+          sit on a single layer (front on lite, behind on baseline). Content
+          layer is z-index 5, so the front layer (z6) overlaps the cards. */}
+
+      {/* Behind-cards layer (z3): tappable emojis + sparkles + tap-bursts */}
       <div
         ref={emojiLayerRef}
         className="absolute inset-0 pointer-events-none overflow-hidden"
         style={{
-          // Local stacking context (isolate on parent); front (6) or behind (3) per budget
-          zIndex: fx.frontEmojis ? 6 : 3,
-          maskImage:
-            "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
-          WebkitMaskImage:
-            "linear-gradient(to bottom, transparent 0%, black 8%, black 92%, transparent 100%)",
+          // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
+          zIndex: 3,
+          maskImage: EMOJI_MASK,
+          WebkitMaskImage: EMOJI_MASK,
         }}
         aria-hidden="true"
       >
-        {EMOJI_CONFIG.slice(0, fx.emojiCount).map((emoji, i) => (
-          <FloatingEmoji
-            key={`emoji-${i}`}
-            {...emoji}
-            index={i}
-            pointer={pointer}
-            onTap={handleEmojiTap}
-            interactive={fx.interactiveEmojis}
-          />
-        ))}
-        {/* Rising flavor sparkles */}
-        {SPARKLES.map((s, i) => (
-          <span
-            key={`sparkle-${i}`}
-            className="hero-sparkle absolute select-none text-amber-300"
-            style={
-              {
-                left: `${s.x}%`,
-                top: `${s.y}%`,
-                fontSize: s.size,
-                "--sparkle-dur": s.dur,
-                "--sparkle-delay": s.delay,
-              } as React.CSSProperties
-            }
-          >
-            ✦
-          </span>
-        ))}
+        {emojiItems.map((emoji, i) =>
+          emojiInFront(i) ? null : (
+            <FloatingEmoji
+              key={`emoji-${i}`}
+              {...emoji}
+              index={i}
+              pointer={pointer}
+              onTap={handleEmojiTap}
+              interactive={fx.interactiveEmojis}
+            />
+          )
+        )}
+        {/* Rising flavor sparkles (stay behind unless the all-front lite path) */}
+        {!sparklesInFront && sparkleEls}
         <Bursts bursts={emojiBursts} />
       </div>
+
+      {/* In-front-of-cards layer (z6): the alternating decorative emojis that
+          overlap the card edges for the layered look (pure decoration — no
+          taps, so they never block the cards beneath). Slightly dimmed so the
+          crisp near-layer glyphs never fight the headline/CTA for contrast. */}
+      {emojiItems.some((_, i) => emojiInFront(i)) && (
+        <div
+          className="absolute inset-0 pointer-events-none overflow-hidden opacity-80"
+          style={{
+            // eslint-disable-next-line no-restricted-syntax -- Local stacking context (isolate on parent), not global z-index
+            zIndex: 6,
+            maskImage: EMOJI_MASK,
+            WebkitMaskImage: EMOJI_MASK,
+          }}
+          aria-hidden="true"
+        >
+          {emojiItems.map((emoji, i) =>
+            emojiInFront(i) ? (
+              <FloatingEmoji
+                key={`emoji-front-${i}`}
+                {...emoji}
+                index={i}
+                pointer={pointer}
+                interactive={false}
+              />
+            ) : null
+          )}
+          {/* Lite path keeps its sparkles in front (pre-split parity) */}
+          {sparklesInFront && sparkleEls}
+        </div>
+      )}
 
       {/* Bottom gradient fade */}
       <div
