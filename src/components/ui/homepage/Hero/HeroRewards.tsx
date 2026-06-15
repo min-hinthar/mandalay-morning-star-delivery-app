@@ -205,12 +205,14 @@ export function HeroRewards({ className }: { className?: string }) {
           )}
         </div>
 
-        {/* Tier nodes — equal columns so disc centers land on the spine anchors */}
+        {/* Tier nodes — equal columns so disc centers land on the spine anchors.
+            Each <li> is the centered grid cell (real list semantics — no
+            display:contents), so the disc center sits at the column center. */}
         <ol className="relative grid grid-cols-4 justify-items-center">
           {LOYALTY_TIERS.map((t, i) => {
             const n = TIER[t.id];
             return (
-              <li key={t.id} className="contents">
+              <li key={t.id}>
                 <RewardsRailNode
                   emoji={t.emoji}
                   english={t.english}
