@@ -163,25 +163,45 @@ export function HeroRewards({ className }: { className?: string }) {
 
       {/* TIER TRACK — discs on a horizontal progress spine */}
       <div ref={stageRef} className="relative mt-5">
-        {/* Spine: faint base + lit-to-active + traveling comet. Spans between the
-            first and last disc centers (4-col grid → centers at 12.5%…87.5%). */}
+        {/* Spine: an always-on triad base + a vivid clay→amber→sage CONVOY fill
+            that flows (animated gradient, `.checkout-progress-fill`) and lights
+            up to the active tier, a soft rail aura, and a Morning Star that
+            SHOOTS along the rail with a warm wake. Spans first→last disc centers
+            (4-col grid → 12.5%…87.5%). Fill/aura are paint-only; the shooting
+            star + gradient flow are loops gated to in-view (`loop`). */}
         <div
           aria-hidden="true"
-          className="pointer-events-none absolute left-[12.5%] right-[12.5%] top-[1.375rem] h-[3px] -translate-y-1/2 overflow-hidden rounded-full md:top-[1.625rem]"
+          className="pointer-events-none absolute left-[12.5%] right-[12.5%] top-[1.375rem] -translate-y-1/2 md:top-[1.625rem]"
         >
-          <span className="absolute inset-0 rounded-full bg-hero-ink/15" />
-          <m.span
-            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-hero-clay via-hero-blue to-hero-gold"
-            initial={false}
-            animate={{ width: `${Math.max(litFraction, 0.0001) * 100}%`, opacity: 0.9 }}
-            transition={{ duration: shouldAnimate ? 0.35 : 0, ease: [0.22, 1, 0.36, 1] }}
-          />
-          {loop && (
-            <m.span
-              className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-hero-gold/80 to-transparent"
-              animate={{ x: ["-100%", "400%"] }}
-              transition={{ duration: 3.2, repeat: Infinity, ease: "linear" }}
+          {/* Soft always-on rail aura (radial falloff — no blur) */}
+          <span className="absolute inset-x-0 -inset-y-1.5 rounded-full bg-gradient-to-r from-hero-clay/15 via-amber-300/20 to-hero-sage/15" />
+
+          {/* Rail line (clipped): triad base + flowing convoy fill */}
+          <div className="relative h-[4px] overflow-hidden rounded-full md:h-[5px]">
+            <span className="absolute inset-0 rounded-full bg-gradient-to-r from-hero-clay/35 via-hero-blue/30 to-hero-gold/40" />
+            <m.div
+              className="checkout-progress-fill absolute inset-y-0 left-0 rounded-full"
+              initial={false}
+              animate={{ width: `${Math.max(litFraction, 0.0001) * 100}%` }}
+              transition={{ duration: shouldAnimate ? 0.4 : 0, ease: [0.22, 1, 0.36, 1] }}
             />
+          </div>
+
+          {/* Morning Star convoy — shoots along the full rail with a warm wake,
+              fading in/out so the loop reset is invisible. Rides OVER the rail
+              (unclipped) and ducks behind the gem discs as it passes. */}
+          {loop && (
+            <m.div
+              className="absolute inset-x-0 top-1/2"
+              animate={{ x: ["0%", "34%", "70%", "100%"], opacity: [0, 1, 1, 0] }}
+              transition={{ duration: 3.4, repeat: Infinity, ease: "linear", repeatDelay: 0.5 }}
+            >
+              <div className="absolute left-0 top-0 -translate-y-1/2">
+                {/* warm wake trailing the star (points back along travel) */}
+                <span className="absolute right-0 top-1/2 h-[3px] w-8 -translate-y-1/2 rounded-full bg-gradient-to-l from-amber-300/90 to-transparent" />
+                <Star className="absolute left-0 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 fill-amber-100 text-amber-100 drop-shadow-[0_0_6px_rgba(251,191,36,0.95)]" />
+              </div>
+            </m.div>
           )}
         </div>
 
@@ -201,6 +221,7 @@ export function HeroRewards({ className }: { className?: string }) {
                   isGold={t.id === "gold"}
                   isActive={i === active}
                   earned={i <= active}
+                  expanded={expanded}
                   loop={loop}
                   index={i}
                   ariaLabel={`${t.english} tier${
@@ -231,10 +252,23 @@ export function HeroRewards({ className }: { className?: string }) {
             exit={shouldAnimate ? { height: 0, opacity: 0 } : undefined}
             transition={{ duration: shouldAnimate ? 0.3 : 0, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="mt-4 rounded-2xl bg-hero-card/55 p-3.5 text-left ring-1 ring-hero-line">
+            {/* Grid-stacked invisible spacers lock the panel height to the
+                TALLEST tier, so swapping tiers never collapses/reflows it
+                (kills the wait-mode flicker). */}
+            <div className="mt-4 grid rounded-2xl bg-hero-card/55 p-3.5 text-left ring-1 ring-hero-line">
+              {LOYALTY_TIERS.map((t) => (
+                <div
+                  key={`measure-${t.id}`}
+                  aria-hidden="true"
+                  className="invisible col-start-1 row-start-1"
+                >
+                  <RewardsPerkPanel tier={t} my={TIER[t.id].my} animate={false} />
+                </div>
+              ))}
               <AnimatePresence mode="wait">
                 <m.div
                   key={tier.id}
+                  className="col-start-1 row-start-1"
                   initial={shouldAnimate ? { opacity: 0, y: 6 } : false}
                   animate={{ opacity: 1, y: 0 }}
                   exit={shouldAnimate ? { opacity: 0, y: -6 } : undefined}

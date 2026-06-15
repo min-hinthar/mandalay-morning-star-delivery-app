@@ -29,6 +29,9 @@ interface RewardsRailNodeProps {
   isGold: boolean;
   isActive: boolean;
   earned: boolean;
+  /** Whether the perk panel is currently open (tapping a node opens it) — drives
+   *  the node's aria-expanded/aria-controls so the disc→panel link is exposed. */
+  expanded: boolean;
   /** Whether continuous loops may run (shouldAnimate && stage in view). */
   loop: boolean;
   index: number;
@@ -50,6 +53,7 @@ export function RewardsRailNode({
   isGold,
   isActive,
   earned,
+  expanded,
   loop,
   index,
   ariaLabel,
@@ -63,6 +67,9 @@ export function RewardsRailNode({
     <m.button
       type="button"
       aria-pressed={isActive}
+      aria-expanded={expanded}
+      // Only reference the panel while it's mounted (collapsed → unmounted).
+      aria-controls={expanded ? "hero-rewards-perks" : undefined}
       aria-label={ariaLabel}
       onPointerEnter={onHover}
       onFocus={onFocus}
