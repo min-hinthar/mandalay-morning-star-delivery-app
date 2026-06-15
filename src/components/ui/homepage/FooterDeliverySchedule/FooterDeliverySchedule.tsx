@@ -35,7 +35,7 @@ export function FooterDeliverySchedule({
   freeDeliveryThresholdCents,
 }: FooterDeliveryScheduleProps) {
   const days = useMemo(() => activeDeliveryDays(deliveryDays), [deliveryDays]);
-  const window = useMemo(
+  const slotWindow = useMemo(
     () => deliveryWindowRange(deliveryStartHour, deliveryEndHour, prepTimeBufferMinutes),
     [deliveryStartHour, deliveryEndHour, prepTimeBufferMinutes]
   );
@@ -44,18 +44,25 @@ export function FooterDeliverySchedule({
 
   // Flag the soonest upcoming day — resolved AFTER mount so SSR markup (no
   // highlight) and the first client render match (no hydration mismatch).
+  // Re-evaluated each minute (same cadence as the countdown pills) so "Next"
+  // self-corrects when the flagged day's cutoff rolls past on a long-open tab.
   const [nextDayId, setNextDayId] = useState<string | null>(null);
   useEffect(() => {
-    const now = new Date();
-    let best: { id: string; ms: number } | null = null;
-    for (const day of days) {
-      const date = getNextDeliveryDate(now, [day]);
-      const cutoff = date ? getCutoffForDeliveryDay(date, day) : null;
-      if (!cutoff) continue;
-      const ms = cutoff.getTime() - now.getTime();
-      if (ms > 0 && (!best || ms < best.ms)) best = { id: day.id, ms };
-    }
-    setNextDayId(best?.id ?? null);
+    const compute = () => {
+      const now = new Date();
+      let best: { id: string; ms: number } | null = null;
+      for (const day of days) {
+        const date = getNextDeliveryDate(now, [day]);
+        const cutoff = date ? getCutoffForDeliveryDay(date, day) : null;
+        if (!cutoff) continue;
+        const ms = cutoff.getTime() - now.getTime();
+        if (ms > 0 && (!best || ms < best.ms)) best = { id: day.id, ms };
+      }
+      setNextDayId(best?.id ?? null);
+    };
+    compute();
+    const id = window.setInterval(compute, 60_000);
+    return () => window.clearInterval(id);
   }, [days]);
 
   // Graceful fallback — no schedule configured.
@@ -81,8 +88,8 @@ export function FooterDeliverySchedule({
             <FooterDeliveryDayCard
               day={day}
               zones={deliveryZones}
-              windowRange={window?.range ?? null}
-              windowSlots={window?.slots ?? 0}
+              windowRange={slotWindow?.range ?? null}
+              windowSlots={slotWindow?.slots ?? 0}
               feeDollars={cents(day.deliveryFeeCents)}
               freeThresholdDollars={freeThresholdDollars}
               isNext={day.id === nextDayId}

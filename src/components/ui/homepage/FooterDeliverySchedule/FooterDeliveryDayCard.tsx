@@ -122,23 +122,29 @@ export function FooterDeliveryDayCard({
             transition={{ duration: shouldAnimate ? 0.28 : 0, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className="space-y-2.5 border-t border-footer-border px-3 py-3">
-              {/* Served cities / regions as chips */}
-              <div>
-                <p className="mb-1.5 text-2xs font-semibold uppercase tracking-wide text-footer-text-muted">
-                  {cities.kind === "regions" ? "Serving all directions" : "Serving"}
-                </p>
-                <div className="flex flex-wrap gap-1.5">
-                  {cities.items.map((c) => (
-                    <span
-                      key={c}
-                      className="inline-flex items-center gap-1 rounded-full bg-footer-text/10 px-2 py-0.5 text-2xs font-medium text-footer-text"
-                    >
-                      <span className={cn("h-1 w-1 rounded-full", accent.dot)} aria-hidden="true" />
-                      {c}
-                    </span>
-                  ))}
+              {/* Served cities / regions as chips (hidden if a directional day
+                  has no configured zone, so we never show an empty header) */}
+              {cities.items.length > 0 && (
+                <div>
+                  <p className="mb-1.5 text-2xs font-semibold uppercase tracking-wide text-footer-text-muted">
+                    {cities.kind === "regions" ? "Serving all directions" : "Serving"}
+                  </p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {cities.items.map((c) => (
+                      <span
+                        key={c}
+                        className="inline-flex items-center gap-1 rounded-full bg-footer-text/10 px-2 py-0.5 text-2xs font-medium text-footer-text"
+                      >
+                        <span
+                          className={cn("h-1 w-1 rounded-full", accent.dot)}
+                          aria-hidden="true"
+                        />
+                        {c}
+                      </span>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
               {/* Cutoff · window · fee */}
               <ul className="space-y-1 text-xs text-footer-text">
@@ -161,7 +167,9 @@ export function FooterDeliveryDayCard({
                 <li className="flex items-center gap-2">
                   <Tag className="h-3.5 w-3.5 shrink-0 text-footer-text-muted" aria-hidden="true" />
                   ${feeDollars} delivery
-                  {freeThresholdDollars !== undefined && <> · free over ${freeThresholdDollars}</>}
+                  {freeThresholdDollars !== undefined && (
+                    <> · free over ${freeThresholdDollars} (local)</>
+                  )}
                 </li>
               </ul>
 
