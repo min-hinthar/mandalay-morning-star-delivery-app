@@ -133,7 +133,10 @@ export function HeroRewards({ className }: { className?: string }) {
             type="button"
             onClick={() => setExpanded((v) => !v)}
             aria-expanded={expanded}
-            aria-controls="hero-rewards-perks"
+            // Only reference the panel while it's actually mounted (the
+            // AnimatePresence block unmounts it on collapse); aria-expanded
+            // conveys state in both directions regardless.
+            aria-controls={expanded ? "hero-rewards-perks" : undefined}
             className="grid h-8 w-8 place-items-center rounded-full text-hero-accent ring-1 ring-hero-line transition-colors hover:bg-hero-card/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/60"
           >
             <span className="sr-only">
