@@ -1,39 +1,35 @@
 "use client";
 
 /**
- * HeroRewards — Morning Star Rewards (ရွှေကြယ် ဆုလက်ဆောင်မွန်) as a star-reward
- * CONSTELLATION. Asymmetric editorial standout: left column = value prop + a
- * live perk panel (height locked to the tallest tier so selecting one never
- * shifts the layout); right column = the loyalty tiers as emoji-in-faceted-disc
- * nodes on an upward ARC. A light "comet" travels the arc; selecting a tier
- * lights the arc up to it (connect-on-select). Value-prop only (no auth) —
- * numbers from LOYALTY_TIERS / TIER_PERKS.
+ * HeroRewards — Morning Star Rewards (ရွှေကြယ် ဆုလက်ဆောင်မွန်) as a compact,
+ * COLLAPSIBLE horizontal RAIL. Collapsed by default (leanest hero): a slim band
+ * with the kicker, a "up to $X reward" teaser + chevron, and the four loyalty
+ * tiers as emoji-in-faceted-disc nodes strung along a horizontal progress SPINE
+ * (faint base + lit-to-active gradient + a traveling comet shimmer). Hovering /
+ * selecting a tier lights the spine up to it (connect-on-select). The chevron —
+ * or tapping any tier — expands a perk-detail panel below. Value-prop only (no
+ * auth); numbers from LOYALTY_TIERS / TIER_PERKS.
  *
- * Micro-interactions: magnetic node hover, star-burst on select, reward-$ and
- * unlock-$ count-up (RollingNumber), card sheen sweep. Perf/a11y: glows are
- * radial-gradients (no blur); transform/stroke-only motion gated on
- * `shouldAnimate`. The comet + active-node glow are JS loops, so they pause
- * offscreen via `useInView` on the stage; the CSS loops (float/sheen/twinkle)
+ * Micro-interactions: magnetic node hover, star-burst on select, reward-$
+ * count-up (RollingNumber), card sheen sweep, expand/collapse height spring.
+ * Perf/a11y: glows are radial-gradients (no blur); transform/width-only motion
+ * gated on `shouldAnimate`. The comet + active-node glow are JS loops, so they
+ * pause offscreen via `useInView` on the stage; CSS loops (float/sheen/twinkle)
  * pause via `.hero-anim-paused`. The visible panel updates on hover; a separate
  * sr-only aria-live region announces only on focus/click. Jewel colors are
  * tokens (`var(--hero-*)`), never raw hex. Burmese flagged for native review.
  */
 
-import { useRef, useState, type CSSProperties } from "react";
+import { useRef, useState } from "react";
 import { AnimatePresence, m, useInView } from "framer-motion";
-import { Star, Gift, Sparkles, Crown, Clock } from "lucide-react";
+import { ChevronDown, Star } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
-import {
-  LOYALTY_TIERS,
-  TIER_PERKS,
-  type LoyaltyTier,
-  type LoyaltyTierId,
-  type LoyaltyPerk,
-} from "@/lib/loyalty";
+import { LOYALTY_TIERS, TIER_PERKS, type LoyaltyTierId } from "@/lib/loyalty";
 import { HeroCardLayers } from "./HeroCardLayers";
 import { HeroSunburst } from "./HeroSunburst";
-import { TierNode } from "./HeroRewardsNode";
+import { RewardsRailNode } from "./RewardsRailNode";
+import { RewardsPerkPanel } from "./RewardsPerkPanel";
 import { RollingNumber } from "./RollingDigits";
 import { useBurst, Bursts } from "./HeroBurst";
 
@@ -49,123 +45,21 @@ const TIER: Record<LoyaltyTierId, { ring: string; glow: string; my: string }> = 
   gold: { ring: "ring-hero-gold/70", glow: "var(--hero-gold)", my: "ရွှေ" },
 }; // prettier-ignore
 
-/** Constellation anchors (% of stage) — a smooth upward ARC to the Gold apex. */
-const ARC = [
-  { x: 15, y: 70 },
-  { x: 38, y: 50 },
-  { x: 62, y: 44 },
-  { x: 85, y: 24 },
-];
-
-/** Smooth Catmull-Rom spline `d` through the arc points. */
-function smoothPath(pts: { x: number; y: number }[]): string {
-  let d = `M ${pts[0].x},${pts[0].y}`;
-  for (let i = 0; i < pts.length - 1; i++) {
-    const p0 = pts[i - 1] ?? pts[i];
-    const p1 = pts[i];
-    const p2 = pts[i + 1];
-    const p3 = pts[i + 2] ?? p2;
-    const c1x = p1.x + (p2.x - p0.x) / 6;
-    const c1y = p1.y + (p2.y - p0.y) / 6;
-    const c2x = p2.x - (p3.x - p1.x) / 6;
-    const c2y = p2.y - (p3.y - p1.y) / 6;
-    d += ` C ${c1x.toFixed(2)},${c1y.toFixed(2)} ${c2x.toFixed(2)},${c2y.toFixed(2)} ${p2.x},${p2.y}`;
-  }
-  return d;
-}
-const ARC_D = smoothPath(ARC);
-
-/** Decorative background "sky" twinkles (deterministic). */
-const SKY = Array.from({ length: 6 }, (_, i) => {
-  const r = (n: number) => ((i * 9301 + n * 49297) % 233280) / 233280;
-  return {
-    top: `${10 + r(1) * 80}%`,
-    left: `${6 + r(2) * 88}%`,
-    size: 2 + Math.round(r(3) * 2),
-    dur: `${3 + r(4) * 3}s`,
-    delay: `${r(5) * 3}s`,
-  };
-});
-
-const PERK_ICON = { star: Star, gift: Gift, sparkles: Sparkles, crown: Crown, clock: Clock };
-
-const MY_DIGITS = ["၀", "၁", "၂", "၃", "၄", "၅", "၆", "၇", "၈", "၉"];
-
 function dollars(cents: number) {
   return Math.round(cents / 100);
 }
-/** Latin integer → Burmese numerals (e.g. 1500 → ၁၅၀၀). */
-function toMyanmar(n: number): string {
-  return String(n).replace(/\d/g, (d) => MY_DIGITS[Number(d)]);
-}
-function perkLabel(perk: LoyaltyPerk) {
+
+const TOP_REWARD = dollars(LOYALTY_TIERS[LOYALTY_TIERS.length - 1].rewardCents);
+
+function perkLabel(perk: { en: string; my: string }) {
   return `${perk.en} — ${perk.my}`;
-}
-
-/**
- * The perk-panel content for one tier. Rendered once live (animated) and once
- * per tier as an invisible spacer stacked in the same grid cell, so the panel's
- * height is locked to the TALLEST tier — selecting never reflows the card.
- */
-function PerkPanelBody({ tier, animate }: { tier: LoyaltyTier; animate: boolean }) {
-  const node = TIER[tier.id];
-  const perks = TIER_PERKS[tier.id];
-  const isStart = tier.minSpendCents === 0;
-
-  return (
-    <>
-      <p className="flex items-center gap-1.5 text-base font-semibold text-hero-ink">
-        <span aria-hidden="true" className="text-xl">
-          {tier.emoji}
-        </span>
-        {tier.english}
-        <span className="font-burmese text-[0.95rem] font-normal leading-none text-hero-ink/70">
-          {node.my}
-        </span>
-      </p>
-      <p className="mt-1 text-xs text-hero-ink-muted">
-        <span className="font-semibold text-hero-accent">
-          $<RollingNumber value={dollars(tier.rewardCents)} animate={animate} /> reward
-        </span>{" "}
-        ·{" "}
-        {isStart ? (
-          "Start here — welcome aboard"
-        ) : (
-          <>
-            Unlock at $<RollingNumber value={dollars(tier.minSpendCents)} animate={animate} />{" "}
-            lifetime
-          </>
-        )}
-      </p>
-      <p className="mt-1 font-burmese text-[0.95rem] leading-relaxed text-hero-accent/85">
-        {isStart
-          ? "ယခု စတင်လိုက်ပါ"
-          : `တစ်သက်တာ $${toMyanmar(dollars(tier.minSpendCents))} ဖိုးအားပေးလျှင်`}
-      </p>
-      <ul className="mt-2.5 space-y-1.5">
-        {perks.map((perk) => {
-          const Icon = PERK_ICON[perk.icon];
-          return (
-            <li key={perk.en} className="flex items-start gap-1.5">
-              <Icon className="mt-0.5 h-3.5 w-3.5 shrink-0 text-hero-clay" aria-hidden="true" />
-              <span className="text-xs leading-snug text-hero-ink">
-                {perk.en}
-                <span className="ml-1 font-burmese text-[0.88rem] leading-relaxed text-hero-ink/65">
-                  · {perk.my}
-                </span>
-              </span>
-            </li>
-          );
-        })}
-      </ul>
-    </>
-  );
 }
 
 export function HeroRewards({ className }: { className?: string }) {
   const { shouldAnimate } = useAnimationPreference();
   const [active, setActive] = useState(0);
   const [announced, setAnnounced] = useState(0);
+  const [expanded, setExpanded] = useState(false);
   const stageRef = useRef<HTMLDivElement>(null);
   // Pause the JS loops (comet, active-node glow) when the stage scrolls offscreen.
   const inView = useInView(stageRef, { margin: "200px 0px" });
@@ -184,6 +78,7 @@ export function HeroRewards({ className }: { className?: string }) {
 
   const select = (i: number, e?: { clientX: number; clientY: number }) => {
     announce(i);
+    setExpanded(true); // tapping a tier reveals its perks
     // Only burst for a real pointer; keyboard-activated clicks report (0,0),
     // which would fire the particles off-stage.
     if (e && e.clientX > 0 && e.clientY > 0 && stageRef.current) {
@@ -196,7 +91,7 @@ export function HeroRewards({ className }: { className?: string }) {
     <section
       aria-labelledby="hero-rewards-heading"
       className={cn(
-        "relative mx-auto w-full max-w-3xl overflow-hidden rounded-3xl hero-surface-vellum px-5 py-6 md:px-8 md:py-8",
+        "relative mx-auto w-full max-w-3xl overflow-hidden rounded-3xl hero-surface-vellum px-5 py-5 md:px-7 md:py-6",
         className
       )}
     >
@@ -212,183 +107,143 @@ export function HeroRewards({ className }: { className?: string }) {
         </div>
       )}
 
-      <div className="relative grid gap-6 md:grid-cols-[0.82fr_1.18fr] md:items-center md:gap-10">
-        {/* LEFT — editorial value prop + live perk panel */}
-        <div className="text-center md:text-left">
-          <div className="mb-2 flex items-center justify-center gap-2 text-hero-accent md:justify-start">
-            <HeroSunburst className="h-4 w-4 text-hero-clay" rays={8} />
-            <span className="text-2xs font-semibold uppercase tracking-[0.2em] md:text-xs">
-              Morning Star Rewards{" "}
-              <span className="font-burmese text-[0.72rem] normal-case tracking-normal">
-                · ရွှေကြယ် ဆုလက်ဆောင်မွန်
-              </span>
-            </span>
-          </div>
-
+      {/* HEADER — kicker + reward teaser + expand toggle */}
+      <div className="relative flex items-center justify-between gap-3">
+        <div className="flex min-w-0 items-center gap-2">
+          <HeroSunburst className="h-4 w-4 shrink-0 text-hero-clay" rays={8} />
           <h3
             id="hero-rewards-heading"
-            className="font-display text-2xl font-semibold leading-[1.1] text-hero-ink md:text-3xl"
+            className="truncate font-display text-base font-semibold text-hero-ink md:text-lg"
           >
-            Collect stars, unlock rewards
+            Morning Star Rewards
+            <span className="ml-1.5 font-burmese text-[0.78rem] font-normal text-hero-ink-muted">
+              · ရွှေကြယ် ဆုလက်ဆောင်မွန်
+            </span>
           </h3>
-
-          <p className="mt-2 text-sm font-medium text-hero-ink-muted md:text-[0.9rem]">
-            Earn a{" "}
-            <Star
-              className="mb-0.5 inline h-4 w-4 fill-amber-500 text-amber-500"
-              aria-hidden="true"
-            />{" "}
-            <span className="font-semibold text-hero-accent">Star</span> every order — a thank-you
-            reward every <span className="font-semibold text-hero-accent">5</span>, bigger each
-            tier.
-          </p>
-          <p className="mt-2 font-burmese text-[0.9rem] leading-loose text-hero-ink/75">
-            အော်ဒါတစ်ခါ မှာယူတိုင်း ရွှေကြယ်တစ်ပွင့် ရယူပြီး၊ ရွှေကြယ် ငါးခုလျှင် အဆင့်လိုက်
-            သတ်မှတ်ထားသော ဆုလက်ဆောင်များ ရယူလိုက်ပါ။
-          </p>
-
-          {/* Live perk panel — grid-stacked spacers lock height to the tallest tier
-              so hovering/selecting a tier never reflows the card. */}
-          <div className="mt-4 grid rounded-2xl bg-hero-card/55 p-3.5 text-left ring-1 ring-hero-line">
-            {LOYALTY_TIERS.map((t) => (
-              <div
-                key={`measure-${t.id}`}
-                aria-hidden="true"
-                className="invisible col-start-1 row-start-1"
-              >
-                <PerkPanelBody tier={t} animate={false} />
-              </div>
-            ))}
-            <AnimatePresence mode="wait">
-              <m.div
-                key={tier.id}
-                className="col-start-1 row-start-1"
-                initial={shouldAnimate ? { opacity: 0, y: 6 } : false}
-                animate={{ opacity: 1, y: 0 }}
-                exit={shouldAnimate ? { opacity: 0, y: -6 } : undefined}
-                transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <PerkPanelBody tier={tier} animate={shouldAnimate} />
-              </m.div>
-            </AnimatePresence>
-          </div>
         </div>
-
-        {/* RIGHT — the ရွှေကြယ် arc constellation */}
-        <div ref={stageRef} className="relative h-56 w-full md:h-64">
-          {/* Background sky twinkles */}
-          {SKY.map((s, i) => (
-            <span
-              key={`sky-${i}`}
-              aria-hidden="true"
-              className="hero-twinkle absolute rounded-full bg-hero-ink/25"
-              style={
-                {
-                  top: s.top,
-                  left: s.left,
-                  width: s.size,
-                  height: s.size,
-                  "--twinkle-dur": s.dur,
-                  "--twinkle-delay": s.delay,
-                } as CSSProperties
-              }
-            />
-          ))}
-
-          {/* Arc: faint base + lit-to-active (connect-on-select) + traveling comet */}
-          <svg
-            aria-hidden="true"
-            className="absolute inset-0 h-full w-full"
-            viewBox="0 0 100 100"
-            preserveAspectRatio="none"
+        <div className="flex shrink-0 items-center gap-2">
+          <span className="hidden text-2xs font-medium text-hero-ink-muted sm:inline">
+            up to{" "}
+            <span className="font-semibold text-hero-accent" aria-hidden="true">
+              $<RollingNumber value={TOP_REWARD} animate={shouldAnimate && inView} />
+            </span>
+            <span className="sr-only">${TOP_REWARD}</span> reward
+          </span>
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            aria-expanded={expanded}
+            aria-controls="hero-rewards-perks"
+            className="grid h-8 w-8 place-items-center rounded-full text-hero-accent ring-1 ring-hero-line transition-colors hover:bg-hero-card/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/60"
           >
-            <defs>
-              <linearGradient id="hero-arc" x1="0" y1="1" x2="1" y2="0">
-                <stop offset="0%" stopColor="var(--hero-clay)" />
-                <stop offset="40%" stopColor="var(--hero-blue)" />
-                <stop offset="70%" stopColor="var(--hero-ruby)" />
-                <stop offset="100%" stopColor="var(--hero-gold)" />
-              </linearGradient>
-            </defs>
-            <path
-              d={ARC_D}
-              fill="none"
-              stroke="var(--hero-ink)"
-              strokeWidth={1}
-              strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-              opacity={0.14}
+            <span className="sr-only">
+              {expanded ? "Hide reward tier details" : "Show reward tier details"}
+            </span>
+            <ChevronDown
+              className={cn("h-4 w-4 transition-transform duration-300", expanded && "rotate-180")}
+              aria-hidden="true"
             />
-            {/* lit up to the active node */}
-            <m.path
-              d={ARC_D}
-              fill="none"
-              stroke="url(#hero-arc)"
-              strokeWidth={2.25}
-              strokeLinecap="round"
-              vectorEffect="non-scaling-stroke"
-              initial={false}
-              animate={{ pathLength: litFraction || 0.001, opacity: 0.85 }}
-              transition={{ duration: shouldAnimate ? 0.35 : 0, ease: [0.22, 1, 0.36, 1] }}
-            />
-            {/* traveling comet (a bright dash sweeping the arc) — pauses offscreen */}
-            {loop && (
-              <m.path
-                d={ARC_D}
-                fill="none"
-                stroke="url(#hero-arc)"
-                strokeWidth={3}
-                strokeLinecap="round"
-                vectorEffect="non-scaling-stroke"
-                pathLength={1}
-                strokeDasharray="0.14 0.86"
-                animate={{ strokeDashoffset: [0, -1] }}
-                transition={{ duration: 3.5, repeat: Infinity, ease: "linear" }}
-              />
-            )}
-          </svg>
-
-          {/* Tier nodes */}
-          <ol>
-            {LOYALTY_TIERS.map((t, i) => {
-              const n = TIER[t.id];
-              const p = ARC[i];
-              return (
-                <li
-                  key={t.id}
-                  className="absolute -translate-x-1/2 -translate-y-1/2"
-                  style={{ left: `${p.x}%`, top: `${p.y}%` }}
-                >
-                  <TierNode
-                    emoji={t.emoji}
-                    english={t.english}
-                    my={n.my}
-                    ring={n.ring}
-                    glow={n.glow}
-                    glowSize={t.id === "gold" ? 92 : 74}
-                    isGold={t.id === "gold"}
-                    isActive={i === active}
-                    earned={i <= active}
-                    loop={loop}
-                    index={i}
-                    ariaLabel={`${t.english} tier${
-                      t.minSpendCents === 0
-                        ? ""
-                        : `, unlock at $${dollars(t.minSpendCents)} lifetime`
-                    }, $${dollars(t.rewardCents)} reward`}
-                    onHover={() => setActive(i)}
-                    onFocus={() => announce(i)}
-                    onSelect={(e) => select(i, e)}
-                  />
-                </li>
-              );
-            })}
-          </ol>
-
-          {/* Star-burst particles on select */}
-          <Bursts bursts={bursts} />
+          </button>
         </div>
       </div>
+
+      {/* One-line value prop */}
+      <p className="relative mt-1.5 text-xs font-medium text-hero-ink-muted md:text-[0.8rem]">
+        Earn a{" "}
+        <Star
+          className="mb-0.5 inline h-3.5 w-3.5 fill-amber-500 text-amber-500"
+          aria-hidden="true"
+        />{" "}
+        <span className="font-semibold text-hero-accent">Star</span> every order — a reward every{" "}
+        <span className="font-semibold text-hero-accent">5</span>, bigger each tier.
+      </p>
+
+      {/* TIER TRACK — discs on a horizontal progress spine */}
+      <div ref={stageRef} className="relative mt-5">
+        {/* Spine: faint base + lit-to-active + traveling comet. Spans between the
+            first and last disc centers (4-col grid → centers at 12.5%…87.5%). */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute left-[12.5%] right-[12.5%] top-[1.375rem] h-[3px] -translate-y-1/2 overflow-hidden rounded-full md:top-[1.625rem]"
+        >
+          <span className="absolute inset-0 rounded-full bg-hero-ink/15" />
+          <m.span
+            className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-hero-clay via-hero-blue to-hero-gold"
+            initial={false}
+            animate={{ width: `${Math.max(litFraction, 0.0001) * 100}%`, opacity: 0.9 }}
+            transition={{ duration: shouldAnimate ? 0.35 : 0, ease: [0.22, 1, 0.36, 1] }}
+          />
+          {loop && (
+            <m.span
+              className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-hero-gold/80 to-transparent"
+              animate={{ x: ["-100%", "400%"] }}
+              transition={{ duration: 3.2, repeat: Infinity, ease: "linear" }}
+            />
+          )}
+        </div>
+
+        {/* Tier nodes — equal columns so disc centers land on the spine anchors */}
+        <ol className="relative grid grid-cols-4 justify-items-center">
+          {LOYALTY_TIERS.map((t, i) => {
+            const n = TIER[t.id];
+            return (
+              <li key={t.id} className="contents">
+                <RewardsRailNode
+                  emoji={t.emoji}
+                  english={t.english}
+                  my={n.my}
+                  ring={n.ring}
+                  glow={n.glow}
+                  glowSize={t.id === "gold" ? 70 : 56}
+                  isGold={t.id === "gold"}
+                  isActive={i === active}
+                  earned={i <= active}
+                  loop={loop}
+                  index={i}
+                  ariaLabel={`${t.english} tier${
+                    t.minSpendCents === 0 ? "" : `, unlock at $${dollars(t.minSpendCents)} lifetime`
+                  }, $${dollars(t.rewardCents)} reward`}
+                  onHover={() => setActive(i)}
+                  onFocus={() => announce(i)}
+                  onSelect={(e) => select(i, e)}
+                />
+              </li>
+            );
+          })}
+        </ol>
+
+        {/* Star-burst particles on select */}
+        <Bursts bursts={bursts} />
+      </div>
+
+      {/* EXPANDED — per-tier perk detail (height spring) */}
+      <AnimatePresence initial={false}>
+        {expanded && (
+          <m.div
+            key="perks"
+            id="hero-rewards-perks"
+            className="relative overflow-hidden"
+            initial={shouldAnimate ? { height: 0, opacity: 0 } : false}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={shouldAnimate ? { height: 0, opacity: 0 } : undefined}
+            transition={{ duration: shouldAnimate ? 0.3 : 0, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <div className="mt-4 rounded-2xl bg-hero-card/55 p-3.5 text-left ring-1 ring-hero-line">
+              <AnimatePresence mode="wait">
+                <m.div
+                  key={tier.id}
+                  initial={shouldAnimate ? { opacity: 0, y: 6 } : false}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={shouldAnimate ? { opacity: 0, y: -6 } : undefined}
+                  transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <RewardsPerkPanel tier={tier} my={TIER[tier.id].my} animate={shouldAnimate} />
+                </m.div>
+              </AnimatePresence>
+            </div>
+          </m.div>
+        )}
+      </AnimatePresence>
 
       {/* Intentional announcements only (focus/click) — not hover. */}
       <span className="sr-only" aria-live="polite">
