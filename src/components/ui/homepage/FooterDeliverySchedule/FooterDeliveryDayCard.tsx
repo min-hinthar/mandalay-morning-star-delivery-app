@@ -84,7 +84,10 @@ export function FooterDeliveryDayCard({
       };
 
   return (
-    <m.div {...tiltProps} className="group relative overflow-hidden rounded-xl hero-surface-vellum">
+    <m.div
+      {...tiltProps}
+      className="group relative overflow-hidden rounded-xl hero-surface-vellum-opaque"
+    >
       {/* Anthropic card texture — dot-grid + grain + corner ticks (glow off; we
           draw our own per-direction edge-glow below so gold is supported). */}
       <HeroCardLayers accent={accent.layers} radius="rounded-xl" glow={false} />

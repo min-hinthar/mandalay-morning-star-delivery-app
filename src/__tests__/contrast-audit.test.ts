@@ -175,11 +175,13 @@ describe("WCAG AA Contrast Audit - text-muted on surfaces", () => {
   // cream surface; the deep accents must clear AA 4.5:1 on it.
   const FOOTER_BG_LIGHT = "#ebebeb"; // surface-tertiary
   const FOOTER_BG_DARK = "#1b1410";
-  // .hero-surface-vellum = a clay+sage wash over a cream base. Pre-blend the
-  // cream onto the footer bg, then BOTH wash layers (worst-case darkening) so
-  // the guard tests the exact surface that ships, not just the lighter cream.
+  // The cards use .hero-surface-vellum-OPAQUE (clay+sage wash over a 0.97 cream,
+  // and — unlike plain vellum — NO md: drop to 0.72 + backdrop-filter, which
+  // would let the dark footer bleed through and sink the accent labels below AA
+  // on dark-mode desktop). Pre-blend the 0.97 cream onto the footer bg, then
+  // BOTH wash layers (worst-case darkening), so the guard tests what ships.
   function vellumSurface(footerBg: string): string {
-    const cream = alphaBlend(250, 249, 245, 0.95, footerBg);
+    const cream = alphaBlend(250, 249, 245, 0.97, footerBg);
     const clayWash = alphaBlend(217, 119, 87, 0.08, cream);
     return alphaBlend(120, 140, 93, 0.07, clayWash);
   }
