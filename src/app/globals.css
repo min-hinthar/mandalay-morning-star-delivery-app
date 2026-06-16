@@ -128,6 +128,10 @@
   --color-footer-text: var(--color-footer-text);
   --color-footer-text-muted: var(--color-footer-text-muted);
   --color-footer-border: var(--color-footer-border);
+  --color-footer-accent-clay: var(--color-footer-accent-clay);
+  --color-footer-accent-blue: var(--color-footer-accent-blue);
+  --color-footer-accent-sage: var(--color-footer-accent-sage);
+  --color-footer-accent-gold: var(--color-footer-accent-gold);
 
   /* Hero Colors (from tokens.css) */
   --color-hero-gradient-start: var(--hero-gradient-start);

@@ -31,12 +31,16 @@ export const DIRECTION_META: Record<DeliveryDirection, DirectionMeta> = {
   all: { label: "All areas", region: "Everywhere in range", my: "နေရာအနှံ့", accent: "gold", icon: Compass }, // prettier-ignore
 };
 
-/** Per-accent text / dot / soft-fill classes (constant hero tokens — read on the dark footer). */
+/**
+ * Per-accent classes. TEXT uses the mode-aware `footer-accent-*` tokens (deep on
+ * the light footer, vivid on the dark footer — AA in both); the decorative
+ * dot/ring keep the constant hero hues (contrast-tolerant on tiny shapes).
+ */
 export const ACCENT_CLASSES: Record<DirectionMeta["accent"], { text: string; dot: string; ring: string }> = {
-  clay: { text: "text-hero-clay", dot: "bg-hero-clay", ring: "ring-hero-clay/40" },
-  blue: { text: "text-hero-blue", dot: "bg-hero-blue", ring: "ring-hero-blue/40" },
-  sage: { text: "text-hero-sage", dot: "bg-hero-sage", ring: "ring-hero-sage/40" },
-  gold: { text: "text-hero-gold", dot: "bg-hero-gold", ring: "ring-hero-gold/40" },
+  clay: { text: "text-footer-accent-clay", dot: "bg-hero-clay", ring: "ring-hero-clay/40" },
+  blue: { text: "text-footer-accent-blue", dot: "bg-hero-blue", ring: "ring-hero-blue/40" },
+  sage: { text: "text-footer-accent-sage", dot: "bg-hero-sage", ring: "ring-hero-sage/40" },
+  gold: { text: "text-footer-accent-gold", dot: "bg-hero-gold", ring: "ring-hero-gold/40" },
 }; // prettier-ignore
 
 /** Active delivery days, sorted by display order (the schedule rows). */

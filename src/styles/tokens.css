@@ -488,6 +488,15 @@
   --color-footer-text-muted: var(--color-text-muted);
   --color-footer-border: var(--color-border-default);
 
+  /* Per-direction accent TEXT on the footer. The footer flips theme
+     (light surface in light mode), so these are mode-aware: deep, AA-passing
+     variants here for the LIGHT footer; the vivid hero triad on the dark
+     footer (see .dark). Decorative dots/edges keep the constant hero hues. */
+  --color-footer-accent-clay: #9a3412;
+  --color-footer-accent-blue: #2c5a87;
+  --color-footer-accent-sage: #4a6329;
+  --color-footer-accent-gold: #8a5a12;
+
   /* ===========================================
      OVERLAY TOKENS
      Modals, drawers, backdrops
@@ -685,6 +694,12 @@
   --color-footer-text: #e0e0e0;
   --color-footer-text-muted: #a0a0a0;
   --color-footer-border: rgba(255, 255, 255, 0.1);
+
+  /* Dark footer — the vivid hero triad reads on #1b1410 (all >= 5:1). */
+  --color-footer-accent-clay: #d97757;
+  --color-footer-accent-blue: #6a9bcc;
+  --color-footer-accent-sage: #788c5d;
+  --color-footer-accent-gold: #eaa92f;
 
   /* ===========================================
      HERO SECTION (Dark Mode)
