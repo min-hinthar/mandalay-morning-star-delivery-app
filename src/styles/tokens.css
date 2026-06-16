@@ -488,6 +488,15 @@
   --color-footer-text-muted: var(--color-text-muted);
   --color-footer-border: var(--color-border-default);
 
+  /* Per-direction accent TEXT for the footer schedule cards. The cards are a
+     CREAM hero-surface-vellum in both themes, so these are CONSTANT deep
+     variants (AA on cream ~6:1); decorative icons/dots/glow keep the vivid
+     hero hues. Not theme-flipped. */
+  --color-footer-accent-clay: #9a3412;
+  --color-footer-accent-blue: #2c5a87;
+  --color-footer-accent-sage: #4a6329;
+  --color-footer-accent-gold: #7a4f10;
+
   /* ===========================================
      OVERLAY TOKENS
      Modals, drawers, backdrops

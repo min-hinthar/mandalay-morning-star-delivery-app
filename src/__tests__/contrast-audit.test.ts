@@ -167,4 +167,42 @@ describe("WCAG AA Contrast Audit - text-muted on surfaces", () => {
       expect(ratio).toBeGreaterThanOrEqual(4.5);
     });
   });
+
+  // Footer schedule per-direction accent TEXT. The cards are a CREAM
+  // hero-surface-vellum in BOTH themes, so the accent text is a CONSTANT deep
+  // set (no mode flip). The vellum base is rgba(250,249,245,0.95) over
+  // footer-bg, so we composite that onto each mode's footer-bg to get the real
+  // cream surface; the deep accents must clear AA 4.5:1 on it.
+  const FOOTER_BG_LIGHT = "#ebebeb"; // surface-tertiary
+  const FOOTER_BG_DARK = "#1b1410";
+  // The cards use .hero-surface-vellum-OPAQUE (clay+sage wash over a 0.97 cream,
+  // and — unlike plain vellum — NO md: drop to 0.72 + backdrop-filter, which
+  // would let the dark footer bleed through and sink the accent labels below AA
+  // on dark-mode desktop). Pre-blend the 0.97 cream onto the footer bg, then
+  // BOTH wash layers (worst-case darkening), so the guard tests what ships.
+  function vellumSurface(footerBg: string): string {
+    const cream = alphaBlend(250, 249, 245, 0.97, footerBg);
+    const clayWash = alphaBlend(217, 119, 87, 0.08, cream);
+    return alphaBlend(120, 140, 93, 0.07, clayWash);
+  }
+  const CARD_BG_LIGHT = vellumSurface(FOOTER_BG_LIGHT);
+  const CARD_BG_DARK = vellumSurface(FOOTER_BG_DARK);
+  const deepAccents: [string, string][] = [
+    ["footer-accent-clay", "#9a3412"],
+    ["footer-accent-blue", "#2c5a87"],
+    ["footer-accent-sage", "#4a6329"],
+    ["footer-accent-gold", "#7a4f10"],
+  ];
+
+  describe(`Footer accents on cream vellum: light footer (${CARD_BG_LIGHT})`, () => {
+    it.each(deepAccents)("%s (%s) passes 4.5:1", (_name: string, hex: string) => {
+      expect(contrastRatio(hex, CARD_BG_LIGHT)).toBeGreaterThanOrEqual(4.5);
+    });
+  });
+
+  describe(`Footer accents on cream vellum: dark footer (${CARD_BG_DARK})`, () => {
+    it.each(deepAccents)("%s (%s) passes 4.5:1", (_name: string, hex: string) => {
+      expect(contrastRatio(hex, CARD_BG_DARK)).toBeGreaterThanOrEqual(4.5);
+    });
+  });
 });

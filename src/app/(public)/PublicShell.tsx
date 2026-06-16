@@ -9,7 +9,7 @@ import { ReferralCapture } from "@/components/ui/referrals/ReferralCapture";
 import { OfflineBanner } from "@/components/ui/customer";
 import { SiteFooter } from "@/components/ui/homepage/SiteFooter";
 import { FeedbackFAB, FeedbackSheet } from "@/components/ui/feedback";
-import type { DeliveryDayConfig } from "@/types/delivery";
+import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 
 interface PublicShellProps {
   children: ReactNode;
@@ -18,6 +18,10 @@ interface PublicShellProps {
   cutoffDay: number;
   cutoffHour: number;
   deliveryDays?: DeliveryDayConfig[];
+  deliveryZones?: DeliveryZoneConfig[];
+  deliveryStartHour?: number;
+  deliveryEndHour?: number;
+  prepTimeBufferMinutes?: number;
   longDistanceFeeCents?: number;
   longDistanceThresholdMiles?: number;
 }
@@ -29,6 +33,10 @@ export function PublicShell({
   cutoffDay,
   cutoffHour,
   deliveryDays,
+  deliveryZones,
+  deliveryStartHour,
+  deliveryEndHour,
+  prepTimeBufferMinutes,
   longDistanceFeeCents,
   longDistanceThresholdMiles,
 }: PublicShellProps) {
@@ -50,7 +58,16 @@ export function PublicShell({
       <CartServerSync />
       <ReferralCapture />
       {children}
-      <SiteFooter />
+      <SiteFooter
+        deliveryDays={deliveryDays}
+        deliveryZones={deliveryZones}
+        deliveryStartHour={deliveryStartHour}
+        deliveryEndHour={deliveryEndHour}
+        prepTimeBufferMinutes={prepTimeBufferMinutes}
+        freeDeliveryThresholdCents={freeDeliveryThresholdCents}
+        longDistanceFeeCents={longDistanceFeeCents}
+        longDistanceThresholdMiles={longDistanceThresholdMiles}
+      />
       <CartOverlays />
       <FeedbackFAB />
       <FeedbackSheet />
