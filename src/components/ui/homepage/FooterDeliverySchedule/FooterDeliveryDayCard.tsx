@@ -73,7 +73,9 @@ export function FooterDeliveryDayCard({
         type="button"
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
-        aria-controls={bodyId}
+        // Only reference the body while it's mounted (AnimatePresence unmounts it
+        // when collapsed); aria-expanded conveys the state in both directions.
+        aria-controls={open ? bodyId : undefined}
         className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60"
       >
         <Icon className={cn("h-4 w-4 shrink-0", accent.text)} aria-hidden="true" />
@@ -94,14 +96,17 @@ export function FooterDeliveryDayCard({
           </span>
         </span>
         {cd.label && (
+          // Numerals use the always-readable footer-text token (the pill bg is a
+          // footer-text tint that shifts the surface in both modes); the accent
+          // lives on the Timer icon (graphical, 3:1 bar). Keeps the pill text AA
+          // regardless of the soon/not-soon background.
           <span
             className={cn(
-              "inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-0.5 text-2xs font-semibold",
-              accent.text,
+              "inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-0.5 text-2xs font-semibold text-footer-text",
               cd.soon ? "bg-secondary/15" : "bg-footer-text/10"
             )}
           >
-            <Timer className="h-3 w-3" aria-hidden="true" />
+            <Timer className={cn("h-3 w-3", accent.text)} aria-hidden="true" />
             {cd.label}
           </span>
         )}
