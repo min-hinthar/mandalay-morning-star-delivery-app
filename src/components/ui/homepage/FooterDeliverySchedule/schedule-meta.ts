@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * Footer delivery-schedule metadata + pure formatters. Maps each routing
  * DIRECTION to a human region label, bilingual name, an Anthropic-triad accent,

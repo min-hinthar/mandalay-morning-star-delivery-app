@@ -1,5 +1,3 @@
-"use client";
-
 /**
  * cutoffCountdown — PURE "time until this day's order cutoff" computed off a
  * caller-supplied `now`. Kept pure (no timer/state of its own) so the whole

@@ -174,8 +174,12 @@ export function FooterDeliveryDayCard({
                 )}
                 <li className="flex items-center gap-2">
                   <Tag className="h-3.5 w-3.5 shrink-0 text-footer-text-muted" aria-hidden="true" />
-                  ${feeDollars} delivery
-                  {freeThresholdDollars !== undefined && (
+                  {/* "from" — `feeDollars` is the ≤25mi base; >25mi pays a flat
+                      higher fee with no free tier (checkout computes the real
+                      fee). Guard a real 0 threshold so we never show "free
+                      over $0". */}
+                  from ${feeDollars} delivery
+                  {freeThresholdDollars !== undefined && freeThresholdDollars > 0 && (
                     <> · free over ${freeThresholdDollars} (local)</>
                   )}
                 </li>
