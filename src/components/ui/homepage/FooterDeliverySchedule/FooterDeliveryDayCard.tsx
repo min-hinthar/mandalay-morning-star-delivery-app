@@ -101,8 +101,9 @@ export function FooterDeliveryDayCard({
       />
       <span aria-hidden="true" className={cn("absolute inset-y-0 left-0 w-0.5", accent.dot)} />
 
-      {/* Auto sheen sweep */}
-      {shouldAnimate && (
+      {/* Auto sheen sweep — gate on inView so the infinite CSS loop pauses
+          while the footer is offscreen (which it almost always is). */}
+      {loop && (
         <span
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 overflow-hidden rounded-xl"
