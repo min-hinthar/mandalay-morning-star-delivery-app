@@ -76,7 +76,7 @@ export function FooterDeliveryDayCard({
         // Only reference the body while it's mounted (AnimatePresence unmounts it
         // when collapsed); aria-expanded conveys the state in both directions.
         aria-controls={open ? bodyId : undefined}
-        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary/60"
+        className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-gold/60"
       >
         <Icon className={cn("h-4 w-4 shrink-0", accent.text)} aria-hidden="true" />
         <span className="min-w-0 flex-1">
@@ -86,7 +86,7 @@ export function FooterDeliveryDayCard({
             </span>
             <span className={cn("text-xs font-medium", accent.text)}>· {meta.label}</span>
             {isNext && (
-              <span className="rounded-full bg-secondary px-1.5 text-2xs font-bold uppercase tracking-wide text-hero-ink">
+              <span className="rounded-full bg-hero-gold px-1.5 text-2xs font-bold uppercase tracking-wide text-hero-ink">
                 Next
               </span>
             )}
@@ -103,7 +103,7 @@ export function FooterDeliveryDayCard({
           <span
             className={cn(
               "inline-flex shrink-0 items-center gap-1 rounded-full px-1.5 py-0.5 text-2xs font-semibold text-footer-text",
-              cd.soon ? "bg-secondary/15" : "bg-footer-text/10"
+              cd.soon ? "bg-hero-gold/15" : "bg-footer-text/10"
             )}
           >
             <Timer className={cn("h-3 w-3", accent.text)} aria-hidden="true" />
