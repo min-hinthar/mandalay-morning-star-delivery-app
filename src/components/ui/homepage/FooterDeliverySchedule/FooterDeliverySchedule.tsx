@@ -15,6 +15,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useInView } from "framer-motion";
 import { Clock } from "lucide-react";
 import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
+import { useCartStore } from "@/lib/stores/cart-store";
 import { FooterDeliveryDayCard } from "./FooterDeliveryDayCard";
 import { activeDeliveryDays, deliveryWindowRange } from "./schedule-meta";
 import { msUntilCutoff } from "./cutoff-countdown";
@@ -26,6 +27,8 @@ export interface FooterDeliveryScheduleProps {
   deliveryEndHour?: number;
   prepTimeBufferMinutes?: number;
   freeDeliveryThresholdCents?: number;
+  longDistanceFeeCents?: number;
+  longDistanceThresholdMiles?: number;
 }
 
 const toDollars = (cents: number) => Math.round(cents / 100);
@@ -37,6 +40,8 @@ export function FooterDeliverySchedule({
   deliveryEndHour = 19,
   prepTimeBufferMinutes = 30,
   freeDeliveryThresholdCents,
+  longDistanceFeeCents,
+  longDistanceThresholdMiles,
 }: FooterDeliveryScheduleProps) {
   const days = useMemo(() => activeDeliveryDays(deliveryDays), [deliveryDays]);
   const slotWindow = useMemo(
@@ -45,6 +50,14 @@ export function FooterDeliverySchedule({
   );
   const freeThresholdDollars =
     freeDeliveryThresholdCents !== undefined ? toDollars(freeDeliveryThresholdCents) : undefined;
+  const longFeeDollars =
+    longDistanceFeeCents !== undefined ? toDollars(longDistanceFeeCents) : undefined;
+
+  // Adaptive order CTA: resume checkout when the cart has items, else start an
+  // order from the menu. The CTA only renders in the (client-only) expanded
+  // body, so this never affects SSR markup.
+  const cartCount = useCartStore((s) => s.items.length);
+  const orderHref = cartCount > 0 ? "/cart" : "/menu";
 
   // ONE shared per-minute `now` tick for the whole schedule, gated to in-view so
   // it pauses while the footer is offscreen. `null` on SSR + first paint (and
@@ -101,6 +114,9 @@ export function FooterDeliverySchedule({
               windowSlots={slotWindow?.slots ?? 0}
               feeDollars={toDollars(day.deliveryFeeCents)}
               freeThresholdDollars={freeThresholdDollars}
+              longFeeDollars={longFeeDollars}
+              longMiles={longDistanceThresholdMiles}
+              orderHref={orderHref}
               isNext={day.id === nextDayId}
             />
           </li>

@@ -65,6 +65,8 @@ export function PublicShell({
         deliveryEndHour={deliveryEndHour}
         prepTimeBufferMinutes={prepTimeBufferMinutes}
         freeDeliveryThresholdCents={freeDeliveryThresholdCents}
+        longDistanceFeeCents={longDistanceFeeCents}
+        longDistanceThresholdMiles={longDistanceThresholdMiles}
       />
       <CartOverlays />
       <FeedbackFAB />

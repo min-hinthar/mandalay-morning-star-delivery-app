@@ -2,13 +2,16 @@
 
 /**
  * FooterDeliveryCardBody — the expanded detail of a delivery-day card on the
- * cream vellum surface: served cities as STAGGER-revealed chips, the full
- * cutoff, the delivery window, and a count-up fee line, plus a bilingual note.
- * Text is hero-ink (constant dark) on cream; the accent shows on dots/icons.
+ * cream vellum surface: served cities as STAGGER-revealed chips (with an info
+ * disclosure for distance-tiered pricing), the full cutoff, the delivery
+ * window, a count-up fee, a bilingual note, and — on the soonest day — an
+ * adaptive "Order for {day}" CTA. Text is hero-ink (constant) on cream.
  */
 
-import { m } from "framer-motion";
-import { Clock, Tag, Truck } from "lucide-react";
+import { useState } from "react";
+import Link from "next/link";
+import { AnimatePresence, m } from "framer-motion";
+import { ArrowRight, Clock, Info, Tag, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { DAY_NAMES_FULL } from "@/lib/utils/delivery-schedule";
 import type { DeliveryDayConfig } from "@/types/delivery";
@@ -25,6 +28,11 @@ interface CardBodyProps {
   windowSlots: number;
   feeDollars: number;
   freeThresholdDollars?: number;
+  longFeeDollars?: number;
+  longMiles?: number;
+  /** Adaptive order destination (cart or menu). */
+  orderHref: string;
+  isNext: boolean;
   /** Count-up + chip stagger run only when in view + motion allowed. */
   animate: boolean;
 }
@@ -40,16 +48,37 @@ export function FooterDeliveryCardBody({
   windowSlots,
   feeDollars,
   freeThresholdDollars,
+  longFeeDollars,
+  longMiles,
+  orderHref,
+  isNext,
   animate,
 }: CardBodyProps) {
+  const [infoOpen, setInfoOpen] = useState(false);
+  const dayName = DAY_NAMES_FULL[day.dayOfWeek];
+  const hasPricingNote = longFeeDollars !== undefined && longMiles !== undefined;
+
   return (
     <div className="relative space-y-2.5 border-t border-hero-line px-3 py-3">
-      {/* Served cities / regions — stagger-revealed chips */}
+      {/* Served cities / regions — stagger-revealed chips + a pricing info note */}
       {cities.items.length > 0 && (
         <div>
-          <p className="mb-1.5 text-2xs font-semibold uppercase tracking-wide text-hero-ink-muted">
-            {cities.kind === "regions" ? "Serving all directions" : "Serving"}
-          </p>
+          <div className="mb-1.5 flex items-center gap-1.5">
+            <p className="text-2xs font-semibold uppercase tracking-wide text-hero-ink-muted">
+              {cities.kind === "regions" ? "Serving all directions" : "Serving"}
+            </p>
+            {hasPricingNote && (
+              <button
+                type="button"
+                onClick={() => setInfoOpen((v) => !v)}
+                aria-expanded={infoOpen}
+                aria-label="Delivery pricing by distance"
+                className="grid h-4 w-4 place-items-center rounded-full text-hero-ink-muted transition-colors hover:text-hero-accent focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-hero-clay/50"
+              >
+                <Info className="h-3.5 w-3.5" aria-hidden="true" />
+              </button>
+            )}
+          </div>
           <div className="flex flex-wrap gap-1.5">
             {cities.items.map((c, i) => (
               <m.span
@@ -64,6 +93,26 @@ export function FooterDeliveryCardBody({
               </m.span>
             ))}
           </div>
+          {/* Distance-tiered pricing disclosure */}
+          {hasPricingNote && (
+            <AnimatePresence initial={false}>
+              {infoOpen && (
+                <m.p
+                  initial={animate ? { opacity: 0, height: 0 } : false}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={animate ? { opacity: 0, height: 0 } : undefined}
+                  transition={{ duration: animate ? 0.2 : 0, ease: [0.22, 1, 0.36, 1] }}
+                  className="mt-1.5 overflow-hidden text-2xs leading-relaxed text-hero-ink-muted"
+                >
+                  Within {longMiles} mi: ${feeDollars}
+                  {freeThresholdDollars && freeThresholdDollars > 0
+                    ? ` · free over $${freeThresholdDollars}`
+                    : ""}
+                  . Beyond {longMiles} mi: flat ${longFeeDollars}, set at checkout.
+                </m.p>
+              )}
+            </AnimatePresence>
+          )}
         </div>
       )}
 
@@ -101,8 +150,22 @@ export function FooterDeliveryCardBody({
       </ul>
 
       <p className="font-burmese text-2xs leading-relaxed text-hero-ink/65" lang="my">
-        {meta.my} · {DAY_NAMES_FULL[day.dayOfWeek]} ပို့ဆောင်မှု
+        {meta.my} · {dayName} ပို့ဆောင်မှု
       </p>
+
+      {/* Order CTA — soonest day only, adaptive destination */}
+      {isNext && (
+        <Link
+          href={orderHref}
+          className="group/cta mt-1 flex items-center justify-center gap-1.5 rounded-full bg-gradient-to-br from-hero-clay to-hero-clay-2 px-3 py-2 text-xs font-semibold text-hero-ink shadow-sm transition-all hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-clay/50"
+        >
+          Order for {dayName}
+          <ArrowRight
+            className="h-3.5 w-3.5 transition-transform group-hover/cta:translate-x-0.5"
+            aria-hidden="true"
+          />
+        </Link>
+      )}
     </div>
   );
 }

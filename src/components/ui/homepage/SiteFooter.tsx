@@ -95,6 +95,8 @@ export interface SiteFooterProps {
   deliveryEndHour?: number;
   prepTimeBufferMinutes?: number;
   freeDeliveryThresholdCents?: number;
+  longDistanceFeeCents?: number;
+  longDistanceThresholdMiles?: number;
 }
 
 export function SiteFooter({
@@ -104,6 +106,8 @@ export function SiteFooter({
   deliveryEndHour,
   prepTimeBufferMinutes,
   freeDeliveryThresholdCents,
+  longDistanceFeeCents,
+  longDistanceThresholdMiles,
 }: SiteFooterProps = {}) {
   const { shouldAnimate } = useAnimationPreference();
   const openFeedback = useFeedbackStore((s) => s.open);
@@ -167,6 +171,8 @@ export function SiteFooter({
               deliveryEndHour={deliveryEndHour}
               prepTimeBufferMinutes={prepTimeBufferMinutes}
               freeDeliveryThresholdCents={freeDeliveryThresholdCents}
+              longDistanceFeeCents={longDistanceFeeCents}
+              longDistanceThresholdMiles={longDistanceThresholdMiles}
             />
           </m.div>
 

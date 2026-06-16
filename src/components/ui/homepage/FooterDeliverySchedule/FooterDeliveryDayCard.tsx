@@ -34,6 +34,11 @@ interface FooterDeliveryDayCardProps {
   windowSlots: number;
   feeDollars: number;
   freeThresholdDollars?: number;
+  /** Extended (>threshold mi) flat fee + the mile threshold, for the info note. */
+  longFeeDollars?: number;
+  longMiles?: number;
+  /** Where the "Order for {day}" CTA navigates (adaptive: cart or menu). */
+  orderHref: string;
   /** Highlights the soonest upcoming day (resolved client-side post-mount). */
   isNext: boolean;
 }
@@ -47,6 +52,9 @@ export function FooterDeliveryDayCard({
   windowSlots,
   feeDollars,
   freeThresholdDollars,
+  longFeeDollars,
+  longMiles,
+  orderHref,
   isNext,
 }: FooterDeliveryDayCardProps) {
   const { shouldAnimate } = useAnimationPreference();
@@ -150,7 +158,7 @@ export function FooterDeliveryDayCard({
             <span className={cn("text-xs font-semibold", accent.text)}>· {meta.label}</span>
             {isNext && (
               <span className="rounded-full bg-hero-gold px-1.5 text-2xs font-bold uppercase tracking-wide text-hero-ink">
-                Next
+                Upcoming
               </span>
             )}
           </span>
@@ -208,6 +216,10 @@ export function FooterDeliveryDayCard({
               windowSlots={windowSlots}
               feeDollars={feeDollars}
               freeThresholdDollars={freeThresholdDollars}
+              longFeeDollars={longFeeDollars}
+              longMiles={longMiles}
+              orderHref={orderHref}
+              isNext={isNext}
               animate={shouldAnimate && inView}
             />
           </m.div>

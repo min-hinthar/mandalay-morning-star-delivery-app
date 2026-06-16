@@ -175,9 +175,16 @@ describe("WCAG AA Contrast Audit - text-muted on surfaces", () => {
   // cream surface; the deep accents must clear AA 4.5:1 on it.
   const FOOTER_BG_LIGHT = "#ebebeb"; // surface-tertiary
   const FOOTER_BG_DARK = "#1b1410";
-  const VELLUM_CREAM: [number, number, number, number] = [250, 249, 245, 0.95];
-  const CARD_BG_LIGHT = alphaBlend(...VELLUM_CREAM, FOOTER_BG_LIGHT);
-  const CARD_BG_DARK = alphaBlend(...VELLUM_CREAM, FOOTER_BG_DARK);
+  // .hero-surface-vellum = a clay+sage wash over a cream base. Pre-blend the
+  // cream onto the footer bg, then BOTH wash layers (worst-case darkening) so
+  // the guard tests the exact surface that ships, not just the lighter cream.
+  function vellumSurface(footerBg: string): string {
+    const cream = alphaBlend(250, 249, 245, 0.95, footerBg);
+    const clayWash = alphaBlend(217, 119, 87, 0.08, cream);
+    return alphaBlend(120, 140, 93, 0.07, clayWash);
+  }
+  const CARD_BG_LIGHT = vellumSurface(FOOTER_BG_LIGHT);
+  const CARD_BG_DARK = vellumSurface(FOOTER_BG_DARK);
   const deepAccents: [string, string][] = [
     ["footer-accent-clay", "#9a3412"],
     ["footer-accent-blue", "#2c5a87"],
