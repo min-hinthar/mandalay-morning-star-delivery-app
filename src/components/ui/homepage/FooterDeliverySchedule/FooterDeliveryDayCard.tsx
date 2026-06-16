@@ -72,13 +72,19 @@ export function FooterDeliveryDayCard({
   const { ripples, onPointerDown } = useRipple();
   const loop = shouldAnimate && inView;
 
+  // No 3D tilt on the Upcoming card: its body holds the "Order for {day}" CTA,
+  // and the documented gotcha is that the tilt swing shifts an embedded CTA out
+  // from under the cursor. The other cards (no CTA) keep the tilt.
+  const tiltProps = isNext
+    ? {}
+    : {
+        onPointerMove: tilt.onPointerMove,
+        onPointerLeave: tilt.onPointerLeave,
+        style: { rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformPerspective: 900 },
+      };
+
   return (
-    <m.div
-      onPointerMove={tilt.onPointerMove}
-      onPointerLeave={tilt.onPointerLeave}
-      style={{ rotateX: tilt.rotateX, rotateY: tilt.rotateY, transformPerspective: 900 }}
-      className="group relative overflow-hidden rounded-xl hero-surface-vellum"
-    >
+    <m.div {...tiltProps} className="group relative overflow-hidden rounded-xl hero-surface-vellum">
       {/* Anthropic card texture — dot-grid + grain + corner ticks (glow off; we
           draw our own per-direction edge-glow below so gold is supported). */}
       <HeroCardLayers accent={accent.layers} radius="rounded-xl" glow={false} />
