@@ -96,6 +96,7 @@ export function FooterDeliverySchedule({
               day={day}
               zones={deliveryZones}
               now={now}
+              inView={inView}
               windowRange={slotWindow?.range ?? null}
               windowSlots={slotWindow?.slots ?? 0}
               feeDollars={toDollars(day.deliveryFeeCents)}

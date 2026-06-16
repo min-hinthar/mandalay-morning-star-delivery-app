@@ -29,16 +29,31 @@ export const DIRECTION_META: Record<DeliveryDirection, DirectionMeta> = {
   all: { label: "All areas", region: "Everywhere in range", my: "နေရာအနှံ့", accent: "gold", icon: Compass }, // prettier-ignore
 };
 
+interface AccentClasses {
+  /** Deep, AA-on-cream accent TEXT (direction label). */
+  text: string;
+  /** Vivid hero hue for the direction ICON (graphical, pops on cream). */
+  vivid: string;
+  /** Vivid hero hue as a bg (city dots, edge bar). */
+  dot: string;
+  /** Inset ring tint for the card edge. */
+  ring: string;
+  /** CSS var for the radial edge-glow + the "Next" pulse. */
+  glowVar: string;
+  /** HeroCardLayers accent (no gold there → gold falls back to clay ticks). */
+  layers: "clay" | "blue" | "sage";
+}
+
 /**
- * Per-accent classes. TEXT uses the mode-aware `footer-accent-*` tokens (deep on
- * the light footer, vivid on the dark footer — AA in both); the decorative
- * dot/ring keep the constant hero hues (contrast-tolerant on tiny shapes).
+ * Per-direction accent classes for the CREAM vellum cards. TEXT uses the
+ * constant deep `footer-accent-*` tokens (AA on cream); icon/dot/glow keep the
+ * vivid hero hues (decorative on cream).
  */
-export const ACCENT_CLASSES: Record<DirectionMeta["accent"], { text: string; dot: string; ring: string }> = {
-  clay: { text: "text-footer-accent-clay", dot: "bg-hero-clay", ring: "ring-hero-clay/40" },
-  blue: { text: "text-footer-accent-blue", dot: "bg-hero-blue", ring: "ring-hero-blue/40" },
-  sage: { text: "text-footer-accent-sage", dot: "bg-hero-sage", ring: "ring-hero-sage/40" },
-  gold: { text: "text-footer-accent-gold", dot: "bg-hero-gold", ring: "ring-hero-gold/40" },
+export const ACCENT_CLASSES: Record<DirectionMeta["accent"], AccentClasses> = {
+  clay: { text: "text-footer-accent-clay", vivid: "text-hero-clay", dot: "bg-hero-clay", ring: "ring-hero-clay/30", glowVar: "var(--hero-clay)", layers: "clay" },
+  blue: { text: "text-footer-accent-blue", vivid: "text-hero-blue", dot: "bg-hero-blue", ring: "ring-hero-blue/30", glowVar: "var(--hero-blue)", layers: "blue" },
+  sage: { text: "text-footer-accent-sage", vivid: "text-hero-sage", dot: "bg-hero-sage", ring: "ring-hero-sage/30", glowVar: "var(--hero-sage)", layers: "sage" },
+  gold: { text: "text-footer-accent-gold", vivid: "text-hero-gold", dot: "bg-hero-gold", ring: "ring-hero-gold/30", glowVar: "var(--hero-gold)", layers: "clay" },
 }; // prettier-ignore
 
 /** Active delivery days, sorted by display order (the schedule rows). */
