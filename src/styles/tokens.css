@@ -495,7 +495,7 @@
   --color-footer-accent-clay: #9a3412;
   --color-footer-accent-blue: #2c5a87;
   --color-footer-accent-sage: #4a6329;
-  --color-footer-accent-gold: #8a5a12;
+  --color-footer-accent-gold: #7a4f10;
 
   /* ===========================================
      OVERLAY TOKENS
@@ -695,10 +695,11 @@
   --color-footer-text-muted: #a0a0a0;
   --color-footer-border: rgba(255, 255, 255, 0.1);
 
-  /* Dark footer — the vivid hero triad reads on #1b1410 (all >= 5:1). */
+  /* Dark footer — vivid hero triad; sage lifted to #8aa06d so it clears AA on
+     the overlay-darkened card surface (hero #788c5d lands ~4.4:1 there). */
   --color-footer-accent-clay: #d97757;
   --color-footer-accent-blue: #6a9bcc;
-  --color-footer-accent-sage: #788c5d;
+  --color-footer-accent-sage: #8aa06d;
   --color-footer-accent-gold: #eaa92f;
 
   /* ===========================================

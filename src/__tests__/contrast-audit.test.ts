@@ -168,33 +168,40 @@ describe("WCAG AA Contrast Audit - text-muted on surfaces", () => {
     });
   });
 
-  // Footer schedule per-direction accent TEXT on the (theme-flipping) footer bg.
-  // The footer is a LIGHT surface in light mode, so the accent text is mode-aware
-  // (deep variants on light, vivid hero triad on dark). Both must clear AA 4.5:1.
+  // Footer schedule per-direction accent TEXT on the (theme-flipping) footer.
+  // The accent text renders on the schedule CARD, which is `bg-footer-text/[0.06]`
+  // — a 6% footer-text overlay on footer-bg — NOT bare footer-bg. We composite
+  // that overlay into the effective bg so the guard matches the real surface.
+  // The footer is a LIGHT surface in light mode, so the accents are mode-aware
+  // (deep variants on light, vivid hero triad on dark); both must clear AA 4.5:1.
   const FOOTER_BG_LIGHT = "#ebebeb"; // surface-tertiary
   const FOOTER_BG_DARK = "#1b1410";
+  // bg-footer-text/[0.06] composited onto footer-bg → the real card surface.
+  // footer-text is #3b3b3b (light) / #e0e0e0 (dark).
+  const CARD_BG_LIGHT = alphaBlend(0x3b, 0x3b, 0x3b, 0.06, FOOTER_BG_LIGHT);
+  const CARD_BG_DARK = alphaBlend(0xe0, 0xe0, 0xe0, 0.06, FOOTER_BG_DARK);
   const lightFooterAccents: [string, string][] = [
     ["footer-accent-clay", "#9a3412"],
     ["footer-accent-blue", "#2c5a87"],
     ["footer-accent-sage", "#4a6329"],
-    ["footer-accent-gold", "#8a5a12"],
+    ["footer-accent-gold", "#7a4f10"],
   ];
   const darkFooterAccents: [string, string][] = [
     ["footer-accent-clay", "#d97757"],
     ["footer-accent-blue", "#6a9bcc"],
-    ["footer-accent-sage", "#788c5d"],
+    ["footer-accent-sage", "#8aa06d"],
     ["footer-accent-gold", "#eaa92f"],
   ];
 
-  describe("Footer accents: light footer (#ebebeb)", () => {
+  describe(`Footer accents: light card (${CARD_BG_LIGHT})`, () => {
     it.each(lightFooterAccents)("%s (%s) passes 4.5:1", (_name: string, hex: string) => {
-      expect(contrastRatio(hex, FOOTER_BG_LIGHT)).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(hex, CARD_BG_LIGHT)).toBeGreaterThanOrEqual(4.5);
     });
   });
 
-  describe("Footer accents: dark footer (#1b1410)", () => {
+  describe(`Footer accents: dark card (${CARD_BG_DARK})`, () => {
     it.each(darkFooterAccents)("%s (%s) passes 4.5:1", (_name: string, hex: string) => {
-      expect(contrastRatio(hex, FOOTER_BG_DARK)).toBeGreaterThanOrEqual(4.5);
+      expect(contrastRatio(hex, CARD_BG_DARK)).toBeGreaterThanOrEqual(4.5);
     });
   });
 });

@@ -86,5 +86,10 @@ export function deliveryWindowRange(
   const windows = generateTimeWindows(startHour, endHour, prepBufferMinutes);
   if (windows.length === 0) return null;
   const firstHour = Number(windows[0].start.slice(0, 2));
-  return { range: `${formatHour(firstHour)} – ${formatHour(endHour)}`, slots: windows.length };
+  const start = formatHour(firstHour); // e.g. "12 PM"
+  const end = formatHour(endHour); // e.g. "7 PM"
+  // Drop the redundant period on the start when both share AM/PM → "12 – 7 PM".
+  const [startNum, startPeriod] = start.split(" ");
+  const compactStart = startPeriod === end.split(" ")[1] ? startNum : start;
+  return { range: `${compactStart} – ${end}`, slots: windows.length };
 }
