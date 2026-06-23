@@ -18,8 +18,8 @@ consistency, and records the residual Low/Med items as fix-later.
 | Severity | Open (this audit) | Fixed in this PR | By-design / accepted |
 | -------- | ----------------- | ---------------- | -------------------- |
 | High     | 0                 | 0                | —                    |
-| Medium   | 3 (fix-later)     | 2                | 2                    |
-| Low      | 9 (fix-later)     | 3                | several              |
+| Medium   | 2 (fix-later)     | 2                | 2                    |
+| Low      | 10 (fix-later)    | 3                | several              |
 
 ## Fixed in this PR
 
@@ -48,13 +48,12 @@ consistency, and records the residual Low/Med items as fix-later.
 
 ### Medium
 
-- **M-1 · `delivery_photos` storage read scope too broad.** Baseline policy
-  `delivery_photos_select` grants SELECT to **all authenticated users**, not just the
-  order's customer + assigned driver + admin. Low live exposure (paths are opaque UUIDs,
-  bucket isn't listable to clients), but a cross-customer read is possible with a guessed
-  path. Fix = tighten the policy via a new timestamped migration + `pnpm gen:types`
-  (needs the local Supabase stack so the `db-drift` guard passes — out of scope for this
-  report-only pass). `supabase/migrations/00000000000000_baseline.sql`.
+> **M-1 (`delivery_photos` read scope) WITHDRAWN — was a misread.** An earlier note
+> claimed `delivery_photos_select` grants SELECT to all authenticated users. The **actual**
+> baseline policy (`baseline.sql:2391`) is admin-or-assigned-driver — already tight.
+> Customers view proof-of-delivery via **ownership-gated service-role signed URLs**, not
+> direct storage access. Moved to verified-secure below. No migration needed.
+
 - **M-2 · Checkout idempotency key (Phase-111 TODO).** `checkout/session/route.ts` keys
   Stripe idempotency on `order.id`; if a refactor ever regenerates `order.id` on client
   retry, duplicate sessions become possible. Current callers reuse the same id, so not
@@ -107,6 +106,14 @@ consistency, and records the residual Low/Med items as fix-later.
 - **`after()`-wrapped email sends are not silent.** `sendEmail()` retries 3×, then on
   final failure logs a `failed` row to `notification_logs` **and** flags the order
   `needs_contact = true` for manual follow-up (`src/lib/email/send.ts`).
+- **`delivery_photos` storage access is correctly scoped** (corrects the withdrawn M-1).
+  Bucket is **private**; `delivery_photos_select` (`baseline.sql:2391`) allows direct
+  reads only to `is_admin()` or the **assigned driver** on the route; INSERT/DELETE are
+  driver-on-route scoped. Customers see proof-of-delivery on the tracking/delivered screen
+  via **service-role signed URLs** (`getDeliveryPhotoSignedUrl`, 3600s) minted **only
+  after** the tracking endpoint verifies `order.user_id === user.id` or a valid
+  `share_token` (`api/tracking/[orderId]/route.ts:130`). Same private-bucket + signed-URL
+  pattern as `feedback-attachments`. No cross-customer read; no migration needed.
 
 ## False positives caught (recorded so the next pass doesn't re-flag)
 
@@ -202,6 +209,13 @@ expiry/redeemed wallet filters, and cross-account coupon checks all hold.
 - **L-9 · Tier accent-color map duplicated** in `RewardsTab/tierStyle.ts` and
   `admin/referrals/TierDistribution.tsx` (they currently agree). Already a known CLAUDE.md
   watch-for; consider exporting one source from `lib/loyalty`. DRY/drift risk, not a bug.
+- **L-10 · No discount row in `OrderTotalsTable`.** `total_cents` is net of any coupon
+  `amount_off`, but the email totals table renders only Subtotal/Fee/Tax/Tip — so for a
+  **coupon order** the rows still won't sum to the stored total even after the tip fix.
+  Pre-existing and **shared with the webhook path** (`checkout-session-completed.ts` also
+  omits it). Fix = add a `discountCents` prop + Discount line to `OrderTotalsTable`, wired
+  in every caller (status route, webhook, `OrderConfirmation`, `OrderDelivered`,
+  `OutForDelivery`, `DeliveryReminder`). A focused follow-up PR (touches several payloads).
 
 ### False positives caught
 
