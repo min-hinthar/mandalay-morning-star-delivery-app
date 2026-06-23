@@ -66,6 +66,14 @@ export function OrderTotalsTable({
   paymentMethod,
   isExtendedRange,
 }: OrderTotalsTableProps) {
+  // Clamp the shown discount to the pre-discount sum so the rows always reconcile
+  // to `totalCents` — `calculateOrderTotals` floors the stored total at 0, so a
+  // discount larger than subtotal+delivery+tax+tip (not reachable with today's
+  // discount sources, but future-proofed) would otherwise sum below a $0.00 total.
+  const displayDiscountCents =
+    discountCents == null
+      ? 0
+      : Math.min(discountCents, subtotalCents + deliveryFeeCents + taxCents + (tipCents ?? 0));
   return (
     <Section style={{ padding: "20px 28px 0 28px" }}>
       <table
@@ -83,14 +91,14 @@ export function OrderTotalsTable({
             </td>
           </tr>
 
-          {discountCents != null && discountCents > 0 && (
+          {displayDiscountCents > 0 && (
             <tr>
               <td style={{ padding: "4px 0" }}>
                 <RowLabel>Discount</RowLabel>
               </td>
               <td style={{ padding: "4px 0", textAlign: "right" as const }}>
                 <RowValue color={C.sageDeep} className={cls.sageDeep} bold>
-                  −{formatPrice(discountCents)}
+                  −{formatPrice(displayDiscountCents)}
                 </RowValue>
               </td>
             </tr>

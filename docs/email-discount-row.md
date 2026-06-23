@@ -36,11 +36,15 @@ COD), so the COD paths are wired, not just the Stripe ones. The DB selects that 
 already fetch `discount_cents` were extended; `approve-cod` already used `select("*")`.
 
 Totals are **presentation-only** — no tax/tip/discount/total math changed; the row
-just surfaces the discount already baked into the stored total.
+just surfaces the discount already baked into the stored total. The displayed discount
+is clamped to `subtotal + delivery + tax + tip`, so the rows always reconcile to the
+stored total even though `calculateOrderTotals` floors that total at `$0.00` (the
+over-discount case isn't reachable with today's discount sources, but the row stays
+airtight regardless).
 
 ## Verification
 
 - `src/emails/__tests__/order-details.test.tsx` — a coupon order renders the Discount
   row and reconciles ($43 − $8 + $0 + $3.50 = $38.50); a non-coupon order shows no
-  Discount row.
+  Discount row; an over-discount clamps so the rows still reconcile to a $0.00 total.
 - Full suite: `lint · lint:css · format:check · typecheck · test · build`.
