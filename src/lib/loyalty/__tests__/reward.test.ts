@@ -23,14 +23,24 @@ vi.mock("@/lib/email/client", () => ({
   getResendClient: () => ({ emails: { send: mockSend } }),
 }));
 
-// Don't render the real email tree in this unit test.
-vi.mock("@react-email/render", () => ({ render: vi.fn().mockResolvedValue("<html>") }));
+// Don't render the real email tree — capture the element's props so we can assert
+// what the milestone email is built with (tier badge, amount, milestone).
+/* eslint-disable @typescript-eslint/no-explicit-any */
+let lastEmailProps: Record<string, any> | null = null;
+vi.mock("@react-email/render", () => ({
+  render: vi.fn((el: any) => {
+    if (el?.props) lastEmailProps = el.props;
+    return Promise.resolve("<html>");
+  }),
+}));
+/* eslint-enable @typescript-eslint/no-explicit-any */
 
 vi.mock("@/lib/utils/logger", () => ({
   logger: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), exception: vi.fn() },
 }));
 
 import { maybeIssueMilestoneReward } from "../reward";
+import { LOYALTY_TIERS } from "..";
 
 // ── Fake Supabase service client ─────────────────────────────────────
 // Routes the three loyalty_rewards operations the function performs (claim
@@ -51,6 +61,9 @@ function makeService(opts: {
   const written = opts.written ?? ((id: string) => [{ id }]);
   const profile = opts.profile ?? { email: "c@example.com", full_name: "Ko Ko" };
   const insert = vi.fn().mockResolvedValue({ data: null, error: null });
+  // Record the (col, val) pairs the guarded UPDATE filters on, so a test can prove
+  // the `.is("reward_code", null)` double-fill guard is actually present.
+  const updateIsCalls: [string, unknown][] = [];
 
   /* eslint-disable @typescript-eslint/no-explicit-any */
   const loyaltyRewards = {
@@ -69,7 +82,10 @@ function makeService(opts: {
         if (col === "id") rowId = val;
         return u;
       });
-      u.is = vi.fn(() => u);
+      u.is = vi.fn((col: string, val: unknown) => {
+        updateIsCalls.push([col, val]);
+        return u;
+      });
       u.select = vi.fn(() => Promise.resolve({ data: written(rowId), error: null }));
       return u;
     }),
@@ -92,18 +108,19 @@ function makeService(opts: {
     }),
   };
   /* eslint-enable @typescript-eslint/no-explicit-any */
-  return { service: service as unknown as SupabaseClient<Database>, insert };
+  return { service: service as unknown as SupabaseClient<Database>, insert, updateIsCalls };
 }
 
 beforeEach(() => {
   vi.clearAllMocks();
+  lastEmailProps = null;
   mockMint.mockResolvedValue({ code: "KYAYZU-TEST", expiresAt: "2026-08-01T00:00:00.000Z" });
 });
 
 describe("maybeIssueMilestoneReward", () => {
   it("mints a code and notifies for a freshly reached milestone", async () => {
     mockStats.mockResolvedValue({ orderCount: 5, spendCents: 0 }); // milestone [5], tier reward 500
-    const { service, insert } = makeService({
+    const { service, insert, updateIsCalls } = makeService({
       needsCode: [{ id: "r5", milestone: 5, reward_cents: 500 }],
     });
 
@@ -114,6 +131,23 @@ describe("maybeIssueMilestoneReward", () => {
     expect(mockMint).toHaveBeenCalledWith(500);
     expect(mockPush).toHaveBeenCalledTimes(1);
     expect(mockSend).toHaveBeenCalledTimes(1);
+    // The fill UPDATE must carry the double-fill guard.
+    expect(updateIsCalls).toContainEqual(["reward_code", null]);
+  });
+
+  it("emails the tier matching the reward's OWN amount, not the current higher tier", async () => {
+    // Customer is now a high spender, but the orphan is a $5 (New Friend) reward.
+    mockStats.mockResolvedValue({ orderCount: 5, spendCents: 200_000 });
+    const { service } = makeService({
+      needsCode: [{ id: "r5", milestone: 5, reward_cents: 500 }],
+    });
+
+    await maybeIssueMilestoneReward(service, "u1");
+
+    const expectedTier = LOYALTY_TIERS.find((t) => t.rewardCents === 500);
+    expect(expectedTier).toBeDefined();
+    expect(lastEmailProps?.rewardCents).toBe(500);
+    expect(lastEmailProps?.tierName).toBe(expectedTier?.name);
   });
 
   it("self-heals: fills a prior orphan (claimed, null code) even with no NEW milestone", async () => {

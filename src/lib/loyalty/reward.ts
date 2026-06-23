@@ -10,7 +10,7 @@ import { sendPushToUser } from "@/lib/push/send";
 import { logger } from "@/lib/utils/logger";
 import { formatPrice } from "@/lib/utils/currency";
 import type { Database } from "@/types/database";
-import { milestonesReached, rewardCentsForSpend, tierForSpend } from ".";
+import { LOYALTY_TIERS, milestonesReached, rewardCentsForSpend, tierForSpend } from ".";
 import { loyaltyStatsForUser } from "./tier";
 import { mintLoyaltyPromoCode } from "./mint";
 
@@ -38,6 +38,10 @@ export async function maybeIssueMilestoneReward(
   try {
     const { orderCount, spendCents } = await loyaltyStatsForUser(service, userId);
     const milestones = milestonesReached(orderCount);
+    // No milestone reached ⇒ no milestone row was ever claimed ⇒ no orphan can
+    // exist to back-fill. Skip the needsCode query on the hot path for the common
+    // new-customer (orders 1–4) case. (milestonesReached is cumulative.)
+    if (milestones.length === 0) return;
 
     // Coupon size for NEW milestones tracks the customer's current spend tier.
     // (Recovered orphans keep their own stored reward_cents — see below.)
@@ -75,7 +79,7 @@ export async function maybeIssueMilestoneReward(
     const filled: { milestone: number; code: string; rewardCents: number }[] = [];
     for (const row of needsCode) {
       if (row.milestone == null) continue; // milestone rows always have one — defensive
-      const amountCents = row.reward_cents; // the row's own earned amount (NOT NULL, ≥ 500)
+      const amountCents = row.reward_cents; // its own earned amount (NOT NULL; app writes ≥ 500)
       const { code, expiresAt } = await mintLoyaltyPromoCode(amountCents);
       const { data: written } = await service
         .from("loyalty_rewards")
@@ -92,6 +96,11 @@ export async function maybeIssueMilestoneReward(
     // Notify once, for the highest milestone we just filled.
     const top = filled[filled.length - 1];
     const amount = formatPrice(top.rewardCents);
+
+    // Show the tier that MATCHES this reward's amount, so a back-filled old orphan's
+    // (e.g. $5) badge + perks aren't paired with the customer's CURRENT higher tier.
+    // Each tier has a distinct rewardCents; fall back to current tier if none match.
+    const emailTier = LOYALTY_TIERS.find((t) => t.rewardCents === top.rewardCents) ?? tier;
 
     await sendPushToUser(service, userId, {
       title: `Kyay-Zu-Par! 🙏 ${amount} reward unlocked`,
@@ -115,10 +124,10 @@ export async function maybeIssueMilestoneReward(
       menuUrl: `${appUrl}/menu?src=loyalty_milestone`,
       variant: "milestone",
       milestone: top.milestone,
-      tierName: tier.name,
-      tierEnglish: tier.english,
-      tierEmoji: tier.emoji,
-      tier: tierPerkFromTier(tier),
+      tierName: emailTier.name,
+      tierEnglish: emailTier.english,
+      tierEmoji: emailTier.emoji,
+      tier: tierPerkFromTier(emailTier),
     });
     const [html, text] = await Promise.all([
       render(emailComponent),
