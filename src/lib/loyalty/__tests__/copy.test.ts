@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  expiringDayLabel,
   expiryLabel,
   ordersToReward,
   spendToTier,
@@ -21,6 +22,17 @@ describe("loyalty bilingual copy", () => {
         expect(expiryLabel(d).my.length).toBeGreaterThan(0);
         expect(expiryLabel(d).my).not.toBe(expiryLabel(d).en);
       }
+    });
+  });
+
+  describe("expiringDayLabel", () => {
+    it("gives the bare label and treats null / 0 / past-due as today", () => {
+      expect(expiringDayLabel(5)).toBe("in 5 days");
+      expect(expiringDayLabel(1)).toBe("tomorrow");
+      expect(expiringDayLabel(0)).toBe("today");
+      expect(expiringDayLabel(-2)).toBe("today");
+      expect(expiringDayLabel(null)).toBe("today");
+      expect(expiringDayLabel(undefined)).toBe("today");
     });
   });
 

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth";
+import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
-import type { ProfileRole } from "@/types/database";
 import type { FeedbackCategory, FeedbackStatus } from "@/types/feedback";
 
 // ============================================
@@ -11,28 +11,11 @@ import type { FeedbackCategory, FeedbackStatus } from "@/types/feedback";
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Auth + admin check
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Authentication required" }, { status: 401 });
+    const auth = await requireAdmin();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .returns<{ role: ProfileRole }[]>()
-      .single();
-
-    if (!profile || profile.role !== "admin") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
+    const { supabase } = auth;
 
     // Parse filters
     const { searchParams } = new URL(request.url);

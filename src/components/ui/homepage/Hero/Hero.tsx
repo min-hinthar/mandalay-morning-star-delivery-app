@@ -175,7 +175,7 @@ export function Hero({
       onMouseMove={canHover ? handleMouseMove : undefined}
       onMouseLeave={canHover ? handleMouseLeave : undefined}
     >
-      <GradientFallback fx={fx}>
+      <GradientFallback fx={fx} inView={heroInView}>
         {heroContent}
         {featuredDishes && featuredDishes.length > 0 && (
           <div className="relative w-full pt-2 pb-6 max-w-5xl mx-auto">
@@ -232,6 +232,7 @@ export function Hero({
               pointer={pointer}
               onTap={handleEmojiTap}
               interactive={fx.interactiveEmojis}
+              paused={!heroInView}
             />
           )
         )}
@@ -263,6 +264,7 @@ export function Hero({
                 index={i}
                 pointer={pointer}
                 interactive={false}
+                paused={!heroInView}
               />
             ) : null
           )}

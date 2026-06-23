@@ -1,18 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { revalidateTag } from "next/cache";
-import { createClient } from "@/lib/supabase/server";
+import { requireAdmin } from "@/lib/auth";
 import {
   updateSettingsSchema,
   type SettingRow,
   type SettingsResponse,
 } from "@/lib/validations/settings";
 import { logger } from "@/lib/utils/logger";
-import type { ProfileRole } from "@/types/database";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
-
-interface ProfileCheck {
-  role: ProfileRole;
-}
 
 /**
  * GET /api/admin/settings
@@ -20,33 +15,15 @@ interface ProfileCheck {
  */
 export async function GET() {
   try {
-    const supabase = await createClient();
-
-    // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await requireAdmin();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    // Check admin role
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .returns<ProfileCheck[]>()
-      .single();
-
-    if (profileError || !profile || profile.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const { supabase, userId } = auth;
 
     const rl = await checkRateLimit({
       limiter: adminLimiter,
-      identifier: user.id,
+      identifier: userId,
       role: "admin",
       route: "admin/settings",
     });
@@ -127,33 +104,15 @@ export async function GET() {
  */
 export async function PATCH(request: NextRequest) {
   try {
-    const supabase = await createClient();
-
-    // Check authentication
-    const {
-      data: { user },
-      error: authError,
-    } = await supabase.auth.getUser();
-
-    if (authError || !user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    const auth = await requireAdmin();
+    if (!auth.success) {
+      return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-
-    // Check admin role
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("role")
-      .eq("id", user.id)
-      .returns<ProfileCheck[]>()
-      .single();
-
-    if (profileError || !profile || profile.role !== "admin") {
-      return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-    }
+    const { supabase, userId } = auth;
 
     const rl = await checkRateLimit({
       limiter: adminLimiter,
-      identifier: user.id,
+      identifier: userId,
       role: "admin",
       route: "admin/settings",
     });
@@ -187,7 +146,7 @@ export async function PATCH(request: NextRequest) {
         key: snakeKey,
         value: JSON.parse(JSON.stringify(value)), // Ensure JSONB-compatible
         category,
-        updated_by: user.id,
+        updated_by: userId,
       });
     }
 
@@ -225,7 +184,7 @@ export async function PATCH(request: NextRequest) {
     const { data: updaterProfile } = await supabase
       .from("profiles")
       .select("full_name")
-      .eq("id", user.id)
+      .eq("id", userId)
       .single();
 
     return NextResponse.json({

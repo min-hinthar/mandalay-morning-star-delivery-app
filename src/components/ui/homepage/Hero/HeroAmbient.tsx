@@ -10,6 +10,7 @@
 import { useRef, type CSSProperties } from "react";
 import { m, useTransform, type MotionValue } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
+import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useHeroParallax } from "./interactions";
 import type { HeroFxBudget } from "@/lib/hooks/useHeroFx";
 
@@ -114,11 +115,18 @@ const CONSTELLATION: [number, number][] = [
   [11, 14],
 ];
 
-export function HeroAmbient({ fx }: { fx?: HeroFxBudget }) {
+export function HeroAmbient({ fx, inView = true }: { fx?: HeroFxBudget; inView?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const { x, y } = useHeroParallax(ref);
   const spotX = useTransform(x, (v) => `${(0.5 + v) * 100}%`);
   const spotY = useTransform(y, (v) => `${(0.5 + v) * 100}%`);
+
+  // Constellation links use a framer JS `repeat: Infinity` loop, which `.hero-anim-paused`
+  // (CSS-only) can't stop — so gate it on in-view + motion preference to keep it from
+  // ticking offscreen (battery / iOS WebKit memory). `inView` is threaded from Hero's
+  // single IntersectionObserver (same signal that pauses FloatingEmoji). See CLAUDE.md gotcha.
+  const { shouldAnimate } = useAnimationPreference();
+  const linkLoop = shouldAnimate && inView;
 
   // FX budget — defaults to the crash-safe floor when no budget is supplied.
   const showOrbs = fx?.orbs ?? false;
@@ -250,13 +258,17 @@ export function HeroAmbient({ fx }: { fx?: HeroFxBudget }) {
             strokeWidth={0.8}
             vectorEffect="non-scaling-stroke"
             initial={{ opacity: 0.06 }}
-            animate={{ opacity: [0.06, 0.22, 0.06] }}
-            transition={{
-              duration: 5 + (i % 4),
-              repeat: Infinity,
-              ease: "easeInOut",
-              delay: i * 0.6,
-            }}
+            animate={linkLoop ? { opacity: [0.06, 0.22, 0.06] } : { opacity: 0.12 }}
+            transition={
+              linkLoop
+                ? {
+                    duration: 5 + (i % 4),
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                    delay: i * 0.6,
+                  }
+                : { duration: 0 }
+            }
           />
         ))}
       </svg>

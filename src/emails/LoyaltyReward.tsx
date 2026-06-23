@@ -14,6 +14,7 @@ import {
   headingStyle,
 } from "./components/theme";
 import { formatPrice } from "./helpers";
+import { expiringDayLabel } from "@/lib/loyalty/copy";
 
 export interface LoyaltyRewardProps {
   customerName: string;
@@ -59,7 +60,7 @@ export function LoyaltyReward({
   // Show the tier chip on any celebratory variant (milestone/anniversary/
   // thank-you) when tier props are supplied — skip the "hurry up" expiring nudge.
   const showTier = !isExpiring && Boolean(tierName && tierEmoji);
-  const dayLabel = daysLeft === 1 ? "tomorrow" : `in ${daysLeft} days`;
+  const dayLabel = expiringDayLabel(daysLeft);
 
   const heading = isExpiring
     ? `Don't let your ${amount} slip away! ⏳`
