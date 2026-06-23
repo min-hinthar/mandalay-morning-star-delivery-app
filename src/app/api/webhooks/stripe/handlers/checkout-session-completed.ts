@@ -110,7 +110,7 @@ export async function handleCheckoutSessionCompleted(
     .from("orders")
     .select(
       `
-      id, user_id, subtotal_cents, delivery_fee_cents, tax_cents, tip_cents, total_cents, promo_code,
+      id, user_id, subtotal_cents, delivery_fee_cents, tax_cents, tip_cents, discount_cents, total_cents, promo_code,
       delivery_window_start, delivery_window_end, special_instructions, delivery_instructions, placed_at,
       profiles!orders_user_id_fkey ( email, full_name ),
       addresses ( line_1, line_2, city, state, postal_code ),
@@ -202,6 +202,7 @@ export async function handleCheckoutSessionCompleted(
           deliveryFeeCents: orderData.delivery_fee_cents,
           taxCents: orderData.tax_cents,
           tipCents: orderData.tip_cents ?? undefined,
+          discountCents: orderData.discount_cents ?? undefined,
           totalCents: orderData.total_cents,
           deliveryWindowStart: orderData.delivery_window_start ?? undefined,
           deliveryWindowEnd: orderData.delivery_window_end ?? undefined,
@@ -267,6 +268,7 @@ export async function handleCheckoutSessionCompleted(
             deliveryFeeCents: orderData.delivery_fee_cents,
             taxCents: orderData.tax_cents,
             tipCents: orderData.tip_cents ?? undefined,
+            discountCents: orderData.discount_cents ?? undefined,
             totalCents: orderData.total_cents,
             deliveryWindowStart: orderData.delivery_window_start ?? undefined,
             deliveryWindowEnd: orderData.delivery_window_end ?? undefined,

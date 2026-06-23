@@ -319,7 +319,7 @@ async function sendStatusEmail(
     .from("orders")
     .select(
       `
-      total_cents, subtotal_cents, delivery_fee_cents, tax_cents, tip_cents,
+      total_cents, subtotal_cents, delivery_fee_cents, tax_cents, tip_cents, discount_cents,
       special_instructions, delivery_window_start, delivery_window_end,
       addresses (line_1, line_2, city, state, postal_code)
     `
@@ -381,6 +381,7 @@ async function sendStatusEmail(
     deliveryFeeCents: orderData?.delivery_fee_cents ?? 0,
     taxCents: orderData?.tax_cents ?? 0,
     tipCents: orderData?.tip_cents ?? 0,
+    discountCents: orderData?.discount_cents ?? 0,
     totalCents: orderData?.total_cents ?? 0,
     deliveryWindowStart: orderData?.delivery_window_start ?? null,
     deliveryWindowEnd: orderData?.delivery_window_end ?? null,

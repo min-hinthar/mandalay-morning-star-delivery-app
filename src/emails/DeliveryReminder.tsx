@@ -50,6 +50,7 @@ export interface DeliveryReminderProps {
   deliveryFeeCents?: number;
   taxCents?: number;
   tipCents?: number;
+  discountCents?: number;
   totalCents?: number;
   paymentMethod?: string;
   isExtendedRange?: boolean;
@@ -94,6 +95,7 @@ export function DeliveryReminder({
   deliveryFeeCents,
   taxCents,
   tipCents,
+  discountCents,
   totalCents,
   paymentMethod,
   isExtendedRange,
@@ -269,6 +271,7 @@ export function DeliveryReminder({
               deliveryFeeCents={deliveryFeeCents ?? 0}
               taxCents={taxCents ?? 0}
               tipCents={tipCents}
+              discountCents={discountCents}
               totalCents={totalCents}
               paymentMethod={paymentMethod}
               isExtendedRange={isExtendedRange}

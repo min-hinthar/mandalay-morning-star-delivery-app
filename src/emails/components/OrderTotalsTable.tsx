@@ -10,6 +10,9 @@ interface OrderTotalsTableProps {
   deliveryFeeCents: number;
   taxCents: number;
   tipCents?: number;
+  /** Coupon/promo amount already subtracted from `totalCents`. Shown as a savings
+   *  line so the itemized rows reconcile to the stored total on a coupon order. */
+  discountCents?: number;
   totalCents: number;
   paymentMethod?: string;
   isExtendedRange?: boolean;
@@ -58,6 +61,7 @@ export function OrderTotalsTable({
   deliveryFeeCents,
   taxCents,
   tipCents,
+  discountCents,
   totalCents,
   paymentMethod,
   isExtendedRange,
@@ -78,6 +82,19 @@ export function OrderTotalsTable({
               <RowValue>{formatPrice(subtotalCents)}</RowValue>
             </td>
           </tr>
+
+          {discountCents != null && discountCents > 0 && (
+            <tr>
+              <td style={{ padding: "4px 0" }}>
+                <RowLabel>Discount</RowLabel>
+              </td>
+              <td style={{ padding: "4px 0", textAlign: "right" as const }}>
+                <RowValue color={C.sageDeep} className={cls.sageDeep} bold>
+                  −{formatPrice(discountCents)}
+                </RowValue>
+              </td>
+            </tr>
+          )}
 
           <tr>
             <td style={{ padding: "4px 0" }}>

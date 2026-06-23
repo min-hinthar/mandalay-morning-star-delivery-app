@@ -60,6 +60,7 @@ export interface OrderConfirmationProps {
   deliveryFeeCents: number;
   taxCents: number;
   tipCents?: number;
+  discountCents?: number;
   totalCents: number;
   deliveryWindowStart?: string;
   deliveryWindowEnd?: string;
@@ -86,6 +87,7 @@ export function OrderConfirmation({
   deliveryFeeCents,
   taxCents,
   tipCents,
+  discountCents,
   totalCents,
   deliveryWindowStart,
   deliveryWindowEnd,
@@ -271,6 +273,7 @@ export function OrderConfirmation({
         deliveryFeeCents={deliveryFeeCents}
         taxCents={taxCents}
         tipCents={tipCents}
+        discountCents={discountCents}
         totalCents={totalCents}
         paymentMethod={paymentMethod}
         isExtendedRange={isExtendedRange}

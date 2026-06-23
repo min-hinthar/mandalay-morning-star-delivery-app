@@ -88,6 +88,7 @@ export async function GET(request: Request) {
       delivery_fee_cents,
       tax_cents,
       tip_cents,
+      discount_cents,
       total_cents,
       payment_method,
       profiles!orders_user_id_fkey!inner (
@@ -303,6 +304,7 @@ export async function GET(request: Request) {
         deliveryFeeCents: order.delivery_fee_cents ?? undefined,
         taxCents: order.tax_cents ?? undefined,
         tipCents: order.tip_cents ?? undefined,
+        discountCents: order.discount_cents ?? undefined,
         totalCents: order.total_cents ?? undefined,
         paymentMethod: order.payment_method ?? undefined,
       }),

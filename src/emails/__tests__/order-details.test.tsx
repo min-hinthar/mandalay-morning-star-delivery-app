@@ -63,6 +63,35 @@ describe("DeliveryReminder — full order details", () => {
     expect(html).toContain("Subtotal");
     expect(html).toContain("$51.65"); // total
     expect(html).toContain("Cash on Delivery");
+    // No coupon → no discount row
+    expect(html).not.toContain("Discount");
+  });
+
+  it("shows a discount row so a coupon order's rows reconcile to the total", async () => {
+    // subtotal 43.00 − discount 8.00 + delivery 0 + tax 3.50 + tip 0 = total 38.50
+    const html = visibleText(
+      await render(
+        <DeliveryReminder
+          customerName="Aung Myo"
+          orderId="abc12345-6789-0def-ghij"
+          itemCount={3}
+          itemNames={["Mohinga", "Shan Noodles"]}
+          deliveryWindowStart="2026-05-30T18:00:00Z"
+          deliveryWindowEnd="2026-05-30T20:00:00Z"
+          address={{ line1: "456 Elm St", city: "Covina", state: "CA", postalCode: "91723" }}
+          items={SAMPLE_ITEMS}
+          subtotalCents={4300}
+          deliveryFeeCents={0}
+          taxCents={350}
+          tipCents={0}
+          discountCents={800}
+          totalCents={3850}
+        />
+      )
+    );
+    expect(html).toContain("Discount");
+    expect(html).toContain("$8.00"); // the coupon savings line
+    expect(html).toContain("$38.50"); // total now reconciles with the rows
   });
 
   it("falls back to preview-only when no item details are supplied", async () => {

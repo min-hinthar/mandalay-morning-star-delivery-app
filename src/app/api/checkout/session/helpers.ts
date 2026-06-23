@@ -82,6 +82,7 @@ export async function sendCODOrderEmail(opts: {
   deliveryFeeCents: number;
   taxCents: number;
   tipCents: number;
+  discountCents: number;
   totalCents: number;
   scheduledDate: string;
   timeWindowStart: string;
@@ -127,6 +128,7 @@ export async function sendCODOrderEmail(opts: {
         deliveryFeeCents: opts.deliveryFeeCents,
         taxCents: opts.taxCents,
         tipCents: opts.tipCents,
+        discountCents: opts.discountCents,
         totalCents: opts.totalCents,
         deliveryWindowStart: toISOWithTimezone(opts.scheduledDate, opts.timeWindowStart),
         deliveryWindowEnd: toISOWithTimezone(opts.scheduledDate, opts.timeWindowEnd),
@@ -159,6 +161,7 @@ export async function sendCODOrderEmail(opts: {
           deliveryFeeCents: opts.deliveryFeeCents,
           taxCents: opts.taxCents,
           tipCents: opts.tipCents,
+          discountCents: opts.discountCents,
           totalCents: opts.totalCents,
           deliveryWindowStart: toISOWithTimezone(opts.scheduledDate, opts.timeWindowStart),
           deliveryWindowEnd: toISOWithTimezone(opts.scheduledDate, opts.timeWindowEnd),

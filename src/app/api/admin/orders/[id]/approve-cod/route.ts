@@ -181,6 +181,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
             deliveryFeeCents: fullOrder.delivery_fee_cents,
             taxCents: fullOrder.tax_cents,
             tipCents: fullOrder.tip_cents ?? undefined,
+            discountCents: fullOrder.discount_cents ?? undefined,
             totalCents: fullOrder.total_cents,
             deliveryWindowStart: fullOrder.delivery_window_start ?? undefined,
             deliveryWindowEnd: fullOrder.delivery_window_end ?? undefined,
