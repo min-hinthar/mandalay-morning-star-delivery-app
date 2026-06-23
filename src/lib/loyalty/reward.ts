@@ -22,7 +22,13 @@ import { mintLoyaltyPromoCode } from "./mint";
  * insert (UNIQUE user_id+milestone) is the lock, so re-runs and concurrent
  * webhooks can't double-issue. Call only after an order is paid/approved.
  *
- * Only the highest newly-issued milestone sends a push + email, so back-filling
+ * Self-healing: minting is driven off "claimed milestone rows that still have
+ * no reward_code", not just the rows claimed in THIS call. So if a prior run
+ * claimed a milestone but then threw before/while minting (Stripe/email blip),
+ * the orphaned row — which the old code stranded forever, since the milestone
+ * already read as "issued" — gets its code on the customer's next paid order.
+ *
+ * Only the highest filled milestone sends a push + email, so back-filling
  * several at once doesn't spam the customer.
  */
 export async function maybeIssueMilestoneReward(
@@ -32,41 +38,60 @@ export async function maybeIssueMilestoneReward(
   try {
     const { orderCount, spendCents } = await loyaltyStatsForUser(service, userId);
     const milestones = milestonesReached(orderCount);
-    if (milestones.length === 0) return;
 
-    // Coupon size tracks the customer's current spend tier.
+    // Coupon size for NEW milestones tracks the customer's current spend tier.
+    // (Recovered orphans keep their own stored reward_cents — see below.)
     const rewardCents = rewardCentsForSpend(spendCents);
     const tier = tierForSpend(spendCents);
 
-    // Claim each milestone; the unique constraint makes already-issued ones a
-    // no-op (0 rows). Collect the newly-claimed ones.
-    const newlyIssued: { id: string; milestone: number }[] = [];
+    // Claim each reached milestone. The UNIQUE (user_id, milestone) constraint
+    // makes an already-claimed milestone a no-op (the duplicate insert just
+    // errors, which we ignore), so this is safe to re-run and concurrency-safe.
     for (const milestone of milestones) {
-      const { data: claimed } = await service
-        .from("loyalty_rewards")
-        .insert({ user_id: userId, kind: "milestone", milestone, reward_cents: rewardCents })
-        .select("id");
-      if (claimed && claimed.length > 0) {
-        newlyIssued.push({ id: claimed[0].id, milestone });
-      }
-    }
-    if (newlyIssued.length === 0) return;
-
-    // Mint a code for every newly-issued milestone so each is redeemable.
-    // Remember the top milestone's code to feature in the celebration email.
-    let topCode = "";
-    for (const issued of newlyIssued) {
-      const { code, expiresAt } = await mintLoyaltyPromoCode(rewardCents);
       await service
         .from("loyalty_rewards")
-        .update({ reward_code: code, expires_at: expiresAt })
-        .eq("id", issued.id);
-      topCode = code;
+        .insert({ user_id: userId, kind: "milestone", milestone, reward_cents: rewardCents });
     }
 
-    // Notify once, for the highest milestone just reached.
-    const top = newlyIssued[newlyIssued.length - 1];
-    const amount = formatPrice(rewardCents);
+    // Mint a code for every milestone row that still lacks one. This covers the
+    // rows just claimed above AND any orphaned by a PRIOR run whose mint/email
+    // threw AFTER the row was claimed — previously those were stranded with a
+    // null code and never retried (the milestone read as "already issued"), so
+    // the customer silently lost an earned reward. Each row keeps its own
+    // reward_cents, so a back-filled old orphan stays at the amount it earned.
+    const { data: needsCode } = await service
+      .from("loyalty_rewards")
+      .select("id, milestone, reward_cents")
+      .eq("user_id", userId)
+      .eq("kind", "milestone")
+      .is("reward_code", null)
+      .order("milestone", { ascending: true });
+
+    if (!needsCode || needsCode.length === 0) return;
+
+    // Fill each row, guarding the write (.is reward_code null) so a concurrent
+    // runner can't double-fill — its minted code is simply wasted (one-time +
+    // TTL-expiring, never saved to the wallet), which is harmless.
+    const filled: { milestone: number; code: string; rewardCents: number }[] = [];
+    for (const row of needsCode) {
+      if (row.milestone == null) continue; // milestone rows always have one — defensive
+      const amountCents = row.reward_cents ?? rewardCents;
+      const { code, expiresAt } = await mintLoyaltyPromoCode(amountCents);
+      const { data: written } = await service
+        .from("loyalty_rewards")
+        .update({ reward_code: code, expires_at: expiresAt })
+        .eq("id", row.id)
+        .is("reward_code", null)
+        .select("id");
+      if (written && written.length > 0) {
+        filled.push({ milestone: row.milestone, code, rewardCents: amountCents });
+      }
+    }
+    if (filled.length === 0) return;
+
+    // Notify once, for the highest milestone we just filled.
+    const top = filled[filled.length - 1];
+    const amount = formatPrice(top.rewardCents);
 
     await sendPushToUser(service, userId, {
       title: `Kyay-Zu-Par! 🙏 ${amount} reward unlocked`,
@@ -85,8 +110,8 @@ export async function maybeIssueMilestoneReward(
     const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://mandalaymorningstar.com";
     const emailComponent = React.createElement(LoyaltyReward, {
       customerName: profile.full_name?.split(" ")[0] || "friend",
-      rewardCents,
-      promoCode: topCode,
+      rewardCents: top.rewardCents,
+      promoCode: top.code,
       menuUrl: `${appUrl}/menu?src=loyalty_milestone`,
       variant: "milestone",
       milestone: top.milestone,
