@@ -75,7 +75,7 @@ export async function maybeIssueMilestoneReward(
     const filled: { milestone: number; code: string; rewardCents: number }[] = [];
     for (const row of needsCode) {
       if (row.milestone == null) continue; // milestone rows always have one — defensive
-      const amountCents = row.reward_cents ?? rewardCents;
+      const amountCents = row.reward_cents; // the row's own earned amount (NOT NULL, ≥ 500)
       const { code, expiresAt } = await mintLoyaltyPromoCode(amountCents);
       const { data: written } = await service
         .from("loyalty_rewards")

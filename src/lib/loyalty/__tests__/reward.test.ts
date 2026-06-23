@@ -154,6 +154,25 @@ describe("maybeIssueMilestoneReward", () => {
     expect(mockSend).not.toHaveBeenCalled(); // but didn't claim the row, so no email
   });
 
+  it("notifies for the highest FILLED milestone when a higher one loses its fill race", async () => {
+    // Two rows need codes [5, 10]; the higher (r10) loses the guarded fill, r5 wins.
+    mockStats.mockResolvedValue({ orderCount: 10, spendCents: 0 });
+    const { service } = makeService({
+      needsCode: [
+        { id: "r5", milestone: 5, reward_cents: 500 },
+        { id: "r10", milestone: 10, reward_cents: 500 },
+      ],
+      written: (rowId) => (rowId === "r10" ? [] : [{ id: rowId }]),
+    });
+
+    await maybeIssueMilestoneReward(service, "u1");
+
+    expect(mockMint).toHaveBeenCalledTimes(2); // both minted (r10's code wasted)
+    expect(mockSend).toHaveBeenCalledTimes(1); // one email
+    // Features milestone 5 (highest FILLED), not 10 (needed but lost the race).
+    expect(mockSend.mock.calls[0][0].subject).toContain("5 orders in");
+  });
+
   it("recovers an orphan at its OWN stored reward_cents, not the current tier amount", async () => {
     // Customer is now a high spender (tier reward 1200), but the orphan was earned
     // back when it was a 500 reward — it must mint 500, not 1200.
