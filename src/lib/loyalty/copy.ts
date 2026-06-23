@@ -20,6 +20,18 @@ export function expiryLabel(daysLeft: number): BilingualText {
   return { en: `Expires in ${daysLeft} days`, my: `နောက် ${daysLeft} ရက် ကုန်ဆုံးမယ်` };
 }
 
+/**
+ * Bare English day-count for "…expires {label}" sentence templates (the expiring
+ * reward's push title, email subject, and email body). Treats null / 0 / past-due
+ * as "today" — mirrors `expiryLabel`'s `<= 0` case so the body, subject, and push
+ * can never diverge (e.g. body "today" vs subject "in 0 days").
+ */
+export function expiringDayLabel(daysLeft: number | null | undefined): string {
+  if (daysLeft == null || daysLeft <= 0) return "today";
+  if (daysLeft === 1) return "tomorrow";
+  return `in ${daysLeft} days`;
+}
+
 /** Empty-wallet onboarding. */
 export const WALLET_EMPTY: BilingualText = {
   en: "No coupons yet — earn a Star with every order, and a thank-you reward every 5 orders.",

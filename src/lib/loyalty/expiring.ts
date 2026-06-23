@@ -9,6 +9,7 @@ import { sendPushToUser } from "@/lib/push/send";
 import { formatPrice } from "@/lib/utils/currency";
 import type { Database } from "@/types/database";
 import { daysUntilExpiry } from ".";
+import { expiringDayLabel } from "./copy";
 
 interface ExpiringReward {
   id: string;
@@ -32,7 +33,7 @@ export async function issueExpiringReminder(
 ): Promise<void> {
   const amount = formatPrice(reward.rewardCents);
   const daysLeft = daysUntilExpiry(reward.expiresAt) ?? 0;
-  const dayLabel = daysLeft === 1 ? "tomorrow" : `in ${daysLeft} days`;
+  const dayLabel = expiringDayLabel(daysLeft);
 
   await sendPushToUser(service, reward.userId, {
     title: `Your ${amount} reward expires ${dayLabel} ⏳`,
