@@ -8,7 +8,7 @@
  */
 
 import { useRef, type CSSProperties } from "react";
-import { m, useInView, useTransform, type MotionValue } from "framer-motion";
+import { m, useTransform, type MotionValue } from "framer-motion";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useHeroParallax } from "./interactions";
@@ -115,7 +115,7 @@ const CONSTELLATION: [number, number][] = [
   [11, 14],
 ];
 
-export function HeroAmbient({ fx }: { fx?: HeroFxBudget }) {
+export function HeroAmbient({ fx, inView = true }: { fx?: HeroFxBudget; inView?: boolean }) {
   const ref = useRef<HTMLDivElement>(null);
   const { x, y } = useHeroParallax(ref);
   const spotX = useTransform(x, (v) => `${(0.5 + v) * 100}%`);
@@ -123,8 +123,8 @@ export function HeroAmbient({ fx }: { fx?: HeroFxBudget }) {
 
   // Constellation links use a framer JS `repeat: Infinity` loop, which `.hero-anim-paused`
   // (CSS-only) can't stop — so gate it on in-view + motion preference to keep it from
-  // ticking offscreen (battery / iOS WebKit memory). See CLAUDE.md gotcha.
-  const inView = useInView(ref);
+  // ticking offscreen (battery / iOS WebKit memory). `inView` is threaded from Hero's
+  // single IntersectionObserver (same signal that pauses FloatingEmoji). See CLAUDE.md gotcha.
   const { shouldAnimate } = useAnimationPreference();
   const linkLoop = shouldAnimate && inView;
 

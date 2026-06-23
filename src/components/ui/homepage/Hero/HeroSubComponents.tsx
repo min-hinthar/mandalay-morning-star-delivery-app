@@ -50,9 +50,17 @@ interface GradientFallbackProps {
   className?: string;
   /** Device-tiered effects budget — gates the expensive ambient layers */
   fx?: HeroFxBudget;
+  /** Hero in-view flag (from the parent's single IntersectionObserver) — pauses the
+   *  ambient constellation's framer loop offscreen without a second observer. */
+  inView?: boolean;
 }
 
-export function GradientFallback({ children, className, fx }: GradientFallbackProps) {
+export function GradientFallback({
+  children,
+  className,
+  fx,
+  inView = true,
+}: GradientFallbackProps) {
   return (
     <div className={cn("relative w-full min-h-[100svh] min-h-[100dvh]", className)}>
       {/* Muted warm gradient background */}
@@ -98,7 +106,7 @@ export function GradientFallback({ children, className, fx }: GradientFallbackPr
 
       {/* Layered Anthropic atmosphere — parallax dot-grids, morphing orbs,
           drifting multi-grain, twinkling constellation */}
-      <HeroAmbient fx={fx} />
+      <HeroAmbient fx={fx} inView={inView} />
 
       {/* Content layer */}
       <div
