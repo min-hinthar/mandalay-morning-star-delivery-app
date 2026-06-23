@@ -164,6 +164,21 @@ describe("maybeIssueMilestoneReward", () => {
     expect(mockSend).toHaveBeenCalledTimes(1); // and the customer is finally told
   });
 
+  it("heals an orphan even when a cancellation dropped orderCount below the milestone", async () => {
+    // orderCount is NOT monotonic: the customer reached 5 (orphaned the row), then a
+    // counted order was cancelled → orderCount 4 → milestonesReached(4) = []. The
+    // orphan must still heal — there must be no early-return on empty milestones.
+    mockStats.mockResolvedValue({ orderCount: 4, spendCents: 0 });
+    const { service } = makeService({
+      needsCode: [{ id: "r5", milestone: 5, reward_cents: 500 }],
+    });
+
+    await maybeIssueMilestoneReward(service, "u1");
+
+    expect(mockMint).toHaveBeenCalledTimes(1);
+    expect(mockSend).toHaveBeenCalledTimes(1);
+  });
+
   it("is a no-op when every claimed milestone already has a code", async () => {
     mockStats.mockResolvedValue({ orderCount: 7, spendCents: 0 });
     const { service } = makeService({ needsCode: [] });

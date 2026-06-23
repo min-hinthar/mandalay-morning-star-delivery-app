@@ -38,10 +38,11 @@ export async function maybeIssueMilestoneReward(
   try {
     const { orderCount, spendCents } = await loyaltyStatsForUser(service, userId);
     const milestones = milestonesReached(orderCount);
-    // No milestone reached ⇒ no milestone row was ever claimed ⇒ no orphan can
-    // exist to back-fill. Skip the needsCode query on the hot path for the common
-    // new-customer (orders 1–4) case. (milestonesReached is cumulative.)
-    if (milestones.length === 0) return;
+    // Deliberately NO early-return on an empty `milestones`. `orderCount` is derived
+    // from STAR_EARNING_STATUSES and is NOT monotonic — cancelling a counted order
+    // drops it back below a milestone whose row may already be claimed-but-orphaned.
+    // So always run the (cheap, indexed) needsCode query below so that orphan still
+    // heals on the next paid order, even when the count has dipped under the milestone.
 
     // Coupon size for NEW milestones tracks the customer's current spend tier.
     // (Recovered orphans keep their own stored reward_cents — see below.)
