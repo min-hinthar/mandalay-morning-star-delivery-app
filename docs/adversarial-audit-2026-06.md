@@ -18,8 +18,8 @@ consistency, and records the residual Low/Med items as fix-later.
 | Severity | Open (this audit) | Fixed in this PR | By-design / accepted |
 | -------- | ----------------- | ---------------- | -------------------- |
 | High     | 0                 | 0                | —                    |
-| Medium   | 2 (fix-later)     | 2                | 2                    |
-| Low      | 7 (fix-later)     | 2                | several              |
+| Medium   | 3 (fix-later)     | 2                | 2                    |
+| Low      | 9 (fix-later)     | 3                | several              |
 
 ## Fixed in this PR
 
@@ -165,3 +165,74 @@ Clean patterns confirmed (no change needed):
 
 Residual a11y/perf items are folded into L-7 (hardcoded map/SVG hexes) above; nothing
 else rose above Low.
+
+## Email templates / reward / loyalty sweep
+
+Two dedicated sweeps (18 React Email templates + `src/emails/components/`; and
+`src/lib/loyalty/` · `src/lib/referrals/` · `api/rewards/` · `RewardsTab`). **Both
+agents flagged several "HIGH"s; direct code verification reduced all but one to false
+positives.** The reward/loyalty engine is sound — net-spend math, idempotent issuance,
+expiry/redeemed wallet filters, and cross-account coupon checks all hold.
+
+### Fixed in this PR
+
+4. **Expiring-reward email said "expires in 0 days"** (Low, copy). `LoyaltyReward.tsx`
+   `dayLabel` lacked the `<= 0 → "today"` case that `loyalty/copy.ts` has, so a reward
+   expiring today rendered "expires **in 0 days**" (and "in undefined days" if a future
+   caller omitted `daysLeft`). Now `daysLeft == null || <= 0 → "today"`.
+
+### Open findings (fix-later)
+
+- **M-3 · Milestone reward can orphan on a mint/email throw** (`lib/loyalty/reward.ts`).
+  Issuance claims the `loyalty_rewards` row (UNIQUE `user_id+milestone`) **then** mints
+  the Stripe code. If `mintLoyaltyPromoCode` (or the email) throws after the claim, the
+  row persists with `reward_code = NULL` and is **never retried** (the next run sees the
+  milestone already claimed) — the customer's earned reward is silently lost pending
+  manual follow-up. This is a **documented deliberate** trade-off (the comment chose
+  "don't retry, to avoid duplicate coupons" over guaranteed delivery). Recommended fix
+  (owner's call — it's money-issuance): a self-healing back-fill that mints codes for
+  already-claimed rows where `reward_code IS NULL` (safe re double-issue: the milestone
+  is already claimed, so no duplicate milestone; worst case is one unused Stripe code).
+  Left for a dedicated, separately-reviewed PR rather than changing issuance here.
+- **L-8 · Bilingual gaps in order/status emails.** The repo standard is bilingual EN/MY,
+  but `OrderConfirmation`, `OutForDelivery`, `OrderDelivered`, `OrderCancellation`, and
+  `RefundNotification` are EN-only, while `WelcomeOffer` / `LoyaltyReward` /
+  `ReferralCallout` carry Burmese sublines. Adding Burmese to the order-critical
+  templates needs real translations — report-only.
+- **L-9 · Tier accent-color map duplicated** in `RewardsTab/tierStyle.ts` and
+  `admin/referrals/TierDistribution.tsx` (they currently agree). Already a known CLAUDE.md
+  watch-for; consider exporting one source from `lib/loyalty`. DRY/drift risk, not a bug.
+
+### False positives caught
+
+- **"First-order discount counts `pending_approval` → cross-account abuse" (HIGH).**
+  Inverted — including `pending_approval` makes `resolveFirstOrderDiscount` return **null**
+  (no discount) for anyone with a COD order, which is **protective** against farming the
+  first-order discount via unpaid COD orders. Correct as-is.
+- **"`get_loyalty_tier_distribution` includes `pending_approval`" (HIGH).** The flagged
+  file is a **dead archived migration**; the **live** baseline function
+  (`00000000000000_baseline.sql:1306`) filters
+  `('confirmed','preparing','out_for_delivery','delivered')` — excludes it. Correct.
+- **"DeliveryReminder totals render `$0.00`" (HIGH).** The cron passes real
+  `order.subtotal_cents`/`tax_cents`/`total_cents` (NOT-NULL columns); `?? undefined`
+  only fires on null, which doesn't occur for real orders. (Also: the reminder's
+  `idempotencyKey` is deterministic `delivery-reminder-${order.id}-${today}`, so Resend
+  dedups even if the cron double-fires — mitigates the L-3 race.)
+- **"LoyaltyReward 'in undefined days'" (HIGH).** The only `variant="expiring"` caller
+  (`lib/loyalty/expiring.ts:49`) always passes `daysLeft`; never `undefined` in prod.
+  (The `0 → "today"` cosmetic is the fix above.)
+- **"LoyaltyProgress rounds reward to nearest dollar" (HIGH).** Rewards are always whole
+  dollars (`rewardCentsForSpend` → 500/800/1000/1200), so `toFixed(0)` is exact — no
+  misrepresentation possible.
+
+### Verified-secure (reward/loyalty)
+
+- **Milestone issuance idempotent** via UNIQUE `(user_id, milestone)`; back-fills skipped
+  milestones; only the top milestone notifies (no spam).
+- **Coupon wallet** filters expired + redeemed; `KYAYZU-` codes validated to belong to the
+  requesting user (cross-account use rejected); `markLoyaltyRedeemed` is `is(redeemed_at,
+null)`-guarded.
+- **Referral rewards** transition `pending → completed` atomically (`eq("status",
+"pending")`); fired only post-payment, so unpaid COD never rewards.
+- **`ordersToNextMilestone` is never ≤ 0** — UI reads cycle progress (`stars % step`),
+  not a dead "reward ready" state.
