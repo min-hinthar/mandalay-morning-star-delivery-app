@@ -37,6 +37,9 @@ export interface FloatingEmojiProps {
   interactive?: boolean;
   /** Index for animation delay staggering */
   index: number;
+  /** When true (hero offscreen), drop the `repeat: Infinity` float loops so they
+   *  don't keep ticking out of view — CSS `.hero-anim-paused` can't stop framer JS. */
+  paused?: boolean;
 }
 
 export interface EmojiConfig {
@@ -196,6 +199,7 @@ export function FloatingEmoji({
   onTap,
   interactive,
   index,
+  paused,
 }: FloatingEmojiProps) {
   const interactivity = interactive ? " pointer-events-auto cursor-pointer" : "";
   const { shouldAnimate } = useAnimationPreference();
@@ -219,8 +223,9 @@ export function FloatingEmoji({
     </span>
   ) : null;
 
-  // Static render for reduced motion preference
-  if (!shouldAnimate) {
+  // Static render for reduced motion preference — or when the hero is offscreen,
+  // so the float loops stop ticking out of view (battery / iOS WebKit memory).
+  if (!shouldAnimate || paused) {
     return (
       <span
         className={`group absolute ${SIZE_CLASSES[size]} select-none`}

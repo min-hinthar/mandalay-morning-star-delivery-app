@@ -232,6 +232,7 @@ export function Hero({
               pointer={pointer}
               onTap={handleEmojiTap}
               interactive={fx.interactiveEmojis}
+              paused={!heroInView}
             />
           )
         )}
@@ -263,6 +264,7 @@ export function Hero({
                 index={i}
                 pointer={pointer}
                 interactive={false}
+                paused={!heroInView}
               />
             ) : null
           )}
