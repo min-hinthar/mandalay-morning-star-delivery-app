@@ -12,7 +12,7 @@ import { formatPrice } from "@/lib/utils/currency";
 import type { Database } from "@/types/database";
 import { LOYALTY_TIERS, milestonesReached, rewardCentsForSpend, tierForSpend } from ".";
 import { loyaltyStatsForUser } from "./tier";
-import { mintLoyaltyPromoCode } from "./mint";
+import { fillOrphanedMilestoneCodes } from "./fill-orphaned";
 
 /**
  * Issue any unclaimed loyalty milestones the customer has reached (every Nth
@@ -58,40 +58,12 @@ export async function maybeIssueMilestoneReward(
         .insert({ user_id: userId, kind: "milestone", milestone, reward_cents: rewardCents });
     }
 
-    // Mint a code for every milestone row that still lacks one. This covers the
-    // rows just claimed above AND any orphaned by a PRIOR run whose mint/email
-    // threw AFTER the row was claimed — previously those were stranded with a
-    // null code and never retried (the milestone read as "already issued"), so
-    // the customer silently lost an earned reward. Each row keeps its own
-    // reward_cents, so a back-filled old orphan stays at the amount it earned.
-    const { data: needsCode } = await service
-      .from("loyalty_rewards")
-      .select("id, milestone, reward_cents")
-      .eq("user_id", userId)
-      .eq("kind", "milestone")
-      .is("reward_code", null)
-      .order("milestone", { ascending: true });
-
-    if (!needsCode || needsCode.length === 0) return;
-
-    // Fill each row, guarding the write (.is reward_code null) so a concurrent
-    // runner can't double-fill — its minted code is simply wasted (one-time +
-    // TTL-expiring, never saved to the wallet), which is harmless.
-    const filled: { milestone: number; code: string; rewardCents: number }[] = [];
-    for (const row of needsCode) {
-      if (row.milestone == null) continue; // milestone rows always have one — defensive
-      const amountCents = row.reward_cents; // its own earned amount (NOT NULL; app writes ≥ 500)
-      const { code, expiresAt } = await mintLoyaltyPromoCode(amountCents);
-      const { data: written } = await service
-        .from("loyalty_rewards")
-        .update({ reward_code: code, expires_at: expiresAt })
-        .eq("id", row.id)
-        .is("reward_code", null)
-        .select("id");
-      if (written && written.length > 0) {
-        filled.push({ milestone: row.milestone, code, rewardCents: amountCents });
-      }
-    }
+    // Mint a code for every milestone row that still lacks one — the rows just
+    // claimed above AND any orphaned by a PRIOR run whose mint/email threw after the
+    // claim (those were stranded with a null code and never retried, silently losing
+    // the customer's earned reward). Each row keeps its own reward_cents. Shared with
+    // the one-off batch back-fill so the fill logic can't drift.
+    const filled = await fillOrphanedMilestoneCodes(service, userId);
     if (filled.length === 0) return;
 
     // Notify once, for the highest milestone we just filled.
