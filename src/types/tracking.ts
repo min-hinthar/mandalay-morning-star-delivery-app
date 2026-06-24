@@ -243,26 +243,6 @@ export interface DriverCardProps {
 }
 
 /**
- * Props for OrderSummary component
- */
-export interface OrderSummaryProps {
-  items: TrackingOrderItem[];
-  subtotalCents: number;
-  deliveryFeeCents: number;
-  taxCents: number;
-  totalCents: number;
-  deliveryWindow: {
-    start: string | null;
-    end: string | null;
-  };
-  deliveryAddress?: {
-    line1: string;
-    city: string;
-    state: string;
-  };
-}
-
-/**
  * Props for SupportActions component
  */
 export interface SupportActionsProps {
