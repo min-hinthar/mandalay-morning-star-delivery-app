@@ -79,6 +79,8 @@ export const trackingOrderInfoSchema = z.object({
   subtotalCents: z.number().int().nonnegative(),
   deliveryFeeCents: z.number().int().nonnegative(),
   taxCents: z.number().int().nonnegative(),
+  tipCents: z.number().int().nonnegative(),
+  discountCents: z.number().int().nonnegative(),
   totalCents: z.number().int().nonnegative(),
 });
 

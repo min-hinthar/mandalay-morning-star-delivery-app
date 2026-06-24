@@ -168,6 +168,29 @@ export function calculateOrderTotals(
 }
 
 /**
+ * The discount amount to SHOW on a receipt, clamped to the pre-discount sum so the
+ * itemized rows always reconcile to the stored total — which `calculateOrderTotals`
+ * floors at $0 (so a discount larger than subtotal+delivery+tax+tip, unreachable with
+ * today's discount sources, can't make the rows sum below the shown total). Shared by
+ * the email `OrderTotalsTable` and the on-page `OrderConfirmationV8` / `OrderSummary`
+ * receipts so the clamp can never drift between surfaces. Returns 0 when there's no
+ * discount (the caller hides the row).
+ */
+export function receiptDisplayDiscountCents(t: {
+  subtotalCents: number;
+  deliveryFeeCents: number;
+  taxCents: number;
+  tipCents?: number;
+  discountCents?: number;
+}): number {
+  if (t.discountCents == null || t.discountCents <= 0) return 0;
+  return Math.min(
+    t.discountCents,
+    t.subtotalCents + t.deliveryFeeCents + t.taxCents + (t.tipCents ?? 0)
+  );
+}
+
+/**
  * Create Stripe line items from validated cart items.
  * Note: Discounts are applied via Stripe's `discounts` param on the session, not as line items.
  */

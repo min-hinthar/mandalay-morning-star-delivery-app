@@ -15,6 +15,7 @@ import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { useTilt } from "@/components/ui/homepage/Hero/interactions";
 import { GoldLeaf } from "@/components/ui/GoldLeaf";
 import { formatPrice } from "@/lib/utils/currency";
+import { receiptDisplayDiscountCents } from "@/lib/utils/order";
 import type { Order, OrderItem } from "@/types/order";
 
 interface OrderReceiptCardProps {
@@ -24,6 +25,8 @@ interface OrderReceiptCardProps {
 
 export function OrderReceiptCard({ order, items }: OrderReceiptCardProps) {
   const tilt = useTilt(3);
+  // Shared clamp so the rows reconcile to the floored-at-$0 stored total.
+  const displayDiscountCents = receiptDisplayDiscountCents(order);
 
   return (
     <m.div
@@ -102,11 +105,11 @@ export function OrderReceiptCard({ order, items }: OrderReceiptCardProps) {
                 <span className="text-hero-ink">{formatPrice(order.taxCents)}</span>
               </div>
             )}
-            {order.discountCents > 0 && (
+            {displayDiscountCents > 0 && (
               <div className="flex justify-between text-hero-ink-muted">
                 <span>Discount{order.promoCode ? ` (${order.promoCode})` : ""}</span>
                 <span className="font-semibold text-hero-sage">
-                  -{formatPrice(order.discountCents)}
+                  −{formatPrice(displayDiscountCents)}
                 </span>
               </div>
             )}

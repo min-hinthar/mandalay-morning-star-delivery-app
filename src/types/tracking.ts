@@ -51,6 +51,8 @@ export interface TrackingOrderInfo {
   subtotalCents: number;
   deliveryFeeCents: number;
   taxCents: number;
+  tipCents: number;
+  discountCents: number;
   totalCents: number;
 }
 
@@ -238,26 +240,6 @@ export interface DriverCardProps {
     totalStops: number;
   };
   onContactDriver?: () => void;
-}
-
-/**
- * Props for OrderSummary component
- */
-export interface OrderSummaryProps {
-  items: TrackingOrderItem[];
-  subtotalCents: number;
-  deliveryFeeCents: number;
-  taxCents: number;
-  totalCents: number;
-  deliveryWindow: {
-    start: string | null;
-    end: string | null;
-  };
-  deliveryAddress?: {
-    line1: string;
-    city: string;
-    state: string;
-  };
 }
 
 /**

@@ -34,6 +34,8 @@ export interface OrderQueryResult {
   subtotal_cents: number;
   delivery_fee_cents: number;
   tax_cents: number;
+  tip_cents: number;
+  discount_cents: number;
   total_cents: number;
   share_token: string | null;
   addresses: AddressData | null;

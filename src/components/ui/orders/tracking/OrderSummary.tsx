@@ -12,6 +12,7 @@ import { Package, Clock, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import type { TrackingOrderItem } from "@/types/tracking";
 import { formatPrice } from "@/lib/utils/currency";
+import { receiptDisplayDiscountCents } from "@/lib/utils/order";
 import { format, parseISO } from "date-fns";
 import { PriceTicker } from "@/components/ui/PriceTicker";
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
@@ -21,6 +22,8 @@ interface OrderSummaryProps {
   subtotalCents: number;
   deliveryFeeCents: number;
   taxCents: number;
+  tipCents: number;
+  discountCents: number;
   totalCents: number;
   deliveryWindow: {
     start: string | null;
@@ -39,12 +42,23 @@ export function OrderSummary({
   subtotalCents,
   deliveryFeeCents,
   taxCents,
+  tipCents,
+  discountCents,
   totalCents,
   deliveryWindow,
   deliveryAddress,
   className,
 }: OrderSummaryProps) {
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Shared clamp so the rows reconcile to the floored-at-$0 stored total.
+  const displayDiscountCents = receiptDisplayDiscountCents({
+    subtotalCents,
+    deliveryFeeCents,
+    taxCents,
+    tipCents,
+    discountCents,
+  });
 
   let deliveryWindowText = "";
   if (deliveryWindow.start && deliveryWindow.end) {
@@ -127,6 +141,14 @@ export function OrderSummary({
               <span>Subtotal</span>
               <PriceTicker value={subtotalCents} inCents size="sm" className="text-hero-ink" />
             </div>
+            {displayDiscountCents > 0 && (
+              <div className="flex justify-between text-hero-ink-muted">
+                <span>Discount</span>
+                <span className="font-semibold text-hero-sage">
+                  −{formatPrice(displayDiscountCents)}
+                </span>
+              </div>
+            )}
             <div className="flex justify-between text-hero-ink-muted">
               <span>Delivery</span>
               {deliveryFeeCents === 0 ? (
@@ -139,6 +161,12 @@ export function OrderSummary({
               <span>Tax</span>
               <PriceTicker value={taxCents} inCents size="sm" className="text-hero-ink" />
             </div>
+            {tipCents > 0 && (
+              <div className="flex justify-between text-hero-ink-muted">
+                <span>Tip</span>
+                <PriceTicker value={tipCents} inCents size="sm" className="text-hero-ink" />
+              </div>
+            )}
             <div className="checkout-perf checkout-rule-draw my-1" aria-hidden="true" />
             <div className="flex items-center justify-between pt-0.5">
               <span className="font-display text-base font-semibold text-hero-ink">Total</span>

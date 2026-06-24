@@ -1,4 +1,5 @@
 import { Section, Text } from "@react-email/components";
+import { receiptDisplayDiscountCents } from "@/lib/utils/order";
 import { BODY_FONT, C, DISPLAY_FONT, cls } from "./theme";
 
 function formatPrice(cents: number): string {
@@ -66,14 +67,14 @@ export function OrderTotalsTable({
   paymentMethod,
   isExtendedRange,
 }: OrderTotalsTableProps) {
-  // Clamp the shown discount to the pre-discount sum so the rows always reconcile
-  // to `totalCents` — `calculateOrderTotals` floors the stored total at 0, so a
-  // discount larger than subtotal+delivery+tax+tip (not reachable with today's
-  // discount sources, but future-proofed) would otherwise sum below a $0.00 total.
-  const displayDiscountCents =
-    discountCents == null
-      ? 0
-      : Math.min(discountCents, subtotalCents + deliveryFeeCents + taxCents + (tipCents ?? 0));
+  // Shared clamp so the rows reconcile to the floored-at-$0 stored total.
+  const displayDiscountCents = receiptDisplayDiscountCents({
+    subtotalCents,
+    deliveryFeeCents,
+    taxCents,
+    tipCents,
+    discountCents,
+  });
   return (
     <Section style={{ padding: "20px 28px 0 28px" }}>
       <table

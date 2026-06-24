@@ -311,6 +311,8 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
           subtotalCents={initialData.order.subtotalCents}
           deliveryFeeCents={initialData.order.deliveryFeeCents}
           taxCents={initialData.order.taxCents}
+          tipCents={initialData.order.tipCents}
+          discountCents={initialData.order.discountCents}
           totalCents={initialData.order.totalCents}
           deliveryWindow={{
             start: initialData.order.deliveryWindowStart,
