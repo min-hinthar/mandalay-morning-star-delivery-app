@@ -22,6 +22,8 @@ interface OrderRow {
   subtotal_cents: number;
   delivery_fee_cents: number;
   tax_cents: number;
+  tip_cents: number;
+  discount_cents: number;
   total_cents: number;
   addresses: {
     line_1: string;
@@ -76,7 +78,7 @@ export async function fetchTrackingData(
       `id, user_id, status, placed_at, confirmed_at, delivered_at,
        cancelled_at, cancellation_reason, delivery_window_start,
        delivery_window_end, special_instructions, subtotal_cents,
-       delivery_fee_cents, tax_cents, total_cents,
+       delivery_fee_cents, tax_cents, tip_cents, discount_cents, total_cents,
        addresses (line_1, line_2, city, state, postal_code, lat, lng),
        order_items (id, name_snapshot, quantity, order_item_modifiers (name_snapshot))`
     )
@@ -244,6 +246,8 @@ export async function fetchTrackingData(
       subtotalCents: order.subtotal_cents,
       deliveryFeeCents: order.delivery_fee_cents,
       taxCents: order.tax_cents,
+      tipCents: order.tip_cents,
+      discountCents: order.discount_cents,
       totalCents: order.total_cents,
     },
     routeStop,

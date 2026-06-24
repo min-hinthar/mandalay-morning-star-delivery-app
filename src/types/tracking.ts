@@ -51,6 +51,8 @@ export interface TrackingOrderInfo {
   subtotalCents: number;
   deliveryFeeCents: number;
   taxCents: number;
+  tipCents: number;
+  discountCents: number;
   totalCents: number;
 }
 

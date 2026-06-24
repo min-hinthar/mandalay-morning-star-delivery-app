@@ -5,6 +5,7 @@ import {
   calculateTax,
   calculateOrderTotals,
   createStripeLineItems,
+  receiptDisplayDiscountCents,
   validateCartItems,
   type ModifierGroupWithItems,
 } from "../order";
@@ -259,6 +260,44 @@ describe("calculateOrderTotals", () => {
         result.taxCents +
         result.tipCents
     ).toBe(result.totalCents);
+  });
+});
+
+describe("receiptDisplayDiscountCents", () => {
+  const base = { subtotalCents: 4300, deliveryFeeCents: 0, taxCents: 350, tipCents: 0 };
+
+  it("returns 0 when there is no discount", () => {
+    expect(receiptDisplayDiscountCents({ ...base })).toBe(0);
+    expect(receiptDisplayDiscountCents({ ...base, discountCents: 0 })).toBe(0);
+  });
+
+  it("passes a normal discount through unchanged", () => {
+    expect(receiptDisplayDiscountCents({ ...base, discountCents: 800 })).toBe(800);
+  });
+
+  it("clamps a discount that exceeds the pre-discount sum so rows reconcile to $0", () => {
+    // subtotal 1000 + 0 + 0 + 0 = 1000; a 5000 discount clamps to 1000.
+    expect(
+      receiptDisplayDiscountCents({
+        subtotalCents: 1000,
+        deliveryFeeCents: 0,
+        taxCents: 0,
+        tipCents: 0,
+        discountCents: 5000,
+      })
+    ).toBe(1000);
+  });
+
+  it("includes tip in the pre-discount ceiling", () => {
+    expect(
+      receiptDisplayDiscountCents({
+        subtotalCents: 1000,
+        deliveryFeeCents: 0,
+        taxCents: 0,
+        tipCents: 500,
+        discountCents: 5000,
+      })
+    ).toBe(1500);
   });
 });
 

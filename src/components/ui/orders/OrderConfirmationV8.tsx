@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { navigateWithViewTransition } from "@/lib/navigation/view-transition-nav";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { formatPrice } from "@/lib/utils/currency";
+import { receiptDisplayDiscountCents } from "@/lib/utils/order";
 import { useConfetti } from "@/components/ui/Confetti";
 import { OrderRewardsTeaser } from "@/components/ui/orders/OrderRewardsTeaser";
 import { CutoffCountdown } from "@/components/ui/customer";
@@ -64,6 +65,9 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
 
   const isCOD = order.paymentMethod === "cod";
   const isPendingApproval = order.status === "pending_approval";
+
+  // Shared clamp so the rows reconcile to the floored-at-$0 stored total.
+  const displayDiscountCents = receiptDisplayDiscountCents(order);
 
   // Tier-threaded wax seal — the customer's loyalty tier tints the seal ring,
   // sunburst, and radial glow (text stays deep clay for contrast). Defaults to
@@ -263,6 +267,14 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                         <span>Subtotal</span>
                         <span className="text-hero-ink">{formatPrice(order.subtotalCents)}</span>
                       </div>
+                      {displayDiscountCents > 0 && (
+                        <div className="flex justify-between text-hero-ink-muted">
+                          <span>Discount</span>
+                          <span className="font-semibold text-hero-sage">
+                            −{formatPrice(displayDiscountCents)}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex justify-between text-hero-ink-muted">
                         <span>Delivery fee</span>
                         {order.deliveryFeeCents === 0 ? (
@@ -277,6 +289,12 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
                         <div className="flex justify-between text-hero-ink-muted">
                           <span>Tax</span>
                           <span className="text-hero-ink">{formatPrice(order.taxCents)}</span>
+                        </div>
+                      )}
+                      {order.tipCents > 0 && (
+                        <div className="flex justify-between text-hero-ink-muted">
+                          <span>Tip</span>
+                          <span className="text-hero-ink">{formatPrice(order.tipCents)}</span>
                         </div>
                       )}
                       <div className="checkout-perf checkout-rule-draw my-1" aria-hidden="true" />

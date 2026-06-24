@@ -90,6 +90,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
         subtotal_cents,
         delivery_fee_cents,
         tax_cents,
+        tip_cents,
+        discount_cents,
         total_cents,
         share_token,
         addresses (
@@ -189,6 +191,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
       subtotalCents: order.subtotal_cents,
       deliveryFeeCents: order.delivery_fee_cents,
       taxCents: order.tax_cents,
+      tipCents: order.tip_cents,
+      discountCents: order.discount_cents,
       totalCents: order.total_cents,
     };
 
