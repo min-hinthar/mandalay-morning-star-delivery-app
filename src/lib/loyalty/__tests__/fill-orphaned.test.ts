@@ -18,6 +18,7 @@ interface NeedsCodeRow {
 /* eslint-disable @typescript-eslint/no-explicit-any */
 function makeService(opts: {
   needsCode: NeedsCodeRow[];
+  selectError?: { message: string };
   written?: (rowId: string) => { id: string }[];
 }) {
   const written = opts.written ?? ((id: string) => [{ id }]);
@@ -27,7 +28,13 @@ function makeService(opts: {
       const q: any = {};
       q.eq = vi.fn(() => q);
       q.is = vi.fn(() => q);
-      q.order = vi.fn(() => Promise.resolve({ data: opts.needsCode, error: null }));
+      q.order = vi.fn(() =>
+        Promise.resolve(
+          opts.selectError
+            ? { data: null, error: opts.selectError }
+            : { data: opts.needsCode, error: null }
+        )
+      );
       return q;
     }),
     update: vi.fn(() => {
@@ -79,6 +86,17 @@ describe("fillOrphanedMilestoneCodes", () => {
     expect(filled[1].rewardCents).toBe(1000);
     // The fill UPDATE carries the double-fill guard.
     expect(updateIsCalls).toContainEqual(["reward_code", null]);
+  });
+
+  it("throws on a read error instead of swallowing it into [] (batch surfaces the failure)", async () => {
+    const { service } = makeService({
+      needsCode: [],
+      selectError: { message: "connection reset" },
+    });
+    await expect(fillOrphanedMilestoneCodes(service, "u1")).rejects.toMatchObject({
+      message: "connection reset",
+    });
+    expect(mockMint).not.toHaveBeenCalled(); // no mint attempted on a failed read
   });
 
   it("excludes a row whose guarded fill lost the race (0 rows written)", async () => {

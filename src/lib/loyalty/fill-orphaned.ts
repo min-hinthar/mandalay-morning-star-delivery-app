@@ -26,7 +26,7 @@ export async function fillOrphanedMilestoneCodes(
   service: SupabaseClient<Database>,
   userId: string
 ): Promise<FilledMilestone[]> {
-  const { data: needsCode } = await service
+  const { data: needsCode, error } = await service
     .from("loyalty_rewards")
     .select("id, milestone, reward_cents")
     .eq("user_id", userId)
@@ -34,6 +34,12 @@ export async function fillOrphanedMilestoneCodes(
     .is("reward_code", null)
     .order("milestone", { ascending: true });
 
+  // Surface a read failure rather than swallowing it into `[]`. On the request path
+  // the caller's try/catch logs it (best-effort, retried next order); in the batch
+  // back-fill a returned `[]` would otherwise read as "this user had no orphans" and
+  // silently under-fill — the script's per-user catch records it as a failed user
+  // (→ process.exitCode = 1) so a transient blip can't masquerade as "filled 0".
+  if (error) throw error;
   if (!needsCode || needsCode.length === 0) return [];
 
   const filled: FilledMilestone[] = [];
