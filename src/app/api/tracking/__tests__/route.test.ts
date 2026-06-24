@@ -69,7 +69,9 @@ describe("Tracking API Validation Schemas", () => {
       subtotalCents: 2500,
       deliveryFeeCents: 1500,
       taxCents: 250,
-      totalCents: 4250,
+      tipCents: 500,
+      discountCents: 0,
+      totalCents: 4750,
     };
 
     it("accepts valid order info", () => {
@@ -382,6 +384,8 @@ describe("Tracking API Validation Schemas", () => {
         subtotalCents: 2500,
         deliveryFeeCents: 1500,
         taxCents: 250,
+        tipCents: 0,
+        discountCents: 0,
         totalCents: 4250,
       },
       routeStop: {

@@ -40,6 +40,11 @@ already rendered a Discount row, but off the raw unclamped amount).
   `tracking/fetchTrackingData.ts` and `api/tracking/[orderId]/route.ts` (+ `types.ts`),
   the shared `TrackingOrderInfo` type (`src/types/tracking.ts`), and the
   `TrackingPageClient` → `OrderSummary` prop pass-through.
+- The `TrackingOrderInfo` name is exported **twice** — the hand-written interface above and
+  a parallel zod-inferred type (`trackingOrderInfoSchema`, `src/lib/validations/tracking.ts`).
+  Both gained `tipCents`/`discountCents` (required, `int().nonnegative()`) so the response
+  schema stays honest with the route, which now returns those non-nullable columns; the
+  schema's test fixtures (`api/tracking/__tests__/route.test.ts`) were updated to match.
 
 Presentation-only — no totals math changed; the rows surface tip + discount already
 baked into the stored total.
