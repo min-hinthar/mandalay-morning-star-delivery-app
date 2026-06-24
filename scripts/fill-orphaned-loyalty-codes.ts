@@ -51,17 +51,37 @@ function stripeMode(): string {
   return "unknown";
 }
 
+type OrphanRow = { user_id: string; milestone: number | null; reward_cents: number };
+
+// Page through the full orphan set explicitly. A single un-ranged select is capped
+// by PostgREST's `max-rows` (commonly 1000 on hosted Supabase), which would silently
+// truncate the scan — undercounting `byUser` and, worse, understating the dry-run
+// "$ at risk" total that the operator uses to decide whether to proceed. Looping with
+// `.range()` until a short page arrives makes the count honest at any backlog size.
+const PAGE = 1000;
+
+async function fetchAllOrphans(supabase: SupabaseClient<Database>): Promise<OrphanRow[]> {
+  const rows: OrphanRow[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await supabase
+      .from("loyalty_rewards")
+      .select("user_id, milestone, reward_cents")
+      .eq("kind", "milestone")
+      .is("reward_code", null)
+      .order("id", { ascending: true })
+      .range(from, from + PAGE - 1);
+    if (error) throw error;
+    const page = data ?? [];
+    rows.push(...page);
+    if (page.length < PAGE) break; // last (short) page — done
+  }
+  return rows;
+}
+
 async function main(): Promise<void> {
   const supabase = client();
 
-  const { data: orphans, error } = await supabase
-    .from("loyalty_rewards")
-    .select("user_id, milestone, reward_cents")
-    .eq("kind", "milestone")
-    .is("reward_code", null);
-
-  if (error) throw error;
-  const rows = orphans ?? [];
+  const rows = await fetchAllOrphans(supabase);
 
   if (rows.length === 0) {
     console.log("✓ No orphaned milestone rewards found — nothing to back-fill.");
