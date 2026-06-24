@@ -24,10 +24,11 @@ row (a negative savings line, when the discount > 0), placed to mirror the email
 
 The discount shown is clamped to `subtotal + delivery + tax + tip` so the rows always
 reconcile to the stored total even though `calculateOrderTotals` floors it at $0. To
-keep that clamp from drifting across the now-**three** receipt surfaces, it's extracted
-into one shared, unit-tested helper — `receiptDisplayDiscountCents` in
-`src/lib/utils/order.ts` — used by the email `OrderTotalsTable` and both on-page
-receipts.
+keep that clamp from drifting, it's extracted into one shared, unit-tested helper —
+`receiptDisplayDiscountCents` in `src/lib/utils/order.ts` — now used by **all four**
+receipt surfaces: the email `OrderTotalsTable`, the two added here
+(`OrderConfirmationV8`, `OrderSummary`), and the order-detail `OrderReceiptCard` (which
+already rendered a Discount row, but off the raw unclamped amount).
 
 **Data wiring:**
 
