@@ -4,7 +4,7 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-06-12._
+_Last reconciled: 2026-06-24._
 
 ## In flight
 
@@ -50,6 +50,34 @@ Owner is moving the repo public for free Actions minutes; security audit run
 > pre-merge review. Re-enable required checks once the Actions quota resets.
 
 ## Recently closed
+
+- **Adversarial audit 2026-06 + reconciliation fixes (#187–#191).** Full-codebase
+  adversarial review (`docs/adversarial-audit-2026-06.md`): security/correctness core
+  verified solid (anon order forgery, driver-GPS leak, percent-coupon-tip, admin refunds
+  all already remediated); several agent "Highs" disproved (verify-the-verifier). Live
+  fixes shipped:
+  - **#187** — audit doc + tip-in-admin-status-emails fix (hardcoded `tipCents:0` →
+    real `tip_cents`), inline admin-auth → `requireAdmin()`, hero `repeat:Infinity`
+    motion-loop offscreen gating. **Merged** (`4131a83`).
+  - **#188** — **M-3** loyalty self-heal: a milestone reward orphaned by a failed
+    mint/email (claimed row, null `reward_code`) now heals on the customer's next paid
+    order (drives minting off the `reward_code IS NULL` query, not just rows claimed this
+    call). **Merged** (`4fb3d40`).
+  - **#189** — **L-10** email discount row so coupon-order receipts reconcile to the
+    stored total. **Merged** (`0ad1800`).
+  - **#190** — on-page counterpart of L-10: Tip + clamped Discount rows on
+    `OrderConfirmationV8` + tracking `OrderSummary`; clamp extracted to the shared,
+    unit-tested `receiptDisplayDiscountCents` (all four receipt surfaces); `tip_cents`/
+    `discount_cents` threaded through the tracking pipeline + synced into the zod
+    `trackingOrderInfoSchema`. Presentation-only. **Merged** (`2fc50f73`).
+  - **#191** — operational follow-up to M-3: `pnpm backfill:loyalty` one-time script +
+    shared `fillOrphanedMilestoneCodes` helper sweeps every existing orphan at once
+    (silent, `--dry-run`, idempotent, keyset-paginated, read-errors surfaced).
+    **Merged** (`c2dc3c03`). Owner runs `--dry-run` then real against prod.
+
+  All five locally verified (lint · lint:css · format · typecheck · 1231 tests · build)
+  and merged on the owner's explicit per-PR go via bypass (Actions quota still exhausted);
+  each carried a clean auto-review "Safe to merge" verdict with all findings fixed.
 
 - **#173** — **Security lockdown + orders RLS repair + grocery launch review.**
   Review doc `docs/grocery-launch-review-2026-06.md`; auth-bound order RPC,
