@@ -35,12 +35,15 @@ NULL`; a row already filled (or filled by a concurrent in-app self-heal) is skip
   other ops scripts (`scripts/migrate-drive-photos.ts`), not the Next-only
   `createServiceClient`. Prints the detected **Stripe key mode** (LIVE/test) before
   writing so you confirm you're hitting the right environment.
-- **Paginated scan** — the orphan sweep pages through the full set with `.range()` (1000
-  per page) until a short page arrives, rather than a single select. A bare select is
-  capped by PostgREST's `max-rows` (commonly 1000), which would silently truncate the
-  scan at a large backlog — undercounting users and **understating the dry-run "$ at
-  risk" total** the operator uses to decide whether to proceed. Pagination keeps that
-  figure honest at any size.
+- **Paginated scan** — the orphan sweep pages through the full set (1000 per page) until a
+  short page arrives, rather than a single select. A bare select is capped by PostgREST's
+  `max-rows` (commonly 1000), which would silently truncate the scan at a large backlog —
+  undercounting users and **understating the dry-run "$ at risk" total** the operator uses
+  to decide whether to proceed. Pagination keeps that figure honest at any size. It uses
+  **keyset** seeking (`.gt("id", lastId)` on the stable `id`), not offset `.range()`: an
+  offset window over a live table skips/duplicates rows if the set shrinks mid-scan (a
+  concurrent in-app self-heal fills a row), whereas seeking past the last id can't skip an
+  unfilled orphan and a healed row simply drops out of the `reward_code IS NULL` filter.
 
 ### Env
 
