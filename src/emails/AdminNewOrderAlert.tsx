@@ -40,6 +40,7 @@ export interface AdminNewOrderAlertProps {
   deliveryFeeCents: number;
   taxCents: number;
   tipCents?: number;
+  discountCents?: number;
   totalCents: number;
   deliveryWindowStart?: string;
   deliveryWindowEnd?: string;
@@ -63,6 +64,7 @@ export function AdminNewOrderAlert({
   deliveryFeeCents,
   taxCents,
   tipCents,
+  discountCents,
   totalCents,
   deliveryWindowStart,
   deliveryWindowEnd,
@@ -215,6 +217,7 @@ export function AdminNewOrderAlert({
         deliveryFeeCents={deliveryFeeCents}
         taxCents={taxCents}
         tipCents={tipCents}
+        discountCents={discountCents}
         totalCents={totalCents}
         paymentMethod={paymentMethod}
         isExtendedRange={isExtendedRange}

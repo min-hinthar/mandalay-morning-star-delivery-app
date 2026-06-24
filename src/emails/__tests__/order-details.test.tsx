@@ -63,6 +63,63 @@ describe("DeliveryReminder — full order details", () => {
     expect(html).toContain("Subtotal");
     expect(html).toContain("$51.65"); // total
     expect(html).toContain("Cash on Delivery");
+    // No coupon → no discount row
+    expect(html).not.toContain("Discount");
+  });
+
+  it("shows a discount row so a coupon order's rows reconcile to the total", async () => {
+    // subtotal 43.00 − discount 8.00 + delivery 0 + tax 3.50 + tip 0 = total 38.50
+    const html = visibleText(
+      await render(
+        <DeliveryReminder
+          customerName="Aung Myo"
+          orderId="abc12345-6789-0def-ghij"
+          itemCount={3}
+          itemNames={["Mohinga", "Shan Noodles"]}
+          deliveryWindowStart="2026-05-30T18:00:00Z"
+          deliveryWindowEnd="2026-05-30T20:00:00Z"
+          address={{ line1: "456 Elm St", city: "Covina", state: "CA", postalCode: "91723" }}
+          items={SAMPLE_ITEMS}
+          subtotalCents={4300}
+          deliveryFeeCents={0}
+          taxCents={350}
+          tipCents={0}
+          discountCents={800}
+          totalCents={3850}
+        />
+      )
+    );
+    expect(html).toContain("Discount");
+    expect(html).toContain("$8.00"); // the coupon savings line
+    expect(html).toContain("$38.50"); // total now reconciles with the rows
+  });
+
+  it("clamps the shown discount so an over-discount still reconciles to a $0 total", async () => {
+    // Unreachable today, but defensive: discount 50.00 > subtotal 10.00 → total
+    // clamps to $0.00; the row must show the clamped 10.00, not 50.00.
+    const html = visibleText(
+      await render(
+        <DeliveryReminder
+          customerName="Aung Myo"
+          orderId="abc12345-6789-0def-ghij"
+          itemCount={1}
+          itemNames={["Mohinga"]}
+          deliveryWindowStart="2026-05-30T18:00:00Z"
+          deliveryWindowEnd="2026-05-30T20:00:00Z"
+          address={{ line1: "456 Elm St", city: "Covina", state: "CA", postalCode: "91723" }}
+          items={[SAMPLE_ITEMS[0]]}
+          subtotalCents={1000}
+          deliveryFeeCents={0}
+          taxCents={0}
+          tipCents={0}
+          discountCents={5000}
+          totalCents={0}
+        />
+      )
+    );
+    expect(html).toContain("Discount");
+    expect(html).not.toContain("$50.00"); // not the raw over-discount
+    expect(html).toContain("$0.00"); // clamped total reconciles
   });
 
   it("falls back to preview-only when no item details are supplied", async () => {

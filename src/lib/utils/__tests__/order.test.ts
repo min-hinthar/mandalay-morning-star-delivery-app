@@ -245,6 +245,21 @@ describe("calculateOrderTotals", () => {
     const result = calculateOrderTotals(items, DELIVERY_FEE, FREE_THRESHOLD);
     expect(result.subtotalCents).toBe(3400);
   });
+
+  // Cross-module guard: the email/on-page receipts render the line items and rely on
+  // them summing to the stored total. Lock that invariant here so a future change to
+  // the total formula (e.g. an unshown fee) can't silently break receipt reconciliation.
+  it("line items reconcile to the stored total: subtotal − discount + delivery + tax + tip", () => {
+    const items = [createValidatedCartItem({ base_price_cents: 8000 })]; // $80, below free threshold
+    const result = calculateOrderTotals(items, DELIVERY_FEE, FREE_THRESHOLD, 500, 800);
+    expect(
+      result.subtotalCents -
+        result.discountCents +
+        result.deliveryFeeCents +
+        result.taxCents +
+        result.tipCents
+    ).toBe(result.totalCents);
+  });
 });
 
 describe("createStripeLineItems", () => {

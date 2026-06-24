@@ -10,6 +10,9 @@ interface OrderTotalsTableProps {
   deliveryFeeCents: number;
   taxCents: number;
   tipCents?: number;
+  /** Coupon/promo amount already subtracted from `totalCents`. Shown as a savings
+   *  line so the itemized rows reconcile to the stored total on a coupon order. */
+  discountCents?: number;
   totalCents: number;
   paymentMethod?: string;
   isExtendedRange?: boolean;
@@ -58,10 +61,19 @@ export function OrderTotalsTable({
   deliveryFeeCents,
   taxCents,
   tipCents,
+  discountCents,
   totalCents,
   paymentMethod,
   isExtendedRange,
 }: OrderTotalsTableProps) {
+  // Clamp the shown discount to the pre-discount sum so the rows always reconcile
+  // to `totalCents` — `calculateOrderTotals` floors the stored total at 0, so a
+  // discount larger than subtotal+delivery+tax+tip (not reachable with today's
+  // discount sources, but future-proofed) would otherwise sum below a $0.00 total.
+  const displayDiscountCents =
+    discountCents == null
+      ? 0
+      : Math.min(discountCents, subtotalCents + deliveryFeeCents + taxCents + (tipCents ?? 0));
   return (
     <Section style={{ padding: "20px 28px 0 28px" }}>
       <table
@@ -78,6 +90,19 @@ export function OrderTotalsTable({
               <RowValue>{formatPrice(subtotalCents)}</RowValue>
             </td>
           </tr>
+
+          {displayDiscountCents > 0 && (
+            <tr>
+              <td style={{ padding: "4px 0" }}>
+                <RowLabel>Discount</RowLabel>
+              </td>
+              <td style={{ padding: "4px 0", textAlign: "right" as const }}>
+                <RowValue color={C.sageDeep} className={cls.sageDeep} bold>
+                  −{formatPrice(displayDiscountCents)}
+                </RowValue>
+              </td>
+            </tr>
+          )}
 
           <tr>
             <td style={{ padding: "4px 0" }}>

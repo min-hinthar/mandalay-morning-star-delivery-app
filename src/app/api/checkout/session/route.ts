@@ -263,6 +263,7 @@ export async function POST(request: Request) {
           deliveryFeeCents: totals.deliveryFeeCents,
           taxCents: totals.taxCents,
           tipCents,
+          discountCents,
           totalCents: totals.totalCents,
           scheduledDate: input.scheduledDate,
           timeWindowStart: input.timeWindowStart,
