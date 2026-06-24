@@ -76,8 +76,10 @@ Owner is moving the repo public for free Actions minutes; security audit run
     **Merged** (`c2dc3c03`). Owner runs `--dry-run` then real against prod.
 
   All five locally verified (lint · lint:css · format · typecheck · 1231 tests · build)
-  and merged on the owner's explicit per-PR go via bypass (Actions quota still exhausted);
-  each carried a clean auto-review "Safe to merge" verdict with all findings fixed.
+  and merged on the owner's explicit per-PR go. The Claude auto-review
+  (`claude-pr-review.yml`) posted a clean "Safe to merge" verdict on each with all
+  findings fixed; the blocking `verify`/`db-drift` jobs didn't run (Actions quota), so
+  local verify substituted and each landed via branch-protection bypass.
 
 - **#173** — **Security lockdown + orders RLS repair + grocery launch review.**
   Review doc `docs/grocery-launch-review-2026-06.md`; auth-bound order RPC,
