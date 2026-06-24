@@ -24,6 +24,7 @@
     "seed:menu": "npx tsx scripts/seed-menu.ts",
     "seed:photos": "npx tsx scripts/seed-photos.ts",
     "migrate:drive-photos": "npx tsx scripts/migrate-drive-photos.ts",
+    "backfill:loyalty": "npx tsx scripts/fill-orphaned-loyalty-codes.ts",
     "verify:menu": "npx tsx scripts/verify-menu.ts",
     "analyze": "ANALYZE=true next build",
     "analyze:server": "ANALYZE=true BUNDLE_ANALYZE=server next build",
