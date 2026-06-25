@@ -109,7 +109,10 @@ describe("OrderDelivered with nudges", () => {
         customerName="Aung"
         orderId="abc12345-6789"
         itemCount={2}
-        itemNames={["Mohinga", "Tea Leaf Salad"]}
+        items={[
+          { name: "Mohinga", quantity: 1, lineTotalCents: 2800 },
+          { name: "Tea Leaf Salad", quantity: 1, lineTotalCents: 1500 },
+        ]}
         totalCents={4300}
         loyalty={{
           stars: 4,
@@ -135,7 +138,7 @@ describe("OrderDelivered with nudges", () => {
         customerName="Aung"
         orderId="abc12345-6789"
         itemCount={1}
-        itemNames={["Mohinga"]}
+        items={[{ name: "Mohinga", quantity: 1, lineTotalCents: 1400 }]}
         totalCents={1400}
       />
     );

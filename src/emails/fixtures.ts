@@ -17,6 +17,7 @@ export const SAMPLE_ORDER_CONFIRMATION = {
       quantity: 2,
       lineTotalCents: 2800,
       category: "Soups",
+      imageUrl: "https://picsum.photos/seed/mohinga/240/240.jpg",
       modifiers: [{ name: "Extra Fish Cake", priceDelta: 200 }, { name: "Spicy Level: Medium" }],
     },
     {
@@ -24,6 +25,7 @@ export const SAMPLE_ORDER_CONFIRMATION = {
       quantity: 1,
       lineTotalCents: 1500,
       category: "Noodles",
+      imageUrl: "https://picsum.photos/seed/shan-noodles/240/240.jpg",
       modifiers: [{ name: "No Onions" }],
     },
     {
@@ -31,9 +33,11 @@ export const SAMPLE_ORDER_CONFIRMATION = {
       quantity: 1,
       lineTotalCents: 1200,
       category: "Salads",
+      imageUrl: "https://picsum.photos/seed/tea-leaf-salad/240/240.jpg",
       modifiers: [],
     },
     {
+      // No imageUrl — exercises the elegant initial-tile fallback.
       name: "Samosa (4 pcs)",
       quantity: 1,
       lineTotalCents: 800,
@@ -80,6 +84,7 @@ export const SAMPLE_CANCELLATION = {
       quantity: 2,
       lineTotalCents: 2800,
       category: "Soups",
+      imageUrl: "https://picsum.photos/seed/mohinga/240/240.jpg",
       modifiers: [{ name: "Extra Fish Cake", priceDelta: 200 }, { name: "Spicy Level: Medium" }],
     },
     {
@@ -87,6 +92,7 @@ export const SAMPLE_CANCELLATION = {
       quantity: 1,
       lineTotalCents: 1500,
       category: "Noodles",
+      imageUrl: "https://picsum.photos/seed/shan-noodles/240/240.jpg",
       modifiers: [{ name: "No Onions" }],
     },
     {
@@ -94,9 +100,11 @@ export const SAMPLE_CANCELLATION = {
       quantity: 1,
       lineTotalCents: 1200,
       category: "Salads",
+      imageUrl: "https://picsum.photos/seed/tea-leaf-salad/240/240.jpg",
       modifiers: [],
     },
     {
+      // No imageUrl — exercises the elegant initial-tile fallback.
       name: "Samosa (4 pcs)",
       quantity: 1,
       lineTotalCents: 800,
@@ -127,6 +135,7 @@ export const SAMPLE_REFUND = {
       quantity: 2,
       lineTotalCents: 2800,
       category: "Soups",
+      imageUrl: "https://picsum.photos/seed/mohinga/240/240.jpg",
       modifiers: [{ name: "Extra Fish Cake", priceDelta: 200 }, { name: "Spicy Level: Medium" }],
     },
     {
@@ -134,6 +143,7 @@ export const SAMPLE_REFUND = {
       quantity: 1,
       lineTotalCents: 1200,
       category: "Salads",
+      imageUrl: "https://picsum.photos/seed/tea-leaf-salad/240/240.jpg",
       modifiers: [],
     },
   ],
@@ -176,6 +186,7 @@ export const SAMPLE_DELIVERY_REMINDER = {
       quantity: 2,
       lineTotalCents: 2800,
       category: "Soups",
+      imageUrl: "https://picsum.photos/seed/mohinga/240/240.jpg",
       modifiers: [{ name: "Extra Fish Cake", priceDelta: 200 }, { name: "Spicy Level: Medium" }],
     },
     {
@@ -184,10 +195,17 @@ export const SAMPLE_DELIVERY_REMINDER = {
       quantity: 1,
       lineTotalCents: 1500,
       category: "Noodles",
+      imageUrl: "https://picsum.photos/seed/shan-noodles/240/240.jpg",
       modifiers: [{ name: "No Onions" }],
       notes: "Please pack sauce on the side.",
     },
-    { name: "Tea Leaf Salad", nameMy: "လက်ဖက်သုပ်", quantity: 1, lineTotalCents: 1200 },
+    {
+      name: "Tea Leaf Salad",
+      nameMy: "လက်ဖက်သုပ်",
+      quantity: 1,
+      lineTotalCents: 1200,
+      imageUrl: "https://picsum.photos/seed/tea-leaf-salad/240/240.jpg",
+    },
     { name: "Samosa (4 pcs)", quantity: 1, lineTotalCents: 800 },
   ],
   totals: {

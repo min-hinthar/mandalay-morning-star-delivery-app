@@ -6,6 +6,7 @@ export interface AbandonedCartEmailItem {
   nameMy?: string | null;
   quantity: number;
   lineTotalCents: number;
+  imageUrl?: string | null;
   modifiers?: { name: string; priceDelta?: number }[];
   notes?: string | null;
 }
@@ -19,6 +20,7 @@ export function mapCartItemsToEmail(items: ServerCartItem[]): AbandonedCartEmail
       nameMy: item.nameMy ?? null,
       quantity: item.quantity,
       lineTotalCents: (item.basePriceCents + modifierTotal) * item.quantity,
+      imageUrl: item.imageUrl ?? null,
       modifiers: item.modifiers.map((m) => ({ name: m.optionName, priceDelta: m.priceDeltaCents })),
       notes: item.notes || null,
     };

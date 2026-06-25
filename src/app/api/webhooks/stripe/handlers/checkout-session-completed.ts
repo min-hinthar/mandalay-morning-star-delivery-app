@@ -248,6 +248,7 @@ export async function handleCheckoutSessionCompleted(
         quantity: item.quantity,
         lineTotalCents: item.line_total_cents,
         notes: item.special_instructions,
+        imageUrl: item.menu_items?.image_url ?? null,
         modifiers: item.order_item_modifiers?.map((m) => ({
           name: m.name_snapshot,
           priceDelta: m.price_delta_snapshot,

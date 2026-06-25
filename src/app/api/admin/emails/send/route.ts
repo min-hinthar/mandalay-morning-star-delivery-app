@@ -49,6 +49,7 @@ interface OrderItemRow {
   special_instructions: string | null;
   quantity: number;
   line_total_cents: number;
+  menu_items: { image_url: string | null } | null;
 }
 
 interface ProfileRow {
@@ -125,7 +126,9 @@ export async function POST(request: Request) {
     // Fetch order items
     const { data: orderItems } = (await supabase
       .from("order_items")
-      .select("name_snapshot, name_my_snapshot, special_instructions, quantity, line_total_cents")
+      .select(
+        "name_snapshot, name_my_snapshot, special_instructions, quantity, line_total_cents, menu_items ( image_url )"
+      )
       .eq("order_id", orderId)) as {
       data: OrderItemRow[] | null;
     };
@@ -152,6 +155,7 @@ export async function POST(request: Request) {
       quantity: item.quantity,
       lineTotalCents: item.line_total_cents,
       notes: item.special_instructions,
+      imageUrl: item.menu_items?.image_url ?? null,
     }));
 
     const address = order.addresses;
@@ -187,6 +191,7 @@ export async function POST(request: Request) {
         name: item.name,
         quantity: item.quantity,
         refundAmountCents: item.lineTotalCents,
+        imageUrl: item.imageUrl ?? null,
       })),
       originalTotalCents: order.total_cents,
       refundAmountCents: order.total_cents,

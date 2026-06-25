@@ -2,9 +2,10 @@ import { Heading, Section, Text } from "@react-email/components";
 import { DeliveryBlock } from "./components/DeliveryBlock";
 import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
+import { OrderItemsTable } from "./components/OrderItemsTable";
 import { OrderStatusTracker } from "./components/OrderStatusTracker";
 import { SupportSection } from "./components/SupportSection";
-import { C, DISPLAY_FONT, bodyStyle, cls, headingStyle } from "./components/theme";
+import { C, bodyStyle, cls, headingStyle } from "./components/theme";
 import { APP_URL, shortOrderId } from "./helpers";
 
 // ============================================
@@ -19,11 +20,22 @@ interface DeliveryAddress {
   postalCode: string;
 }
 
+interface OutForDeliveryItem {
+  name: string;
+  nameMy?: string | null;
+  quantity: number;
+  lineTotalCents: number;
+  /** Dish photo (hostable raster only renders; else an initial tile). */
+  imageUrl?: string | null;
+  modifiers?: { name: string; priceDelta?: number }[];
+  notes?: string | null;
+}
+
 export interface OutForDeliveryProps {
   customerName: string;
   orderId: string;
   itemCount: number;
-  itemNames: string[];
+  items: OutForDeliveryItem[];
   deliveryWindowStart?: string | null;
   deliveryWindowEnd?: string | null;
   address?: DeliveryAddress | null;
@@ -39,7 +51,7 @@ export function OutForDelivery({
   customerName,
   orderId,
   itemCount,
-  itemNames,
+  items,
   deliveryWindowStart,
   deliveryWindowEnd,
   address,
@@ -86,24 +98,16 @@ export function OutForDelivery({
         </Section>
       )}
 
-      {/* Item Preview */}
-      {itemNames.length > 0 && (
-        <Section style={{ padding: "0 28px 16px 28px" }}>
-          <Text className={cls.muted} style={{ ...bodyStyle(14), margin: "0 0 8px 0" }}>
+      {/* Item Preview — real dish photos for hunger appeal */}
+      {items.length > 0 && (
+        <Section style={{ padding: "0 0 8px 0" }}>
+          <Text
+            className={cls.muted}
+            style={{ ...bodyStyle(14), margin: "0 0 4px 0", padding: "0 28px" }}
+          >
             Items on the way:
           </Text>
-          <Text
-            className={cls.ink}
-            style={{
-              fontSize: "15px",
-              color: C.ink,
-              fontFamily: DISPLAY_FONT,
-              margin: "0",
-              lineHeight: "1.6",
-            }}
-          >
-            {itemNames.join(", ")}
-          </Text>
+          <OrderItemsTable items={items} />
         </Section>
       )}
 

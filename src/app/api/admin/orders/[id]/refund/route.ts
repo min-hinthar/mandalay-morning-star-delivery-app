@@ -243,10 +243,27 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
         const refundUserId = order.user_id;
         const refundProcessedAt = new Date().toISOString();
         const refundIdempotencyKey = `refund-${orderId}-${Date.now()}`;
+        // Map each refunded line back to its dish photo (order_item → menu_item).
+        const { data: refundItemPhotos } = await supabase
+          .from("order_items")
+          .select("id, menu_items ( image_url )")
+          .in(
+            "id",
+            refundedItems.map((ri) => ri.orderItemId)
+          );
+        const refundItemImageMap = new Map<string, string | null>(
+          (
+            (refundItemPhotos ?? []) as Array<{
+              id: string;
+              menu_items: { image_url: string | null } | null;
+            }>
+          ).map((row) => [row.id, row.menu_items?.image_url ?? null])
+        );
         const refundItemsList = refundedItems.map((ri) => ({
           name: ri.name,
           quantity: ri.quantityRefunded,
           refundAmountCents: ri.refundAmountCents,
+          imageUrl: refundItemImageMap.get(ri.orderItemId) ?? null,
         }));
         const refundShippingCents = shippingRefundCents > 0 ? shippingRefundCents : undefined;
 

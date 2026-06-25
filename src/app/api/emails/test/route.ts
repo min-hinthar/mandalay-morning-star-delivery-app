@@ -148,6 +148,7 @@ function getFixtureDataForType(type: EmailType): Record<string, unknown> {
           name: item.name,
           quantity: item.quantity,
           refundAmountCents: item.lineTotalCents,
+          imageUrl: item.imageUrl ?? null,
         })),
         originalTotalCents: s.originalAmountCents,
         refundAmountCents: s.refundAmountCents,

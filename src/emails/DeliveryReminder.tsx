@@ -30,6 +30,8 @@ interface OrderItem {
   quantity: number;
   lineTotalCents: number;
   category?: string;
+  /** Dish photo (hostable raster only renders; else an initial tile). */
+  imageUrl?: string | null;
   modifiers?: OrderItemModifier[];
   notes?: string | null;
 }
