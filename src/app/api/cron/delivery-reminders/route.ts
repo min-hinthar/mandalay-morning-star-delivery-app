@@ -147,6 +147,7 @@ export async function GET(request: Request) {
     .from("order_items")
     .select(
       `order_id, name_snapshot, name_my_snapshot, special_instructions, quantity, line_total_cents,
+       menu_items ( image_url ),
        order_item_modifiers ( name_snapshot, price_delta_snapshot )`
     )
     .in("order_id", orderIds);
@@ -157,6 +158,7 @@ export async function GET(request: Request) {
     special_instructions: string | null;
     quantity: number;
     line_total_cents: number;
+    menu_items: { image_url: string | null } | null;
     order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }> | null;
   }
 
@@ -169,6 +171,7 @@ export async function GET(request: Request) {
       special_instructions: raw.special_instructions,
       quantity: raw.quantity,
       line_total_cents: raw.line_total_cents,
+      menu_items: raw.menu_items,
       order_item_modifiers: raw.order_item_modifiers,
     });
     orderItemsMap.set(raw.order_id, existing);
@@ -274,6 +277,7 @@ export async function GET(request: Request) {
       quantity: item.quantity,
       lineTotalCents: item.line_total_cents,
       notes: item.special_instructions,
+      imageUrl: item.menu_items?.image_url ?? null,
       modifiers: (item.order_item_modifiers ?? []).map((m) => ({
         name: m.name_snapshot,
         priceDelta: m.price_delta_snapshot,

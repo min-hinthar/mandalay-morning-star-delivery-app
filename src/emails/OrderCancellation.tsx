@@ -2,6 +2,7 @@ import { Link, Section, Text } from "@react-email/components";
 import { Callout } from "./components/Callout";
 import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
+import { OrderItemsTable } from "./components/OrderItemsTable";
 import { SupportSection } from "./components/SupportSection";
 import {
   BODY_FONT,
@@ -32,8 +33,11 @@ function formatDate(iso: string): string {
 // ─── Types ────────────────────────────────────────────────
 interface CancellationItem {
   name: string;
+  nameMy?: string | null;
   quantity: number;
   lineTotalCents: number;
+  /** Dish photo (hostable raster only renders; else an initial tile). */
+  imageUrl?: string | null;
 }
 
 export interface OrderCancellationProps {
@@ -139,70 +143,49 @@ export function OrderCancellation({
         )}
       </Section>
 
-      {/* ── Order Summary ────────────────────────────── */}
-      <Section style={{ padding: "0 28px 16px 28px" }}>
-        <Text className={cls.ink} style={{ ...headingStyle(17), margin: "0 0 12px 0" }}>
+      {/* ── Order Summary — real dish photos + line prices ── */}
+      <Section style={{ padding: "0 0 8px 0" }}>
+        <Text
+          className={cls.ink}
+          style={{ ...headingStyle(17), margin: "0 0 4px 0", padding: "0 28px" }}
+        >
           Order Summary
         </Text>
-        <table
-          cellPadding="0"
-          cellSpacing="0"
-          style={{ width: "100%", borderCollapse: "collapse" as const }}
-        >
-          <tbody>
-            {items.map((item, idx) => (
-              <tr key={idx}>
-                <td
-                  className={cls.line}
-                  style={{ padding: "6px 0", borderBottom: `1px solid ${C.line}` }}
-                >
-                  <Text
-                    className={cls.ink}
-                    style={{ fontSize: "14px", fontFamily: BODY_FONT, color: C.ink, margin: "0" }}
-                  >
-                    {item.quantity}x {item.name}
-                  </Text>
-                </td>
-              </tr>
-            ))}
+        <OrderItemsTable items={items} />
+      </Section>
 
-            {/* Total — gold-leaf rule, editorial serif figures */}
+      {/* Total — gold-leaf rule, editorial serif figures */}
+      <Section style={{ padding: "12px 28px 16px 28px" }}>
+        <table cellPadding="0" cellSpacing="0" style={{ width: "100%" }}>
+          <tbody>
             <tr>
-              <td style={{ padding: "12px 0 0 0" }}>
-                <table cellPadding="0" cellSpacing="0" style={{ width: "100%" }}>
-                  <tbody>
-                    <tr>
-                      <td>
-                        <Text
-                          className={cls.ink}
-                          style={{
-                            fontSize: "16px",
-                            fontFamily: DISPLAY_FONT,
-                            fontWeight: 600,
-                            color: C.ink,
-                            margin: "0",
-                          }}
-                        >
-                          Total
-                        </Text>
-                      </td>
-                      <td style={{ textAlign: "right" as const }}>
-                        <Text
-                          className={cls.accentStrong}
-                          style={{
-                            fontSize: "18px",
-                            fontFamily: DISPLAY_FONT,
-                            fontWeight: 700,
-                            color: C.accentStrong,
-                            margin: "0",
-                          }}
-                        >
-                          {formatPrice(totalCents)}
-                        </Text>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
+              <td>
+                <Text
+                  className={cls.ink}
+                  style={{
+                    fontSize: "16px",
+                    fontFamily: DISPLAY_FONT,
+                    fontWeight: 600,
+                    color: C.ink,
+                    margin: "0",
+                  }}
+                >
+                  Total
+                </Text>
+              </td>
+              <td style={{ textAlign: "right" as const }}>
+                <Text
+                  className={cls.accentStrong}
+                  style={{
+                    fontSize: "18px",
+                    fontFamily: DISPLAY_FONT,
+                    fontWeight: 700,
+                    color: C.accentStrong,
+                    margin: "0",
+                  }}
+                >
+                  {formatPrice(totalCents)}
+                </Text>
               </td>
             </tr>
           </tbody>

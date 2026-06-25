@@ -3,6 +3,7 @@ import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
 import { LoyaltyProgress, type LoyaltyProgressData } from "./components/LoyaltyProgress";
 import { NextDeliveryTeaser } from "./components/NextDeliveryTeaser";
+import { OrderItemsTable } from "./components/OrderItemsTable";
 import { OrderStatusTracker } from "./components/OrderStatusTracker";
 import { ReferralCallout } from "./components/ReferralCallout";
 import { SupportSection } from "./components/SupportSection";
@@ -13,11 +14,22 @@ import { APP_URL, shortOrderId } from "./helpers";
 // TYPES
 // ============================================
 
+interface DeliveredItem {
+  name: string;
+  nameMy?: string | null;
+  quantity: number;
+  lineTotalCents: number;
+  /** Dish photo (hostable raster only renders; else an initial tile). */
+  imageUrl?: string | null;
+  modifiers?: { name: string; priceDelta?: number }[];
+  notes?: string | null;
+}
+
 export interface OrderDeliveredProps {
   customerName: string;
   orderId: string;
   itemCount: number;
-  itemNames: string[];
+  items: DeliveredItem[];
   totalCents: number;
   deliveredAt?: string | null;
   /** Real loyalty progress at send time — renders nothing when absent. */
@@ -34,7 +46,7 @@ export function OrderDelivered({
   customerName,
   orderId,
   itemCount,
-  itemNames,
+  items,
   totalCents,
   loyalty,
   nextDeliveryCutoffText,
@@ -88,9 +100,9 @@ export function OrderDelivered({
       {/* Status Tracker */}
       <OrderStatusTracker currentStep="delivered" />
 
-      {/* Item Summary */}
-      {itemNames.length > 0 && (
-        <Section style={{ padding: "18px 28px 0 28px" }}>
+      {/* Item Summary — real dish photos at peak satisfaction */}
+      {items.length > 0 && (
+        <Section style={{ padding: "18px 0 0 0" }}>
           <Text
             className={cls.faint}
             style={{
@@ -101,22 +113,12 @@ export function OrderDelivered({
               textTransform: "uppercase" as const,
               letterSpacing: "1.2px",
               margin: "0 0 6px 0",
+              padding: "0 28px",
             }}
           >
             Items delivered
           </Text>
-          <Text
-            className={cls.ink}
-            style={{
-              fontSize: "15px",
-              color: C.ink,
-              fontFamily: DISPLAY_FONT,
-              margin: "0",
-              lineHeight: "1.6",
-            }}
-          >
-            {itemNames.join(" · ")}
-          </Text>
+          <OrderItemsTable items={items} />
         </Section>
       )}
 

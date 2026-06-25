@@ -13,6 +13,8 @@ interface AbandonedCartItem {
   nameMy?: string | null;
   quantity: number;
   lineTotalCents: number;
+  /** Dish photo (hostable raster only renders; else an initial tile). */
+  imageUrl?: string | null;
   modifiers?: { name: string; priceDelta?: number }[];
   notes?: string | null;
 }

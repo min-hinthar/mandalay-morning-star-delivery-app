@@ -273,7 +273,9 @@ async function sendStatusEmail(
     // Fetch order items for cancellation email
     const { data: orderItems } = await supabase
       .from("order_items")
-      .select("name_snapshot, quantity, line_total_cents")
+      .select(
+        "name_snapshot, name_my_snapshot, quantity, line_total_cents, menu_items ( image_url )"
+      )
       .eq("order_id", orderId);
 
     const { data: orderData } = await supabase
@@ -289,10 +291,18 @@ async function sendStatusEmail(
         customerName: profile.full_name || "Valued Customer",
         orderId,
         items: (orderItems || []).map(
-          (item: { name_snapshot: string; quantity: number; line_total_cents: number }) => ({
+          (item: {
+            name_snapshot: string;
+            name_my_snapshot: string | null;
+            quantity: number;
+            line_total_cents: number;
+            menu_items: { image_url: string | null } | null;
+          }) => ({
             name: item.name_snapshot,
+            nameMy: item.name_my_snapshot,
             quantity: item.quantity,
             lineTotalCents: item.line_total_cents,
+            imageUrl: item.menu_items?.image_url ?? null,
           })
         ),
         totalCents: orderData?.total_cents ?? 0,
@@ -329,21 +339,23 @@ async function sendStatusEmail(
 
   const { data: orderItems } = await supabase
     .from("order_items")
-    .select("name_snapshot, base_price_snapshot, quantity, line_total_cents")
+    .select("name_snapshot, name_my_snapshot, quantity, line_total_cents, menu_items ( image_url )")
     .eq("order_id", orderId);
 
   const customerName = profile.full_name || "Valued Customer";
   const items = (orderItems || []).map(
     (item: {
       name_snapshot: string;
-      base_price_snapshot: number;
+      name_my_snapshot: string | null;
       quantity: number;
       line_total_cents: number;
+      menu_items: { image_url: string | null } | null;
     }) => ({
       name: item.name_snapshot,
-      basePrice: item.base_price_snapshot,
+      nameMy: item.name_my_snapshot,
       quantity: item.quantity,
-      lineTotal: item.line_total_cents,
+      lineTotalCents: item.line_total_cents,
+      imageUrl: item.menu_items?.image_url ?? null,
     })
   );
   const address = orderData?.addresses
@@ -389,7 +401,6 @@ async function sendStatusEmail(
     specialInstructions: orderData?.special_instructions ?? null,
     // out_for_delivery / delivered specific fields
     itemCount: items.length,
-    itemNames: items.map((i: { name: string }) => i.name),
     deliveredAt: newStatus === "delivered" ? new Date().toISOString() : null,
     loyalty,
     nextDeliveryCutoffText: nextCutoff,

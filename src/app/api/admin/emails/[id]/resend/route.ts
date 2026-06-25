@@ -40,8 +40,10 @@ interface OrderRow {
 
 interface OrderItemRow {
   name_snapshot: string;
+  name_my_snapshot: string | null;
   quantity: number;
   line_total_cents: number;
+  menu_items: { image_url: string | null } | null;
 }
 
 interface ProfileRow {
@@ -110,7 +112,9 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     // Fetch order items
     const { data: orderItems } = (await supabase
       .from("order_items")
-      .select("name_snapshot, quantity, line_total_cents")
+      .select(
+        "name_snapshot, name_my_snapshot, quantity, line_total_cents, menu_items ( image_url )"
+      )
       .eq("order_id", order.id)) as {
       data: OrderItemRow[] | null;
     };
@@ -129,8 +133,10 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     // Build email data based on type
     const items = (orderItems || []).map((item) => ({
       name: item.name_snapshot,
+      nameMy: item.name_my_snapshot,
       quantity: item.quantity,
       lineTotalCents: item.line_total_cents,
+      imageUrl: item.menu_items?.image_url ?? null,
     }));
 
     const address = order.addresses;
@@ -164,6 +170,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
         name: item.name,
         quantity: item.quantity,
         refundAmountCents: item.lineTotalCents,
+        imageUrl: item.imageUrl ?? null,
       })),
       originalTotalCents: order.total_cents,
       refundAmountCents: order.total_cents,

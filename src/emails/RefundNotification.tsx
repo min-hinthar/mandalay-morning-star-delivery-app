@@ -1,5 +1,6 @@
 import { Column, Hr, Link, Row, Section, Text } from "@react-email/components";
 import { Callout } from "./components/Callout";
+import { DishThumb } from "./components/DishThumb";
 import { EmailButton } from "./components/EmailButton";
 import { EmailLayout } from "./components/EmailLayout";
 import {
@@ -21,6 +22,8 @@ interface RefundedItem {
   name: string;
   quantity: number;
   refundAmountCents: number;
+  /** Dish photo (hostable raster only renders; else an initial tile). */
+  imageUrl?: string | null;
 }
 
 export interface RefundNotificationProps {
@@ -122,10 +125,15 @@ export function RefundNotification({
           style={{ borderColor: C.goldLeaf, borderWidth: "1px 0 0 0", margin: "8px 0" }}
         />
 
-        {/* Refunded items */}
+        {/* Refunded items — with dish photos */}
         {refundedItems.map((item, idx) => (
           <Row key={`refund-item-${idx}`} style={{ width: "100%" }}>
-            <Column style={{ width: "70%" }}>
+            <Column
+              style={{ width: "44px", verticalAlign: "middle" as const, paddingRight: "10px" }}
+            >
+              <DishThumb imageUrl={item.imageUrl} name={item.name} size={36} radius={8} />
+            </Column>
+            <Column style={{ verticalAlign: "middle" as const }}>
               <Text
                 className={cls.muted}
                 style={{
@@ -138,7 +146,7 @@ export function RefundNotification({
                 {item.name} x{item.quantity}
               </Text>
             </Column>
-            <Column style={{ width: "30%" }}>
+            <Column style={{ width: "30%", verticalAlign: "middle" as const }}>
               <Text
                 className={cls.muted}
                 style={{

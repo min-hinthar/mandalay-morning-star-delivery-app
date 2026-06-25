@@ -107,6 +107,7 @@ export async function sendCODOrderEmail(opts: {
       quantity: item.quantity,
       lineTotalCents: item.lineTotalCents,
       notes: item.notes ?? null,
+      imageUrl: item.menuItem.image_url ?? null,
       modifiers: item.modifiers?.map((m) => ({
         name: m.name,
         priceDelta: m.price_delta_cents,
