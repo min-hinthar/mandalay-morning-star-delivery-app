@@ -24,6 +24,19 @@ interface ManualEmailDialogProps {
 
 type Step = "compose" | "preview";
 
+// orderSummary is built from customer-controlled data (delivery address street/city, item names). It is
+// concatenated into an HTML string rendered via dangerouslySetInnerHTML below, so it MUST be escaped or a
+// saved address like `<img src=x onerror=…>` executes script in the admin's session (the app CSP allows
+// 'unsafe-inline'). Escape the five HTML-significant characters before interpolation.
+function escapeHtml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
 // ===========================================
 // COMPONENT
 // ===========================================
@@ -42,7 +55,7 @@ export function ManualEmailDialog({
   const [htmlBody, setHtmlBody] = useState("");
   const [sending, setSending] = useState(false);
 
-  const footerHtml = `<hr style="margin:16px 0;border:none;border-top:1px solid #e5e5e5" /><p style="font-size:12px;color:#6b7280">Regarding Order #${orderNumber}: ${orderSummary}</p>`;
+  const footerHtml = `<hr style="margin:16px 0;border:none;border-top:1px solid #e5e5e5" /><p style="font-size:12px;color:#6b7280">Regarding Order #${escapeHtml(orderNumber)}: ${escapeHtml(orderSummary)}</p>`;
 
   const resetForm = useCallback(() => {
     setStep("compose");

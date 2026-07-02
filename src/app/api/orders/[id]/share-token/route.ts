@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { headers } from "next/headers";
 import { checkRateLimit, customerLimiter, getClientIp } from "@/lib/rate-limit";
@@ -85,13 +85,22 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Generate new token
     const shareToken = crypto.randomUUID();
 
-    const { error: updateError } = await supabase
+    // Persist via the service-role client: the customer orders UPDATE policy
+    // (orders_update_customer_cancel) only permits a status→cancelled transition, so a user-scoped
+    // share_token write matches 0 rows silently (or errors on WITH CHECK) — the token never persists and
+    // /orders/[token]/share can never resolve. Ownership is already verified above, so a scoped
+    // service-role update is safe; chain .select("id") to confirm a row was actually written.
+    const admin = createServiceClient();
+    const { data: updated, error: updateError } = await admin
       .from("orders")
       .update({ share_token: shareToken })
-      .eq("id", orderId);
+      .eq("id", orderId)
+      .eq("user_id", user.id)
+      .select("id")
+      .maybeSingle();
 
-    if (updateError) {
-      logger.exception(updateError, {
+    if (updateError || !updated) {
+      logger.exception(updateError ?? new Error("share-token update affected 0 rows"), {
         api: "orders/[id]/share-token",
         flowId: "generate",
       });
