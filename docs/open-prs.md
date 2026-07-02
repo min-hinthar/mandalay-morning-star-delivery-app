@@ -8,6 +8,15 @@ _Last reconciled: 2026-06-24._
 
 ## In flight
 
+- **#194 — holistic-audit security fixes** (branch `claude/app-ui-security-branding-ezpqkq`, **draft**).
+  Cross-repo adversarial audit (`docs/holistic-improvement-plan.md`). Three confirmed fixes: (1) **stored XSS**
+  in the admin manual-email preview — customer address flowed unescaped into `dangerouslySetInnerHTML`, now
+  `escapeHtml`'d; (2) **`retry-payment`** under-collected tax + tip (line items were items+delivery only) —
+  now adds tax/tip lines + re-applies the discount as an idempotency-keyed `amount_off` coupon so the charge
+  == `total_cents`; (3) **share-token** write was a silent RLS no-op (user client vs `orders_update_customer_cancel`)
+  — now persists via service-role scoped to `user_id` with a row-count check. Adversarial review SHIP-WITH-NITS
+  (coupon-idempotency nit fixed). No migration. Draft pending CI + owner go. Ranked follow-ups D4–D10 in the plan.
+
 - **money-correctness-fixes** (branch `claude/money-correctness-fixes`, PR pending —
   GitHub connector dropped mid-session; open via compare link or /mcp re-auth).
   Two live money bugs from the grocery-launch review: (1) percent-off promo codes
