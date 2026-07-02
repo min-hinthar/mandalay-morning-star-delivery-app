@@ -6,6 +6,7 @@ import { Modal, ModalHeader, ModalFooter } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/hooks/useToastV8";
 import { extractErrorMessage } from "@/lib/utils/api-error";
+import { escapeHtml } from "@/lib/utils/escape-html";
 import { TiptapEditor } from "./TiptapEditor";
 
 // ===========================================
@@ -23,6 +24,11 @@ interface ManualEmailDialogProps {
 }
 
 type Step = "compose" | "preview";
+
+// orderSummary is built from customer-controlled data (delivery address street/city, item names). It is
+// concatenated into an HTML string rendered via dangerouslySetInnerHTML below, so it MUST be escaped (shared
+// escapeHtml) or a saved address like `<img src=x onerror=…>` executes script in the admin's session (the
+// app CSP allows 'unsafe-inline'). The same helper guards the sent email in admin/emails/compose/route.ts.
 
 // ===========================================
 // COMPONENT
@@ -42,7 +48,7 @@ export function ManualEmailDialog({
   const [htmlBody, setHtmlBody] = useState("");
   const [sending, setSending] = useState(false);
 
-  const footerHtml = `<hr style="margin:16px 0;border:none;border-top:1px solid #e5e5e5" /><p style="font-size:12px;color:#6b7280">Regarding Order #${orderNumber}: ${orderSummary}</p>`;
+  const footerHtml = `<hr style="margin:16px 0;border:none;border-top:1px solid #e5e5e5" /><p style="font-size:12px;color:#6b7280">Regarding Order #${escapeHtml(orderNumber)}: ${escapeHtml(orderSummary)}</p>`;
 
   const resetForm = useCallback(() => {
     setStep("compose");

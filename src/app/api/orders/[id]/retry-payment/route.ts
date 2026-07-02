@@ -19,6 +19,8 @@ interface OrderWithItems {
   subtotal_cents: number;
   delivery_fee_cents: number;
   tax_cents: number;
+  tip_cents: number;
+  discount_cents: number;
   total_cents: number;
   delivery_window_start: string | null;
   delivery_window_end: string | null;
@@ -66,7 +68,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
     .select(
       `
       id, user_id, status,
-      subtotal_cents, delivery_fee_cents, tax_cents, total_cents,
+      subtotal_cents, delivery_fee_cents, tax_cents, tip_cents, discount_cents, total_cents,
       delivery_window_start, delivery_window_end,
       order_items (
         id, name_snapshot, base_price_snapshot, quantity, line_total_cents,
@@ -170,6 +172,65 @@ export async function POST(_request: Request, { params }: RouteParams) {
     });
   }
 
+  // Add sales tax + tip lines so the retry session matches the primary checkout (createStripeLineItems).
+  // Without these the retry collected only subtotal + delivery, under-charging tax + the entire tip while
+  // the order was still marked confirmed against the full total_cents.
+  if (order.tax_cents > 0) {
+    lineItems.push({
+      price_data: {
+        currency: "usd",
+        unit_amount: order.tax_cents,
+        product_data: { name: "Sales Tax", description: "CA sales tax (10.5%)" },
+      },
+      quantity: 1,
+    });
+  }
+  if (order.tip_cents > 0) {
+    lineItems.push({
+      price_data: {
+        currency: "usd",
+        unit_amount: order.tip_cents,
+        product_data: { name: "Tip", description: "Thank you for your generosity" },
+      },
+      quantity: 1,
+    });
+  }
+
+  // Re-apply the stored discount as a one-off amount_off coupon (mirrors the primary checkout's
+  // sessionDiscounts). Line items are pre-discount, so without this the retry OVER-charges a discounted
+  // order by discount_cents. amount_off subtracts exactly discount_cents from the session total, so the
+  // charge equals the recorded total_cents (subtotal − discount + delivery + tax + tip).
+  let sessionDiscounts: Array<{ coupon: string }> | undefined;
+  if (order.discount_cents > 0) {
+    try {
+      // Idempotency-key the coupon too: the session below uses a fixed `retry_<id>` key, so a fresh
+      // coupon per retry would change the request body and make Stripe reject the repeat retry
+      // (idempotency_error → 500 → the discounted order becomes un-retryable for 24h). A stable coupon key
+      // means repeat retries reuse the same coupon and return the cached session.
+      const coupon = await stripe.coupons.create(
+        {
+          amount_off: order.discount_cents,
+          currency: "usd",
+          duration: "once",
+          name: `Order #${orderId} discount`,
+        },
+        { idempotencyKey: `retry_coupon_${order.id}` }
+      );
+      sessionDiscounts = [{ coupon: coupon.id }];
+    } catch (error) {
+      // A discounted order must not silently over-charge — fail the retry so the customer can re-try
+      // rather than pay more than the recorded total.
+      Sentry.captureException(error, {
+        tags: { api: "retry-payment", step: "coupon" },
+        extra: { orderId: order.id, discountCents: order.discount_cents },
+      });
+      return NextResponse.json(
+        { error: { code: "STRIPE_ERROR", message: "Failed to create payment session" } },
+        { status: 500 }
+      );
+    }
+  }
+
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 
   // Extract scheduled date from delivery window
@@ -190,6 +251,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
         mode: "payment",
         payment_method_types: ["card"],
         line_items: lineItems,
+        ...(sessionDiscounts ? { discounts: sessionDiscounts } : {}),
         metadata: {
           order_id: order.id,
           user_id: user.id,
@@ -202,7 +264,11 @@ export async function POST(_request: Request, { params }: RouteParams) {
         expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
       },
       {
-        idempotencyKey: `retry_${order.id}`,
+        // Versioned key (`_v2`): this handler's line items changed (added tax/tip + discount coupon), so a
+        // stale session cached under the old `retry_${id}` key from before this deploy would otherwise
+        // collide with the new request body (idempotency_error → 500) until it aged out. The version bump
+        // isolates the new body; repeat retries within 24h still reuse the same (v2) session + coupon.
+        idempotencyKey: `retry_v2_${order.id}`,
       }
     );
 

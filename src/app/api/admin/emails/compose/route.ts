@@ -4,6 +4,7 @@ import { requireAdmin } from "@/lib/auth";
 import { getResendClient, EMAIL_CC, EMAIL_FROM, EMAIL_REPLY_TO, APP_URL } from "@/lib/email";
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
+import { escapeHtml } from "@/lib/utils/escape-html";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 
 // ===========================================
@@ -98,14 +99,21 @@ export async function POST(request: Request) {
       data: OrderItemRow[] | null;
     };
 
-    // Build order context footer
-    const items = (orderItems || []).map((i) => `${i.name_snapshot} x${i.quantity}`).join(", ");
+    // Build order context footer. items/deliveryLine are customer-controlled (item name_snapshot, delivery
+    // address) and are interpolated into HTML sent via Resend — escape them (same sink class as the admin
+    // preview's dangerouslySetInnerHTML) so a saved address/item like `<img src=x onerror=…>` can't inject
+    // markup into the sent email. shortId is a hex slice (no HTML chars) but escaping it is harmless + uniform.
+    const items = escapeHtml(
+      (orderItems || []).map((i) => `${i.name_snapshot} x${i.quantity}`).join(", ")
+    );
 
     const address = order.addresses;
 
-    const deliveryLine = address?.line_1 ? `${address.line_1}, ${address.city || ""}` : "";
+    const deliveryLine = escapeHtml(
+      address?.line_1 ? `${address.line_1}, ${address.city || ""}` : ""
+    );
 
-    const shortId = orderId.slice(0, 8).toUpperCase();
+    const shortId = escapeHtml(orderId.slice(0, 8).toUpperCase());
     const footerHtml = `
       <hr style="margin:24px 0 16px;border:none;border-top:1px solid #E5E7EB" />
       <p style="font-size:12px;color:#6B7280;line-height:1.5">
