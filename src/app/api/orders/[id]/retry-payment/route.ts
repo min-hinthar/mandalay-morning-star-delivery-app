@@ -264,7 +264,11 @@ export async function POST(_request: Request, { params }: RouteParams) {
         expires_at: Math.floor(Date.now() / 1000) + 30 * 60, // 30 minutes
       },
       {
-        idempotencyKey: `retry_${order.id}`,
+        // Versioned key (`_v2`): this handler's line items changed (added tax/tip + discount coupon), so a
+        // stale session cached under the old `retry_${id}` key from before this deploy would otherwise
+        // collide with the new request body (idempotency_error → 500) until it aged out. The version bump
+        // isolates the new body; repeat retries within 24h still reuse the same (v2) session + coupon.
+        idempotencyKey: `retry_v2_${order.id}`,
       }
     );
 

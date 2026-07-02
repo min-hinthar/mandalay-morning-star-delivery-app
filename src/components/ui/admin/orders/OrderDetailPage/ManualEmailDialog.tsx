@@ -6,6 +6,7 @@ import { Modal, ModalHeader, ModalFooter } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/lib/hooks/useToastV8";
 import { extractErrorMessage } from "@/lib/utils/api-error";
+import { escapeHtml } from "@/lib/utils/escape-html";
 import { TiptapEditor } from "./TiptapEditor";
 
 // ===========================================
@@ -25,17 +26,9 @@ interface ManualEmailDialogProps {
 type Step = "compose" | "preview";
 
 // orderSummary is built from customer-controlled data (delivery address street/city, item names). It is
-// concatenated into an HTML string rendered via dangerouslySetInnerHTML below, so it MUST be escaped or a
-// saved address like `<img src=x onerror=…>` executes script in the admin's session (the app CSP allows
-// 'unsafe-inline'). Escape the five HTML-significant characters before interpolation.
-function escapeHtml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-}
+// concatenated into an HTML string rendered via dangerouslySetInnerHTML below, so it MUST be escaped (shared
+// escapeHtml) or a saved address like `<img src=x onerror=…>` executes script in the admin's session (the
+// app CSP allows 'unsafe-inline'). The same helper guards the sent email in admin/emails/compose/route.ts.
 
 // ===========================================
 // COMPONENT
