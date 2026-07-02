@@ -90,17 +90,38 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // share_token write matches 0 rows silently (or errors on WITH CHECK) — the token never persists and
     // /orders/[token]/share can never resolve. Ownership is already verified above, so a scoped
     // service-role update is safe; chain .select("id") to confirm a row was actually written.
+    // Claim only an UNCLAIMED row (`.is("share_token", null)`) so a double-POST race can't orphan a token:
+    // two concurrent requests both read null, but only one update lands — the other matches 0 rows and
+    // returns the winner's persisted token below (not an unsaved UUID, not a 500).
     const admin = createServiceClient();
     const { data: updated, error: updateError } = await admin
       .from("orders")
       .update({ share_token: shareToken })
       .eq("id", orderId)
       .eq("user_id", user.id)
-      .select("id")
+      .is("share_token", null)
+      .select("share_token")
       .maybeSingle();
 
-    if (updateError || !updated) {
-      logger.exception(updateError ?? new Error("share-token update affected 0 rows"), {
+    if (updateError) {
+      logger.exception(updateError, { api: "orders/[id]/share-token", flowId: "generate" });
+      return NextResponse.json({ error: "Failed to generate share token" }, { status: 500 });
+    }
+
+    // 0 rows (no error) = a concurrent request won the race and already set the token. Return that
+    // persisted token — the URL that will actually resolve — rather than the UUID we failed to write.
+    let persistedToken = updated?.share_token ?? null;
+    if (!persistedToken) {
+      const { data: winner } = await admin
+        .from("orders")
+        .select("share_token")
+        .eq("id", orderId)
+        .eq("user_id", user.id)
+        .maybeSingle();
+      persistedToken = winner?.share_token ?? null;
+    }
+    if (!persistedToken) {
+      logger.exception(new Error("share-token update affected 0 rows and no token present"), {
         api: "orders/[id]/share-token",
         flowId: "generate",
       });
@@ -108,8 +129,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     }
 
     return NextResponse.json({
-      shareToken,
-      shareUrl: `${origin}/orders/${shareToken}/share`,
+      shareToken: persistedToken,
+      shareUrl: `${origin}/orders/${persistedToken}/share`,
     });
   } catch (error) {
     logger.exception(error, { api: "orders/[id]/share-token" });
