@@ -66,6 +66,8 @@ export function DeliveryBandsEditor({
 
   // Ascending order is required for correct band matching — warn if broken.
   const outOfOrder = bands.some((b, i) => i > 0 && b.maxMiles <= bands[i - 1].maxMiles);
+  // Bands at/inside the local radius are silently dropped at runtime — flag them.
+  const insideLocalZone = bands.some((b) => b.maxMiles <= localRadiusMiles);
 
   return (
     <div className={cn("space-y-3", changed && CHANGED_BORDER)}>
@@ -130,6 +132,13 @@ export function DeliveryBandsEditor({
       {outOfOrder && (
         <p className="text-xs text-status-warning">
           Bands should increase in distance from top to bottom.
+        </p>
+      )}
+
+      {insideLocalZone && (
+        <p className="text-xs text-status-warning">
+          Bands must be farther than the local zone radius ({localRadiusMiles} mi) — closer bands
+          are ignored.
         </p>
       )}
 

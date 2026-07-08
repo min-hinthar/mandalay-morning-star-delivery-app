@@ -4,7 +4,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { resolveCheckoutDiscount, resolveStripeSessionDiscounts } from "./discount";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
-import { calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
+import { calculateOrderTotals, createStripeLineItems, resolveDeliveryFee } from "@/lib/utils/order";
 import {
   isPastCutoff,
   getDeliveryDate,
@@ -179,6 +179,20 @@ export async function POST(request: Request) {
     // Per-day fee override applies to the LOCAL band; extended/far tiers stay
     // distance-driven. Graduated pricing is the authoritative fee source.
     const pricing = getDeliveryPricingConfig(rules, { localFeeCents: baseDeliveryFeeCents });
+
+    // Re-validate serviceability at order time. `is_verified` was set against the
+    // coverage limits in effect when the address was saved; if the business later
+    // disabled long-distance delivery or lowered the max radius, a previously-valid
+    // far address now resolves `out-of-range` — reject it instead of shipping a $0 fee.
+    const feeResult = resolveDeliveryFee(addressDistanceMiles, subtotalCents, pricing);
+    if (feeResult.tier === "out-of-range") {
+      return errorResponse(
+        "OUT_OF_COVERAGE",
+        "This address is outside our current delivery range",
+        400
+      );
+    }
+
     const isExtendedRange =
       addressDistanceMiles != null && addressDistanceMiles > rules.longDistanceThresholdMiles;
 

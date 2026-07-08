@@ -184,7 +184,11 @@ export async function checkCoverage(
       // this is the "before free-delivery" quote the summaries display).
       const feeResult = resolveDeliveryFee(roundedMiles, 0, pricing);
       estimatedFeeCents = feeResult.feeCents;
-      feeTier = feeResult.tier === "local" ? "standard" : (feeResult.tier as "extended" | "far");
+      // Map explicitly (no cast): local/out-of-range collapse to "standard". The
+      // isValid gate already guarantees in-range, but this stays correct if the
+      // coverage gate and the fee resolver ever drift.
+      feeTier =
+        feeResult.tier === "far" ? "far" : feeResult.tier === "extended" ? "extended" : "standard";
     }
 
     return {

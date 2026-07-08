@@ -1,7 +1,13 @@
 import { describe, expect, it } from "vitest";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
 import { createMockMenuItem, createMockModifierOption } from "@/test/factories";
-import { validateCartItems, calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
+import {
+  validateCartItems,
+  calculateOrderTotals,
+  createStripeLineItems,
+  resolveDeliveryFee,
+  type DeliveryPricingConfig,
+} from "@/lib/utils/order";
 import type { MenuItemsRow, ModifierOptionsRow } from "@/types/database";
 
 /**
@@ -595,6 +601,43 @@ describe("Checkout Session Business Rules", () => {
 
       const totals = calculateOrderTotals(items);
       expect(totals.deliveryFeeCents).toBe(0);
+    });
+  });
+
+  // The route rejects checkout (400 OUT_OF_COVERAGE) exactly when
+  // resolveDeliveryFee(...).tier === "out-of-range" — so a previously-verified
+  // far address can never ship at a $0 fee after long-distance is disabled or the
+  // max radius is lowered. These assert the guard's trigger condition.
+  describe("delivery serviceability guard", () => {
+    const PRICING: DeliveryPricingConfig = {
+      localFeeCents: 1500,
+      localRadiusMiles: 25,
+      freeDeliveryThresholdCents: 10000,
+      bands: [
+        { maxMiles: 40, feeCents: 2000 },
+        { maxMiles: 50, feeCents: 3000 },
+      ],
+      standardRadiusMiles: 50,
+      extendedEnabled: true,
+      extendedPerMileCents: 150,
+      maxRadiusMiles: 100,
+    };
+
+    it("flags an address beyond the max radius as out-of-range (checkout rejects)", () => {
+      expect(resolveDeliveryFee(120, 5000, PRICING).tier).toBe("out-of-range");
+    });
+
+    it("flags a far address as out-of-range once long-distance is disabled", () => {
+      const r = resolveDeliveryFee(60, 5000, { ...PRICING, extendedEnabled: false });
+      expect(r.tier).toBe("out-of-range");
+      // The bug this guards: without the checkout guard, this $0 fee would ship.
+      expect(r.feeCents).toBe(0);
+    });
+
+    it("keeps an in-range far address serviceable (non-zero fee, not rejected)", () => {
+      const r = resolveDeliveryFee(60, 5000, PRICING);
+      expect(r.tier).toBe("far");
+      expect(r.feeCents).toBeGreaterThan(0);
     });
   });
 });
