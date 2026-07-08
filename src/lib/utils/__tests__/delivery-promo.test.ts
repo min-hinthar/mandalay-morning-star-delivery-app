@@ -12,10 +12,10 @@ describe("delivery-promo copy", () => {
   it("uses business-rule defaults when no options are passed", () => {
     expect(freeDeliveryHeadline()).toBe("Free delivery on $100+ orders");
     expect(localRangeLabel()).toBe("within 25 mi of Covina");
-    expect(extendedFeeNote()).toBe("$20 flat beyond");
-    expect(freeDeliveryQualifier()).toBe("within 25 mi of Covina · $20 flat beyond");
+    expect(extendedFeeNote()).toBe("distance-based fees beyond");
+    expect(freeDeliveryQualifier()).toBe("within 25 mi of Covina · distance-based fees beyond");
     expect(freeDeliveryPromoLine()).toBe(
-      "Free delivery on $100+ orders within 25 mi of Covina · $20 flat beyond"
+      "Free delivery on $100+ orders within 25 mi of Covina · distance-based fees beyond"
     );
   });
 
@@ -27,13 +27,13 @@ describe("delivery-promo copy", () => {
     };
     expect(freeDeliveryHeadline(opts)).toBe("Free delivery on $120+ orders");
     expect(localRangeLabel(opts)).toBe("within 30 mi of Covina");
-    expect(extendedFeeNote(opts)).toBe("$25 flat beyond");
+    expect(extendedFeeNote(opts)).toBe("distance-based fees beyond");
   });
 
   it("formats non-round dollar amounts with cents", () => {
     expect(freeDeliveryHeadline({ freeDeliveryThresholdCents: 9950 })).toBe(
       "Free delivery on $99.50+ orders"
     );
-    expect(extendedFeeNote({ longDistanceFeeCents: 1850 })).toBe("$18.50 flat beyond");
+    expect(extendedFeeNote()).toBe("distance-based fees beyond");
   });
 });

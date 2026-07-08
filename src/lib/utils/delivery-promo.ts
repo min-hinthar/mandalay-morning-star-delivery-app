@@ -51,15 +51,17 @@ export function localRangeLabel(opts: DeliveryPromoOptions = {}): string {
   return `within ${miles} mi of Covina`;
 }
 
-/** e.g. "$20 flat beyond" */
-export function extendedFeeNote(opts: DeliveryPromoOptions = {}): string {
-  const { longFee } = resolve(opts);
-  return `${formatDollars(longFee)} flat beyond`;
+/**
+ * Beyond-local note. Fees are now graduated by distance (not a single flat fee),
+ * so the copy is intentionally amount-free.
+ */
+export function extendedFeeNote(_opts: DeliveryPromoOptions = {}): string {
+  return "distance-based fees beyond";
 }
 
 /**
  * Compact qualifier for spots where the headline is shown separately.
- * e.g. "within 25 mi of Covina · $20 flat beyond"
+ * e.g. "within 25 mi of Covina · distance-based fees beyond"
  */
 export function freeDeliveryQualifier(opts: DeliveryPromoOptions = {}): string {
   return `${localRangeLabel(opts)} · ${extendedFeeNote(opts)}`;
@@ -67,7 +69,7 @@ export function freeDeliveryQualifier(opts: DeliveryPromoOptions = {}): string {
 
 /**
  * Full accurate one-liner.
- * e.g. "Free delivery on $100+ orders within 25 mi of Covina · $20 flat beyond"
+ * e.g. "Free delivery on $100+ orders within 25 mi of Covina · distance-based fees beyond"
  */
 export function freeDeliveryPromoLine(opts: DeliveryPromoOptions = {}): string {
   return `${freeDeliveryHeadline(opts)} ${freeDeliveryQualifier(opts)}`;

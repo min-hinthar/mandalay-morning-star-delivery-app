@@ -72,7 +72,7 @@ describe("getBusinessRules", () => {
     vi.clearAllMocks();
   });
 
-  it("returns all 15 fields with correct types when DB has data", async () => {
+  it("returns all fields with correct types when DB has data", async () => {
     setupMocks(
       [
         { key: "cutoff_day", value: 5 },
@@ -130,6 +130,11 @@ describe("getBusinessRules", () => {
       longDistanceFeeCents: 2000,
       longDistanceThresholdMiles: 25,
       deliveryZones: [],
+      // New keys absent from DB → fall back to defaults
+      deliveryFeeBands: BUSINESS_RULES_DEFAULTS.deliveryFeeBands,
+      extendedDeliveryEnabled: true,
+      extendedDeliveryPerMileCents: 150,
+      maxDeliveryRadiusMiles: 100,
     });
   });
 
@@ -201,7 +206,26 @@ describe("getBusinessRules", () => {
 
     const rules = await getBusinessRules();
     expect(rules.cutoffDay).toBe(5);
-    // Should have exactly 15 fields (10 numeric + codEnabled + deliveryDays + longDistanceFeeCents + longDistanceThresholdMiles + deliveryZones)
-    expect(Object.keys(rules)).toHaveLength(15);
+    // 15 original fields + 4 graduated-pricing fields (deliveryFeeBands,
+    // extendedDeliveryEnabled, extendedDeliveryPerMileCents, maxDeliveryRadiusMiles)
+    expect(Object.keys(rules)).toHaveLength(19);
+  });
+
+  it("parses graduated bands + long-distance config from DB", async () => {
+    setupMocks(
+      [
+        { key: "delivery_fee_bands", value: [{ maxMiles: 35, feeCents: 1800 }] },
+        { key: "extended_delivery_enabled", value: false },
+        { key: "extended_delivery_per_mile_cents", value: 200 },
+        { key: "max_delivery_radius_miles", value: 80 },
+      ],
+      null
+    );
+
+    const rules = await getBusinessRules();
+    expect(rules.deliveryFeeBands).toEqual([{ maxMiles: 35, feeCents: 1800 }]);
+    expect(rules.extendedDeliveryEnabled).toBe(false);
+    expect(rules.extendedDeliveryPerMileCents).toBe(200);
+    expect(rules.maxDeliveryRadiusMiles).toBe(80);
   });
 });

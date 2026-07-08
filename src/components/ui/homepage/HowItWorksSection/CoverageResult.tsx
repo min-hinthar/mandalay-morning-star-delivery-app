@@ -14,7 +14,7 @@ interface CoverageResultProps {
         durationMinutes?: number;
         directions?: string[];
         eligibleDays?: string[];
-        feeTier?: "standard" | "extended";
+        feeTier?: "standard" | "extended" | "far";
         estimatedFeeCents?: number;
       }
     | null
@@ -144,7 +144,9 @@ export function CoverageResult({ coverageData, selectedAddress, onClear }: Cover
                       <span>
                         {coverageData.feeTier === "standard"
                           ? `$${(coverageData.estimatedFeeCents / 100).toFixed(0)} delivery · Free over $100`
-                          : `$${(coverageData.estimatedFeeCents / 100).toFixed(0)} extended delivery`}
+                          : coverageData.feeTier === "far"
+                            ? `$${(coverageData.estimatedFeeCents / 100).toFixed(0)} long-distance delivery`
+                            : `$${(coverageData.estimatedFeeCents / 100).toFixed(0)} extended delivery`}
                       </span>
                     </div>
                   )}

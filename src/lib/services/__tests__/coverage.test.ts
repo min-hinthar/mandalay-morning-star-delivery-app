@@ -3,6 +3,7 @@ import { checkCoverage } from "../coverage";
 import { COVERAGE_LIMITS, KITCHEN_LOCATION } from "@/types/address";
 import {
   withinCoverageResponse,
+  longDistanceResponse,
   exceedsDistanceResponse,
   exceedsDurationResponse,
   atThresholdResponse,
@@ -46,9 +47,27 @@ describe("checkCoverage", () => {
     expect(result.distanceMiles).toBeCloseTo(24.9, 0); // 40000m ~= 24.9 miles
     expect(result.durationMinutes).toBe(60);
     expect(result.reason).toBeUndefined();
+    // 24.9mi is within the local zone (≤25mi) → standard tier, base fee.
+    expect(result.feeTier).toBe("standard");
+    expect(result.estimatedFeeCents).toBe(1500);
   });
 
-  it("returns DISTANCE_EXCEEDED when over 50 miles", async () => {
+  it("returns valid with a long-distance quote for a 50–100mi address", async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(longDistanceResponse),
+    } as Response);
+
+    const result = await checkCoverage(35.0, -119.0);
+
+    expect(result.isValid).toBe(true);
+    expect(result.distanceMiles).toBeCloseTo(62.1, 0);
+    expect(result.feeTier).toBe("far");
+    // top band $30 + ceil(62.1 - 50) * $1.50 = 3000 + 13*150 = 4950
+    expect(result.estimatedFeeCents).toBe(4950);
+  });
+
+  it("returns DISTANCE_EXCEEDED when over the 100 mile max", async () => {
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve(exceedsDistanceResponse),
@@ -57,7 +76,7 @@ describe("checkCoverage", () => {
     const result = await checkCoverage(35.0, -119.0);
 
     expect(result.isValid).toBe(false);
-    expect(result.distanceMiles).toBeGreaterThan(COVERAGE_LIMITS.maxDistanceMiles);
+    expect(result.distanceMiles).toBeGreaterThan(COVERAGE_LIMITS.maxRequestDistanceMiles);
     expect(result.reason).toBe("DISTANCE_EXCEEDED");
   });
 
@@ -193,8 +212,8 @@ describe("checkCoverage", () => {
   });
 
   it("prioritizes DISTANCE_EXCEEDED over DURATION_EXCEEDED when both fail", async () => {
-    // Both exceed: 60 miles, 100 minutes
-    const response = createRoutesResponse(60, 100);
+    // Both exceed: 130 miles (> 100mi max), 200 minutes (> 180min far cap)
+    const response = createRoutesResponse(130, 200);
     vi.mocked(global.fetch).mockResolvedValueOnce({
       ok: true,
       json: () => Promise.resolve(response),
@@ -205,6 +224,20 @@ describe("checkCoverage", () => {
     expect(result.isValid).toBe(false);
     // Distance check happens first in the code
     expect(result.reason).toBe("DISTANCE_EXCEEDED");
+  });
+
+  it("allows a long-distance address whose drive time exceeds the 90min local cap", async () => {
+    // 70 miles, 120 minutes — beyond the 50mi/90min standard tier, within 100mi/180min.
+    const response = createRoutesResponse(70, 120);
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(response),
+    } as Response);
+
+    const result = await checkCoverage(35.0, -119.0);
+
+    expect(result.isValid).toBe(true);
+    expect(result.feeTier).toBe("far");
   });
 
   it("handles missing duration in response", async () => {
@@ -255,6 +288,11 @@ describe("coverage limits validation", () => {
 
   it("confirms max duration is 90 minutes", () => {
     expect(COVERAGE_LIMITS.maxDurationMinutes).toBe(90);
+  });
+
+  it("confirms the long-distance ceiling is 100 miles / 180 minutes", () => {
+    expect(COVERAGE_LIMITS.maxRequestDistanceMiles).toBe(100);
+    expect(COVERAGE_LIMITS.maxRequestDurationMinutes).toBe(180);
   });
 
   it("confirms kitchen location is in Covina, CA", () => {

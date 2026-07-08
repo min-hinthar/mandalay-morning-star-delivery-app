@@ -16,7 +16,7 @@ interface CoverageErrorCardProps {
 export function CoverageErrorCard({ coverage, className }: CoverageErrorCardProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const distanceMiles = coverage.distanceMiles ?? 0;
-  const maxDistance = COVERAGE_LIMITS.maxDistanceMiles;
+  const maxDistance = COVERAGE_LIMITS.maxRequestDistanceMiles;
   const ratio = Math.min(distanceMiles / maxDistance, 1.5);
   const isDistanceExceeded = coverage.reason === "DISTANCE_EXCEEDED";
   const isDurationExceeded = coverage.reason === "DURATION_EXCEEDED";
@@ -41,7 +41,7 @@ export function CoverageErrorCard({ coverage, className }: CoverageErrorCardProp
             {isDistanceExceeded
               ? `Your address is ${distanceMiles.toFixed(1)} miles away — we deliver up to ${maxDistance} miles from our kitchen in Covina, CA.`
               : isDurationExceeded
-                ? `Your address is too far by drive time — we deliver within 90 minutes of our kitchen.`
+                ? `Your address is too far by drive time — it's outside our delivery time limit.`
                 : "This address could not be verified for delivery coverage."}
           </p>
           <p className="text-xs text-text-muted/70 mt-1">

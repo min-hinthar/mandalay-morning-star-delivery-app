@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { FloatingLabelInput } from "@/components/ui/FloatingLabelInput";
 import { cn } from "@/lib/utils/cn";
+import type { DeliveryFeeBand } from "@/lib/utils/order";
 import type { DeliverySettings } from "./settings-types";
 import {
   type DeliveryValidationErrors,
@@ -22,6 +23,8 @@ import {
   CHANGED_BORDER,
 } from "./delivery-helpers";
 import { DeliveryDaysManager } from "./DeliveryDaysManager";
+import { DeliveryBandsEditor } from "./DeliveryBandsEditor";
+import { ToggleSwitch } from "./ToggleSwitch";
 
 interface DeliverySettingsFormProps {
   settings: DeliverySettings;
@@ -43,7 +46,7 @@ export function DeliverySettingsForm({
     minimumOrder: centsToDollars(settings.minimumOrderCents),
     freeThreshold: centsToDollars(settings.freeDeliveryThresholdCents),
     deliveryFee: centsToDollars(settings.baseDeliveryFeeCents),
-    longDistanceFee: centsToDollars(settings.longDistanceFeeCents ?? 2000),
+    extendedPerMile: centsToDollars(settings.extendedDeliveryPerMileCents ?? 150),
   });
 
   const changed = (field: keyof DeliverySettings) =>
@@ -66,7 +69,7 @@ export function DeliverySettingsForm({
         | "minimumOrderCents"
         | "freeDeliveryThresholdCents"
         | "baseDeliveryFeeCents"
-        | "longDistanceFeeCents",
+        | "extendedDeliveryPerMileCents",
       displayKey: keyof typeof displayValues,
       value: string
     ) => {
@@ -76,6 +79,16 @@ export function DeliverySettingsForm({
       setErrors((prev) => ({ ...prev, [field]: error }));
       onChange({ ...settings, [field]: cents });
     },
+    [settings, onChange]
+  );
+
+  const handleBandsChange = useCallback(
+    (bands: DeliveryFeeBand[]) => onChange({ ...settings, deliveryFeeBands: bands }),
+    [settings, onChange]
+  );
+
+  const handleToggleExtended = useCallback(
+    (enabled: boolean) => onChange({ ...settings, extendedDeliveryEnabled: enabled }),
     [settings, onChange]
   );
 
@@ -167,46 +180,95 @@ export function DeliverySettingsForm({
             <p className="text-xs text-text-muted">Minimum order value for delivery</p>
           </div>
 
-          <div className={cn("space-y-2", changed("longDistanceFeeCents") && CHANGED_BORDER)}>
-            <Label htmlFor="longDistanceFee">Extended Delivery Fee (&gt;25 mi)</Label>
-            <div className="relative max-w-[200px]">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
-                $
-              </span>
-              <Input
-                id="longDistanceFee"
-                type="number"
-                min={0}
-                step={0.01}
-                value={displayValues.longDistanceFee}
-                onChange={(e) =>
-                  handleCurrencyChange("longDistanceFeeCents", "longDistanceFee", e.target.value)
-                }
-                className="pl-7"
-              />
-            </div>
-            <p className="text-xs text-text-muted">
-              Flat fee for addresses beyond distance threshold
-            </p>
-          </div>
-
           <div className={cn("space-y-2", changed("longDistanceThresholdMiles") && CHANGED_BORDER)}>
-            <Label htmlFor="longDistanceThreshold">Distance Threshold (miles)</Label>
+            <Label htmlFor="longDistanceThreshold">Local Zone Radius (miles)</Label>
             <div className="max-w-[200px]">
               <Input
                 id="longDistanceThreshold"
                 type="number"
                 min={1}
-                max={50}
+                max={100}
                 step={1}
                 value={settings.longDistanceThresholdMiles ?? 25}
                 onChange={(e) => handleNumberChange("longDistanceThresholdMiles", e.target.value)}
               />
             </div>
             <p className="text-xs text-text-muted">
-              Addresses beyond this get the extended delivery fee
+              Free-delivery-eligible zone. Beyond this, graduated fees apply.
             </p>
           </div>
+        </div>
+
+        {/* Graduated distance bands */}
+        <div className="pt-2">
+          <DeliveryBandsEditor
+            bands={settings.deliveryFeeBands ?? []}
+            localRadiusMiles={settings.longDistanceThresholdMiles ?? 25}
+            onChange={handleBandsChange}
+            changed={changed("deliveryFeeBands")}
+          />
+        </div>
+
+        {/* Long-distance (50–100 mi) auto-quote */}
+        <div className="pt-4 border-t border-border-subtle space-y-4">
+          <ToggleSwitch
+            id="extendedDeliveryEnabled"
+            checked={settings.extendedDeliveryEnabled ?? true}
+            onChange={handleToggleExtended}
+            label="Long-Distance Delivery"
+            description="Auto-quote deliveries beyond the standard radius (up to the max) with a per-mile surcharge."
+          />
+          {settings.extendedDeliveryEnabled && (
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div
+                className={cn(
+                  "space-y-2",
+                  changed("extendedDeliveryPerMileCents") && CHANGED_BORDER
+                )}
+              >
+                <Label htmlFor="extendedPerMile">Per-Mile Surcharge</Label>
+                <div className="relative max-w-[200px]">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
+                    $
+                  </span>
+                  <Input
+                    id="extendedPerMile"
+                    type="number"
+                    min={0}
+                    step={0.01}
+                    value={displayValues.extendedPerMile}
+                    onChange={(e) =>
+                      handleCurrencyChange(
+                        "extendedDeliveryPerMileCents",
+                        "extendedPerMile",
+                        e.target.value
+                      )
+                    }
+                    error={errors.extendedDeliveryPerMileCents}
+                    className="pl-7"
+                  />
+                </div>
+                <p className="text-xs text-text-muted">Added per mile beyond the standard radius</p>
+              </div>
+
+              <div className={cn("space-y-2", changed("maxDeliveryRadiusMiles") && CHANGED_BORDER)}>
+                <Label htmlFor="maxDeliveryRadius">Max Delivery Radius (miles)</Label>
+                <div className="max-w-[200px]">
+                  <Input
+                    id="maxDeliveryRadius"
+                    type="number"
+                    min={1}
+                    max={100}
+                    step={1}
+                    value={settings.maxDeliveryRadiusMiles ?? 100}
+                    onChange={(e) => handleNumberChange("maxDeliveryRadiusMiles", e.target.value)}
+                    error={errors.maxDeliveryRadiusMiles}
+                  />
+                </div>
+                <p className="text-xs text-text-muted">Absolute delivery limit (max 100 mi)</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
@@ -278,7 +340,7 @@ export function DeliverySettingsForm({
           <div className={cn("space-y-2", changed("deliveryRadiusMiles") && CHANGED_BORDER)}>
             <div className="max-w-[200px]">
               <FloatingLabelInput
-                label="Delivery Radius (miles)"
+                label="Standard Radius (miles)"
                 icon={MapPin}
                 type="number"
                 min={1}
@@ -289,7 +351,9 @@ export function DeliverySettingsForm({
                 error={errors.deliveryRadiusMiles}
               />
             </div>
-            <p className="text-xs text-text-muted">Maximum distance for deliveries (1-100 miles)</p>
+            <p className="text-xs text-text-muted">
+              Edge of normal coverage. The per-mile surcharge begins here.
+            </p>
           </div>
 
           <div className={cn("space-y-2", changed("maxDeliveryDurationMinutes") && CHANGED_BORDER)}>

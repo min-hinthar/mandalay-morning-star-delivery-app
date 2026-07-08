@@ -31,7 +31,7 @@ export interface FreeDeliveryProgressProps {
   amountToFreeDelivery: number;
   /** Additional className */
   className?: string;
-  /** Whether address is in extended delivery range (>25mi) */
+  /** Whether the address is beyond the local free-delivery zone (extended/long-distance) */
   isExtendedRange?: boolean;
 }
 
@@ -55,6 +55,8 @@ export function FreeDeliveryProgress({
   const freeDeliveryThresholdCents = useCartStore((state) => state.freeDeliveryThresholdCents);
   const longDistanceFeeCents = useCartStore((state) => state.longDistanceFeeCents);
   const longDistanceThresholdMiles = useCartStore((state) => state.longDistanceThresholdMiles);
+  // Real graduated fee for the current address (band or per-mile), not a static flat fee.
+  const estimatedDeliveryFee = useCartStore((state) => state.getEstimatedDeliveryFee());
   const promoOpts = {
     freeDeliveryThresholdCents,
     longDistanceFeeCents,
@@ -86,7 +88,7 @@ export function FreeDeliveryProgress({
           <div className="flex items-center gap-2">
             <Truck className="h-4 w-4 text-hero-blue" aria-hidden="true" />
             <span className="text-sm font-semibold text-hero-ink">
-              Extended delivery: ${(longDistanceFeeCents / 100).toFixed(2)} flat fee
+              Extended delivery fee: ${(estimatedDeliveryFee / 100).toFixed(2)}
             </span>
           </div>
           <p className="mt-1 pl-6 font-burmese text-xs text-hero-ink-muted" lang="my">

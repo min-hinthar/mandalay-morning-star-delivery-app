@@ -7,7 +7,8 @@ import {
   KITCHEN_LOCATION,
 } from "@/types/address";
 import { getDirectionsForCoords, DEFAULT_ZONES } from "@/lib/utils/delivery-zones";
-import { getBusinessRules } from "@/lib/settings/business-rules";
+import { getBusinessRules, getDeliveryPricingConfig } from "@/lib/settings/business-rules";
+import { resolveDeliveryFee, standardCeilingMiles } from "@/lib/utils/order";
 
 const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY;
 
@@ -100,9 +101,25 @@ export async function checkCoverage(
 
     const distanceMiles = distanceMeters / 1609.34;
     const durationMinutes = durationSeconds / 60;
+    const roundedMiles = Math.round(distanceMiles * 10) / 10;
 
-    const distanceValid = distanceMiles <= COVERAGE_LIMITS.maxDistanceMiles;
-    const durationValid = durationMinutes <= COVERAGE_LIMITS.maxDurationMinutes;
+    // Fetch live business rules (cached 5 min) — drives both coverage gating and fee.
+    const rules = await getBusinessRules();
+    const pricing = getDeliveryPricingConfig(rules);
+
+    // Standard coverage ends at the standard radius; the long-distance tier (when
+    // enabled) extends the ceiling to maxRadius with a per-mile auto-quote. Drive
+    // time is capped more generously in the long-distance tier since those trips
+    // are inherently longer.
+    const standardCeiling = standardCeilingMiles(pricing);
+    const effectiveMaxDistance = pricing.extendedEnabled ? pricing.maxRadiusMiles : standardCeiling;
+    const durationCap =
+      roundedMiles > standardCeiling
+        ? COVERAGE_LIMITS.maxRequestDurationMinutes
+        : COVERAGE_LIMITS.maxDurationMinutes;
+
+    const distanceValid = roundedMiles <= effectiveMaxDistance;
+    const durationValid = durationMinutes <= durationCap;
 
     let reason: CoverageFailureReason | undefined;
     if (!distanceValid) {
@@ -111,18 +128,15 @@ export async function checkCoverage(
       reason = "DURATION_EXCEEDED";
     }
 
-    const roundedMiles = Math.round(distanceMiles * 10) / 10;
     const isValid = distanceValid && durationValid;
 
     // Compute direction/fee info for valid addresses
     let directions: string[] | undefined;
     let eligibleDays: string[] | undefined;
-    let feeTier: "standard" | "extended" | undefined;
+    let feeTier: "standard" | "extended" | "far" | undefined;
     let estimatedFeeCents: number | undefined;
 
     if (isValid) {
-      // Fetch live business rules from DB (cached 5 min) instead of hardcoded defaults
-      const rules = await getBusinessRules();
       const zones = rules.deliveryZones.length > 0 ? rules.deliveryZones : DEFAULT_ZONES;
 
       // Build day-name map from actual delivery_days config
@@ -166,14 +180,11 @@ export async function checkCoverage(
       }
       eligibleDays = [...new Set(days)];
 
-      const threshold = rules.longDistanceThresholdMiles;
-      if (roundedMiles > threshold) {
-        feeTier = "extended";
-        estimatedFeeCents = rules.longDistanceFeeCents;
-      } else {
-        feeTier = "standard";
-        estimatedFeeCents = rules.deliveryFeeCents;
-      }
+      // Base fee for this address (subtotal 0 → never counts free delivery, so
+      // this is the "before free-delivery" quote the summaries display).
+      const feeResult = resolveDeliveryFee(roundedMiles, 0, pricing);
+      estimatedFeeCents = feeResult.feeCents;
+      feeTier = feeResult.tier === "local" ? "standard" : (feeResult.tier as "extended" | "far");
     }
 
     return {

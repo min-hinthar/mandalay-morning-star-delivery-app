@@ -19,6 +19,8 @@ interface DeliveryZoneInfoCardProps {
   deliveryZones: DeliveryZoneConfig[];
   deliveryDays: DeliveryDayConfig[];
   freeDeliveryThresholdCents?: number;
+  /** Local free-delivery zone radius (miles) — fallback when feeTier is absent */
+  localRadiusMiles?: number;
   className?: string;
 }
 
@@ -35,6 +37,7 @@ export function DeliveryZoneInfoCard({
   deliveryZones,
   deliveryDays,
   freeDeliveryThresholdCents = 10000,
+  localRadiusMiles = 25,
   className,
 }: DeliveryZoneInfoCardProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
@@ -58,11 +61,18 @@ export function DeliveryZoneInfoCard({
     const colorClass =
       DIRECTION_COLORS[primaryDirection] ?? "text-primary bg-primary/5 border-primary/20";
 
-    const isExtended = address.distanceMiles != null && address.distanceMiles > 25;
+    // Prefer the authoritative feeTier from coverage; fall back to distance.
+    const isFar = address.feeTier === "far";
+    const isExtended =
+      address.feeTier != null
+        ? address.feeTier !== "standard"
+        : address.distanceMiles != null && address.distanceMiles > localRadiusMiles;
     const thresholdDollars = Math.round(freeDeliveryThresholdCents / 100);
-    const feeLabel = isExtended
-      ? "$20.00 extended delivery fee"
-      : `Free delivery on orders $${thresholdDollars}+`;
+    const feeLabel = isFar
+      ? "Long-distance delivery fee applies"
+      : isExtended
+        ? "Extended-range delivery fee applies"
+        : `Free delivery on orders $${thresholdDollars}+`;
 
     return {
       directions,
@@ -71,9 +81,10 @@ export function DeliveryZoneInfoCard({
       eligibleDayNames,
       distanceMiles: address.distanceMiles,
       isExtended,
+      isFar,
       feeLabel,
     };
-  }, [address, deliveryZones, deliveryDays, freeDeliveryThresholdCents]);
+  }, [address, deliveryZones, deliveryDays, freeDeliveryThresholdCents, localRadiusMiles]);
 
   if (!info) return null;
 
@@ -111,7 +122,7 @@ export function DeliveryZoneInfoCard({
             </span>
             {info.isExtended && (
               <span className="text-2xs px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-medium">
-                Extended
+                {info.isFar ? "Long-distance" : "Extended"}
               </span>
             )}
           </div>

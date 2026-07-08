@@ -12,6 +12,12 @@ export const deliveryZoneSchema = z.object({
   description: z.string(),
 });
 
+/** A single graduated distance band: flat fee up to `maxMiles`. */
+export const deliveryFeeBandSchema = z.object({
+  maxMiles: z.number().min(1).max(100),
+  feeCents: z.number().int().min(0).max(100_000),
+});
+
 export const dayHoursSchema = z.object({
   open: z.string().regex(hhmmRegex, "Must be HH:MM format"),
   close: z.string().regex(hhmmRegex, "Must be HH:MM format"),
@@ -53,6 +59,10 @@ export const deliverySettingsBaseSchema = z.object({
   cod_enabled: z.boolean().optional(),
   long_distance_fee_cents: z.number().min(0).optional(),
   long_distance_threshold_miles: z.number().min(1).max(100).optional(),
+  delivery_fee_bands: z.array(deliveryFeeBandSchema).max(6).optional(),
+  extended_delivery_enabled: z.boolean().optional(),
+  extended_delivery_per_mile_cents: z.number().int().min(0).max(100_000).optional(),
+  max_delivery_radius_miles: z.number().min(1).max(100).optional(),
 });
 
 /** Full delivery settings with cross-field validation */

@@ -137,9 +137,11 @@ export function AddressCardV8({
               <span className="text-2xs text-hero-ink-muted">
                 {address.distanceMiles.toFixed(1)} mi
               </span>
-              {address.distanceMiles > 25 && (
+              {(address.feeTier != null
+                ? address.feeTier !== "standard"
+                : address.distanceMiles > 25) && (
                 <span className="text-2xs px-1.5 py-0.5 rounded-full bg-amber-50 text-amber-600 font-medium">
-                  Extended delivery
+                  {address.feeTier === "far" ? "Long-distance" : "Extended delivery"}
                 </span>
               )}
             </div>

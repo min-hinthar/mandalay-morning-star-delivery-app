@@ -10,6 +10,7 @@ import { OfflineBanner } from "@/components/ui/customer";
 import { SiteFooter } from "@/components/ui/homepage/SiteFooter";
 import { FeedbackFAB, FeedbackSheet } from "@/components/ui/feedback";
 import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
+import type { DeliveryFeeBand } from "@/lib/utils/order";
 
 interface PublicShellProps {
   children: ReactNode;
@@ -24,6 +25,11 @@ interface PublicShellProps {
   prepTimeBufferMinutes?: number;
   longDistanceFeeCents?: number;
   longDistanceThresholdMiles?: number;
+  deliveryFeeBands?: DeliveryFeeBand[];
+  standardRadiusMiles?: number;
+  extendedDeliveryEnabled?: boolean;
+  extendedPerMileCents?: number;
+  maxRadiusMiles?: number;
 }
 
 export function PublicShell({
@@ -39,6 +45,11 @@ export function PublicShell({
   prepTimeBufferMinutes,
   longDistanceFeeCents,
   longDistanceThresholdMiles,
+  deliveryFeeBands,
+  standardRadiusMiles,
+  extendedDeliveryEnabled,
+  extendedPerMileCents,
+  maxRadiusMiles,
 }: PublicShellProps) {
   // domMax enables framer `drag` so the swipe-to-close bottom sheets that already
   // render on public surfaces (cart drawer, dish detail sheet) work here too —
@@ -54,6 +65,11 @@ export function PublicShell({
         deliveryDays={deliveryDays}
         longDistanceFeeCents={longDistanceFeeCents}
         longDistanceThresholdMiles={longDistanceThresholdMiles}
+        deliveryFeeBands={deliveryFeeBands}
+        standardRadiusMiles={standardRadiusMiles}
+        extendedDeliveryEnabled={extendedDeliveryEnabled}
+        extendedPerMileCents={extendedPerMileCents}
+        maxRadiusMiles={maxRadiusMiles}
       />
       <CartServerSync />
       <ReferralCapture />

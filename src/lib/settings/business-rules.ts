@@ -1,6 +1,8 @@
 import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/server";
 import type { DeliveryDayConfig, DeliveryDirection, DeliveryZoneConfig } from "@/types/delivery";
+import type { DeliveryFeeBand, DeliveryPricingConfig } from "@/lib/utils/order";
+import { COVERAGE_LIMITS } from "@/types/address";
 
 // ===========================================
 // TYPES
@@ -24,12 +26,20 @@ export interface BusinessRules {
   deliveryDays: DeliveryDayConfig[];
   /** Whether Cash on Delivery is enabled */
   codEnabled: boolean;
-  /** Fee for addresses >longDistanceThresholdMiles (cents) */
+  /** Legacy flat fee for addresses >longDistanceThresholdMiles (cents). Fallback when no bands. */
   longDistanceFeeCents: number;
-  /** Miles threshold for long-distance fee */
+  /** Local zone radius (miles); the edge of the free-delivery-eligible local band */
   longDistanceThresholdMiles: number;
   /** Delivery zone bearing configs */
   deliveryZones: DeliveryZoneConfig[];
+  /** Graduated distance bands (localRadius..standardRadius). Empty → legacy flat fee. */
+  deliveryFeeBands: DeliveryFeeBand[];
+  /** Whether long-distance delivery (standardRadius..maxRadius) is offered */
+  extendedDeliveryEnabled: boolean;
+  /** Per-mile surcharge (cents) beyond the standard radius (long-distance tier) */
+  extendedDeliveryPerMileCents: number;
+  /** Absolute max delivery radius (miles), including the long-distance tier */
+  maxDeliveryRadiusMiles: number;
 }
 
 // ===========================================
@@ -52,6 +62,13 @@ export const BUSINESS_RULES_DEFAULTS: BusinessRules = {
   longDistanceFeeCents: 2000,
   longDistanceThresholdMiles: 25,
   deliveryZones: [],
+  deliveryFeeBands: [
+    { maxMiles: 40, feeCents: 2000 },
+    { maxMiles: 50, feeCents: 3000 },
+  ],
+  extendedDeliveryEnabled: true,
+  extendedDeliveryPerMileCents: 150,
+  maxDeliveryRadiusMiles: 100,
 };
 
 // ===========================================
@@ -72,6 +89,8 @@ const DB_KEY_MAP: Record<string, keyof BusinessRules> = {
   prep_time_buffer_minutes: "prepTimeBufferMinutes",
   long_distance_fee_cents: "longDistanceFeeCents",
   long_distance_threshold_miles: "longDistanceThresholdMiles",
+  extended_delivery_per_mile_cents: "extendedDeliveryPerMileCents",
+  max_delivery_radius_miles: "maxDeliveryRadiusMiles",
 };
 
 // ===========================================
@@ -100,6 +119,53 @@ interface DeliveryZoneRow {
   bearing_start: number;
   bearing_end: number;
   reference_cities: string[];
+}
+
+/** Parse a JSONB `delivery_fee_bands` value into a clean, sorted band array. */
+function parseFeeBands(value: unknown): DeliveryFeeBand[] {
+  if (!Array.isArray(value)) return BUSINESS_RULES_DEFAULTS.deliveryFeeBands;
+  const bands: DeliveryFeeBand[] = [];
+  for (const entry of value) {
+    if (entry == null || typeof entry !== "object") continue;
+    const rec = entry as Record<string, unknown>;
+    const maxMiles = Number(rec.maxMiles);
+    const feeCents = Number(rec.feeCents);
+    if (Number.isFinite(maxMiles) && maxMiles > 0 && Number.isFinite(feeCents) && feeCents >= 0) {
+      bands.push({ maxMiles, feeCents: Math.round(feeCents) });
+    }
+  }
+  return bands.sort((a, b) => a.maxMiles - b.maxMiles);
+}
+
+/**
+ * Build the graduated `DeliveryPricingConfig` from business rules. Shared by the
+ * checkout total (server) and coverage estimate so both agree. `localFeeCents`
+ * may be overridden with a per-day delivery fee at checkout.
+ */
+export function getDeliveryPricingConfig(
+  rules: BusinessRules,
+  opts?: { localFeeCents?: number }
+): DeliveryPricingConfig {
+  const bands =
+    rules.deliveryFeeBands.length > 0
+      ? rules.deliveryFeeBands
+      : [{ maxMiles: rules.deliveryRadiusMiles, feeCents: rules.longDistanceFeeCents }];
+  // Enforce the absolute serviceable ceiling (never beyond 100mi) regardless of
+  // what's stored, and never below the standard radius.
+  const maxRadiusMiles = Math.min(
+    Math.max(rules.maxDeliveryRadiusMiles, rules.deliveryRadiusMiles),
+    COVERAGE_LIMITS.maxRequestDistanceMiles
+  );
+  return {
+    localFeeCents: opts?.localFeeCents ?? rules.deliveryFeeCents,
+    localRadiusMiles: rules.longDistanceThresholdMiles,
+    freeDeliveryThresholdCents: rules.freeDeliveryThresholdCents,
+    bands,
+    standardRadiusMiles: rules.deliveryRadiusMiles,
+    extendedEnabled: rules.extendedDeliveryEnabled,
+    extendedPerMileCents: rules.extendedDeliveryPerMileCents,
+    maxRadiusMiles,
+  };
 }
 
 async function fetchBusinessRules(): Promise<BusinessRules> {
@@ -134,6 +200,15 @@ async function fetchBusinessRules(): Promise<BusinessRules> {
         // Handle boolean settings separately
         if (row.key === "cod_enabled") {
           rules.codEnabled = row.value === true || row.value === "true";
+          continue;
+        }
+        if (row.key === "extended_delivery_enabled") {
+          rules.extendedDeliveryEnabled = row.value === true || row.value === "true";
+          continue;
+        }
+        // Graduated distance bands (JSONB array). Parse defensively.
+        if (row.key === "delivery_fee_bands") {
+          rules.deliveryFeeBands = parseFeeBands(row.value);
           continue;
         }
 

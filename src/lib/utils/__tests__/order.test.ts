@@ -6,7 +6,10 @@ import {
   calculateOrderTotals,
   createStripeLineItems,
   receiptDisplayDiscountCents,
+  resolveDeliveryFee,
+  standardCeilingMiles,
   validateCartItems,
+  type DeliveryPricingConfig,
   type ModifierGroupWithItems,
 } from "../order";
 import {
@@ -166,6 +169,101 @@ describe("calculateDeliveryFee", () => {
   });
 });
 
+describe("resolveDeliveryFee (graduated pricing)", () => {
+  const PRICING: DeliveryPricingConfig = {
+    localFeeCents: 1500,
+    localRadiusMiles: 25,
+    freeDeliveryThresholdCents: 10000,
+    bands: [
+      { maxMiles: 40, feeCents: 2000 },
+      { maxMiles: 50, feeCents: 3000 },
+    ],
+    standardRadiusMiles: 50,
+    extendedEnabled: true,
+    extendedPerMileCents: 150,
+    maxRadiusMiles: 100,
+  };
+
+  it("charges the local fee below the free threshold", () => {
+    const r = resolveDeliveryFee(10, 5000, PRICING);
+    expect(r).toEqual({ feeCents: 1500, tier: "local", isFree: false });
+  });
+
+  it("waives the local fee at/above the free threshold", () => {
+    const r = resolveDeliveryFee(10, 10000, PRICING);
+    expect(r).toEqual({ feeCents: 0, tier: "local", isFree: true });
+  });
+
+  it("treats unknown distance as local", () => {
+    expect(resolveDeliveryFee(null, 5000, PRICING).tier).toBe("local");
+    expect(resolveDeliveryFee(undefined, 15000, PRICING).isFree).toBe(true);
+  });
+
+  it("keeps the local fee at exactly the local radius", () => {
+    expect(resolveDeliveryFee(25, 0, PRICING)).toEqual({
+      feeCents: 1500,
+      tier: "local",
+      isFree: false,
+    });
+  });
+
+  it("charges the first band just beyond the local radius", () => {
+    expect(resolveDeliveryFee(30, 0, PRICING)).toEqual({
+      feeCents: 2000,
+      tier: "extended",
+      isFree: false,
+    });
+  });
+
+  it("charges the second band up to the standard ceiling", () => {
+    expect(resolveDeliveryFee(45, 0, PRICING).feeCents).toBe(3000);
+    expect(resolveDeliveryFee(50, 0, PRICING).feeCents).toBe(3000);
+  });
+
+  it("never waives the fee for extended-range orders", () => {
+    // Big subtotal, but 45mi is beyond the local free zone.
+    expect(resolveDeliveryFee(45, 50000, PRICING)).toEqual({
+      feeCents: 3000,
+      tier: "extended",
+      isFree: false,
+    });
+  });
+
+  it("auto-quotes the far tier per mile beyond the standard radius", () => {
+    // 60mi → $30 + ceil(60-50)*$1.50 = 3000 + 10*150 = 4500
+    expect(resolveDeliveryFee(60, 0, PRICING)).toEqual({
+      feeCents: 4500,
+      tier: "far",
+      isFree: false,
+    });
+    // 62.1mi → 3000 + ceil(12.1)*150 = 4950
+    expect(resolveDeliveryFee(62.1, 0, PRICING).feeCents).toBe(4950);
+    // 100mi → 3000 + 50*150 = 10500
+    expect(resolveDeliveryFee(100, 0, PRICING).feeCents).toBe(10500);
+  });
+
+  it("returns out-of-range beyond the max radius", () => {
+    expect(resolveDeliveryFee(101, 0, PRICING)).toEqual({
+      feeCents: 0,
+      tier: "out-of-range",
+      isFree: false,
+    });
+  });
+
+  it("returns out-of-range past the standard radius when long-distance is disabled", () => {
+    const noExtended = { ...PRICING, extendedEnabled: false };
+    expect(resolveDeliveryFee(60, 0, noExtended).tier).toBe("out-of-range");
+    // Still serves within the standard radius.
+    expect(resolveDeliveryFee(45, 0, noExtended).tier).toBe("extended");
+  });
+
+  it("derives the standard ceiling from the farthest band", () => {
+    expect(standardCeilingMiles(PRICING)).toBe(50);
+    // A mis-seeded standardRadius below the top band is corrected upward.
+    expect(standardCeilingMiles({ ...PRICING, standardRadiusMiles: 30 })).toBe(50);
+  });
+});
+
 describe("calculateTax", () => {
   it("calculates 10.5% sales tax", () => {
     const result = calculateTax(10000);
@@ -245,6 +343,32 @@ describe("calculateOrderTotals", () => {
     // lineTotalCents = (1500 + 200) * 2 = 3400
     const result = calculateOrderTotals(items, DELIVERY_FEE, FREE_THRESHOLD);
     expect(result.subtotalCents).toBe(3400);
+  });
+
+  it("uses graduated pricing (bands/far) when a pricing config is provided", () => {
+    const pricing: DeliveryPricingConfig = {
+      localFeeCents: 1500,
+      localRadiusMiles: 25,
+      freeDeliveryThresholdCents: 10000,
+      bands: [
+        { maxMiles: 40, feeCents: 2000 },
+        { maxMiles: 50, feeCents: 3000 },
+      ],
+      standardRadiusMiles: 50,
+      extendedEnabled: true,
+      extendedPerMileCents: 150,
+      maxRadiusMiles: 100,
+    };
+    const items = [createValidatedCartItem({ base_price_cents: 5000 })]; // $50
+    // 45mi → extended band ($30); even a large subtotal doesn't waive it.
+    const result = calculateOrderTotals(items, {
+      distanceMiles: 45,
+      pricing,
+    });
+    expect(result.deliveryFeeCents).toBe(3000);
+    // 70mi far tier → $30 + ceil(20)*$1.50 = 6000
+    const far = calculateOrderTotals(items, { distanceMiles: 70, pricing });
+    expect(far.deliveryFeeCents).toBe(6000);
   });
 
   // Cross-module guard: the email/on-page receipts render the line items and rely on

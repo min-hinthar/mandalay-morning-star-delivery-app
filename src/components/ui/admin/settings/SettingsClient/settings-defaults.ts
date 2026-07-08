@@ -7,7 +7,7 @@ import type { AllSettings } from "../settings-types";
 
 export const DEFAULT_SETTINGS: AllSettings = {
   delivery: {
-    deliveryRadiusMiles: 40,
+    deliveryRadiusMiles: 50,
     minimumOrderCents: 2500,
     freeDeliveryThresholdCents: 10000,
     baseDeliveryFeeCents: 1500,
@@ -19,6 +19,13 @@ export const DEFAULT_SETTINGS: AllSettings = {
     deliveryZones: [],
     longDistanceFeeCents: 2000,
     longDistanceThresholdMiles: 25,
+    deliveryFeeBands: [
+      { maxMiles: 40, feeCents: 2000 },
+      { maxMiles: 50, feeCents: 3000 },
+    ],
+    extendedDeliveryEnabled: true,
+    extendedDeliveryPerMileCents: 150,
+    maxDeliveryRadiusMiles: 100,
   },
   operations: {
     maxStopsPerRoute: 15,
@@ -78,6 +85,16 @@ export function mapApiResponse(data: any): AllSettings {
       longDistanceThresholdMiles:
         data.delivery?.longDistanceThresholdMiles ??
         DEFAULT_SETTINGS.delivery.longDistanceThresholdMiles,
+      deliveryFeeBands: Array.isArray(data.delivery?.deliveryFeeBands)
+        ? data.delivery.deliveryFeeBands
+        : DEFAULT_SETTINGS.delivery.deliveryFeeBands,
+      extendedDeliveryEnabled:
+        data.delivery?.extendedDeliveryEnabled ?? DEFAULT_SETTINGS.delivery.extendedDeliveryEnabled,
+      extendedDeliveryPerMileCents:
+        data.delivery?.extendedDeliveryPerMileCents ??
+        DEFAULT_SETTINGS.delivery.extendedDeliveryPerMileCents,
+      maxDeliveryRadiusMiles:
+        data.delivery?.maxDeliveryRadiusMiles ?? DEFAULT_SETTINGS.delivery.maxDeliveryRadiusMiles,
     },
     operations: {
       maxStopsPerRoute:

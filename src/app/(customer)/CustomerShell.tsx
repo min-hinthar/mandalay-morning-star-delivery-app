@@ -10,6 +10,7 @@ import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
 import { FeedbackFAB, FeedbackSheet } from "@/components/ui/feedback";
 import { VtNavSync } from "@/components/ui/VtNavSync";
 import type { DeliveryDayConfig } from "@/types/delivery";
+import type { DeliveryFeeBand } from "@/lib/utils/order";
 
 interface CustomerShellProps {
   children: ReactNode;
@@ -20,6 +21,11 @@ interface CustomerShellProps {
   deliveryDays?: DeliveryDayConfig[];
   longDistanceFeeCents?: number;
   longDistanceThresholdMiles?: number;
+  deliveryFeeBands?: DeliveryFeeBand[];
+  standardRadiusMiles?: number;
+  extendedDeliveryEnabled?: boolean;
+  extendedPerMileCents?: number;
+  maxRadiusMiles?: number;
 }
 
 export function CustomerShell({
@@ -31,6 +37,11 @@ export function CustomerShell({
   deliveryDays,
   longDistanceFeeCents,
   longDistanceThresholdMiles,
+  deliveryFeeBands,
+  standardRadiusMiles,
+  extendedDeliveryEnabled,
+  extendedPerMileCents,
+  maxRadiusMiles,
 }: CustomerShellProps) {
   return (
     <DomMaxProvider>
@@ -44,6 +55,11 @@ export function CustomerShell({
         deliveryDays={deliveryDays}
         longDistanceFeeCents={longDistanceFeeCents}
         longDistanceThresholdMiles={longDistanceThresholdMiles}
+        deliveryFeeBands={deliveryFeeBands}
+        standardRadiusMiles={standardRadiusMiles}
+        extendedDeliveryEnabled={extendedDeliveryEnabled}
+        extendedPerMileCents={extendedPerMileCents}
+        maxRadiusMiles={maxRadiusMiles}
       />
       <CartServerSync />
       <ReferralCapture />

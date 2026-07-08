@@ -27,6 +27,11 @@ export default async function CustomerLayout({ children }: { children: ReactNode
       deliveryDays={rules.deliveryDays}
       longDistanceFeeCents={rules.longDistanceFeeCents}
       longDistanceThresholdMiles={rules.longDistanceThresholdMiles}
+      deliveryFeeBands={rules.deliveryFeeBands}
+      standardRadiusMiles={rules.deliveryRadiusMiles}
+      extendedDeliveryEnabled={rules.extendedDeliveryEnabled}
+      extendedPerMileCents={rules.extendedDeliveryPerMileCents}
+      maxRadiusMiles={rules.maxDeliveryRadiusMiles}
     >
       {children}
     </CustomerShell>

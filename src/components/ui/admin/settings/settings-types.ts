@@ -5,6 +5,8 @@
  * Extracted to break circular dependency between SettingsClient and form components.
  */
 
+import type { DeliveryFeeBand } from "@/lib/utils/order";
+
 // ===========================================
 // DELIVERY ZONE TYPES
 // ===========================================
@@ -57,6 +59,14 @@ export interface DeliverySettings {
   deliveryZones: DeliveryZone[];
   longDistanceFeeCents: number;
   longDistanceThresholdMiles: number;
+  /** Graduated distance bands (localRadius..standardRadius) */
+  deliveryFeeBands: DeliveryFeeBand[];
+  /** Whether long-distance delivery (standardRadius..maxRadius) is offered */
+  extendedDeliveryEnabled: boolean;
+  /** Per-mile surcharge (cents) beyond the standard radius */
+  extendedDeliveryPerMileCents: number;
+  /** Absolute max delivery radius (miles), incl. the long-distance tier */
+  maxDeliveryRadiusMiles: number;
 }
 
 export interface OperationsSettings {

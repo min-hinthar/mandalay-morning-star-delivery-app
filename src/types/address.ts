@@ -15,7 +15,7 @@ export interface Address {
   updatedAt: string;
   distanceMiles?: number | null;
   directions?: string[];
-  feeTier?: "standard" | "extended";
+  feeTier?: "standard" | "extended" | "far";
 }
 
 export interface AddressFormData {
@@ -67,7 +67,7 @@ export interface CoverageCheckResult {
   encodedPolyline?: string;
   directions?: string[];
   eligibleDays?: string[];
-  feeTier?: "standard" | "extended";
+  feeTier?: "standard" | "extended" | "far";
   estimatedFeeCents?: number;
 }
 
@@ -77,6 +77,12 @@ export type AddressLabel = (typeof ADDRESS_LABELS)[number];
 export { KITCHEN_COORDS as KITCHEN_LOCATION } from "@/lib/constants/kitchen";
 
 export const COVERAGE_LIMITS = {
+  /** Standard coverage ceiling (miles) — normal delivery, graduated bands live within this */
   maxDistanceMiles: 50,
+  /** Standard coverage drive-time cap (minutes) */
   maxDurationMinutes: 90,
+  /** Absolute delivery ceiling (miles) incl. the long-distance auto-quote tier */
+  maxRequestDistanceMiles: 100,
+  /** Drive-time cap (minutes) for the long-distance tier */
+  maxRequestDurationMinutes: 180,
 } as const;

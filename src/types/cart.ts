@@ -1,5 +1,6 @@
 import type { MenuItem } from "@/types/menu";
 import type { DeliveryDayConfig } from "@/types/delivery";
+import type { DeliveryFeeBand } from "@/lib/utils/order";
 
 export interface SelectedModifier {
   groupId: string;
@@ -50,6 +51,20 @@ export interface CartStore {
   longDistanceThresholdMiles: number;
   setAddressDistance: (miles: number | null) => void;
   setLongDistanceSettings: (fee: number, threshold: number) => void;
+
+  /** Graduated pricing settings (populated from server on page load) */
+  deliveryFeeBands: DeliveryFeeBand[];
+  standardRadiusMiles: number;
+  extendedDeliveryEnabled: boolean;
+  extendedPerMileCents: number;
+  maxRadiusMiles: number;
+  setDeliveryPricing: (pricing: {
+    deliveryFeeBands: DeliveryFeeBand[];
+    standardRadiusMiles: number;
+    extendedDeliveryEnabled: boolean;
+    extendedPerMileCents: number;
+    maxRadiusMiles: number;
+  }) => void;
 
   addItem: (item: Omit<CartItem, "cartItemId" | "addedAt">) => void;
   updateQuantity: (cartItemId: string, quantity: number) => void;

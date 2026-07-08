@@ -11,7 +11,7 @@ import {
   isPastCutoffForDay,
   getZonedDayOfWeek,
 } from "@/lib/utils/delivery-dates";
-import { getBusinessRules, generateTimeWindows } from "@/lib/settings";
+import { getBusinessRules, generateTimeWindows, getDeliveryPricingConfig } from "@/lib/settings";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, checkoutLimiter } from "@/lib/rate-limit";
 import { checkOrigin } from "@/lib/utils/origin-check";
@@ -176,17 +176,18 @@ export async function POST(request: Request) {
     const { discountCents } = discountResult.discount;
 
     const baseDeliveryFeeCents = dayConfig?.deliveryFeeCents ?? rules.deliveryFeeCents;
+    // Per-day fee override applies to the LOCAL band; extended/far tiers stay
+    // distance-driven. Graduated pricing is the authoritative fee source.
+    const pricing = getDeliveryPricingConfig(rules, { localFeeCents: baseDeliveryFeeCents });
     const isExtendedRange =
       addressDistanceMiles != null && addressDistanceMiles > rules.longDistanceThresholdMiles;
 
     const totals = calculateOrderTotals(validatedItems, {
-      deliveryFeeCents: baseDeliveryFeeCents,
       freeDeliveryThresholdCents: rules.freeDeliveryThresholdCents,
       tipCents,
       discountCents,
       distanceMiles: addressDistanceMiles,
-      longDistanceFeeCents: rules.longDistanceFeeCents,
-      longDistanceThresholdMiles: rules.longDistanceThresholdMiles,
+      pricing,
     });
 
     try {
