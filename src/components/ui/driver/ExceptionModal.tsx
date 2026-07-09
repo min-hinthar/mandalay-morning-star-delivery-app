@@ -275,7 +275,7 @@ export function ExceptionModal({
             </div>
 
             {/* Footer */}
-            <div className="border-t border-border p-4">
+            <div className="border-t border-border p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <button
                 onClick={handleSubmit}
                 disabled={!selectedType || isSubmitting}
