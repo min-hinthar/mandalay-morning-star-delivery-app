@@ -250,7 +250,7 @@ export function ProfileTab() {
                   Email Address
                 </span>
               </label>
-              <div className="rounded-input bg-hero-ink/5 px-4 py-3 text-hero-ink-muted">
+              <div className="rounded-input bg-hero-ink/5 px-4 py-3 text-hero-ink-muted break-all">
                 {profile.email || "No email set"}
               </div>
               <p className="mt-1 text-xs text-hero-ink-muted">

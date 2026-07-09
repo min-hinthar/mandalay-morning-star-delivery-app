@@ -316,7 +316,7 @@ export function StopDetail({
               placeholder="e.g., Left at door, Gate code 1234"
               maxLength={500}
               rows={2}
-              className="w-full rounded-input border border-border bg-surface-secondary p-3 font-body text-sm text-text-primary placeholder:text-text-muted resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+              className="w-full rounded-input border border-border bg-surface-secondary p-3 font-body text-base sm:text-sm text-text-primary placeholder:text-text-muted resize-none focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
               data-testid="delivery-notes-input"
             />
             {notesChanged && (

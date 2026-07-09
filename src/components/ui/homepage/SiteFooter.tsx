@@ -140,14 +140,14 @@ export function SiteFooter({
                 href="tel:+16266655317"
                 className="flex items-center gap-3 hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
               >
-                <Phone className="w-5 h-5" />
+                <Phone className="w-5 h-5 flex-shrink-0" />
                 <span className="text-sm font-body">(626) 665-5317</span>
               </a>
               <a
                 href="mailto:admin@mandalaymorningstar.com"
                 className="flex items-center gap-3 hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
               >
-                <Mail className="w-5 h-5" />
+                <Mail className="w-5 h-5 flex-shrink-0" />
                 <span className="text-sm font-body">admin@mandalaymorningstar.com</span>
               </a>
             </div>

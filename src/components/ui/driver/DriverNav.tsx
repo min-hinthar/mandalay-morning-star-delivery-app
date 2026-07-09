@@ -78,7 +78,7 @@ export function DriverNav({ badges, avatarUrl, driverName }: DriverNavProps) {
       data-testid="driver-nav"
       // MOBILE CRASH PREVENTION: No backdrop-blur on mobile (causes Safari crashes)
       // DriverNav is mobile-only, so no blur at all
-      className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-surface-primary safe-area-pb"
+      className="fixed bottom-0 left-0 right-0 z-30 border-t border-border bg-surface-primary pb-safe"
     >
       <div className="flex h-16 items-center justify-around px-4">
         {items.map((item) => {
@@ -91,7 +91,7 @@ export function DriverNav({ badges, avatarUrl, driverName }: DriverNavProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                "relative flex min-h-[56px] min-w-[64px] flex-col items-center justify-center gap-1 rounded-input px-3 py-2 transition-colors duration-fast",
+                "relative flex min-h-[56px] min-w-[56px] flex-col items-center justify-center gap-1 rounded-input px-3 py-2 transition-colors duration-fast",
                 isActive
                   ? "text-accent-teal"
                   : "text-text-secondary hover:text-text-primary hover:bg-surface-secondary"

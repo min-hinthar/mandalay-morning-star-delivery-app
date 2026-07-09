@@ -119,7 +119,7 @@ export function DeliveryNotesEditor({
               placeholder="Add delivery instructions (e.g., Leave at door, ring bell...)"
               className={cn(
                 "w-full rounded-lg border border-charcoal-200 bg-surface-primary p-3",
-                "text-sm text-charcoal placeholder:text-charcoal-400",
+                "text-base sm:text-sm text-charcoal placeholder:text-charcoal-400",
                 "focus:border-jade-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-jade-100",
                 "resize-none"
               )}

@@ -48,7 +48,9 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         {/* Mobile header -- hidden on desktop (md:hidden is inside the component) */}
         <AdminMobileHeader />
         {/* Main content with mobile header offset */}
-        <main className="flex-1 overflow-auto pt-14 md:pt-0">{children}</main>
+        <main className="flex-1 overflow-auto pt-[calc(3.5rem+env(safe-area-inset-top))] md:pt-0">
+          {children}
+        </main>
       </div>
     </DomMaxProvider>
   );

@@ -164,7 +164,7 @@ export function ExceptionModal({
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className={cn(
               "w-full max-w-md rounded-t-card bg-surface-primary sm:rounded-card",
-              "max-h-[90vh] overflow-hidden shadow-lg"
+              "max-h-[var(--sheet-max-h)] overflow-hidden shadow-lg"
             )}
             onClick={(e) => e.stopPropagation()}
           >
@@ -192,7 +192,7 @@ export function ExceptionModal({
             </div>
 
             {/* Content */}
-            <div className="overflow-y-auto p-4" style={{ maxHeight: "60vh" }}>
+            <div className="overflow-y-auto p-4" style={{ maxHeight: "60dvh" }}>
               <p className="mb-4 font-body text-sm text-text-secondary">
                 Select the reason why this delivery cannot be completed.
               </p>
@@ -275,7 +275,7 @@ export function ExceptionModal({
             </div>
 
             {/* Footer */}
-            <div className="border-t border-border p-4">
+            <div className="border-t border-border p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
               <button
                 onClick={handleSubmit}
                 disabled={!selectedType || isSubmitting}

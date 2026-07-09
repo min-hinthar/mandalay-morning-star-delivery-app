@@ -259,7 +259,7 @@ function EarningsRouteCard({ earning, rateCents, index }: EarningsRouteCardProps
       animate={shouldAnimate ? { opacity: 1, y: 0 } : undefined}
       transition={{ ...getSpring(spring.default), delay: index * 0.04 }}
       className={cn(
-        "rounded-2xl bg-surface-primary/80 backdrop-blur-sm",
+        "rounded-2xl bg-surface-primary md:bg-surface-primary/80 md:backdrop-blur-sm",
         "border-2 border-border shadow-card overflow-hidden"
       )}
     >

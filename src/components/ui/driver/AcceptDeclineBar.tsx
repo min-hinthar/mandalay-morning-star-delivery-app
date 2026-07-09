@@ -60,7 +60,7 @@ export function AcceptDeclineBar({
         animate={shouldAnimate ? { y: 0 } : undefined}
         transition={getSpring(spring.default)}
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-[30]",
+          "fixed bottom-0 left-0 right-0 z-40",
           "bg-background shadow-[0_-2px_10px_rgba(0,0,0,0.1)]"
         )}
         style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}

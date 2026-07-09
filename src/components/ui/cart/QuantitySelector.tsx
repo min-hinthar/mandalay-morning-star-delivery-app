@@ -106,6 +106,8 @@ export function QuantitySelector({
         className={cn(
           sizes.button,
           "rounded-full flex items-center justify-center",
+          // Centered ≥44px hit area (touch target) without growing the visual button
+          "relative before:absolute before:left-1/2 before:top-1/2 before:h-11 before:w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']",
           "bg-surface-tertiary text-text-secondary",
           "hover:bg-surface-secondary hover:text-text-primary",
           "disabled:opacity-40 disabled:cursor-not-allowed",
@@ -173,6 +175,8 @@ export function QuantitySelector({
         className={cn(
           sizes.button,
           "rounded-full flex items-center justify-center",
+          // Centered ≥44px hit area (touch target) without growing the visual button
+          "relative before:absolute before:left-1/2 before:top-1/2 before:h-11 before:w-11 before:-translate-x-1/2 before:-translate-y-1/2 before:content-['']",
           "bg-surface-tertiary text-text-secondary",
           "hover:bg-surface-secondary hover:text-text-primary",
           "disabled:opacity-40 disabled:cursor-not-allowed",
