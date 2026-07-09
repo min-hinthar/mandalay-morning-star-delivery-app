@@ -296,7 +296,7 @@ export function AvatarUpload({
           </div>
 
           {/* Action buttons */}
-          <div className="flex gap-3 p-4 bg-surface-inverse/80 pb-safe">
+          <div className="flex gap-3 p-4 bg-surface-inverse/80 pb-[calc(1rem+env(safe-area-inset-bottom))]">
             <button
               type="button"
               onClick={handleCropCancel}
