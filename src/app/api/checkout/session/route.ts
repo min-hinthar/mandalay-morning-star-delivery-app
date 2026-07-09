@@ -184,6 +184,11 @@ export async function POST(request: Request) {
     // coverage limits in effect when the address was saved; if the business later
     // disabled long-distance delivery or lowered the max radius, a previously-valid
     // far address now resolves `out-of-range` — reject it instead of shipping a $0 fee.
+    //
+    // A null distance (a legacy row whose lazy-fill failed) is treated as known-LOCAL
+    // by design, not rejected: such rows were verified under the historical ≤50mi cap,
+    // and every address saved under the current regime persists distance_miles — so a
+    // genuinely far address always has a known distance and can't slip through as null.
     const feeResult = resolveDeliveryFee(addressDistanceMiles, subtotalCents, pricing);
     if (feeResult.tier === "out-of-range") {
       return errorResponse(

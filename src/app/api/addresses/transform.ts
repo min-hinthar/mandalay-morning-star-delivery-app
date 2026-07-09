@@ -5,7 +5,10 @@ import { getDirectionsForCoords, DEFAULT_ZONES } from "@/lib/utils/delivery-zone
 
 export type AddressRow = Database["public"]["Tables"]["addresses"]["Row"];
 
+// Label thresholds (display only — the billed fee is computed server-side from
+// live settings). Defaults mirror BUSINESS_RULES_DEFAULTS local/standard radii.
 const LONG_DISTANCE_THRESHOLD_MILES = 25;
+const STANDARD_RADIUS_MILES = 50;
 
 export function transformAddress(row: AddressRow, deliveryZones?: DeliveryZoneConfig[]): Address {
   const distanceMiles = (row as Record<string, unknown>).distance_miles as number | null;
@@ -14,13 +17,18 @@ export function transformAddress(row: AddressRow, deliveryZones?: DeliveryZoneCo
   const zones = deliveryZones ?? DEFAULT_ZONES;
 
   let directions: string[] | undefined;
-  let feeTier: "standard" | "extended" | undefined;
+  let feeTier: "standard" | "extended" | "far" | undefined;
 
   if (lat && lng && zones.length > 0) {
     directions = getDirectionsForCoords(lat, lng, zones);
 
     if (distanceMiles != null) {
-      feeTier = distanceMiles > LONG_DISTANCE_THRESHOLD_MILES ? "extended" : "standard";
+      feeTier =
+        distanceMiles > STANDARD_RADIUS_MILES
+          ? "far"
+          : distanceMiles > LONG_DISTANCE_THRESHOLD_MILES
+            ? "extended"
+            : "standard";
     }
   }
 
