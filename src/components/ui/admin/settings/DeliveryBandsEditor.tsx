@@ -67,6 +67,9 @@ export function DeliveryBandsEditor({
   };
 
   const removeBand = (index: number) => {
+    // Keep at least one band so the extended fee is always editable — with zero
+    // bands the fee falls back to the (no-longer-UI-editable) legacy flat fee.
+    if (bands.length <= 1) return;
     onChange(bands.filter((_, i) => i !== index));
   };
 
@@ -136,7 +139,14 @@ export function DeliveryBandsEditor({
             <button
               type="button"
               onClick={() => removeBand(index)}
-              className="mb-1 p-2 rounded-lg text-text-muted hover:text-status-error hover:bg-status-error/10 transition-colors"
+              disabled={bands.length <= 1}
+              title={bands.length <= 1 ? "At least one band is required" : undefined}
+              className={cn(
+                "mb-1 p-2 rounded-lg transition-colors",
+                bands.length <= 1
+                  ? "cursor-not-allowed text-text-muted/40"
+                  : "text-text-muted hover:bg-status-error/10 hover:text-status-error"
+              )}
               aria-label={`Remove band ${index + 1}`}
             >
               <Trash2 className="h-4 w-4" />
