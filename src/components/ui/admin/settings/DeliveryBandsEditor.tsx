@@ -142,7 +142,7 @@ export function DeliveryBandsEditor({
               disabled={bands.length <= 1}
               title={bands.length <= 1 ? "At least one band is required" : undefined}
               className={cn(
-                "mb-1 p-2 rounded-lg transition-colors",
+                "mb-1 flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-colors",
                 bands.length <= 1
                   ? "cursor-not-allowed text-text-muted/40"
                   : "text-text-muted hover:bg-status-error/10 hover:text-status-error"

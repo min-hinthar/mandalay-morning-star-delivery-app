@@ -103,7 +103,7 @@ export function OpsCenter({ rules }: OpsCenterProps) {
   );
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 p-4 md:p-8">
       {/* Header with refresh indicator */}
       <AdminPageHeader
         title="Ops Center"

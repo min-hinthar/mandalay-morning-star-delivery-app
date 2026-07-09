@@ -236,7 +236,7 @@ export function PhotoCapture({
           <canvas ref={canvasRef} className="hidden" />
 
           {/* Header */}
-          <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between bg-gradient-to-b from-surface-inverse/70 to-transparent p-4">
+          <div className="absolute left-0 right-0 top-0 z-10 flex items-center justify-between bg-gradient-to-b from-surface-inverse/70 to-transparent p-4 pt-[calc(1rem+env(safe-area-inset-top))]">
             <h2 className="font-display text-lg font-semibold text-text-inverse">{title}</h2>
             <button
               onClick={handleClose}
@@ -303,7 +303,7 @@ export function PhotoCapture({
           </div>
 
           {/* Controls */}
-          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 bg-gradient-to-t from-surface-inverse/70 to-transparent p-8 pb-12">
+          <div className="absolute bottom-0 left-0 right-0 flex items-center justify-center gap-8 bg-gradient-to-t from-surface-inverse/70 to-transparent p-8 pb-[calc(3rem+env(safe-area-inset-bottom))]">
             {!capturedPhoto ? (
               // Capture button
               <m.button

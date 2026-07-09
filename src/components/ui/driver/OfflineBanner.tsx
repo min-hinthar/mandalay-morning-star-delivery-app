@@ -50,7 +50,7 @@ export function OfflineBanner() {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -60, opacity: 0 }}
           transition={{ type: "spring", stiffness: 300, damping: 25 }}
-          className={`fixed inset-x-0 top-0 z-[80] px-4 py-2.5 text-center font-body text-sm font-medium ${bannerClass}`}
+          className={`fixed inset-x-0 top-0 z-[80] px-4 py-2.5 pt-[calc(0.625rem+env(safe-area-inset-top))] text-center font-body text-sm font-medium ${bannerClass}`}
         >
           <div className="flex items-center justify-center gap-2">
             {icon}
