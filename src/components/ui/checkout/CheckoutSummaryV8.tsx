@@ -188,7 +188,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                     <div className="flex items-center gap-2">
                       <Truck className="h-4 w-4 text-hero-blue" aria-hidden="true" />
                       <span className="text-sm font-semibold text-hero-ink">
-                        Extended delivery: ${(estimatedDeliveryFee / 100).toFixed(2)} flat fee
+                        Extended delivery fee: ${(estimatedDeliveryFee / 100).toFixed(2)}
                       </span>
                     </div>
                     {addressDistanceMiles != null && (

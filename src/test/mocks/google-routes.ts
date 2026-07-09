@@ -27,25 +27,37 @@ export const withinCoverageResponse: MockRoutesResponse = {
 };
 
 /**
- * Exceeds distance limit (100km = 62.1 miles, within duration)
+ * Long-distance tier (100km = 62.1 miles) — valid, but a per-mile surcharge applies.
  */
-export const exceedsDistanceResponse: MockRoutesResponse = {
+export const longDistanceResponse: MockRoutesResponse = {
   routes: [
     {
-      distanceMeters: 100000, // ~62.1 miles (exceeds 50 mile limit)
+      distanceMeters: 100000, // ~62.1 miles (beyond standard 50mi, within 100mi max)
       duration: "3600s", // 60 minutes
     },
   ],
 };
 
 /**
- * Exceeds duration limit (within distance, 100 minutes)
+ * Exceeds the absolute distance limit (200km = ~124 miles, beyond the 100mi max)
+ */
+export const exceedsDistanceResponse: MockRoutesResponse = {
+  routes: [
+    {
+      distanceMeters: 200000, // ~124 miles (exceeds 100 mile max)
+      duration: "7200s", // 120 minutes
+    },
+  ],
+};
+
+/**
+ * Exceeds duration limit for a local address (within distance, 100 minutes)
  */
 export const exceedsDurationResponse: MockRoutesResponse = {
   routes: [
     {
-      distanceMeters: 40000, // ~24.8 miles
-      duration: "6000s", // 100 minutes (exceeds 90 min limit)
+      distanceMeters: 40000, // ~24.8 miles (local → 90 min cap)
+      duration: "6000s", // 100 minutes (exceeds 90 min local limit)
     },
   ],
 };

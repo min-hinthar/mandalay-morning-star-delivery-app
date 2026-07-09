@@ -4,14 +4,14 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { resolveCheckoutDiscount, resolveStripeSessionDiscounts } from "./discount";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
-import { calculateOrderTotals, createStripeLineItems } from "@/lib/utils/order";
+import { calculateOrderTotals, createStripeLineItems, resolveDeliveryFee } from "@/lib/utils/order";
 import {
   isPastCutoff,
   getDeliveryDate,
   isPastCutoffForDay,
   getZonedDayOfWeek,
 } from "@/lib/utils/delivery-dates";
-import { getBusinessRules, generateTimeWindows } from "@/lib/settings";
+import { getBusinessRules, generateTimeWindows, getDeliveryPricingConfig } from "@/lib/settings";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, checkoutLimiter } from "@/lib/rate-limit";
 import { checkOrigin } from "@/lib/utils/origin-check";
@@ -176,17 +176,37 @@ export async function POST(request: Request) {
     const { discountCents } = discountResult.discount;
 
     const baseDeliveryFeeCents = dayConfig?.deliveryFeeCents ?? rules.deliveryFeeCents;
+    // Per-day fee override applies to the LOCAL band; extended/far tiers stay
+    // distance-driven. Graduated pricing is the authoritative fee source.
+    const pricing = getDeliveryPricingConfig(rules, { localFeeCents: baseDeliveryFeeCents });
+
+    // Re-validate serviceability at order time. `is_verified` was set against the
+    // coverage limits in effect when the address was saved; if the business later
+    // disabled long-distance delivery or lowered the max radius, a previously-valid
+    // far address now resolves `out-of-range` — reject it instead of shipping a $0 fee.
+    //
+    // A null distance (a legacy row whose lazy-fill failed) is treated as known-LOCAL
+    // by design, not rejected: such rows were verified under the historical ≤50mi cap,
+    // and every address saved under the current regime persists distance_miles — so a
+    // genuinely far address always has a known distance and can't slip through as null.
+    const feeResult = resolveDeliveryFee(addressDistanceMiles, subtotalCents, pricing);
+    if (feeResult.tier === "out-of-range") {
+      return errorResponse(
+        "OUT_OF_COVERAGE",
+        "This address is outside our current delivery range",
+        400
+      );
+    }
+
     const isExtendedRange =
       addressDistanceMiles != null && addressDistanceMiles > rules.longDistanceThresholdMiles;
 
     const totals = calculateOrderTotals(validatedItems, {
-      deliveryFeeCents: baseDeliveryFeeCents,
       freeDeliveryThresholdCents: rules.freeDeliveryThresholdCents,
       tipCents,
       discountCents,
       distanceMiles: addressDistanceMiles,
-      longDistanceFeeCents: rules.longDistanceFeeCents,
-      longDistanceThresholdMiles: rules.longDistanceThresholdMiles,
+      pricing,
     });
 
     try {

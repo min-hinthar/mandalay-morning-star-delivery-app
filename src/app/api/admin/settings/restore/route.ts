@@ -12,7 +12,7 @@ interface ProfileCheck {
 // Default settings to restore
 const DEFAULT_SETTINGS = [
   // Delivery settings
-  { key: "delivery_radius_miles", value: 40, category: "delivery" },
+  { key: "delivery_radius_miles", value: 50, category: "delivery" },
   { key: "minimum_order_cents", value: 2500, category: "delivery" },
   { key: "free_delivery_threshold_cents", value: 10000, category: "delivery" },
   { key: "base_delivery_fee_cents", value: 1500, category: "delivery" },
@@ -22,6 +22,17 @@ const DEFAULT_SETTINGS = [
   { key: "delivery_end_hour", value: 19, category: "delivery" },
   { key: "max_delivery_duration_minutes", value: 60, category: "delivery" },
   { key: "delivery_zones", value: [], category: "delivery" },
+  {
+    key: "delivery_fee_bands",
+    value: [
+      { maxMiles: 40, feeCents: 2000 },
+      { maxMiles: 50, feeCents: 3000 },
+    ],
+    category: "delivery",
+  },
+  { key: "extended_delivery_enabled", value: true, category: "delivery" },
+  { key: "extended_delivery_per_mile_cents", value: 150, category: "delivery" },
+  { key: "max_delivery_radius_miles", value: 100, category: "delivery" },
   // Operations settings
   { key: "max_stops_per_route", value: 15, category: "operations" },
   { key: "auto_assign_enabled", value: false, category: "operations" },

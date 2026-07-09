@@ -18,6 +18,11 @@ export default async function PublicLayout({ children }: { children: ReactNode }
       prepTimeBufferMinutes={rules.prepTimeBufferMinutes}
       longDistanceFeeCents={rules.longDistanceFeeCents}
       longDistanceThresholdMiles={rules.longDistanceThresholdMiles}
+      deliveryFeeBands={rules.deliveryFeeBands}
+      standardRadiusMiles={rules.deliveryRadiusMiles}
+      extendedDeliveryEnabled={rules.extendedDeliveryEnabled}
+      extendedPerMileCents={rules.extendedDeliveryPerMileCents}
+      maxRadiusMiles={rules.maxDeliveryRadiusMiles}
     >
       {children}
     </PublicShell>

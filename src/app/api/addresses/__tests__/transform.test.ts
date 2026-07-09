@@ -74,6 +74,12 @@ describe("transformAddress", () => {
     expect(result.feeTier).toBe("extended");
   });
 
+  it("sets feeTier to far when distance > 50mi (long-distance)", () => {
+    const row = { ...BASE_ROW, distance_miles: 70 };
+    const result = transformAddress(row as never, TEST_ZONES);
+    expect(result.feeTier).toBe("far");
+  });
+
   it("leaves feeTier undefined when no distance_miles", () => {
     const result = transformAddress(BASE_ROW as never, TEST_ZONES);
     expect(result.feeTier).toBeUndefined();

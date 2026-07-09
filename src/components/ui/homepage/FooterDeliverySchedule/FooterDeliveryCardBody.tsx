@@ -108,7 +108,7 @@ export function FooterDeliveryCardBody({
                   {freeThresholdDollars && freeThresholdDollars > 0
                     ? ` · free over $${freeThresholdDollars}`
                     : ""}
-                  . Beyond {longMiles} mi: flat ${longFeeDollars}, set at checkout.
+                  . Beyond {longMiles} mi: distance-based, set at checkout.
                 </m.p>
               )}
             </AnimatePresence>
@@ -130,8 +130,8 @@ export function FooterDeliveryCardBody({
         )}
         <li className="flex items-center gap-2">
           <Tag className="h-3.5 w-3.5 shrink-0 text-hero-ink-muted" aria-hidden="true" />
-          {/* "from" — feeDollars is the ≤25mi base; >25mi pays a flat higher fee
-              with no free tier. Guard a real 0 threshold. */}
+          {/* "from" — feeDollars is the local base; beyond the local zone pays
+              distance-based fees (no free tier). Guard a real 0 threshold. */}
           from $
           <span aria-hidden="true">
             <RollingNumber value={feeDollars} animate={animate} />

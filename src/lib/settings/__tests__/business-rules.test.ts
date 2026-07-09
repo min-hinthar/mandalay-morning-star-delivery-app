@@ -17,7 +17,11 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 // Import after mocks
-import { getBusinessRules, BUSINESS_RULES_DEFAULTS } from "../business-rules";
+import {
+  getBusinessRules,
+  getDeliveryPricingConfig,
+  BUSINESS_RULES_DEFAULTS,
+} from "../business-rules";
 
 /** Helper to wire up mockFrom for both tables */
 function setupMocks(
@@ -72,7 +76,7 @@ describe("getBusinessRules", () => {
     vi.clearAllMocks();
   });
 
-  it("returns all 15 fields with correct types when DB has data", async () => {
+  it("returns all fields with correct types when DB has data", async () => {
     setupMocks(
       [
         { key: "cutoff_day", value: 5 },
@@ -130,6 +134,11 @@ describe("getBusinessRules", () => {
       longDistanceFeeCents: 2000,
       longDistanceThresholdMiles: 25,
       deliveryZones: [],
+      // New keys absent from DB → fall back to defaults
+      deliveryFeeBands: BUSINESS_RULES_DEFAULTS.deliveryFeeBands,
+      extendedDeliveryEnabled: true,
+      extendedDeliveryPerMileCents: 150,
+      maxDeliveryRadiusMiles: 100,
     });
   });
 
@@ -201,7 +210,53 @@ describe("getBusinessRules", () => {
 
     const rules = await getBusinessRules();
     expect(rules.cutoffDay).toBe(5);
-    // Should have exactly 15 fields (10 numeric + codEnabled + deliveryDays + longDistanceFeeCents + longDistanceThresholdMiles + deliveryZones)
-    expect(Object.keys(rules)).toHaveLength(15);
+    // 15 original fields + 4 graduated-pricing fields (deliveryFeeBands,
+    // extendedDeliveryEnabled, extendedDeliveryPerMileCents, maxDeliveryRadiusMiles)
+    expect(Object.keys(rules)).toHaveLength(19);
+  });
+
+  it("parses graduated bands + long-distance config from DB", async () => {
+    setupMocks(
+      [
+        { key: "delivery_fee_bands", value: [{ maxMiles: 35, feeCents: 1800 }] },
+        { key: "extended_delivery_enabled", value: false },
+        { key: "extended_delivery_per_mile_cents", value: 200 },
+        { key: "max_delivery_radius_miles", value: 80 },
+      ],
+      null
+    );
+
+    const rules = await getBusinessRules();
+    expect(rules.deliveryFeeBands).toEqual([{ maxMiles: 35, feeCents: 1800 }]);
+    expect(rules.extendedDeliveryEnabled).toBe(false);
+    expect(rules.extendedDeliveryPerMileCents).toBe(200);
+    expect(rules.maxDeliveryRadiusMiles).toBe(80);
+  });
+});
+
+describe("getDeliveryPricingConfig", () => {
+  it("clamps maxRadius up to the standard ceiling so no band is priced-but-rejected", () => {
+    // A band reaches 80mi but maxRadius is only 60 — the config must lift maxRadius to 80.
+    const cfg = getDeliveryPricingConfig({
+      ...BUSINESS_RULES_DEFAULTS,
+      deliveryFeeBands: [{ maxMiles: 80, feeCents: 4000 }],
+      deliveryRadiusMiles: 50,
+      maxDeliveryRadiusMiles: 60,
+    });
+    expect(cfg.maxRadiusMiles).toBe(80);
+  });
+
+  it("clamps maxRadius to the 100mi hard cap regardless of stored value", () => {
+    const cfg = getDeliveryPricingConfig({
+      ...BUSINESS_RULES_DEFAULTS,
+      maxDeliveryRadiusMiles: 250,
+    });
+    expect(cfg.maxRadiusMiles).toBe(100);
+  });
+
+  it("applies the per-day local fee override to localFeeCents only", () => {
+    const cfg = getDeliveryPricingConfig(BUSINESS_RULES_DEFAULTS, { localFeeCents: 999 });
+    expect(cfg.localFeeCents).toBe(999);
+    expect(cfg.standardRadiusMiles).toBe(BUSINESS_RULES_DEFAULTS.deliveryRadiusMiles);
   });
 });

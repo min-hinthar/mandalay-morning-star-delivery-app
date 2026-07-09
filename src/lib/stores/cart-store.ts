@@ -7,6 +7,7 @@ import { cartIDBStorage } from "@/lib/services/cart-idb-storage";
 import { toast } from "@/lib/hooks/useToastV8";
 import { triggerHaptic } from "@/lib/swipe-gestures/utils";
 import type { DeliveryDayConfig } from "@/types/delivery";
+import { resolveDeliveryFee, type DeliveryPricingConfig } from "@/lib/utils/order";
 
 // ============================================
 // DEDUPLICATION SIGNATURE
@@ -82,6 +83,17 @@ export const useCartStore = create<CartStore>()(
       setAddressDistance: (miles: number | null) => set({ addressDistanceMiles: miles }),
       setLongDistanceSettings: (fee: number, threshold: number) =>
         set({ longDistanceFeeCents: fee, longDistanceThresholdMiles: threshold }),
+
+      // Graduated pricing settings (defaults match BUSINESS_RULES_DEFAULTS)
+      deliveryFeeBands: [
+        { maxMiles: 40, feeCents: 2000 },
+        { maxMiles: 50, feeCents: 3000 },
+      ],
+      standardRadiusMiles: 50,
+      extendedDeliveryEnabled: true,
+      extendedPerMileCents: 150,
+      maxRadiusMiles: 100,
+      setDeliveryPricing: (pricing) => set({ ...pricing }),
 
       /**
        * Optimistic cart add -- synchronous Zustand mutation.
@@ -281,21 +293,26 @@ export const useCartStore = create<CartStore>()(
       },
 
       getEstimatedDeliveryFee: () => {
-        const {
-          freeDeliveryThresholdCents,
-          deliveryFeeCents,
-          addressDistanceMiles,
-          longDistanceFeeCents,
-          longDistanceThresholdMiles,
-        } = get();
-        const subtotal = get().getItemsSubtotal();
-
-        // Long-distance: flat fee, no free delivery
-        if (addressDistanceMiles != null && addressDistanceMiles > longDistanceThresholdMiles) {
-          return longDistanceFeeCents;
-        }
-
-        return subtotal >= freeDeliveryThresholdCents ? 0 : deliveryFeeCents;
+        // Mirror the server's graduated pricing so the extended/far quote matches the
+        // charge. Caveat (pre-existing): the LOCAL fee uses the first active day's fee
+        // (rules.deliveryFeeCents); the server uses the SCHEDULED day's fee, so a
+        // below-free-threshold local order can differ if per-day fees are set. Harmless
+        // under the default config (all days share one fee).
+        const s = get();
+        const pricing: DeliveryPricingConfig = {
+          localFeeCents: s.deliveryFeeCents,
+          localRadiusMiles: s.longDistanceThresholdMiles,
+          freeDeliveryThresholdCents: s.freeDeliveryThresholdCents,
+          bands:
+            s.deliveryFeeBands.length > 0
+              ? s.deliveryFeeBands
+              : [{ maxMiles: s.standardRadiusMiles, feeCents: s.longDistanceFeeCents }],
+          standardRadiusMiles: s.standardRadiusMiles,
+          extendedEnabled: s.extendedDeliveryEnabled,
+          extendedPerMileCents: s.extendedPerMileCents,
+          maxRadiusMiles: s.maxRadiusMiles,
+        };
+        return resolveDeliveryFee(s.addressDistanceMiles, s.getItemsSubtotal(), pricing).feeCents;
       },
 
       getItemCount: () => {

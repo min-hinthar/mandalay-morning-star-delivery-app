@@ -33,6 +33,8 @@ export interface DeliveryValidationErrors {
   deliveryStartHour?: string;
   deliveryEndHour?: string;
   maxDeliveryDurationMinutes?: string;
+  extendedDeliveryPerMileCents?: string;
+  maxDeliveryRadiusMiles?: string;
 }
 
 export function validateDeliveryField(
@@ -72,6 +74,14 @@ export function validateDeliveryField(
       if (typeof value !== "number" || !Number.isInteger(value) || value < 1)
         return "Must be at least 1 minute";
       if (value > 480) return "Cannot exceed 480 minutes";
+      return undefined;
+    case "extendedDeliveryPerMileCents":
+      if (typeof value !== "number" || value < 0) return "Must be 0 or greater";
+      if (value > 100000) return "Cannot exceed $1000.00";
+      return undefined;
+    case "maxDeliveryRadiusMiles":
+      if (typeof value !== "number" || value < 1) return "Must be at least 1 mile";
+      if (value > 100) return "Cannot exceed 100 miles";
       return undefined;
     default:
       return undefined;
@@ -164,7 +174,11 @@ const FIELD_LABELS: Record<string, string> = {
   deliveryEndHour: "Delivery End Hour",
   maxDeliveryDurationMinutes: "Max Delivery Duration",
   longDistanceFeeCents: "Extended Delivery Fee",
-  longDistanceThresholdMiles: "Distance Threshold",
+  longDistanceThresholdMiles: "Local Zone Radius",
+  deliveryFeeBands: "Distance Fee Bands",
+  extendedDeliveryEnabled: "Long-Distance Delivery",
+  extendedDeliveryPerMileCents: "Long-Distance Per-Mile",
+  maxDeliveryRadiusMiles: "Max Delivery Radius",
 };
 
 function formatFieldValue(field: string, value: number): string {
@@ -173,10 +187,11 @@ function formatFieldValue(field: string, value: number): string {
     case "freeDeliveryThresholdCents":
     case "baseDeliveryFeeCents":
     case "longDistanceFeeCents":
+    case "extendedDeliveryPerMileCents":
       return `$${centsToDollars(value)}`;
     case "deliveryRadiusMiles":
-      return `${value} miles`;
     case "longDistanceThresholdMiles":
+    case "maxDeliveryRadiusMiles":
       return `${value} miles`;
     case "cutoffDay":
       return DAY_NAMES[value] ?? String(value);
@@ -189,6 +204,16 @@ function formatFieldValue(field: string, value: number): string {
     default:
       return String(value);
   }
+}
+
+/** Human-readable summary of the graduated bands, e.g. "≤40mi $20 · ≤50mi $30". */
+function formatBands(bands: DeliverySettings["deliveryFeeBands"]): string {
+  if (!bands || bands.length === 0) return "none";
+  return bands
+    .slice()
+    .sort((a, b) => a.maxMiles - b.maxMiles)
+    .map((b) => `≤${b.maxMiles}mi $${centsToDollars(b.feeCents)}`)
+    .join(" · ");
 }
 
 /** Computes human-readable diff of changed delivery settings fields */
@@ -209,6 +234,8 @@ export function computeDeliveryChanges(
     "maxDeliveryDurationMinutes",
     "longDistanceFeeCents",
     "longDistanceThresholdMiles",
+    "extendedDeliveryPerMileCents",
+    "maxDeliveryRadiusMiles",
   ];
 
   for (const field of scalarFields) {
@@ -221,6 +248,24 @@ export function computeDeliveryChanges(
         newValue: formatFieldValue(field, newVal),
       });
     }
+  }
+
+  // Long-distance toggle
+  if (current.extendedDeliveryEnabled !== original.extendedDeliveryEnabled) {
+    changes.push({
+      field: FIELD_LABELS.extendedDeliveryEnabled,
+      oldValue: original.extendedDeliveryEnabled ? "On" : "Off",
+      newValue: current.extendedDeliveryEnabled ? "On" : "Off",
+    });
+  }
+
+  // Graduated bands (array — compare by content)
+  if (JSON.stringify(current.deliveryFeeBands) !== JSON.stringify(original.deliveryFeeBands)) {
+    changes.push({
+      field: FIELD_LABELS.deliveryFeeBands,
+      oldValue: formatBands(original.deliveryFeeBands),
+      newValue: formatBands(current.deliveryFeeBands),
+    });
   }
 
   return changes;

@@ -94,6 +94,131 @@ export function calculateDeliveryFee(
   return subtotalCents >= freeThreshold ? 0 : feeCents;
 }
 
+// ============================================================
+// GRADUATED (BANDED) DELIVERY PRICING
+// ============================================================
+//
+// Fee scales with drive distance across three zones:
+//   • local     0 .. localRadiusMiles              → localFeeCents (free at/above threshold)
+//   • extended  localRadiusMiles .. standardRadius  → graduated bands (flat per band)
+//   • far        standardRadius .. maxRadiusMiles    → last band fee + per-mile surcharge
+// `standardRadiusMiles` is the edge of normal coverage; the per-mile long-distance
+// surcharge begins there. Beyond `maxRadiusMiles` delivery is unavailable
+// ("out-of-range"). The legacy `calculateDeliveryFee` above is intentionally
+// preserved unchanged; `resolveDeliveryFee` is the new source of truth wherever
+// bands are configured.
+
+/** A single graduated distance band: flat `feeCents` up to `maxMiles` (inclusive). */
+export interface DeliveryFeeBand {
+  maxMiles: number;
+  feeCents: number;
+}
+
+export interface DeliveryPricingConfig {
+  /** Base fee for local deliveries (0..localRadiusMiles), in cents */
+  localFeeCents: number;
+  /** Upper bound (inclusive) of the local, free-eligible band, in miles */
+  localRadiusMiles: number;
+  /** Subtotal (cents) at/above which LOCAL delivery is free */
+  freeDeliveryThresholdCents: number;
+  /** Graduated extended bands, between localRadiusMiles and standardRadiusMiles */
+  bands: DeliveryFeeBand[];
+  /** Edge of normal coverage (miles); the per-mile surcharge begins here */
+  standardRadiusMiles: number;
+  /** Whether long-distance (beyond standardRadiusMiles) delivery is offered */
+  extendedEnabled: boolean;
+  /** Per-mile surcharge (cents) charged for each mile beyond standardRadiusMiles */
+  extendedPerMileCents: number;
+  /** Absolute maximum delivery distance (miles), including the long-distance tier */
+  maxRadiusMiles: number;
+}
+
+export type DeliveryTier = "local" | "extended" | "far" | "out-of-range";
+
+export interface DeliveryFeeResult {
+  feeCents: number;
+  tier: DeliveryTier;
+  /** True only when a local order waived its fee by reaching the free threshold */
+  isFree: boolean;
+}
+
+/** Sort + sanitize bands: only those strictly beyond the local radius, ascending. */
+function normalizeBands(bands: DeliveryFeeBand[], localRadiusMiles: number): DeliveryFeeBand[] {
+  return (bands ?? [])
+    .filter(
+      (b) =>
+        b != null &&
+        Number.isFinite(b.maxMiles) &&
+        Number.isFinite(b.feeCents) &&
+        b.maxMiles > localRadiusMiles &&
+        b.feeCents >= 0
+    )
+    .sort((a, b) => a.maxMiles - b.maxMiles);
+}
+
+/**
+ * Effective edge of normal coverage: the configured standard radius, but never
+ * below the farthest band (so a mis-seeded standardRadius can't strand a band).
+ */
+export function standardCeilingMiles(config: DeliveryPricingConfig): number {
+  const bands = normalizeBands(config.bands, config.localRadiusMiles);
+  const topBand = bands.length ? bands[bands.length - 1].maxMiles : config.localRadiusMiles;
+  return Math.max(config.standardRadiusMiles, topBand);
+}
+
+/**
+ * Resolve the delivery fee for a given drive distance + subtotal against a
+ * graduated pricing config. Distance-driven and authoritative — the SAME
+ * function backs the client estimate (cart store) and the server total, so the
+ * quote a customer sees can never diverge from what they're charged.
+ *
+ * `distanceMiles` null/undefined (e.g. before an address is picked) is treated
+ * as local so the pre-address cart still shows a sensible estimate.
+ */
+export function resolveDeliveryFee(
+  distanceMiles: number | null | undefined,
+  subtotalCents: number,
+  config: DeliveryPricingConfig
+): DeliveryFeeResult {
+  const bands = normalizeBands(config.bands, config.localRadiusMiles);
+  const ceiling = standardCeilingMiles(config);
+
+  // Local band (also the fallback when distance is unknown).
+  if (distanceMiles == null || distanceMiles <= config.localRadiusMiles) {
+    if (subtotalCents >= config.freeDeliveryThresholdCents) {
+      return { feeCents: 0, tier: "local", isFree: true };
+    }
+    return { feeCents: config.localFeeCents, tier: "local", isFree: false };
+  }
+
+  // Graduated extended bands (localRadius < d <= standard ceiling). No free delivery.
+  if (distanceMiles <= ceiling) {
+    for (const band of bands) {
+      if (distanceMiles <= band.maxMiles) {
+        return { feeCents: band.feeCents, tier: "extended", isFree: false };
+      }
+    }
+    // Gap between the last band and the standard ceiling → charge the top band
+    // (or the local fee if no bands are configured).
+    const topFee = bands.length ? bands[bands.length - 1].feeCents : config.localFeeCents;
+    return { feeCents: topFee, tier: "extended", isFree: false };
+  }
+
+  // Long-distance (far) tier: standard ceiling < d <= maxRadius. Auto-quote per mile.
+  if (config.extendedEnabled && distanceMiles <= config.maxRadiusMiles) {
+    const baseFee = bands.length ? bands[bands.length - 1].feeCents : config.localFeeCents;
+    const extraMiles = Math.max(0, Math.ceil(distanceMiles - ceiling));
+    return {
+      feeCents: baseFee + extraMiles * config.extendedPerMileCents,
+      tier: "far",
+      isFree: false,
+    };
+  }
+
+  // Beyond the maximum serviceable radius.
+  return { feeCents: 0, tier: "out-of-range", isFree: false };
+}
+
 /**
  * Calculate sales tax for Covina CA (10.5%)
  */
@@ -109,6 +234,12 @@ export interface OrderTotalsOptions {
   distanceMiles?: number | null;
   longDistanceFeeCents?: number;
   longDistanceThresholdMiles?: number;
+  /**
+   * Graduated pricing config. When supplied, `resolveDeliveryFee` computes the
+   * delivery fee (local / extended bands / far per-mile) and the legacy
+   * single-threshold fields above are ignored.
+   */
+  pricing?: DeliveryPricingConfig;
 }
 
 /**
@@ -135,17 +266,26 @@ export function calculateOrderTotals(
     const opts = deliveryFeeCentsOrOpts;
     tip = opts.tipCents ?? 0;
     discount = opts.discountCents ?? 0;
-    deliveryFeeCents = calculateDeliveryFee(
-      subtotalCents,
-      {
-        deliveryFeeCents: opts.deliveryFeeCents,
-        freeDeliveryThresholdCents: opts.freeDeliveryThresholdCents,
-        longDistanceFeeCents: opts.longDistanceFeeCents,
-        longDistanceThresholdMiles: opts.longDistanceThresholdMiles,
-      },
-      DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS,
-      opts.distanceMiles
-    );
+    if (opts.pricing) {
+      // Graduated pricing is authoritative when provided.
+      deliveryFeeCents = resolveDeliveryFee(
+        opts.distanceMiles,
+        subtotalCents,
+        opts.pricing
+      ).feeCents;
+    } else {
+      deliveryFeeCents = calculateDeliveryFee(
+        subtotalCents,
+        {
+          deliveryFeeCents: opts.deliveryFeeCents,
+          freeDeliveryThresholdCents: opts.freeDeliveryThresholdCents,
+          longDistanceFeeCents: opts.longDistanceFeeCents,
+          longDistanceThresholdMiles: opts.longDistanceThresholdMiles,
+        },
+        DEFAULT_FREE_DELIVERY_THRESHOLD_CENTS,
+        opts.distanceMiles
+      );
+    }
   } else {
     deliveryFeeCents = calculateDeliveryFee(
       subtotalCents,
@@ -238,7 +378,7 @@ export function createStripeLineItems(
         product_data: {
           name: isExtendedRange ? "Extended Delivery Fee" : "Delivery Fee",
           description: isExtendedRange
-            ? "Extended range delivery (>25 mi)"
+            ? "Delivery beyond the local area"
             : "Delivery to your address",
         },
       },
