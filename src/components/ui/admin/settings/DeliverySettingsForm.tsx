@@ -204,6 +204,7 @@ export function DeliverySettingsForm({
           <DeliveryBandsEditor
             bands={settings.deliveryFeeBands ?? []}
             localRadiusMiles={settings.longDistanceThresholdMiles ?? 25}
+            standardRadiusMiles={settings.deliveryRadiusMiles}
             onChange={handleBandsChange}
             changed={changed("deliveryFeeBands")}
           />

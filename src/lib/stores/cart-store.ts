@@ -293,7 +293,11 @@ export const useCartStore = create<CartStore>()(
       },
 
       getEstimatedDeliveryFee: () => {
-        // Mirror the server's graduated pricing so the estimate matches the charge.
+        // Mirror the server's graduated pricing so the extended/far quote matches the
+        // charge. Caveat (pre-existing): the LOCAL fee uses the first active day's fee
+        // (rules.deliveryFeeCents); the server uses the SCHEDULED day's fee, so a
+        // below-free-threshold local order can differ if per-day fees are set. Harmless
+        // under the default config (all days share one fee).
         const s = get();
         const pricing: DeliveryPricingConfig = {
           localFeeCents: s.deliveryFeeCents,

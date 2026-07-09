@@ -17,7 +17,11 @@ vi.mock("@/lib/supabase/server", () => ({
 }));
 
 // Import after mocks
-import { getBusinessRules, BUSINESS_RULES_DEFAULTS } from "../business-rules";
+import {
+  getBusinessRules,
+  getDeliveryPricingConfig,
+  BUSINESS_RULES_DEFAULTS,
+} from "../business-rules";
 
 /** Helper to wire up mockFrom for both tables */
 function setupMocks(
@@ -227,5 +231,32 @@ describe("getBusinessRules", () => {
     expect(rules.extendedDeliveryEnabled).toBe(false);
     expect(rules.extendedDeliveryPerMileCents).toBe(200);
     expect(rules.maxDeliveryRadiusMiles).toBe(80);
+  });
+});
+
+describe("getDeliveryPricingConfig", () => {
+  it("clamps maxRadius up to the standard ceiling so no band is priced-but-rejected", () => {
+    // A band reaches 80mi but maxRadius is only 60 — the config must lift maxRadius to 80.
+    const cfg = getDeliveryPricingConfig({
+      ...BUSINESS_RULES_DEFAULTS,
+      deliveryFeeBands: [{ maxMiles: 80, feeCents: 4000 }],
+      deliveryRadiusMiles: 50,
+      maxDeliveryRadiusMiles: 60,
+    });
+    expect(cfg.maxRadiusMiles).toBe(80);
+  });
+
+  it("clamps maxRadius to the 100mi hard cap regardless of stored value", () => {
+    const cfg = getDeliveryPricingConfig({
+      ...BUSINESS_RULES_DEFAULTS,
+      maxDeliveryRadiusMiles: 250,
+    });
+    expect(cfg.maxRadiusMiles).toBe(100);
+  });
+
+  it("applies the per-day local fee override to localFeeCents only", () => {
+    const cfg = getDeliveryPricingConfig(BUSINESS_RULES_DEFAULTS, { localFeeCents: 999 });
+    expect(cfg.localFeeCents).toBe(999);
+    expect(cfg.standardRadiusMiles).toBe(BUSINESS_RULES_DEFAULTS.deliveryRadiusMiles);
   });
 });

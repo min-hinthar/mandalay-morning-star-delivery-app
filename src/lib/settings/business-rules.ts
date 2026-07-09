@@ -2,6 +2,7 @@ import { unstable_cache } from "next/cache";
 import { createPublicClient } from "@/lib/supabase/server";
 import type { DeliveryDayConfig, DeliveryDirection, DeliveryZoneConfig } from "@/types/delivery";
 import type { DeliveryFeeBand, DeliveryPricingConfig } from "@/lib/utils/order";
+import { standardCeilingMiles } from "@/lib/utils/order";
 import { COVERAGE_LIMITS } from "@/types/address";
 
 // ===========================================
@@ -150,10 +151,18 @@ export function getDeliveryPricingConfig(
     rules.deliveryFeeBands.length > 0
       ? rules.deliveryFeeBands
       : [{ maxMiles: rules.deliveryRadiusMiles, feeCents: rules.longDistanceFeeCents }];
-  // Enforce the absolute serviceable ceiling (never beyond 100mi) regardless of
-  // what's stored, and never below the standard radius.
+  // The banded region's outer edge (standard radius, but never below a stray band
+  // that reaches past it) — the fee table treats everything up to here as
+  // serviceable, so the coverage max must never fall below it.
+  const ceiling = standardCeilingMiles({
+    bands,
+    standardRadiusMiles: rules.deliveryRadiusMiles,
+    localRadiusMiles: rules.longDistanceThresholdMiles,
+  } as DeliveryPricingConfig);
+  // Enforce the absolute serviceable ceiling (never beyond 100mi), and never below
+  // the banded region — otherwise a band could be priced-but-rejected.
   const maxRadiusMiles = Math.min(
-    Math.max(rules.maxDeliveryRadiusMiles, rules.deliveryRadiusMiles),
+    Math.max(rules.maxDeliveryRadiusMiles, ceiling),
     COVERAGE_LIMITS.maxRequestDistanceMiles
   );
   return {

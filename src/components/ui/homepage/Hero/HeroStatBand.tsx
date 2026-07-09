@@ -240,11 +240,11 @@ export function HeroStatBand({
           label: "Delivery",
           sub:
             longDistanceFeeDollars !== undefined
-              ? `over $${freeThresholdDollars} · $${deliveryFeeDollars}/$${longDistanceFeeDollars} ${longDistanceMiles ?? 25}mi`
+              ? `over $${freeThresholdDollars} · from $${deliveryFeeDollars} within ${longDistanceMiles ?? 25}mi`
               : `over $${freeThresholdDollars} · $${deliveryFeeDollars} flat`,
           tooltip:
             longDistanceFeeDollars !== undefined
-              ? `Free delivery on orders over $${freeThresholdDollars}. Otherwise $${deliveryFeeDollars} flat (within ${longDistanceMiles ?? 25} mi) or $${longDistanceFeeDollars} beyond.`
+              ? `Free delivery on orders over $${freeThresholdDollars}. Otherwise from $${deliveryFeeDollars} within ${longDistanceMiles ?? 25} mi, with distance-based fees beyond.`
               : `Free delivery on orders over $${freeThresholdDollars}. Otherwise a flat $${deliveryFeeDollars}.`,
         }
       : {

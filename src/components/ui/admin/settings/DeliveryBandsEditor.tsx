@@ -18,6 +18,8 @@ interface DeliveryBandsEditorProps {
   bands: DeliveryFeeBand[];
   /** Local free-delivery radius — bands must extend beyond this */
   localRadiusMiles: number;
+  /** Standard coverage radius — bands should not exceed this */
+  standardRadiusMiles: number;
   onChange: (bands: DeliveryFeeBand[]) => void;
   changed?: boolean;
 }
@@ -27,6 +29,7 @@ const MAX_BANDS = 6;
 export function DeliveryBandsEditor({
   bands,
   localRadiusMiles,
+  standardRadiusMiles,
   onChange,
   changed,
 }: DeliveryBandsEditorProps) {
@@ -35,11 +38,21 @@ export function DeliveryBandsEditor({
     bands.map((b) => centsToDollars(b.feeCents))
   );
 
-  // Re-sync drafts when the band count changes (add/remove/restore-defaults).
+  // Keep each fee draft in sync with the canonical band value, EXCEPT while the
+  // admin is mid-edit (a draft that still parses to the same cents is left alone,
+  // so typing "20." isn't clobbered). This resyncs on external resets that keep
+  // the same band count too — Discard, tab-revert, Restore Defaults — which a
+  // length-keyed effect would miss.
   useEffect(() => {
-    setFeeDrafts(bands.map((b) => centsToDollars(b.feeCents)));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [bands.length]);
+    setFeeDrafts((prev) =>
+      bands.map((b, i) => {
+        const draft = prev[i];
+        return draft != null && dollarsToCents(draft) === b.feeCents
+          ? draft
+          : centsToDollars(b.feeCents);
+      })
+    );
+  }, [bands]);
 
   const updateMiles = (index: number, value: string) => {
     const miles = parseInt(value, 10);
@@ -68,6 +81,9 @@ export function DeliveryBandsEditor({
   const outOfOrder = bands.some((b, i) => i > 0 && b.maxMiles <= bands[i - 1].maxMiles);
   // Bands at/inside the local radius are silently dropped at runtime — flag them.
   const insideLocalZone = bands.some((b) => b.maxMiles <= localRadiusMiles);
+  // Bands past the standard radius push the standard coverage edge outward (they
+  // extend serviceable range even with long-distance off) — flag the mismatch.
+  const beyondStandard = bands.some((b) => b.maxMiles > standardRadiusMiles);
 
   return (
     <div className={cn("space-y-3", changed && CHANGED_BORDER)}>
@@ -139,6 +155,13 @@ export function DeliveryBandsEditor({
         <p className="text-xs text-status-warning">
           Bands must be farther than the local zone radius ({localRadiusMiles} mi) — closer bands
           are ignored.
+        </p>
+      )}
+
+      {beyondStandard && (
+        <p className="text-xs text-status-warning">
+          A band exceeds the standard radius ({standardRadiusMiles} mi) — it extends coverage even
+          when long-distance delivery is off.
         </p>
       )}
 
