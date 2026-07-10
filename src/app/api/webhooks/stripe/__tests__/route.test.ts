@@ -621,10 +621,11 @@ describe("webhook failure scenarios (TST-02)", () => {
       mockConstructEvent.mockReturnValue(event);
 
       // 0 rows updated = the order moved on to a retry session, so this stale
-      // session's expiry must NOT cancel it.
+      // session's expiry must NOT cancel it. Chain: update → eq(id) → eq(status)
+      // → or(session-id-null-or-match) → select("id").
       const selectMock = vi.fn().mockReturnValue({ data: [], error: null });
-      const eqSession = vi.fn().mockReturnValue({ select: selectMock });
-      const eqStatus = vi.fn().mockReturnValue({ eq: eqSession });
+      const orMock = vi.fn().mockReturnValue({ select: selectMock });
+      const eqStatus = vi.fn().mockReturnValue({ or: orMock });
       const eqId = vi.fn().mockReturnValue({ eq: eqStatus });
       const updateMock = vi.fn().mockReturnValue({ eq: eqId });
       const fromMock = vi.fn((table: string) => {
@@ -643,7 +644,7 @@ describe("webhook failure scenarios (TST-02)", () => {
       const res = await POST(makeRequest(JSON.stringify(event)));
       expect(res.status).toBe(200);
       // The cancel update is scoped to the current session id (the guard)…
-      expect(eqSession).toHaveBeenCalledWith("stripe_checkout_session_id", sessionId);
+      expect(orMock).toHaveBeenCalledWith(expect.stringContaining(sessionId));
       // …and a 0-row result is a clean no-op (no throw, 200).
       expect(selectMock).toHaveBeenCalled();
     });

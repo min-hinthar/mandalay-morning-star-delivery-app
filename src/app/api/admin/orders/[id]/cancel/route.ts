@@ -8,10 +8,17 @@ import { apiError } from "@/lib/utils/api-error";
 import { OrderCancellation } from "@/emails/OrderCancellation";
 import type { OrderStatus, Json } from "@/types/database";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
+import { stripe } from "@/lib/stripe/server";
+import { createServiceClient } from "@/lib/supabase/server";
+import { refundPaidOrderInFull } from "@/lib/orders/refund-on-cancel";
 
 interface OrderRow {
   status: OrderStatus;
   user_id: string;
+  total_cents: number;
+  payment_method: string;
+  stripe_payment_intent_id: string | null;
+  stripe_checkout_session_id: string | null;
 }
 
 /**
@@ -46,12 +53,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return apiError("VALIDATION_ERROR", "Invalid request", 400, parsed.error.flatten());
     }
 
-    const { reason, notifyCustomer } = parsed.data;
+    const { reason, notifyCustomer, refund } = parsed.data;
 
-    // Fetch current order
+    // Fetch current order (payment handles for auto-refund)
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("status, user_id")
+      .select(
+        "status, user_id, total_cents, payment_method, stripe_payment_intent_id, stripe_checkout_session_id"
+      )
       .eq("id", orderId)
       .returns<OrderRow[]>()
       .single();
@@ -115,6 +124,32 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       });
     }
 
+    // Auto-refund a paid order on cancellation (unless the admin opted out). The
+    // order is already cancelled; a refund failure must NOT fail the request —
+    // it stays cancelled and the reconciliation safety net retries (idempotent).
+    let refundIssued = false;
+    if (refund) {
+      try {
+        const refundResult = await refundPaidOrderInFull({
+          serviceClient: createServiceClient(),
+          stripe,
+          orderId,
+          order,
+          actorId: userId,
+          actorRole: "admin",
+          reason,
+          refundSource: "cancellation",
+        });
+        refundIssued = refundResult.refunded;
+      } catch (refundErr) {
+        logger.exception(refundErr, {
+          api: "admin/orders/[id]/cancel",
+          orderId,
+          message: "Auto-refund on admin cancel failed — safety net will retry",
+        });
+      }
+    }
+
     // Trigger cancellation email if requested
     if (notifyCustomer) {
       // Fetch customer profile for email
@@ -161,7 +196,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
                 totalCents: cancelTotalCents,
                 cancellationReason: reason,
                 cancelledAt,
-                refundIssued: false,
+                refundIssued,
               }),
               type: "cancellation",
               orderId,
@@ -187,6 +222,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       newStatus: "cancelled",
       reason,
       notifyCustomer,
+      refundIssued,
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/cancel" });

@@ -139,16 +139,21 @@ export async function handleChargeRefunded(
     });
   }
 
-  // Admin item-refunds already send the customer an ITEMIZED notification
-  // from the refund route — skip the generic webhook email for those so the
-  // customer isn't emailed twice. (Status handling above still ran.)
+  // Some refund flows already email the customer themselves (admin item-refunds
+  // send an itemized RefundNotification; a cancellation sends OrderCancellation
+  // with refundIssued:true). Skip the generic webhook email for those so the
+  // customer isn't emailed twice. Other sources (e.g. `auto-reconcile` — a
+  // system refund of a stranded cancelled order) DO email here, since no other
+  // channel told the customer. (Status handling above still ran.)
+  const SELF_EMAILING_REFUND_SOURCES = new Set(["admin-item-refund", "cancellation"]);
   try {
     const recentRefunds = await stripe.refunds.list({
       payment_intent: paymentIntentId,
       limit: 1,
     });
-    if (recentRefunds.data[0]?.metadata?.source === "admin-item-refund") {
-      logger.info("Skipping duplicate refund email (admin-initiated item refund)", {
+    const refundSource = recentRefunds.data[0]?.metadata?.source;
+    if (refundSource && SELF_EMAILING_REFUND_SOURCES.has(refundSource)) {
+      logger.info(`Skipping duplicate refund email (source: ${refundSource})`, {
         orderId: order.id,
         api: "stripe-webhook",
         flowId: "refund",

@@ -34,7 +34,11 @@ export async function handleCheckoutSessionExpired(
     })
     .eq("id", orderId)
     .eq("status", "pending")
-    .eq("stripe_checkout_session_id", session.id)
+    // Only if this is the order's current session — OR the order never recorded
+    // a session id (best-effort persist at checkout can fail; a null id means no
+    // retry ever re-pointed it, so cancelling on expiry is still correct and the
+    // order can't linger pending forever).
+    .or(`stripe_checkout_session_id.is.null,stripe_checkout_session_id.eq.${session.id}`)
     .select("id");
 
   if (error) {

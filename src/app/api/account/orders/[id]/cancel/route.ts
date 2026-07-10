@@ -1,10 +1,12 @@
 import React from "react";
 import { after, NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { stripe } from "@/lib/stripe/server";
 import { cancelOrderSchema } from "@/lib/validations/account";
 import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import { OrderCancellation } from "@/emails/OrderCancellation";
+import { refundPaidOrderInFull } from "@/lib/orders/refund-on-cancel";
 import { checkRateLimit, customerLimiter, getClientIp } from "@/lib/rate-limit";
 import { checkOrigin } from "@/lib/utils/origin-check";
 import type { OrderStatus } from "@/types/database";
@@ -45,10 +47,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Verify order exists and belongs to user
+    // Verify order exists and belongs to user (payment handles for auto-refund)
     const { data: order, error: fetchError } = await supabase
       .from("orders")
-      .select("id, status, user_id, total_cents")
+      .select(
+        "id, status, user_id, total_cents, payment_method, stripe_payment_intent_id, stripe_checkout_session_id"
+      )
       .eq("id", orderId)
       .single();
 
@@ -149,6 +153,32 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Auto-refund a paid order on cancellation. The order is already cancelled
+    // (committed above); if the refund fails, do NOT fail the request — the
+    // order stays cancelled and the reconciliation safety net (paid_but_cancelled
+    // detector + cron) retries the refund. Idempotent, so a retry is safe.
+    let refundIssued = false;
+    try {
+      const refund = await refundPaidOrderInFull({
+        serviceClient: createServiceClient(),
+        stripe,
+        orderId,
+        order,
+        actorId: user.id,
+        actorRole: "customer",
+        reason,
+        refundSource: "cancellation",
+      });
+      refundIssued = refund.refunded;
+    } catch (refundErr) {
+      logger.exception(refundErr, {
+        api: "account/orders/[id]/cancel",
+        orderId,
+        userId: user.id,
+        message: "Auto-refund on cancel failed — safety net will retry",
+      });
+    }
+
     // Trigger cancellation email
     const { data: profile } = await supabase
       .from("profiles")
@@ -184,7 +214,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
               totalCents: custTotalCents,
               cancellationReason: reason,
               cancelledAt,
-              refundIssued: false,
+              refundIssued,
             }),
             type: "cancellation",
             orderId,
@@ -207,7 +237,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         id: orderId,
         status: "cancelled",
         cancelledAt,
-        message: "Order cancelled successfully",
+        refundIssued,
+        message: refundIssued
+          ? "Order cancelled and refunded to your original payment method"
+          : "Order cancelled successfully",
       },
     });
   } catch (error) {

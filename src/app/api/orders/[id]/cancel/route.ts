@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { stripe } from "@/lib/stripe/server";
 import { logger } from "@/lib/utils/logger";
+import { refundPaidOrderInFull } from "@/lib/orders/refund-on-cancel";
 import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
 
 interface RouteParams {
@@ -32,10 +34,12 @@ export async function POST(_request: Request, { params }: RouteParams) {
   });
   if (rl.limited) return rl.response;
 
-  // Verify order exists and belongs to user
+  // Verify order exists and belongs to user (payment handles for auto-refund)
   const { data: order, error: fetchError } = await supabase
     .from("orders")
-    .select("id, status, user_id")
+    .select(
+      "id, status, user_id, total_cents, payment_method, stripe_payment_intent_id, stripe_checkout_session_id"
+    )
     .eq("id", orderId)
     .single();
 
@@ -106,5 +110,31 @@ export async function POST(_request: Request, { params }: RouteParams) {
     );
   }
 
-  return NextResponse.json({ success: true });
+  // Auto-refund if this pending order was actually paid (dropped-webhook
+  // paid_but_pending). The order is already cancelled; a refund failure must not
+  // fail the request — the reconciliation safety net retries (idempotent).
+  let refundIssued = false;
+  try {
+    const refund = await refundPaidOrderInFull({
+      serviceClient: createServiceClient(),
+      stripe,
+      orderId,
+      order,
+      actorId: user.id,
+      actorRole: "customer",
+      reason: "Customer cancelled pending order",
+      refundSource: "cancellation",
+    });
+    refundIssued = refund.refunded;
+  } catch (refundErr) {
+    logger.exception(refundErr, {
+      api: "cancel-order",
+      orderId,
+      userId: user.id,
+      flowId: "order",
+      message: "Auto-refund on cancel failed — safety net will retry",
+    });
+  }
+
+  return NextResponse.json({ success: true, refundIssued });
 }
