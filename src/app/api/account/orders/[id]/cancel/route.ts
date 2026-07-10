@@ -167,7 +167,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         actorId: user.id,
         actorRole: "customer",
         reason,
-        refundSource: "cancellation",
+        // Suppress the webhook refund email ONLY when we'll actually send the
+        // OrderCancellation email below (gated on user.email). Otherwise use a
+        // webhook-notified source so a refund is never silent (mirrors admin).
+        refundSource: user.email ? "cancellation" : "auto-reconcile",
       });
       refundIssued = refund.refunded;
     } catch (refundErr) {
