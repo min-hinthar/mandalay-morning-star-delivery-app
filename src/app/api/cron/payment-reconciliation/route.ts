@@ -172,7 +172,12 @@ export async function GET(request: Request) {
           // guarded) so the order is confirmed and its confirmation + admin
           // emails fire. Needs the full Session (metadata.order_id); a pending
           // order's session id is the one that was actually paid.
-          if (!order.stripe_checkout_session_id) return;
+          if (!order.stripe_checkout_session_id) {
+            // No session to re-drive the confirm flow → can't auto-heal. Don't
+            // leave it Sentry-only; alert a human.
+            if (isWithinEmailRecency(order, now)) await emailAdminsStrandedPayment(kind, ctx);
+            return;
+          }
           try {
             const fullSession = await stripe.checkout.sessions.retrieve(
               order.stripe_checkout_session_id

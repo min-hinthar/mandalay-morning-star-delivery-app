@@ -53,7 +53,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return apiError("VALIDATION_ERROR", "Invalid request", 400, parsed.error.flatten());
     }
 
-    const { reason, notifyCustomer, refund } = parsed.data;
+    const { reason, notifyCustomer } = parsed.data;
 
     // Fetch current order (payment handles for auto-refund)
     const { data: order, error: orderError } = await supabase
@@ -124,11 +124,13 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       });
     }
 
-    // Auto-refund a paid order on cancellation (unless the admin opted out). The
-    // order is already cancelled; a refund failure must NOT fail the request —
-    // it stays cancelled and the reconciliation safety net retries (idempotent).
+    // Auto-refund a paid order on cancellation. Paid cancels ALWAYS refund —
+    // an opt-out would be silently reversed by the reconciliation cron anyway
+    // (it auto-refunds any cancelled+paid order), so an illusory control is
+    // worse than none. The order is already cancelled; a refund failure must
+    // NOT fail the request — it stays cancelled and the safety net retries.
     let refundIssued = false;
-    if (refund) {
+    {
       try {
         const refundResult = await refundPaidOrderInFull({
           serviceClient: createServiceClient(),
@@ -138,7 +140,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           actorId: userId,
           actorRole: "admin",
           reason,
-          refundSource: "cancellation",
+          // When no cancellation email is sent, use a webhook-notified source so
+          // the customer is still told about the refund (a refund is a financial
+          // event they must always hear about).
+          refundSource: notifyCustomer ? "cancellation" : "auto-reconcile",
         });
         refundIssued = refundResult.refunded;
       } catch (refundErr) {

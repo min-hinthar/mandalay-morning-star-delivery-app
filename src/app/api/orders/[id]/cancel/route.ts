@@ -123,7 +123,9 @@ export async function POST(_request: Request, { params }: RouteParams) {
       actorId: user.id,
       actorRole: "customer",
       reason: "Customer cancelled pending order",
-      refundSource: "cancellation",
+      // This route sends no cancellation email, so use a webhook-notified source
+      // — the charge.refunded webhook then emails the customer their refund.
+      refundSource: "auto-reconcile",
     });
     refundIssued = refund.refunded;
   } catch (refundErr) {

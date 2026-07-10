@@ -75,11 +75,14 @@ export async function refundPaidOrderInFull(opts: {
     return { refunded: false, refundedCents: 0, message: "Payment already fully refunded." };
   }
 
-  // Bring the audited refund total up to the full order amount; the idempotent
-  // delta refunder then moves exactly the shortfall on the card. Writing only
-  // the delta keeps this safe to re-run (e.g. cancel → later reconciliation).
+  // Bring the audited refund total up to the amount actually CAPTURED on the
+  // card (not order.total_cents, which can differ under partial capture /
+  // Stripe-side discounts); the idempotent delta refunder then moves exactly
+  // the shortfall. Writing only the delta keeps this safe to re-run (e.g.
+  // cancel → later reconciliation).
+  const capturedCents = inspection.amountCents;
   const alreadyAuditedCents = await sumAuditedRefundCents(serviceClient, orderId);
-  const auditDeltaCents = Math.max(0, order.total_cents - alreadyAuditedCents);
+  const auditDeltaCents = Math.max(0, capturedCents - alreadyAuditedCents);
   if (auditDeltaCents > 0) {
     const { error: auditError } = await serviceClient.from("order_audit_log").insert({
       order_id: orderId,

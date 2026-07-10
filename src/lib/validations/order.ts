@@ -4,9 +4,10 @@ import { z } from "zod";
 export const cancelOrderSchema = z.object({
   reason: z.string().min(5, "Reason must be at least 5 characters").max(500),
   notifyCustomer: z.boolean().default(true),
-  // Refund a paid order on cancellation. Defaults ON — cancelling a paid order
-  // without refunding is the incident this guards against; opt out explicitly.
-  refund: z.boolean().default(true),
+  // NOTE: no refund opt-out. Cancelling a paid order ALWAYS refunds it — the
+  // reconciliation cron auto-refunds any cancelled+paid order regardless, so an
+  // opt-out here would be silently reversed. A durable "withhold refund" control
+  // would need an order-level marker the cron's classifier excludes.
 });
 
 // Refund schema - item-level per CONTEXT.md
