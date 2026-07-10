@@ -12,6 +12,10 @@ import {
 } from "@/lib/email";
 import { getLoyaltyNudge } from "@/lib/email/nudges";
 import { logger } from "@/lib/utils/logger";
+import {
+  captureStrandedPayment,
+  emailAdminsStrandedPayment,
+} from "@/lib/orders/stranded-payment-alert";
 import { AdminNewOrderAlert } from "@/emails/AdminNewOrderAlert";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import type Stripe from "stripe";
@@ -87,6 +91,27 @@ export async function handleCheckoutSessionCompleted(
         api: "stripe-webhook",
         flowId: "checkout",
       });
+    } else if (existing.status === "cancelled" && session.payment_status === "paid") {
+      // The order was cancelled BEFORE this paid completion landed (a
+      // cancel/expiry-vs-payment race). The customer was charged but the order
+      // is cancelled — otherwise silent (this handler would just log "skipping").
+      // Surface it so it can be refunded/reinstated. No refund has happened yet,
+      // so amountRefunded = 0 and amount = the session total.
+      const inspection = {
+        paid: true,
+        amountCents: session.amount_total ?? 0,
+        amountRefundedCents: 0,
+        paymentIntentId: paymentIntentId,
+        sessionId: session.id,
+      };
+      const alertCtx = {
+        orderId,
+        userId: session.metadata?.user_id,
+        source: "stripe-webhook",
+        inspection,
+      };
+      captureStrandedPayment("paid_but_cancelled", alertCtx);
+      after(() => emailAdminsStrandedPayment("paid_but_cancelled", alertCtx));
     } else {
       // Already processed (idempotent) — not an error
       logger.info(`Order ${orderId} already ${existing.status}, skipping`, {
