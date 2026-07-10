@@ -46,6 +46,10 @@ import {
 const CRON_SECRET = process.env.CRON_SECRET;
 const FLOW_ID = "payment-reconciliation";
 
+// Up to MAX_PER_RUN sequential Stripe retrievals — give the function headroom
+// over the platform default so a busy day can't abort the sweep mid-scan.
+export const maxDuration = 60;
+
 interface CandidateOrder {
   id: string;
   status: string;

@@ -59,6 +59,12 @@ export function captureStrandedPayment(kind: StrandedKind, ctx: StrandedAlertCon
   Sentry.captureMessage(`Stranded Stripe payment: ${kind}`, {
     level: "error",
     tags: { area: "payments", stranded_kind: kind, source },
+    // Fingerprint per order+kind so each stranded payment is its OWN Sentry
+    // issue. Without this, captureMessage groups by the constant message string
+    // and distinct money-loss events fold into one issue (and once that issue is
+    // resolved/muted, later strandings stop paging). Critical for
+    // `paid_but_pending`, whose only alert channel is Sentry.
+    fingerprint: ["stranded-payment", kind, orderId],
     extra: detail,
   });
 }

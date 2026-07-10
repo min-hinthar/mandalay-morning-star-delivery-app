@@ -70,9 +70,14 @@ export async function POST(request: Request, { params }: RouteParams) {
     if (order.status === "cancelled") {
       after(async () => {
         try {
+          // Reconcile against the SERVER-stored Stripe handles only — never the
+          // client-supplied `sessionId`. A client-supplied session (e.g. from a
+          // different paid order the customer owns) could fabricate a
+          // `paid_but_cancelled` alert with the wrong amount/PI into the exact
+          // channel meant to catch real losses.
           const inspection = await inspectOrderPayment(stripe, {
             paymentIntentId: order.stripe_payment_intent_id,
-            sessionId: sessionId ?? order.stripe_checkout_session_id,
+            sessionId: order.stripe_checkout_session_id,
           });
           const kind = classifyStrandedPayment(order.status, inspection);
           if (kind === "paid_but_cancelled") {
