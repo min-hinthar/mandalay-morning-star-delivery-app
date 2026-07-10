@@ -146,14 +146,27 @@ export async function handleChargeRefunded(
   // system refund of a stranded cancelled order) DO email here, since no other
   // channel told the customer. (Status handling above still ran.)
   //
-  // Read the source off THIS event's own refund snapshot (`charge.refunds`,
-  // newest-first) rather than a live `refunds.list` on the PI: the live list can
-  // return a LATER refund as "newest" when this event is processed after a
-  // subsequent refund (item-refund → cancellation), mis-attributing the source.
-  // The event payload is the state at trigger time, so data[0] is this event's
-  // refund. Missing/undefined → fall through and email (a dup beats a miss).
+  // Prefer THIS event's own refund snapshot (`charge.refunds`, newest-first) —
+  // it's the state at trigger time, so data[0] is this event's refund (race-free
+  // vs. a live list that could return a LATER refund as "newest"). BUT since
+  // Stripe API 2022-11-15 `charge.refunds` is NOT expanded on the webhook payload
+  // by default, so fall back to the List Refunds API scoped to THIS charge when
+  // it's absent. Best-effort: on error, fall through and email (dup beats miss).
   const SELF_EMAILING_REFUND_SOURCES = new Set(["admin-item-refund", "cancellation"]);
-  const refundSource = charge.refunds?.data?.[0]?.metadata?.source;
+  let refundSource = charge.refunds?.data?.[0]?.metadata?.source;
+  if (!refundSource) {
+    try {
+      const listed = await stripe.refunds.list({ charge: charge.id, limit: 1 });
+      refundSource = listed.data[0]?.metadata?.source ?? undefined;
+    } catch (listErr) {
+      logger.warn("Could not inspect refund metadata; sending generic refund email", {
+        orderId: order.id,
+        error: listErr instanceof Error ? listErr.message : String(listErr),
+        api: "stripe-webhook",
+        flowId: "refund",
+      });
+    }
+  }
   if (refundSource && SELF_EMAILING_REFUND_SOURCES.has(refundSource)) {
     logger.info(`Skipping duplicate refund email (source: ${refundSource})`, {
       orderId: order.id,

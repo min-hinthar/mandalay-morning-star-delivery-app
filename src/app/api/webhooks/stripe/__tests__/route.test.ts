@@ -617,6 +617,49 @@ describe("webhook failure scenarios (TST-02)", () => {
       // Cancellation self-emails → the generic webhook refund email is skipped.
       expect(vi.mocked(sendEmail)).not.toHaveBeenCalled();
     });
+
+    it("falls back to the List Refunds API when the event payload omits refunds", async () => {
+      // Modern Stripe API versions don't inline `charge.refunds` — the default
+      // factory event has none, so the source must resolve via refunds.list.
+      const event = createChargeRefundedEvent("pi_fallback_src", 5000, true);
+      mockConstructEvent.mockReturnValue(event);
+      mockRefundsList.mockResolvedValueOnce({
+        data: [{ metadata: { source: "admin-item-refund" } }],
+      });
+
+      const fromMock = vi.fn((table: string) => {
+        if (table === "webhook_events") {
+          return {
+            upsert: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({ data: [{ id: "claimed-fbsrc" }], error: null }),
+            }),
+          };
+        }
+        if (table === "orders") {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockReturnValue({
+                  data: { id: "o-fbsrc", status: "confirmed", user_id: "u1", total_cents: 5000 },
+                  error: null,
+                }),
+              }),
+            }),
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({ in: vi.fn().mockReturnValue({ error: null }) }),
+            }),
+          };
+        }
+        return {};
+      });
+      mockCreateServiceClient.mockReturnValue({ from: fromMock });
+
+      const res = await POST(makeRequest(JSON.stringify(event)));
+      expect(res.status).toBe(200);
+      expect(mockRefundsList).toHaveBeenCalledWith({ charge: "ch_test_123456", limit: 1 });
+      // Source resolved to admin-item-refund via fallback → generic email skipped.
+      expect(vi.mocked(sendEmail)).not.toHaveBeenCalled();
+    });
   });
 
   describe("idempotency claim release on handler failure", () => {
