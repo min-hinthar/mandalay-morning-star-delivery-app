@@ -6,6 +6,7 @@ import {
   createChargeRefundedEvent,
   createPaymentFailedEvent,
 } from "@/test/mocks/stripe";
+import { sendEmail } from "@/lib/email";
 import type Stripe from "stripe";
 
 // ── Mock dependencies ────────────────────────────────────────────────
@@ -574,6 +575,47 @@ describe("webhook failure scenarios (TST-02)", () => {
       expect(res.status).toBe(500);
       // …and the idempotency claim was released so the retry re-processes.
       expect(deleteEqMock).toHaveBeenCalledWith("event_id", event.id);
+    });
+
+    it("suppresses the generic refund email for a self-emailing source (cancellation)", async () => {
+      // The source is read off THIS event's own charge.refunds snapshot.
+      const event = createChargeRefundedEvent("pi_supp", 5000, true);
+      (event.data.object as unknown as { refunds: unknown }).refunds = {
+        data: [{ metadata: { source: "cancellation" } }],
+      };
+      mockConstructEvent.mockReturnValue(event);
+
+      const fromMock = vi.fn((table: string) => {
+        if (table === "webhook_events") {
+          return {
+            upsert: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({ data: [{ id: "claimed-supp" }], error: null }),
+            }),
+          };
+        }
+        if (table === "orders") {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockReturnValue({
+                  data: { id: "o-supp", status: "confirmed", user_id: "u1", total_cents: 5000 },
+                  error: null,
+                }),
+              }),
+            }),
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({ in: vi.fn().mockReturnValue({ error: null }) }),
+            }),
+          };
+        }
+        return {};
+      });
+      mockCreateServiceClient.mockReturnValue({ from: fromMock });
+
+      const res = await POST(makeRequest(JSON.stringify(event)));
+      expect(res.status).toBe(200);
+      // Cancellation self-emails → the generic webhook refund email is skipped.
+      expect(vi.mocked(sendEmail)).not.toHaveBeenCalled();
     });
   });
 

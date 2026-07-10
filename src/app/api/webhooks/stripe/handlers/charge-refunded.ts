@@ -145,29 +145,22 @@ export async function handleChargeRefunded(
   // customer isn't emailed twice. Other sources (e.g. `auto-reconcile` — a
   // system refund of a stranded cancelled order) DO email here, since no other
   // channel told the customer. (Status handling above still ran.)
+  //
+  // Read the source off THIS event's own refund snapshot (`charge.refunds`,
+  // newest-first) rather than a live `refunds.list` on the PI: the live list can
+  // return a LATER refund as "newest" when this event is processed after a
+  // subsequent refund (item-refund → cancellation), mis-attributing the source.
+  // The event payload is the state at trigger time, so data[0] is this event's
+  // refund. Missing/undefined → fall through and email (a dup beats a miss).
   const SELF_EMAILING_REFUND_SOURCES = new Set(["admin-item-refund", "cancellation"]);
-  try {
-    const recentRefunds = await stripe.refunds.list({
-      payment_intent: paymentIntentId,
-      limit: 1,
-    });
-    const refundSource = recentRefunds.data[0]?.metadata?.source;
-    if (refundSource && SELF_EMAILING_REFUND_SOURCES.has(refundSource)) {
-      logger.info(`Skipping duplicate refund email (source: ${refundSource})`, {
-        orderId: order.id,
-        api: "stripe-webhook",
-        flowId: "refund",
-      });
-      return;
-    }
-  } catch (listErr) {
-    // Fall through to emailing — a duplicate email beats a missing one.
-    logger.warn("Could not inspect refund metadata; sending generic refund email", {
+  const refundSource = charge.refunds?.data?.[0]?.metadata?.source;
+  if (refundSource && SELF_EMAILING_REFUND_SOURCES.has(refundSource)) {
+    logger.info(`Skipping duplicate refund email (source: ${refundSource})`, {
       orderId: order.id,
-      error: listErr instanceof Error ? listErr.message : String(listErr),
       api: "stripe-webhook",
       flowId: "refund",
     });
+    return;
   }
 
   // Trigger refund notification email
