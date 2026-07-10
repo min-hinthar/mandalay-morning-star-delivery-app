@@ -26,14 +26,46 @@ export async function handleChargeRefunded(
     return;
   }
 
-  // Find and update the order
-  const { data: order, error: findError } = await supabase
+  // Find the order by the real PaymentIntent id.
+  let { data: order } = await supabase
     .from("orders")
     .select("id, status, user_id, total_cents")
     .eq("stripe_payment_intent_id", paymentIntentId)
-    .single();
+    .maybeSingle();
 
-  if (findError || !order) {
+  // Fallback: orders confirmed while the PaymentIntent was still null store a
+  // `session_<checkout_session_id>` placeholder instead of the real PI id, so a
+  // refund keyed on the real PI won't match. Resolve the Checkout Session for
+  // this PI and match on the session id (or its placeholder) instead — otherwise
+  // a dashboard refund on such an order is invisible (no status change, no email).
+  if (!order) {
+    try {
+      const sessions = await stripe.checkout.sessions.list({
+        payment_intent: paymentIntentId,
+        limit: 1,
+      });
+      const sessionId = sessions.data[0]?.id;
+      if (sessionId) {
+        const { data: bySession } = await supabase
+          .from("orders")
+          .select("id, status, user_id, total_cents")
+          .or(
+            `stripe_checkout_session_id.eq.${sessionId},stripe_payment_intent_id.eq.session_${sessionId}`
+          )
+          .maybeSingle();
+        order = bySession ?? null;
+      }
+    } catch (lookupErr) {
+      logger.warn("Session fallback lookup failed in charge.refunded", {
+        paymentIntentId,
+        error: lookupErr instanceof Error ? lookupErr.message : String(lookupErr),
+        api: "stripe-webhook",
+        flowId: "refund",
+      });
+    }
+  }
+
+  if (!order) {
     logger.error("Could not find order for refund", {
       paymentIntentId,
       api: "stripe-webhook",

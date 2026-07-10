@@ -427,7 +427,7 @@ describe("webhook failure scenarios (TST-02)", () => {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
-                single: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockReturnValue({
                   data: {
                     id: "order-refund",
                     status: "confirmed",

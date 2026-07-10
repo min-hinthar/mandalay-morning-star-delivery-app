@@ -109,6 +109,33 @@ export async function POST(request: Request) {
         });
     }
   } catch (err) {
+    // The event was claimed in `webhook_events` BEFORE processing, and we return
+    // 500 below so Stripe retries. Release the claim first — otherwise the retry
+    // re-hits the UNIQUE conflict, is treated as a duplicate, and is SKIPPED
+    // without ever re-processing (the order would stay unconfirmed forever).
+    // Handlers are idempotent (status guards + email idempotency keys), so
+    // re-processing on retry is safe. Best-effort + isolated: a failed release
+    // must not mask the original error or throw out of this catch.
+    try {
+      const { error: releaseError } = await supabase
+        .from("webhook_events")
+        .delete()
+        .eq("event_id", event.id);
+      if (releaseError) {
+        logger.exception(releaseError, {
+          api: "stripe-webhook",
+          flowId: "idempotency",
+          eventId: event.id,
+        });
+      }
+    } catch (releaseErr) {
+      logger.exception(releaseErr, {
+        api: "stripe-webhook",
+        flowId: "idempotency",
+        eventId: event.id,
+      });
+    }
+
     // Extract orderId from event metadata for Sentry context
     const eventObj = event.data.object as { metadata?: { order_id?: string } };
     logger.exception(err, {
@@ -118,7 +145,7 @@ export async function POST(request: Request) {
       eventId: event.id,
       orderId: eventObj.metadata?.order_id,
     });
-    // Return 500 for DB/service errors so Stripe retries
+    // Return 500 for DB/service errors so Stripe retries (claim released above)
     return NextResponse.json({ error: "Processing failed" }, { status: 500 });
   }
 
