@@ -6,15 +6,19 @@
 
 import { isPlaceholderPaymentIntentId } from "@/lib/stripe/stranded-payment";
 
-/** Only scan orders touched within this window (bounds work + re-alert volume). */
-export const LOOKBACK_MS = 6 * 60 * 60 * 1000; // 6h
+/** Only scan orders touched within this window. The cron runs DAILY (Vercel
+ *  Hobby caps cron frequency at once/day), so the window must exceed 24h — set
+ *  to ~2 days so two consecutive runs cover every order and a single missed run
+ *  can't drop one before it's ever detected. */
+export const LOOKBACK_MS = 50 * 60 * 60 * 1000; // 50h (≈ 2 daily runs)
 /** Skip `pending` orders younger than this — the webhook + confirmation-page
  *  self-heal have not had their chance yet, so they are not "stranded" yet. */
 export const PENDING_GRACE_MS = 30 * 60 * 1000; // 30m
-/** Only email admins for orders that became stranded recently, so a persistent
- *  case is not re-emailed on every hourly run (Sentry holds the durable issue). */
-export const EMAIL_RECENCY_MS = 100 * 60 * 1000; // 100m
-export const MAX_PER_RUN = 50;
+/** Email admins only while the stranding is still fresh (first ~day), so a
+ *  persistent unresolved case isn't re-emailed on every daily run for the full
+ *  lookback. Sentry (fingerprint-deduped) holds the durable issue. */
+export const EMAIL_RECENCY_MS = 26 * 60 * 60 * 1000; // 26h (≈ 1 daily run)
+export const MAX_PER_RUN = 200;
 
 export interface ReconcileCandidate {
   status: string;

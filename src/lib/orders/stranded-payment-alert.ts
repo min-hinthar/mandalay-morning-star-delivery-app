@@ -67,8 +67,11 @@ export function captureStrandedPayment(kind: StrandedKind, ctx: StrandedAlertCon
  * Email the admin team about a stranded payment so a human can reconcile
  * (confirm the order, or refund in Stripe). Best-effort: logs and swallows any
  * send failure — the Sentry alert from `captureStrandedPayment` is the durable
- * record. Idempotency is left to the caller (the cron bounds how often an order
- * is re-alerted); `idempotencyKey` on the send de-dupes rapid duplicates.
+ * record. This send is intentionally NOT idempotency-keyed: re-alert volume is
+ * bounded by the callers instead (the cron's recency window, and the webhook /
+ * verify-payment paths firing at most once per event / page mount). A rare
+ * duplicate email on a money-loss event is acceptable — over-alerting beats a
+ * missed refund.
  */
 export async function emailAdminsStrandedPayment(
   kind: StrandedKind,

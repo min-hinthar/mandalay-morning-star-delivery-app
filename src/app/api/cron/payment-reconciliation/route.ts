@@ -13,10 +13,14 @@
  *
  * This job is READ-ONLY on `orders` — it detects and alerts (Sentry always;
  * admin email for the money-loss `paid_but_cancelled` case). Auto-heal
- * (confirm paid-pending) and auto-refund (cancelled-paid) land in a follow-up;
- * keeping this job side-effect-free on the order row makes it safe to run
- * frequently. Every confirm path otherwise guards on `status = 'pending'`, so
- * without this sweep a paid+cancelled order is never re-inspected.
+ * (confirm paid-pending) and auto-refund (cancelled-paid) land in a follow-up.
+ * It runs DAILY (Vercel Hobby caps cron frequency at once/day), so the scan
+ * window spans ~2 days (`LOOKBACK_MS`) to cover every order across runs. The
+ * webhook + `verify-payment` detectors catch the race cases in real time; this
+ * sweep is the backstop for strandings with no triggering event (e.g. an admin
+ * cancelling a paid order). Every confirm path otherwise guards on
+ * `status = 'pending'`, so without this a paid+cancelled order is never
+ * re-inspected.
  */
 
 import { NextResponse } from "next/server";
@@ -89,7 +93,9 @@ export async function GET(request: Request) {
     .in("status", ["pending", "cancelled"])
     .neq("payment_method", "cod")
     .gte("updated_at", lookbackIso)
-    .order("updated_at", { ascending: true })
+    // Newest first: in a rare flood, prioritise the freshest (email-eligible,
+    // most actionable) strandings within MAX_PER_RUN.
+    .order("updated_at", { ascending: false })
     .limit(MAX_PER_RUN)
     .returns<CandidateOrder[]>();
 

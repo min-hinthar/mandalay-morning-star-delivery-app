@@ -91,7 +91,11 @@ export async function handleCheckoutSessionCompleted(
         api: "stripe-webhook",
         flowId: "checkout",
       });
-    } else if (existing.status === "cancelled" && session.payment_status === "paid") {
+    } else if (
+      existing.status === "cancelled" &&
+      session.payment_status === "paid" &&
+      (session.amount_total ?? 0) > 0
+    ) {
       // The order was cancelled BEFORE this paid completion landed (a
       // cancel/expiry-vs-payment race). The customer was charged but the order
       // is cancelled — otherwise silent (this handler would just log "skipping").
