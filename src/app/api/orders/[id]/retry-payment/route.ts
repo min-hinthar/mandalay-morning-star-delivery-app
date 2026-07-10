@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
@@ -149,7 +149,10 @@ export async function POST(_request: Request, { params }: RouteParams) {
           inspection,
         };
         captureStrandedPayment("paid_but_pending", alertCtx);
-        void emailAdminsStrandedPayment("paid_but_pending", alertCtx);
+        // after() — NOT `void`: a bare `void asyncFn()` before return is killed
+        // on Vercel once the response is sent, dropping the admin email about
+        // money already captured (repo Gotcha).
+        after(() => emailAdminsStrandedPayment("paid_but_pending", alertCtx));
         return NextResponse.json(
           {
             error: {
@@ -346,11 +349,20 @@ export async function POST(_request: Request, { params }: RouteParams) {
     }
     if (priorSessionId !== session.id) {
       // Service client: stripe_checkout_session_id is a service-role-written
-      // payment column (matches checkout/session/route.ts).
-      await createServiceClient()
+      // payment column (matches checkout/session/route.ts). Log a failure —
+      // this is the secondary anti-race guard (verify-payment/reconciliation
+      // inspect this id); a silent 0-row/errored write would drop it unseen.
+      const { error: persistError } = await createServiceClient()
         .from("orders")
         .update({ stripe_checkout_session_id: session.id })
         .eq("id", order.id);
+      if (persistError) {
+        logger.exception(persistError, {
+          api: "orders/[id]/retry-payment",
+          orderId: order.id,
+          message: "Failed to persist retry checkout session id",
+        });
+      }
     }
 
     return NextResponse.json({

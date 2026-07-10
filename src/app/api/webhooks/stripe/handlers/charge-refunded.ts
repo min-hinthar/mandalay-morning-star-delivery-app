@@ -26,12 +26,17 @@ export async function handleChargeRefunded(
     return;
   }
 
-  // Find the order by the real PaymentIntent id.
-  let { data: order } = await supabase
+  // Find the order by the real PaymentIntent id. `maybeSingle()` returns
+  // data:null for BOTH "no rows" and a transient DB fault — so surface a real
+  // error by throwing (the route returns 500 → Stripe retries), never swallow a
+  // DB fault into the "order not found" skip (which returns 200, no retry).
+  const { data: byPi, error: piLookupError } = await supabase
     .from("orders")
     .select("id, status, user_id, total_cents")
     .eq("stripe_payment_intent_id", paymentIntentId)
     .maybeSingle();
+  if (piLookupError) throw piLookupError;
+  let order = byPi;
 
   // Fallback: orders confirmed while the PaymentIntent was still null store a
   // `session_<checkout_session_id>` placeholder instead of the real PI id, so a
@@ -39,22 +44,15 @@ export async function handleChargeRefunded(
   // this PI and match on the session id (or its placeholder) instead — otherwise
   // a dashboard refund on such an order is invisible (no status change, no email).
   if (!order) {
+    // Resolving the session from Stripe is best-effort (a Stripe hiccup here
+    // just means we can't recover the mapping — fall through to "not found").
+    let sessionId: string | undefined;
     try {
       const sessions = await stripe.checkout.sessions.list({
         payment_intent: paymentIntentId,
         limit: 1,
       });
-      const sessionId = sessions.data[0]?.id;
-      if (sessionId) {
-        const { data: bySession } = await supabase
-          .from("orders")
-          .select("id, status, user_id, total_cents")
-          .or(
-            `stripe_checkout_session_id.eq.${sessionId},stripe_payment_intent_id.eq.session_${sessionId}`
-          )
-          .maybeSingle();
-        order = bySession ?? null;
-      }
+      sessionId = sessions.data[0]?.id;
     } catch (lookupErr) {
       logger.warn("Session fallback lookup failed in charge.refunded", {
         paymentIntentId,
@@ -62,6 +60,18 @@ export async function handleChargeRefunded(
         api: "stripe-webhook",
         flowId: "refund",
       });
+    }
+    if (sessionId) {
+      // A real DB fault here must 500 (Stripe retries), not masquerade as "no order".
+      const { data: bySession, error: sessionLookupError } = await supabase
+        .from("orders")
+        .select("id, status, user_id, total_cents")
+        .or(
+          `stripe_checkout_session_id.eq.${sessionId},stripe_payment_intent_id.eq.session_${sessionId}`
+        )
+        .maybeSingle();
+      if (sessionLookupError) throw sessionLookupError;
+      order = bySession ?? null;
     }
   }
 
