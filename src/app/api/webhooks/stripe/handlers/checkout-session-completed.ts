@@ -1,6 +1,7 @@
 import React from "react";
 import { after } from "next/server";
 import { createServiceClient } from "@/lib/supabase/server";
+import { stripe } from "@/lib/stripe/server";
 import { maybeRewardReferral } from "@/lib/referrals/reward";
 import { maybeIssueMilestoneReward } from "@/lib/loyalty/reward";
 import { markLoyaltyRedeemed } from "@/lib/loyalty/redeem";
@@ -12,6 +13,7 @@ import {
 } from "@/lib/email";
 import { getLoyaltyNudge } from "@/lib/email/nudges";
 import { logger } from "@/lib/utils/logger";
+import { inspectOrderPayment, classifyStrandedPayment } from "@/lib/stripe/stranded-payment";
 import {
   captureStrandedPayment,
   emailAdminsStrandedPayment,
@@ -99,23 +101,36 @@ export async function handleCheckoutSessionCompleted(
       // The order was cancelled BEFORE this paid completion landed (a
       // cancel/expiry-vs-payment race). The customer was charged but the order
       // is cancelled — otherwise silent (this handler would just log "skipping").
-      // Surface it so it can be refunded/reinstated. No refund has happened yet,
-      // so amountRefunded = 0 and amount = the session total.
-      const inspection = {
-        paid: true,
-        amountCents: session.amount_total ?? 0,
-        amountRefundedCents: 0,
-        paymentIntentId: paymentIntentId,
-        sessionId: session.id,
-      };
-      const alertCtx = {
-        orderId,
-        userId: session.metadata?.user_id,
-        source: "stripe-webhook",
-        inspection,
-      };
-      captureStrandedPayment("paid_but_cancelled", alertCtx);
-      after(() => emailAdminsStrandedPayment("paid_but_cancelled", alertCtx));
+      // Inspect LIVE Stripe refund state off the response path before alerting:
+      // `checkout.session.completed` can be REDELIVERED hours later (e.g. after
+      // our own 500), and if an admin has since refunded manually, a hardcoded
+      // amountRefunded=0 would false-page "customer out the money". The
+      // refund-aware classifier suppresses that.
+      after(async () => {
+        try {
+          const inspection = await inspectOrderPayment(stripe, {
+            paymentIntentId,
+            sessionId: session.id,
+          });
+          if (classifyStrandedPayment("cancelled", inspection) === "paid_but_cancelled") {
+            const alertCtx = {
+              orderId,
+              userId: session.metadata?.user_id,
+              source: "stripe-webhook",
+              inspection,
+            };
+            captureStrandedPayment("paid_but_cancelled", alertCtx);
+            await emailAdminsStrandedPayment("paid_but_cancelled", alertCtx);
+          }
+        } catch (err) {
+          logger.error("Stranded-payment inspection failed in checkout-completed", {
+            orderId,
+            error: err instanceof Error ? err.message : String(err),
+            api: "stripe-webhook",
+            flowId: "stranded-payment",
+          });
+        }
+      });
     } else {
       // Already processed (idempotent) — not an error
       logger.info(`Order ${orderId} already ${existing.status}, skipping`, {

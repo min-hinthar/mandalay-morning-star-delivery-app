@@ -108,58 +108,66 @@ export async function GET(request: Request) {
     return apiError("INTERNAL_ERROR", "Failed to query orders", 500);
   }
 
-  let scanned = 0;
+  // No Stripe handle ⇒ nothing captured (COD already excluded); young pending
+  // orders still have their normal-confirm grace window — filter both out first.
+  const toScan = (orders ?? []).filter(
+    (order) => hasStripeHandle(order) && !isPendingWithinGrace(order, now)
+  );
+  const scanned = toScan.length;
   let strandedPending = 0;
   let strandedCancelled = 0;
   let inspectErrors = 0;
 
-  for (const order of orders ?? []) {
-    // No Stripe handle at all ⇒ nothing captured (COD already excluded).
-    if (!hasStripeHandle(order)) continue;
+  // Bound concurrency: each candidate is a sequential Stripe round-trip, so up
+  // to MAX_PER_RUN=200 in series could brush maxDuration and abort the sweep
+  // mid-scan (starving the tail). Batches of CONCURRENCY finish all candidates
+  // well inside the budget. Counter mutations are safe — JS runs each task's
+  // sync steps to completion between awaits (no data race).
+  const CONCURRENCY = 5;
+  for (let i = 0; i < toScan.length; i += CONCURRENCY) {
+    const batch = toScan.slice(i, i + CONCURRENCY);
+    await Promise.all(
+      batch.map(async (order) => {
+        let inspection;
+        try {
+          inspection = await inspectOrderPayment(stripe, {
+            paymentIntentId: order.stripe_payment_intent_id,
+            sessionId: order.stripe_checkout_session_id,
+          });
+        } catch (err) {
+          inspectErrors++;
+          logger.error("Failed to inspect Stripe payment during reconciliation", {
+            orderId: order.id,
+            error: err instanceof Error ? err.message : String(err),
+            flowId: FLOW_ID,
+            api: "cron",
+          });
+          return;
+        }
 
-    // Give young pending orders time to confirm through the normal paths.
-    if (isPendingWithinGrace(order, now)) continue;
+        const kind = classifyStrandedPayment(order.status, inspection);
+        if (!kind) return;
 
-    scanned++;
+        const ctx = {
+          orderId: order.id,
+          userId: order.user_id,
+          source: "cron-reconciliation",
+          inspection,
+        };
+        captureStrandedPayment(kind, ctx);
 
-    let inspection;
-    try {
-      inspection = await inspectOrderPayment(stripe, {
-        paymentIntentId: order.stripe_payment_intent_id,
-        sessionId: order.stripe_checkout_session_id,
-      });
-    } catch (err) {
-      inspectErrors++;
-      logger.error("Failed to inspect Stripe payment during reconciliation", {
-        orderId: order.id,
-        error: err instanceof Error ? err.message : String(err),
-        flowId: FLOW_ID,
-        api: "cron",
-      });
-      continue;
-    }
-
-    const kind = classifyStrandedPayment(order.status, inspection);
-    if (!kind) continue;
-
-    const ctx = {
-      orderId: order.id,
-      userId: order.user_id,
-      source: "cron-reconciliation",
-      inspection,
-    };
-    captureStrandedPayment(kind, ctx);
-
-    if (kind === "paid_but_pending") {
-      strandedPending++;
-    } else {
-      strandedCancelled++;
-      // Money-loss case → notify a human, but only while it is fresh so a
-      // persistent unresolved order is not re-emailed every run.
-      if (isWithinEmailRecency(order, now)) {
-        await emailAdminsStrandedPayment(kind, ctx);
-      }
-    }
+        if (kind === "paid_but_pending") {
+          strandedPending++;
+        } else {
+          strandedCancelled++;
+          // Money-loss case → notify a human, but only while it is fresh so a
+          // persistent unresolved order is not re-emailed every run.
+          if (isWithinEmailRecency(order, now)) {
+            await emailAdminsStrandedPayment(kind, ctx);
+          }
+        }
+      })
+    );
   }
 
   logger.info("Payment-reconciliation cron completed", {
