@@ -222,6 +222,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
             type: "cancellation",
             orderId,
             userId: custUserId,
+            // When money was refunded this email is the customer's ONLY notice
+            // (the webhook email is suppressed for the "cancellation" source) —
+            // make it mandatory so a transient send failure retries.
+            mandatory: refundIssued,
             idempotencyKey: `cancellation-${orderId}`,
           });
         } catch (emailErr) {

@@ -61,7 +61,6 @@ interface CandidateOrder {
   status: string;
   user_id: string;
   payment_method: string;
-  total_cents: number;
   placed_at: string;
   updated_at: string;
   stripe_checkout_session_id: string | null;
@@ -99,7 +98,7 @@ export async function GET(request: Request) {
   const { data: orders, error } = await supabase
     .from("orders")
     .select(
-      "id, status, user_id, payment_method, total_cents, placed_at, updated_at, stripe_checkout_session_id, stripe_payment_intent_id"
+      "id, status, user_id, payment_method, placed_at, updated_at, stripe_checkout_session_id, stripe_payment_intent_id"
     )
     .in("status", ["pending", "cancelled"])
     .neq("payment_method", "cod")
@@ -205,7 +204,6 @@ export async function GET(request: Request) {
               orderId: order.id,
               order: {
                 payment_method: order.payment_method,
-                total_cents: order.total_cents,
                 stripe_payment_intent_id: order.stripe_payment_intent_id,
                 stripe_checkout_session_id: order.stripe_checkout_session_id,
               },

@@ -206,6 +206,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
               type: "cancellation",
               orderId,
               userId: cancelUserId,
+              // Refunded → this email is the customer's only refund notice
+              // (webhook email suppressed for "cancellation"); make it mandatory.
+              mandatory: refundIssued,
               idempotencyKey: `cancellation-${orderId}`,
             });
           } catch (emailErr) {

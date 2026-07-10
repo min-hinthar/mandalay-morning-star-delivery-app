@@ -31,7 +31,6 @@ function makeServiceClient() {
 const stripe = {} as unknown as Stripe;
 const paidOrder: OrderRefundHandles = {
   payment_method: "stripe",
-  total_cents: 5000,
   stripe_payment_intent_id: "pi_1",
   stripe_checkout_session_id: "cs_1",
 };

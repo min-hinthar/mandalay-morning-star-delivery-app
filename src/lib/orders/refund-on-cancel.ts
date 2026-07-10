@@ -38,7 +38,6 @@ export interface CancelRefundResult {
 
 export interface OrderRefundHandles {
   payment_method: string;
-  total_cents: number;
   stripe_payment_intent_id: string | null;
   stripe_checkout_session_id: string | null;
 }
