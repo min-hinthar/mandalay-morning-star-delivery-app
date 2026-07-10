@@ -165,13 +165,23 @@ export async function POST(_request: Request, { params }: RouteParams) {
         );
       }
     } catch (err) {
-      // Inspection is best-effort; a Stripe hiccup must not block a legitimate
-      // retry. Fall through to creating the session.
+      // Fail CLOSED: this guard exists to prevent a double charge, so if we
+      // cannot confirm the prior session's payment state, do NOT open a second
+      // charge — ask the customer to try again rather than risk charging twice.
       logger.warn("retry-payment: could not inspect existing session for prior payment", {
         orderId: order.id,
         error: err instanceof Error ? err.message : String(err),
         api: "orders/[id]/retry-payment",
       });
+      return NextResponse.json(
+        {
+          error: {
+            code: "VERIFY_FAILED",
+            message: "Couldn't verify your payment status just now. Please try again in a moment.",
+          },
+        },
+        { status: 503 }
+      );
     }
   }
 
@@ -334,34 +344,41 @@ export async function POST(_request: Request, { params }: RouteParams) {
     // makes verify-payment + reconciliation inspect the right session.
     // Skip when the retry is idempotent-cached to the same id (repeat clicks).
     const priorSessionId = order.stripe_checkout_session_id;
-    if (priorSessionId && priorSessionId !== session.id) {
-      try {
-        await stripe.checkout.sessions.expire(priorSessionId);
-      } catch (expireErr) {
-        // Already expired/completed → nothing to do. Best-effort.
-        logger.warn("retry-payment: could not expire prior checkout session", {
-          orderId: order.id,
-          priorSessionId,
-          error: expireErr instanceof Error ? expireErr.message : String(expireErr),
-          api: "orders/[id]/retry-payment",
-        });
-      }
-    }
     if (priorSessionId !== session.id) {
+      // Order MUST point at the retry session BEFORE we expire the old one.
+      // `expire()` emits `checkout.session.expired` for the old session; the
+      // expired handler now only cancels when the expiring session is the
+      // order's CURRENT session, so persisting first means that event finds the
+      // new id and skips the cancel. Chain `.select("id")` to verify the write
+      // actually landed (`.update()` alone returns no row count).
       // Service client: stripe_checkout_session_id is a service-role-written
-      // payment column (matches checkout/session/route.ts). Log a failure —
-      // this is the secondary anti-race guard (verify-payment/reconciliation
-      // inspect this id); a silent 0-row/errored write would drop it unseen.
-      const { error: persistError } = await createServiceClient()
+      // payment column (matches checkout/session/route.ts).
+      const { data: persistedRows, error: persistError } = await createServiceClient()
         .from("orders")
         .update({ stripe_checkout_session_id: session.id })
-        .eq("id", order.id);
-      if (persistError) {
-        logger.exception(persistError, {
+        .eq("id", order.id)
+        .select("id");
+      if (persistError || !persistedRows || persistedRows.length === 0) {
+        // If the order no longer points at the retry session, expiring the old
+        // one could cancel a live order — skip the expire and surface the fault.
+        logger.exception(persistError ?? new Error("retry session id persist affected 0 rows"), {
           api: "orders/[id]/retry-payment",
           orderId: order.id,
-          message: "Failed to persist retry checkout session id",
+          message: "Failed to persist retry checkout session id — skipping stale-session expire",
         });
+      } else if (priorSessionId) {
+        try {
+          await stripe.checkout.sessions.expire(priorSessionId);
+        } catch (expireErr) {
+          // Already expired/completed → nothing to do. Best-effort; the expired
+          // handler's session-id guard makes a lingering old session harmless.
+          logger.warn("retry-payment: could not expire prior checkout session", {
+            orderId: order.id,
+            priorSessionId,
+            error: expireErr instanceof Error ? expireErr.message : String(expireErr),
+            api: "orders/[id]/retry-payment",
+          });
+        }
       }
     }
 

@@ -575,6 +575,41 @@ describe("webhook failure scenarios (TST-02)", () => {
     });
   });
 
+  describe("checkout.session.expired session-id guard", () => {
+    it("only cancels when the expiring session is the order's current session (retry race)", async () => {
+      const event = createCheckoutExpiredEvent("order-retry", "user-1");
+      const sessionId = (event.data.object as Stripe.Checkout.Session).id;
+      mockConstructEvent.mockReturnValue(event);
+
+      // 0 rows updated = the order moved on to a retry session, so this stale
+      // session's expiry must NOT cancel it.
+      const selectMock = vi.fn().mockReturnValue({ data: [], error: null });
+      const eqSession = vi.fn().mockReturnValue({ select: selectMock });
+      const eqStatus = vi.fn().mockReturnValue({ eq: eqSession });
+      const eqId = vi.fn().mockReturnValue({ eq: eqStatus });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqId });
+      const fromMock = vi.fn((table: string) => {
+        if (table === "webhook_events") {
+          return {
+            upsert: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({ data: [{ id: "claimed-exp" }], error: null }),
+            }),
+          };
+        }
+        if (table === "orders") return { update: updateMock };
+        return {};
+      });
+      mockCreateServiceClient.mockReturnValue({ from: fromMock });
+
+      const res = await POST(makeRequest(JSON.stringify(event)));
+      expect(res.status).toBe(200);
+      // The cancel update is scoped to the current session id (the guard)…
+      expect(eqSession).toHaveBeenCalledWith("stripe_checkout_session_id", sessionId);
+      // …and a 0-row result is a clean no-op (no throw, 200).
+      expect(selectMock).toHaveBeenCalled();
+    });
+  });
+
   describe("unknown event type", () => {
     it("returns 200 without processing for unknown event types", async () => {
       const unknownEvent = {
