@@ -124,6 +124,17 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       });
     }
 
+    // Resolve the customer email BEFORE refunding so the webhook-suppression
+    // source is keyed on actual deliverability — not just notifyCustomer — the
+    // same value that gates the OrderCancellation send below (mirrors the
+    // account route so suppression and send can never disagree).
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("email, full_name")
+      .eq("id", order.user_id)
+      .single();
+    const customerHasEmail = !!profile?.email;
+
     // Auto-refund a paid order on cancellation. Paid cancels ALWAYS refund —
     // an opt-out would be silently reversed by the reconciliation cron anyway
     // (it auto-refunds any cancelled+paid order), so an illusory control is
@@ -140,10 +151,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           actorId: userId,
           actorRole: "admin",
           reason,
-          // When no cancellation email is sent, use a webhook-notified source so
-          // the customer is still told about the refund (a refund is a financial
-          // event they must always hear about).
-          refundSource: notifyCustomer ? "cancellation" : "auto-reconcile",
+          // Suppress the webhook refund email ONLY when the OrderCancellation
+          // email will actually be sent (notifyCustomer AND a deliverable email);
+          // otherwise use a webhook-notified source so the refund is never silent.
+          refundSource: notifyCustomer && customerHasEmail ? "cancellation" : "auto-reconcile",
         });
         refundIssued = refundResult.refunded;
       } catch (refundErr) {
@@ -157,13 +168,6 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     // Trigger cancellation email if requested
     if (notifyCustomer) {
-      // Fetch customer profile for email
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("email, full_name")
-        .eq("id", order.user_id)
-        .single();
-
       // Fetch order items for email summary
       const { data: orderItems } = await supabase
         .from("order_items")
