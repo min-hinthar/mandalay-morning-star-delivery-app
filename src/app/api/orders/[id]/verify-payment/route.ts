@@ -8,6 +8,11 @@ import { OrderConfirmation } from "@/emails/OrderConfirmation";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
+import { inspectOrderPayment, classifyStrandedPayment } from "@/lib/stripe/stranded-payment";
+import {
+  captureStrandedPayment,
+  emailAdminsStrandedPayment,
+} from "@/lib/orders/stranded-payment-alert";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -44,10 +49,10 @@ export async function POST(request: Request, { params }: RouteParams) {
     // Empty body is OK — we'll fall back to stored session ID
   }
 
-  // Verify order ownership (include stripe_checkout_session_id for fallback)
+  // Verify order ownership (include Stripe handles for fallback + reconciliation)
   const { data: order, error: fetchError } = await supabase
     .from("orders")
-    .select("id, status, user_id, stripe_checkout_session_id")
+    .select("id, status, user_id, stripe_checkout_session_id, stripe_payment_intent_id")
     .eq("id", orderId)
     .eq("user_id", user.id)
     .single();
@@ -56,8 +61,40 @@ export async function POST(request: Request, { params }: RouteParams) {
     return apiError("NOT_FOUND", "Order not found", 404);
   }
 
-  // Already confirmed — return current status
+  // Already confirmed (or otherwise non-pending) — return current status.
   if (order.status !== "pending") {
+    // A customer landing here after paying, on a CANCELLED order, may have been
+    // charged (a cancel/expiry-vs-payment race). Every confirm path guards on
+    // `pending`, so this would otherwise be silent. Inspect Stripe off the
+    // response path and alert if money is stranded.
+    if (order.status === "cancelled") {
+      after(async () => {
+        try {
+          // Reconcile against the SERVER-stored Stripe handles only — never the
+          // client-supplied `sessionId`. A client-supplied session (e.g. from a
+          // different paid order the customer owns) could fabricate a
+          // `paid_but_cancelled` alert with the wrong amount/PI into the exact
+          // channel meant to catch real losses.
+          const inspection = await inspectOrderPayment(stripe, {
+            paymentIntentId: order.stripe_payment_intent_id,
+            sessionId: order.stripe_checkout_session_id,
+          });
+          const kind = classifyStrandedPayment(order.status, inspection);
+          if (kind === "paid_but_cancelled") {
+            const alertCtx = { orderId, userId: user.id, source: "verify-payment", inspection };
+            captureStrandedPayment(kind, alertCtx);
+            await emailAdminsStrandedPayment(kind, alertCtx);
+          }
+        } catch (err) {
+          logger.error("Stranded-payment inspection failed in verify-payment", {
+            orderId,
+            error: err instanceof Error ? err.message : String(err),
+            api: "verify-payment",
+            flowId: "stranded-payment",
+          });
+        }
+      });
+    }
     return NextResponse.json({ status: order.status });
   }
 
