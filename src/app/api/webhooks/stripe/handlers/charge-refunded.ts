@@ -44,8 +44,10 @@ export async function handleChargeRefunded(
   // this PI and match on the session id (or its placeholder) instead — otherwise
   // a dashboard refund on such an order is invisible (no status change, no email).
   if (!order) {
-    // Resolving the session from Stripe is best-effort (a Stripe hiccup here
-    // just means we can't recover the mapping — fall through to "not found").
+    // For a `session_<id>`-placeholder order, resolving the Checkout Session from
+    // Stripe is the ONLY path from this refund event back to the order, so a
+    // transient Stripe error here must retry (rethrow → 500 → Stripe redelivers)
+    // rather than fall through to "not found" (200, no redelivery, refund lost).
     let sessionId: string | undefined;
     try {
       const sessions = await stripe.checkout.sessions.list({
@@ -54,12 +56,16 @@ export async function handleChargeRefunded(
       });
       sessionId = sessions.data[0]?.id;
     } catch (lookupErr) {
-      logger.warn("Session fallback lookup failed in charge.refunded", {
+      // Rethrow so the webhook returns 500 and Stripe retries; the handler is
+      // idempotent (status write is status-guarded, email is idempotency-keyed on
+      // the charge id), so reprocessing can't double-fire.
+      logger.warn("Session fallback lookup failed in charge.refunded — rethrowing for retry", {
         paymentIntentId,
         error: lookupErr instanceof Error ? lookupErr.message : String(lookupErr),
         api: "stripe-webhook",
         flowId: "refund",
       });
+      throw lookupErr;
     }
     if (sessionId) {
       // A real DB fault here must 500 (Stripe retries), not masquerade as "no order".

@@ -536,6 +536,45 @@ describe("webhook failure scenarios (TST-02)", () => {
       expect(orMaybeSingle).toHaveBeenCalled();
       expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ status: "cancelled" }));
     });
+
+    it("rethrows (500) when the session-fallback lookup itself errors, so Stripe retries", async () => {
+      const event = createChargeRefundedEvent("pi_fallback_errors", 5000, true);
+      mockConstructEvent.mockReturnValue(event);
+      // The session lookup is the ONLY path to a session_<id>-placeholder order,
+      // so a transient Stripe error here must 500 (redeliver), not fall through
+      // to "not found" (200 → refund status/email silently lost).
+      mockSessionsList.mockRejectedValueOnce(new Error("stripe unavailable"));
+
+      const deleteEqMock = vi.fn().mockReturnValue({ error: null });
+      const fromMock = vi.fn((table: string) => {
+        if (table === "webhook_events") {
+          return {
+            upsert: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({ data: [{ id: "claimed-fberr" }], error: null }),
+            }),
+            delete: vi.fn().mockReturnValue({ eq: deleteEqMock }),
+          };
+        }
+        if (table === "orders") {
+          return {
+            select: vi.fn().mockReturnValue({
+              // Direct PI lookup misses → fall to the session fallback (which throws).
+              eq: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockReturnValue({ data: null, error: null }),
+              }),
+            }),
+          };
+        }
+        return {};
+      });
+      mockCreateServiceClient.mockReturnValue({ from: fromMock });
+
+      const res = await POST(makeRequest(JSON.stringify(event)));
+      // 500 so Stripe redelivers the refund event…
+      expect(res.status).toBe(500);
+      // …and the idempotency claim was released so the retry re-processes.
+      expect(deleteEqMock).toHaveBeenCalledWith("event_id", event.id);
+    });
   });
 
   describe("idempotency claim release on handler failure", () => {

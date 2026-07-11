@@ -357,16 +357,64 @@ export async function POST(_request: Request, { params }: RouteParams) {
         .from("orders")
         .update({ stripe_checkout_session_id: session.id })
         .eq("id", order.id)
+        .eq("status", "pending") // Don't repoint a concurrently-confirmed order
         .select("id");
-      if (persistError || !persistedRows || persistedRows.length === 0) {
-        // If the order no longer points at the retry session, expiring the old
-        // one could cancel a live order — skip the expire and surface the fault.
-        logger.exception(persistError ?? new Error("retry session id persist affected 0 rows"), {
+      if (persistError) {
+        // Transient DB fault repointing the order at the retry session. Don't
+        // hand out a session id we couldn't record, and don't expire the new
+        // session (its idempotency-cached copy must stay valid for the retry).
+        // Fail closed: the order is (likely) still pending — ask them to retry.
+        logger.exception(persistError, {
           api: "orders/[id]/retry-payment",
           orderId: order.id,
-          message: "Failed to persist retry checkout session id — skipping stale-session expire",
+          message: "Retry session id persist failed — asking customer to retry",
         });
-      } else if (priorSessionId) {
+        return NextResponse.json(
+          {
+            error: {
+              code: "VERIFY_FAILED",
+              message: "Couldn't start your payment just now. Please try again in a moment.",
+            },
+          },
+          { status: 503 }
+        );
+      }
+      if (!persistedRows || persistedRows.length === 0) {
+        // 0 rows = the order left `pending` (confirmed on the PRIOR session mid-
+        // request, or cancelled) between our entry check and now. Handing the
+        // customer this freshly-created session would let them pay a SECOND time
+        // for an order that already completed. Expire the new session and refuse;
+        // leave the prior session alone (if it just paid, that's the one charge).
+        logger.warn("retry-payment: order no longer pending — expiring new session, refusing", {
+          api: "orders/[id]/retry-payment",
+          orderId: order.id,
+          newSessionId: session.id,
+        });
+        try {
+          await stripe.checkout.sessions.expire(session.id);
+        } catch (expireNewErr) {
+          logger.warn("retry-payment: could not expire the just-created retry session", {
+            orderId: order.id,
+            newSessionId: session.id,
+            error: expireNewErr instanceof Error ? expireNewErr.message : String(expireNewErr),
+            api: "orders/[id]/retry-payment",
+          });
+        }
+        return NextResponse.json(
+          {
+            error: {
+              code: "ALREADY_PAID",
+              message:
+                "This order is no longer awaiting payment. Please refresh — no second charge was made.",
+            },
+          },
+          { status: 409 }
+        );
+      }
+      // Persist landed (order still pending, now points at the retry session) →
+      // expire the stale prior session so its 30-min expiry event can't cancel
+      // the order after it's paid on the retry.
+      if (priorSessionId) {
         try {
           await stripe.checkout.sessions.expire(priorSessionId);
         } catch (expireErr) {
