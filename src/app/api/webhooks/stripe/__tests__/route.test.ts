@@ -6,6 +6,7 @@ import {
   createChargeRefundedEvent,
   createPaymentFailedEvent,
 } from "@/test/mocks/stripe";
+import { sendEmail } from "@/lib/email";
 import type Stripe from "stripe";
 
 // ── Mock dependencies ────────────────────────────────────────────────
@@ -575,6 +576,90 @@ describe("webhook failure scenarios (TST-02)", () => {
       // …and the idempotency claim was released so the retry re-processes.
       expect(deleteEqMock).toHaveBeenCalledWith("event_id", event.id);
     });
+
+    it("suppresses the generic refund email for a self-emailing source (cancellation)", async () => {
+      // The source is read off THIS event's own charge.refunds snapshot.
+      const event = createChargeRefundedEvent("pi_supp", 5000, true);
+      (event.data.object as unknown as { refunds: unknown }).refunds = {
+        data: [{ metadata: { source: "cancellation" } }],
+      };
+      mockConstructEvent.mockReturnValue(event);
+
+      const fromMock = vi.fn((table: string) => {
+        if (table === "webhook_events") {
+          return {
+            upsert: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({ data: [{ id: "claimed-supp" }], error: null }),
+            }),
+          };
+        }
+        if (table === "orders") {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockReturnValue({
+                  data: { id: "o-supp", status: "confirmed", user_id: "u1", total_cents: 5000 },
+                  error: null,
+                }),
+              }),
+            }),
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({ in: vi.fn().mockReturnValue({ error: null }) }),
+            }),
+          };
+        }
+        return {};
+      });
+      mockCreateServiceClient.mockReturnValue({ from: fromMock });
+
+      const res = await POST(makeRequest(JSON.stringify(event)));
+      expect(res.status).toBe(200);
+      // Cancellation self-emails → the generic webhook refund email is skipped.
+      expect(vi.mocked(sendEmail)).not.toHaveBeenCalled();
+    });
+
+    it("falls back to the List Refunds API when the event payload omits refunds", async () => {
+      // Modern Stripe API versions don't inline `charge.refunds` — the default
+      // factory event has none, so the source must resolve via refunds.list.
+      const event = createChargeRefundedEvent("pi_fallback_src", 5000, true);
+      mockConstructEvent.mockReturnValue(event);
+      mockRefundsList.mockResolvedValueOnce({
+        data: [{ metadata: { source: "admin-item-refund" } }],
+      });
+
+      const fromMock = vi.fn((table: string) => {
+        if (table === "webhook_events") {
+          return {
+            upsert: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({ data: [{ id: "claimed-fbsrc" }], error: null }),
+            }),
+          };
+        }
+        if (table === "orders") {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockReturnValue({
+                  data: { id: "o-fbsrc", status: "confirmed", user_id: "u1", total_cents: 5000 },
+                  error: null,
+                }),
+              }),
+            }),
+            update: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({ in: vi.fn().mockReturnValue({ error: null }) }),
+            }),
+          };
+        }
+        return {};
+      });
+      mockCreateServiceClient.mockReturnValue({ from: fromMock });
+
+      const res = await POST(makeRequest(JSON.stringify(event)));
+      expect(res.status).toBe(200);
+      expect(mockRefundsList).toHaveBeenCalledWith({ charge: "ch_test_123456", limit: 1 });
+      // Source resolved to admin-item-refund via fallback → generic email skipped.
+      expect(vi.mocked(sendEmail)).not.toHaveBeenCalled();
+    });
   });
 
   describe("idempotency claim release on handler failure", () => {
@@ -621,10 +706,11 @@ describe("webhook failure scenarios (TST-02)", () => {
       mockConstructEvent.mockReturnValue(event);
 
       // 0 rows updated = the order moved on to a retry session, so this stale
-      // session's expiry must NOT cancel it.
+      // session's expiry must NOT cancel it. Chain: update → eq(id) → eq(status)
+      // → or(session-id-null-or-match) → select("id").
       const selectMock = vi.fn().mockReturnValue({ data: [], error: null });
-      const eqSession = vi.fn().mockReturnValue({ select: selectMock });
-      const eqStatus = vi.fn().mockReturnValue({ eq: eqSession });
+      const orMock = vi.fn().mockReturnValue({ select: selectMock });
+      const eqStatus = vi.fn().mockReturnValue({ or: orMock });
       const eqId = vi.fn().mockReturnValue({ eq: eqStatus });
       const updateMock = vi.fn().mockReturnValue({ eq: eqId });
       const fromMock = vi.fn((table: string) => {
@@ -643,7 +729,7 @@ describe("webhook failure scenarios (TST-02)", () => {
       const res = await POST(makeRequest(JSON.stringify(event)));
       expect(res.status).toBe(200);
       // The cancel update is scoped to the current session id (the guard)…
-      expect(eqSession).toHaveBeenCalledWith("stripe_checkout_session_id", sessionId);
+      expect(orMock).toHaveBeenCalledWith(expect.stringContaining(sessionId));
       // …and a 0-row result is a clean no-op (no throw, 200).
       expect(selectMock).toHaveBeenCalled();
     });

@@ -87,7 +87,15 @@ export function OrderDetailClient() {
     // Highlight animation
     setHighlightStatus(true);
     setTimeout(() => setHighlightStatus(false), 1000);
-    // Refetch to sync audit log, timestamps, etc. (no loading spinner)
+    // NOTE: the sync refetch is deferred to handleStatusSettled (below), which
+    // runs AFTER the mutation resolves. Refetching here would race a slow
+    // mutation (the /cancel path does multi-second Stripe calls) and overwrite
+    // the optimistic status with pre-mutation data.
+  };
+
+  // Sync audit log, timestamps, refund rows, etc. once the mutation has actually
+  // committed on the server — never before (see handleStatusChanged).
+  const handleStatusSettled = () => {
     fetchOrderDetails(false);
   };
 
@@ -223,7 +231,14 @@ export function OrderDetailClient() {
           currentStatus={order.status}
           newStatus={pendingStatus}
           customerEmail={order.customerEmail}
+          refundOnCancelCents={
+            order.paymentMethod === "stripe" &&
+            !["pending", "pending_approval", "cancelled"].includes(order.status)
+              ? order.totalCents
+              : 0
+          }
           onStatusChanged={handleStatusChanged}
+          onStatusSettled={handleStatusSettled}
           onStatusFailed={handleStatusFailed}
         />
       )}

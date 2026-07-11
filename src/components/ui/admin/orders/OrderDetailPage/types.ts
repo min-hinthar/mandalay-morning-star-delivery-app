@@ -31,6 +31,8 @@ export interface AuditLogEntry {
   actorRole: string;
   reason: string | null;
   createdAt: string;
+  /** Refunded amount in cents (present on `refund` actions). */
+  refundAmountCents?: number;
 }
 
 export interface DeliveryInfo {

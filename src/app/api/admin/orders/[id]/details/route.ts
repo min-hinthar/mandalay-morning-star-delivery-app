@@ -71,6 +71,7 @@ interface AuditLogRow {
   action: string;
   actor_role: string;
   reason: string | null;
+  new_value: unknown;
   created_at: string;
 }
 
@@ -196,6 +197,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         action,
         actor_role,
         reason,
+        new_value,
         created_at
       `
       )
@@ -341,13 +343,23 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         | "opened"
         | null,
       needsContact: order.needs_contact ?? false,
-      auditLog: (auditLog || []).map((entry) => ({
-        id: entry.id,
-        action: entry.action,
-        actorRole: entry.actor_role,
-        reason: entry.reason,
-        createdAt: entry.created_at,
-      })),
+      auditLog: (auditLog || []).map((entry) => {
+        // Surface the refunded amount (stored in the refund audit row's new_value)
+        // so support can answer "was this refunded, and how much?".
+        const nv = entry.new_value as { totalRefundCents?: unknown } | null;
+        const refundAmountCents =
+          entry.action === "refund" && typeof nv?.totalRefundCents === "number"
+            ? nv.totalRefundCents
+            : undefined;
+        return {
+          id: entry.id,
+          action: entry.action,
+          actorRole: entry.actor_role,
+          reason: entry.reason,
+          createdAt: entry.created_at,
+          refundAmountCents,
+        };
+      }),
     };
 
     return NextResponse.json(response);

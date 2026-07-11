@@ -8,10 +8,17 @@ import { apiError } from "@/lib/utils/api-error";
 import { OrderCancellation } from "@/emails/OrderCancellation";
 import type { OrderStatus, Json } from "@/types/database";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
+import { stripe } from "@/lib/stripe/server";
+import { createServiceClient } from "@/lib/supabase/server";
+import { refundPaidOrderInFull } from "@/lib/orders/refund-on-cancel";
 
 interface OrderRow {
   status: OrderStatus;
   user_id: string;
+  total_cents: number;
+  payment_method: string;
+  stripe_payment_intent_id: string | null;
+  stripe_checkout_session_id: string | null;
 }
 
 /**
@@ -48,10 +55,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     const { reason, notifyCustomer } = parsed.data;
 
-    // Fetch current order
+    // Fetch current order (payment handles for auto-refund)
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("status, user_id")
+      .select(
+        "status, user_id, total_cents, payment_method, stripe_payment_intent_id, stripe_checkout_session_id"
+      )
       .eq("id", orderId)
       .returns<OrderRow[]>()
       .single();
@@ -68,6 +77,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     // Check if delivered
     if (order.status === "delivered") {
       return apiError("BAD_REQUEST", "Cannot cancel a delivered order", 400);
+    }
+
+    // Don't cancel (and now auto-refund) an order already out for delivery — the
+    // food is en route, so a full refund loses both the food and the money. This
+    // mirrors the status route's transition table (no out_for_delivery→cancelled)
+    // and the admin UI, which never offers cancel for an in-transit order.
+    if (order.status === "out_for_delivery") {
+      return apiError("BAD_REQUEST", "Cannot cancel an order already out for delivery", 400);
     }
 
     const previousStatus = order.status;
@@ -115,19 +132,66 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       });
     }
 
+    // Resolve the customer email BEFORE refunding so the webhook-suppression
+    // source is keyed on actual deliverability — not just notifyCustomer — the
+    // same value that gates the OrderCancellation send below (mirrors the
+    // account route so suppression and send can never disagree).
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("email, full_name")
+      .eq("id", order.user_id)
+      .single();
+    const customerHasEmail = !!profile?.email;
+
+    // Auto-refund a paid order on cancellation. Paid cancels ALWAYS refund —
+    // an opt-out would be silently reversed by the reconciliation cron anyway
+    // (it auto-refunds any cancelled+paid order), so an illusory control is
+    // worse than none. The order is already cancelled; a refund failure must
+    // NOT fail the request — it stays cancelled and the safety net retries.
+    let refundIssued = false;
+    let refundedCents = 0;
+    let refundPending = false;
+    {
+      try {
+        const refundResult = await refundPaidOrderInFull({
+          serviceClient: createServiceClient(),
+          stripe,
+          orderId,
+          order,
+          actorId: userId,
+          actorRole: "admin",
+          reason,
+          // Suppress the webhook refund email ONLY when the OrderCancellation
+          // email will actually be sent (notifyCustomer AND a deliverable email);
+          // otherwise use a webhook-notified source so the refund is never silent.
+          refundSource: notifyCustomer && customerHasEmail ? "cancellation" : "auto-reconcile",
+        });
+        refundIssued = refundResult.status === "refunded";
+        // Cumulative returned (accurate when a prior partial refund exists).
+        refundedCents = refundResult.totalRefundedCents;
+        // Paid order whose refund is still settling — copy must reassure, not deny.
+        refundPending = refundResult.status === "pending";
+      } catch (refundErr) {
+        logger.exception(refundErr, {
+          api: "admin/orders/[id]/cancel",
+          orderId,
+          message: "Auto-refund on admin cancel failed — safety net will retry",
+        });
+        // The refund only reaches Stripe for a captured card order; a throw means
+        // the charge likely exists but the refund didn't land — the reconciliation
+        // safety net completes it. Tell the customer it's processing, not "no refund".
+        refundPending = order.payment_method === "stripe";
+      }
+    }
+
     // Trigger cancellation email if requested
     if (notifyCustomer) {
-      // Fetch customer profile for email
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("email, full_name")
-        .eq("id", order.user_id)
-        .single();
-
-      // Fetch order items for email summary
+      // Fetch order items for email summary (bilingual names + dish photos)
       const { data: orderItems } = await supabase
         .from("order_items")
-        .select("name_snapshot, quantity, line_total_cents")
+        .select(
+          "name_snapshot, name_my_snapshot, quantity, line_total_cents, menu_items ( image_url )"
+        )
         .eq("order_id", orderId);
 
       // Fetch order total
@@ -140,10 +204,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       if (profile?.email) {
         const cancelEmail = profile.email;
         const cancelCustomerName = profile.full_name || "Valued Customer";
-        const cancelItems = (orderItems || []).map((item) => ({
+        const cancelItems = (
+          (orderItems || []) as Array<{
+            name_snapshot: string;
+            name_my_snapshot: string | null;
+            quantity: number;
+            line_total_cents: number;
+            menu_items: { image_url: string | null } | null;
+          }>
+        ).map((item) => ({
           name: item.name_snapshot,
+          nameMy: item.name_my_snapshot,
           quantity: item.quantity,
           lineTotalCents: item.line_total_cents,
+          imageUrl: item.menu_items?.image_url ?? null,
         }));
         const cancelTotalCents = orderData?.total_cents ?? 0;
         const cancelUserId = order.user_id;
@@ -161,11 +235,18 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
                 totalCents: cancelTotalCents,
                 cancellationReason: reason,
                 cancelledAt,
-                refundIssued: false,
+                refundIssued,
+                refundPending,
+                refundAmountCents: refundIssued ? refundedCents : undefined,
+                refundMethod: refundIssued ? "your original payment method" : undefined,
+                refundTimeline: refundIssued ? "3–5 business days" : undefined,
               }),
               type: "cancellation",
               orderId,
               userId: cancelUserId,
+              // Refunded → this email is the customer's only refund notice
+              // (webhook email suppressed for "cancellation"); make it mandatory.
+              mandatory: refundIssued,
               idempotencyKey: `cancellation-${orderId}`,
             });
           } catch (emailErr) {
@@ -187,6 +268,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       newStatus: "cancelled",
       reason,
       notifyCustomer,
+      refundIssued,
+      refundedCents,
+      refundPending,
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/cancel" });

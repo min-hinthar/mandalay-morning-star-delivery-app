@@ -170,7 +170,13 @@ export function OrdersTab() {
       const result = await response.json();
       if (!response.ok) throw new Error(result.error?.message || "Failed to cancel order");
 
-      toast({ message: "Order cancelled successfully", type: "success" });
+      // Route returns a refund-aware message (names the refunded amount when a
+      // paid order was refunded), so the customer sees their money is on the way.
+      toast({
+        message: result.data?.message || "Your order has been cancelled.",
+        type: "success",
+        duration: result.data?.refundIssued || result.data?.refundPending ? 7000 : undefined,
+      });
       setCancelDialogOpen(false);
       setOrderToCancel(null);
       fetchOrders();
@@ -348,7 +354,9 @@ export function OrdersTab() {
           <DialogHeader>
             <DialogTitle>Cancel Order</DialogTitle>
             <DialogDescription>
-              Please provide a reason for cancelling this order. This action cannot be undone.
+              Tell us why you&apos;re cancelling. If you&apos;ve already paid, we&apos;ll refund the
+              full amount to your original payment method (3–5 business days). This can&apos;t be
+              undone.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">

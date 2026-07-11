@@ -1,10 +1,12 @@
 import React from "react";
 import { after, NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { stripe } from "@/lib/stripe/server";
 import { cancelOrderSchema } from "@/lib/validations/account";
 import { sendEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import { OrderCancellation } from "@/emails/OrderCancellation";
+import { refundPaidOrderInFull } from "@/lib/orders/refund-on-cancel";
 import { checkRateLimit, customerLimiter, getClientIp } from "@/lib/rate-limit";
 import { checkOrigin } from "@/lib/utils/origin-check";
 import type { OrderStatus } from "@/types/database";
@@ -45,10 +47,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Verify order exists and belongs to user
+    // Verify order exists and belongs to user (payment handles for auto-refund)
     const { data: order, error: fetchError } = await supabase
       .from("orders")
-      .select("id, status, user_id, total_cents")
+      .select(
+        "id, status, user_id, total_cents, payment_method, stripe_payment_intent_id, stripe_checkout_session_id"
+      )
       .eq("id", orderId)
       .single();
 
@@ -149,6 +153,45 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       );
     }
 
+    // Auto-refund a paid order on cancellation. The order is already cancelled
+    // (committed above); if the refund fails, do NOT fail the request — the
+    // order stays cancelled and the reconciliation safety net (paid_but_cancelled
+    // detector + cron) retries the refund. Idempotent, so a retry is safe.
+    let refundIssued = false;
+    let refundedCents = 0;
+    let refundPending = false;
+    try {
+      const refund = await refundPaidOrderInFull({
+        serviceClient: createServiceClient(),
+        stripe,
+        orderId,
+        order,
+        actorId: user.id,
+        actorRole: "customer",
+        reason,
+        // Suppress the webhook refund email ONLY when we'll actually send the
+        // OrderCancellation email below (gated on user.email). Otherwise use a
+        // webhook-notified source so a refund is never silent (mirrors admin).
+        refundSource: user.email ? "cancellation" : "auto-reconcile",
+      });
+      refundIssued = refund.status === "refunded";
+      // Cumulative returned (accurate when a prior partial refund exists).
+      refundedCents = refund.totalRefundedCents;
+      // Paid order whose refund is still settling — copy must reassure, not deny.
+      refundPending = refund.status === "pending";
+    } catch (refundErr) {
+      logger.exception(refundErr, {
+        api: "account/orders/[id]/cancel",
+        orderId,
+        userId: user.id,
+        message: "Auto-refund on cancel failed — safety net will retry",
+      });
+      // The refund only reaches Stripe for a captured card order; a throw means
+      // the charge likely exists but the refund didn't land — the reconciliation
+      // safety net completes it. Tell the customer it's processing, not "no refund".
+      refundPending = order.payment_method === "stripe";
+    }
+
     // Trigger cancellation email
     const { data: profile } = await supabase
       .from("profiles")
@@ -158,16 +201,28 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const { data: orderItems } = await supabase
       .from("order_items")
-      .select("name_snapshot, quantity, line_total_cents")
+      .select(
+        "name_snapshot, name_my_snapshot, quantity, line_total_cents, menu_items ( image_url )"
+      )
       .eq("order_id", orderId);
 
     if (user.email) {
       const custEmail = user.email;
       const custName = profile?.full_name || "Valued Customer";
-      const custItems = (orderItems || []).map((item) => ({
+      const custItems = (
+        (orderItems || []) as Array<{
+          name_snapshot: string;
+          name_my_snapshot: string | null;
+          quantity: number;
+          line_total_cents: number;
+          menu_items: { image_url: string | null } | null;
+        }>
+      ).map((item) => ({
         name: item.name_snapshot,
+        nameMy: item.name_my_snapshot,
         quantity: item.quantity,
         lineTotalCents: item.line_total_cents,
+        imageUrl: item.menu_items?.image_url ?? null,
       }));
       const custTotalCents = order.total_cents ?? 0;
       const custUserId = user.id;
@@ -184,11 +239,19 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
               totalCents: custTotalCents,
               cancellationReason: reason,
               cancelledAt,
-              refundIssued: false,
+              refundIssued,
+              refundPending,
+              refundAmountCents: refundIssued ? refundedCents : undefined,
+              refundMethod: refundIssued ? "your original payment method" : undefined,
+              refundTimeline: refundIssued ? "3–5 business days" : undefined,
             }),
             type: "cancellation",
             orderId,
             userId: custUserId,
+            // When money was refunded this email is the customer's ONLY notice
+            // (the webhook email is suppressed for the "cancellation" source) —
+            // make it mandatory so a transient send failure retries.
+            mandatory: refundIssued,
             idempotencyKey: `cancellation-${orderId}`,
           });
         } catch (emailErr) {
@@ -207,7 +270,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         id: orderId,
         status: "cancelled",
         cancelledAt,
-        message: "Order cancelled successfully",
+        refundIssued,
+        refundedCents,
+        refundPending,
+        message: refundIssued
+          ? `Order cancelled — $${(refundedCents / 100).toFixed(2)} refunded to your original payment method`
+          : refundPending
+            ? "Order cancelled — your refund is being processed and will arrive within 3–5 business days"
+            : "Order cancelled successfully",
       },
     });
   } catch (error) {

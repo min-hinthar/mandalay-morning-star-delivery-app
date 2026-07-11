@@ -1,13 +1,21 @@
 import { NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { stripe } from "@/lib/stripe/server";
 import { logger } from "@/lib/utils/logger";
+import { refundPaidOrderInFull } from "@/lib/orders/refund-on-cancel";
 import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
+import { checkOrigin } from "@/lib/utils/origin-check";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-export async function POST(_request: Request, { params }: RouteParams) {
+export async function POST(request: Request, { params }: RouteParams) {
+  // CSRF guard — this route now moves money (auto-refund on cancel), matching
+  // the account cancel route's protection.
+  const originError = checkOrigin(request);
+  if (originError) return originError;
+
   const { id: orderId } = await params;
 
   const supabase = await createClient();
@@ -32,10 +40,12 @@ export async function POST(_request: Request, { params }: RouteParams) {
   });
   if (rl.limited) return rl.response;
 
-  // Verify order exists and belongs to user
+  // Verify order exists and belongs to user (payment handles for auto-refund)
   const { data: order, error: fetchError } = await supabase
     .from("orders")
-    .select("id, status, user_id")
+    .select(
+      "id, status, user_id, total_cents, payment_method, stripe_payment_intent_id, stripe_checkout_session_id"
+    )
     .eq("id", orderId)
     .single();
 
@@ -106,5 +116,43 @@ export async function POST(_request: Request, { params }: RouteParams) {
     );
   }
 
-  return NextResponse.json({ success: true });
+  // Auto-refund if this pending order was actually paid (dropped-webhook
+  // paid_but_pending). The order is already cancelled; a refund failure must not
+  // fail the request — the reconciliation safety net retries (idempotent).
+  let refundIssued = false;
+  let refundedCents = 0;
+  let refundPending = false;
+  try {
+    const refund = await refundPaidOrderInFull({
+      serviceClient: createServiceClient(),
+      stripe,
+      orderId,
+      order,
+      actorId: user.id,
+      actorRole: "customer",
+      reason: "Customer cancelled pending order",
+      // This route sends no cancellation email, so use a webhook-notified source
+      // — the charge.refunded webhook then emails the customer their refund.
+      refundSource: "auto-reconcile",
+    });
+    refundIssued = refund.status === "refunded";
+    // Cumulative returned (accurate when a prior partial refund exists).
+    refundedCents = refund.totalRefundedCents;
+    // Paid order whose refund is still settling — the safety net completes it.
+    refundPending = refund.status === "pending";
+  } catch (refundErr) {
+    logger.exception(refundErr, {
+      api: "cancel-order",
+      orderId,
+      userId: user.id,
+      flowId: "order",
+      message: "Auto-refund on cancel failed — safety net will retry",
+    });
+    // The refund only reaches Stripe for a captured card order; a throw means
+    // the charge likely exists but the refund didn't land — the reconciliation
+    // safety net completes it (the webhook then emails the customer).
+    refundPending = order.payment_method === "stripe";
+  }
+
+  return NextResponse.json({ success: true, refundIssued, refundedCents, refundPending });
 }

@@ -11,16 +11,20 @@
  *     covers the charge (cancel of a paid order, or a cancel/expiry-vs-payment
  *     race). The customer is out the money.
  *
- * This job is READ-ONLY on `orders` — it detects and alerts (Sentry always;
- * admin email for the money-loss `paid_but_cancelled` case). Auto-heal
- * (confirm paid-pending) and auto-refund (cancelled-paid) land in a follow-up.
+ * Besides alerting (Sentry), it RESOLVES each stranding idempotently:
+ *   - `paid_but_pending`   → re-drives `handleCheckoutSessionCompleted` (the
+ *     normal confirm flow, status-guarded + idempotent) so the order is
+ *     confirmed and its confirmation/admin emails fire.
+ *   - `paid_but_cancelled` → refunds the captured amount via the idempotent
+ *     `refundPaidOrderInFull` (delta refund; the charge.refunded webhook emails
+ *     the customer). Admins are emailed only if the auto-refund FAILS.
+ *
  * It runs DAILY (Vercel Hobby caps cron frequency at once/day), so the scan
  * window spans ~2 days (`LOOKBACK_MS`) to cover every order across runs. The
  * webhook + `verify-payment` detectors catch the race cases in real time; this
  * sweep is the backstop for strandings with no triggering event (e.g. an admin
- * cancelling a paid order). Every confirm path otherwise guards on
- * `status = 'pending'`, so without this a paid+cancelled order is never
- * re-inspected.
+ * cancelling a paid order). Both resolution paths are idempotent, so re-running
+ * over an already-healed/refunded order is a no-op.
  */
 
 import { NextResponse } from "next/server";
@@ -35,6 +39,8 @@ import {
   captureStrandedPayment,
   emailAdminsStrandedPayment,
 } from "@/lib/orders/stranded-payment-alert";
+import { refundPaidOrderInFull } from "@/lib/orders/refund-on-cancel";
+import { handleCheckoutSessionCompleted } from "@/app/api/webhooks/stripe/handlers/checkout-session-completed";
 import {
   LOOKBACK_MS,
   MAX_PER_RUN,
@@ -116,7 +122,10 @@ export async function GET(request: Request) {
   const scanned = toScan.length;
   let strandedPending = 0;
   let strandedCancelled = 0;
+  let healedPending = 0;
+  let refundedCancelled = 0;
   let inspectErrors = 0;
+  let resolveErrors = 0;
 
   // Bound concurrency: each candidate is a sequential Stripe round-trip, so up
   // to MAX_PER_RUN=200 in series could brush maxDuration and abort the sweep
@@ -158,12 +167,70 @@ export async function GET(request: Request) {
 
         if (kind === "paid_but_pending") {
           strandedPending++;
+          // Auto-heal: re-drive the normal confirm flow (idempotent, status-
+          // guarded) so the order is confirmed and its confirmation + admin
+          // emails fire. Needs the full Session (metadata.order_id); a pending
+          // order's session id is the one that was actually paid.
+          if (!order.stripe_checkout_session_id) {
+            // No session to re-drive the confirm flow → can't auto-heal. Don't
+            // leave it Sentry-only; alert a human.
+            if (isWithinEmailRecency(order, now)) await emailAdminsStrandedPayment(kind, ctx);
+            return;
+          }
+          try {
+            const fullSession = await stripe.checkout.sessions.retrieve(
+              order.stripe_checkout_session_id
+            );
+            await handleCheckoutSessionCompleted(supabase, fullSession);
+            healedPending++;
+          } catch (healErr) {
+            resolveErrors++;
+            logger.error("Auto-heal (confirm) failed during reconciliation", {
+              orderId: order.id,
+              error: healErr instanceof Error ? healErr.message : String(healErr),
+              flowId: FLOW_ID,
+              api: "cron",
+            });
+            if (isWithinEmailRecency(order, now)) await emailAdminsStrandedPayment(kind, ctx);
+          }
         } else {
           strandedCancelled++;
-          // Money-loss case → notify a human, but only while it is fresh so a
-          // persistent unresolved order is not re-emailed every run.
-          if (isWithinEmailRecency(order, now)) {
-            await emailAdminsStrandedPayment(kind, ctx);
+          // Auto-refund the captured amount (idempotent delta refund). The
+          // charge.refunded webhook emails the customer (source auto-reconcile).
+          try {
+            const refund = await refundPaidOrderInFull({
+              serviceClient: supabase,
+              stripe,
+              orderId: order.id,
+              order: {
+                payment_method: order.payment_method,
+                stripe_payment_intent_id: order.stripe_payment_intent_id,
+                stripe_checkout_session_id: order.stripe_checkout_session_id,
+              },
+              actorId: order.user_id, // system actor (FK requires a real profile)
+              actorRole: "system",
+              reason: "Auto-reconcile: cancelled order with a captured payment",
+              refundSource: "auto-reconcile",
+            });
+            if (refund.refunded || refund.status === "refunded") {
+              // status "refunded" with refunded:false = the charge was ALREADY
+              // fully refunded (e.g. a concurrent cancel-path refund landed
+              // between this batch's inspect and the helper's re-inspect) —
+              // money is back, so it's resolved, not a money-loss alert.
+              refundedCancelled++;
+            } else if (isWithinEmailRecency(order, now)) {
+              // status "none"/"pending" = couldn't move money → a human must look.
+              await emailAdminsStrandedPayment(kind, ctx);
+            }
+          } catch (refundErr) {
+            resolveErrors++;
+            logger.error("Auto-refund failed during reconciliation", {
+              orderId: order.id,
+              error: refundErr instanceof Error ? refundErr.message : String(refundErr),
+              flowId: FLOW_ID,
+              api: "cron",
+            });
+            if (isWithinEmailRecency(order, now)) await emailAdminsStrandedPayment(kind, ctx);
           }
         }
       })
@@ -177,7 +244,10 @@ export async function GET(request: Request) {
     scanned,
     strandedPending,
     strandedCancelled,
+    healedPending,
+    refundedCancelled,
     inspectErrors,
+    resolveErrors,
   } as Record<string, unknown>);
 
   return NextResponse.json({
@@ -185,6 +255,9 @@ export async function GET(request: Request) {
     scanned,
     strandedPending,
     strandedCancelled,
+    healedPending,
+    refundedCancelled,
     inspectErrors,
+    resolveErrors,
   });
 }

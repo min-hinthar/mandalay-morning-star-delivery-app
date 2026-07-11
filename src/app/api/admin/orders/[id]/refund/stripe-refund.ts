@@ -65,8 +65,22 @@ export async function issueStripeRefundDelta(opts: {
   serviceClient: SupabaseClient<Database>;
   orderId: string;
   paymentIntentId: string;
+  /**
+   * Written to the Stripe refund's `metadata.source`. The `charge.refunded`
+   * webhook skips its generic customer email for `admin-item-refund` and
+   * `cancellation` (those flows send their own itemized/cancellation email);
+   * any other source (e.g. `auto-reconcile`) lets the webhook email the
+   * customer. Defaults to `admin-item-refund` (backwards compatible).
+   */
+  refundSource?: string;
 }): Promise<StripeRefundOutcome> {
-  const { stripe, serviceClient, orderId, paymentIntentId } = opts;
+  const {
+    stripe,
+    serviceClient,
+    orderId,
+    paymentIntentId,
+    refundSource = "admin-item-refund",
+  } = opts;
 
   const cumulativeAuditedCents = await sumAuditedRefundCents(serviceClient, orderId);
 
@@ -105,7 +119,7 @@ export async function issueStripeRefundDelta(opts: {
     {
       payment_intent: paymentIntentId,
       amount: deltaCents,
-      metadata: { order_id: orderId, source: "admin-item-refund" },
+      metadata: { order_id: orderId, source: refundSource },
     },
     // Keyed on the (target, already-refunded) state: a retry of the same
     // state dedupes; a changed state gets a fresh key.

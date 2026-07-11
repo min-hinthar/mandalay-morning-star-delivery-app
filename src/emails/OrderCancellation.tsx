@@ -51,6 +51,14 @@ export interface OrderCancellationProps {
   refundAmountCents?: number;
   refundMethod?: string;
   refundTimeline?: string;
+  /**
+   * The order WAS paid but the refund hasn't fully settled yet (a transient
+   * Stripe failure at cancel time; the reconciliation safety net completes it
+   * within a day). Renders a reassuring "being processed" notice instead of
+   * "no refund has been issued" — the latter would contradict the pending
+   * refund. Ignored when `refundIssued` is true.
+   */
+  refundPending?: boolean;
 }
 
 // ─── Component ────────────────────────────────────────────
@@ -65,6 +73,7 @@ export function OrderCancellation({
   refundAmountCents,
   refundMethod,
   refundTimeline,
+  refundPending = false,
 }: OrderCancellationProps) {
   const shortId = orderId.slice(0, 8).toUpperCase();
   const orderUrl = `${APP_URL}/orders/${orderId}`;
@@ -204,6 +213,25 @@ export function OrderCancellation({
           </strong>{" "}
           will be returned to your {refundMethod || "original payment method"} within{" "}
           {refundTimeline || "3-5 business days"}.
+        </Callout>
+      ) : refundPending ? (
+        // Paid order whose refund is still settling — reassure, never claim "no
+        // refund". The reconciliation safety net completes it automatically.
+        <Callout
+          tone="info"
+          title={`${"⏳"} Your refund is being processed`}
+          style={{ margin: "0 28px 24px 28px" }}
+        >
+          A refund of{" "}
+          <strong
+            className={cls.accentStrong}
+            style={{ fontFamily: DISPLAY_FONT, color: C.accentStrong }}
+          >
+            {refundAmountCents != null ? formatPrice(refundAmountCents) : formatPrice(totalCents)}
+          </strong>{" "}
+          is on its way to your {refundMethod || "original payment method"} and typically arrives
+          within {refundTimeline || "3-5 business days"}. No action is needed — we&apos;ll email a
+          confirmation once it settles.
         </Callout>
       ) : (
         <Section

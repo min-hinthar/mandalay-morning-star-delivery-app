@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Loader2, Mail } from "lucide-react";
+import { Loader2, Mail, CreditCard } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { Button } from "@/components/ui/button";
 import { Modal } from "@/components/ui/Modal";
@@ -37,8 +37,17 @@ interface StatusChangeDialogProps {
   currentStatus: OrderStatus;
   newStatus: OrderStatus;
   customerEmail: string;
+  /** Amount that will be refunded if this cancellation is confirmed (0 = COD/unpaid). */
+  refundOnCancelCents?: number;
+  /** Optimistic (fires before the request). */
   onStatusChanged: (newStatus: OrderStatus) => void;
+  /** Fires AFTER the mutation commits — safe to refetch without racing it. */
+  onStatusSettled?: () => void;
   onStatusFailed: (previousStatus: OrderStatus) => void;
+}
+
+function formatUsd(cents: number): string {
+  return `$${(cents / 100).toFixed(2)}`;
 }
 
 export function StatusChangeDialog({
@@ -48,7 +57,9 @@ export function StatusChangeDialog({
   currentStatus,
   newStatus,
   customerEmail,
+  refundOnCancelCents = 0,
   onStatusChanged,
+  onStatusSettled,
   onStatusFailed,
 }: StatusChangeDialogProps) {
   const [notifyCustomer, setNotifyCustomer] = useState(true);
@@ -56,9 +67,13 @@ export function StatusChangeDialog({
   const [submitting, setSubmitting] = useState(false);
 
   const isCancellation = newStatus === "cancelled";
+  const willRefund = isCancellation && refundOnCancelCents > 0;
   const emailSubject = getEmailSubject(currentStatus, newStatus);
 
-  const canSubmit = isCancellation ? reason.trim().length > 0 : true;
+  // The /cancel route requires a reason of at least 5 chars — enforce it here so
+  // a too-short reason can't pass Confirm and then 400 with a cryptic error.
+  const reasonTooShort = isCancellation && reason.trim().length > 0 && reason.trim().length < 5;
+  const canSubmit = isCancellation ? reason.trim().length >= 5 : true;
 
   const handleConfirm = async () => {
     if (!canSubmit) return;
@@ -67,32 +82,53 @@ export function StatusChangeDialog({
       // Optimistic: notify parent immediately
       onStatusChanged(newStatus);
 
-      // Route COD approval through dedicated endpoint
+      // Route to dedicated endpoints: COD approval, and cancellation (the cancel
+      // route refunds a paid order + sends the cancellation email; the generic
+      // status route does neither).
       const isCodApproval = currentStatus === "pending_approval" && newStatus === "confirmed";
-      const url = isCodApproval
-        ? `/api/admin/orders/${orderId}/approve-cod`
-        : `/api/admin/orders/${orderId}/status`;
-      const method = isCodApproval ? "POST" : "PATCH";
+      let url = `/api/admin/orders/${orderId}/status`;
+      let method = "PATCH";
+      let body: Record<string, unknown> = {
+        status: newStatus,
+        notifyCustomer,
+        reason: reason.trim() || undefined,
+      };
+      if (isCodApproval) {
+        url = `/api/admin/orders/${orderId}/approve-cod`;
+        method = "POST";
+        body = {};
+      } else if (isCancellation) {
+        url = `/api/admin/orders/${orderId}/cancel`;
+        method = "POST";
+        body = { notifyCustomer, reason: reason.trim() };
+      }
 
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...(isCodApproval ? {} : { status: newStatus }),
-          notifyCustomer,
-          reason: reason.trim() || undefined,
-        }),
+        body: JSON.stringify(body),
       });
 
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const data = await res.json();
         throw new Error(extractErrorMessage(data, "Failed to update status"));
       }
 
       toast({
-        message: `Order is now ${STATUS_LABELS[newStatus]}`,
+        message:
+          isCancellation && data.refundIssued
+            ? `Order cancelled — ${formatUsd(data.refundedCents ?? refundOnCancelCents)} refunded to the customer.`
+            : isCancellation && data.refundPending
+              ? // Charge exists but the refund didn't settle synchronously — the
+                // reconciliation cron completes it. Tell support so they don't re-refund.
+                "Order cancelled — refund is processing and will complete automatically within a day."
+              : isCancellation
+                ? "Order cancelled."
+                : `Order is now ${STATUS_LABELS[newStatus]}`,
         type: "success",
       });
+      // Refetch now that the server has committed (audit rows, refund, timestamps).
+      onStatusSettled?.();
       onClose();
     } catch (err) {
       // Revert optimistic update
@@ -128,6 +164,18 @@ export function StatusChangeDialog({
           <p className="text-xs text-text-muted">To: {customerEmail}</p>
         </div>
 
+        {/* Refund notice — so support knows exactly what the customer gets back */}
+        {willRefund && (
+          <div className="flex items-start gap-2 rounded-lg border border-status-warning/30 bg-status-warning-bg p-3">
+            <CreditCard className="mt-0.5 h-4 w-4 shrink-0 text-status-warning" />
+            <p className="text-sm text-text-primary">
+              This paid order will be refunded{" "}
+              <strong>up to {formatUsd(refundOnCancelCents)}</strong> to the customer&apos;s
+              original payment method (3–5 business days). This can&apos;t be undone.
+            </p>
+          </div>
+        )}
+
         {/* Notify customer checkbox */}
         <label className="flex items-center gap-3 cursor-pointer">
           <input
@@ -138,6 +186,12 @@ export function StatusChangeDialog({
           />
           <span className="text-sm text-text-primary">Notify customer ({customerEmail})</span>
         </label>
+        {willRefund && !notifyCustomer && (
+          <p className="-mt-2 ml-7 text-xs text-text-muted">
+            A refund notification is always emailed when money is returned, even if this is
+            unchecked.
+          </p>
+        )}
 
         {/* Reason text area */}
         <div>
@@ -158,12 +212,23 @@ export function StatusChangeDialog({
             }
             rows={3}
             className={cn(
-              "w-full rounded-lg border border-border bg-surface-primary px-3 py-2 text-sm",
+              "w-full rounded-lg border bg-surface-primary px-3 py-2 text-sm",
+              reasonTooShort ? "border-status-error" : "border-border",
               "text-text-primary placeholder:text-text-muted",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
               "resize-none"
             )}
           />
+          {isCancellation && (
+            <p
+              className={cn(
+                "mt-1 text-xs",
+                reasonTooShort ? "text-status-error" : "text-text-muted"
+              )}
+            >
+              Please give a brief reason (at least 5 characters).
+            </p>
+          )}
         </div>
 
         {/* Actions */}
