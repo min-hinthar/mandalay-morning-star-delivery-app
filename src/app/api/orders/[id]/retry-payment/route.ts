@@ -112,29 +112,13 @@ export async function POST(_request: Request, { params }: RouteParams) {
     );
   }
 
-  // Check if delivery cutoff has passed (using DB-sourced business rules)
-  const rules = await getBusinessRules();
-  if (order.delivery_window_start) {
-    const deliveryDate = new Date(order.delivery_window_start);
-    if (isPastCutoff(deliveryDate, new Date(), rules.cutoffDay, rules.cutoffHour)) {
-      return NextResponse.json(
-        {
-          error: {
-            code: "CUTOFF_PASSED",
-            message: "Delivery cutoff has passed. Please cancel and place a new order.",
-          },
-        },
-        { status: 400 }
-      );
-    }
-  }
-
-  // Guard against a double charge: the order is still `pending`, but its
-  // existing checkout session may already be PAID (a dropped
-  // `checkout.session.completed` webhook left it stranded). Creating a new
-  // session here would charge the customer a second time. Inspect Stripe first;
-  // if already paid, surface it (verify-payment on the confirmation page will
-  // confirm the pending+paid order) and refuse to open a second charge.
+  // Guard against a double charge FIRST — before the cutoff gate. The order is
+  // still `pending`, but its existing checkout session may already be PAID (a
+  // dropped `checkout.session.completed` webhook left it stranded). Creating a
+  // new session here would charge the customer a second time. Inspecting BEFORE
+  // the cutoff check means a stranded paid order surfaces ALREADY_PAID (and heals
+  // via verify-payment) instead of being routed to "cancel and reorder" when it
+  // also happens to be past cutoff.
   if (order.stripe_checkout_session_id || order.stripe_payment_intent_id) {
     try {
       const inspection = await inspectOrderPayment(stripe, {
@@ -181,6 +165,25 @@ export async function POST(_request: Request, { params }: RouteParams) {
           },
         },
         { status: 503 }
+      );
+    }
+  }
+
+  // Check if delivery cutoff has passed (using DB-sourced business rules). Runs
+  // AFTER the already-paid guard so a stranded paid order isn't pushed to cancel
+  // when it's also past cutoff.
+  const rules = await getBusinessRules();
+  if (order.delivery_window_start) {
+    const deliveryDate = new Date(order.delivery_window_start);
+    if (isPastCutoff(deliveryDate, new Date(), rules.cutoffDay, rules.cutoffHour)) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "CUTOFF_PASSED",
+            message: "Delivery cutoff has passed. Please cancel and place a new order.",
+          },
+        },
+        { status: 400 }
       );
     }
   }
@@ -402,10 +405,12 @@ export async function POST(_request: Request, { params }: RouteParams) {
         }
         return NextResponse.json(
           {
+            // Status-neutral: the 0-row race means the order is confirmed (paid)
+            // OR cancelled — either way it's no longer awaiting payment, and no
+            // charge was made in THIS request.
             error: {
-              code: "ALREADY_PAID",
-              message:
-                "This order is no longer awaiting payment. Please refresh — no second charge was made.",
+              code: "ORDER_NOT_PENDING",
+              message: "This order is no longer awaiting payment. Please refresh.",
             },
           },
           { status: 409 }
