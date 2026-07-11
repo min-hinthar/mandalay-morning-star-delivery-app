@@ -212,10 +212,14 @@ export async function GET(request: Request) {
               reason: "Auto-reconcile: cancelled order with a captured payment",
               refundSource: "auto-reconcile",
             });
-            if (refund.refunded) {
+            if (refund.refunded || refund.status === "refunded") {
+              // status "refunded" with refunded:false = the charge was ALREADY
+              // fully refunded (e.g. a concurrent cancel-path refund landed
+              // between this batch's inspect and the helper's re-inspect) —
+              // money is back, so it's resolved, not a money-loss alert.
               refundedCancelled++;
             } else if (isWithinEmailRecency(order, now)) {
-              // Couldn't move money (e.g. no PI resolvable) → a human must look.
+              // status "none"/"pending" = couldn't move money → a human must look.
               await emailAdminsStrandedPayment(kind, ctx);
             }
           } catch (refundErr) {
