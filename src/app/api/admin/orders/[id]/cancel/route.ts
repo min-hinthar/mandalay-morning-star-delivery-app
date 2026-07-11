@@ -170,10 +170,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     // Trigger cancellation email if requested
     if (notifyCustomer) {
-      // Fetch order items for email summary
+      // Fetch order items for email summary (bilingual names + dish photos)
       const { data: orderItems } = await supabase
         .from("order_items")
-        .select("name_snapshot, quantity, line_total_cents")
+        .select(
+          "name_snapshot, name_my_snapshot, quantity, line_total_cents, menu_items ( image_url )"
+        )
         .eq("order_id", orderId);
 
       // Fetch order total
@@ -186,10 +188,20 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       if (profile?.email) {
         const cancelEmail = profile.email;
         const cancelCustomerName = profile.full_name || "Valued Customer";
-        const cancelItems = (orderItems || []).map((item) => ({
+        const cancelItems = (
+          (orderItems || []) as Array<{
+            name_snapshot: string;
+            name_my_snapshot: string | null;
+            quantity: number;
+            line_total_cents: number;
+            menu_items: { image_url: string | null } | null;
+          }>
+        ).map((item) => ({
           name: item.name_snapshot,
+          nameMy: item.name_my_snapshot,
           quantity: item.quantity,
           lineTotalCents: item.line_total_cents,
+          imageUrl: item.menu_items?.image_url ?? null,
         }));
         const cancelTotalCents = orderData?.total_cents ?? 0;
         const cancelUserId = order.user_id;

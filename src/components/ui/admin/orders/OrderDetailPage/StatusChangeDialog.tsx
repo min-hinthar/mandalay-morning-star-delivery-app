@@ -39,7 +39,10 @@ interface StatusChangeDialogProps {
   customerEmail: string;
   /** Amount that will be refunded if this cancellation is confirmed (0 = COD/unpaid). */
   refundOnCancelCents?: number;
+  /** Optimistic (fires before the request). */
   onStatusChanged: (newStatus: OrderStatus) => void;
+  /** Fires AFTER the mutation commits — safe to refetch without racing it. */
+  onStatusSettled?: () => void;
   onStatusFailed: (previousStatus: OrderStatus) => void;
 }
 
@@ -56,6 +59,7 @@ export function StatusChangeDialog({
   customerEmail,
   refundOnCancelCents = 0,
   onStatusChanged,
+  onStatusSettled,
   onStatusFailed,
 }: StatusChangeDialogProps) {
   const [notifyCustomer, setNotifyCustomer] = useState(true);
@@ -66,7 +70,10 @@ export function StatusChangeDialog({
   const willRefund = isCancellation && refundOnCancelCents > 0;
   const emailSubject = getEmailSubject(currentStatus, newStatus);
 
-  const canSubmit = isCancellation ? reason.trim().length > 0 : true;
+  // The /cancel route requires a reason of at least 5 chars — enforce it here so
+  // a too-short reason can't pass Confirm and then 400 with a cryptic error.
+  const reasonTooShort = isCancellation && reason.trim().length > 0 && reason.trim().length < 5;
+  const canSubmit = isCancellation ? reason.trim().length >= 5 : true;
 
   const handleConfirm = async () => {
     if (!canSubmit) return;
@@ -116,6 +123,8 @@ export function StatusChangeDialog({
               : `Order is now ${STATUS_LABELS[newStatus]}`,
         type: "success",
       });
+      // Refetch now that the server has committed (audit rows, refund, timestamps).
+      onStatusSettled?.();
       onClose();
     } catch (err) {
       // Revert optimistic update
@@ -156,9 +165,9 @@ export function StatusChangeDialog({
           <div className="flex items-start gap-2 rounded-lg border border-status-warning/30 bg-status-warning-bg p-3">
             <CreditCard className="mt-0.5 h-4 w-4 shrink-0 text-status-warning" />
             <p className="text-sm text-text-primary">
-              This paid order will be <strong>refunded {formatUsd(refundOnCancelCents)}</strong> to
-              the customer&apos;s original payment method (3–5 business days). This can&apos;t be
-              undone.
+              This paid order will be refunded{" "}
+              <strong>up to {formatUsd(refundOnCancelCents)}</strong> to the customer&apos;s
+              original payment method (3–5 business days). This can&apos;t be undone.
             </p>
           </div>
         )}
@@ -193,12 +202,23 @@ export function StatusChangeDialog({
             }
             rows={3}
             className={cn(
-              "w-full rounded-lg border border-border bg-surface-primary px-3 py-2 text-sm",
+              "w-full rounded-lg border bg-surface-primary px-3 py-2 text-sm",
+              reasonTooShort ? "border-status-error" : "border-border",
               "text-text-primary placeholder:text-text-muted",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30",
               "resize-none"
             )}
           />
+          {isCancellation && (
+            <p
+              className={cn(
+                "mt-1 text-xs",
+                reasonTooShort ? "text-status-error" : "text-text-muted"
+              )}
+            >
+              Please give a brief reason (at least 5 characters).
+            </p>
+          )}
         </div>
 
         {/* Actions */}

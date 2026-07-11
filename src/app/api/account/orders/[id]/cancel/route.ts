@@ -193,16 +193,28 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     const { data: orderItems } = await supabase
       .from("order_items")
-      .select("name_snapshot, quantity, line_total_cents")
+      .select(
+        "name_snapshot, name_my_snapshot, quantity, line_total_cents, menu_items ( image_url )"
+      )
       .eq("order_id", orderId);
 
     if (user.email) {
       const custEmail = user.email;
       const custName = profile?.full_name || "Valued Customer";
-      const custItems = (orderItems || []).map((item) => ({
+      const custItems = (
+        (orderItems || []) as Array<{
+          name_snapshot: string;
+          name_my_snapshot: string | null;
+          quantity: number;
+          line_total_cents: number;
+          menu_items: { image_url: string | null } | null;
+        }>
+      ).map((item) => ({
         name: item.name_snapshot,
+        nameMy: item.name_my_snapshot,
         quantity: item.quantity,
         lineTotalCents: item.line_total_cents,
+        imageUrl: item.menu_items?.image_url ?? null,
       }));
       const custTotalCents = order.total_cents ?? 0;
       const custUserId = user.id;
