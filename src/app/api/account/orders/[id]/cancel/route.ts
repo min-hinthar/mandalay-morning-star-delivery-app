@@ -158,6 +158,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // order stays cancelled and the reconciliation safety net (paid_but_cancelled
     // detector + cron) retries the refund. Idempotent, so a retry is safe.
     let refundIssued = false;
+    let refundedCents = 0;
     try {
       const refund = await refundPaidOrderInFull({
         serviceClient: createServiceClient(),
@@ -173,6 +174,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         refundSource: user.email ? "cancellation" : "auto-reconcile",
       });
       refundIssued = refund.refunded;
+      refundedCents = refund.refundedCents;
     } catch (refundErr) {
       logger.exception(refundErr, {
         api: "account/orders/[id]/cancel",
@@ -218,6 +220,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
               cancellationReason: reason,
               cancelledAt,
               refundIssued,
+              refundAmountCents: refundIssued ? refundedCents : undefined,
+              refundMethod: refundIssued ? "your original payment method" : undefined,
+              refundTimeline: refundIssued ? "3–5 business days" : undefined,
             }),
             type: "cancellation",
             orderId,
@@ -245,8 +250,9 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         status: "cancelled",
         cancelledAt,
         refundIssued,
+        refundedCents,
         message: refundIssued
-          ? "Order cancelled and refunded to your original payment method"
+          ? `Order cancelled — $${(refundedCents / 100).toFixed(2)} refunded to your original payment method`
           : "Order cancelled successfully",
       },
     });

@@ -114,6 +114,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
   // paid_but_pending). The order is already cancelled; a refund failure must not
   // fail the request — the reconciliation safety net retries (idempotent).
   let refundIssued = false;
+  let refundedCents = 0;
   try {
     const refund = await refundPaidOrderInFull({
       serviceClient: createServiceClient(),
@@ -128,6 +129,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
       refundSource: "auto-reconcile",
     });
     refundIssued = refund.refunded;
+    refundedCents = refund.refundedCents;
   } catch (refundErr) {
     logger.exception(refundErr, {
       api: "cancel-order",
@@ -138,5 +140,5 @@ export async function POST(_request: Request, { params }: RouteParams) {
     });
   }
 
-  return NextResponse.json({ success: true, refundIssued });
+  return NextResponse.json({ success: true, refundIssued, refundedCents });
 }

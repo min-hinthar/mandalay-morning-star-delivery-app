@@ -49,9 +49,10 @@ export function CancelledOverlay({
         {/* Cancellation reason */}
         {cancellationReason && <p className="text-sm text-charcoal-600">{cancellationReason}</p>}
 
-        {/* Next steps */}
+        {/* Next steps — cancellation auto-refunds, so don't imply a manual ask */}
         <p className="text-xs text-charcoal-400">
-          Contact support for a refund or to place a new order.
+          If you were charged, a full refund has been issued to your original payment method (3–5
+          business days). Questions? We&apos;re here to help.
         </p>
 
         {/* Action buttons */}

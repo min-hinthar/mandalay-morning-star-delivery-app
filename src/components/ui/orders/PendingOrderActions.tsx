@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { CreditCard, X, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "@/lib/hooks/useToastV8";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -70,6 +71,17 @@ export function PendingOrderActions({ orderId, isPastCutoff }: PendingOrderActio
         return;
       }
 
+      // Surface the refund so the customer knows their money is on the way.
+      if (data.refundIssued) {
+        const amount = `$${((data.refundedCents ?? 0) / 100).toFixed(2)}`;
+        toast({
+          message: `Order cancelled — ${amount} refunded to your original payment method (3–5 business days).`,
+          type: "success",
+        });
+      } else {
+        toast({ message: "Your order has been cancelled.", type: "success" });
+      }
+
       router.refresh();
     } catch {
       setError("Something went wrong. Please try again.");
@@ -123,7 +135,8 @@ export function PendingOrderActions({ orderId, isPastCutoff }: PendingOrderActio
             <AlertDialogHeader>
               <AlertDialogTitle>Cancel this order?</AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. The order will be permanently cancelled.
+                This can&apos;t be undone. If you&apos;ve already paid, we&apos;ll refund the full
+                amount to your original payment method (3–5 business days).
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
