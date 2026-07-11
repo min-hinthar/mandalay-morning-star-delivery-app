@@ -110,7 +110,7 @@ export function StatusChangeDialog({
       toast({
         message:
           isCancellation && data.refundIssued
-            ? `Order cancelled — ${formatUsd(refundOnCancelCents)} refunded to the customer.`
+            ? `Order cancelled — ${formatUsd(data.refundedCents ?? refundOnCancelCents)} refunded to the customer.`
             : isCancellation
               ? "Order cancelled."
               : `Order is now ${STATUS_LABELS[newStatus]}`,

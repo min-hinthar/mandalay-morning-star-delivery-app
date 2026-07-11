@@ -141,6 +141,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     // worse than none. The order is already cancelled; a refund failure must
     // NOT fail the request — it stays cancelled and the safety net retries.
     let refundIssued = false;
+    let refundedCents = 0;
     {
       try {
         const refundResult = await refundPaidOrderInFull({
@@ -157,6 +158,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           refundSource: notifyCustomer && customerHasEmail ? "cancellation" : "auto-reconcile",
         });
         refundIssued = refundResult.refunded;
+        refundedCents = refundResult.refundedCents;
       } catch (refundErr) {
         logger.exception(refundErr, {
           api: "admin/orders/[id]/cancel",
@@ -206,6 +208,9 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
                 cancellationReason: reason,
                 cancelledAt,
                 refundIssued,
+                refundAmountCents: refundIssued ? refundedCents : undefined,
+                refundMethod: refundIssued ? "your original payment method" : undefined,
+                refundTimeline: refundIssued ? "3–5 business days" : undefined,
               }),
               type: "cancellation",
               orderId,
@@ -235,6 +240,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       reason,
       notifyCustomer,
       refundIssued,
+      refundedCents,
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/cancel" });
