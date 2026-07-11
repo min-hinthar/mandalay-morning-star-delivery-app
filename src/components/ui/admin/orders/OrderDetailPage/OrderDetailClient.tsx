@@ -223,6 +223,12 @@ export function OrderDetailClient() {
           currentStatus={order.status}
           newStatus={pendingStatus}
           customerEmail={order.customerEmail}
+          refundOnCancelCents={
+            order.paymentMethod === "stripe" &&
+            !["pending", "pending_approval", "cancelled"].includes(order.status)
+              ? order.totalCents
+              : 0
+          }
           onStatusChanged={handleStatusChanged}
           onStatusFailed={handleStatusFailed}
         />

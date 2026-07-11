@@ -49,6 +49,11 @@ export function StatusTimelineCard({ auditLog }: StatusTimelineCardProps) {
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-text-primary">
                       {AUDIT_ACTION_LABELS[entry.action] || entry.action}
+                      {entry.refundAmountCents != null && (
+                        <span className="ml-1.5 font-semibold text-status-success">
+                          ${(entry.refundAmountCents / 100).toFixed(2)} to original payment
+                        </span>
+                      )}
                     </p>
                     {entry.reason && (
                       <p className="text-xs text-text-muted mt-0.5">{entry.reason}</p>
