@@ -79,6 +79,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return apiError("BAD_REQUEST", "Cannot cancel a delivered order", 400);
     }
 
+    // Don't cancel (and now auto-refund) an order already out for delivery — the
+    // food is en route, so a full refund loses both the food and the money. This
+    // mirrors the status route's transition table (no out_for_delivery→cancelled)
+    // and the admin UI, which never offers cancel for an in-transit order.
+    if (order.status === "out_for_delivery") {
+      return apiError("BAD_REQUEST", "Cannot cancel an order already out for delivery", 400);
+    }
+
     const previousStatus = order.status;
 
     // Update order status to cancelled — guard against concurrent state changes.
@@ -158,7 +166,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           refundSource: notifyCustomer && customerHasEmail ? "cancellation" : "auto-reconcile",
         });
         refundIssued = refundResult.refunded;
-        refundedCents = refundResult.refundedCents;
+        // Cumulative returned (accurate when a prior partial refund exists).
+        refundedCents = refundResult.totalRefundedCents;
       } catch (refundErr) {
         logger.exception(refundErr, {
           api: "admin/orders/[id]/cancel",

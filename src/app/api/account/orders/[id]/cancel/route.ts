@@ -174,7 +174,8 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         refundSource: user.email ? "cancellation" : "auto-reconcile",
       });
       refundIssued = refund.refunded;
-      refundedCents = refund.refundedCents;
+      // Cumulative returned (accurate when a prior partial refund exists).
+      refundedCents = refund.totalRefundedCents;
     } catch (refundErr) {
       logger.exception(refundErr, {
         api: "account/orders/[id]/cancel",

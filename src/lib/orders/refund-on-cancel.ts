@@ -32,6 +32,13 @@ export interface CancelRefundResult {
   refunded: boolean;
   /** Money moved by THIS call, cents. */
   refundedCents: number;
+  /**
+   * Cumulative amount returned to the customer for this charge (prior refunds +
+   * this call). Use THIS for customer-facing copy — `refundedCents` is only the
+   * delta this call moved, which understates the total when a prior partial
+   * refund exists.
+   */
+  totalRefundedCents: number;
   message: string;
   outcome?: StripeRefundOutcome;
 }
@@ -59,7 +66,12 @@ export async function refundPaidOrderInFull(opts: {
   // COD has no card rail; the cancellation email tells the customer the team
   // will arrange any cash refund.
   if (order.payment_method !== "stripe") {
-    return { refunded: false, refundedCents: 0, message: "No card payment to refund (COD)." };
+    return {
+      refunded: false,
+      refundedCents: 0,
+      totalRefundedCents: 0,
+      message: "No card payment to refund (COD).",
+    };
   }
 
   // Resolve real payment + refund state (handles the session_<id> placeholder PI).
@@ -68,10 +80,20 @@ export async function refundPaidOrderInFull(opts: {
     sessionId: order.stripe_checkout_session_id,
   });
   if (!inspection.paid || !inspection.paymentIntentId) {
-    return { refunded: false, refundedCents: 0, message: "No captured payment to refund." };
+    return {
+      refunded: false,
+      refundedCents: 0,
+      totalRefundedCents: 0,
+      message: "No captured payment to refund.",
+    };
   }
   if (inspection.amountCents - inspection.amountRefundedCents <= 0) {
-    return { refunded: false, refundedCents: 0, message: "Payment already fully refunded." };
+    return {
+      refunded: false,
+      refundedCents: 0,
+      totalRefundedCents: inspection.amountRefundedCents,
+      message: "Payment already fully refunded.",
+    };
   }
 
   // Bring the audited refund total up to the amount actually CAPTURED on the
@@ -119,6 +141,8 @@ export async function refundPaidOrderInFull(opts: {
   return {
     refunded: outcome.succeeded && outcome.refundedNowCents > 0,
     refundedCents: outcome.refundedNowCents,
+    // Cumulative returned = prior refunds (from the charge) + what this call moved.
+    totalRefundedCents: inspection.amountRefundedCents + outcome.refundedNowCents,
     message: outcome.message,
     outcome,
   };

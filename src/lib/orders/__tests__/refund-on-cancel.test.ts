@@ -121,6 +121,7 @@ describe("refundPaidOrderInFull", () => {
     );
     expect(res.refunded).toBe(true);
     expect(res.refundedCents).toBe(5000);
+    expect(res.totalRefundedCents).toBe(5000);
   });
 
   it("audits only the shortfall when partial refunds already exist", async () => {
@@ -147,6 +148,9 @@ describe("refundPaidOrderInFull", () => {
         new_value: expect.objectContaining({ totalRefundCents: 4000 }), // 5000 total − 1000 audited
       })
     );
+    // This call moved the $40 shortfall…
     expect(res.refundedCents).toBe(4000);
+    // …but the customer-facing total returned is the full $50 ($10 prior + $40 now).
+    expect(res.totalRefundedCents).toBe(5000);
   });
 });

@@ -135,7 +135,8 @@ export async function POST(request: Request, { params }: RouteParams) {
       refundSource: "auto-reconcile",
     });
     refundIssued = refund.refunded;
-    refundedCents = refund.refundedCents;
+    // Cumulative returned (accurate when a prior partial refund exists).
+    refundedCents = refund.totalRefundedCents;
   } catch (refundErr) {
     logger.exception(refundErr, {
       api: "cancel-order",
