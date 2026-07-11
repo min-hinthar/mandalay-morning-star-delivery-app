@@ -446,10 +446,20 @@ export async function POST(request: Request) {
     });
 
     const serviceClient = createServiceClient();
-    await serviceClient
+    const { error: sessionPersistError } = await serviceClient
       .from("orders")
       .update({ stripe_checkout_session_id: session.id })
       .eq("id", order.id);
+    // Make a failed session-id persist VISIBLE: the abandoned-checkout expiry
+    // handler now only auto-cancels when this id matches the order's current
+    // session, so a silently-lost write means expiry can't auto-cancel the order.
+    // The order is unpaid, so it just lingers as a stale `pending` row — the
+    // reconciliation cron is detect-only for PAID strandings and won't sweep it;
+    // no money is at stake. Log loudly; don't fail checkout — a created Stripe
+    // session with an unrecorded id is worse than a delayed auto-cancel.
+    if (sessionPersistError) {
+      logger.exception(sessionPersistError, { api: "checkout-session", orderId: order.id });
+    }
 
     logger.info("Checkout session created", {
       orderId: order.id,

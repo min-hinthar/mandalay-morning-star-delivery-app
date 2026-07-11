@@ -1,11 +1,16 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import * as Sentry from "@sentry/nextjs";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { isPastCutoff } from "@/lib/utils/delivery-dates";
 import { getBusinessRules } from "@/lib/settings";
 import { checkRateLimit, checkoutLimiter } from "@/lib/rate-limit";
+import { inspectOrderPayment, classifyStrandedPayment } from "@/lib/stripe/stranded-payment";
+import {
+  captureStrandedPayment,
+  emailAdminsStrandedPayment,
+} from "@/lib/orders/stranded-payment-alert";
 import type { ProfilesRow } from "@/types/database";
 
 interface RouteParams {
@@ -24,6 +29,8 @@ interface OrderWithItems {
   total_cents: number;
   delivery_window_start: string | null;
   delivery_window_end: string | null;
+  stripe_checkout_session_id: string | null;
+  stripe_payment_intent_id: string | null;
   order_items: Array<{
     id: string;
     name_snapshot: string;
@@ -70,6 +77,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
       id, user_id, status,
       subtotal_cents, delivery_fee_cents, tax_cents, tip_cents, discount_cents, total_cents,
       delivery_window_start, delivery_window_end,
+      stripe_checkout_session_id, stripe_payment_intent_id,
       order_items (
         id, name_snapshot, base_price_snapshot, quantity, line_total_cents,
         order_item_modifiers (name_snapshot, price_delta_snapshot)
@@ -104,7 +112,66 @@ export async function POST(_request: Request, { params }: RouteParams) {
     );
   }
 
-  // Check if delivery cutoff has passed (using DB-sourced business rules)
+  // Guard against a double charge FIRST — before the cutoff gate. The order is
+  // still `pending`, but its existing checkout session may already be PAID (a
+  // dropped `checkout.session.completed` webhook left it stranded). Creating a
+  // new session here would charge the customer a second time. Inspecting BEFORE
+  // the cutoff check means a stranded paid order surfaces ALREADY_PAID (and heals
+  // via verify-payment) instead of being routed to "cancel and reorder" when it
+  // also happens to be past cutoff.
+  if (order.stripe_checkout_session_id || order.stripe_payment_intent_id) {
+    try {
+      const inspection = await inspectOrderPayment(stripe, {
+        paymentIntentId: order.stripe_payment_intent_id,
+        sessionId: order.stripe_checkout_session_id,
+      });
+      if (classifyStrandedPayment(order.status, inspection) === "paid_but_pending") {
+        const alertCtx = {
+          orderId: order.id,
+          userId: user.id,
+          source: "retry-payment",
+          inspection,
+        };
+        captureStrandedPayment("paid_but_pending", alertCtx);
+        // after() — NOT `void`: a bare `void asyncFn()` before return is killed
+        // on Vercel once the response is sent, dropping the admin email about
+        // money already captured (repo Gotcha).
+        after(() => emailAdminsStrandedPayment("paid_but_pending", alertCtx));
+        return NextResponse.json(
+          {
+            error: {
+              code: "ALREADY_PAID",
+              message:
+                "This order has already been paid. Please refresh — no second charge was made.",
+            },
+          },
+          { status: 409 }
+        );
+      }
+    } catch (err) {
+      // Fail CLOSED: this guard exists to prevent a double charge, so if we
+      // cannot confirm the prior session's payment state, do NOT open a second
+      // charge — ask the customer to try again rather than risk charging twice.
+      logger.warn("retry-payment: could not inspect existing session for prior payment", {
+        orderId: order.id,
+        error: err instanceof Error ? err.message : String(err),
+        api: "orders/[id]/retry-payment",
+      });
+      return NextResponse.json(
+        {
+          error: {
+            code: "VERIFY_FAILED",
+            message: "Couldn't verify your payment status just now. Please try again in a moment.",
+          },
+        },
+        { status: 503 }
+      );
+    }
+  }
+
+  // Check if delivery cutoff has passed (using DB-sourced business rules). Runs
+  // AFTER the already-paid guard so a stranded paid order isn't pushed to cancel
+  // when it's also past cutoff.
   const rules = await getBusinessRules();
   if (order.delivery_window_start) {
     const deliveryDate = new Date(order.delivery_window_start);
@@ -271,6 +338,102 @@ export async function POST(_request: Request, { params }: RouteParams) {
         idempotencyKey: `retry_v2_${order.id}`,
       }
     );
+
+    // Point the order at the session the customer will actually pay, and expire
+    // the stale prior session. Without this, the prior session's 30-min
+    // `checkout.session.expired` event later cancels this order AFTER it's paid
+    // on the retry (the confirm handler then skips it: status ≠ pending) →
+    // charged + cancelled. Expiring it kills that event; persisting the new id
+    // makes verify-payment + reconciliation inspect the right session.
+    // Skip when the retry is idempotent-cached to the same id (repeat clicks).
+    const priorSessionId = order.stripe_checkout_session_id;
+    if (priorSessionId !== session.id) {
+      // Order MUST point at the retry session BEFORE we expire the old one.
+      // `expire()` emits `checkout.session.expired` for the old session; the
+      // expired handler now only cancels when the expiring session is the
+      // order's CURRENT session, so persisting first means that event finds the
+      // new id and skips the cancel. Chain `.select("id")` to verify the write
+      // actually landed (`.update()` alone returns no row count).
+      // Service client: stripe_checkout_session_id is a service-role-written
+      // payment column (matches checkout/session/route.ts).
+      const { data: persistedRows, error: persistError } = await createServiceClient()
+        .from("orders")
+        .update({ stripe_checkout_session_id: session.id })
+        .eq("id", order.id)
+        .eq("status", "pending") // Don't repoint a concurrently-confirmed order
+        .select("id");
+      if (persistError) {
+        // Transient DB fault repointing the order at the retry session. Don't
+        // hand out a session id we couldn't record, and don't expire the new
+        // session (its idempotency-cached copy must stay valid for the retry).
+        // Fail closed: the order is (likely) still pending — ask them to retry.
+        logger.exception(persistError, {
+          api: "orders/[id]/retry-payment",
+          orderId: order.id,
+          message: "Retry session id persist failed — asking customer to retry",
+        });
+        return NextResponse.json(
+          {
+            error: {
+              code: "VERIFY_FAILED",
+              message: "Couldn't start your payment just now. Please try again in a moment.",
+            },
+          },
+          { status: 503 }
+        );
+      }
+      if (!persistedRows || persistedRows.length === 0) {
+        // 0 rows = the order left `pending` (confirmed on the PRIOR session mid-
+        // request, or cancelled) between our entry check and now. Handing the
+        // customer this freshly-created session would let them pay a SECOND time
+        // for an order that already completed. Expire the new session and refuse;
+        // leave the prior session alone (if it just paid, that's the one charge).
+        logger.warn("retry-payment: order no longer pending — expiring new session, refusing", {
+          api: "orders/[id]/retry-payment",
+          orderId: order.id,
+          newSessionId: session.id,
+        });
+        try {
+          await stripe.checkout.sessions.expire(session.id);
+        } catch (expireNewErr) {
+          logger.warn("retry-payment: could not expire the just-created retry session", {
+            orderId: order.id,
+            newSessionId: session.id,
+            error: expireNewErr instanceof Error ? expireNewErr.message : String(expireNewErr),
+            api: "orders/[id]/retry-payment",
+          });
+        }
+        return NextResponse.json(
+          {
+            // Status-neutral: the 0-row race means the order is confirmed (paid)
+            // OR cancelled — either way it's no longer awaiting payment, and no
+            // charge was made in THIS request.
+            error: {
+              code: "ORDER_NOT_PENDING",
+              message: "This order is no longer awaiting payment. Please refresh.",
+            },
+          },
+          { status: 409 }
+        );
+      }
+      // Persist landed (order still pending, now points at the retry session) →
+      // expire the stale prior session so its 30-min expiry event can't cancel
+      // the order after it's paid on the retry.
+      if (priorSessionId) {
+        try {
+          await stripe.checkout.sessions.expire(priorSessionId);
+        } catch (expireErr) {
+          // Already expired/completed → nothing to do. Best-effort; the expired
+          // handler's session-id guard makes a lingering old session harmless.
+          logger.warn("retry-payment: could not expire prior checkout session", {
+            orderId: order.id,
+            priorSessionId,
+            error: expireErr instanceof Error ? expireErr.message : String(expireErr),
+            api: "orders/[id]/retry-payment",
+          });
+        }
+      }
+    }
 
     return NextResponse.json({
       data: {

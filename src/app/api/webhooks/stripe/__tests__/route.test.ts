@@ -52,11 +52,21 @@ vi.mock("@/lib/email", () => ({
 
 // Track constructEvent mock
 const mockConstructEvent = vi.fn();
+const mockSessionsList = vi.fn().mockResolvedValue({ data: [] });
+const mockRefundsList = vi.fn().mockResolvedValue({ data: [] });
 
 vi.mock("@/lib/stripe/server", () => ({
   stripe: {
     webhooks: {
       constructEvent: (...args: unknown[]) => mockConstructEvent(...args),
+    },
+    checkout: {
+      sessions: {
+        list: (...args: unknown[]) => mockSessionsList(...args),
+      },
+    },
+    refunds: {
+      list: (...args: unknown[]) => mockRefundsList(...args),
     },
   },
 }));
@@ -427,7 +437,7 @@ describe("webhook failure scenarios (TST-02)", () => {
           return {
             select: vi.fn().mockReturnValue({
               eq: vi.fn().mockReturnValue({
-                single: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockReturnValue({
                   data: {
                     id: "order-refund",
                     status: "confirmed",
@@ -467,6 +477,175 @@ describe("webhook failure scenarios (TST-02)", () => {
 
       // Verify update was called with status: "cancelled"
       expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ status: "cancelled" }));
+    });
+
+    it("matches the order via the session fallback when the PI lookup misses", async () => {
+      const event = createChargeRefundedEvent("pi_needs_fallback", 5000, true);
+      mockConstructEvent.mockReturnValue(event);
+      // Stripe resolves this PI to a Checkout Session id (the order was stored
+      // with a session_<id> placeholder PI, so the direct PI lookup misses).
+      mockSessionsList.mockResolvedValueOnce({ data: [{ id: "cs_fb" }] });
+
+      const updateMock = vi.fn().mockReturnValue({
+        eq: vi.fn().mockReturnValue({ in: vi.fn().mockReturnValue({ error: null }) }),
+      });
+      const orMaybeSingle = vi.fn().mockReturnValue({
+        data: { id: "order-fb", status: "confirmed", user_id: "user-1", total_cents: 5000 },
+        error: null,
+      });
+      const fromMock = vi.fn((table: string) => {
+        if (table === "webhook_events") {
+          return {
+            upsert: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({ data: [{ id: "claimed-fb" }], error: null }),
+            }),
+          };
+        }
+        if (table === "orders") {
+          return {
+            select: vi.fn().mockReturnValue({
+              // Direct PI lookup misses (no rows, no error).
+              eq: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockReturnValue({ data: null, error: null }),
+              }),
+              // Session-id fallback finds it.
+              or: vi.fn().mockReturnValue({ maybeSingle: orMaybeSingle }),
+            }),
+            update: updateMock,
+          };
+        }
+        if (table === "profiles") {
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                single: vi.fn().mockReturnValue({
+                  data: { email: "fb@test.com", full_name: "FB" },
+                  error: null,
+                }),
+              }),
+            }),
+          };
+        }
+        return {};
+      });
+      mockCreateServiceClient.mockReturnValue({ from: fromMock });
+
+      const res = await POST(makeRequest(JSON.stringify(event)));
+      expect(res.status).toBe(200);
+      expect(mockSessionsList).toHaveBeenCalled();
+      expect(orMaybeSingle).toHaveBeenCalled();
+      expect(updateMock).toHaveBeenCalledWith(expect.objectContaining({ status: "cancelled" }));
+    });
+
+    it("rethrows (500) when the session-fallback lookup itself errors, so Stripe retries", async () => {
+      const event = createChargeRefundedEvent("pi_fallback_errors", 5000, true);
+      mockConstructEvent.mockReturnValue(event);
+      // The session lookup is the ONLY path to a session_<id>-placeholder order,
+      // so a transient Stripe error here must 500 (redeliver), not fall through
+      // to "not found" (200 → refund status/email silently lost).
+      mockSessionsList.mockRejectedValueOnce(new Error("stripe unavailable"));
+
+      const deleteEqMock = vi.fn().mockReturnValue({ error: null });
+      const fromMock = vi.fn((table: string) => {
+        if (table === "webhook_events") {
+          return {
+            upsert: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({ data: [{ id: "claimed-fberr" }], error: null }),
+            }),
+            delete: vi.fn().mockReturnValue({ eq: deleteEqMock }),
+          };
+        }
+        if (table === "orders") {
+          return {
+            select: vi.fn().mockReturnValue({
+              // Direct PI lookup misses → fall to the session fallback (which throws).
+              eq: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockReturnValue({ data: null, error: null }),
+              }),
+            }),
+          };
+        }
+        return {};
+      });
+      mockCreateServiceClient.mockReturnValue({ from: fromMock });
+
+      const res = await POST(makeRequest(JSON.stringify(event)));
+      // 500 so Stripe redelivers the refund event…
+      expect(res.status).toBe(500);
+      // …and the idempotency claim was released so the retry re-processes.
+      expect(deleteEqMock).toHaveBeenCalledWith("event_id", event.id);
+    });
+  });
+
+  describe("idempotency claim release on handler failure", () => {
+    it("releases the webhook_events claim and returns 500 when a handler throws (Stripe retries)", async () => {
+      const event = createChargeRefundedEvent("pi_db_fault", 5000, true);
+      mockConstructEvent.mockReturnValue(event);
+
+      const deleteEqMock = vi.fn().mockReturnValue({ error: null });
+      const fromMock = vi.fn((table: string) => {
+        if (table === "webhook_events") {
+          return {
+            upsert: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({ data: [{ id: "claimed-500" }], error: null }),
+            }),
+            delete: vi.fn().mockReturnValue({ eq: deleteEqMock }),
+          };
+        }
+        if (table === "orders") {
+          // A genuine DB fault (error set) on the lookup → handler throws.
+          return {
+            select: vi.fn().mockReturnValue({
+              eq: vi.fn().mockReturnValue({
+                maybeSingle: vi.fn().mockReturnValue({ data: null, error: { message: "db down" } }),
+              }),
+            }),
+          };
+        }
+        return {};
+      });
+      mockCreateServiceClient.mockReturnValue({ from: fromMock });
+
+      const res = await POST(makeRequest(JSON.stringify(event)));
+      // 500 so Stripe retries…
+      expect(res.status).toBe(500);
+      // …and the claim was released so the retry actually re-processes.
+      expect(deleteEqMock).toHaveBeenCalledWith("event_id", event.id);
+    });
+  });
+
+  describe("checkout.session.expired session-id guard", () => {
+    it("only cancels when the expiring session is the order's current session (retry race)", async () => {
+      const event = createCheckoutExpiredEvent("order-retry", "user-1");
+      const sessionId = (event.data.object as Stripe.Checkout.Session).id;
+      mockConstructEvent.mockReturnValue(event);
+
+      // 0 rows updated = the order moved on to a retry session, so this stale
+      // session's expiry must NOT cancel it.
+      const selectMock = vi.fn().mockReturnValue({ data: [], error: null });
+      const eqSession = vi.fn().mockReturnValue({ select: selectMock });
+      const eqStatus = vi.fn().mockReturnValue({ eq: eqSession });
+      const eqId = vi.fn().mockReturnValue({ eq: eqStatus });
+      const updateMock = vi.fn().mockReturnValue({ eq: eqId });
+      const fromMock = vi.fn((table: string) => {
+        if (table === "webhook_events") {
+          return {
+            upsert: vi.fn().mockReturnValue({
+              select: vi.fn().mockReturnValue({ data: [{ id: "claimed-exp" }], error: null }),
+            }),
+          };
+        }
+        if (table === "orders") return { update: updateMock };
+        return {};
+      });
+      mockCreateServiceClient.mockReturnValue({ from: fromMock });
+
+      const res = await POST(makeRequest(JSON.stringify(event)));
+      expect(res.status).toBe(200);
+      // The cancel update is scoped to the current session id (the guard)…
+      expect(eqSession).toHaveBeenCalledWith("stripe_checkout_session_id", sessionId);
+      // …and a 0-row result is a clean no-op (no throw, 200).
+      expect(selectMock).toHaveBeenCalled();
     });
   });
 

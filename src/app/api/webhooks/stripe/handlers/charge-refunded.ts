@@ -26,14 +26,62 @@ export async function handleChargeRefunded(
     return;
   }
 
-  // Find and update the order
-  const { data: order, error: findError } = await supabase
+  // Find the order by the real PaymentIntent id. `maybeSingle()` returns
+  // data:null for BOTH "no rows" and a transient DB fault — so surface a real
+  // error by throwing (the route returns 500 → Stripe retries), never swallow a
+  // DB fault into the "order not found" skip (which returns 200, no retry).
+  const { data: byPi, error: piLookupError } = await supabase
     .from("orders")
     .select("id, status, user_id, total_cents")
     .eq("stripe_payment_intent_id", paymentIntentId)
-    .single();
+    .maybeSingle();
+  if (piLookupError) throw piLookupError;
+  let order = byPi;
 
-  if (findError || !order) {
+  // Fallback: orders confirmed while the PaymentIntent was still null store a
+  // `session_<checkout_session_id>` placeholder instead of the real PI id, so a
+  // refund keyed on the real PI won't match. Resolve the Checkout Session for
+  // this PI and match on the session id (or its placeholder) instead — otherwise
+  // a dashboard refund on such an order is invisible (no status change, no email).
+  if (!order) {
+    // For a `session_<id>`-placeholder order, resolving the Checkout Session from
+    // Stripe is the ONLY path from this refund event back to the order, so a
+    // transient Stripe error here must retry (rethrow → 500 → Stripe redelivers)
+    // rather than fall through to "not found" (200, no redelivery, refund lost).
+    let sessionId: string | undefined;
+    try {
+      const sessions = await stripe.checkout.sessions.list({
+        payment_intent: paymentIntentId,
+        limit: 1,
+      });
+      sessionId = sessions.data[0]?.id;
+    } catch (lookupErr) {
+      // Rethrow so the webhook returns 500 and Stripe retries; the handler is
+      // idempotent (status write is status-guarded, email is idempotency-keyed on
+      // the charge id), so reprocessing can't double-fire.
+      logger.warn("Session fallback lookup failed in charge.refunded — rethrowing for retry", {
+        paymentIntentId,
+        error: lookupErr instanceof Error ? lookupErr.message : String(lookupErr),
+        api: "stripe-webhook",
+        flowId: "refund",
+      });
+      throw lookupErr;
+    }
+    if (sessionId) {
+      // A real DB fault here must 500 (Stripe retries), not masquerade as "no order".
+      const { data: bySession, error: sessionLookupError } = await supabase
+        .from("orders")
+        .select("id, status, user_id, total_cents")
+        .or(
+          `stripe_checkout_session_id.eq.${sessionId},stripe_payment_intent_id.eq.session_${sessionId}`
+        )
+        .maybeSingle();
+      if (sessionLookupError) throw sessionLookupError;
+      order = bySession ?? null;
+    }
+  }
+
+  if (!order) {
     logger.error("Could not find order for refund", {
       paymentIntentId,
       api: "stripe-webhook",
