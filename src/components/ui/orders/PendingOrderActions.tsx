@@ -78,6 +78,13 @@ export function PendingOrderActions({ orderId, isPastCutoff }: PendingOrderActio
           message: `Order cancelled — ${amount} refunded to your original payment method (3–5 business days).`,
           type: "success",
         });
+      } else if (data.refundPending) {
+        // Paid order whose refund is still settling — reassure, don't imply none.
+        toast({
+          message:
+            "Order cancelled — your refund is being processed and will arrive within 3–5 business days.",
+          type: "success",
+        });
       } else {
         toast({ message: "Your order has been cancelled.", type: "success" });
       }

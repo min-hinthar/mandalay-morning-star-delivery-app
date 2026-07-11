@@ -121,6 +121,7 @@ export async function POST(request: Request, { params }: RouteParams) {
   // fail the request — the reconciliation safety net retries (idempotent).
   let refundIssued = false;
   let refundedCents = 0;
+  let refundPending = false;
   try {
     const refund = await refundPaidOrderInFull({
       serviceClient: createServiceClient(),
@@ -134,9 +135,11 @@ export async function POST(request: Request, { params }: RouteParams) {
       // — the charge.refunded webhook then emails the customer their refund.
       refundSource: "auto-reconcile",
     });
-    refundIssued = refund.refunded;
+    refundIssued = refund.status === "refunded";
     // Cumulative returned (accurate when a prior partial refund exists).
     refundedCents = refund.totalRefundedCents;
+    // Paid order whose refund is still settling — the safety net completes it.
+    refundPending = refund.status === "pending";
   } catch (refundErr) {
     logger.exception(refundErr, {
       api: "cancel-order",
@@ -145,7 +148,11 @@ export async function POST(request: Request, { params }: RouteParams) {
       flowId: "order",
       message: "Auto-refund on cancel failed — safety net will retry",
     });
+    // The refund only reaches Stripe for a captured card order; a throw means
+    // the charge likely exists but the refund didn't land — the reconciliation
+    // safety net completes it (the webhook then emails the customer).
+    refundPending = order.payment_method === "stripe";
   }
 
-  return NextResponse.json({ success: true, refundIssued, refundedCents });
+  return NextResponse.json({ success: true, refundIssued, refundedCents, refundPending });
 }

@@ -55,6 +55,7 @@ describe("refundPaidOrderInFull", () => {
       baseArgs({ ...paidOrder, payment_method: "cod" }, client)
     );
     expect(res.refunded).toBe(false);
+    expect(res.status).toBe("none");
     expect(mockInspect).not.toHaveBeenCalled();
     expect(insert).not.toHaveBeenCalled();
   });
@@ -70,6 +71,7 @@ describe("refundPaidOrderInFull", () => {
     const { client, insert } = makeServiceClient();
     const res = await refundPaidOrderInFull(baseArgs(paidOrder, client));
     expect(res.refunded).toBe(false);
+    expect(res.status).toBe("none");
     expect(insert).not.toHaveBeenCalled();
     expect(mockIssue).not.toHaveBeenCalled();
   });
@@ -85,7 +87,34 @@ describe("refundPaidOrderInFull", () => {
     const { client, insert } = makeServiceClient();
     const res = await refundPaidOrderInFull(baseArgs(paidOrder, client));
     expect(res.refunded).toBe(false);
+    // Money is already fully back → "refunded" for customer copy, not "none".
+    expect(res.status).toBe("refunded");
+    expect(res.totalRefundedCents).toBe(5000);
     expect(insert).not.toHaveBeenCalled();
+  });
+
+  it("reports status:pending when a paid order's refund does not succeed", async () => {
+    mockInspect.mockResolvedValue({
+      paid: true,
+      amountCents: 5000,
+      amountRefundedCents: 0,
+      paymentIntentId: "pi_real",
+      sessionId: "cs_1",
+    });
+    mockSum.mockResolvedValue(0);
+    mockIssue.mockResolvedValue({
+      attempted: true,
+      succeeded: false,
+      refundedNowCents: 0,
+      alreadyRefundedCents: 0,
+      message: "Stripe unavailable",
+    });
+    const { client } = makeServiceClient();
+    const res = await refundPaidOrderInFull(baseArgs(paidOrder, client));
+    // A real charge exists but nothing moved — must be "pending" (safety net
+    // completes it), never "none" (which renders "no refund has been issued").
+    expect(res.refunded).toBe(false);
+    expect(res.status).toBe("pending");
   });
 
   it("audits the full total and drives the delta refunder for a paid order", async () => {
@@ -120,6 +149,7 @@ describe("refundPaidOrderInFull", () => {
       expect.objectContaining({ paymentIntentId: "pi_real", refundSource: "cancellation" })
     );
     expect(res.refunded).toBe(true);
+    expect(res.status).toBe("refunded");
     expect(res.refundedCents).toBe(5000);
     expect(res.totalRefundedCents).toBe(5000);
   });
@@ -152,5 +182,7 @@ describe("refundPaidOrderInFull", () => {
     expect(res.refundedCents).toBe(4000);
     // …but the customer-facing total returned is the full $50 ($10 prior + $40 now).
     expect(res.totalRefundedCents).toBe(5000);
+    // Full captured amount is now back → "refunded".
+    expect(res.status).toBe("refunded");
   });
 });

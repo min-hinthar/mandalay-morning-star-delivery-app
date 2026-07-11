@@ -118,9 +118,13 @@ export function StatusChangeDialog({
         message:
           isCancellation && data.refundIssued
             ? `Order cancelled — ${formatUsd(data.refundedCents ?? refundOnCancelCents)} refunded to the customer.`
-            : isCancellation
-              ? "Order cancelled."
-              : `Order is now ${STATUS_LABELS[newStatus]}`,
+            : isCancellation && data.refundPending
+              ? // Charge exists but the refund didn't settle synchronously — the
+                // reconciliation cron completes it. Tell support so they don't re-refund.
+                "Order cancelled — refund is processing and will complete automatically within a day."
+              : isCancellation
+                ? "Order cancelled."
+                : `Order is now ${STATUS_LABELS[newStatus]}`,
         type: "success",
       });
       // Refetch now that the server has committed (audit rows, refund, timestamps).

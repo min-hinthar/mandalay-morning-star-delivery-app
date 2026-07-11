@@ -175,7 +175,7 @@ export function OrdersTab() {
       toast({
         message: result.data?.message || "Your order has been cancelled.",
         type: "success",
-        duration: result.data?.refundIssued ? 7000 : undefined,
+        duration: result.data?.refundIssued || result.data?.refundPending ? 7000 : undefined,
       });
       setCancelDialogOpen(false);
       setOrderToCancel(null);

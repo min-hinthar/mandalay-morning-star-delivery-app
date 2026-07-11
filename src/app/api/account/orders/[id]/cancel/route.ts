@@ -159,6 +159,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // detector + cron) retries the refund. Idempotent, so a retry is safe.
     let refundIssued = false;
     let refundedCents = 0;
+    let refundPending = false;
     try {
       const refund = await refundPaidOrderInFull({
         serviceClient: createServiceClient(),
@@ -173,9 +174,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         // webhook-notified source so a refund is never silent (mirrors admin).
         refundSource: user.email ? "cancellation" : "auto-reconcile",
       });
-      refundIssued = refund.refunded;
+      refundIssued = refund.status === "refunded";
       // Cumulative returned (accurate when a prior partial refund exists).
       refundedCents = refund.totalRefundedCents;
+      // Paid order whose refund is still settling — copy must reassure, not deny.
+      refundPending = refund.status === "pending";
     } catch (refundErr) {
       logger.exception(refundErr, {
         api: "account/orders/[id]/cancel",
@@ -183,6 +186,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         userId: user.id,
         message: "Auto-refund on cancel failed — safety net will retry",
       });
+      // The refund only reaches Stripe for a captured card order; a throw means
+      // the charge likely exists but the refund didn't land — the reconciliation
+      // safety net completes it. Tell the customer it's processing, not "no refund".
+      refundPending = order.payment_method === "stripe";
     }
 
     // Trigger cancellation email
@@ -233,6 +240,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
               cancellationReason: reason,
               cancelledAt,
               refundIssued,
+              refundPending,
               refundAmountCents: refundIssued ? refundedCents : undefined,
               refundMethod: refundIssued ? "your original payment method" : undefined,
               refundTimeline: refundIssued ? "3–5 business days" : undefined,
@@ -264,9 +272,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         cancelledAt,
         refundIssued,
         refundedCents,
+        refundPending,
         message: refundIssued
           ? `Order cancelled — $${(refundedCents / 100).toFixed(2)} refunded to your original payment method`
-          : "Order cancelled successfully",
+          : refundPending
+            ? "Order cancelled — your refund is being processed and will arrive within 3–5 business days"
+            : "Order cancelled successfully",
       },
     });
   } catch (error) {

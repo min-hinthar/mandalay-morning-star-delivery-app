@@ -150,6 +150,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     // NOT fail the request — it stays cancelled and the safety net retries.
     let refundIssued = false;
     let refundedCents = 0;
+    let refundPending = false;
     {
       try {
         const refundResult = await refundPaidOrderInFull({
@@ -165,15 +166,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
           // otherwise use a webhook-notified source so the refund is never silent.
           refundSource: notifyCustomer && customerHasEmail ? "cancellation" : "auto-reconcile",
         });
-        refundIssued = refundResult.refunded;
+        refundIssued = refundResult.status === "refunded";
         // Cumulative returned (accurate when a prior partial refund exists).
         refundedCents = refundResult.totalRefundedCents;
+        // Paid order whose refund is still settling — copy must reassure, not deny.
+        refundPending = refundResult.status === "pending";
       } catch (refundErr) {
         logger.exception(refundErr, {
           api: "admin/orders/[id]/cancel",
           orderId,
           message: "Auto-refund on admin cancel failed — safety net will retry",
         });
+        // The refund only reaches Stripe for a captured card order; a throw means
+        // the charge likely exists but the refund didn't land — the reconciliation
+        // safety net completes it. Tell the customer it's processing, not "no refund".
+        refundPending = order.payment_method === "stripe";
       }
     }
 
@@ -229,6 +236,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
                 cancellationReason: reason,
                 cancelledAt,
                 refundIssued,
+                refundPending,
                 refundAmountCents: refundIssued ? refundedCents : undefined,
                 refundMethod: refundIssued ? "your original payment method" : undefined,
                 refundTimeline: refundIssued ? "3–5 business days" : undefined,
@@ -262,6 +270,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       notifyCustomer,
       refundIssued,
       refundedCents,
+      refundPending,
     });
   } catch (error) {
     logger.exception(error, { api: "admin/orders/[id]/cancel" });

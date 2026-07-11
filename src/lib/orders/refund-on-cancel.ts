@@ -27,6 +27,18 @@ import {
   type StripeRefundOutcome,
 } from "@/app/api/admin/orders/[id]/refund/stripe-refund";
 
+/**
+ * Customer-facing refund state for cancellation copy:
+ *   - `refunded` — money is fully back on the card (this call moved it, or a
+ *     prior refund already covered the full captured amount).
+ *   - `pending`  — the card WAS charged but the refund didn't fully land this
+ *     call; the reconciliation cron completes it (≤24h). Copy must reassure
+ *     ("your refund is being processed"), never say "no refund".
+ *   - `none`     — no card charge to refund (COD, or the order was never
+ *     captured). "No refund has been issued" is correct here.
+ */
+export type CancelRefundStatus = "refunded" | "pending" | "none";
+
 export interface CancelRefundResult {
   /** True when this call moved money on the card (or a prior attempt already did the full amount). */
   refunded: boolean;
@@ -39,6 +51,13 @@ export interface CancelRefundResult {
    * refund exists.
    */
   totalRefundedCents: number;
+  /**
+   * Discriminant for customer-facing copy. Distinguishes "money is back"
+   * (`refunded`) from "charged but refund still settling" (`pending`) from
+   * "nothing to refund" (`none`) — so a transient failure on a PAID order never
+   * emails "no refund has been issued".
+   */
+  status: CancelRefundStatus;
   message: string;
   outcome?: StripeRefundOutcome;
 }
@@ -70,6 +89,7 @@ export async function refundPaidOrderInFull(opts: {
       refunded: false,
       refundedCents: 0,
       totalRefundedCents: 0,
+      status: "none",
       message: "No card payment to refund (COD).",
     };
   }
@@ -84,6 +104,7 @@ export async function refundPaidOrderInFull(opts: {
       refunded: false,
       refundedCents: 0,
       totalRefundedCents: 0,
+      status: "none",
       message: "No captured payment to refund.",
     };
   }
@@ -92,6 +113,8 @@ export async function refundPaidOrderInFull(opts: {
       refunded: false,
       refundedCents: 0,
       totalRefundedCents: inspection.amountRefundedCents,
+      // Money is already fully back — treat as refunded for customer copy.
+      status: "refunded",
       message: "Payment already fully refunded.",
     };
   }
@@ -138,11 +161,18 @@ export async function refundPaidOrderInFull(opts: {
     });
   }
 
+  // Cumulative returned = prior refunds (from the charge) + what this call moved.
+  const totalRefundedCents = inspection.amountRefundedCents + outcome.refundedNowCents;
+
   return {
     refunded: outcome.succeeded && outcome.refundedNowCents > 0,
     refundedCents: outcome.refundedNowCents,
-    // Cumulative returned = prior refunds (from the charge) + what this call moved.
-    totalRefundedCents: inspection.amountRefundedCents + outcome.refundedNowCents,
+    totalRefundedCents,
+    // A card charge exists (inspection.paid). If the delta refunder brought the
+    // total up to the captured amount it's fully back; otherwise it's a paid
+    // order whose refund is still settling (the safety net completes it) — never
+    // "none", which would render "no refund has been issued" for a real charge.
+    status: outcome.succeeded && totalRefundedCents >= capturedCents ? "refunded" : "pending",
     message: outcome.message,
     outcome,
   };
