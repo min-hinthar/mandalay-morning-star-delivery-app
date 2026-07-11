@@ -4,12 +4,18 @@ import { stripe } from "@/lib/stripe/server";
 import { logger } from "@/lib/utils/logger";
 import { refundPaidOrderInFull } from "@/lib/orders/refund-on-cancel";
 import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
+import { checkOrigin } from "@/lib/utils/origin-check";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
 }
 
-export async function POST(_request: Request, { params }: RouteParams) {
+export async function POST(request: Request, { params }: RouteParams) {
+  // CSRF guard — this route now moves money (auto-refund on cancel), matching
+  // the account cancel route's protection.
+  const originError = checkOrigin(request);
+  if (originError) return originError;
+
   const { id: orderId } = await params;
 
   const supabase = await createClient();

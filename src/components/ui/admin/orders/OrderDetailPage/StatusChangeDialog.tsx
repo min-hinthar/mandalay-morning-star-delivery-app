@@ -182,6 +182,12 @@ export function StatusChangeDialog({
           />
           <span className="text-sm text-text-primary">Notify customer ({customerEmail})</span>
         </label>
+        {willRefund && !notifyCustomer && (
+          <p className="-mt-2 ml-7 text-xs text-text-muted">
+            A refund notification is always emailed when money is returned, even if this is
+            unchecked.
+          </p>
+        )}
 
         {/* Reason text area */}
         <div>
