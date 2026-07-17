@@ -5,6 +5,10 @@
 > code correctness, UI/UX, grocery gap analysis), live Supabase security/performance
 > advisors, Sentry production state, and the owner's uploaded price lists
 > (377 SKUs, Apr 2022) + inventory-list photos.
+>
+> **Catalog count superseded (2026-07-17):** the canonical parse now lives in the QR repo —
+> **395 sellable SKUs** (`mms-platform/supabase/data/grocery_catalog.json`, all three price-list
+> workbooks merged, bilingual + aisled). Plan-of-record: [`grocery-delivery-plan.md`](grocery-delivery-plan.md).
 
 ## The catalog being onboarded
 
