@@ -315,7 +315,7 @@ async function sendStatusEmail(
     const { data: orderItems } = await supabase
       .from("order_items")
       .select(
-        "name_snapshot, name_my_snapshot, quantity, line_total_cents, menu_items ( image_url )"
+        "name_snapshot, name_my_snapshot, special_instructions, quantity, line_total_cents, menu_items ( image_url ), order_item_modifiers ( name_snapshot, price_delta_snapshot )"
       )
       .eq("order_id", orderId);
 
@@ -335,15 +335,25 @@ async function sendStatusEmail(
           (item: {
             name_snapshot: string;
             name_my_snapshot: string | null;
+            special_instructions: string | null;
             quantity: number;
             line_total_cents: number;
             menu_items: { image_url: string | null } | null;
+            order_item_modifiers: Array<{
+              name_snapshot: string;
+              price_delta_snapshot: number;
+            }> | null;
           }) => ({
             name: item.name_snapshot,
             nameMy: item.name_my_snapshot,
             quantity: item.quantity,
             lineTotalCents: item.line_total_cents,
             imageUrl: item.menu_items?.image_url ?? null,
+            notes: item.special_instructions,
+            modifiers: item.order_item_modifiers?.map((m) => ({
+              name: m.name_snapshot,
+              priceDelta: m.price_delta_snapshot,
+            })),
           })
         ),
         totalCents: orderData?.total_cents ?? 0,
@@ -371,7 +381,7 @@ async function sendStatusEmail(
     .select(
       `
       total_cents, subtotal_cents, delivery_fee_cents, tax_cents, tip_cents, discount_cents,
-      special_instructions, delivery_window_start, delivery_window_end,
+      special_instructions, delivery_instructions, delivery_window_start, delivery_window_end,
       addresses (line_1, line_2, city, state, postal_code)
     `
     )
@@ -380,7 +390,9 @@ async function sendStatusEmail(
 
   const { data: orderItems } = await supabase
     .from("order_items")
-    .select("name_snapshot, name_my_snapshot, quantity, line_total_cents, menu_items ( image_url )")
+    .select(
+      "name_snapshot, name_my_snapshot, special_instructions, quantity, line_total_cents, menu_items ( image_url ), order_item_modifiers ( name_snapshot, price_delta_snapshot )"
+    )
     .eq("order_id", orderId);
 
   const customerName = profile.full_name || "Valued Customer";
@@ -388,15 +400,24 @@ async function sendStatusEmail(
     (item: {
       name_snapshot: string;
       name_my_snapshot: string | null;
+      special_instructions: string | null;
       quantity: number;
       line_total_cents: number;
       menu_items: { image_url: string | null } | null;
+      order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }> | null;
     }) => ({
       name: item.name_snapshot,
       nameMy: item.name_my_snapshot,
       quantity: item.quantity,
       lineTotalCents: item.line_total_cents,
       imageUrl: item.menu_items?.image_url ?? null,
+      // Per-item kitchen note + chosen options, so every status email shows the
+      // full detail (customers confirm their order; staff/drivers see specials).
+      notes: item.special_instructions,
+      modifiers: item.order_item_modifiers?.map((m) => ({
+        name: m.name_snapshot,
+        priceDelta: m.price_delta_snapshot,
+      })),
     })
   );
   const address = orderData?.addresses
@@ -440,6 +461,7 @@ async function sendStatusEmail(
     deliveryWindowEnd: orderData?.delivery_window_end ?? null,
     address,
     specialInstructions: orderData?.special_instructions ?? null,
+    deliveryInstructions: orderData?.delivery_instructions ?? null,
     // out_for_delivery / delivered specific fields
     itemCount: items.length,
     deliveredAt: newStatus === "delivered" ? new Date().toISOString() : null,

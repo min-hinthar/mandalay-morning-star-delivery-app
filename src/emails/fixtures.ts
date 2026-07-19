@@ -19,6 +19,7 @@ export const SAMPLE_ORDER_CONFIRMATION = {
       category: "Soups",
       imageUrl: "https://picsum.photos/seed/mohinga/240/240.jpg",
       modifiers: [{ name: "Extra Fish Cake", priceDelta: 200 }, { name: "Spicy Level: Medium" }],
+      notes: "Sauce on the side, please.",
     },
     {
       name: "Shan Noodles",
@@ -86,6 +87,7 @@ export const SAMPLE_CANCELLATION = {
       category: "Soups",
       imageUrl: "https://picsum.photos/seed/mohinga/240/240.jpg",
       modifiers: [{ name: "Extra Fish Cake", priceDelta: 200 }, { name: "Spicy Level: Medium" }],
+      notes: "Sauce on the side, please.",
     },
     {
       name: "Shan Noodles",
@@ -137,6 +139,7 @@ export const SAMPLE_REFUND = {
       category: "Soups",
       imageUrl: "https://picsum.photos/seed/mohinga/240/240.jpg",
       modifiers: [{ name: "Extra Fish Cake", priceDelta: 200 }, { name: "Spicy Level: Medium" }],
+      notes: "Sauce on the side, please.",
     },
     {
       name: "Tea Leaf Salad",

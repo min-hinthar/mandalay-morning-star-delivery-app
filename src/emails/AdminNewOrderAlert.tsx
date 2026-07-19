@@ -21,6 +21,9 @@ interface OrderItem {
   lineTotalCents: number;
   modifiers?: OrderItemModifier[];
   notes?: string | null;
+  /** Dish photo — OrderItemsTable renders it; call sites already pass it. */
+  imageUrl?: string | null;
+  category?: string;
 }
 
 interface DeliveryAddress {

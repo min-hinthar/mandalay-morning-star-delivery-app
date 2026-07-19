@@ -3,6 +3,10 @@ import { describe, expect, it } from "vitest";
 
 import { AdminDailyDigest } from "../AdminDailyDigest";
 import { DeliveryReminder } from "../DeliveryReminder";
+import { OutForDelivery } from "../OutForDelivery";
+import { OrderDelivered } from "../OrderDelivered";
+import { OrderCancellation } from "../OrderCancellation";
+import { AdminNewOrderAlert } from "../AdminNewOrderAlert";
 
 // React inserts empty "<!-- -->" comment separators between adjacent JSX
 // expressions; strip them so assertions match the visible text.
@@ -207,5 +211,110 @@ describe("AdminDailyDigest — full details + revenue excludes cancelled", () =>
     expect(html).toContain("Confirmed Revenue");
     expect(html).toContain("excl. 1 cancelled");
     expect(html).toContain("$42.00"); // excluded cancelled amount
+  });
+});
+
+// Every order lifecycle email must show the full order: dish photos, chosen
+// options (modifiers), per-item notes, and delivery notes — for customers AND staff.
+describe("Order lifecycle emails — full item detail (photos, options, notes, delivery notes)", () => {
+  const ADDRESS = { line1: "456 Elm St", city: "Covina", state: "CA", postalCode: "91723" };
+  const RICH_ITEMS = [
+    {
+      name: "Mohinga",
+      nameMy: "မုန့်ဟင်းခါး",
+      quantity: 2,
+      lineTotalCents: 2800,
+      category: "Soups",
+      imageUrl: "https://cdn.example.com/mohinga.jpg", // hostable raster → real <img>
+      modifiers: [{ name: "Extra Fish Cake", priceDelta: 200 }],
+      notes: "Sauce on the side, please.",
+    },
+  ];
+
+  it("OutForDelivery: items, modifiers, per-item notes, dish photo, and both delivery notes", async () => {
+    const html = visibleText(
+      await render(
+        <OutForDelivery
+          customerName="Aung Myo"
+          orderId="abc12345-6789-0def-ghij"
+          itemCount={2}
+          items={RICH_ITEMS}
+          deliveryWindowStart="2026-05-30T18:00:00Z"
+          deliveryWindowEnd="2026-05-30T20:00:00Z"
+          address={ADDRESS}
+          specialInstructions="No cilantro"
+          deliveryInstructions="Leave at the door"
+        />
+      )
+    );
+    expect(html).toContain("Mohinga");
+    expect(html).toContain("Extra Fish Cake"); // chosen option
+    expect(html).toContain("Sauce on the side, please."); // per-item note
+    expect(html).toContain("https://cdn.example.com/mohinga.jpg"); // dish photo
+    expect(html).toContain("Leave at the door"); // dropoff/delivery note
+    expect(html).toContain("No cilantro"); // kitchen note (both notes shown)
+  });
+
+  it("OrderDelivered: items with modifiers, notes and photo (the receipt)", async () => {
+    const html = visibleText(
+      await render(
+        <OrderDelivered
+          customerName="Aung Myo"
+          orderId="abc12345-6789-0def-ghij"
+          itemCount={2}
+          items={RICH_ITEMS}
+          totalCents={3165}
+        />
+      )
+    );
+    expect(html).toContain("Mohinga");
+    expect(html).toContain("Extra Fish Cake");
+    expect(html).toContain("Sauce on the side, please.");
+    expect(html).toContain("https://cdn.example.com/mohinga.jpg");
+  });
+
+  it("OrderCancellation: items with modifiers, notes and photo", async () => {
+    const html = visibleText(
+      await render(
+        <OrderCancellation
+          customerName="Aung Myo"
+          orderId="abc12345-6789-0def-ghij"
+          items={RICH_ITEMS}
+          totalCents={3165}
+          cancellationReason="Changed my mind"
+          cancelledAt="2026-05-30T18:00:00Z"
+          refundIssued={false}
+        />
+      )
+    );
+    expect(html).toContain("Mohinga");
+    expect(html).toContain("Extra Fish Cake");
+    expect(html).toContain("Sauce on the side, please.");
+    expect(html).toContain("https://cdn.example.com/mohinga.jpg");
+  });
+
+  it("AdminNewOrderAlert (staff): dish photo, options, notes and delivery notes", async () => {
+    const html = visibleText(
+      await render(
+        <AdminNewOrderAlert
+          orderId="abc12345-6789-0def-ghij"
+          customerName="Aung Myo"
+          customerEmail="aung@example.com"
+          items={RICH_ITEMS}
+          subtotalCents={2800}
+          deliveryFeeCents={0}
+          taxCents={200}
+          totalCents={3000}
+          address={ADDRESS}
+          specialInstructions="No cilantro"
+          deliveryInstructions="Leave at the door"
+          placedAt="2026-05-30T17:00:00Z"
+        />
+      )
+    );
+    expect(html).toContain("Extra Fish Cake"); // options for the kitchen
+    expect(html).toContain("Sauce on the side, please."); // per-item note
+    expect(html).toContain("https://cdn.example.com/mohinga.jpg"); // photo for staff
+    expect(html).toContain("Leave at the door"); // delivery note
   });
 });

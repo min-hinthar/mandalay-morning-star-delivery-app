@@ -102,6 +102,7 @@ export function buildEmailElement(type: EmailType, orderData: any): React.ReactE
         deliveryWindowEnd: orderData.deliveryWindowEnd,
         address: orderData.address,
         specialInstructions: orderData.specialInstructions,
+        deliveryInstructions: orderData.deliveryInstructions,
         driverName: orderData.driverName,
       });
 
