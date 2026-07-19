@@ -78,7 +78,18 @@ const STATUS_EMAIL_MAP: Partial<Record<OrderStatus, EmailType | null>> = {
 interface OrderRow {
   status: OrderStatus;
   user_id: string;
+  payment_method: string;
+  stripe_payment_intent_id: string | null;
 }
+
+// Statuses that mean the order is being fulfilled (kitchen/delivery). A card
+// order must NOT enter any of these while unpaid.
+const FULFILLMENT_STATUSES: readonly OrderStatus[] = [
+  "confirmed",
+  "preparing",
+  "out_for_delivery",
+  "delivered",
+];
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id: orderId } = await params;
@@ -108,10 +119,10 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     const { status: newStatus, notifyCustomer, reason } = parsed.data;
 
-    // Fetch current order status and user
+    // Fetch current order status, user, and payment state
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("status, user_id")
+      .select("status, user_id, payment_method, stripe_payment_intent_id")
       .eq("id", orderId)
       .returns<OrderRow[]>()
       .single();
@@ -128,6 +139,28 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return apiError(
         "BAD_REQUEST",
         "COD orders must be approved via the /approve-cod endpoint",
+        400
+      );
+    }
+
+    // PAYMENT GATE (root-cause fix for incident #71DC108A): a CARD order must
+    // never be advanced into a fulfillment status while unpaid. A paid Stripe
+    // order ALWAYS carries a stripe_payment_intent_id — the webhook and
+    // verify-payment paths are the only writers of that column and both confirm
+    // real payment first (a `session_<id>` placeholder still counts as non-null).
+    // So `payment_method='stripe' AND stripe_payment_intent_id IS NULL` means the
+    // payment failed/declined or never completed; confirming it here would set us
+    // up to deliver food we were never paid for. COD is exempt (approved via
+    // /approve-cod). This route intentionally never sets stripe_payment_intent_id,
+    // so a card order can only become paid through the payment flow, not here.
+    if (
+      FULFILLMENT_STATUSES.includes(newStatus) &&
+      order.payment_method !== "cod" &&
+      !order.stripe_payment_intent_id
+    ) {
+      return apiError(
+        "BAD_REQUEST",
+        "This card order hasn't been paid, so it can't be moved into fulfillment. A card order is confirmed automatically once payment succeeds — if the customer's payment failed, cancel the order or send them a new payment link.",
         400
       );
     }

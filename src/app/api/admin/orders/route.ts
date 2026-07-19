@@ -20,6 +20,7 @@ interface OrderRow {
   delivery_window_start: string | null;
   placed_at: string;
   payment_method: string | null;
+  stripe_payment_intent_id: string | null;
   order_items: OrderItemRow[];
   profiles: {
     full_name: string | null;
@@ -61,6 +62,7 @@ export async function GET(request: Request) {
         delivery_window_start,
         placed_at,
         payment_method,
+        stripe_payment_intent_id,
         order_items (quantity, name_snapshot, name_my_snapshot, menu_items(name_my)),
         profiles!orders_user_id_fkey (
           full_name,
@@ -92,8 +94,13 @@ export async function GET(request: Request) {
 
     const total = count ?? 0;
 
-    const transformedOrders = (orders ?? []).map((order) => ({
+    const transformedOrders = (orders ?? []).map(({ stripe_payment_intent_id, ...order }) => ({
       ...order,
+      // A card order is "awaiting payment" until a captured payment stamps a PI.
+      // Only the Stripe webhook / verify-payment set stripe_payment_intent_id
+      // (after confirming real payment); COD never awaits a card payment. The raw
+      // PI id is destructured out so the list never leaks it — just the boolean.
+      awaiting_payment: order.payment_method !== "cod" && !stripe_payment_intent_id,
       order_items: order.order_items.map((oi) => ({
         quantity: oi.quantity,
         name_snapshot: oi.name_snapshot,

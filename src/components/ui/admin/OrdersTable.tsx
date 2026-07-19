@@ -35,6 +35,8 @@ export interface AdminOrder {
   customerName: string | null;
   customerEmail: string;
   paymentMethod: "stripe" | "cod";
+  /** Card order with no captured payment yet (payment failed/declined or pending). COD is never awaiting. */
+  awaitingPayment?: boolean;
 }
 
 interface OrdersTableProps {

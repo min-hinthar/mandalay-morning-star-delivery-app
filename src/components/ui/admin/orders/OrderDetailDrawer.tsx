@@ -45,6 +45,15 @@ const NEXT_STATUSES: Record<OrderStatus, { status: OrderStatus; label: string }[
   cancelled: [{ status: "pending", label: "Reopen Order" }],
 };
 
+// Advancing a card order into any of these while unpaid would queue food we were
+// never paid for — the /status API rejects it, so mirror that in the UI.
+const FULFILLMENT_TARGETS: OrderStatus[] = [
+  "confirmed",
+  "preparing",
+  "out_for_delivery",
+  "delivered",
+];
+
 // ============================================
 // TYPES
 // ============================================
@@ -135,6 +144,11 @@ export function OrderDetailDrawer({
                   </span>
                   <div className="flex items-center gap-2">
                     <StatusBadge status={order.status} size="md" />
+                    {order.awaitingPayment && (
+                      <Badge className="text-xs bg-red-100 text-red-800 border-red-200">
+                        Payment not received
+                      </Badge>
+                    )}
                     {order.refundStatus !== "none" && (
                       <Badge
                         className={cn(
@@ -201,24 +215,43 @@ export function OrderDetailDrawer({
                     Actions
                   </h3>
                   <div className="flex flex-col gap-2">
-                    {nextStatuses.map(({ status, label }) => (
-                      <Button
-                        key={status}
-                        variant={status === "cancelled" ? "outline" : "default"}
-                        size="sm"
-                        className={cn(
-                          "w-full justify-center",
-                          status === "cancelled" &&
-                            "border-status-error text-status-error hover:bg-status-error/10",
-                          status !== "cancelled" &&
-                            "bg-accent-teal hover:bg-accent-teal/90 text-text-inverse"
-                        )}
-                        onClick={() => onStatusChange?.(order.id, status)}
-                      >
-                        {label}
-                      </Button>
-                    ))}
+                    {nextStatuses.map(({ status, label }) => {
+                      // Block advancing an unpaid card order into fulfillment — the
+                      // /status API rejects it; disabling here avoids a dead click.
+                      const blockedUnpaid =
+                        !!order.awaitingPayment && FULFILLMENT_TARGETS.includes(status);
+                      return (
+                        <Button
+                          key={status}
+                          variant={status === "cancelled" ? "outline" : "default"}
+                          size="sm"
+                          disabled={blockedUnpaid}
+                          title={
+                            blockedUnpaid
+                              ? "This card order hasn't been paid — it can't be confirmed."
+                              : undefined
+                          }
+                          className={cn(
+                            "w-full justify-center",
+                            status === "cancelled" &&
+                              "border-status-error text-status-error hover:bg-status-error/10",
+                            status !== "cancelled" &&
+                              "bg-accent-teal hover:bg-accent-teal/90 text-text-inverse"
+                          )}
+                          onClick={() => onStatusChange?.(order.id, status)}
+                        >
+                          {label}
+                        </Button>
+                      );
+                    })}
                   </div>
+                  {order.awaitingPayment && (
+                    <p className="text-xs text-status-error">
+                      This card order hasn&apos;t been paid (payment failed or is still pending), so
+                      it can&apos;t be moved into fulfillment. Cancel it, or wait for the
+                      customer&apos;s payment to complete.
+                    </p>
+                  )}
                 </section>
               )}
 
