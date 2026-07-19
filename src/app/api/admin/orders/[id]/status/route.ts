@@ -78,8 +78,9 @@ const STATUS_EMAIL_MAP: Partial<Record<OrderStatus, EmailType | null>> = {
 interface OrderRow {
   status: OrderStatus;
   user_id: string;
-  payment_method: string;
+  payment_method: string | null;
   stripe_payment_intent_id: string | null;
+  refund_status: string | null;
 }
 
 // Statuses that mean the order is being fulfilled (kitchen/delivery). A card
@@ -122,7 +123,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     // Fetch current order status, user, and payment state
     const { data: order, error: orderError } = await supabase
       .from("orders")
-      .select("status, user_id, payment_method, stripe_payment_intent_id")
+      .select("status, user_id, payment_method, stripe_payment_intent_id, refund_status")
       .eq("id", orderId)
       .returns<OrderRow[]>()
       .single();
@@ -133,9 +134,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     const currentStatus = order.status;
 
-    // Block pending_approval→confirmed through generic status endpoint
-    // This must go through /approve-cod to set cod_approved_at/cod_approved_by
-    if (currentStatus === "pending_approval" && newStatus === "confirmed") {
+    // Block pending_approval→confirmed for COD through the generic status endpoint
+    // This must go through /approve-cod to set cod_approved_at/cod_approved_by.
+    // (Gated on payment_method so a card order isn't given the misleading COD
+    // message — it falls through to the payment gate below.)
+    if (
+      currentStatus === "pending_approval" &&
+      newStatus === "confirmed" &&
+      order.payment_method === "cod"
+    ) {
       return apiError(
         "BAD_REQUEST",
         "COD orders must be approved via the /approve-cod endpoint",
@@ -144,23 +151,24 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     // PAYMENT GATE (root-cause fix for incident #71DC108A): a CARD order must
-    // never be advanced into a fulfillment status while unpaid. A paid Stripe
-    // order ALWAYS carries a stripe_payment_intent_id — the webhook and
-    // verify-payment paths are the only writers of that column and both confirm
-    // real payment first (a `session_<id>` placeholder still counts as non-null).
-    // So `payment_method='stripe' AND stripe_payment_intent_id IS NULL` means the
-    // payment failed/declined or never completed; confirming it here would set us
-    // up to deliver food we were never paid for. COD is exempt (approved via
-    // /approve-cod). This route intentionally never sets stripe_payment_intent_id,
-    // so a card order can only become paid through the payment flow, not here.
+    // never be advanced into a fulfillment status unless we've been NET-paid for
+    // it. A paid Stripe order ALWAYS carries a stripe_payment_intent_id — the
+    // webhook and verify-payment paths are the only writers of that column and
+    // both confirm real payment first (a `session_<id>` placeholder still counts
+    // as non-null). So a null PI means the payment failed/declined or never
+    // completed. A `refund_status='full'` order was paid but then fully refunded
+    // (charge.refunded flips it to cancelled but keeps the PI), so re-confirming
+    // it would fulfill food we net-collected $0 for. COD is exempt (approved via
+    // /approve-cod). This route never sets stripe_payment_intent_id, so a card
+    // order can only become paid through the payment flow, not here.
     if (
       FULFILLMENT_STATUSES.includes(newStatus) &&
       order.payment_method !== "cod" &&
-      !order.stripe_payment_intent_id
+      (!order.stripe_payment_intent_id || order.refund_status === "full")
     ) {
       return apiError(
         "BAD_REQUEST",
-        "This card order hasn't been paid, so it can't be moved into fulfillment. A card order is confirmed automatically once payment succeeds — if the customer's payment failed, cancel the order or send them a new payment link.",
+        "This card order hasn't been paid (or was fully refunded), so it can't be moved into fulfillment. A card order is confirmed automatically once payment succeeds — if the customer's payment failed, cancel the order or send them a new payment link.",
         400
       );
     }

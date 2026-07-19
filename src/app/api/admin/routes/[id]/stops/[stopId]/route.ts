@@ -123,19 +123,29 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Failed to update stop" }, { status: 500 });
     }
 
-    // Update order status if delivered
+    // Update order status if delivered. Guard to the active (routable) statuses
+    // so a pending/cancelled/already-delivered order can't be jumped to delivered,
+    // and surface a no-op (`.select("id")` + warn) instead of a silent stop/order
+    // divergence. Any order reaching here is on a route, so it's already paid (the
+    // route add/create guards block unpaid card orders).
     if (status === "delivered" && updatedStop?.order_id) {
-      await supabase
+      const { data: deliveredRows } = await supabase
         .from("orders")
         .update({
           status: "delivered",
           delivered_at: new Date().toISOString(),
         })
         .eq("id", updatedStop.order_id)
-        // Only a dispatched order can be marked delivered — mirrors the driver
-        // path's optimistic lock, so a non-out_for_delivery order (e.g. a stray
-        // unpaid row) can't be jumped straight to delivered.
-        .eq("status", "out_for_delivery");
+        .in("status", ["confirmed", "preparing", "out_for_delivery"])
+        .select("id");
+      if (!deliveredRows || deliveredRows.length === 0) {
+        logger.warn("Stop marked delivered but order was not in a deliverable status", {
+          orderId: updatedStop.order_id,
+          stopId,
+          api: "admin/routes/[id]/stops/[stopId]",
+          flowId: "update-stop",
+        });
+      }
     }
 
     // Update route stats

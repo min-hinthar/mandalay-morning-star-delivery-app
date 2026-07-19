@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
     // Verify all orders exist and are in confirmed status
     const { data: orders, error: ordersError } = await supabase
       .from("orders")
-      .select("id, status, payment_method, stripe_payment_intent_id")
+      .select("id, status, payment_method, stripe_payment_intent_id, refund_status")
       .in("id", orderIds);
 
     if (ordersError) {
@@ -224,7 +224,8 @@ export async function POST(request: NextRequest) {
     // unpaid card order, but this keeps a stray bad row (legacy, or a direct admin
     // write that bypasses the API) out of a delivery route. COD is exempt.
     const unpaidOrders = orders.filter(
-      (o) => o.payment_method !== "cod" && !o.stripe_payment_intent_id
+      (o) =>
+        o.payment_method !== "cod" && (!o.stripe_payment_intent_id || o.refund_status === "full")
     );
     if (unpaidOrders.length > 0) {
       return NextResponse.json(

@@ -117,9 +117,25 @@ describe("PATCH /api/admin/orders/[id]/status — payment gate (incident #71DC10
       user_id: "u1",
       payment_method: "cod",
       stripe_payment_intent_id: null,
+      refund_status: "none",
     });
     const res = await PATCH(makeReq({ status: "confirmed", notifyCustomer: false }), { params });
     expect(res.status).toBe(200);
     expect(ordersUpdate).toHaveBeenCalled();
+  });
+
+  it("REJECTS re-confirming a FULLY-REFUNDED card order (PI present but refund_status full)", async () => {
+    // charge.refunded cancels a fully-refunded order but keeps its PI; re-opening
+    // + re-confirming must NOT fulfill an order we net-collected $0 for.
+    const { ordersUpdate } = mockAdminWithOrder({
+      status: "pending",
+      user_id: "u1",
+      payment_method: "stripe",
+      stripe_payment_intent_id: "pi_123",
+      refund_status: "full",
+    });
+    const res = await PATCH(makeReq({ status: "confirmed" }), { params });
+    expect(res.status).toBe(400);
+    expect(ordersUpdate).not.toHaveBeenCalled();
   });
 });
