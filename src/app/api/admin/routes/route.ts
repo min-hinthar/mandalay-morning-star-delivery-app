@@ -189,7 +189,7 @@ export async function POST(request: NextRequest) {
     // Verify all orders exist and are in confirmed status
     const { data: orders, error: ordersError } = await supabase
       .from("orders")
-      .select("id, status")
+      .select("id, status, payment_method, stripe_payment_intent_id, refund_status")
       .in("id", orderIds);
 
     if (ordersError) {
@@ -214,6 +214,24 @@ export async function POST(request: NextRequest) {
         {
           error: "Some orders are not ready for delivery",
           invalidOrderIds: invalidOrders.map((o) => o.id),
+        },
+        { status: 400 }
+      );
+    }
+
+    // Defense in depth (incident #71DC108A): never route a CARD order without a
+    // captured payment. The upstream /status gate already prevents confirming an
+    // unpaid card order, but this keeps a stray bad row (legacy, or a direct admin
+    // write that bypasses the API) out of a delivery route. COD is exempt.
+    const unpaidOrders = orders.filter(
+      (o) =>
+        o.payment_method !== "cod" && (!o.stripe_payment_intent_id || o.refund_status === "full")
+    );
+    if (unpaidOrders.length > 0) {
+      return NextResponse.json(
+        {
+          error: "Some orders have not been paid and cannot be routed for delivery",
+          unpaidOrderIds: unpaidOrders.map((o) => o.id),
         },
         { status: 400 }
       );

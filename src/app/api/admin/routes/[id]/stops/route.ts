@@ -95,7 +95,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     // Verify orders exist and are in valid status
     const { data: orders, error: ordersError } = await supabase
       .from("orders")
-      .select("id, status")
+      .select("id, status, payment_method, stripe_payment_intent_id, refund_status")
       .in("id", orderIds);
 
     if (ordersError) {
@@ -105,6 +105,23 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     if (!orders || orders.length !== orderIds.length) {
       return NextResponse.json({ error: "Some orders not found" }, { status: 400 });
+    }
+
+    // Defense in depth (incident #71DC108A): never add an unpaid CARD order to a
+    // route. Mirrors the guard on route creation (admin/routes/route.ts) so the
+    // "add to existing route" path can't bypass it. COD is exempt.
+    const unpaidOrders = orders.filter(
+      (o) =>
+        o.payment_method !== "cod" && (!o.stripe_payment_intent_id || o.refund_status === "full")
+    );
+    if (unpaidOrders.length > 0) {
+      return NextResponse.json(
+        {
+          error: "Some orders have not been paid and cannot be routed for delivery",
+          unpaidOrderIds: unpaidOrders.map((o) => o.id),
+        },
+        { status: 400 }
+      );
     }
 
     // Check if orders are already assigned to this route
@@ -243,15 +260,29 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Failed to update stop" }, { status: 500 });
     }
 
-    // Update order status if delivered
+    // Update order status if delivered. Guard to the active (routable) statuses
+    // so a pending/cancelled/already-delivered order can't be jumped to delivered,
+    // and surface a no-op (`.select("id")` + warn) instead of a silent stop/order
+    // divergence. Any order reaching here is on a route, so it's already paid (the
+    // route add/create guards block unpaid card orders).
     if (status === "delivered" && updatedStop?.order_id) {
-      await supabase
+      const { data: deliveredRows } = await supabase
         .from("orders")
         .update({
           status: "delivered",
           delivered_at: new Date().toISOString(),
         })
-        .eq("id", updatedStop.order_id);
+        .eq("id", updatedStop.order_id)
+        .in("status", ["confirmed", "preparing", "out_for_delivery"])
+        .select("id");
+      if (!deliveredRows || deliveredRows.length === 0) {
+        logger.warn("Stop marked delivered but order was not in a deliverable status", {
+          orderId: updatedStop.order_id,
+          routeId,
+          api: "admin/routes/[id]/stops",
+          flowId: "update-stop",
+        });
+      }
     }
 
     // Update route stats

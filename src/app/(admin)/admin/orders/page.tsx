@@ -42,6 +42,7 @@ interface OrderRow {
   delivery_window_start: string | null;
   placed_at: string;
   payment_method: string | null;
+  awaiting_payment?: boolean;
   order_items: Array<{
     quantity: number;
     name_snapshot: string;
@@ -94,6 +95,7 @@ export default function AdminOrdersPage() {
           customerName: order.profiles?.full_name || null,
           customerEmail: order.profiles?.email || "Unknown",
           paymentMethod: (order.payment_method as "stripe" | "cod") ?? "stripe",
+          awaitingPayment: order.awaiting_payment ?? false,
         };
       });
 
