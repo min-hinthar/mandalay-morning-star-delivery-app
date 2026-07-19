@@ -131,7 +131,11 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           status: "delivered",
           delivered_at: new Date().toISOString(),
         })
-        .eq("id", updatedStop.order_id);
+        .eq("id", updatedStop.order_id)
+        // Only a dispatched order can be marked delivered — mirrors the driver
+        // path's optimistic lock, so a non-out_for_delivery order (e.g. a stray
+        // unpaid row) can't be jumped straight to delivered.
+        .eq("status", "out_for_delivery");
     }
 
     // Update route stats

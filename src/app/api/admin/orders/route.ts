@@ -100,7 +100,13 @@ export async function GET(request: Request) {
       // Only the Stripe webhook / verify-payment set stripe_payment_intent_id
       // (after confirming real payment); COD never awaits a card payment. The raw
       // PI id is destructured out so the list never leaks it — just the boolean.
-      awaiting_payment: order.payment_method !== "cod" && !stripe_payment_intent_id,
+      // Gated to non-terminal statuses so it reads as an actionable-attention flag
+      // (a cancelled/declined order isn't "awaiting" anything).
+      awaiting_payment:
+        order.payment_method !== "cod" &&
+        !stripe_payment_intent_id &&
+        order.status !== "cancelled" &&
+        order.status !== "delivered",
       order_items: order.order_items.map((oi) => ({
         quantity: oi.quantity,
         name_snapshot: oi.name_snapshot,
