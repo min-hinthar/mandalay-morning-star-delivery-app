@@ -61,4 +61,11 @@ describe("sendOrderStatusPush — shared status push", () => {
     await sendOrderStatusPush("order-abc", "delivered");
     expect(sendPushToUser).not.toHaveBeenCalled();
   });
+
+  it("stays fail-soft: a throwing push is swallowed, never rethrown", async () => {
+    mockClient({ user_id: "user-1" });
+    vi.mocked(sendPushToUser).mockRejectedValueOnce(new Error("web-push exploded"));
+    // Must resolve, not reject — callers fire it unconditionally.
+    await expect(sendOrderStatusPush("order-abc", "delivered")).resolves.toBeUndefined();
+  });
 });

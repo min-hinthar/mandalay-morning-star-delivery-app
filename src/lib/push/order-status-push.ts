@@ -53,26 +53,38 @@ export async function sendOrderStatusPush(
   const message = STATUS_PUSH[newStatus];
   if (!message) return;
 
-  const supabase = createServiceClient();
+  // Self-soft: the helper owns its own failure so the "fire it unconditionally"
+  // contract is real even for a caller that forgets to wrap it (a throw here
+  // would otherwise become an unhandled rejection inside after()).
+  try {
+    const supabase = createServiceClient();
 
-  let userId = options.userId;
-  if (!userId) {
-    const { data: order } = await supabase
-      .from("orders")
-      .select("user_id")
-      .eq("id", orderId)
-      .single();
-    if (!order?.user_id) {
-      logger.warn("Status push: order/user not found", { orderId, newStatus });
-      return;
+    let userId = options.userId;
+    if (!userId) {
+      const { data: order } = await supabase
+        .from("orders")
+        .select("user_id")
+        .eq("id", orderId)
+        .single();
+      if (!order?.user_id) {
+        logger.warn("Status push: order/user not found", { orderId, newStatus });
+        return;
+      }
+      userId = order.user_id;
     }
-    userId = order.user_id;
-  }
 
-  await sendPushToUser(supabase, userId, {
-    title: message.title,
-    body: message.body,
-    url: `/orders/${orderId}/tracking`,
-    tag: `order-${orderId}`,
-  });
+    await sendPushToUser(supabase, userId, {
+      title: message.title,
+      body: message.body,
+      url: `/orders/${orderId}/tracking`,
+      tag: `order-${orderId}`,
+    });
+  } catch (err) {
+    logger.exception(err, {
+      api: "push/order-status-push",
+      orderId,
+      newStatus,
+      message: "status push failed",
+    });
+  }
 }
