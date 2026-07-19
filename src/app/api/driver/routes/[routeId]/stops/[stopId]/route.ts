@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
+import { sendOrderStatusEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import { updateStopStatusSchema, isValidStatusTransition } from "@/lib/validations/driver-api";
 import type { RouteStopStatus } from "@/types/driver";
@@ -265,6 +266,25 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
             orderId: stop.order_id,
           });
         }
+      }
+
+      // Notify the customer their order arrived — only when THIS request made the
+      // transition (orderUpdated), so a race/no-op doesn't email. The shared
+      // sender's stable key (delivered-<id>) dedupes any overlap with the admin
+      // route UI marking the same stop delivered. Fire-and-forget via after().
+      if (orderUpdated) {
+        const deliveredOrderId = stop.order_id;
+        after(async () => {
+          try {
+            await sendOrderStatusEmail(deliveredOrderId, "delivered", { deliveredAt: now });
+          } catch (emailErr) {
+            logger.exception(emailErr, {
+              api: "driver/routes/[routeId]/stops/[stopId]",
+              orderId: deliveredOrderId,
+              message: "delivered email failed",
+            });
+          }
+        });
       }
     }
 

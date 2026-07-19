@@ -19,6 +19,23 @@ vi.mock("@/lib/badges", () => ({
 vi.mock("@/lib/supabase/server", () => ({
   createServiceClient: vi.fn(),
 }));
+// Customer status emails fire fire-and-forget from start (out_for_delivery) and
+// stop-delivered (delivered) — stub the sender so the lifecycle asserts routing,
+// not email side effects.
+vi.mock("@/lib/email", () => ({
+  sendOrderStatusEmail: vi.fn().mockResolvedValue(true),
+}));
+// Run after() callbacks inline so the fire-and-forget email path doesn't need a
+// real request scope (the routes now schedule emails via after()).
+vi.mock("next/server", async (importOriginal) => {
+  const mod = await importOriginal<typeof import("next/server")>();
+  return {
+    ...mod,
+    after: (cb: () => Promise<void>) => {
+      void cb();
+    },
+  };
+});
 
 // ── Imports after mocks ──────────────────────────────────────────────
 

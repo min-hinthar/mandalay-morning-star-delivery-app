@@ -4,11 +4,9 @@ import { requireAdmin } from "@/lib/auth";
 import { z } from "zod";
 import { logger } from "@/lib/utils/logger";
 import { apiError } from "@/lib/utils/api-error";
-import { sendEmail, buildEmailElement } from "@/lib/email";
-import { getLoyaltyNudge, getNextDeliveryCutoffText } from "@/lib/email/nudges";
+import { sendEmail, sendOrderStatusEmail } from "@/lib/email";
 import { OrderCancellation } from "@/emails/OrderCancellation";
 import type { OrderStatus, Json } from "@/types/database";
-import type { EmailType } from "@/lib/email/types";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 import { createServiceClient } from "@/lib/supabase/server";
 import { sendPushToUser } from "@/lib/push/send";
@@ -65,14 +63,6 @@ const VALID_TRANSITIONS: Record<OrderStatus, OrderStatus[]> = {
   out_for_delivery: ["delivered", "preparing"],
   delivered: ["out_for_delivery"],
   cancelled: ["pending"],
-};
-
-// Map status transitions to email types (null = no email template available)
-const STATUS_EMAIL_MAP: Partial<Record<OrderStatus, EmailType | null>> = {
-  confirmed: "order_confirmation",
-  out_for_delivery: "out_for_delivery",
-  delivered: "delivered",
-  cancelled: null, // Handled separately via cancel route
 };
 
 interface OrderRow {
@@ -292,6 +282,15 @@ async function sendStatusEmail(
   newStatus: OrderStatus,
   reason?: string
 ): Promise<boolean> {
+  // Cancellation has its own template + refund-aware copy; everything else
+  // (confirmed / out_for_delivery / delivered) goes through the shared sender —
+  // full order detail, stable idempotency key, service-client reads. Sharing it
+  // means an order confirmed here and one marked out_for_delivery/delivered from
+  // the driver flow send byte-identical emails.
+  if (newStatus !== "cancelled") {
+    return sendOrderStatusEmail(orderId, newStatus);
+  }
+
   // Fetch customer profile
   const { data: profile } = await supabase
     .from("profiles")
@@ -307,87 +306,8 @@ async function sendStatusEmail(
     return false;
   }
 
-  const emailType = STATUS_EMAIL_MAP[newStatus];
-
-  // Cancellation is handled via the dedicated cancel route
-  if (newStatus === "cancelled") {
-    // Fetch order items for cancellation email
-    const { data: orderItems } = await supabase
-      .from("order_items")
-      .select(
-        "name_snapshot, name_my_snapshot, special_instructions, quantity, line_total_cents, menu_items ( image_url ), order_item_modifiers ( name_snapshot, price_delta_snapshot )"
-      )
-      .eq("order_id", orderId);
-
-    const { data: orderData } = await supabase
-      .from("orders")
-      .select("total_cents")
-      .eq("id", orderId)
-      .single();
-
-    const result = await sendEmail({
-      to: profile.email,
-      subject: "Your order has been cancelled",
-      react: React.createElement(OrderCancellation, {
-        customerName: profile.full_name || "Valued Customer",
-        orderId,
-        items: (orderItems || []).map(
-          (item: {
-            name_snapshot: string;
-            name_my_snapshot: string | null;
-            special_instructions: string | null;
-            quantity: number;
-            line_total_cents: number;
-            menu_items: { image_url: string | null } | null;
-            order_item_modifiers: Array<{
-              name_snapshot: string;
-              price_delta_snapshot: number;
-            }> | null;
-          }) => ({
-            name: item.name_snapshot,
-            nameMy: item.name_my_snapshot,
-            quantity: item.quantity,
-            lineTotalCents: item.line_total_cents,
-            imageUrl: item.menu_items?.image_url ?? null,
-            notes: item.special_instructions,
-            modifiers: item.order_item_modifiers?.map((m) => ({
-              name: m.name_snapshot,
-              priceDelta: m.price_delta_snapshot,
-            })),
-          })
-        ),
-        totalCents: orderData?.total_cents ?? 0,
-        cancellationReason: reason ?? "No reason provided",
-        cancelledAt: new Date().toISOString(),
-        refundIssued: false,
-      }),
-      type: "cancellation",
-      orderId,
-      userId: orderUserId,
-      idempotencyKey: `status-cancel-${orderId}-${Date.now()}`,
-    });
-
-    return result.success;
-  }
-
-  // Skip if no known email type for this transition
-  if (!emailType) {
-    return false;
-  }
-
-  // Fetch order data + items needed by all templates
-  const { data: orderData } = await supabase
-    .from("orders")
-    .select(
-      `
-      total_cents, subtotal_cents, delivery_fee_cents, tax_cents, tip_cents, discount_cents,
-      special_instructions, delivery_instructions, delivery_window_start, delivery_window_end,
-      addresses (line_1, line_2, city, state, postal_code)
-    `
-    )
-    .eq("id", orderId)
-    .single();
-
+  // Cancellation email (a degraded fallback — the dedicated cancel routes own
+  // the refund-aware path). Fetch items + total for the summary.
   const { data: orderItems } = await supabase
     .from("order_items")
     .select(
@@ -395,88 +315,52 @@ async function sendStatusEmail(
     )
     .eq("order_id", orderId);
 
-  const customerName = profile.full_name || "Valued Customer";
-  const items = (orderItems || []).map(
-    (item: {
-      name_snapshot: string;
-      name_my_snapshot: string | null;
-      special_instructions: string | null;
-      quantity: number;
-      line_total_cents: number;
-      menu_items: { image_url: string | null } | null;
-      order_item_modifiers: Array<{ name_snapshot: string; price_delta_snapshot: number }> | null;
-    }) => ({
-      name: item.name_snapshot,
-      nameMy: item.name_my_snapshot,
-      quantity: item.quantity,
-      lineTotalCents: item.line_total_cents,
-      imageUrl: item.menu_items?.image_url ?? null,
-      // Per-item kitchen note + chosen options, so every status email shows the
-      // full detail (customers confirm their order; staff/drivers see specials).
-      notes: item.special_instructions,
-      modifiers: item.order_item_modifiers?.map((m) => ({
-        name: m.name_snapshot,
-        priceDelta: m.price_delta_snapshot,
-      })),
-    })
-  );
-  const address = orderData?.addresses
-    ? {
-        line1: orderData.addresses.line_1,
-        line2: orderData.addresses.line_2 ?? undefined,
-        city: orderData.addresses.city,
-        state: orderData.addresses.state,
-        postalCode: orderData.addresses.postal_code,
-      }
-    : null;
-
-  // Subject line per status
-  const shortId = orderId.slice(0, 8).toUpperCase();
-  const SUBJECT_MAP: Record<string, string> = {
-    order_confirmation: `Your order #${shortId} has been confirmed!`,
-    out_for_delivery: `Your order #${shortId} is on its way!`,
-    delivered: `Your order #${shortId} has been delivered!`,
-  };
-  const subject = SUBJECT_MAP[emailType] ?? `Update for order #${shortId}`;
-
-  // Decorative nudges (fail-soft): real loyalty progress at send time; the
-  // delivered email also teases the next live delivery window.
-  const wantsLoyalty = emailType === "order_confirmation" || emailType === "delivered";
-  const [loyalty, nextCutoff] = await Promise.all([
-    wantsLoyalty ? getLoyaltyNudge(createServiceClient(), orderUserId) : Promise.resolve(null),
-    emailType === "delivered" ? getNextDeliveryCutoffText() : Promise.resolve(null),
-  ]);
-
-  const react = buildEmailElement(emailType, {
-    customerName,
-    orderId,
-    items,
-    subtotalCents: orderData?.subtotal_cents ?? 0,
-    deliveryFeeCents: orderData?.delivery_fee_cents ?? 0,
-    taxCents: orderData?.tax_cents ?? 0,
-    tipCents: orderData?.tip_cents ?? 0,
-    discountCents: orderData?.discount_cents ?? 0,
-    totalCents: orderData?.total_cents ?? 0,
-    deliveryWindowStart: orderData?.delivery_window_start ?? null,
-    deliveryWindowEnd: orderData?.delivery_window_end ?? null,
-    address,
-    specialInstructions: orderData?.special_instructions ?? null,
-    deliveryInstructions: orderData?.delivery_instructions ?? null,
-    // out_for_delivery / delivered specific fields
-    itemCount: items.length,
-    deliveredAt: newStatus === "delivered" ? new Date().toISOString() : null,
-    loyalty,
-    nextDeliveryCutoffText: nextCutoff,
-  });
+  const { data: orderData } = await supabase
+    .from("orders")
+    .select("total_cents")
+    .eq("id", orderId)
+    .single();
 
   const result = await sendEmail({
     to: profile.email,
-    subject,
-    react,
-    type: emailType,
+    subject: "Your order has been cancelled",
+    react: React.createElement(OrderCancellation, {
+      customerName: profile.full_name || "Valued Customer",
+      orderId,
+      items: (orderItems || []).map(
+        (item: {
+          name_snapshot: string;
+          name_my_snapshot: string | null;
+          special_instructions: string | null;
+          quantity: number;
+          line_total_cents: number;
+          menu_items: { image_url: string | null } | null;
+          order_item_modifiers: Array<{
+            name_snapshot: string;
+            price_delta_snapshot: number;
+          }> | null;
+        }) => ({
+          name: item.name_snapshot,
+          nameMy: item.name_my_snapshot,
+          quantity: item.quantity,
+          lineTotalCents: item.line_total_cents,
+          imageUrl: item.menu_items?.image_url ?? null,
+          notes: item.special_instructions,
+          modifiers: item.order_item_modifiers?.map((m) => ({
+            name: m.name_snapshot,
+            priceDelta: m.price_delta_snapshot,
+          })),
+        })
+      ),
+      totalCents: orderData?.total_cents ?? 0,
+      cancellationReason: reason ?? "No reason provided",
+      cancelledAt: new Date().toISOString(),
+      refundIssued: false,
+    }),
+    type: "cancellation",
     orderId,
     userId: orderUserId,
-    idempotencyKey: `status-${newStatus}-${orderId}-${Date.now()}`,
+    idempotencyKey: `status-cancel-${orderId}-${Date.now()}`,
   });
 
   return result.success;

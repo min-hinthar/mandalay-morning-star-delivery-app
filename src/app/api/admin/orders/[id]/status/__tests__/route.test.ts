@@ -13,7 +13,7 @@ vi.mock("@/lib/utils/logger", () => ({
 // handler pulls no heavy side-effecting deps and the allow path stays inert.
 vi.mock("@/lib/email", () => ({
   sendEmail: vi.fn().mockResolvedValue({ success: true }),
-  buildEmailElement: vi.fn(),
+  sendOrderStatusEmail: vi.fn().mockResolvedValue(true),
 }));
 vi.mock("@/lib/email/nudges", () => ({
   getLoyaltyNudge: vi.fn(),
