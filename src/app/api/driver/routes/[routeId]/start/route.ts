@@ -2,6 +2,7 @@ import { after, NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { sendOrderStatusEmail } from "@/lib/email";
+import { sendOrderStatusPush } from "@/lib/push/order-status-push";
 import { logger } from "@/lib/utils/logger";
 
 interface RouteParams {
@@ -168,6 +169,17 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
                   api: "driver/routes/[routeId]/start",
                   orderId: id,
                   message: "out_for_delivery email failed",
+                });
+              }
+              // Web-push companion (independent of the email — one failing must
+              // not skip the other). No-op without VAPID keys.
+              try {
+                await sendOrderStatusPush(id, "out_for_delivery");
+              } catch (pushErr) {
+                logger.exception(pushErr, {
+                  api: "driver/routes/[routeId]/start",
+                  orderId: id,
+                  message: "out_for_delivery push failed",
                 });
               }
             })

@@ -2,6 +2,7 @@ import { after, NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { updateStopStatusSchema } from "@/lib/validations/route";
 import { sendOrderStatusEmail } from "@/lib/email";
+import { sendOrderStatusPush } from "@/lib/push/order-status-push";
 import { logger } from "@/lib/utils/logger";
 import type { ProfileRole } from "@/types/database";
 import type { RouteStopStatus } from "@/types/driver";
@@ -159,6 +160,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
               api: "admin/routes/[id]/stops/[stopId]",
               orderId: deliveredOrderId,
               message: "delivered email failed",
+            });
+          }
+          try {
+            await sendOrderStatusPush(deliveredOrderId, "delivered");
+          } catch (pushErr) {
+            logger.exception(pushErr, {
+              api: "admin/routes/[id]/stops/[stopId]",
+              orderId: deliveredOrderId,
+              message: "delivered push failed",
             });
           }
         });

@@ -2,6 +2,7 @@ import { after, NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { sendOrderStatusEmail } from "@/lib/email";
+import { sendOrderStatusPush } from "@/lib/push/order-status-push";
 import { logger } from "@/lib/utils/logger";
 import { updateStopStatusSchema, isValidStatusTransition } from "@/lib/validations/driver-api";
 import type { RouteStopStatus } from "@/types/driver";
@@ -282,6 +283,15 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
               api: "driver/routes/[routeId]/stops/[stopId]",
               orderId: deliveredOrderId,
               message: "delivered email failed",
+            });
+          }
+          try {
+            await sendOrderStatusPush(deliveredOrderId, "delivered");
+          } catch (pushErr) {
+            logger.exception(pushErr, {
+              api: "driver/routes/[routeId]/stops/[stopId]",
+              orderId: deliveredOrderId,
+              message: "delivered push failed",
             });
           }
         });

@@ -25,6 +25,9 @@ vi.mock("@/lib/supabase/server", () => ({
 vi.mock("@/lib/email", () => ({
   sendOrderStatusEmail: vi.fn().mockResolvedValue(true),
 }));
+vi.mock("@/lib/push/order-status-push", () => ({
+  sendOrderStatusPush: vi.fn().mockResolvedValue(undefined),
+}));
 // Run after() callbacks inline so the fire-and-forget email path doesn't need a
 // real request scope (the routes now schedule emails via after()).
 vi.mock("next/server", async (importOriginal) => {

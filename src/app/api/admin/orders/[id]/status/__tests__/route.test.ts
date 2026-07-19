@@ -19,7 +19,7 @@ vi.mock("@/lib/email/nudges", () => ({
   getLoyaltyNudge: vi.fn(),
   getNextDeliveryCutoffText: vi.fn(),
 }));
-vi.mock("@/lib/push/send", () => ({ sendPushToUser: vi.fn() }));
+vi.mock("@/lib/push/order-status-push", () => ({ sendOrderStatusPush: vi.fn() }));
 vi.mock("@/lib/supabase/server", () => ({ createServiceClient: vi.fn(() => ({})) }));
 // Execute after() callbacks inline (they are no-ops when notifyCustomer=false).
 vi.mock("next/server", async (importOriginal) => {
