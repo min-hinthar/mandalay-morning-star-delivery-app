@@ -2,6 +2,7 @@ import { after, NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
 import { sendOrderStatusEmail } from "@/lib/email";
+import { sendOrderStatusPush } from "@/lib/push/order-status-push";
 import { logger } from "@/lib/utils/logger";
 
 interface RouteParams {
@@ -121,7 +122,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
         .update({ status: "out_for_delivery" })
         .in("id", orderIds)
         .in("status", ["confirmed", "preparing"])
-        .select("id");
+        .select("id, user_id");
 
       if (orderUpdateError) {
         logger.exception(orderUpdateError, {
@@ -147,8 +148,8 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
       // idempotency key (out_for_delivery-<id>) is the belt for any overlap with
       // the admin status route. Fire-and-forget via after() so a slow/failed send
       // never blocks the driver's start response.
-      const transitionedIds = (updatedOrders ?? []).map((o) => o.id);
-      if (transitionedIds.length > 0) {
+      const transitioned = (updatedOrders ?? []).map((o) => ({ id: o.id, userId: o.user_id }));
+      if (transitioned.length > 0) {
         // Driver display name for the email (own profile → RLS self-read ok);
         // fail-soft — a missing name just omits the "your driver" line.
         const { data: driverProfile } = await supabase
@@ -160,7 +161,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
 
         after(async () => {
           await Promise.all(
-            transitionedIds.map(async (id) => {
+            transitioned.map(async ({ id, userId: customerId }) => {
               try {
                 await sendOrderStatusEmail(id, "out_for_delivery", { driverName });
               } catch (emailErr) {
@@ -168,6 +169,18 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
                   api: "driver/routes/[routeId]/start",
                   orderId: id,
                   message: "out_for_delivery email failed",
+                });
+              }
+              // Web-push companion (independent of the email — one failing must
+              // not skip the other). Thread the customer id we already have so
+              // push skips its own order lookup. No-op without VAPID keys.
+              try {
+                await sendOrderStatusPush(id, "out_for_delivery", { userId: customerId });
+              } catch (pushErr) {
+                logger.exception(pushErr, {
+                  api: "driver/routes/[routeId]/start",
+                  orderId: id,
+                  message: "out_for_delivery push failed",
                 });
               }
             })
