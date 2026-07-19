@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { addStopsSchema, updateStopStatusSchema } from "@/lib/validations/route";
+import { sendOrderStatusEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 import type { RouteStopStatus } from "@/types/driver";
 import type { ProfileCheck, RouteParams } from "./types";
@@ -266,11 +267,12 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     // divergence. Any order reaching here is on a route, so it's already paid (the
     // route add/create guards block unpaid card orders).
     if (status === "delivered" && updatedStop?.order_id) {
+      const deliveredAt = new Date().toISOString();
       const { data: deliveredRows } = await supabase
         .from("orders")
         .update({
           status: "delivered",
-          delivered_at: new Date().toISOString(),
+          delivered_at: deliveredAt,
         })
         .eq("id", updatedStop.order_id)
         .in("status", ["confirmed", "preparing", "out_for_delivery"])
@@ -281,6 +283,21 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           routeId,
           api: "admin/routes/[id]/stops",
           flowId: "update-stop",
+        });
+      } else {
+        // Notify the customer their order arrived — only on the real transition.
+        // Stable key (delivered-<id>) dedupes with the driver stop route.
+        const deliveredOrderId = updatedStop.order_id;
+        after(async () => {
+          try {
+            await sendOrderStatusEmail(deliveredOrderId, "delivered", { deliveredAt });
+          } catch (emailErr) {
+            logger.exception(emailErr, {
+              api: "admin/routes/[id]/stops",
+              orderId: deliveredOrderId,
+              message: "delivered email failed",
+            });
+          }
         });
       }
     }

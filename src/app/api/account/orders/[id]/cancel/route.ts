@@ -202,7 +202,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     const { data: orderItems } = await supabase
       .from("order_items")
       .select(
-        "name_snapshot, name_my_snapshot, quantity, line_total_cents, menu_items ( image_url )"
+        "name_snapshot, name_my_snapshot, special_instructions, quantity, line_total_cents, menu_items ( image_url ), order_item_modifiers ( name_snapshot, price_delta_snapshot )"
       )
       .eq("order_id", orderId);
 
@@ -213,9 +213,14 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         (orderItems || []) as Array<{
           name_snapshot: string;
           name_my_snapshot: string | null;
+          special_instructions: string | null;
           quantity: number;
           line_total_cents: number;
           menu_items: { image_url: string | null } | null;
+          order_item_modifiers: Array<{
+            name_snapshot: string;
+            price_delta_snapshot: number;
+          }> | null;
         }>
       ).map((item) => ({
         name: item.name_snapshot,
@@ -223,6 +228,11 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         quantity: item.quantity,
         lineTotalCents: item.line_total_cents,
         imageUrl: item.menu_items?.image_url ?? null,
+        notes: item.special_instructions,
+        modifiers: item.order_item_modifiers?.map((m) => ({
+          name: m.name_snapshot,
+          priceDelta: m.price_delta_snapshot,
+        })),
       }));
       const custTotalCents = order.total_cents ?? 0;
       const custUserId = user.id;

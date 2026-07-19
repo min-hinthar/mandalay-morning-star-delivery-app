@@ -38,6 +38,10 @@ interface CancellationItem {
   lineTotalCents: number;
   /** Dish photo (hostable raster only renders; else an initial tile). */
   imageUrl?: string | null;
+  /** Chosen options + per-item kitchen note — OrderItemsTable renders both. */
+  modifiers?: { name: string; priceDelta?: number }[];
+  notes?: string | null;
+  category?: string;
 }
 
 export interface OrderCancellationProps {

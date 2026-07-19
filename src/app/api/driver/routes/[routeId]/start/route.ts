@@ -1,6 +1,7 @@
-import { NextRequest, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import { requireDriver } from "@/lib/auth";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
+import { sendOrderStatusEmail } from "@/lib/email";
 import { logger } from "@/lib/utils/logger";
 
 interface RouteParams {
@@ -27,7 +28,7 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-    const { supabase, driverId } = auth;
+    const { supabase, driverId, userId } = auth;
 
     const rl = await checkRateLimit({
       limiter: driverActionLimiter,
@@ -139,6 +140,40 @@ export async function POST(_request: NextRequest, { params }: RouteParams) {
         routeId,
         count: updatedOrders?.length ?? 0,
       });
+
+      // Notify each customer whose order JUST transitioned to out_for_delivery.
+      // Gated on the actually-updated rows (not every route order) so re-entering
+      // an already-started route doesn't re-notify; the shared sender's stable
+      // idempotency key (out_for_delivery-<id>) is the belt for any overlap with
+      // the admin status route. Fire-and-forget via after() so a slow/failed send
+      // never blocks the driver's start response.
+      const transitionedIds = (updatedOrders ?? []).map((o) => o.id);
+      if (transitionedIds.length > 0) {
+        // Driver display name for the email (own profile → RLS self-read ok);
+        // fail-soft — a missing name just omits the "your driver" line.
+        const { data: driverProfile } = await supabase
+          .from("profiles")
+          .select("full_name")
+          .eq("id", userId)
+          .single();
+        const driverName = driverProfile?.full_name ?? undefined;
+
+        after(async () => {
+          await Promise.all(
+            transitionedIds.map(async (id) => {
+              try {
+                await sendOrderStatusEmail(id, "out_for_delivery", { driverName });
+              } catch (emailErr) {
+                logger.exception(emailErr, {
+                  api: "driver/routes/[routeId]/start",
+                  orderId: id,
+                  message: "out_for_delivery email failed",
+                });
+              }
+            })
+          );
+        });
+      }
     }
 
     return NextResponse.json({

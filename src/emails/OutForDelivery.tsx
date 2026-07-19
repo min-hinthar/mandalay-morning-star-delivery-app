@@ -39,7 +39,10 @@ export interface OutForDeliveryProps {
   deliveryWindowStart?: string | null;
   deliveryWindowEnd?: string | null;
   address?: DeliveryAddress | null;
+  /** Kitchen/order note (orders.special_instructions). */
   specialInstructions?: string | null;
+  /** Dropoff note (orders.delivery_instructions) — gate code, "leave at door", etc. */
+  deliveryInstructions?: string | null;
   driverName?: string;
 }
 
@@ -56,10 +59,15 @@ export function OutForDelivery({
   deliveryWindowEnd,
   address,
   specialInstructions,
+  deliveryInstructions,
   driverName,
 }: OutForDeliveryProps) {
   const shortId = shortOrderId(orderId);
   const previewText = `Your order #${shortId} is on its way!`;
+  // Show the dropoff note first (most relevant while out for delivery), then the
+  // kitchen/order note — so both "delivery notes" reach the customer and driver.
+  const deliveryNote =
+    [deliveryInstructions, specialInstructions].filter(Boolean).join(" • ") || undefined;
 
   return (
     <EmailLayout emailType="delivery" previewText={previewText}>
@@ -92,7 +100,7 @@ export function OutForDelivery({
             address={address}
             windowStart={deliveryWindowStart ?? undefined}
             windowEnd={deliveryWindowEnd ?? undefined}
-            instructions={specialInstructions ?? undefined}
+            instructions={deliveryNote}
             driverName={driverName}
           />
         </Section>
