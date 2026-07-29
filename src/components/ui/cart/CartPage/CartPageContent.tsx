@@ -77,10 +77,11 @@ export function CartPageContent() {
     addItem,
     removeItem,
   } = useCart();
-  const addressDistanceMiles = useCartStore((s) => s.addressDistanceMiles);
-  const longDistanceThresholdMiles = useCartStore((s) => s.longDistanceThresholdMiles);
-  const isExtendedRange =
-    addressDistanceMiles != null && addressDistanceMiles > longDistanceThresholdMiles;
+  // Tier-based gate (not a raw distance compare): an out-of-range persisted
+  // address must not render an "Extended delivery $0.00" fee note.
+  const deliveryTier = useCartStore((s) => s.getDeliveryQuote().tier);
+  const isExtendedRange = deliveryTier === "extended" || deliveryTier === "far";
+  const isOutOfRange = deliveryTier === "out-of-range";
   const validation = useCartValidation();
   const {
     isOpen: isClearOpen,
@@ -374,6 +375,7 @@ export function CartPageContent() {
           minimumShortfallCents={minimumShortfallCents}
           amountToFreeDelivery={amountToFreeDelivery}
           isExtendedRange={isExtendedRange}
+          isOutOfRange={isOutOfRange}
         />
         <CheckoutGate
           hasBlockingIssues={validation.hasBlockingIssues}

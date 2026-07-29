@@ -126,6 +126,18 @@ export const useCheckoutStore = create<CheckoutStore>()(
         customerPhone: state.customerPhone,
         customerName: state.customerName,
       }),
+      // Re-sync the address distance into the cart store after a reload. The
+      // distance lives in the (memory-only) cart store and was only written by
+      // setAddress — so a mid-checkout refresh restored the address from
+      // sessionStorage but left distance null, and every fee surface silently
+      // reverted to LOCAL pricing (free-delivery meter shown to a far-address
+      // customer the server would charge a band fee). Display-only, but exactly
+      // the bait the extended-range gates exist to prevent.
+      onRehydrateStorage: () => (state) => {
+        if (state?.address) {
+          useCartStore.getState().setAddressDistance(state.address.distanceMiles ?? null);
+        }
+      },
     }
   )
 );

@@ -21,6 +21,8 @@ export interface CartPageSummaryProps {
   amountToFreeDelivery: number;
   className?: string;
   isExtendedRange?: boolean;
+  /** Address beyond the max serviceable radius — hide the fee journey entirely. */
+  isOutOfRange?: boolean;
 }
 
 const summaryRowVariants = {
@@ -45,6 +47,7 @@ export const CartPageSummary = memo(function CartPageSummary({
   amountToFreeDelivery,
   className,
   isExtendedRange = false,
+  isOutOfRange = false,
 }: CartPageSummaryProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   // Gentle tilt — no CTA in this card's body (menu-card gotcha), no preserve-3d.
@@ -67,11 +70,13 @@ export const CartPageSummary = memo(function CartPageSummary({
       <GoldLeaf radius="rounded-2xl" />
 
       <div className="relative">
-        <FreeDeliveryProgress
-          amountToFreeDelivery={amountToFreeDelivery}
-          isExtendedRange={isExtendedRange}
-          className="mb-4"
-        />
+        {!isOutOfRange && (
+          <FreeDeliveryProgress
+            amountToFreeDelivery={amountToFreeDelivery}
+            isExtendedRange={isExtendedRange}
+            className="mb-4"
+          />
+        )}
 
         {/* Editorial header — mirrors the drawer receipt */}
         <div className="mb-4 flex items-center gap-2 text-hero-accent">

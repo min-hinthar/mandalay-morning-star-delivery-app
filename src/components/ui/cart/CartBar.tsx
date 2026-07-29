@@ -191,11 +191,13 @@ export function CartBar({
     freeDeliveryThresholdCents,
   } = useCart();
   // Beyond the local radius free delivery never applies — swap the free-delivery
-  // meter for an honest fee note (same gate as CartSummary / CartPageSummary).
+  // meter for an honest fee note. Tier-based (not a raw distance compare) so an
+  // out-of-range persisted address can't render "Extended delivery · $0.00":
+  // out-of-range shows no delivery strip at all (checkout blocks it anyway).
   const addressDistanceMiles = useCartStore((s) => s.addressDistanceMiles);
-  const longDistanceThresholdMiles = useCartStore((s) => s.longDistanceThresholdMiles);
-  const isExtendedRange =
-    addressDistanceMiles != null && addressDistanceMiles > longDistanceThresholdMiles;
+  const deliveryTier = useCartStore((s) => s.getDeliveryQuote().tier);
+  const isExtendedRange = deliveryTier === "extended" || deliveryTier === "far";
+  const isOutOfRange = deliveryTier === "out-of-range";
   const { open } = useCartDrawer();
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const playSound = usePlaySound();
@@ -278,13 +280,14 @@ export function CartBar({
           role="region"
           aria-label="Shopping cart summary"
         >
-          {/* Delivery progress, free-delivery banner, or extended-range fee note */}
+          {/* Delivery progress, free-delivery banner, or extended-range fee note.
+              Out-of-range: no strip — a $0 "fee" there is not a price. */}
           {isExtendedRange ? (
             <ExtendedDeliveryNote
               feeCents={estimatedDeliveryFee}
               distanceMiles={addressDistanceMiles}
             />
-          ) : !hasFreeDelivery ? (
+          ) : isOutOfRange ? null : !hasFreeDelivery ? (
             <DeliveryProgress
               progressPercent={progressPercent}
               amountToFreeDelivery={amountToFreeDelivery}
