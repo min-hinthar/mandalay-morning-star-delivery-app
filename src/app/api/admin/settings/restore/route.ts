@@ -25,7 +25,8 @@ const DEFAULT_SETTINGS = [
   {
     key: "delivery_fee_bands",
     value: [
-      { maxMiles: 40, feeCents: 2000 },
+      { maxMiles: 30, feeCents: 2000 },
+      { maxMiles: 40, feeCents: 2500 },
       { maxMiles: 50, feeCents: 3000 },
     ],
     category: "delivery",

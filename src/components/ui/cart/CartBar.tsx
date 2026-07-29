@@ -23,6 +23,7 @@ import { m, AnimatePresence } from "framer-motion";
 import { ShoppingBag, ChevronUp, Truck, Sparkles } from "lucide-react";
 import { useRouter, usePathname } from "next/navigation";
 import { useCart } from "@/lib/hooks/useCart";
+import { useCartStore } from "@/lib/stores/cart-store";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { usePlaySound } from "@/lib/hooks/useSoundEffect";
@@ -137,6 +138,36 @@ function FreeDeliveryBanner() {
 }
 
 // ============================================
+// EXTENDED-RANGE DELIVERY NOTE
+// ============================================
+
+/**
+ * Honest fee strip for beyond-local addresses: free delivery never applies
+ * there, so showing the free-delivery meter (or celebrating "free!") would
+ * bait a customer into a threshold that can't waive their fee. Mirrors the
+ * cart drawer / cart page / checkout extended-range gate.
+ */
+function ExtendedDeliveryNote({
+  feeCents,
+  distanceMiles,
+}: {
+  feeCents: number;
+  distanceMiles: number | null;
+}) {
+  return (
+    <div className="px-4 pt-3 pb-1">
+      <div className="flex items-center justify-center gap-2 py-1.5 px-3 rounded-full bg-hero-blue/10">
+        <Truck className="h-3.5 w-3.5 text-hero-blue" aria-hidden="true" />
+        <span className="text-xs font-semibold text-text-primary">
+          Extended delivery · ${(feeCents / 100).toFixed(2)}
+          {distanceMiles != null ? ` · ${distanceMiles.toFixed(1)} mi` : ""}
+        </span>
+      </div>
+    </div>
+  );
+}
+
+// ============================================
 // MAIN COMPONENT
 // ============================================
 
@@ -155,9 +186,16 @@ export function CartBar({
     itemCount,
     itemsSubtotal,
     estimatedTotal,
+    estimatedDeliveryFee,
     amountToFreeDelivery,
     freeDeliveryThresholdCents,
   } = useCart();
+  // Beyond the local radius free delivery never applies — swap the free-delivery
+  // meter for an honest fee note (same gate as CartSummary / CartPageSummary).
+  const addressDistanceMiles = useCartStore((s) => s.addressDistanceMiles);
+  const longDistanceThresholdMiles = useCartStore((s) => s.longDistanceThresholdMiles);
+  const isExtendedRange =
+    addressDistanceMiles != null && addressDistanceMiles > longDistanceThresholdMiles;
   const { open } = useCartDrawer();
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const playSound = usePlaySound();
@@ -240,8 +278,13 @@ export function CartBar({
           role="region"
           aria-label="Shopping cart summary"
         >
-          {/* Delivery progress or free delivery banner */}
-          {!hasFreeDelivery ? (
+          {/* Delivery progress, free-delivery banner, or extended-range fee note */}
+          {isExtendedRange ? (
+            <ExtendedDeliveryNote
+              feeCents={estimatedDeliveryFee}
+              distanceMiles={addressDistanceMiles}
+            />
+          ) : !hasFreeDelivery ? (
             <DeliveryProgress
               progressPercent={progressPercent}
               amountToFreeDelivery={amountToFreeDelivery}

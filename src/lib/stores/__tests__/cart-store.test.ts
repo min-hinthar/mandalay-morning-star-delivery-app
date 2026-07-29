@@ -114,12 +114,13 @@ describe("CartStore", () => {
       expect(store.getEstimatedDeliveryFee()).toBe(0);
     });
 
-    it("returns long-distance fee when distance > threshold and subtotal < free threshold", () => {
+    it("returns the graduated band fee when distance > threshold and subtotal < free threshold", () => {
       const store = useCartStore.getState();
       store.addItem({ ...baseItem, basePriceCents: FREE_DELIVERY_THRESHOLD - 1 });
       store.setAddressDistance(LONG_DISTANCE_THRESHOLD + 10);
 
-      expect(store.getEstimatedDeliveryFee()).toBe(LONG_DISTANCE_FEE);
+      // 35mi lands in the 30–40mi band ($25) under the graduated default schedule.
+      expect(store.getEstimatedDeliveryFee()).toBe(2500);
     });
   });
 

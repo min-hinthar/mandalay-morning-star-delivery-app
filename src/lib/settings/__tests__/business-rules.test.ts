@@ -22,6 +22,7 @@ import {
   getDeliveryPricingConfig,
   BUSINESS_RULES_DEFAULTS,
 } from "../business-rules";
+import { resolveDeliveryFee } from "@/lib/utils/order";
 
 /** Helper to wire up mockFrom for both tables */
 function setupMocks(
@@ -258,5 +259,16 @@ describe("getDeliveryPricingConfig", () => {
     const cfg = getDeliveryPricingConfig(BUSINESS_RULES_DEFAULTS, { localFeeCents: 999 });
     expect(cfg.localFeeCents).toBe(999);
     expect(cfg.standardRadiusMiles).toBe(BUSINESS_RULES_DEFAULTS.deliveryRadiusMiles);
+  });
+
+  it("default bands graduate in $5 steps — a 38.8mi Santa Monica run no longer prices at the 26mi rate", () => {
+    // Incident regression: under the legacy seed the whole 25–40mi range was one
+    // flat $20 band, so 38.8mi (order 214e2c77) paid the same as 26mi.
+    const cfg = getDeliveryPricingConfig(BUSINESS_RULES_DEFAULTS);
+    expect(resolveDeliveryFee(26.8, 9000, cfg).feeCents).toBe(2000); // 25–30 band unchanged
+    expect(resolveDeliveryFee(38.8, 2700, cfg).feeCents).toBe(2500); // 30–40 band, was $20
+    expect(resolveDeliveryFee(45, 5000, cfg).feeCents).toBe(3000); // 40–50 band unchanged
+    // Free delivery still never applies beyond the local radius.
+    expect(resolveDeliveryFee(38.8, 50000, cfg).isFree).toBe(false);
   });
 });
