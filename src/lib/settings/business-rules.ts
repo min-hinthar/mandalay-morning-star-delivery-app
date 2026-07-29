@@ -64,7 +64,8 @@ export const BUSINESS_RULES_DEFAULTS: BusinessRules = {
   longDistanceThresholdMiles: 25,
   deliveryZones: [],
   deliveryFeeBands: [
-    { maxMiles: 40, feeCents: 2000 },
+    { maxMiles: 30, feeCents: 2000 },
+    { maxMiles: 40, feeCents: 2500 },
     { maxMiles: 50, feeCents: 3000 },
   ],
   extendedDeliveryEnabled: true,

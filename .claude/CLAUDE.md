@@ -200,7 +200,7 @@ ComponentName/
 - **62+ design tokens** enforced via ESLint (z-index, colors, spacing, shadows, blur)
 - **Serwist PWA** — service worker built separately via `scripts/build-sw.mjs`
 - **Multi-day delivery** — Mon/Wed/Thu/Sat (configurable via `delivery_days` table), per-day cutoffs, direction-based routing (East/West/South/All), coverage 50mi/90min from Covina CA
-- **Distance-tiered fees** — >25mi: flat $20 (no free delivery); ≤25mi: $15 or free if subtotal ≥$100. Zone bearings in `delivery_zones` table, fee settings in `app_settings`
+- **Distance-tiered fees (graduated)** — ≤25mi: $15 or free if subtotal ≥$100 (free delivery is LOCAL-only); bands 25–30mi $20 · 30–40mi $25 · 40–50mi $30; >50mi per-mile auto-quote ($1.50/mi beyond 50, on top of $30). One engine (`resolveDeliveryFee`) backs server checkout + client estimate + coverage quote — distance is Google DRIVING miles persisted on `addresses.distance_miles`. Bands live in `app_settings.delivery_fee_bands` (admin-editable, Settings → Delivery); zone bearings in `delivery_zones`
 - **COD payment flow** — `pending_approval` status, admin approval via `/approve-cod` endpoint
 
 ## Design Language (UI/UX)

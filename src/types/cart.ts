@@ -1,6 +1,6 @@
 import type { MenuItem } from "@/types/menu";
 import type { DeliveryDayConfig } from "@/types/delivery";
-import type { DeliveryFeeBand } from "@/lib/utils/order";
+import type { DeliveryFeeBand, DeliveryFeeResult } from "@/lib/utils/order";
 
 export interface SelectedModifier {
   groupId: string;
@@ -72,6 +72,8 @@ export interface CartStore {
   clearCart: () => void;
   getItemsSubtotal: () => number;
   getEstimatedDeliveryFee: () => number;
+  /** Full graduated-fee resolution (fee + tier + isFree) for the current address. */
+  getDeliveryQuote: () => DeliveryFeeResult;
   getItemCount: () => number;
   getItemTotal: (cartItemId: string) => number;
   updateItemPrice: (cartItemId: string, newPriceCents: number) => void;

@@ -10,6 +10,11 @@ export function useCart() {
   const deliveryFeeCents = useCartStore((state) => state.deliveryFeeCents);
   const longDistanceFeeCents = useCartStore((state) => state.longDistanceFeeCents);
   const longDistanceThresholdMiles = useCartStore((state) => state.longDistanceThresholdMiles);
+  const deliveryFeeBands = useCartStore((state) => state.deliveryFeeBands);
+  const standardRadiusMiles = useCartStore((state) => state.standardRadiusMiles);
+  const extendedDeliveryEnabled = useCartStore((state) => state.extendedDeliveryEnabled);
+  const extendedPerMileCents = useCartStore((state) => state.extendedPerMileCents);
+  const maxRadiusMiles = useCartStore((state) => state.maxRadiusMiles);
 
   // Get stable action references (Zustand action selectors are stable)
   const addItem = useCartStore((state) => state.addItem);
@@ -27,6 +32,8 @@ export function useCart() {
   );
   const estimatedDeliveryFee = useMemo(
     () => useCartStore.getState().getEstimatedDeliveryFee(),
+    // Deps must cover EVERY pricing input (incl. the graduated band fields) so
+    // an admin schedule change synced mid-session refreshes the displayed fee.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       items,
@@ -35,6 +42,11 @@ export function useCart() {
       freeDeliveryThresholdCents,
       longDistanceFeeCents,
       longDistanceThresholdMiles,
+      deliveryFeeBands,
+      standardRadiusMiles,
+      extendedDeliveryEnabled,
+      extendedPerMileCents,
+      maxRadiusMiles,
     ]
   );
   const itemCount = useMemo(

@@ -68,10 +68,11 @@ export function CartSummary({ className }: CartSummaryProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const tilt = useTilt(3);
   const { itemsSubtotal, estimatedDeliveryFee, estimatedTotal, amountToFreeDelivery } = useCart();
-  const addressDistanceMiles = useCartStore((s) => s.addressDistanceMiles);
-  const longDistanceThresholdMiles = useCartStore((s) => s.longDistanceThresholdMiles);
-  const isExtendedRange =
-    addressDistanceMiles != null && addressDistanceMiles > longDistanceThresholdMiles;
+  // Tier-based gate (not a raw distance compare): an out-of-range persisted
+  // address must not render an "Extended delivery $0.00" fee note.
+  const deliveryTier = useCartStore((s) => s.getDeliveryQuote().tier);
+  const isExtendedRange = deliveryTier === "extended" || deliveryTier === "far";
+  const isOutOfRange = deliveryTier === "out-of-range";
 
   const hasFreeDelivery = amountToFreeDelivery === 0 && !isExtendedRange;
   const estimatedTaxCents = Math.round(itemsSubtotal * COVINA_TAX_RATE);
@@ -90,11 +91,13 @@ export function CartSummary({ className }: CartSummaryProps) {
       {/* Gold-leaf flecks + lacquer sheen (kit) */}
       <GoldLeaf radius="rounded-2xl" />
       <div className="relative space-y-3">
-        {/* Morning-Star free-delivery journey */}
-        <FreeDeliveryProgress
-          amountToFreeDelivery={amountToFreeDelivery}
-          isExtendedRange={isExtendedRange}
-        />
+        {/* Morning-Star free-delivery journey (hidden out-of-range — no fee exists) */}
+        {!isOutOfRange && (
+          <FreeDeliveryProgress
+            amountToFreeDelivery={amountToFreeDelivery}
+            isExtendedRange={isExtendedRange}
+          />
+        )}
 
         {/* Ledger */}
         <div className="checkout-perf checkout-rule-draw" aria-hidden="true" />

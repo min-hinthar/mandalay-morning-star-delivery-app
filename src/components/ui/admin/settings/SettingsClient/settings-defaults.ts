@@ -20,7 +20,8 @@ export const DEFAULT_SETTINGS: AllSettings = {
     longDistanceFeeCents: 2000,
     longDistanceThresholdMiles: 25,
     deliveryFeeBands: [
-      { maxMiles: 40, feeCents: 2000 },
+      { maxMiles: 30, feeCents: 2000 },
+      { maxMiles: 40, feeCents: 2500 },
       { maxMiles: 50, feeCents: 3000 },
     ],
     extendedDeliveryEnabled: true,

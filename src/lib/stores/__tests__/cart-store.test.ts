@@ -4,7 +4,6 @@ import { MAX_ITEM_QUANTITY } from "@/types/cart";
 // Use literal values matching defaults (same as DB seed values)
 const DELIVERY_FEE = 1500;
 const FREE_DELIVERY_THRESHOLD = 10000;
-const LONG_DISTANCE_FEE = 2000;
 const LONG_DISTANCE_THRESHOLD = 25;
 
 const baseItem = {
@@ -91,12 +90,13 @@ describe("CartStore", () => {
       expect(store.getEstimatedDeliveryFee()).toBe(0);
     });
 
-    it("returns long-distance fee when distance > threshold (even if subtotal qualifies for free)", () => {
+    it("returns the first band fee beyond the local radius (even if subtotal qualifies for free)", () => {
       const store = useCartStore.getState();
       store.addItem({ ...baseItem, basePriceCents: FREE_DELIVERY_THRESHOLD });
       store.setAddressDistance(LONG_DISTANCE_THRESHOLD + 5);
 
-      expect(store.getEstimatedDeliveryFee()).toBe(LONG_DISTANCE_FEE);
+      // 30mi = the 25–30mi band edge ($20) — free delivery never applies out here.
+      expect(store.getEstimatedDeliveryFee()).toBe(2000);
     });
 
     it("returns standard fee when distance <= threshold and subtotal < free threshold", () => {
@@ -114,12 +114,29 @@ describe("CartStore", () => {
       expect(store.getEstimatedDeliveryFee()).toBe(0);
     });
 
-    it("returns long-distance fee when distance > threshold and subtotal < free threshold", () => {
+    it("returns the graduated band fee when distance > threshold and subtotal < free threshold", () => {
       const store = useCartStore.getState();
       store.addItem({ ...baseItem, basePriceCents: FREE_DELIVERY_THRESHOLD - 1 });
       store.setAddressDistance(LONG_DISTANCE_THRESHOLD + 10);
 
-      expect(store.getEstimatedDeliveryFee()).toBe(LONG_DISTANCE_FEE);
+      // 35mi lands in the 30–40mi band ($25) under the graduated default schedule.
+      expect(store.getEstimatedDeliveryFee()).toBe(2500);
+    });
+
+    it("getDeliveryQuote reports the tier so surfaces never show a $0 'extended' fee out-of-range", () => {
+      const store = useCartStore.getState();
+      store.addItem(baseItem);
+
+      store.setAddressDistance(10);
+      expect(store.getDeliveryQuote().tier).toBe("local");
+      store.setAddressDistance(35);
+      expect(store.getDeliveryQuote()).toMatchObject({ tier: "extended", feeCents: 2500 });
+      store.setAddressDistance(60);
+      expect(store.getDeliveryQuote().tier).toBe("far");
+      // Beyond maxRadiusMiles (100): fee is 0 because there IS no delivery —
+      // cart surfaces must render no fee strip, not "Extended delivery · $0.00".
+      store.setAddressDistance(120);
+      expect(store.getDeliveryQuote()).toMatchObject({ tier: "out-of-range", feeCents: 0 });
     });
   });
 

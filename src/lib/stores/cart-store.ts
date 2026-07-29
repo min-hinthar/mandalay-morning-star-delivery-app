@@ -86,7 +86,8 @@ export const useCartStore = create<CartStore>()(
 
       // Graduated pricing settings (defaults match BUSINESS_RULES_DEFAULTS)
       deliveryFeeBands: [
-        { maxMiles: 40, feeCents: 2000 },
+        { maxMiles: 30, feeCents: 2000 },
+        { maxMiles: 40, feeCents: 2500 },
         { maxMiles: 50, feeCents: 3000 },
       ],
       standardRadiusMiles: 50,
@@ -292,7 +293,7 @@ export const useCartStore = create<CartStore>()(
         }, 0);
       },
 
-      getEstimatedDeliveryFee: () => {
+      getDeliveryQuote: () => {
         // Mirror the server's graduated pricing so the extended/far quote matches the
         // charge. Caveat (pre-existing): the LOCAL fee uses the first active day's fee
         // (rules.deliveryFeeCents); the server uses the SCHEDULED day's fee, so a
@@ -312,7 +313,11 @@ export const useCartStore = create<CartStore>()(
           extendedPerMileCents: s.extendedPerMileCents,
           maxRadiusMiles: s.maxRadiusMiles,
         };
-        return resolveDeliveryFee(s.addressDistanceMiles, s.getItemsSubtotal(), pricing).feeCents;
+        return resolveDeliveryFee(s.addressDistanceMiles, s.getItemsSubtotal(), pricing);
+      },
+
+      getEstimatedDeliveryFee: () => {
+        return get().getDeliveryQuote().feeCents;
       },
 
       getItemCount: () => {
