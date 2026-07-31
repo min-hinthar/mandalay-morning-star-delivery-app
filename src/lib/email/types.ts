@@ -29,7 +29,7 @@ export type EmailType =
   // stable Resend idempotency key instead of a notification_logs row.
   | "route_day_invite";
 
-export interface SendEmailOptions {
+interface SendEmailBaseOptions {
   to: string;
   subject: string;
   react: React.ReactElement;
@@ -39,20 +39,37 @@ export interface SendEmailOptions {
   idempotencyKey?: string;
   /** If true, email is sent regardless of user preferences */
   mandatory?: boolean;
-  /**
-   * Override the per-attempt request ceiling (default
-   * `SEND_ATTEMPT_TIMEOUT_MS`, 15s).
-   *
-   * Only lower this when the send carries an `idempotencyKey`. Aborting a
-   * request that Resend may already have ACCEPTED and then retrying is exactly
-   * what the key makes safe — without one, a tighter ceiling buys bounded
-   * duration at the cost of possible duplicate mail to a customer.
-   *
-   * The bulk cron does lower it, because a per-recipient ceiling is what makes
-   * its wall-clock budget sound, and every one of its sends is key-protected.
-   */
-  attemptTimeoutMs?: number;
 }
+
+/**
+ * Lowering the per-attempt ceiling REQUIRES an idempotency key — enforced by
+ * the compiler, not by a comment.
+ *
+ * Aborting a request Resend may already have ACCEPTED and then retrying is
+ * exactly what the key makes safe. Without one, a tighter ceiling buys bounded
+ * duration at the cost of possibly mailing a customer twice, and that trade is
+ * not one a caller should be able to make by accident. Every caller passes a
+ * key today, so this costs nothing now — it exists so a future keyless caller
+ * can't silently inherit the risk.
+ *
+ * The default (`SEND_ATTEMPT_TIMEOUT_MS`, 15s) is deliberately generous for
+ * exactly the same reason: it's the ceiling a keyless send gets.
+ */
+export type SendEmailOptions = SendEmailBaseOptions &
+  (
+    | { attemptTimeoutMs?: undefined }
+    | {
+        /**
+         * Override the per-attempt request ceiling. Requires `idempotencyKey`.
+         *
+         * The bulk cron lowers it, because a per-recipient ceiling is what
+         * makes its wall-clock budget sound, and every one of its sends is
+         * key-protected.
+         */
+        attemptTimeoutMs: number;
+        idempotencyKey: string;
+      }
+  );
 
 export interface SendEmailResult {
   success: boolean;
