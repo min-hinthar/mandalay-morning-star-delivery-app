@@ -184,6 +184,7 @@ const FIELD_LABELS: Record<string, string> = {
   extendedDeliveryEnabled: "Long-Distance Delivery",
   extendedDeliveryPerMileCents: "Long-Distance Per-Mile",
   maxDeliveryRadiusMiles: "Max Delivery Radius",
+  extendedMinOrderCents: "Long-Distance Minimum Order",
 };
 
 function formatFieldValue(field: string, value: number): string {
@@ -193,6 +194,7 @@ function formatFieldValue(field: string, value: number): string {
     case "baseDeliveryFeeCents":
     case "longDistanceFeeCents":
     case "extendedDeliveryPerMileCents":
+    case "extendedMinOrderCents":
       return `$${centsToDollars(value)}`;
     case "deliveryRadiusMiles":
     case "longDistanceThresholdMiles":
