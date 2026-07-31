@@ -230,16 +230,45 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       // certainty to a race, which is worth doing on its own.
       let alreadyLogged = false;
       if (!isUnlogged && resendId) {
-        const { data: existingLog } = await supabase
+        const { data: existingLog, error: existingLogError } = await supabase
           .from("notification_logs")
           .select("id")
           .eq("resend_id", resendId)
           .maybeSingle();
-        alreadyLogged = existingLog != null;
+        // PGRST116 here means rows ALREADY EXIST, not "lookup broke": on a GET,
+        // maybeSingle() asks for `application/json` and postgrest-js synthesizes
+        // that code client-side when the array comes back with >1 row (it never
+        // reaches PostgREST's singular-representation check). So the duplicates
+        // this guard exists to prevent are already there, and inserting anyway
+        // would add a third. Treat it as logged and skip.
+        const duplicatesExist = existingLogError?.code === "PGRST116";
+
+        // Any OTHER error is a genuinely failed lookup — fall through to the
+        // insert (alreadyLogged stays false), since a possible duplicate row
+        // beats dropping the log entirely. Either way it must be surfaced
+        // rather than read as a clean "no row found": duplicates are the exact
+        // condition the `.single()` webhook lookup chokes on.
+        if (existingLogError) {
+          logger.warn(
+            duplicatesExist
+              ? "notification_logs already holds duplicate rows for this resend_id — skipping insert"
+              : "notification_logs duplicate check failed — inserting anyway",
+            {
+              flowId,
+              orderId: options.orderId,
+              userId: options.userId,
+              emailType: options.type,
+              resendId,
+              dbError: existingLogError.message,
+              dbErrorCode: existingLogError.code,
+            }
+          );
+        }
+        alreadyLogged = existingLog != null || duplicatesExist;
       }
 
       if (!isUnlogged && !alreadyLogged) {
-        await supabase.from("notification_logs").insert({
+        const { error: logError } = await supabase.from("notification_logs").insert({
           order_id: options.orderId,
           user_id: options.userId,
           notification_type: options.type as CustomerEmailType,
@@ -251,6 +280,22 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
           retry_count: attempt,
           sent_at: new Date().toISOString(),
         });
+
+        // The email HAS shipped, so this never fails the send — but a dropped
+        // row means the Resend status webhook has no resend_id to match, so
+        // delivery/bounce/complaint tracking for this message is lost and the
+        // customer's notification history is missing an entry. Silent before.
+        if (logError) {
+          logger.error("Email sent but notification_logs insert failed", {
+            flowId,
+            orderId: options.orderId,
+            userId: options.userId,
+            emailType: options.type,
+            resendId,
+            dbError: logError.message,
+            dbErrorCode: logError.code,
+          });
+        }
       }
 
       logger.info("Email sent successfully", {
@@ -278,7 +323,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   // -----------------------------------------------
   const isUnloggedFailed = (UNLOGGED_EMAIL_TYPES as readonly string[]).includes(options.type);
   if (!isUnloggedFailed) {
-    await supabase.from("notification_logs").insert({
+    const { error: failLogError } = await supabase.from("notification_logs").insert({
       order_id: options.orderId,
       user_id: options.userId,
       notification_type: options.type as CustomerEmailType,
@@ -289,6 +334,21 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       retry_count: MAX_RETRY_ATTEMPTS,
       error_message: lastError ?? "Unknown error after retries",
     });
+
+    // Worse than the success-path case: the send failed AND the failure row is
+    // gone, so nothing in the DB shows this customer was never emailed. The
+    // logger.error below records the send failure; this records that the audit
+    // trail for it is missing too.
+    if (failLogError) {
+      logger.error("Email failed and the notification_logs failure row could not be written", {
+        flowId,
+        orderId: options.orderId,
+        userId: options.userId,
+        emailType: options.type,
+        dbError: failLogError.message,
+        dbErrorCode: failLogError.code,
+      });
+    }
   }
 
   logger.error("Email send failed after all retries", {
