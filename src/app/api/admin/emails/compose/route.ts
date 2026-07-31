@@ -153,8 +153,9 @@ export async function POST(request: Request) {
         { name: "order_id", value: orderId },
       ],
       headers: {
+        // Link only — see the note in lib/email/send.ts. One-Click is not
+        // claimed because no POST endpoint honors it.
         "List-Unsubscribe": `<${APP_URL}/account?tab=settings>`,
-        "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
       },
     });
 

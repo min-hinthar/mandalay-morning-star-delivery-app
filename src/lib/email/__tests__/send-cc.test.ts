@@ -52,6 +52,39 @@ function options(type: string, orderId = "11111111-2222-3333-4444-555555555555")
   } as Parameters<typeof sendEmail>[0];
 }
 
+describe("sendEmail idempotency key", () => {
+  beforeEach(() => {
+    sendMock.mockReset();
+    sendMock.mockResolvedValue({ data: { id: "resend-1" }, error: null });
+  });
+
+  it("passes the key as the REQUEST option, not an email header", async () => {
+    await sendEmail({ ...options("order_confirmation"), idempotencyKey: "confirmed-abc" });
+
+    const [payload, requestOptions] = sendMock.mock.calls[0];
+    // Resend only turns the SECOND argument into the HTTP Idempotency-Key
+    // header; a key inside the payload's `headers` is just a header on the
+    // outgoing message and dedupes nothing.
+    expect(requestOptions).toEqual({ idempotencyKey: "confirmed-abc" });
+    expect(payload.headers).not.toHaveProperty("Idempotency-Key");
+  });
+
+  it("omits the request options entirely when no key is given", async () => {
+    await sendEmail(options("order_confirmation"));
+
+    expect(sendMock.mock.calls[0][1]).toBeUndefined();
+  });
+
+  it("keeps the List-Unsubscribe link and does not claim one-click", async () => {
+    await sendEmail({ ...options("route_day_invite", "route-2026-08-05"), idempotencyKey: "k" });
+
+    const headers = sendMock.mock.calls[0][0].headers;
+    expect(headers["List-Unsubscribe"]).toContain("/account?tab=settings");
+    // No POST endpoint honors one-click yet — see issue #209.
+    expect(headers).not.toHaveProperty("List-Unsubscribe-Post");
+  });
+});
+
 describe("sendEmail CC policy", () => {
   beforeEach(() => {
     sendMock.mockReset();

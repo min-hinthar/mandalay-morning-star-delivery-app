@@ -16,6 +16,12 @@ export type EmailMood =
   | "cancellation"
   | "refund"
   | "reminder"
+  /**
+   * Marketing invite — the recipient has NO order. Distinct from "reminder",
+   * whose "your delivery is coming soon" greeting is a statement of fact that
+   * would be false here.
+   */
+  | "marketing"
   | "delivery"
   | "delivered"
   | "welcome"
@@ -51,6 +57,11 @@ const TYPE_MOOD: Record<EmailMood, { emoji: string; greeting: string; my: string
     emoji: "🔔",
     greeting: "Your delivery is coming soon",
     my: "ပို့ဆောင်ချိန် နီးကပ်လာပါပြီ",
+  },
+  marketing: {
+    emoji: "🚚",
+    greeting: "We're driving your way",
+    my: "သင့်ဒေသသို့ ပို့ဆောင်မည်",
   },
   delivery: { emoji: "🚗", greeting: "Out for delivery", my: "လမ်းမှာ ပို့ဆောင်နေပါပြီ" },
   delivered: {

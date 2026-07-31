@@ -46,7 +46,7 @@ export function RouteDayInvite({
   const dishes = featuredItems.filter((d) => d.name);
 
   return (
-    <EmailLayout emailType="reminder" previewText={`${headline} — ${cutoffText}`}>
+    <EmailLayout emailType="marketing" previewText={`${headline} — ${cutoffText}`}>
       {/* Hero */}
       <Section
         className={cls.clayTint}

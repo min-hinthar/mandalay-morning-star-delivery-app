@@ -22,6 +22,7 @@ import React from "react";
 import { RouteDayInvite } from "@/emails/RouteDayInvite";
 import { fetchSuggestedItems } from "@/lib/email/suggestions";
 import { sendEmail } from "@/lib/email/send";
+import { MAX_RETRY_ATTEMPTS, RETRY_BASE_DELAY_MS } from "@/lib/email/constants";
 import { getBusinessRules } from "@/lib/settings";
 import { resolveRouteDayAwareness, routeDayHeadline } from "@/lib/delivery/route-awareness";
 import { getZonedDateString, getZonedDayRangeUtc } from "@/lib/utils/delivery-dates";
@@ -97,8 +98,19 @@ export const maxDuration = 60;
  * complete one. Stopping ourselves instead turns that into a clean exit that
  * reports `remaining`. Safe to cut short: the stable idempotency key means a
  * re-run inside the notice window re-sends to nobody who already got one.
+ *
+ * The budget must leave room for the WORST-CASE next send, not the typical one:
+ * sendEmail retries 3× with `attempt * RETRY_BASE_DELAY_MS` backoff, so one
+ * fully-failing recipient sleeps 10s + 20s = 30s. Checking a 45s budget would
+ * happily start a send at 44s that finishes at 74s — past maxDuration, killed
+ * mid-loop, exactly the silent truncation this guard exists to prevent. The
+ * budget is therefore maxDuration minus that worst case, and `startedAt` is
+ * stamped at request entry so slow setup queries eat into it rather than being
+ * free.
  */
-const SEND_BUDGET_MS = 45_000;
+const WORST_CASE_SEND_MS =
+  MAX_RETRY_ATTEMPTS * (MAX_RETRY_ATTEMPTS - 1) * (RETRY_BASE_DELAY_MS / 2);
+const SEND_BUDGET_MS = maxDuration * 1000 - WORST_CASE_SEND_MS - 5_000;
 
 function isAuthorized(request: Request): boolean {
   // Fail CLOSED: without a secret nobody may trigger a marketing send.
@@ -123,6 +135,11 @@ interface Candidate {
 export async function GET(request: Request) {
   if (!isAuthorized(request)) return apiError("UNAUTHORIZED", "Unauthorized", 401);
 
+  // Stamped at request ENTRY, not at the send loop: the audience queries run
+  // before it, and on a slow Supabase response those seconds are real budget
+  // already spent. Starting the clock at the loop would hand them back for free
+  // and let the invocation overrun maxDuration anyway.
+  const startedAt = Date.now();
   const dryRun = new URL(request.url).searchParams.get("dryRun") === "1";
   const supabase = createServiceClient();
 
@@ -133,35 +150,67 @@ export async function GET(request: Request) {
     }
 
     // ---- Audience: default addresses with real coords -----------------------
+    // Deliberately NOT filtered to coordinate-bearing rows in SQL. Dropping
+    // null-coord rows before ordering would make a legacy DEFAULT address with
+    // no coords vanish, and the first surviving row — some older secondary
+    // address — would silently stand in for it. The customer would then be
+    // promised a route based on somewhere they no longer order from. Fetch all
+    // and decide in code, so an unplaceable default suppresses the customer
+    // instead. `created_at` breaks ties that `is_default` alone leaves
+    // unordered, making the pick deterministic run-to-run.
     const { data: addresses, error: addrError } = await supabase
       .from("addresses")
-      .select("user_id, lat, lng, is_default")
-      .not("lat", "is", null)
-      .not("lng", "is", null)
-      .order("is_default", { ascending: false });
+      .select("user_id, lat, lng, is_default, created_at")
+      .order("is_default", { ascending: false })
+      .order("created_at", { ascending: false });
 
     if (addrError) {
       logger.exception(addrError, { flowId: FLOW_ID, api: "cron" });
       return apiError("INTERNAL_ERROR", "Failed to load addresses", 500);
     }
 
-    // First address per user wins (is_default ordered first).
+    // First address per user wins (is_default first, then newest). If that one
+    // has no coords we record the user as unplaceable rather than falling
+    // through to an older address — see the query comment.
     const coordsByUser = new Map<string, { lat: number; lng: number }>();
+    const seenUsers = new Set<string>();
+    let skippedUnplaceable = 0;
     for (const a of addresses ?? []) {
-      if (a.lat == null || a.lng == null) continue;
-      if (!coordsByUser.has(a.user_id)) coordsByUser.set(a.user_id, { lat: a.lat, lng: a.lng });
+      if (seenUsers.has(a.user_id)) continue;
+      seenUsers.add(a.user_id);
+      if (a.lat == null || a.lng == null) {
+        skippedUnplaceable++;
+        continue;
+      }
+      coordsByUser.set(a.user_id, { lat: a.lat, lng: a.lng });
     }
     if (coordsByUser.size === 0) return NextResponse.json({ ok: true, candidates: 0, sent: 0 });
 
     const userIds = [...coordsByUser.keys()];
 
-    const [{ data: profiles }, { data: settings }] = await Promise.all([
-      supabase.from("profiles").select("id, email, full_name").in("id", userIds),
-      supabase
-        .from("customer_settings")
-        .select("user_id, notification_prefs")
-        .in("user_id", userIds),
-    ]);
+    const [{ data: profiles, error: profilesErr }, { data: settings, error: settingsErr }] =
+      await Promise.all([
+        supabase.from("profiles").select("id, email, full_name").in("id", userIds),
+        supabase
+          .from("customer_settings")
+          .select("user_id, notification_prefs")
+          .in("user_id", userIds),
+      ]);
+
+    // Fail CLOSED on the preferences read. `settings ?? []` on an error would
+    // yield an EMPTY opted-out set, i.e. "nobody opted out" — so a transient DB
+    // or permissions failure would mail promotional email to customers who
+    // explicitly disabled marketing. sendEmail's own per-recipient check can't
+    // save us either: it swallows its query error and proceeds. Consent is not
+    // something to guess at, so abort the run instead.
+    if (settingsErr) {
+      logger.exception(settingsErr, { flowId: FLOW_ID, api: "cron" });
+      return apiError("INTERNAL_ERROR", "Failed to load marketing preferences", 500);
+    }
+    if (profilesErr) {
+      logger.exception(profilesErr, { flowId: FLOW_ID, api: "cron" });
+      return apiError("INTERNAL_ERROR", "Failed to load profiles", 500);
+    }
 
     // Marketing is opt-OUT (absent row ⇒ opted in, matching sendEmail's rule),
     // but we filter here too so the dry run reports the true audience.
@@ -178,9 +227,17 @@ export async function GET(request: Request) {
     // this bucket is comparable to the other skipped.* counters, which all count
     // real candidates dropped rather than the whole opted-out population.
     let optedOutCandidates = 0;
+    // Counted, not silently dropped: the run summary is this type's ONLY
+    // operator signal, so an audience smaller than the address list has to be
+    // explainable. Without this the numbers just don't reconcile.
+    let noEmailCandidates = 0;
     for (const p of profiles ?? []) {
       const coords = coordsByUser.get(p.id);
-      if (!coords || !p.email) continue;
+      if (!coords) continue;
+      if (!p.email) {
+        noEmailCandidates++;
+        continue;
+      }
       if (optedOut.has(p.id)) {
         optedOutCandidates++;
         continue;
@@ -204,7 +261,14 @@ export async function GET(request: Request) {
       date: string;
     };
     const planned: Planned[] = [];
-    const skipped = { noRun: 0, outsideWindow: 0, alreadyOrdered: 0, optedOut: optedOutCandidates };
+    const skipped = {
+      noRun: 0,
+      outsideWindow: 0,
+      alreadyOrdered: 0,
+      optedOut: optedOutCandidates,
+      noEmail: noEmailCandidates,
+      unplaceableDefaultAddress: skippedUnplaceable,
+    };
 
     for (const c of candidates) {
       const awareness = resolveRouteDayAwareness({
@@ -300,7 +364,6 @@ export async function GET(request: Request) {
     let sent = 0;
     let suppressed = 0;
     let attempted = 0;
-    const startedAt = Date.now();
     for (let i = 0; i < toSend.length; i++) {
       if (Date.now() - startedAt > SEND_BUDGET_MS) {
         logger.warn("Route-day invite run hit its time budget — stopping early", {

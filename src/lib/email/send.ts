@@ -138,30 +138,41 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
 
   for (let attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt++) {
     try {
-      const { data, error } = await resend.emails.send({
-        from: EMAIL_FROM,
-        to: options.to,
-        cc: NO_CC_EMAIL_TYPES.includes(options.type) ? undefined : EMAIL_CC,
-        replyTo: EMAIL_REPLY_TO,
-        subject: options.subject,
-        html,
-        text,
-        tags: [
-          { name: "type", value: options.type },
-          { name: "order_id", value: options.orderId },
-        ],
-        headers: {
-          "List-Unsubscribe": `<${APP_URL}/account?tab=settings>`,
-          "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-        },
-        ...(options.idempotencyKey && {
+      const { data, error } = await resend.emails.send(
+        {
+          from: EMAIL_FROM,
+          to: options.to,
+          cc: NO_CC_EMAIL_TYPES.includes(options.type) ? undefined : EMAIL_CC,
+          replyTo: EMAIL_REPLY_TO,
+          subject: options.subject,
+          html,
+          text,
+          tags: [
+            { name: "type", value: options.type },
+            { name: "order_id", value: options.orderId },
+          ],
           headers: {
+            // RFC 2369 link only. `List-Unsubscribe-Post: One-Click` (RFC 8058)
+            // is deliberately NOT set: it promises the mail client that a plain
+            // POST to this URL unsubscribes the reader, but the URL is an
+            // authenticated settings PAGE with no POST handler — so a one-click
+            // unsubscribe would appear to succeed in the client and change
+            // nothing, which is worse than not offering it. Restore the header
+            // together with a real signed-token endpoint (see the tracking
+            // issue) before this is claimed again.
             "List-Unsubscribe": `<${APP_URL}/account?tab=settings>`,
-            "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
-            "Idempotency-Key": options.idempotencyKey,
           },
-        }),
-      });
+        },
+        // MUST be the second argument. Resend reads the dedupe key from the
+        // request OPTIONS and sets it as the HTTP `Idempotency-Key` header
+        // (`post(path, entity, { idempotencyKey })`). Passing it as a custom
+        // header inside the email PAYLOAD — which is what this did — makes it a
+        // header on the outgoing message and Resend never dedupes: every retry,
+        // re-run, or duplicate cron invocation sends a fresh copy. That silently
+        // defeated the stable keys the order-status emails and the route-day
+        // invite both rely on for at-most-once delivery.
+        options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : undefined
+      );
 
       if (error) {
         lastError = error.message;

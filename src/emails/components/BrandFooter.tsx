@@ -6,6 +6,13 @@ interface BrandFooterProps {
   /** When set, shows a warm bilingual "refer a friend" nudge. */
   referralUrl?: string;
   variant?: "default" | "admin";
+  /**
+   * Why this person is receiving the email. The default names a past order,
+   * which is true for transactional mail and FALSE for a marketing invite —
+   * that audience is "has a saved address", and the route-day cron explicitly
+   * excludes anyone who already ordered for the date.
+   */
+  reason?: "order" | "marketing";
 }
 
 /** Three triad dots — the quiet divider between content and colophon. */
@@ -37,6 +44,7 @@ export function BrandFooter({
   unsubscribeUrl,
   referralUrl,
   variant = "default",
+  reason = "order",
 }: BrandFooterProps) {
   const isAdmin = variant === "admin";
 
@@ -192,7 +200,9 @@ export function BrandFooter({
             lineHeight: "1.6",
           }}
         >
-          You&apos;re receiving this because you placed an order with Mandalay Morning Star.
+          {reason === "marketing"
+            ? "You're receiving this because you have a saved delivery address with Mandalay Morning Star."
+            : "You're receiving this because you placed an order with Mandalay Morning Star."}
           <br />
           <Link
             href={unsubscribeUrl}
