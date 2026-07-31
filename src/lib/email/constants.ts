@@ -46,6 +46,46 @@ export const MAX_RETRY_ATTEMPTS = 3;
 /** Base delay between retries in ms (multiplied by attempt number) */
 export const RETRY_BASE_DELAY_MS = 10_000;
 
+/**
+ * Hard ceiling on ONE attempt's request to Resend.
+ *
+ * Without it a `sendEmail` call has no upper bound at all — only the backoff
+ * sleeps are bounded, so worst case is `30s of sleeps + 3 × (unbounded
+ * latency)`. That can outlive a Vercel invocation, which kills it mid-loop:
+ * for the route-day cron that means no summary line, i.e. no way to tell a
+ * truncated run from a complete one.
+ *
+ * DELIBERATELY GENEROUS, because aborting is not free. A timed-out attempt may
+ * still have been ACCEPTED by Resend, and the retry reuses the same request —
+ * so for a caller that passes an `idempotencyKey` the retry is deduped, but for
+ * one that does NOT, an abort-then-retry can send the customer two copies.
+ * 15s is far above Resend's normal sub-second response, so only a genuinely
+ * stuck request trips it; shaving this to squeeze a cron budget would trade a
+ * rare missing log line for real duplicate mail.
+ *
+ * Callers whose sends ARE key-protected can pass a tighter
+ * `attemptTimeoutMs` — see SendEmailOptions.
+ *
+ * UPGRADING `resend` — READ THIS FIRST. This ceiling only works because
+ * `post()` spreads its options object straight into fetch, carrying our
+ * `signal` through — a behavior the SDK's types do NOT declare (`PostOptions`
+ * lists only `query` and `headers`). A version that stops spreading turns the
+ * timeout into a SILENT NO-OP: sends go unbounded again, nothing throws,
+ * nothing logs. This repo has been bitten by that shape before (`z-modal-
+ * backdrop` and `animate-spin-slow` both emitted nothing and failed quietly).
+ *
+ * Two guardrails close that gap from both sides:
+ *   - `resend-sdk-contract.test.ts` runs the REAL installed SDK against a
+ *     stubbed fetch and asserts the signal (and Idempotency-Key header)
+ *     actually arrive — so any bump that stops spreading fails CI, including
+ *     a patch bump the `~` range auto-accepts.
+ *   - package.json pins `resend` to `~6.9.x` rather than `^`, so a
+ *     minor/major bump is a deliberate, reviewed act.
+ * (`send-timeout.test.ts` asserts the same at the mock boundary — it covers
+ * sendEmail's side of the contract, the contract test covers the SDK's.)
+ */
+export const SEND_ATTEMPT_TIMEOUT_MS = 15_000;
+
 // ===========================================
 // ERROR GUIDANCE (operator-friendly messages)
 // ===========================================

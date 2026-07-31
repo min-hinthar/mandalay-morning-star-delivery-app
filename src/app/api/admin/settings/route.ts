@@ -123,8 +123,27 @@ export async function PATCH(request: NextRequest) {
     const validationResult = updateSettingsSchema.safeParse(body);
 
     if (!validationResult.success) {
+      // Name the offending fields IN the error string. The admin client shows
+      // `data.error` and ignores `details`, and `flatten()` buckets every issue
+      // under a single `fieldErrors.settings` key anyway (it only keys off
+      // path[0]) — so the per-field paths the schema now produces would never
+      // reach the operator. Saving the whole category at once means one bad
+      // value blocks unrelated edits; "Validation failed" alone gives them
+      // nothing to act on.
+      const fieldErrors = validationResult.error.issues
+        .map((issue) => {
+          const field = issue.path.join(".").replace(/^settings\./, "");
+          return field ? `${field}: ${issue.message}` : issue.message;
+        })
+        // Distinct fields only — a union member can emit several issues for one
+        // value, and repeating them reads as more problems than there are.
+        .filter((msg, i, all) => all.indexOf(msg) === i);
+
       return NextResponse.json(
-        { error: "Validation failed", details: validationResult.error.flatten() },
+        {
+          error: `Validation failed — ${fieldErrors.join("; ")}`,
+          details: validationResult.error.flatten(),
+        },
         { status: 400 }
       );
     }
@@ -139,11 +158,14 @@ export async function PATCH(request: NextRequest) {
       updated_by: string;
     }[] = [];
 
+    // Keys are ALREADY snake_case: updateSettingsSchema normalizes them (via
+    // toSnakeCaseKeys) before the category check, so what was validated is
+    // exactly what gets stored. Re-converting here would reintroduce the split
+    // that made every bound inert — storage and validation must share one
+    // normalization step, not each do their own.
     for (const [key, value] of Object.entries(settings)) {
-      // Convert camelCase to snake_case for database
-      const snakeKey = key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
       updates.push({
-        key: snakeKey,
+        key,
         value: JSON.parse(JSON.stringify(value)), // Ensure JSONB-compatible
         category,
         updated_by: userId,

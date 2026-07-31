@@ -1,0 +1,20 @@
+-- Add 'route_day_invite' to the notification_type enum.
+--
+-- route_day_invite is the app's only outbound MARKETING send. Until now it had
+-- no per-recipient audit trail at all: no notification_logs row (this enum had
+-- no value for it, so the insert would have thrown inside the retry loop and
+-- been misread as a send failure) and no admin CC either (deliberately
+-- suppressed — a bulk run would otherwise put an internal address in up to 100
+-- customers' CC headers). The aggregate run summary was the only signal, so a
+-- spam complaint or an "was this user's opt-out honored?" question had nothing
+-- to trace.
+--
+-- Dedupe also leaned entirely on Resend's ~24h Idempotency-Key TTL, which is
+-- why the notice window was capped at 20h. A real log row removes that
+-- constraint rather than engineering around it.
+--
+-- ADD VALUE is safe inside the CLI's transaction wrapper here because this
+-- migration only ADDS the label — it never uses it. Postgres only rejects
+-- using a newly added enum value in the same transaction that created it, so
+-- keep this migration to the ALTER alone and let application writes come later.
+ALTER TYPE notification_type ADD VALUE IF NOT EXISTS 'route_day_invite';
