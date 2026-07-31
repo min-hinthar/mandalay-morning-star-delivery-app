@@ -69,23 +69,59 @@ describe("sendEmail idempotency key", () => {
     // Resend only turns the SECOND argument into the HTTP Idempotency-Key
     // header; a key inside the payload's `headers` is just a header on the
     // outgoing message and dedupes nothing.
-    expect(requestOptions).toEqual({ idempotencyKey: "confirmed-abc" });
+    expect(requestOptions.idempotencyKey).toBe("confirmed-abc");
     expect(payload.headers).not.toHaveProperty("Idempotency-Key");
   });
 
-  it("omits the request options entirely when no key is given", async () => {
+  it("omits the idempotency key when none is given", async () => {
     await sendEmail(options("order_confirmation"));
 
-    expect(sendMock.mock.calls[0][1]).toBeUndefined();
+    // The options object itself is always present now — it carries the
+    // per-attempt AbortSignal — so assert on the key, not the object.
+    expect(sendMock.mock.calls[0][1]).not.toHaveProperty("idempotencyKey");
   });
 
-  it("keeps the List-Unsubscribe link and does not claim one-click", async () => {
+  it("falls back to the settings link when no unsubscribe secret is configured", async () => {
+    // The endpoint exists now, but it can't verify a token without a secret —
+    // so the sender must NOT promise one-click. Claiming it against a URL that
+    // can't honor it is the original bug: the reader's mail client reports
+    // success and nothing changes.
+    delete process.env.UNSUBSCRIBE_TOKEN_SECRET;
+
     await sendEmail({ ...options("route_day_invite", "route-2026-08-05"), idempotencyKey: "k" });
 
     const headers = sendMock.mock.calls[0][0].headers;
     expect(headers["List-Unsubscribe"]).toContain("/account?tab=settings");
-    // No POST endpoint honors one-click yet — see issue #209.
     expect(headers).not.toHaveProperty("List-Unsubscribe-Post");
+  });
+
+  it("advertises one-click with a per-recipient token once a secret IS configured", async () => {
+    process.env.UNSUBSCRIBE_TOKEN_SECRET = "test-secret";
+
+    await sendEmail(options("route_day_invite", "route-2026-08-05"));
+
+    const headers = sendMock.mock.calls[0][0].headers;
+    expect(headers["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
+    expect(headers["List-Unsubscribe"]).toContain("/api/unsubscribe?token=");
+    // Keyed to the pref this message is gated on, and to THIS recipient.
+    expect(headers["List-Unsubscribe"]).toContain("user-1.marketing.");
+
+    delete process.env.UNSUBSCRIBE_TOKEN_SECRET;
+  });
+
+  it("never claims one-click on MANDATORY mail the recipient cannot stop", async () => {
+    // order_confirmation bypasses the preference check entirely, so a one-click
+    // unsubscribe on it would report success and keep sending — the same broken
+    // promise, relocated.
+    process.env.UNSUBSCRIBE_TOKEN_SECRET = "test-secret";
+
+    await sendEmail(options("order_confirmation"));
+
+    const headers = sendMock.mock.calls[0][0].headers;
+    expect(headers).not.toHaveProperty("List-Unsubscribe-Post");
+    expect(headers["List-Unsubscribe"]).toContain("/account?tab=settings");
+
+    delete process.env.UNSUBSCRIBE_TOKEN_SECRET;
   });
 });
 

@@ -10,6 +10,7 @@ import {
   getDirectionsForCoords,
   filterDaysByDirection,
   getDirectionLabel,
+  isNearbyAddress,
 } from "@/lib/utils/delivery-zones";
 import type { Address } from "@/types/address";
 import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
@@ -46,7 +47,11 @@ export function DeliveryZoneInfoCard({
     if (!address.lat || !address.lng || deliveryZones.length === 0) return null;
 
     const directions = getDirectionsForCoords(address.lat, address.lng, deliveryZones);
-    if (directions.length === 0) return null;
+    // Nearby: there's no named route to show, so the card stays hidden. (It
+    // renders a route badge + label, both meaningless for an address every run
+    // passes.) The eligible-day list this card also carries would now be useful
+    // to a nearby customer — see the follow-up note in the PR.
+    if (isNearbyAddress(directions)) return null;
 
     const eligibleDays = filterDaysByDirection(directions, deliveryDays);
     const eligibleDayNames = eligibleDays

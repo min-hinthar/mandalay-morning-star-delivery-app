@@ -96,7 +96,7 @@
     "react-hook-form": "^7.71.1",
     "react-leaflet": "^5.0.0",
     "recharts": "^3.6.0",
-    "resend": "^6.9.1",
+    "resend": "~6.9.1",
     "sharp": "^0.34.5",
     "stripe": "^20.1.2",
     "svix": "^1.86.0",

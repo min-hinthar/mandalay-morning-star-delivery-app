@@ -18,7 +18,11 @@ import { MapPin, Check, Pencil, Trash2, Star } from "lucide-react";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { cn } from "@/lib/utils/cn";
-import { getDirectionsForCoords, getDirectionLabel } from "@/lib/utils/delivery-zones";
+import {
+  getDirectionsForCoords,
+  getDirectionLabel,
+  isNearbyAddress,
+} from "@/lib/utils/delivery-zones";
 import type { Address } from "@/types/address";
 import type { DeliveryZoneConfig } from "@/types/delivery";
 
@@ -50,7 +54,9 @@ export function AddressCardV8({
   const directionInfo = useMemo(() => {
     if (!address.lat || !address.lng || !deliveryZones?.length) return null;
     const dirs = getDirectionsForCoords(address.lat, address.lng, deliveryZones);
-    if (dirs.length === 0) return null;
+    // Nearby: no named route to badge. Behavior is unchanged — this just uses
+    // the shared helper so no raw `length === 0` copy of the check survives.
+    if (isNearbyAddress(dirs)) return null;
     const primary = dirs[0];
     return {
       label: getDirectionLabel(primary as Exclude<typeof primary, "all">),

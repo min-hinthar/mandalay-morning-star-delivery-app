@@ -1915,7 +1915,8 @@ export type Database = {
         | "feedback_request"
         | "cancellation"
         | "refund"
-        | "delivery_reminder";
+        | "delivery_reminder"
+        | "route_day_invite";
       order_status:
         | "pending_approval"
         | "pending"
@@ -2080,6 +2081,7 @@ export const Constants = {
         "cancellation",
         "refund",
         "delivery_reminder",
+        "route_day_invite",
       ],
       order_status: [
         "pending_approval",

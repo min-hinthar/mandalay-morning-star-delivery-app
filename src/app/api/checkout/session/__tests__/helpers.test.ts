@@ -83,6 +83,19 @@ const EAST_ADDRESS = {
   distance_miles: 10,
 } as Record<string, unknown>;
 
+// Covina-area, ~4mi from the kitchen — inside NEARBY_RADIUS_KM, so
+// getDirectionsForCoords returns [] regardless of bearing.
+const NEARBY_ADDRESS = {
+  ...EAST_ADDRESS,
+  id: "addr-nearby",
+  line_1: "123 Close St",
+  city: "West Covina",
+  postal_code: "91790",
+  lat: 34.0686,
+  lng: -117.9389,
+  distance_miles: 4,
+} as Record<string, unknown>;
+
 describe("resolveAddressDistance", () => {
   let resolveAddressDistance: typeof import("../helpers").resolveAddressDistance;
 
@@ -90,6 +103,38 @@ describe("resolveAddressDistance", () => {
     vi.resetModules();
     const mod = await import("../helpers");
     resolveAddressDistance = mod.resolveAddressDistance;
+  });
+
+  it("accepts a NEARBY address on a directional day", async () => {
+    // The bug this fixes: an empty direction list was read as "matches no
+    // direction", so a customer a few miles from the kitchen could only order
+    // the Saturday `all` run — picking Monday failed checkout outright, even
+    // though the driver passes close by on every route.
+    const eastDay = TEST_DAYS[0]; // Monday = east
+    const result = await resolveAddressDistance(
+      NEARBY_ADDRESS as never,
+      eastDay,
+      DEFAULT_ZONES,
+      "2026-03-16",
+      TEST_DAYS
+    );
+
+    expect(result.directionError).toBeUndefined();
+    expect(result.directionDetails).toBeUndefined();
+  });
+
+  it("accepts a NEARBY address on a day running the OPPOSITE direction", async () => {
+    // Not just "the nearest route" — every direction, which is the whole claim.
+    const westDay = TEST_DAYS[1]; // Wednesday = west
+    const result = await resolveAddressDistance(
+      NEARBY_ADDRESS as never,
+      westDay,
+      DEFAULT_ZONES,
+      "2026-03-18",
+      TEST_DAYS
+    );
+
+    expect(result.directionError).toBeUndefined();
   });
 
   it("returns no direction error when day direction matches address", async () => {

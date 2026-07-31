@@ -57,7 +57,7 @@ describe("resolveRouteDayAwareness", () => {
     expect(routeDayHeadline(a!)).toBe("We're driving the West Route this Wednesday");
   });
 
-  it("a nearby address is quoted only what checkout will actually accept", () => {
+  it("a nearby address is quoted the NEXT run, not just the all-directions one", () => {
     const a = resolveRouteDayAwareness({
       coords: NEARBY,
       deliveryDays: DAYS,
@@ -66,13 +66,16 @@ describe("resolveRouteDayAwareness", () => {
     });
     expect(a).not.toBeNull();
     expect(a!.isLocal).toBe(true);
-    // NOT Monday, even though getDirectionsForCoords says nearby "sees all
-    // delivery days": checkout's resolveAddressDistance rejects a directional
-    // day for an empty direction list, so Monday would fail at checkout.
-    // Saturday is the all-directions run and is genuinely orderable.
-    expect(a!.dayName).toBe("Saturday");
+    // Monday, the soonest run — an empty direction list means NEARBY, which
+    // every route passes close to, so addressServesDay accepts it and so does
+    // checkout's gate. This test previously pinned "Saturday": the banner was
+    // deliberately conservative while the two halves disagreed and Monday would
+    // have failed at submit. Both now share addressServesDay, so the nearest
+    // day is genuinely orderable.
+    expect(a!.dayName).toBe("Monday");
+    // Still no route label: a nearby address isn't ON a named route.
     expect(a!.routeLabel).toBeNull();
-    expect(routeDayHeadline(a!)).toBe("We're delivering this Saturday");
+    expect(routeDayHeadline(a!)).toBe("We're delivering this Monday");
   });
 
   it("with no address known, advertises only a run that serves EVERY direction", () => {
@@ -113,11 +116,16 @@ describe("resolveRouteDayAwareness", () => {
     ).toBeNull();
   });
 
-  it("known-local and unplaced agree on the DAY but stay distinguishable", () => {
-    // Both land on the all-directions run — for different reasons, and the
-    // caller can still tell them apart via isLocal. Worth pinning: if nearby
-    // eligibility is ever widened to all days (the open routing question), this
-    // is the test that should fail and force checkout to be widened with it.
+  it("known-local and unplaced now diverge — an empty list means opposite things", () => {
+    // Both carry `directions: []`, but for opposite reasons, and they must NOT
+    // be collapsed:
+    //   known-local — we PLACED the address and it came back nearby, so every
+    //     route serves it → quote the soonest run (Monday).
+    //   unplaced    — we could not place the reader at all, so we know nothing
+    //     about their direction → quote only the run that serves EVERY
+    //     direction (Saturday), or we'd promise a west-side visitor an
+    //     east-only Monday.
+    // isLocal is what distinguishes them, and it drives the day.
     const local = resolveRouteDayAwareness({
       coords: NEARBY,
       deliveryDays: DAYS,
@@ -129,7 +137,7 @@ describe("resolveRouteDayAwareness", () => {
       deliveryZones: ZONES,
       now: SUNDAY,
     });
-    expect(local!.dayName).toBe("Saturday");
+    expect(local!.dayName).toBe("Monday");
     expect(local!.isLocal).toBe(true);
     expect(unknown!.dayName).toBe("Saturday");
     expect(unknown!.isLocal).toBe(false);

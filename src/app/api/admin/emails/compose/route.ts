@@ -153,8 +153,15 @@ export async function POST(request: Request) {
         { name: "order_id", value: orderId },
       ],
       headers: {
-        // Link only — see the note in lib/email/send.ts. One-Click is not
-        // claimed because no POST endpoint honors it.
+        // Link only, on purpose — even though a real one-click endpoint now
+        // exists (`/api/unsubscribe`). This is an admin replying to a customer
+        // about a SPECIFIC ORDER: transactional mail, which needs no
+        // unsubscribe under CAN-SPAM, and whose only matching preference is
+        // `order_updates`. Offering one-click here would either do nothing
+        // (the admin will still need to reach them about that order) or
+        // silence every order update from a message that was answering their
+        // question — a heavier consequence than the reader is asking for.
+        // Same rule as MANDATORY types in lib/email/send.ts.
         "List-Unsubscribe": `<${APP_URL}/account?tab=settings>`,
       },
     });

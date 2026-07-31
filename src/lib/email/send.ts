@@ -5,6 +5,7 @@ import { logger } from "@/lib/utils/logger";
 import type { NotificationPrefs } from "@/components/ui/account/SettingsTab/settings-types";
 
 import { getResendClient } from "./client";
+import { buildUnsubscribeHeaders } from "./unsubscribe";
 import {
   APP_URL,
   EMAIL_CC,
@@ -12,6 +13,7 @@ import {
   EMAIL_REPLY_TO,
   MAX_RETRY_ATTEMPTS,
   RETRY_BASE_DELAY_MS,
+  SEND_ATTEMPT_TIMEOUT_MS,
 } from "./constants";
 import {
   UNLOGGED_EMAIL_TYPES,
@@ -135,8 +137,50 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   // -----------------------------------------------
   const resend = getResendClient();
   let lastError: string | undefined;
+  const attemptTimeoutMs = options.attemptTimeoutMs ?? SEND_ATTEMPT_TIMEOUT_MS;
+
+  // One-click is offered ONLY for mail the recipient can actually stop.
+  //
+  // A MANDATORY type (order confirmation, refund) bypasses the preference
+  // check entirely, so a one-click unsubscribe on it would report success and
+  // keep sending — the same broken promise this feature exists to fix, just
+  // relocated. Those messages keep the plain settings link, which is honest:
+  // the customer can manage the prefs that DO apply. Transactional mail needs
+  // no unsubscribe under CAN-SPAM anyway.
+  const unsubscribeHeaders = isMandatory
+    ? { "List-Unsubscribe": `<${APP_URL}/account?tab=settings>` }
+    : buildUnsubscribeHeaders(options.userId, mapTypeToPrefKey(options.type));
 
   for (let attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt++) {
+    // We own the timer rather than using AbortSignal.timeout() because Resend
+    // swallows the abort: fetchRequest catches everything and returns a generic
+    // `application_error` / "Unable to fetch data" — indistinguishable from a
+    // network failure. Tracking our own flag is the only way to log "we gave up
+    // on a stuck request" rather than "the network died".
+    const controller = new AbortController();
+    let timedOut = false;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      controller.abort();
+    }, attemptTimeoutMs);
+
+    // Built as a variable, not an inline literal, on purpose. `signal` is NOT
+    // declared on Resend's PostOptions (only `query` and `headers` are), but
+    // `post()` spreads its options object straight into fetch —
+    // `{ method, body, ...options, headers }` in resend@6.9.1 — so the signal
+    // does reach the request and genuinely cancels it. TypeScript's
+    // excess-property check only fires on fresh object literals, so hoisting it
+    // here passes the extra field through without an `as` cast that would
+    // suppress real type errors too.
+    //
+    // The gap is load-bearing: if a future SDK version stops spreading, the
+    // timeout silently stops working. send-timeout.test.ts pins it by asserting
+    // the signal is both RECEIVED and ABORTED, so that regression fails loudly.
+    const requestOptions = {
+      ...(options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : {}),
+      signal: controller.signal,
+    };
+
     try {
       const { data, error } = await resend.emails.send(
         {
@@ -151,17 +195,16 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
             { name: "type", value: options.type },
             { name: "order_id", value: options.orderId },
           ],
-          headers: {
-            // RFC 2369 link only. `List-Unsubscribe-Post: One-Click` (RFC 8058)
-            // is deliberately NOT set: it promises the mail client that a plain
-            // POST to this URL unsubscribes the reader, but the URL is an
-            // authenticated settings PAGE with no POST handler — so a one-click
-            // unsubscribe would appear to succeed in the client and change
-            // nothing, which is worse than not offering it. Restore the header
-            // together with a real signed-token endpoint (see the tracking
-            // issue) before this is claimed again.
-            "List-Unsubscribe": `<${APP_URL}/account?tab=settings>`,
-          },
+          // Per-recipient, because a one-click URL has to carry a token that
+          // identifies WHO is unsubscribing — a constant header can't. The
+          // helper emits the RFC 8058 `List-Unsubscribe-Post` pair only when it
+          // can actually mint a token, and falls back to the plain RFC 2369
+          // link otherwise: advertising one-click against a URL that can't
+          // honor it is what made Gmail's unsubscribe silently do nothing.
+          //
+          // Keyed to the pref this message is gated on, so unsubscribing from
+          // marketing doesn't also silence order updates.
+          headers: unsubscribeHeaders,
         },
         // MUST be the second argument. Resend reads the dedupe key from the
         // request OPTIONS and sets it as the HTTP `Idempotency-Key` header
@@ -171,8 +214,13 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
         // re-run, or duplicate cron invocation sends a fresh copy. That silently
         // defeated the stable keys the order-status emails and the route-day
         // invite both rely on for at-most-once delivery.
-        options.idempotencyKey ? { idempotencyKey: options.idempotencyKey } : undefined
+        requestOptions
       );
+
+      // Disarm as soon as the request resolves. The `finally` below is the
+      // safety net for the throw path; this keeps the timer from staying armed
+      // through the notification_logs work that follows on the success path.
+      clearTimeout(timer);
 
       if (error) {
         // EXACTLY one of Resend's three idempotency errors means the mail went
@@ -195,11 +243,23 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
           return { success: true, suppressed: true };
         }
 
-        lastError = error.message;
-        logger.warn(`Email send attempt ${attempt} failed`, {
-          flowId,
-          orderId: options.orderId,
-        });
+        // A timeout is RETRYABLE, never permanent — the next attempt reuses the
+        // same idempotency key, so if Resend actually accepted the aborted
+        // request it answers `invalid_idempotent_request` above and we report
+        // delivered rather than double-sending.
+        lastError = timedOut
+          ? `Request timed out after ${attemptTimeoutMs}ms`
+          : (error.message ?? "Unknown send error");
+        logger.warn(
+          timedOut
+            ? `Email send attempt ${attempt} timed out`
+            : `Email send attempt ${attempt} failed`,
+          {
+            flowId,
+            orderId: options.orderId,
+            ...(timedOut ? { attemptTimeoutMs } : {}),
+          }
+        );
 
         if (attempt < MAX_RETRY_ATTEMPTS) {
           await sleep(attempt * RETRY_BASE_DELAY_MS);
@@ -269,7 +329,14 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
 
       if (!isUnlogged && !alreadyLogged) {
         const { error: logError } = await supabase.from("notification_logs").insert({
-          order_id: options.orderId,
+          // `notification_logs.order_id` is a uuid column, but non-order mail
+          // passes a synthetic handle (`route-<date>`) purely for tagging. Now
+          // that route_day_invite is a LOGGED type, sending that string
+          // straight through would make Postgres reject every marketing row
+          // with 22P02. The column is nullable and ON DELETE SET NULL, so null
+          // is the honest value: the row still records recipient, type and
+          // user_id, which is what an opt-out or spam-complaint audit needs.
+          order_id: UUID_RE.test(options.orderId) ? options.orderId : null,
           user_id: options.userId,
           notification_type: options.type as CustomerEmailType,
           channel: "email",
@@ -306,15 +373,38 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
 
       return { success: true, resendId: resendId ?? undefined };
     } catch (err) {
-      lastError = err instanceof Error ? err.message : "Unknown send error";
-      logger.warn(`Email send attempt ${attempt} threw`, {
-        flowId,
-        orderId: options.orderId,
-      });
+      // Disarm before the backoff sleep, matching the eager clear on the
+      // resolved path. Left to the `finally` alone, the timer would stay armed
+      // through a 10–20s sleep and fire a late abort on an already-settled
+      // request. Harmless (both are block-scoped and re-created each iteration,
+      // and aborting a dead controller is a no-op) but pointless.
+      clearTimeout(timer);
+
+      lastError = timedOut
+        ? `Request timed out after ${attemptTimeoutMs}ms`
+        : err instanceof Error
+          ? err.message
+          : "Unknown send error";
+      logger.warn(
+        timedOut
+          ? `Email send attempt ${attempt} timed out`
+          : `Email send attempt ${attempt} threw`,
+        {
+          flowId,
+          orderId: options.orderId,
+          ...(timedOut ? { attemptTimeoutMs } : {}),
+        }
+      );
 
       if (attempt < MAX_RETRY_ATTEMPTS) {
         await sleep(attempt * RETRY_BASE_DELAY_MS);
       }
+    } finally {
+      // An un-cleared 15s timer holds a handle on the event loop after a fast
+      // send, which in a serverless invocation delays teardown for every email
+      // the app sends. clearTimeout is idempotent, so the eager clear above and
+      // this one can't conflict.
+      clearTimeout(timer);
     }
   }
 
@@ -324,7 +414,8 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   const isUnloggedFailed = (UNLOGGED_EMAIL_TYPES as readonly string[]).includes(options.type);
   if (!isUnloggedFailed) {
     const { error: failLogError } = await supabase.from("notification_logs").insert({
-      order_id: options.orderId,
+      // Same uuid-column constraint as the success path above.
+      order_id: UUID_RE.test(options.orderId) ? options.orderId : null,
       user_id: options.userId,
       notification_type: options.type as CustomerEmailType,
       channel: "email",
