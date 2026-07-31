@@ -176,6 +176,20 @@ async function parsePostBody(request: Request): Promise<ParsedPostBody> {
   }
 }
 
+/**
+ * FOR FUTURE AUDITORS — two deliberate absences, not oversights:
+ *
+ * CSRF-exempt: this route MUST accept a cookieless cross-origin POST (that is
+ * what a mail provider's One-Click request is). The signed token — not ambient
+ * session auth — is the authority, so classic CSRF does not apply: there is no
+ * session to ride, and a forged request without a valid token does nothing.
+ *
+ * No rate limit: an invalid token is rejected before any DB access, and a
+ * valid token can only flip its own signed user's pref (idempotently). A flood
+ * costs HMAC CPU on tokens the attacker already owns — negligible. An
+ * aggressive per-IP limit would risk throttling legitimate provider retries
+ * instead. Revisit only if marketing volume makes this a real surface.
+ */
 export async function POST(request: Request) {
   if (!isUnsubscribeConfigured()) {
     // Should be unreachable: with no secret the header is never advertised, so
