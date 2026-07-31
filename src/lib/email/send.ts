@@ -354,6 +354,13 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
 
       return { success: true, resendId: resendId ?? undefined };
     } catch (err) {
+      // Disarm before the backoff sleep, matching the eager clear on the
+      // resolved path. Left to the `finally` alone, the timer would stay armed
+      // through a 10–20s sleep and fire a late abort on an already-settled
+      // request. Harmless (both are block-scoped and re-created each iteration,
+      // and aborting a dead controller is a no-op) but pointless.
+      clearTimeout(timer);
+
       lastError = timedOut
         ? `Request timed out after ${attemptTimeoutMs}ms`
         : err instanceof Error

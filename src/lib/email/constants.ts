@@ -65,6 +65,14 @@ export const RETRY_BASE_DELAY_MS = 10_000;
  *
  * Callers whose sends ARE key-protected can pass a tighter
  * `attemptTimeoutMs` — see SendEmailOptions.
+ *
+ * UPGRADING `resend`: this ceiling only works because `post()` spreads its
+ * options object straight into fetch, carrying our `signal` through — a
+ * behavior the SDK's types do NOT declare (`PostOptions` lists only `query`
+ * and `headers`). If a future version stops spreading, the timeout becomes a
+ * silent no-op and sends go unbounded again. `send-timeout.test.ts` asserts
+ * the signal is received and aborted, but only at the mock boundary, so
+ * re-verify against the real SDK on a version bump.
  */
 export const SEND_ATTEMPT_TIMEOUT_MS = 15_000;
 
