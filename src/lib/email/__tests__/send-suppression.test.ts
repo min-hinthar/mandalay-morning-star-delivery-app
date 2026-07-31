@@ -7,9 +7,10 @@ import React from "react";
  * The admin kill switch and a recipient opt-out both short-circuit BEFORE
  * Resend and return `success: true` — nothing went wrong, so that's correct.
  * The consequence is that `success` alone cannot answer "did mail actually go
- * out?", which matters for bulk callers whose run summary is the only operator
- * signal (route_day_invite writes no notification_logs row). `suppressed` is
- * what lets them tell the difference; these pin it.
+ * out?", which matters for bulk callers whose run summary is their live
+ * operator signal. A suppressed send writes no notification_logs row either
+ * (it never reaches Step 5), so the log can't backfill that distinction after
+ * the fact. `suppressed` is what lets them tell the difference; these pin it.
  */
 
 const sendMock = vi.fn();
