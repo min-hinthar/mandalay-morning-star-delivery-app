@@ -57,7 +57,7 @@ describe("resolveRouteDayAwareness", () => {
     expect(routeDayHeadline(a!)).toBe("We're driving the West Route this Wednesday");
   });
 
-  it("a nearby address is served by EVERY day (empty directions must not collapse to all-only)", () => {
+  it("a nearby address is quoted only what checkout will actually accept", () => {
     const a = resolveRouteDayAwareness({
       coords: NEARBY,
       deliveryDays: DAYS,
@@ -66,9 +66,13 @@ describe("resolveRouteDayAwareness", () => {
     });
     expect(a).not.toBeNull();
     expect(a!.isLocal).toBe(true);
-    // Monday is the next day overall — reachable only because local sees all days.
-    expect(a!.dayName).toBe("Monday");
-    expect(routeDayHeadline(a!)).toBe("We're delivering this Monday");
+    // NOT Monday, even though getDirectionsForCoords says nearby "sees all
+    // delivery days": checkout's resolveAddressDistance rejects a directional
+    // day for an empty direction list, so Monday would fail at checkout.
+    // Saturday is the all-directions run and is genuinely orderable.
+    expect(a!.dayName).toBe("Saturday");
+    expect(a!.routeLabel).toBeNull();
+    expect(routeDayHeadline(a!)).toBe("We're delivering this Saturday");
   });
 
   it("with no address known, advertises only a run that serves EVERY direction", () => {
@@ -109,9 +113,11 @@ describe("resolveRouteDayAwareness", () => {
     ).toBeNull();
   });
 
-  it("a KNOWN local address still sees every run — unknown is not the same as local", () => {
-    // The no-coords path must not be conflated with the local path: a nearby
-    // customer is genuinely served by all days and still gets Monday.
+  it("known-local and unplaced agree on the DAY but stay distinguishable", () => {
+    // Both land on the all-directions run — for different reasons, and the
+    // caller can still tell them apart via isLocal. Worth pinning: if nearby
+    // eligibility is ever widened to all days (the open routing question), this
+    // is the test that should fail and force checkout to be widened with it.
     const local = resolveRouteDayAwareness({
       coords: NEARBY,
       deliveryDays: DAYS,
@@ -123,7 +129,7 @@ describe("resolveRouteDayAwareness", () => {
       deliveryZones: ZONES,
       now: SUNDAY,
     });
-    expect(local!.dayName).toBe("Monday");
+    expect(local!.dayName).toBe("Saturday");
     expect(local!.isLocal).toBe(true);
     expect(unknown!.dayName).toBe("Saturday");
     expect(unknown!.isLocal).toBe(false);

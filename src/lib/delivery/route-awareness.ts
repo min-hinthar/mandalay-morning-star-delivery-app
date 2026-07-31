@@ -77,16 +77,22 @@ export function resolveRouteDayAwareness({
 
   if (coords && Number.isFinite(coords.lat) && Number.isFinite(coords.lng)) {
     directions = getDirectionsForCoords(coords.lat, coords.lng, zones);
-    // getDirectionsForCoords returns [] for NEARBY addresses, which by design
-    // are served by EVERY delivery day. Passing [] to filterDaysByDirection
-    // would instead keep only the "all"-direction days, so branch explicitly.
     isLocal = directions.length === 0;
-    if (!isLocal) {
-      eligibleDays = filterDaysByDirection(directions, activeDays);
-      // Direction matches no configured run — say nothing rather than quote a
-      // day this address can't actually be served on.
-      if (eligibleDays.length === 0) return null;
-    }
+    // Always filter, including the nearby (`[]`) case.
+    //
+    // getDirectionsForCoords claims nearby addresses "see all delivery days",
+    // but NOTHING downstream honors that: filterDaysByDirection([]) keeps only
+    // the "all" days, and checkout's resolveAddressDistance rejects any
+    // directional day because [] never includes it. So a nearby customer is
+    // Saturday-only in practice. This banner must promise only what checkout
+    // will actually accept — quoting Monday and then failing them at checkout
+    // is worse than quoting Saturday. Whether nearby SHOULD be all-days is a
+    // real routing question, tracked separately; until it's answered, match the
+    // enforcement rather than the comment.
+    eligibleDays = filterDaysByDirection(directions, activeDays);
+    // Direction matches no configured run — say nothing rather than quote a
+    // day this address can't actually be served on.
+    if (eligibleDays.length === 0) return null;
   } else {
     // No coords (logged-out visitor, or no saved address) means we do NOT know
     // this person is local — only that we can't place them. Falling through to
