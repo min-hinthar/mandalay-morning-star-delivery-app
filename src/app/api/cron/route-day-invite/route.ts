@@ -77,22 +77,6 @@ const MAX_SENDS_PER_RUN = 100;
  * already answer. Full addresses would turn a pasted dry-run output into a
  * customer-list leak, and operators paste these into chat.
  */
-/**
- * Deterministic per-recipient rotation of the shared dish pool. The payload
- * must be byte-identical for a given idempotency key (`route-day-<date>-<user>`),
- * so the pick is derived from that same pair rather than from run-order.
- */
-function pickForRecipient<T>(pool: T[], seed: string): T[] {
-  if (pool.length === 0) return pool;
-  let hash = 0x811c9dc5;
-  for (let i = 0; i < seed.length; i++) {
-    hash ^= seed.charCodeAt(i);
-    hash = Math.imul(hash, 0x01000193) >>> 0;
-  }
-  const offset = hash % pool.length;
-  return [...pool.slice(offset), ...pool.slice(0, offset)];
-}
-
 function maskEmail(email: string): string {
   const at = email.indexOf("@");
   if (at <= 0) return "***";
@@ -188,7 +172,11 @@ export async function GET(request: Request) {
       logger.exception(killSwitchErr, { flowId: FLOW_ID, api: "cron" });
       return apiError("INTERNAL_ERROR", "Could not verify the email kill switch", 500);
     }
-    if (killSwitch?.value === false) {
+    // Only short-circuit a REAL send. A dry run inspects eligibility and mails
+    // nobody, and the documented activation workflow is to preview the audience
+    // before switching sending on — blocking it here would force an operator to
+    // enable outbound email just to look.
+    if (killSwitch?.value === false && !dryRun) {
       logger.info("Email sending disabled — skipping route-day run", { flowId: FLOW_ID });
       return NextResponse.json({ ok: true, skipped: "email sending disabled" });
     }
@@ -484,11 +472,14 @@ export async function GET(request: Request) {
     }
 
     // Real dishes with hostable photos — shared across the whole run.
-    // One fetch for the run; the per-recipient SEED is applied below. Seeding
-    // off planned[0] would give everyone the first recipient's date, and a
-    // shifting audience would change that seed between runs — re-rendering a
-    // different payload under an already-used key.
-    const dishPool = await fetchSuggestedItems(supabase, []);
+    // Constant seed, not a random pick. fetchSuggestedItems already narrows to
+    // SUGGESTION_COUNT, so there is no per-recipient variety to be had — but
+    // there IS a payload-stability requirement: every recipient's idempotency
+    // key must render the same bytes on a re-run, or Resend rejects the reused
+    // key. A fixed seed makes the pool deterministic across runs; sharing one
+    // pool across recipients is fine because each key only needs to be stable
+    // against ITSELF.
+    const featuredItems = await fetchSuggestedItems(supabase, [], "route-day-invite");
 
     let sent = 0;
     let suppressed = 0;
@@ -513,7 +504,7 @@ export async function GET(request: Request) {
             headline: p.headline,
             cutoffText: p.cutoffText,
             dayName: p.dayName,
-            featuredItems: pickForRecipient(dishPool, `${p.date}:${p.c.userId}`),
+            featuredItems,
           }),
           type: "route_day_invite",
           // No order exists yet; orderId is only used for tagging/logging and

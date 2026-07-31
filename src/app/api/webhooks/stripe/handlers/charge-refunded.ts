@@ -221,7 +221,13 @@ export async function handleChargeRefunded(
           orderId: refundOrderId,
           userId: refundUserId,
           mandatory: true,
-          idempotencyKey: `refund-${refundChargeId}`,
+          // Includes the CUMULATIVE amount: charge.refunded fires again for a
+          // second partial refund on the same charge, and a chargeId-only key
+          // would make that a reused key with a changed body — swallowed as
+          // "already delivered", so the customer is never told about the extra
+          // money returned. Retries of the SAME refund still dedupe, since the
+          // amount is unchanged.
+          idempotencyKey: `refund-${refundChargeId}-${charge.amount_refunded}`,
         });
       } catch (emailErr) {
         logger.error("Failed to send refund email", {
