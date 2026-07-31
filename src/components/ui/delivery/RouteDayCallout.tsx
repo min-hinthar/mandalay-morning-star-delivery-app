@@ -96,17 +96,31 @@ export function RouteDayCallout({
           data: { user },
         } = await supabase.auth.getUser();
         if (user) {
+          // Mirrors the cron's audience rules — the two must agree, or the
+          // banner personalizes for an address the email wouldn't target (and
+          // checkout wouldn't accept). `created_at` is the tiebreak: deleting a
+          // default leaves every remaining row `is_default = false`, and
+          // without it Postgres may hand back an arbitrary secondary address.
           const { data } = await supabase
             .from("addresses")
-            .select("lat, lng, is_default, distance_miles")
+            .select("lat, lng, is_default, distance_miles, is_verified")
             .eq("user_id", user.id)
             .order("is_default", { ascending: false })
+            .order("created_at", { ascending: false })
             .limit(1)
             .maybeSingle();
-          if (data?.lat != null && data?.lng != null) {
-            coords = { lat: data.lat, lng: data.lng };
-            distanceRef.current =
-              (data as { distance_miles?: number | null }).distance_miles ?? null;
+          const row = data as {
+            lat: number | null;
+            lng: number | null;
+            distance_miles?: number | null;
+            is_verified?: boolean;
+          } | null;
+          // Unverified is an unconditional checkout reject, so personalizing on
+          // one would show a route + "Order now" for an address that can't be
+          // ordered to. Fall through to the generic schedule signal instead.
+          if (row?.lat != null && row?.lng != null && row.is_verified) {
+            coords = { lat: row.lat, lng: row.lng };
+            distanceRef.current = row.distance_miles ?? null;
           }
         }
       } catch {
