@@ -66,13 +66,18 @@ export const RETRY_BASE_DELAY_MS = 10_000;
  * Callers whose sends ARE key-protected can pass a tighter
  * `attemptTimeoutMs` — see SendEmailOptions.
  *
- * UPGRADING `resend`: this ceiling only works because `post()` spreads its
- * options object straight into fetch, carrying our `signal` through — a
- * behavior the SDK's types do NOT declare (`PostOptions` lists only `query`
- * and `headers`). If a future version stops spreading, the timeout becomes a
- * silent no-op and sends go unbounded again. `send-timeout.test.ts` asserts
- * the signal is received and aborted, but only at the mock boundary, so
- * re-verify against the real SDK on a version bump.
+ * UPGRADING `resend` — READ THIS FIRST. This ceiling only works because
+ * `post()` spreads its options object straight into fetch, carrying our
+ * `signal` through — a behavior the SDK's types do NOT declare (`PostOptions`
+ * lists only `query` and `headers`). A version that stops spreading turns the
+ * timeout into a SILENT NO-OP: sends go unbounded again, nothing throws,
+ * nothing logs. This repo has been bitten by that shape before (`z-modal-
+ * backdrop` and `animate-spin-slow` both emitted nothing and failed quietly).
+ *
+ * `send-timeout.test.ts` asserts the signal is received and aborted, but only
+ * at the MOCK boundary, so it cannot catch that regression. Which is why
+ * package.json pins `resend` to `~6.9.x` rather than `^`: a minor bump has to
+ * be a deliberate, reviewed act that re-checks `post()` still spreads.
  */
 export const SEND_ATTEMPT_TIMEOUT_MS = 15_000;
 
