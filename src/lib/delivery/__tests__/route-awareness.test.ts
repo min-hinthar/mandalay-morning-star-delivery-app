@@ -83,6 +83,20 @@ describe("resolveRouteDayAwareness", () => {
     expect(routeDayHeadline(a!)).toBe("We're delivering this Saturday");
   });
 
+  it("with no address known, a day MISSING a direction is not treated as all-serving", () => {
+    // `direction` is optional, and filterDaysByDirection (the known-address
+    // branch) drops an undefined-direction day. The unplaced branch must agree,
+    // or it would advertise a run the directional path refuses to serve.
+    const noDirection = { ...day(2, "all"), direction: undefined };
+    expect(
+      resolveRouteDayAwareness({
+        deliveryDays: [day(1, "east"), noDirection],
+        deliveryZones: ZONES,
+        now: SUNDAY,
+      })
+    ).toBeNull();
+  });
+
   it("with no address known and no all-directions run, says nothing", () => {
     // Every configured run is direction-scoped, so there is no day we could
     // honestly promise an unplaced visitor.

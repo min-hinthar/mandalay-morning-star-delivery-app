@@ -95,8 +95,14 @@ export function resolveRouteDayAwareness({
     // the same overstatement the directional branch above returns null to
     // avoid. So advertise only runs that serve EVERY direction ("all"), which
     // is true for whoever is reading. If none is configured, say nothing.
+    //
+    // Strictly `=== "all"`, matching filterDaysByDirection on the known-address
+    // branch. `direction` is OPTIONAL on DeliveryDayConfig, and that filter
+    // drops an undefined-direction day — so treating undefined as all-serving
+    // here would advertise to a logged-out visitor a run the directional path
+    // refuses to serve.
     isLocal = false;
-    eligibleDays = activeDays.filter((d) => !d.direction || d.direction === "all");
+    eligibleDays = activeDays.filter((d) => d.direction === "all");
     if (eligibleDays.length === 0) return null;
   }
 

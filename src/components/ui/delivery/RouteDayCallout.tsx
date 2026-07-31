@@ -62,7 +62,11 @@ export function RouteDayCallout({ deliveryDays, deliveryZones, className }: Rout
 
     function applyResolved(coords: { lat: number; lng: number } | null) {
       const next = resolveRouteDayAwareness({ coords, deliveryDays, deliveryZones });
-      setAwareness(next);
+      // The resolver builds a fresh object every call, so setting it
+      // unconditionally would re-render the banner on every timer tick. Every
+      // field is derived from the delivery date, so that's the only one worth
+      // comparing — equal date means an identical result.
+      setAwareness((prev) => (prev?.deliveryDateString === next?.deliveryDateString ? prev : next));
       setDismissed(
         next ? localStorage.getItem(`${DISMISS_PREFIX}${next.deliveryDateString}`) === "true" : true
       );
