@@ -162,7 +162,7 @@ export async function GET(request: Request) {
     // unordered, making the pick deterministic run-to-run.
     const { data: addresses, error: addrError } = await supabase
       .from("addresses")
-      .select("user_id, lat, lng, is_default, created_at, distance_miles")
+      .select("user_id, lat, lng, is_default, created_at, distance_miles, is_verified")
       .order("is_default", { ascending: false })
       .order("created_at", { ascending: false });
 
@@ -183,7 +183,11 @@ export async function GET(request: Request) {
     for (const a of addresses ?? []) {
       if (seenUsers.has(a.user_id)) continue;
       seenUsers.add(a.user_id);
-      if (a.lat == null || a.lng == null) {
+      // Unverified is a hard checkout reject ("Address not verified for
+      // delivery" → OUT_OF_COVERAGE), so an invite built on one would be
+      // unorderable. Treated like an unplaceable default rather than falling
+      // through to an older address.
+      if (a.lat == null || a.lng == null || !(a as { is_verified?: boolean }).is_verified) {
         skippedUnplaceable++;
         continue;
       }
@@ -199,7 +203,11 @@ export async function GET(request: Request) {
 
     const [{ data: profiles, error: profilesErr }, { data: settings, error: settingsErr }] =
       await Promise.all([
-        supabase.from("profiles").select("id, email, full_name").in("id", userIds),
+        supabase
+          .from("profiles")
+          .select("id, email, full_name")
+          .eq("role", "customer")
+          .in("id", userIds),
         supabase
           .from("customer_settings")
           .select("user_id, notification_prefs")
@@ -321,7 +329,19 @@ export async function GET(request: Request) {
         .in("user_id", [...new Set(planned.map((p) => p.c.userId))])
         .gte("delivery_window_start", startUtc)
         .lte("delivery_window_start", endUtc)
-        .neq("status", "cancelled");
+        // Statuses that mean a REAL order exists — not `!= cancelled`. Plain
+        // `pending` is an unpaid checkout that may never complete (the checkout
+        // route documents that a failed session-id write can strand one
+        // indefinitely), and counting it as ordered suppresses the nudge for
+        // exactly the customer most worth nudging: someone who started and
+        // didn't finish. `pending_approval` is a placed COD order and does count.
+        .in("status", [
+          "pending_approval",
+          "confirmed",
+          "preparing",
+          "out_for_delivery",
+          "delivered",
+        ]);
       // Fail CLOSED. Swallowing this error leaves `ordered` empty, which filters
       // NOBODY and mails customers who already ordered — the exact guardrail
       // this job exists to honour. Abort the run instead.
