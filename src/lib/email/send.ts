@@ -17,6 +17,7 @@ import {
   UNLOGGED_EMAIL_TYPES,
   MANDATORY_EMAIL_TYPES,
   mapTypeToPrefKey,
+  type EmailType,
   type CustomerEmailType,
   type SendEmailOptions,
   type SendEmailResult,
@@ -28,6 +29,18 @@ import {
 
 /** `orders.id` is a uuid — non-order email passes a synthetic handle instead. */
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Types that must NOT copy the admin inbox.
+ *
+ * Every other send CCs admin@ so the team sees transactional mail as it goes
+ * out — reasonable at one-email-per-order volume. It breaks down for a BULK
+ * marketing run: the admin inbox takes one CC per recipient (a whole cron run
+ * at once), and, worse, each customer sees an internal address sitting in the
+ * CC header of a promotional email — which invites reply-all and reads as
+ * unprofessional. Marketing gets no CC; the run summary is the operator signal.
+ */
+const NO_CC_EMAIL_TYPES: readonly EmailType[] = ["route_day_invite"];
 
 /**
  * Sends an email through Resend with:
@@ -128,7 +141,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       const { data, error } = await resend.emails.send({
         from: EMAIL_FROM,
         to: options.to,
-        cc: EMAIL_CC,
+        cc: NO_CC_EMAIL_TYPES.includes(options.type) ? undefined : EMAIL_CC,
         replyTo: EMAIL_REPLY_TO,
         subject: options.subject,
         html,
