@@ -173,6 +173,18 @@ describe("updateSettingsSchema — errors name the offending field", () => {
     expect(paths).toContain("settings.cutoff_hour");
     expect(paths).toContain("settings.base_delivery_fee_cents");
   });
+
+  it("survives error.flatten(), which the route still returns as details", () => {
+    // flatten() keys only off path[0], so every one of these lands in a single
+    // `fieldErrors.settings` bucket — which is why the route ALSO builds a
+    // readable per-field string for the admin toast rather than relying on it.
+    const result = parse("delivery", { cutoffHour: 99, baseDeliveryFeeCents: -1 });
+    if (result.success) return;
+
+    const flat = result.error.flatten();
+    expect(Object.keys(flat.fieldErrors)).toEqual(["settings"]);
+    expect(flat.fieldErrors.settings!.length).toBeGreaterThanOrEqual(2);
+  });
 });
 
 describe("updateSettingsSchema — an unknown category fails cleanly", () => {
