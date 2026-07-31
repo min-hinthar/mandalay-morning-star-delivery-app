@@ -8,6 +8,8 @@ import type { DeliveryFeeBand } from "@/lib/utils/order";
 interface DeliverySettingsSyncProps {
   deliveryFeeCents: number;
   freeDeliveryThresholdCents: number;
+  minimumOrderCents?: number;
+  extendedMinOrderCents?: number;
   cutoffDay: number;
   cutoffHour: number;
   /** Multi-day delivery configs from business rules */
@@ -36,6 +38,8 @@ interface DeliverySettingsSyncProps {
 export function DeliverySettingsSync({
   deliveryFeeCents,
   freeDeliveryThresholdCents,
+  minimumOrderCents,
+  extendedMinOrderCents,
   cutoffDay,
   cutoffHour,
   deliveryDays = [],
@@ -53,6 +57,9 @@ export function DeliverySettingsSync({
 
   useEffect(() => {
     useCartStore.getState().setDeliverySettings(deliveryFeeCents, freeDeliveryThresholdCents);
+    if (minimumOrderCents !== undefined && extendedMinOrderCents !== undefined) {
+      useCartStore.getState().setMinimumOrderSettings(minimumOrderCents, extendedMinOrderCents);
+    }
     useCartStore.getState().setCutoffSettings(cutoffDay, cutoffHour);
     useCartStore.getState().setDeliveryDays(deliveryDays);
     if (longDistanceFeeCents !== undefined && longDistanceThresholdMiles !== undefined) {
@@ -78,6 +85,8 @@ export function DeliverySettingsSync({
   }, [
     deliveryFeeCents,
     freeDeliveryThresholdCents,
+    minimumOrderCents,
+    extendedMinOrderCents,
     cutoffDay,
     cutoffHour,
     deliveryDays,

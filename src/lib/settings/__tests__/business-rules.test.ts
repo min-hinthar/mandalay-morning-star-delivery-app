@@ -140,6 +140,7 @@ describe("getBusinessRules", () => {
       extendedDeliveryEnabled: true,
       extendedDeliveryPerMileCents: 150,
       maxDeliveryRadiusMiles: 100,
+      extendedMinOrderCents: BUSINESS_RULES_DEFAULTS.extendedMinOrderCents,
     });
   });
 
@@ -213,7 +214,8 @@ describe("getBusinessRules", () => {
     expect(rules.cutoffDay).toBe(5);
     // 15 original fields + 4 graduated-pricing fields (deliveryFeeBands,
     // extendedDeliveryEnabled, extendedDeliveryPerMileCents, maxDeliveryRadiusMiles)
-    expect(Object.keys(rules)).toHaveLength(19);
+    // + extendedMinOrderCents (distance-based minimum order)
+    expect(Object.keys(rules)).toHaveLength(20);
   });
 
   it("parses graduated bands + long-distance config from DB", async () => {

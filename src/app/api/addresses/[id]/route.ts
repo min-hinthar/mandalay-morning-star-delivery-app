@@ -137,6 +137,12 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
         formatted_address: geocode.formattedAddress,
         lat: geocode.lat,
         lng: geocode.lng,
+        // Re-persist the freshly measured drive distance. Omitting it left the
+        // ORIGINAL distance on the row forever: editing a 10mi address into a
+        // 40mi one kept `10`, so the order was priced as local AND slipped any
+        // distance-based gate — and the lazy-fill can't repair it, since that
+        // only fires when distance_miles IS NULL.
+        distance_miles: coverage.distanceMiles,
         is_verified: true,
         updated_at: new Date().toISOString(),
       })

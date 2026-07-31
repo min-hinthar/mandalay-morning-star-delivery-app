@@ -27,6 +27,7 @@ export const DEFAULT_SETTINGS: AllSettings = {
     extendedDeliveryEnabled: true,
     extendedDeliveryPerMileCents: 150,
     maxDeliveryRadiusMiles: 100,
+    extendedMinOrderCents: 10000,
   },
   operations: {
     maxStopsPerRoute: 15,
@@ -96,6 +97,8 @@ export function mapApiResponse(data: any): AllSettings {
         DEFAULT_SETTINGS.delivery.extendedDeliveryPerMileCents,
       maxDeliveryRadiusMiles:
         data.delivery?.maxDeliveryRadiusMiles ?? DEFAULT_SETTINGS.delivery.maxDeliveryRadiusMiles,
+      extendedMinOrderCents:
+        data.delivery?.extendedMinOrderCents ?? DEFAULT_SETTINGS.delivery.extendedMinOrderCents,
     },
     operations: {
       maxStopsPerRoute:

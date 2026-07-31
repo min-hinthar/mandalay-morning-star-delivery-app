@@ -227,7 +227,11 @@ export function CartBar({
   }, [itemCount, mounted, playSound]);
 
   // Minimum order shortfall
-  const shortfall = Math.max(0, minimumOrderCents - itemsSubtotal);
+  // Distance-aware floor from the shared engine (same one the server gate uses).
+  // The `minimumOrderCents` prop stays the fallback for surfaces that pass it.
+  const minimumOrder = useCartStore((s) => s.getMinimumOrder());
+  const effectiveMinimumCents = Math.max(minimumOrder.minimumCents, minimumOrderCents);
+  const shortfall = Math.max(0, effectiveMinimumCents - itemsSubtotal);
   const belowMinimum = shortfall > 0;
 
   // Calculate delivery progress
@@ -307,7 +311,8 @@ export function CartBar({
                 className="text-xs text-status-warning text-center px-4 pb-1"
               >
                 ${(shortfall / 100).toFixed(2)} more to reach $
-                {(minimumOrderCents / 100).toFixed(0)} minimum
+                {(effectiveMinimumCents / 100).toFixed(0)}
+                {minimumOrder.isExtendedMinimum ? " long-distance" : ""} minimum
               </m.p>
             )}
           </AnimatePresence>

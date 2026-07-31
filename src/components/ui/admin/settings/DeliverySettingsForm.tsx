@@ -47,6 +47,7 @@ export function DeliverySettingsForm({
     freeThreshold: centsToDollars(settings.freeDeliveryThresholdCents),
     deliveryFee: centsToDollars(settings.baseDeliveryFeeCents),
     extendedPerMile: centsToDollars(settings.extendedDeliveryPerMileCents ?? 150),
+    extendedMinOrder: centsToDollars(settings.extendedMinOrderCents ?? 10000),
   });
 
   const changed = (field: keyof DeliverySettings) =>
@@ -69,7 +70,8 @@ export function DeliverySettingsForm({
         | "minimumOrderCents"
         | "freeDeliveryThresholdCents"
         | "baseDeliveryFeeCents"
-        | "extendedDeliveryPerMileCents",
+        | "extendedDeliveryPerMileCents"
+        | "extendedMinOrderCents",
       displayKey: keyof typeof displayValues,
       value: string
     ) => {
@@ -156,6 +158,31 @@ export function DeliverySettingsForm({
               />
             </div>
             <p className="text-xs text-text-muted">Orders above this amount get free delivery</p>
+          </div>
+
+          <div className={cn("space-y-2", changed("extendedMinOrderCents") && CHANGED_BORDER)}>
+            <Label htmlFor="extendedMinOrder">Long-Distance Minimum Order</Label>
+            <div className="relative max-w-[200px]">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-text-secondary">
+                $
+              </span>
+              <Input
+                id="extendedMinOrder"
+                type="number"
+                min={0}
+                step={0.01}
+                value={displayValues.extendedMinOrder}
+                onChange={(e) =>
+                  handleCurrencyChange("extendedMinOrderCents", "extendedMinOrder", e.target.value)
+                }
+                error={errors.extendedMinOrderCents}
+                className="pl-7"
+              />
+            </div>
+            <p className="text-xs text-text-muted">
+              Minimum subtotal required beyond the local radius — a long-haul drive costs the same
+              whatever the basket is worth. Set to $0 to disable.
+            </p>
           </div>
 
           <div className={cn("space-y-2", changed("minimumOrderCents") && CHANGED_BORDER)}>

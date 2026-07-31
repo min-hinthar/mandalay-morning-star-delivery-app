@@ -63,6 +63,7 @@ export const deliverySettingsBaseSchema = z.object({
   extended_delivery_enabled: z.boolean().optional(),
   extended_delivery_per_mile_cents: z.number().int().min(0).max(100_000).optional(),
   max_delivery_radius_miles: z.number().min(1).max(100).optional(),
+  extended_min_order_cents: z.number().int().min(0).max(100_000).optional(),
 });
 
 /** Full delivery settings with cross-field validation */

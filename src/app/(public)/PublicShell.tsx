@@ -16,6 +16,8 @@ interface PublicShellProps {
   children: ReactNode;
   deliveryFeeCents: number;
   freeDeliveryThresholdCents: number;
+  minimumOrderCents?: number;
+  extendedMinOrderCents?: number;
   cutoffDay: number;
   cutoffHour: number;
   deliveryDays?: DeliveryDayConfig[];
@@ -36,6 +38,8 @@ export function PublicShell({
   children,
   deliveryFeeCents,
   freeDeliveryThresholdCents,
+  minimumOrderCents,
+  extendedMinOrderCents,
   cutoffDay,
   cutoffHour,
   deliveryDays,
@@ -60,6 +64,8 @@ export function PublicShell({
       <DeliverySettingsSync
         deliveryFeeCents={deliveryFeeCents}
         freeDeliveryThresholdCents={freeDeliveryThresholdCents}
+        minimumOrderCents={minimumOrderCents}
+        extendedMinOrderCents={extendedMinOrderCents}
         cutoffDay={cutoffDay}
         cutoffHour={cutoffHour}
         deliveryDays={deliveryDays}

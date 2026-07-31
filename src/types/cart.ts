@@ -1,6 +1,6 @@
 import type { MenuItem } from "@/types/menu";
 import type { DeliveryDayConfig } from "@/types/delivery";
-import type { DeliveryFeeBand, DeliveryFeeResult } from "@/lib/utils/order";
+import type { DeliveryFeeBand, DeliveryFeeResult, MinimumOrderResult } from "@/lib/utils/order";
 
 export interface SelectedModifier {
   groupId: string;
@@ -52,6 +52,11 @@ export interface CartStore {
   setAddressDistance: (miles: number | null) => void;
   setLongDistanceSettings: (fee: number, threshold: number) => void;
 
+  /** Minimum-order floors (populated from server on page load) */
+  minimumOrderCents: number;
+  extendedMinOrderCents: number;
+  setMinimumOrderSettings: (baseCents: number, extendedCents: number) => void;
+
   /** Graduated pricing settings (populated from server on page load) */
   deliveryFeeBands: DeliveryFeeBand[];
   standardRadiusMiles: number;
@@ -74,6 +79,8 @@ export interface CartStore {
   getEstimatedDeliveryFee: () => number;
   /** Full graduated-fee resolution (fee + tier + isFree) for the current address. */
   getDeliveryQuote: () => DeliveryFeeResult;
+  /** Distance-aware minimum-order state for the current address. */
+  getMinimumOrder: () => MinimumOrderResult;
   getItemCount: () => number;
   getItemTotal: (cartItemId: string) => number;
   updateItemPrice: (cartItemId: string, newPriceCents: number) => void;

@@ -79,6 +79,7 @@ export type CheckoutErrorCode =
   | "MODIFIER_UNAVAILABLE"
   | "ADDRESS_INVALID"
   | "OUT_OF_COVERAGE"
+  | "MINIMUM_ORDER_NOT_MET"
   | "CUTOFF_PASSED"
   | "COD_DISABLED"
   | "RATE_LIMITED"
