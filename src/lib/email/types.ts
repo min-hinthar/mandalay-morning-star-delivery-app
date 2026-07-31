@@ -65,8 +65,13 @@ export const MANDATORY_EMAIL_TYPES: readonly EmailType[] = [
  * Email types NOT written to notification_logs, because the `notification_type`
  * DB enum has no value for them. Mostly admin mail; `route_day_invite` is here
  * for the same reason (see its note on EmailType) despite being customer-facing.
+ *
+ * Named for what it does — NOT "admin only". Membership must never be read as
+ * "send to an admin" or "skip the customer opt-out": the opt-out is enforced
+ * independently in Step 2 via MANDATORY_EMAIL_TYPES + mapTypeToPrefKey, and
+ * `route_day_invite` (marketing) genuinely depends on that check running.
  */
-export const ADMIN_EMAIL_TYPES: readonly EmailType[] = [
+export const UNLOGGED_EMAIL_TYPES: readonly EmailType[] = [
   "admin_new_order",
   "admin_daily_digest",
   "admin_feedback_alert",

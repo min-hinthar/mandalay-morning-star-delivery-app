@@ -14,7 +14,7 @@ import {
   RETRY_BASE_DELAY_MS,
 } from "./constants";
 import {
-  ADMIN_EMAIL_TYPES,
+  UNLOGGED_EMAIL_TYPES,
   MANDATORY_EMAIL_TYPES,
   mapTypeToPrefKey,
   type CustomerEmailType,
@@ -165,11 +165,11 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       }
 
       // -----------------------------------------------
-      // Step 5: Success — log to notification_logs (customer emails only)
+      // Step 5: Success — log to notification_logs (logged types only)
       // -----------------------------------------------
       const resendId = data?.id;
-      const isAdminEmail = (ADMIN_EMAIL_TYPES as readonly string[]).includes(options.type);
-      if (!isAdminEmail) {
+      const isUnlogged = (UNLOGGED_EMAIL_TYPES as readonly string[]).includes(options.type);
+      if (!isUnlogged) {
         await supabase.from("notification_logs").insert({
           order_id: options.orderId,
           user_id: options.userId,
@@ -205,10 +205,10 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   }
 
   // -----------------------------------------------
-  // Step 6: All retries exhausted — log failure (customer emails only)
+  // Step 6: All retries exhausted — log failure (logged types only)
   // -----------------------------------------------
-  const isAdminEmailFailed = (ADMIN_EMAIL_TYPES as readonly string[]).includes(options.type);
-  if (!isAdminEmailFailed) {
+  const isUnloggedFailed = (UNLOGGED_EMAIL_TYPES as readonly string[]).includes(options.type);
+  if (!isUnloggedFailed) {
     await supabase.from("notification_logs").insert({
       order_id: options.orderId,
       user_id: options.userId,
