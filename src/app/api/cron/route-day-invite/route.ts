@@ -70,6 +70,18 @@ const MAX_HOURS_BEFORE_CUTOFF = 20;
 const MAX_SENDS_PER_RUN = 100;
 
 /**
+ * `a***@domain.com` — the dry run is for checking WHO is in the audience by
+ * shape (right route, right cutoff, right count), which the headline and date
+ * already answer. Full addresses would turn a pasted dry-run output into a
+ * customer-list leak, and operators paste these into chat.
+ */
+function maskEmail(email: string): string {
+  const at = email.indexOf("@");
+  if (at <= 0) return "***";
+  return `${email[0]}***${email.slice(at)}`;
+}
+
+/**
  * Matches the repo's only other cron (payment-reconciliation). 60s is the
  * Hobby-plan ceiling and Vercel silently CLAMPS anything higher, so a larger
  * value here would be a bet on the plan tier rather than a guarantee.
@@ -274,7 +286,7 @@ export async function GET(request: Request) {
         wouldSend: toSend.length,
         skipped,
         preview: toSend.slice(0, 20).map((p) => ({
-          email: p.c.email,
+          email: maskEmail(p.c.email),
           headline: p.headline,
           cutoff: p.cutoffText,
           deliveryDate: p.date,
