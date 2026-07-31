@@ -205,7 +205,17 @@ export const updateSettingsSchema = z
     settings: z.record(z.string(), z.unknown()).transform(toSnakeCaseKeys),
   })
   .superRefine((data, ctx) => {
-    const result = CATEGORY_SCHEMAS[data.category].partial().safeParse(data.settings);
+    // Defensive: on zod 4.3.5 this refinement does NOT run when the category
+    // enum already failed (verified — safeParse returns a clean `false`), so
+    // `schema` is always defined today. But that's a continuation-semantics
+    // detail of zod, not a guarantee of ours: if a future version ran the
+    // refinement anyway, `CATEGORY_SCHEMAS[bad]` would be undefined and
+    // `.partial()` would throw a TypeError that safeParse does NOT trap —
+    // surfacing as a 500 from the route's outer catch instead of a 400.
+    const schema = CATEGORY_SCHEMAS[data.category];
+    if (!schema) return;
+
+    const result = schema.partial().safeParse(data.settings);
     if (result.success) return;
 
     for (const issue of result.error.issues) {

@@ -175,6 +175,20 @@ describe("updateSettingsSchema — errors name the offending field", () => {
   });
 });
 
+describe("updateSettingsSchema — an unknown category fails cleanly", () => {
+  it("returns a validation failure rather than throwing", () => {
+    // If this ever THREW instead, safeParse would not trap it (a TypeError is
+    // not a ZodError) and the route's outer catch would answer 500 to what is
+    // plainly a malformed request.
+    expect(() => parse("bogus", { minimumOrderCents: 2500 })).not.toThrow();
+    expect(parse("bogus", { minimumOrderCents: 2500 }).success).toBe(false);
+  });
+
+  it("survives a non-string category", () => {
+    expect(() => updateSettingsSchema.safeParse({ category: 123, settings: {} })).not.toThrow();
+  });
+});
+
 describe("updateSettingsSchema — validated keys are the STORED keys", () => {
   it("returns snake_case settings so the route stores what was checked", () => {
     // The route's storage loop no longer converts keys itself; it writes
