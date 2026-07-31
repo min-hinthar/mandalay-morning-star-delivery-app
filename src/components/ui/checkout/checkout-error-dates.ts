@@ -4,6 +4,20 @@
  * on its own).
  */
 
+/**
+ * Format a Date as YYYY-MM-DD in the LOCAL timezone.
+ *
+ * NOT `toISOString().split("T")[0]` — that converts to UTC, so for an LA user
+ * after 5pm PT the machine-readable value lands a day AHEAD of the human label
+ * (which `toLocaleDateString` renders in local time). The customer would pick
+ * "Sat" and submit Sunday. Same class as the `getUTCDay()` footgun in CLAUDE.md.
+ */
+function toLocalDateString(d: Date): string {
+  const month = `${d.getMonth() + 1}`.padStart(2, "0");
+  const day = `${d.getDate()}`.padStart(2, "0");
+  return `${d.getFullYear()}-${month}-${day}`;
+}
+
 /** Compute next N dates for given day names from today */
 export function getNextDatesForDays(
   dayNames: string[],
@@ -26,7 +40,7 @@ export function getNextDatesForDays(
     const d = new Date(today);
     d.setDate(today.getDate() + i);
     if (targetDays.includes(d.getDay())) {
-      const dateStr = d.toISOString().split("T")[0];
+      const dateStr = toLocalDateString(d);
       const label = d.toLocaleDateString("en-US", {
         weekday: "short",
         month: "short",
