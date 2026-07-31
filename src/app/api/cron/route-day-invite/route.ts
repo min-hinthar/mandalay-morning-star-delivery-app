@@ -23,7 +23,7 @@ import { RouteDayInvite } from "@/emails/RouteDayInvite";
 import { fetchSuggestedItems } from "@/lib/email/suggestions";
 import { sendEmail } from "@/lib/email/send";
 import { MAX_RETRY_ATTEMPTS, RETRY_BASE_DELAY_MS } from "@/lib/email/constants";
-import { getBusinessRules } from "@/lib/settings";
+import { getBusinessRules, getDeliveryPricingConfig } from "@/lib/settings";
 import { serviceableCeilingMiles } from "@/lib/utils/order";
 import { resolveRouteDayAwareness, routeDayHeadline } from "@/lib/delivery/route-awareness";
 import { getZonedDateString, getZonedDayRangeUtc } from "@/lib/utils/delivery-dates";
@@ -155,16 +155,7 @@ export async function GET(request: Request) {
     // The distance past which checkout answers OUT_OF_COVERAGE. Not
     // maxDeliveryRadiusMiles on its own — that ceiling only applies while
     // long-distance delivery is switched on.
-    const serviceableCeiling = serviceableCeilingMiles({
-      localFeeCents: rules.deliveryFeeCents,
-      localRadiusMiles: rules.longDistanceThresholdMiles,
-      freeDeliveryThresholdCents: rules.freeDeliveryThresholdCents,
-      bands: rules.deliveryFeeBands,
-      standardRadiusMiles: rules.deliveryRadiusMiles,
-      extendedEnabled: rules.extendedDeliveryEnabled,
-      extendedPerMileCents: rules.extendedDeliveryPerMileCents,
-      maxRadiusMiles: rules.maxDeliveryRadiusMiles,
-    });
+    const serviceableCeiling = serviceableCeilingMiles(getDeliveryPricingConfig(rules));
 
     // ---- Audience: default addresses with real coords -----------------------
     // Deliberately NOT filtered to coordinate-bearing rows in SQL. Dropping
@@ -406,7 +397,10 @@ export async function GET(request: Request) {
     }
 
     // Real dishes with hostable photos — shared across the whole run.
-    const featuredItems = await fetchSuggestedItems(supabase, []);
+    // Seeded by delivery date so a re-run renders the SAME dishes — the
+    // idempotency key is per (date, user), and Resend rejects a reused key
+    // whose payload changed.
+    const featuredItems = await fetchSuggestedItems(supabase, [], planned[0]?.date ?? "route-day");
 
     let sent = 0;
     let suppressed = 0;

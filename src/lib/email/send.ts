@@ -175,6 +175,22 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       );
 
       if (error) {
+        // An idempotency conflict is NOT a failure: Resend is telling us this
+        // key was already used, i.e. the first email went out. Retrying can
+        // never succeed (the key is spent), and falling through to the failure
+        // path would flag a perfectly good order `needs_contact` and log a
+        // phantom send failure. Seeded payloads make this rare, but any
+        // remaining nondeterminism (timestamps in a template, a menu edited
+        // between calls) lands here rather than corrupting order state.
+        if (/idempoten/i.test(error.message) || /idempoten/i.test(error.name ?? "")) {
+          logger.info("Email already sent for this idempotency key — treating as delivered", {
+            flowId,
+            orderId: options.orderId,
+            userId: options.userId,
+          });
+          return { success: true, suppressed: true };
+        }
+
         lastError = error.message;
         logger.warn(`Email send attempt ${attempt} failed`, {
           flowId,

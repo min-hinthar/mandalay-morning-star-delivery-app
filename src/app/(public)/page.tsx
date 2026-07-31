@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { Suspense, lazy } from "react";
 import { getFeaturedSections } from "@/lib/queries/sections";
-import { getBusinessRules } from "@/lib/settings";
+import { getBusinessRules, getDeliveryPricingConfig } from "@/lib/settings";
 import { serviceableCeilingMiles } from "@/lib/utils/order";
 import { getDeliveryStats } from "@/lib/queries/delivery-stats";
 import { HomePageWrapper } from "@/components/ui/homepage/HomePageWrapper";
@@ -149,16 +149,7 @@ export default async function HomePage(): Promise<ReactElement> {
         <RouteDayCallout
           deliveryDays={rules.deliveryDays}
           deliveryZones={rules.deliveryZones}
-          maxRadiusMiles={serviceableCeilingMiles({
-            localFeeCents: rules.deliveryFeeCents,
-            localRadiusMiles: rules.longDistanceThresholdMiles,
-            freeDeliveryThresholdCents: rules.freeDeliveryThresholdCents,
-            bands: rules.deliveryFeeBands,
-            standardRadiusMiles: rules.deliveryRadiusMiles,
-            extendedEnabled: rules.extendedDeliveryEnabled,
-            extendedPerMileCents: rules.extendedDeliveryPerMileCents,
-            maxRadiusMiles: rules.maxDeliveryRadiusMiles,
-          })}
+          maxRadiusMiles={serviceableCeilingMiles(getDeliveryPricingConfig(rules))}
           className="mx-auto max-w-3xl px-4 pt-4"
         />
 

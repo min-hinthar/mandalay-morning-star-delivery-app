@@ -113,6 +113,26 @@ describe("sendEmail suppression signal", () => {
     expect(sendMock).toHaveBeenCalledTimes(1);
   });
 
+  it("treats an idempotency conflict as already-delivered, not a failure", async () => {
+    // Resend returns this when the key was used with a different payload. The
+    // first email DID go out, so retrying is pointless and failing the send
+    // would flag a good order needs_contact.
+    sendMock.mockResolvedValue({
+      data: null,
+      error: { name: "invalid_idempotent_request", message: "Idempotency key already used" },
+    });
+
+    const result = await sendEmail({
+      ...options("order_confirmation"),
+      idempotencyKey: "confirmed-abc",
+    });
+
+    expect(result.success).toBe(true);
+    expect(result.suppressed).toBe(true);
+    // Crucially: no retry storm on a key that can never succeed.
+    expect(sendMock).toHaveBeenCalledTimes(1);
+  });
+
   it("a mandatory type ignores the opt-out but still obeys the kill switch", async () => {
     notificationPrefs = { order_updates: false };
     const delivered = await sendEmail(options("order_confirmation"));

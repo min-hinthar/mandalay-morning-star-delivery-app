@@ -46,7 +46,15 @@ export function RouteDayInvite({
   const dishes = featuredItems.filter((d) => d.name);
 
   return (
-    <EmailLayout emailType="marketing" previewText={`${headline} — ${cutoffText}`}>
+    <EmailLayout
+      emailType="marketing"
+      previewText={`${headline} — ${cutoffText}`}
+      // Awareness-only experiment: EmailLayout defaults referrals ON, which
+      // renders the "you both get $10" block — a monetary incentive in a
+      // campaign whose whole point is testing whether visibility alone
+      // converts. Leaving it on would confound the result.
+      showReferral={false}
+    >
       {/* Hero */}
       <Section
         className={cls.clayTint}
