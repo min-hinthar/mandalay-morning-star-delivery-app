@@ -74,7 +74,13 @@ export function getDirectionsForCoords(
   lng: number,
   zones: DeliveryZoneConfig[]
 ): Exclude<DeliveryDirection, "all">[] {
-  // Nearby addresses see all delivery days — direction filtering only matters for distant routes
+  // Nearby addresses see all delivery days — direction filtering only matters
+  // for distant routes. The EMPTY RETURN is the signal for that, and callers
+  // must read it through `addressServesDay`, never as `directions.includes(…)`:
+  // an empty list means "every direction", not "no direction". (This comment
+  // was true of intent but false of behavior until the consumers were fixed —
+  // both of them treated `[]` as matching nothing, which made a Covina-area
+  // customer Saturday-only in practice.)
   const distanceKm = calculateHaversineDistance(KITCHEN_COORDS.lat, KITCHEN_COORDS.lng, lat, lng);
   if (distanceKm <= NEARBY_RADIUS_KM) return [];
 
@@ -135,18 +141,58 @@ function angleDifference(a: number, b: number): number {
 }
 
 /**
+ * Can an address with these directions order on a day running `dayDirection`?
+ *
+ * THE EMPTY LIST IS NOT "NO DIRECTIONS" — it is "every direction".
+ * `getDirectionsForCoords` returns `[]` for an address inside
+ * NEARBY_RADIUS_KM on purpose: a stop that close is a short detour from any
+ * route, so it doesn't need to sit in the run's bearing wedge to be servable.
+ * Reading `[]` as "matches nothing" is what limited nearby customers to the
+ * Saturday `all` run and failed their Mon/Wed/Thu checkout with a direction
+ * mismatch, contradicting the helper's own contract.
+ *
+ * Every direction gate must route through here rather than testing
+ * `directions.includes(...)` itself, or the two halves drift again: the day
+ * picker offering a date that checkout then rejects is exactly the bug this
+ * replaces.
+ *
+ * (Within a configured zone set, `[]` can only mean nearby — `findAdjacentZones`
+ * returns `[]` only when there are no zones at all, and every caller guards on
+ * `zones.length > 0`.)
+ */
+export function addressServesDay(
+  directions: Exclude<DeliveryDirection, "all">[],
+  dayDirection: DeliveryDirection | null | undefined
+): boolean {
+  // The `all` run serves everyone.
+  if (dayDirection === "all") return true;
+  // An absent direction is a CONFIG GAP, not a run that serves everyone —
+  // `direction` is optional on DeliveryDayConfig. Both the old filter and the
+  // old checkout gate dropped these (neither `=== "all"` nor a member of the
+  // list), and route-awareness depends on that: treating undefined as
+  // all-serving would let the banner advertise a run checkout then refuses.
+  // Unchanged on purpose.
+  if (dayDirection == null) return false;
+  // Nearby: every route passes close enough. This is the behavior change.
+  if (directions.length === 0) return true;
+  return directions.includes(dayDirection as Exclude<DeliveryDirection, "all">);
+}
+
+/**
  * Filter delivery days to those matching customer's direction(s).
- * Days with direction 'all' (Saturday) are always included.
+ * Days with direction 'all' (Saturday) are always included, and a nearby
+ * address (empty direction list) keeps every day — see `addressServesDay`.
  */
 export function filterDaysByDirection(
   directions: Exclude<DeliveryDirection, "all">[],
   deliveryDays: DeliveryDayConfig[]
 ): DeliveryDayConfig[] {
-  return deliveryDays.filter(
-    (day) =>
-      day.direction === "all" ||
-      directions.includes(day.direction as Exclude<DeliveryDirection, "all">)
-  );
+  return deliveryDays.filter((day) => addressServesDay(directions, day.direction));
+}
+
+/** True when this address is close enough that direction filtering doesn't apply. */
+export function isNearbyAddress(directions: Exclude<DeliveryDirection, "all">[]): boolean {
+  return directions.length === 0;
 }
 
 /** Human-readable label for a direction */

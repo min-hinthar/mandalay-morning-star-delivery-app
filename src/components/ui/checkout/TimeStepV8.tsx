@@ -110,9 +110,15 @@ export function TimeStepV8({
     return getDirectionsForCoords(address.lat, address.lng, deliveryZones);
   }, [address?.lat, address?.lng, deliveryZones]);
 
-  // Filter delivery days by direction when available
+  // Filter delivery days by direction when available.
+  //
+  // `undefined` = no placeable address yet, so offer everything. An EMPTY array
+  // is a placed, NEARBY address — which now keeps every day through
+  // filterDaysByDirection rather than bypassing the filter. Bypassing it used
+  // to also keep days with NO configured direction, which checkout rejects:
+  // the customer picked one and got a direction-mismatch error at submit.
   const filteredDays = useMemo(() => {
-    if (!addressDirections || addressDirections.length === 0) return deliveryDays;
+    if (!addressDirections) return deliveryDays;
     return filterDaysByDirection(addressDirections, deliveryDays);
   }, [addressDirections, deliveryDays]);
 
