@@ -4,9 +4,49 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-06-24._
+_Last reconciled: 2026-07-31._
 
-## In flight
+## In flight — issue-backlog sweep 2026-07-31 (one PR per open issue, all draft, all awaiting owner merge-go)
+
+All five opened in one session off `main` (independent, no stacking). Owner decisions
+captured: **#210 nearby sees every day**; **#209 keep opt-out + one-click unsubscribe**
+(so #217 is a prerequisite for scheduling the route-day cron). Extended floor stays **$100**
+(matches `extendedMinOrderCents: 10000` default + admin setting). Every auto-review finding
+across the five was fixed or explicitly justified in-PR; each PR body carries the verdict.
+
+- **#213 — route_day_invite notification_type enum** (closes #208, branch
+  `claude/route-day-invite-notification-type`). Migration + local `gen:types` (drift guard
+  green); type moves into `CustomerEmailType`; both `notification_logs` inserts null a
+  non-uuid synthetic `order_id` (verified vs local DB: the enum move alone would 22P02
+  every marketing row). Deliberately did NOT widen `MAX_HOURS_BEFORE_CUTOFF` — a log row
+  is an audit trail, not a dedupe guard; needs a pre-send read first. **Apply the migration
+  at/before deploy** or audit rows silently drop (send still succeeds).
+- **#214 — nearby customers order every delivery day** (closes #210, branch
+  `claude/nearby-all-delivery-days`). One shared predicate `addressServesDay` behind ALL
+  direction gates (picker + checkout gate + date engine + homepage coverage checker —
+  the 4th consumer was an auto-review catch). `[]` = nearby = every direction; missing
+  `direction` still drops (config gap); unplaced (`undefined`) still quotes `all`-runs only.
+- **#215 — settings PATCH validation actually enforces** (closes #207, branch
+  `claude/settings-validation-enforce`). camelCase-vs-snake_case made every bound inert;
+  one `toSnakeCaseKeys` normalizer inside the schema so validated keys == stored keys.
+  Errors name fields in the toast string. NOTE: whole-category saves mean a pre-existing
+  out-of-bounds stored value would 400 that tab's save — local rows verified in-bounds,
+  prod spot-check is cheap if a save 400s post-merge.
+- **#216 — per-attempt Resend timeout** (closes #211, branch `claude/send-attempt-timeout`).
+  AbortController per attempt (owned timer — Resend swallows aborts); timeout = retryable,
+  same key → `invalid_idempotent_request` = delivered; cron reserve now counts request time
+  (3s ceiling, key-gated at the TYPE level: `attemptTimeoutMs` requires `idempotencyKey`).
+  `resend` pinned `~6.9.x` — the signal rides an UNDECLARED options-spread; a bump must
+  re-verify `post()` still spreads or the timeout silently no-ops.
+- **#217 — one-click unsubscribe, RFC 8058** (closes #209, branch
+  `claude/one-click-unsubscribe`). HMAC token `userId.prefKey.sig`, no expiry, allow-listed
+  keys, off-only. **GET NEVER MUTATES** (auto-review Major: Safe Links/Proofpoint GET-prefetch
+  every email URL with the real token — GET renders a confirm form that POSTs). Mandatory
+  types + admin compose deliberately stay on the plain settings link. **Owner: set
+  `UNSUBSCRIBE_TOKEN_SECRET` in Vercel before the first marketing send** (unset = dormant,
+  fails closed; rotation kills outstanding links).
+
+## In flight (older)
 
 - **#194 — holistic-audit security fixes** (branch `claude/app-ui-security-branding-ezpqkq`, **draft**).
   Cross-repo adversarial audit (`docs/holistic-improvement-plan.md`). Three confirmed fixes: (1) **stored XSS**
