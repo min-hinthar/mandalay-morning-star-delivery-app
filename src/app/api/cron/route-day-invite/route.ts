@@ -287,13 +287,20 @@ export async function GET(request: Request) {
       }
     }
 
+    // sendEmail returns {success:false} after exhausting retries WITHOUT
+    // throwing, so a run where every send hard-fails would otherwise report
+    // sent: 0 — indistinguishable from "everyone was suppressed". This type
+    // writes no notification_logs row, so this summary is the only structured
+    // signal an operator gets.
+    const failed = toSend.length - sent;
     logger.info("Route-day invites processed", {
       flowId: FLOW_ID,
       candidates: candidates.length,
       planned: toSend.length,
       sent,
+      failed,
     });
-    return NextResponse.json({ ok: true, candidates: candidates.length, sent, skipped });
+    return NextResponse.json({ ok: true, candidates: candidates.length, sent, failed, skipped });
   } catch (error) {
     logger.exception(error, { flowId: FLOW_ID, api: "cron" });
     return apiError("INTERNAL_ERROR", "Route-day invite run failed", 500);
