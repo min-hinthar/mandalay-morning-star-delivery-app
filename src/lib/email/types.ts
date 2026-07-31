@@ -34,7 +34,7 @@ export type EmailType =
   | "feedback_confirmation"
   | "admin_route_decline";
 
-export interface SendEmailOptions {
+interface SendEmailBaseOptions {
   to: string;
   subject: string;
   react: React.ReactElement;
@@ -45,6 +45,36 @@ export interface SendEmailOptions {
   /** If true, email is sent regardless of user preferences */
   mandatory?: boolean;
 }
+
+/**
+ * Lowering the per-attempt ceiling REQUIRES an idempotency key — enforced by
+ * the compiler, not by a comment.
+ *
+ * Aborting a request Resend may already have ACCEPTED and then retrying is
+ * exactly what the key makes safe. Without one, a tighter ceiling buys bounded
+ * duration at the cost of possibly mailing a customer twice, and that trade is
+ * not one a caller should be able to make by accident. Every caller passes a
+ * key today, so this costs nothing now — it exists so a future keyless caller
+ * can't silently inherit the risk.
+ *
+ * The default (`SEND_ATTEMPT_TIMEOUT_MS`, 15s) is deliberately generous for
+ * exactly the same reason: it's the ceiling a keyless send gets.
+ */
+export type SendEmailOptions = SendEmailBaseOptions &
+  (
+    | { attemptTimeoutMs?: undefined }
+    | {
+        /**
+         * Override the per-attempt request ceiling. Requires `idempotencyKey`.
+         *
+         * The bulk cron lowers it, because a per-recipient ceiling is what
+         * makes its wall-clock budget sound, and every one of its sends is
+         * key-protected.
+         */
+        attemptTimeoutMs: number;
+        idempotencyKey: string;
+      }
+  );
 
 export interface SendEmailResult {
   success: boolean;

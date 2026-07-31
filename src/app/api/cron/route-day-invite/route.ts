@@ -116,9 +116,40 @@ export const maxDuration = 60;
  * budget is therefore maxDuration minus that worst case, and `startedAt` is
  * stamped at request entry so slow setup queries eat into it rather than being
  * free.
+ *
+ * The sleeps were only HALF the worst case. Each attempt also makes a request,
+ * and until a per-attempt ceiling existed that request was unbounded — so no
+ * reserve could ever be sufficient and this arithmetic was quietly optimistic.
+ * The request time is now bounded too, and counted here.
+ *
+ * ATTEMPT_TIMEOUT_MS is deliberately tighter than sendEmail's 15s default. That
+ * default is generous because aborting a request Resend may already have
+ * ACCEPTED and then retrying can DUPLICATE mail for a caller with no
+ * idempotency key. Every send in this loop carries a stable
+ * `route-day-<date>-<userId>` key, so a retry after an abort is deduped by
+ * Resend — which is exactly what makes a tight ceiling safe HERE and not in
+ * general. 3s also keeps the reserve small enough to leave a usable send
+ * window: at 15s the reserve would be 30s + 45s = 75s, past maxDuration
+ * entirely, and the loop would refuse to send anything at all.
  */
-const WORST_CASE_SEND_MS =
+const ATTEMPT_TIMEOUT_MS = 3_000;
+const WORST_CASE_BACKOFF_MS =
   MAX_RETRY_ATTEMPTS * (MAX_RETRY_ATTEMPTS - 1) * (RETRY_BASE_DELAY_MS / 2);
+// The trailing stagger sleep is part of a recipient's worst case too — without
+// it here, the pathological last send (budget-boundary start + three full-3s
+// aborts + the whole flat headroom spent on renders/reads) lands exactly AT
+// maxDuration and the stagger tips it past. Counting it buys the margin the
+// headroom comment claims.
+const WORST_CASE_SEND_MS =
+  WORST_CASE_BACKOFF_MS + MAX_RETRY_ATTEMPTS * ATTEMPT_TIMEOUT_MS + STAGGER_DELAY_MS;
+// The flat headroom absorbs the per-recipient work that is NOT under the
+// attempt ceiling: sendEmail renders the template twice (HTML + plain text)
+// and does two Supabase reads (kill switch + prefs) before the bounded call,
+// plus the response/log writes after it. All sub-second in practice, so 5s
+// covers the one last-started send this reserve exists for. If any of that
+// ever grows past ~1s per recipient (a heavy template, a slow region), grow
+// this — the budget is only a hard ceiling while everything outside the
+// bounded call fits in here.
 const SEND_BUDGET_MS = maxDuration * 1000 - WORST_CASE_SEND_MS - 5_000;
 
 function isAuthorized(request: Request): boolean {
@@ -570,6 +601,10 @@ export async function GET(request: Request) {
           // sending. So the key is still what makes a re-run for the same
           // customer + delivery date one send.
           idempotencyKey: `route-day-${p.date}-${p.c.userId}`,
+          // Safe to tighten only because of the stable key on the line above:
+          // an aborted-then-retried request is deduped by Resend rather than
+          // mailing the customer twice. SEND_BUDGET_MS reserves exactly this.
+          attemptTimeoutMs: ATTEMPT_TIMEOUT_MS,
         });
         // `success` alone can't answer "did mail go out?" — the admin kill
         // switch and an opt-out both short-circuit to success WITHOUT calling
