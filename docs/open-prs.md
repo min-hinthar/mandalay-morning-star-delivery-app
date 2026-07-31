@@ -6,13 +6,25 @@
 
 _Last reconciled: 2026-07-31._
 
-## In flight — issue-backlog sweep 2026-07-31 (one PR per open issue, all draft, all awaiting owner merge-go)
+## Recently closed — issue-backlog sweep 2026-07-31 (ALL FIVE MERGED on the owner's "Merge all thoughtfully")
 
-All five opened in one session off `main` (independent, no stacking). Owner decisions
-captured: **#210 nearby sees every day**; **#209 keep opt-out + one-click unsubscribe**
-(so #217 is a prerequisite for scheduling the route-day cron). Extended floor stays **$100**
-(matches `extendedMinOrderCents: 10000` default + admin setting). Every auto-review finding
-across the five was fixed or explicitly justified in-PR; each PR body carries the verdict.
+Merged in dependency-safe order — #214 (`3c454a3`), #215 (`43537b6`), #213 (`6cbcb11`),
+then the email trio's remaining two with a main-merge + full local re-verify + green CI
+between each: #216 (`808ff55`), #217 (`d1a699c`). The trio shares `send.ts`/`types.ts`/the
+cron; both branch updates auto-merged cleanly and the combined suite passed at every step
+(final: 1470 tests). Owner decisions captured: **#210 nearby sees every day**; **#209 keep
+opt-out + one-click unsubscribe**. Extended floor stays **$100**. Every auto-review finding
+across the five was fixed or explicitly justified in-PR (~15 findings over the sweep,
+including two real saves: the #217 GET-prefetch scanner hole and #214's fourth
+`[]`-direction consumer).
+
+> **Two OWNER ACTIONS still open (both gate the route-day cron, nothing else):**
+>
+> 1. **Apply #213's migration to prod** (`ALTER TYPE notification_type ADD VALUE IF NOT
+EXISTS 'route_day_invite';` — Supabase Studio SQL editor works; the delivery DB is
+>    not MCP-reachable from sessions). Until then nothing emits the type, so it's inert.
+> 2. **Set `UNSUBSCRIBE_TOKEN_SECRET` in Vercel** (`openssl rand -base64 32`) before the
+>    first marketing send — unset = one-click dormant, mail falls back to the settings link.
 
 - **#213 — route_day_invite notification_type enum** (closes #208, branch
   `claude/route-day-invite-notification-type`). Migration + local `gen:types` (drift guard
