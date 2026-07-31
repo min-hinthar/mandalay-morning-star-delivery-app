@@ -21,7 +21,13 @@ export type EmailType =
   | "admin_daily_digest"
   | "admin_feedback_alert"
   | "feedback_confirmation"
-  | "admin_route_decline";
+  | "admin_route_decline"
+  // Marketing: "we're driving your way" route-day invite. Deliberately NOT a
+  // CustomerEmailType — the `notification_type` DB enum has no value for it, and
+  // adding one needs a migration + `gen:types` (Docker) to satisfy the blocking
+  // db-drift job. Until then it's in UNLOGGED_EMAIL_TYPES and dedupes on a
+  // stable Resend idempotency key instead of a notification_logs row.
+  | "route_day_invite";
 
 export interface SendEmailOptions {
   to: string;
@@ -55,13 +61,18 @@ export const MANDATORY_EMAIL_TYPES: readonly EmailType[] = [
   "admin_route_decline",
 ] as const;
 
-/** Admin-only email types that are not logged to notification_logs (DB enum excludes them). */
+/**
+ * Email types NOT written to notification_logs, because the `notification_type`
+ * DB enum has no value for them. Mostly admin mail; `route_day_invite` is here
+ * for the same reason (see its note on EmailType) despite being customer-facing.
+ */
 export const ADMIN_EMAIL_TYPES: readonly EmailType[] = [
   "admin_new_order",
   "admin_daily_digest",
   "admin_feedback_alert",
   "feedback_confirmation",
   "admin_route_decline",
+  "route_day_invite",
 ] as const;
 
 // ===========================================
@@ -90,5 +101,8 @@ export function mapTypeToPrefKey(type: EmailType): keyof NotificationPrefs {
     case "feedback_confirmation":
     case "admin_route_decline":
       return "order_updates";
+    // Promotional — gated on the marketing opt-in, never mandatory.
+    case "route_day_invite":
+      return "marketing";
   }
 }

@@ -12,6 +12,7 @@ import { CTABanner } from "@/components/ui/homepage/CTABanner";
 import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import { FooterCTA } from "@/components/ui/homepage/FooterCTA";
 import { SettingsNudgeBanner } from "@/components/ui/homepage/SettingsNudgeBanner";
+import { RouteDayCallout } from "@/components/ui/delivery";
 import { RewardsWelcomeBack } from "@/components/ui/homepage/RewardsWelcomeBack";
 import type { FeaturedSectionWithItems } from "@/types/featured-sections";
 
@@ -140,6 +141,13 @@ export default async function HomePage(): Promise<ReactElement> {
           nextDeliveryDate={deliveryStats.nextDeliveryDate}
           featuredDishes={featuredDishes}
         />
+
+        {/* "We're driving your way" — next run that actually serves this
+            customer's address + its ordering deadline (schedule-derived, so it
+            never references other customers' orders). */}
+        <div className="mx-auto max-w-3xl px-4 pt-4">
+          <RouteDayCallout deliveryDays={rules.deliveryDays} deliveryZones={rules.deliveryZones} />
+        </div>
 
         {/* Rewards welcome-back pill - signed-in customers with Stars (client) */}
         <RewardsWelcomeBack />
