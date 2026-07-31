@@ -174,7 +174,15 @@ export async function checkCoverage(
       }
 
       // Fallback for a store with no delivery_days configured at all.
-      if (days.length === 0) {
+      //
+      // Gated on the CONFIG being empty, not on `days` coming back empty. Those
+      // differ in one case: a store whose active days all lack a `direction`.
+      // There, `days` is empty because the config genuinely serves nobody by
+      // direction — advertising legacy Mon/Wed/Thu instead would quote days
+      // that aren't configured at all. Saying nothing is the honest answer, and
+      // it matches what checkout does with those days (rejects them).
+      const hasConfiguredDays = rules.deliveryDays.some((dd) => dd.isActive);
+      if (!hasConfiguredDays) {
         const LEGACY_DAY_NAMES: Record<string, string> = {
           east: "Monday",
           west: "Wednesday",

@@ -365,6 +365,17 @@ describe("checkCoverage eligible days for a NEARBY address", () => {
     expect(result.eligibleDays).toEqual(["Saturday"]);
   });
 
+  it("does NOT fall back to legacy days when days ARE configured but all lack a direction", async () => {
+    // The fallback is for "no config at all". Here the config exists and
+    // genuinely serves nobody by direction, so quoting legacy Mon/Wed/Thu would
+    // advertise days that aren't configured — and checkout rejects them anyway.
+    const result = await coverageWithDays(NEARBY_LAT, NEARBY_LNG, [
+      { id: "1", dayOfWeek: 2, direction: undefined, isActive: true },
+    ]);
+
+    expect(result.eligibleDays).toEqual([]);
+  });
+
   it("falls back to every legacy run when no delivery days are configured", async () => {
     // Previously the fallback was gated on `dirs.length > 0`, so a nearby
     // address with no config got an EMPTY list — no days at all.
