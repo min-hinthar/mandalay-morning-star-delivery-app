@@ -41,13 +41,20 @@ const FLOW_ID = "route-day-invite";
  * Only nudge when the deadline is close enough to be actionable, but not past.
  *
  * The upper bound is deliberately kept well inside Resend's ~24h
- * Idempotency-Key TTL. This type writes no notification_logs row (the
- * notification_type enum has no value for it), so that key is the ONLY thing
- * preventing a duplicate send — a window wider than the TTL lets the key age
- * out while a customer is still inside the window, and they get mailed twice
- * for the same delivery date. Trade-off: with a once-daily cron, cutoffs
- * landing outside 2–20h are simply not nudged. A missed nudge is much cheaper
- * than a duplicate marketing email. Exact-once arrives with the enum migration.
+ * Idempotency-Key TTL, because that key is still the ONLY thing preventing a
+ * duplicate send — a window wider than the TTL lets the key age out while a
+ * customer is still inside the window, and they get mailed twice for the same
+ * delivery date. Trade-off: with a once-daily cron, cutoffs landing outside
+ * 2–20h are simply not nudged. A missed nudge is much cheaper than a duplicate
+ * marketing email.
+ *
+ * The notification_type enum now HAS a route_day_invite value, so each send
+ * finally writes a notification_logs row — but that alone changes nothing
+ * here. A written row is an audit trail, not a guard: widening this window
+ * safely needs a pre-send READ of notification_logs (does a route_day_invite
+ * row already exist for this user + delivery date?) to replace the Resend key
+ * as the dedupe mechanism. Until that check exists, keep the cap inside the
+ * TTL — the row is a necessary condition for exact-once, not a sufficient one.
  */
 const MIN_HOURS_BEFORE_CUTOFF = 2;
 const MAX_HOURS_BEFORE_CUTOFF = 20;
@@ -584,12 +591,15 @@ export async function GET(request: Request) {
             featuredItems,
           }),
           type: "route_day_invite",
-          // No order exists yet; orderId is only used for tagging/logging and
-          // this type is not written to notification_logs.
+          // No order exists yet. This is a synthetic handle for Resend's
+          // `order_id` tag only — sendEmail nulls it before it reaches
+          // notification_logs.order_id, which is a uuid column.
           orderId: `route-${p.date}`,
           userId: p.c.userId,
-          // Stable key = the dedupe (no notification_logs row for this type):
-          // a re-run for the same customer + delivery date is one send.
+          // Stable key = THE dedupe. The notification_logs row this type now
+          // writes is an audit trail, not a guard: nothing reads it before
+          // sending. So the key is still what makes a re-run for the same
+          // customer + delivery date one send.
           idempotencyKey: `route-day-${p.date}-${p.c.userId}`,
           // Safe to tighten only because of the stable key on the line above:
           // an aborted-then-retried request is deduped by Resend rather than
@@ -599,7 +609,8 @@ export async function GET(request: Request) {
         // `success` alone can't answer "did mail go out?" — the admin kill
         // switch and an opt-out both short-circuit to success WITHOUT calling
         // Resend. Counting those as sent would report a full run while mailing
-        // nobody, and this type writes no notification_logs row to contradict it.
+        // nobody, and a suppressed send returns before Step 5, so no
+        // notification_logs row exists to contradict it either.
         if (result.suppressed) suppressed++;
         else if (result.success) sent++;
       } catch (err) {
@@ -612,9 +623,11 @@ export async function GET(request: Request) {
 
     // sendEmail returns {success:false} after exhausting retries WITHOUT
     // throwing, so a run where every send hard-fails would otherwise report
-    // sent: 0 — indistinguishable from "everyone was suppressed". This type
-    // writes no notification_logs row, so this summary is the only structured
-    // signal an operator gets.
+    // sent: 0 — indistinguishable from "everyone was suppressed". This summary
+    // is the RUN-level signal: notification_logs now records the sends that
+    // happened, but a suppressed or never-attempted recipient writes no row at
+    // all, so the log alone can't tell "mailed nobody" from "mailed no one
+    // yet". Only these counters carry that.
     //
     // `failed` counts only sends we actually ATTEMPTED — anything left after an
     // early stop is `remaining`, not a failure, and conflating them would make

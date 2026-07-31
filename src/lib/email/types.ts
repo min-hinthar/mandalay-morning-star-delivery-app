@@ -12,7 +12,18 @@ export type CustomerEmailType =
   | "delivery_reminder"
   | "out_for_delivery"
   | "arriving_soon"
-  | "delivered";
+  | "delivered"
+  // Marketing: "we're driving your way" route-day invite. The app's only
+  // outbound marketing send, and now a real logged type — the enum value
+  // landed in 20260731210000_add_route_day_invite_notification_type.sql, so a
+  // notification_logs row can finally record who was mailed and when.
+  //
+  // It stays in NO_CC_EMAIL_TYPES (that suppression is deliberate: a bulk run
+  // would otherwise put an internal address in up to 100 customers' CC
+  // headers), and it is NOT mandatory — mapTypeToPrefKey routes it to the
+  // `marketing` opt-out, which is what makes the opt-out consent model
+  // defensible.
+  | "route_day_invite";
 
 /** All email types, including admin-only types not stored in notification_logs. */
 export type EmailType =
@@ -21,13 +32,7 @@ export type EmailType =
   | "admin_daily_digest"
   | "admin_feedback_alert"
   | "feedback_confirmation"
-  | "admin_route_decline"
-  // Marketing: "we're driving your way" route-day invite. Deliberately NOT a
-  // CustomerEmailType — the `notification_type` DB enum has no value for it, and
-  // adding one needs a migration + `gen:types` (Docker) to satisfy the blocking
-  // db-drift job. Until then it's in UNLOGGED_EMAIL_TYPES and dedupes on a
-  // stable Resend idempotency key instead of a notification_logs row.
-  | "route_day_invite";
+  | "admin_route_decline";
 
 interface SendEmailBaseOptions {
   to: string;
@@ -104,13 +109,16 @@ export const MANDATORY_EMAIL_TYPES: readonly EmailType[] = [
 
 /**
  * Email types NOT written to notification_logs, because the `notification_type`
- * DB enum has no value for them. Mostly admin mail; `route_day_invite` is here
- * for the same reason (see its note on EmailType) despite being customer-facing.
+ * DB enum has no value for them.
  *
  * Named for what it does — NOT "admin only". Membership must never be read as
  * "send to an admin" or "skip the customer opt-out": the opt-out is enforced
- * independently in Step 2 via MANDATORY_EMAIL_TYPES + mapTypeToPrefKey, and
- * `route_day_invite` (marketing) genuinely depends on that check running.
+ * independently in Step 2 via MANDATORY_EMAIL_TYPES + mapTypeToPrefKey.
+ *
+ * This list must stay the exact complement of CustomerEmailType within
+ * EmailType — every type the enum knows about gets logged, every type it
+ * doesn't must be listed here or the insert throws 22P02/enum-mismatch inside
+ * the retry loop and reads as a send failure.
  */
 export const UNLOGGED_EMAIL_TYPES: readonly EmailType[] = [
   "admin_new_order",
@@ -118,7 +126,6 @@ export const UNLOGGED_EMAIL_TYPES: readonly EmailType[] = [
   "admin_feedback_alert",
   "feedback_confirmation",
   "admin_route_decline",
-  "route_day_invite",
 ] as const;
 
 // ===========================================

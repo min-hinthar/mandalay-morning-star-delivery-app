@@ -1,16 +1,70 @@
 import { z } from "zod";
 
 // ===========================================
+// KEY NORMALIZATION
+// ===========================================
+
+/**
+ * camelCase → snake_case on TOP-LEVEL KEYS ONLY, leaving values untouched.
+ *
+ * The admin settings PATCH stores snake_case keys but the client sends
+ * camelCase, and the two conventions used to be reconciled only in the storage
+ * loop — validation ran against the raw camelCase body, matched nothing, and
+ * every bound was inert. Both paths now go through this one function so they
+ * cannot diverge again.
+ *
+ * Two properties this MUST keep:
+ *
+ * 1. TOP-LEVEL ONLY. Nested items are camelCase — `delivery_fee_bands` items
+ *    are `{ maxMiles, feeCents }` (confirmed against the stored value), and the
+ *    admin client's zone type is `{ name, feeCents, description }`. A deep
+ *    conversion would rewrite those to snake_case and fail
+ *    `deliveryFeeBandSchema`, rejecting every bands save.
+ *
+ * 2. IDEMPOTENT. Callers already mix conventions — `DeliveryDaysManager`
+ *    PATCHes `{ cod_enabled }` in snake_case while `SettingsClient` sends
+ *    camelCase. A key with no uppercase left is unchanged by a second pass,
+ *    which is exactly why the storage loop survived the mixed convention.
+ */
+export function toSnakeCaseKeys(settings: Record<string, unknown>): Record<string, unknown> {
+  const out: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(settings)) {
+    out[key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)] = value;
+  }
+  return out;
+}
+
+// ===========================================
 // SHARED SCHEMAS
 // ===========================================
 
 const hhmmRegex = /^([01]\d|2[0-3]):([0-5]\d)$/;
 
-export const deliveryZoneSchema = z.object({
-  name: z.string().min(1),
-  fee_cents: z.number().min(0),
-  description: z.string(),
-});
+/**
+ * The `app_settings.delivery_zones` blob (name/fee/description) — NOT the
+ * `delivery_zones` TABLE that drives direction routing, which is a different
+ * shape entirely (bearings).
+ *
+ * The fee key accepts BOTH conventions on purpose. This schema was written
+ * `fee_cents`, but the admin client's `DeliveryZone` type is `feeCents` and
+ * nothing in the app emits `fee_cents` — so now that the schema is live
+ * (previously inert), requiring snake_case would 400 any zone the client ever
+ * saved. There is no zones editor and no `app_settings.delivery_zones` row
+ * today, so rather than guess which convention a future or pre-existing row
+ * uses, accept either and require one. `toSnakeCaseKeys` deliberately does not
+ * reach nested keys, so neither is rewritten on the way in.
+ */
+export const deliveryZoneSchema = z
+  .object({
+    name: z.string().min(1),
+    description: z.string(),
+    feeCents: z.number().min(0).optional(),
+    fee_cents: z.number().min(0).optional(),
+  })
+  .refine((zone) => zone.feeCents != null || zone.fee_cents != null, {
+    message: "Zone must define a fee (feeCents or fee_cents)",
+    path: ["feeCents"],
+  });
 
 /** A single graduated distance band: flat fee up to `maxMiles`. */
 export const deliveryFeeBandSchema = z.object({
@@ -47,7 +101,10 @@ export const deliveryTimeWindowSchema = z.object({
 /** Base delivery settings object (used for .partial() in update validation) */
 export const deliverySettingsBaseSchema = z.object({
   delivery_radius_miles: z.number().min(1).max(100),
-  minimum_order_cents: z.number().min(0),
+  // Bounds mirror the admin form's own validator (`validateDeliveryField`), so
+  // a direct API PATCH can't persist what the UI refuses to accept. Before the
+  // key-normalization fix these never ran at all.
+  minimum_order_cents: z.number().min(0).max(10_000),
   free_delivery_threshold_cents: z.number().min(0),
   base_delivery_fee_cents: z.number().min(0),
   cutoff_day: z.number().int().min(0).max(6), // 0=Sunday..6=Saturday
@@ -64,13 +121,10 @@ export const deliverySettingsBaseSchema = z.object({
   extended_delivery_per_mile_cents: z.number().int().min(0).max(100_000).optional(),
   max_delivery_radius_miles: z.number().min(1).max(100).optional(),
   // Matches the admin form's own cap (validateDeliveryField: $500) so a direct
-  // API set can't exceed what the UI allows.
-  // NOTE: this schema is currently INERT for every field — the PATCH route
-  // safeParses the request BEFORE snake-casing, and the client sends camelCase,
-  // so no key ever matches and the parse yields {}. Fixing that would start
-  // enforcing bounds across all delivery settings at once (a behavior change
-  // beyond this PR); tracked in issue #207. The real bounds today are the
-  // client validator and the checkout gate.
+  // API set can't exceed what the UI allows. This bound — and every other one
+  // in this schema — is LIVE as of #207; it was previously inert because the
+  // route parsed the camelCase body against these snake_case keys, matched
+  // nothing, and got `success: true` with `data: {}`.
   extended_min_order_cents: z.number().int().min(0).max(50_000).optional(),
 });
 
@@ -112,6 +166,10 @@ export const notificationSettingsSchema = z.object({
   notify_on_order_status_change: z.boolean().optional(),
   low_stock_threshold: z.number().min(0).max(1000).optional(),
   daily_summary_enabled: z.boolean().optional(),
+  // The global email kill switch (`sendEmail` Step 1 reads this key). It was
+  // stored but never described here, so it passed validation only because the
+  // category schemas are non-strict — i.e. by accident.
+  email_sending_enabled: z.boolean().optional(),
 });
 
 export type NotificationSettings = z.infer<typeof notificationSettingsSchema>;
@@ -124,29 +182,50 @@ export const settingsCategorySchema = z.enum(["delivery", "operations", "notific
 
 export type SettingsCategory = z.infer<typeof settingsCategorySchema>;
 
+const CATEGORY_SCHEMAS = {
+  delivery: deliverySettingsBaseSchema,
+  operations: operationsSettingsSchema,
+  notifications: notificationSettingsSchema,
+} as const;
+
+/**
+ * `settings` keys are normalized to snake_case BEFORE the category check, and
+ * the normalized object is what `.data` returns — so the PATCH route's storage
+ * loop writes exactly the keys that were validated. Validating one convention
+ * and storing another is what made every bound inert.
+ *
+ * `superRefine` (not `refine`) so a rejection names the offending field:
+ * `settings.extended_min_order_cents: Too big` instead of a blanket "Invalid
+ * settings for the specified category" that tells an admin nothing about which
+ * of a dozen values they got wrong.
+ */
 export const updateSettingsSchema = z
   .object({
     category: settingsCategorySchema,
-    settings: z.record(z.string(), z.unknown()),
+    settings: z.record(z.string(), z.unknown()).transform(toSnakeCaseKeys),
   })
-  .refine(
-    (data) => {
-      // Validate settings based on category
-      switch (data.category) {
-        case "delivery":
-          return deliverySettingsBaseSchema.partial().safeParse(data.settings).success;
-        case "operations":
-          return operationsSettingsSchema.partial().safeParse(data.settings).success;
-        case "notifications":
-          return notificationSettingsSchema.partial().safeParse(data.settings).success;
-        default:
-          return false;
-      }
-    },
-    {
-      message: "Invalid settings for the specified category",
+  .superRefine((data, ctx) => {
+    // Defensive: on zod 4.3.5 this refinement does NOT run when the category
+    // enum already failed (verified — safeParse returns a clean `false`), so
+    // `schema` is always defined today. But that's a continuation-semantics
+    // detail of zod, not a guarantee of ours: if a future version ran the
+    // refinement anyway, `CATEGORY_SCHEMAS[bad]` would be undefined and
+    // `.partial()` would throw a TypeError that safeParse does NOT trap —
+    // surfacing as a 500 from the route's outer catch instead of a 400.
+    const schema = CATEGORY_SCHEMAS[data.category];
+    if (!schema) return;
+
+    const result = schema.partial().safeParse(data.settings);
+    if (result.success) return;
+
+    for (const issue of result.error.issues) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["settings", ...issue.path],
+        message: issue.message,
+      });
     }
-  );
+  });
 
 export type UpdateSettingsInput = z.infer<typeof updateSettingsSchema>;
 

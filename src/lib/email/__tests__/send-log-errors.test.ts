@@ -59,13 +59,13 @@ vi.mock("@/lib/supabase/server", () => ({
 
 const { sendEmail } = await import("../send");
 
-function options(type = "order_confirmation") {
+function options(type = "order_confirmation", orderId = "11111111-2222-3333-4444-555555555555") {
   return {
     to: "customer@example.com",
     subject: "Subject",
     react: React.createElement("div"),
     type,
-    orderId: "11111111-2222-3333-4444-555555555555",
+    orderId,
     userId: "user-1",
   } as Parameters<typeof sendEmail>[0];
 }
@@ -175,6 +175,29 @@ describe("sendEmail notification_logs failures", () => {
 
     expect(insertMock).not.toHaveBeenCalled();
     expect(loggerMock.warn).not.toHaveBeenCalled();
+  });
+
+  it("nulls a synthetic order handle rather than sending it to a uuid column", async () => {
+    // route_day_invite is a logged type now, but it has no order — the cron
+    // passes `route-<date>` purely for tagging. notification_logs.order_id is
+    // a uuid column, so passing that string straight through would make
+    // Postgres reject every marketing row with 22P02.
+    await sendEmail(options("route_day_invite", "route-2026-08-05"));
+
+    expect(insertMock).toHaveBeenCalledTimes(1);
+    const row = insertMock.mock.calls[0][1] as Record<string, unknown>;
+    expect(row.order_id).toBeNull();
+    // The fields an opt-out / spam-complaint audit actually needs survive.
+    expect(row.user_id).toBe("user-1");
+    expect(row.notification_type).toBe("route_day_invite");
+    expect(row.recipient).toBe("customer@example.com");
+  });
+
+  it("keeps a real order id intact", async () => {
+    await sendEmail(options());
+
+    const row = insertMock.mock.calls[0][1] as Record<string, unknown>;
+    expect(row.order_id).toBe("11111111-2222-3333-4444-555555555555");
   });
 
   it("surfaces a dropped FAILURE row after every retry is exhausted", async () => {
