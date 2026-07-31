@@ -6,7 +6,12 @@ import {
   CoverageFailureReason,
   KITCHEN_LOCATION,
 } from "@/types/address";
-import { getDirectionsForCoords, DEFAULT_ZONES } from "@/lib/utils/delivery-zones";
+import {
+  getDirectionsForCoords,
+  addressServesDay,
+  isNearbyAddress,
+  DEFAULT_ZONES,
+} from "@/lib/utils/delivery-zones";
 import { getBusinessRules, getDeliveryPricingConfig } from "@/lib/settings/business-rules";
 import { resolveDeliveryFee, standardCeilingMiles } from "@/lib/utils/order";
 
@@ -139,8 +144,6 @@ export async function checkCoverage(
     if (isValid) {
       const zones = rules.deliveryZones.length > 0 ? rules.deliveryZones : DEFAULT_ZONES;
 
-      // Build day-name map from actual delivery_days config
-      const dayNameMap: Record<string, string[]> = {};
       const DAY_LABELS = [
         "Sunday",
         "Monday",
@@ -150,30 +153,37 @@ export async function checkCoverage(
         "Friday",
         "Saturday",
       ];
-      for (const dd of rules.deliveryDays) {
-        if (!dd.isActive) continue;
-        const dir = dd.direction ?? "all";
-        if (!dayNameMap[dir]) dayNameMap[dir] = [];
-        dayNameMap[dir].push(DAY_LABELS[dd.dayOfWeek]);
-      }
 
       const dirs = getDirectionsForCoords(destLat, destLng, zones);
       directions = dirs;
 
-      // Collect eligible days: days matching customer direction + "all"-direction days
+      // Eligible days come from the SAME predicate the checkout gate and the
+      // day picker use. This used to be a hand-rolled direction→days map that
+      // read an empty `dirs` as "matches nothing", so a nearby address was told
+      // "Delivers: Saturday" on the homepage coverage checker while the picker
+      // offered every day — the exact `[]`-means-nothing misread, on the one
+      // surface a customer checks BEFORE they have an account.
+      //
+      // It also coalesced a missing `direction` to "all", showing a day that
+      // checkout then rejects. addressServesDay drops those, so the quote and
+      // the gate agree on both counts now.
       const days: string[] = [];
-      for (const d of dirs) {
-        if (dayNameMap[d]) days.push(...dayNameMap[d]);
+      for (const dd of rules.deliveryDays) {
+        if (!dd.isActive) continue;
+        if (addressServesDay(dirs, dd.direction)) days.push(DAY_LABELS[dd.dayOfWeek]);
       }
-      if (dayNameMap["all"]) days.push(...dayNameMap["all"]);
-      // Fallback: if no delivery_days config, use legacy static mapping
-      if (days.length === 0 && dirs.length > 0) {
+
+      // Fallback for a store with no delivery_days configured at all.
+      if (days.length === 0) {
         const LEGACY_DAY_NAMES: Record<string, string> = {
           east: "Monday",
           west: "Wednesday",
           south: "Thursday",
         };
-        for (const d of dirs) {
+        // A nearby address (empty `dirs`) is served by every legacy run, not
+        // none — the same rule as above, applied to the static mapping.
+        const legacyDirs = isNearbyAddress(dirs) ? Object.keys(LEGACY_DAY_NAMES) : dirs;
+        for (const d of legacyDirs) {
           if (LEGACY_DAY_NAMES[d]) days.push(LEGACY_DAY_NAMES[d]);
         }
         days.push("Saturday");
