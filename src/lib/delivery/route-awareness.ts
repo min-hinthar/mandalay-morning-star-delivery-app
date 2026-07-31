@@ -4,6 +4,7 @@ import {
   filterDaysByDirection,
   getDirectionLabel,
   getDirectionsForCoords,
+  isNearbyAddress,
 } from "@/lib/utils/delivery-zones";
 import {
   getCutoffForDeliveryDay,
@@ -98,7 +99,7 @@ export function resolveRouteDayAwareness({
 
   if (coords && Number.isFinite(coords.lat) && Number.isFinite(coords.lng)) {
     directions = getDirectionsForCoords(coords.lat, coords.lng, zones);
-    isLocal = directions.length === 0;
+    isLocal = isNearbyAddress(directions);
     // Always filter, including the nearby (`[]`) case — filterDaysByDirection
     // now routes through addressServesDay, which reads `[]` as "every
     // direction" rather than "no direction". So a nearby address keeps every

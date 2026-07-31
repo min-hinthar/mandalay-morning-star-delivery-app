@@ -174,7 +174,7 @@ export function addressServesDay(
   // Unchanged on purpose.
   if (dayDirection == null) return false;
   // Nearby: every route passes close enough. This is the behavior change.
-  if (directions.length === 0) return true;
+  if (isNearbyAddress(directions)) return true;
   return directions.includes(dayDirection as Exclude<DeliveryDirection, "all">);
 }
 
@@ -190,7 +190,16 @@ export function filterDaysByDirection(
   return deliveryDays.filter((day) => addressServesDay(directions, day.direction));
 }
 
-/** True when this address is close enough that direction filtering doesn't apply. */
+/**
+ * True when this address is close enough that direction filtering doesn't apply.
+ *
+ * Reads as its meaning rather than its encoding. `directions.length === 0`
+ * spelled out at a call site invites the misreading that started all this —
+ * "no directions matched" — when it actually means "close enough that every
+ * route serves it". Callers holding a possibly-EMPTY list from
+ * `getDirectionsForCoords` should use this; a caller holding `undefined`
+ * (address not placeable at all) means something different and must not.
+ */
 export function isNearbyAddress(directions: Exclude<DeliveryDirection, "all">[]): boolean {
   return directions.length === 0;
 }
