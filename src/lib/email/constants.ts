@@ -74,10 +74,15 @@ export const RETRY_BASE_DELAY_MS = 10_000;
  * nothing logs. This repo has been bitten by that shape before (`z-modal-
  * backdrop` and `animate-spin-slow` both emitted nothing and failed quietly).
  *
- * `send-timeout.test.ts` asserts the signal is received and aborted, but only
- * at the MOCK boundary, so it cannot catch that regression. Which is why
- * package.json pins `resend` to `~6.9.x` rather than `^`: a minor bump has to
- * be a deliberate, reviewed act that re-checks `post()` still spreads.
+ * Two guardrails close that gap from both sides:
+ *   - `resend-sdk-contract.test.ts` runs the REAL installed SDK against a
+ *     stubbed fetch and asserts the signal (and Idempotency-Key header)
+ *     actually arrive — so any bump that stops spreading fails CI, including
+ *     a patch bump the `~` range auto-accepts.
+ *   - package.json pins `resend` to `~6.9.x` rather than `^`, so a
+ *     minor/major bump is a deliberate, reviewed act.
+ * (`send-timeout.test.ts` asserts the same at the mock boundary — it covers
+ * sendEmail's side of the contract, the contract test covers the SDK's.)
  */
 export const SEND_ATTEMPT_TIMEOUT_MS = 15_000;
 
