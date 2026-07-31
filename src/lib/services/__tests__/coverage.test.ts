@@ -281,6 +281,112 @@ describe("checkCoverage", () => {
   });
 });
 
+/**
+ * The homepage coverage checker is the FIRST thing a prospective customer
+ * sees — before they have an account, an address, or a cart. It used to build
+ * its own direction→days map that read an empty direction list as "matches
+ * nothing", so a nearby address was told "Delivers: Saturday" while the
+ * checkout picker offered every day. It now shares `addressServesDay` with the
+ * picker and the checkout gate.
+ */
+describe("checkCoverage eligible days for a NEARBY address", () => {
+  // ~4mi from the Covina kitchen — inside NEARBY_RADIUS_KM, so
+  // getDirectionsForCoords returns [].
+  const NEARBY_LAT = 34.0686;
+  const NEARBY_LNG = -117.9389;
+  // ~37mi east — genuinely direction-scoped.
+  const FAR_EAST_LAT = 34.1083;
+  const FAR_EAST_LNG = -117.2898;
+
+  const CONFIGURED_DAYS = [
+    { id: "1", dayOfWeek: 1, direction: "east", isActive: true },
+    { id: "2", dayOfWeek: 3, direction: "west", isActive: true },
+    { id: "3", dayOfWeek: 4, direction: "south", isActive: true },
+    { id: "4", dayOfWeek: 6, direction: "all", isActive: true },
+  ];
+
+  async function coverageWithDays(
+    lat: number,
+    lng: number,
+    days: unknown[] = CONFIGURED_DAYS
+  ): Promise<Awaited<ReturnType<typeof checkCoverage>>> {
+    const businessRules = await import("@/lib/settings/business-rules");
+    const actual = await vi.importActual<typeof import("@/lib/settings/business-rules")>(
+      "@/lib/settings/business-rules"
+    );
+    vi.mocked(businessRules.getBusinessRules).mockResolvedValueOnce({
+      ...actual.BUSINESS_RULES_DEFAULTS,
+      deliveryDays: days,
+    } as never);
+
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: true,
+      json: () => Promise.resolve(withinCoverageResponse),
+    } as Response);
+
+    return checkCoverage(lat, lng);
+  }
+
+  beforeEach(() => {
+    vi.stubGlobal("fetch", vi.fn());
+  });
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    vi.restoreAllMocks();
+  });
+
+  it("lists EVERY configured day, not just the all-directions run", async () => {
+    const result = await coverageWithDays(NEARBY_LAT, NEARBY_LNG);
+
+    expect(result.directions).toEqual([]);
+    expect(result.eligibleDays).toEqual(
+      expect.arrayContaining(["Monday", "Wednesday", "Thursday", "Saturday"])
+    );
+  });
+
+  it("still scopes a FAR address to its own direction plus the all run", async () => {
+    const result = await coverageWithDays(FAR_EAST_LAT, FAR_EAST_LNG);
+
+    expect(result.directions).toContain("east");
+    expect(result.eligibleDays).toContain("Monday");
+    expect(result.eligibleDays).toContain("Saturday");
+    expect(result.eligibleDays).not.toContain("Wednesday");
+  });
+
+  it("does NOT advertise a day whose direction is unconfigured", async () => {
+    // An absent direction is a config gap, not a run that serves everyone.
+    // Quoting it here would promise a day checkout rejects.
+    const result = await coverageWithDays(NEARBY_LAT, NEARBY_LNG, [
+      { id: "1", dayOfWeek: 2, direction: undefined, isActive: true },
+      { id: "2", dayOfWeek: 6, direction: "all", isActive: true },
+    ]);
+
+    expect(result.eligibleDays).toEqual(["Saturday"]);
+  });
+
+  it("does NOT fall back to legacy days when days ARE configured but all lack a direction", async () => {
+    // The fallback is for "no config at all". Here the config exists and
+    // genuinely serves nobody by direction, so quoting legacy Mon/Wed/Thu would
+    // advertise days that aren't configured — and checkout rejects them anyway.
+    const result = await coverageWithDays(NEARBY_LAT, NEARBY_LNG, [
+      { id: "1", dayOfWeek: 2, direction: undefined, isActive: true },
+    ]);
+
+    expect(result.eligibleDays).toEqual([]);
+  });
+
+  it("falls back to every legacy run when no delivery days are configured", async () => {
+    // Previously the fallback was gated on `dirs.length > 0`, so a nearby
+    // address with no config got an EMPTY list — no days at all.
+    const result = await coverageWithDays(NEARBY_LAT, NEARBY_LNG, []);
+
+    expect(result.eligibleDays).toEqual(
+      expect.arrayContaining(["Monday", "Wednesday", "Thursday", "Saturday"])
+    );
+  });
+});
+
 describe("coverage limits validation", () => {
   it("confirms max distance is 50 miles", () => {
     expect(COVERAGE_LIMITS.maxDistanceMiles).toBe(50);

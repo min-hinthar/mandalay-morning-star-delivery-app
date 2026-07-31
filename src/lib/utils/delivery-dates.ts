@@ -4,6 +4,7 @@ import {
   type DeliveryDayConfig,
   type DeliveryDirection,
 } from "@/types/delivery";
+import { addressServesDay } from "@/lib/utils/delivery-zones";
 
 const DEFAULT_CUTOFF_DAY = 5;
 const DEFAULT_CUTOFF_HOUR = 15;
@@ -325,13 +326,16 @@ export function getAvailableDeliveryDatesMultiDay(
 ): DeliveryDate[] {
   let activeDays = deliveryDays.filter((d) => d.isActive);
 
-  // Filter by direction if provided
-  if (directions && directions.length > 0) {
-    activeDays = activeDays.filter(
-      (d) =>
-        d.direction === "all" ||
-        directions.includes(d.direction as Exclude<DeliveryDirection, "all">)
-    );
+  // Filter by direction if provided.
+  //
+  // `undefined` means "no address to place" → offer every active day.
+  // An EMPTY ARRAY is different: it means the address was placed and came back
+  // nearby, which serves every direction. The old `directions.length > 0` guard
+  // conflated the two, and delegating to addressServesDay keeps this in step
+  // with checkout's gate — a date offered here that checkout then rejects is
+  // the exact failure this shares a rule to prevent.
+  if (directions) {
+    activeDays = activeDays.filter((d) => addressServesDay(directions, d.direction));
   }
   if (activeDays.length === 0) return [];
 

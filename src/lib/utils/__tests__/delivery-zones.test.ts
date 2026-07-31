@@ -3,6 +3,7 @@ import {
   calculateBearing,
   getDirectionsForCoords,
   filterDaysByDirection,
+  addressServesDay,
   DEFAULT_ZONES,
 } from "../delivery-zones";
 import type { DeliveryDayConfig } from "@/types/delivery";
@@ -132,9 +133,47 @@ describe("filterDaysByDirection", () => {
     expect(result.map((d) => d.dayOfWeek)).toEqual([1, 4, 6]);
   });
 
-  it("returns only Saturday when no direction matches", () => {
+  it("keeps EVERY day for an empty direction list (nearby), not just Saturday", () => {
+    // An empty list is what getDirectionsForCoords returns for an address
+    // inside NEARBY_RADIUS_KM. It means "every direction", not "no direction" —
+    // reading it the other way is what limited a Covina-area customer to the
+    // Saturday run and failed their Monday order at checkout.
     const result = filterDaysByDirection([], mockDays);
-    expect(result).toHaveLength(1);
-    expect(result[0].dayOfWeek).toBe(6);
+    expect(result).toHaveLength(mockDays.length);
+  });
+
+  it("drops a day with NO configured direction, for nearby and directional alike", () => {
+    // `direction` is optional on DeliveryDayConfig. An absent one is a config
+    // gap, not a run that serves everyone — checkout rejects it, so the filter
+    // must not offer it. Unchanged by the nearby widening.
+    const withGap = [...mockDays, { ...mockDays[0], dayOfWeek: 2, direction: undefined }];
+    expect(filterDaysByDirection([], withGap).some((d) => d.dayOfWeek === 2)).toBe(false);
+    expect(filterDaysByDirection(["east"], withGap).some((d) => d.dayOfWeek === 2)).toBe(false);
+  });
+});
+
+describe("addressServesDay", () => {
+  it("serves the all-directions run regardless of address", () => {
+    expect(addressServesDay([], "all")).toBe(true);
+    expect(addressServesDay(["east"], "all")).toBe(true);
+  });
+
+  it("serves every direction when the address is nearby (empty list)", () => {
+    expect(addressServesDay([], "east")).toBe(true);
+    expect(addressServesDay([], "west")).toBe(true);
+    expect(addressServesDay([], "south")).toBe(true);
+  });
+
+  it("matches only the address's own directions when it is not nearby", () => {
+    expect(addressServesDay(["east"], "east")).toBe(true);
+    expect(addressServesDay(["east"], "west")).toBe(false);
+    expect(addressServesDay(["east", "south"], "south")).toBe(true);
+  });
+
+  it("never serves a day whose direction is missing", () => {
+    // Both branches: a config gap must not become an implicit all-serving run.
+    expect(addressServesDay([], undefined)).toBe(false);
+    expect(addressServesDay([], null)).toBe(false);
+    expect(addressServesDay(["east"], undefined)).toBe(false);
   });
 });

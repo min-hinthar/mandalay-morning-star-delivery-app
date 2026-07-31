@@ -10,6 +10,7 @@ import {
   getDirectionsForCoords,
   getDirectionLabel,
   filterDaysByDirection,
+  addressServesDay,
 } from "@/lib/utils/delivery-zones";
 import { checkCoverage } from "@/lib/services/coverage";
 import { logger } from "@/lib/utils/logger";
@@ -264,10 +265,10 @@ export async function resolveAddressDistance(
   // Validate direction match
   if (dayConfig && deliveryZones.length > 0 && address.lat && address.lng) {
     const addressDirections = getDirectionsForCoords(address.lat, address.lng, deliveryZones);
-    if (
-      dayConfig.direction !== "all" &&
-      !addressDirections.includes(dayConfig.direction as Exclude<DeliveryDirection, "all">)
-    ) {
+    // addressServesDay, not `.includes(...)`: an empty direction list means the
+    // address is NEARBY, which serves every day. Testing membership directly
+    // here is what rejected a Covina-area customer's Monday order outright.
+    if (!addressServesDay(addressDirections, dayConfig.direction)) {
       // Build structured details for actionable error display
       const eligibleDaysForAddress = filterDaysByDirection(addressDirections, deliveryDays);
       const dayNames = [
