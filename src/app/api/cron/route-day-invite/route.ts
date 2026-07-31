@@ -128,7 +128,13 @@ export const maxDuration = 60;
 const ATTEMPT_TIMEOUT_MS = 3_000;
 const WORST_CASE_BACKOFF_MS =
   MAX_RETRY_ATTEMPTS * (MAX_RETRY_ATTEMPTS - 1) * (RETRY_BASE_DELAY_MS / 2);
-const WORST_CASE_SEND_MS = WORST_CASE_BACKOFF_MS + MAX_RETRY_ATTEMPTS * ATTEMPT_TIMEOUT_MS;
+// The trailing stagger sleep is part of a recipient's worst case too — without
+// it here, the pathological last send (budget-boundary start + three full-3s
+// aborts + the whole flat headroom spent on renders/reads) lands exactly AT
+// maxDuration and the stagger tips it past. Counting it buys the margin the
+// headroom comment claims.
+const WORST_CASE_SEND_MS =
+  WORST_CASE_BACKOFF_MS + MAX_RETRY_ATTEMPTS * ATTEMPT_TIMEOUT_MS + STAGGER_DELAY_MS;
 // The flat headroom absorbs the per-recipient work that is NOT under the
 // attempt ceiling: sendEmail renders the template twice (HTML + plain text)
 // and does two Supabase reads (kill switch + prefs) before the bounded call,
