@@ -94,10 +94,14 @@ export function resolveRouteDayAwareness({
 
   const dayOfWeek = getZonedDayOfWeek(deliveryDate);
   const dayConfig = eligibleDays.find((d) => d.isActive && d.dayOfWeek === dayOfWeek);
+  // A miss means the schedule changed mid-resolve — say nothing. This single
+  // check also covers the cutoff text: getNextCutoffText resolves its config
+  // from the same array with the same predicate, so it can only return its
+  // "no windows" sentinel when dayConfig is already undefined. Don't re-test
+  // for that sentinel by string — it's unreachable, and comparing the literal
+  // silently decouples if delivery-schedule.ts ever rewords it.
+  if (!dayConfig) return null;
   const cutoffText = getNextCutoffText(dayOfWeek, eligibleDays);
-  // getNextCutoffText resolves the config by day-of-week, exactly as we do; a
-  // miss here means the schedule changed mid-resolve — say nothing.
-  if (!dayConfig || cutoffText === "No upcoming delivery windows") return null;
 
   return {
     directions,
