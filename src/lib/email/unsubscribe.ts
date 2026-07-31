@@ -67,7 +67,11 @@ function sign(payload: string, secret: string): string {
 }
 
 /**
- * Mint a token for one user + one preference key, or null when unconfigured.
+ * Mint a token for one user + one preference key.
+ *
+ * Returns "" (empty string, falsy) when no secret is configured — NOT null.
+ * Every caller guards with `if (!token)`, and the URL/header builders treat it
+ * as "don't advertise one-click for this message".
  */
 export function createUnsubscribeToken(userId: string, prefKey: UnsubscribablePrefKey): string {
   const secret = getSecret();
