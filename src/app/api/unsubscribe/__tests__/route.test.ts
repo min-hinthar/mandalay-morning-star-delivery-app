@@ -192,11 +192,47 @@ describe("GET /api/unsubscribe", () => {
     process.env.UNSUBSCRIBE_TOKEN_SECRET = SECRET;
   });
 
-  it("unsubscribes and renders a confirmation for a human click", async () => {
+  it("NEVER mutates — a scanner prefetch must not unsubscribe anyone", async () => {
+    // Corporate mail security (Safe Links, Proofpoint, Mimecast) GETs every
+    // URL in an email before the reader sees it, carrying the real token. A
+    // GET that unsubscribed on load would opt customers out sight unseen —
+    // which is exactly why RFC 8058 makes one-click POST-only.
     const token = createUnsubscribeToken("user-a", "marketing");
     const res = await GET(new Request(`https://example.com/api/unsubscribe?token=${token}`));
 
     expect(res.status).toBe(200);
+    expect(upsertSpy).not.toHaveBeenCalled();
+    expect(rows["user-a"]).toBeUndefined();
+  });
+
+  it("renders a confirm form that POSTs the same token back", async () => {
+    const token = createUnsubscribeToken("user-a", "marketing");
+    const res = await GET(new Request(`https://example.com/api/unsubscribe?token=${token}`));
+
+    const html = await res.text();
+    expect(res.headers.get("content-type")).toContain("text/html");
+    expect(html).toContain('method="post"');
+    expect(html).toContain(`value="${token}"`);
+    expect(html).toContain('name="confirm"');
+  });
+
+  it("the human flow completes: GET confirm page, then form POST unsubscribes", async () => {
+    const token = createUnsubscribeToken("user-a", "marketing");
+
+    await GET(new Request(`https://example.com/api/unsubscribe?token=${token}`));
+    expect(rows["user-a"]).toBeUndefined();
+
+    // What the rendered form submits.
+    const res = await POST(
+      new Request("https://example.com/api/unsubscribe", {
+        method: "POST",
+        headers: { "content-type": "application/x-www-form-urlencoded" },
+        body: `token=${encodeURIComponent(token)}&confirm=1`,
+      })
+    );
+
+    expect(res.status).toBe(200);
+    // Human form submit gets the readable outcome, not JSON.
     expect(res.headers.get("content-type")).toContain("text/html");
     await expect(res.text()).resolves.toContain("unsubscribed");
     expect(rows["user-a"].notification_prefs.marketing).toBe(false);
@@ -209,9 +245,11 @@ describe("GET /api/unsubscribe", () => {
     expect(upsertSpy).not.toHaveBeenCalled();
   });
 
-  it("does not reflect the token back into the page", async () => {
+  it("does not reflect an INVALID token back into the page", async () => {
     // The page is built by string concatenation, so a token echoed unescaped
-    // would be a reflected-XSS vector on an unauthenticated endpoint.
+    // would be a reflected-XSS vector on an unauthenticated endpoint. A VALID
+    // token is echoed into the confirm form, but only attribute-escaped and
+    // only after verification constrains it to uuid.allowlisted-key.base64url.
     const payload = "<script>alert(1)</script>";
     const res = await GET(
       new Request(`https://example.com/api/unsubscribe?token=${encodeURIComponent(payload)}`)
@@ -219,5 +257,17 @@ describe("GET /api/unsubscribe", () => {
 
     const html = await res.text();
     expect(html).not.toContain("<script>alert(1)</script>");
+  });
+
+  it("does not claim delivery updates are unaffected for an order_updates unsubscribe", async () => {
+    // Reachable: out_for_delivery / delivered / arriving_soon / cancellation
+    // are non-mandatory and advertise one-click keyed to order_updates. The
+    // reassurance must not describe the exact emails being stopped.
+    const token = createUnsubscribeToken("user-a", "order_updates");
+    const res = await GET(new Request(`https://example.com/api/unsubscribe?token=${token}`));
+
+    const html = await res.text();
+    expect(html).not.toContain("delivery updates for orders you place are unaffected");
+    expect(html).toContain("order confirmations and refund receipts");
   });
 });
