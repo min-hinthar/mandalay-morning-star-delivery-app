@@ -161,7 +161,7 @@ export function RouteDayCallout({ deliveryDays, deliveryZones, className }: Rout
               onClick={handleDismiss}
               aria-label="Dismiss delivery run notice"
               className={cn(
-                "absolute right-2 top-2 z-10 flex h-9 w-9 items-center justify-center rounded-full",
+                "absolute right-1.5 top-1.5 z-10 flex h-11 w-11 items-center justify-center rounded-full",
                 "text-hero-ink-muted transition-colors hover:bg-hero-ink/8 hover:text-hero-ink",
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-hero-accent"
               )}

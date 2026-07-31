@@ -184,11 +184,18 @@ export async function GET(request: Request) {
     // ---- Never nudge someone who already ordered for that date --------------
     const dates = [...new Set(planned.map((p) => p.date))];
     if (dates.length > 0) {
-      const { data: existing } = await supabase
+      const { data: existing, error: existingErr } = await supabase
         .from("orders")
         .select("user_id, delivery_window_start, status")
         .in("user_id", [...new Set(planned.map((p) => p.c.userId))])
         .neq("status", "cancelled");
+      // Fail CLOSED. Swallowing this error leaves `ordered` empty, which filters
+      // NOBODY and mails customers who already ordered — the exact guardrail
+      // this job exists to honour. Abort the run instead.
+      if (existingErr) {
+        logger.exception(existingErr, { flowId: FLOW_ID, api: "cron" });
+        return apiError("INTERNAL_ERROR", "Failed to load existing orders", 500);
+      }
       const ordered = new Set(
         (existing ?? [])
           .filter((o) => o.delivery_window_start)
@@ -239,7 +246,7 @@ export async function GET(request: Request) {
       try {
         const result = await sendEmail({
           to: p.c.email,
-          subject: `${p.headline} — ${p.cutoffText}`,
+          subject: p.headline,
           react: React.createElement(RouteDayInvite, {
             customerName: p.c.name,
             headline: p.headline,
