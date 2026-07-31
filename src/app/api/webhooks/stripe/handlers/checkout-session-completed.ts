@@ -217,7 +217,7 @@ export async function handleCheckoutSessionCompleted(
       // Fetch real menu items for "you might also like" section
       const orderedNames = items.map((item) => item.name_snapshot);
       const [suggestedItems, dietaryRestrictions, loyalty] = await Promise.all([
-        fetchSuggestedItems(supabase, orderedNames),
+        fetchSuggestedItems(supabase, orderedNames, orderId),
         fetchDietaryRestrictions(supabase, orderData.user_id),
         getLoyaltyNudge(supabase, orderData.user_id),
       ]);

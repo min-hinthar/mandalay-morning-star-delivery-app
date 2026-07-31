@@ -8,6 +8,7 @@ import {
   receiptDisplayDiscountCents,
   resolveDeliveryFee,
   standardCeilingMiles,
+  serviceableCeilingMiles,
   validateCartItems,
   type DeliveryPricingConfig,
   type ModifierGroupWithItems,
@@ -261,6 +262,29 @@ describe("resolveDeliveryFee (graduated pricing)", () => {
     expect(standardCeilingMiles(PRICING)).toBe(50);
     // A mis-seeded standardRadius below the top band is corrected upward.
     expect(standardCeilingMiles({ ...PRICING, standardRadiusMiles: 30 })).toBe(50);
+  });
+
+  describe("serviceableCeilingMiles", () => {
+    it("is the max radius while long-distance delivery is on", () => {
+      expect(serviceableCeilingMiles(PRICING)).toBe(PRICING.maxRadiusMiles);
+    });
+
+    it("drops to the standard ceiling when long-distance is off", () => {
+      // The far branch is skipped entirely with extendedEnabled: false, so
+      // anything past the standard ceiling is out-of-range — reading
+      // maxRadiusMiles alone would call a 60mi address serviceable.
+      const off = { ...PRICING, extendedEnabled: false };
+      expect(serviceableCeilingMiles(off)).toBe(50);
+      expect(serviceableCeilingMiles(off)).toBeLessThan(PRICING.maxRadiusMiles);
+    });
+
+    it("agrees with resolveDeliveryFee about where coverage ends", () => {
+      for (const config of [PRICING, { ...PRICING, extendedEnabled: false }]) {
+        const ceiling = serviceableCeilingMiles(config);
+        expect(resolveDeliveryFee(ceiling, 0, config).tier).not.toBe("out-of-range");
+        expect(resolveDeliveryFee(ceiling + 1, 0, config).tier).toBe("out-of-range");
+      }
+    });
   });
 });
 

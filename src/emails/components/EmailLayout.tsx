@@ -108,6 +108,9 @@ export function EmailLayout({
                 : undefined
             }
             variant={variant}
+            // Derived from the mood so a marketing email can't accidentally
+            // keep the transactional "because you placed an order" line.
+            reason={emailType === "marketing" ? "marketing" : "order"}
           />
         </Container>
 

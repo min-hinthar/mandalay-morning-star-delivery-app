@@ -1,7 +1,8 @@
 import type { ReactElement } from "react";
 import { Suspense, lazy } from "react";
 import { getFeaturedSections } from "@/lib/queries/sections";
-import { getBusinessRules } from "@/lib/settings";
+import { getBusinessRules, getDeliveryPricingConfig } from "@/lib/settings";
+import { serviceableCeilingMiles } from "@/lib/utils/order";
 import { getDeliveryStats } from "@/lib/queries/delivery-stats";
 import { HomePageWrapper } from "@/components/ui/homepage/HomePageWrapper";
 import { HomepageMenuSection } from "@/components/ui/homepage/HomepageMenuSection";
@@ -12,6 +13,7 @@ import { CTABanner } from "@/components/ui/homepage/CTABanner";
 import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import { FooterCTA } from "@/components/ui/homepage/FooterCTA";
 import { SettingsNudgeBanner } from "@/components/ui/homepage/SettingsNudgeBanner";
+import { RouteDayCallout } from "@/components/ui/delivery";
 import { RewardsWelcomeBack } from "@/components/ui/homepage/RewardsWelcomeBack";
 import type { FeaturedSectionWithItems } from "@/types/featured-sections";
 
@@ -139,6 +141,16 @@ export default async function HomePage(): Promise<ReactElement> {
           deliveriesThisMonth={deliveryStats.deliveriesThisMonth}
           nextDeliveryDate={deliveryStats.nextDeliveryDate}
           featuredDishes={featuredDishes}
+        />
+
+        {/* "We're driving your way" — next run that actually serves this
+            customer's address + its ordering deadline (schedule-derived, so it
+            never references other customers' orders). */}
+        <RouteDayCallout
+          deliveryDays={rules.deliveryDays}
+          deliveryZones={rules.deliveryZones}
+          maxRadiusMiles={serviceableCeilingMiles(getDeliveryPricingConfig(rules))}
+          className="mx-auto max-w-3xl px-4 pt-4"
         />
 
         {/* Rewards welcome-back pill - signed-in customers with Stars (client) */}

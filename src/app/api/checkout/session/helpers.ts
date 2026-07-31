@@ -98,7 +98,7 @@ export async function sendCODOrderEmail(opts: {
     const serviceClient = createServiceClient();
     const orderedNames = opts.validatedItems.map((item) => item.menuItem.name_en);
     const [suggestedItems, dietaryRestrictions] = await Promise.all([
-      fetchSuggestedItems(serviceClient, orderedNames),
+      fetchSuggestedItems(serviceClient, orderedNames, opts.orderId),
       fetchDietaryRestrictions(serviceClient, opts.userId),
     ]);
     const sharedItems = opts.validatedItems.map((item) => ({

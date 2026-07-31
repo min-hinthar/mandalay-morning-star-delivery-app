@@ -222,7 +222,7 @@ export async function POST(request: Request, { params }: RouteParams) {
           // Fetch real menu items for "you might also like" section
           const orderedNames = items.map((item) => item.name_snapshot);
           const [suggestedItems, dietaryRestrictions, loyalty] = await Promise.all([
-            fetchSuggestedItems(serviceClient, orderedNames),
+            fetchSuggestedItems(serviceClient, orderedNames, orderId),
             fetchDietaryRestrictions(serviceClient, emailUserId),
             getLoyaltyNudge(serviceClient, emailUserId),
           ]);
