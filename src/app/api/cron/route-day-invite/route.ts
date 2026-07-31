@@ -24,6 +24,7 @@ import { fetchSuggestedItems } from "@/lib/email/suggestions";
 import { sendEmail } from "@/lib/email/send";
 import { MAX_RETRY_ATTEMPTS, RETRY_BASE_DELAY_MS } from "@/lib/email/constants";
 import { getBusinessRules } from "@/lib/settings";
+import { serviceableCeilingMiles } from "@/lib/utils/order";
 import { resolveRouteDayAwareness, routeDayHeadline } from "@/lib/delivery/route-awareness";
 import { getZonedDateString, getZonedDayRangeUtc } from "@/lib/utils/delivery-dates";
 import { createServiceClient } from "@/lib/supabase/server";
@@ -150,6 +151,20 @@ export async function GET(request: Request) {
     if (rules.deliveryDays.filter((d) => d.isActive).length === 0) {
       return NextResponse.json({ ok: true, skipped: "no active delivery days" });
     }
+
+    // The distance past which checkout answers OUT_OF_COVERAGE. Not
+    // maxDeliveryRadiusMiles on its own — that ceiling only applies while
+    // long-distance delivery is switched on.
+    const serviceableCeiling = serviceableCeilingMiles({
+      localFeeCents: rules.deliveryFeeCents,
+      localRadiusMiles: rules.longDistanceThresholdMiles,
+      freeDeliveryThresholdCents: rules.freeDeliveryThresholdCents,
+      bands: rules.deliveryFeeBands,
+      standardRadiusMiles: rules.deliveryRadiusMiles,
+      extendedEnabled: rules.extendedDeliveryEnabled,
+      extendedPerMileCents: rules.extendedDeliveryPerMileCents,
+      maxRadiusMiles: rules.maxDeliveryRadiusMiles,
+    });
 
     // ---- Audience: default addresses with real coords -----------------------
     // Deliberately NOT filtered to coordinate-bearing rows in SQL. Dropping
@@ -292,7 +307,7 @@ export async function GET(request: Request) {
       const awareness = resolveRouteDayAwareness({
         coords: { lat: c.lat, lng: c.lng },
         distanceMiles: c.distanceMiles,
-        maxRadiusMiles: rules.maxDeliveryRadiusMiles,
+        maxRadiusMiles: serviceableCeiling,
         deliveryDays: rules.deliveryDays,
         deliveryZones: rules.deliveryZones,
         now,

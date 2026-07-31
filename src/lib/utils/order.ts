@@ -167,6 +167,21 @@ export function standardCeilingMiles(config: DeliveryPricingConfig): number {
 }
 
 /**
+ * Farthest distance that is actually serviceable under this config — i.e. the
+ * point past which `resolveDeliveryFee` returns `out-of-range`.
+ *
+ * NOT simply `maxRadiusMiles`: that only applies while long-distance delivery
+ * is switched ON. With `extendedEnabled: false` the far branch is skipped
+ * entirely and anything past the standard ceiling is out of range, so reading
+ * `maxRadiusMiles` alone would call a 60-mile address serviceable while
+ * checkout rejects it. Anything deciding "can we deliver here?" outside the
+ * pricing path (marketing surfaces, coverage copy) must use this.
+ */
+export function serviceableCeilingMiles(config: DeliveryPricingConfig): number {
+  return config.extendedEnabled ? config.maxRadiusMiles : standardCeilingMiles(config);
+}
+
+/**
  * Resolve the delivery fee for a given drive distance + subtotal against a
  * graduated pricing config. Distance-driven and authoritative — the SAME
  * function backs the client estimate (cart store) and the server total, so the
