@@ -35,6 +35,7 @@ export interface DeliveryValidationErrors {
   maxDeliveryDurationMinutes?: string;
   extendedDeliveryPerMileCents?: string;
   maxDeliveryRadiusMiles?: string;
+  extendedMinOrderCents?: string;
 }
 
 export function validateDeliveryField(
@@ -53,6 +54,10 @@ export function validateDeliveryField(
     case "freeDeliveryThresholdCents":
     case "baseDeliveryFeeCents":
       if (typeof value !== "number" || value < 0) return "Must be 0 or greater";
+      return undefined;
+    case "extendedMinOrderCents":
+      if (typeof value !== "number" || value < 0) return "Must be 0 or greater";
+      if (value > 50000) return "Cannot exceed $500.00";
       return undefined;
     case "cutoffDay":
       if (typeof value !== "number" || !Number.isInteger(value) || value < 0 || value > 6)
@@ -179,6 +184,7 @@ const FIELD_LABELS: Record<string, string> = {
   extendedDeliveryEnabled: "Long-Distance Delivery",
   extendedDeliveryPerMileCents: "Long-Distance Per-Mile",
   maxDeliveryRadiusMiles: "Max Delivery Radius",
+  extendedMinOrderCents: "Long-Distance Minimum Order",
 };
 
 function formatFieldValue(field: string, value: number): string {
@@ -188,6 +194,7 @@ function formatFieldValue(field: string, value: number): string {
     case "baseDeliveryFeeCents":
     case "longDistanceFeeCents":
     case "extendedDeliveryPerMileCents":
+    case "extendedMinOrderCents":
       return `$${centsToDollars(value)}`;
     case "deliveryRadiusMiles":
     case "longDistanceThresholdMiles":

@@ -19,6 +19,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { ErrorShake } from "@/components/ui/error-shake";
 import { Button } from "@/components/ui/button";
 import { formatPrice } from "@/lib/utils/currency";
+import { getNextDatesForDays } from "./checkout-error-dates";
 
 /** Mirrors DirectionMismatchDetails from checkout session helpers (server-only) */
 interface DirectionMismatchDetails {
@@ -53,37 +54,6 @@ interface CheckoutErrorBannerProps {
   onUpdateCart?: () => void;
   onRetry?: () => void;
   className?: string;
-}
-
-/** Compute next N dates for given day names from today */
-function getNextDatesForDays(dayNames: string[], count: number): { label: string; date: string }[] {
-  const dayNameToNum: Record<string, number> = {
-    Sunday: 0,
-    Monday: 1,
-    Tuesday: 2,
-    Wednesday: 3,
-    Thursday: 4,
-    Friday: 5,
-    Saturday: 6,
-  };
-  const targetDays = dayNames.map((n) => dayNameToNum[n]).filter((n) => n !== undefined);
-  const results: { label: string; date: string }[] = [];
-  const today = new Date();
-
-  for (let i = 1; i <= 30 && results.length < count; i++) {
-    const d = new Date(today);
-    d.setDate(today.getDate() + i);
-    if (targetDays.includes(d.getDay())) {
-      const dateStr = d.toISOString().split("T")[0];
-      const label = d.toLocaleDateString("en-US", {
-        weekday: "short",
-        month: "short",
-        day: "numeric",
-      });
-      results.push({ label, date: dateStr });
-    }
-  }
-  return results;
 }
 
 const DIRECTION_COLORS: Record<string, string> = {
@@ -121,6 +91,22 @@ export function CheckoutErrorBanner({
             <Button variant="outline" size="sm" onClick={onChangeAddress}>
               <MapPin className="w-3.5 h-3.5 mr-1.5" />
               Change address
+            </Button>
+          ) : null
+        );
+      case "MINIMUM_ORDER_NOT_MET":
+        // Money-rejection path: the server message already carries the exact
+        // shortfall ("…add $73.00 more"), so surface it with a real action
+        // instead of letting it fall through to the generic error.
+        return renderWithAction(
+          <ShoppingCart className="w-4 h-4" />,
+          "Order Below Minimum",
+          error.message,
+          "အနည်းဆုံး အော်ဒါပမာဏ မပြည့်မီပါ။",
+          onUpdateCart ? (
+            <Button variant="outline" size="sm" onClick={onUpdateCart}>
+              <ShoppingCart className="w-3.5 h-3.5 mr-1.5" />
+              Add more items
             </Button>
           ) : null
         );

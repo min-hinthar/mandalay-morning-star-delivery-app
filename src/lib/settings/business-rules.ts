@@ -41,6 +41,12 @@ export interface BusinessRules {
   extendedDeliveryPerMileCents: number;
   /** Absolute max delivery radius (miles), including the long-distance tier */
   maxDeliveryRadiusMiles: number;
+  /**
+   * Minimum SUBTOTAL (cents) required when the address is beyond the local
+   * radius. A long-haul drive costs the same regardless of basket size, so far
+   * orders must clear a higher floor than the global minimumOrderCents.
+   */
+  extendedMinOrderCents: number;
 }
 
 // ===========================================
@@ -71,6 +77,7 @@ export const BUSINESS_RULES_DEFAULTS: BusinessRules = {
   extendedDeliveryEnabled: true,
   extendedDeliveryPerMileCents: 150,
   maxDeliveryRadiusMiles: 100,
+  extendedMinOrderCents: 10000,
 };
 
 // ===========================================
@@ -93,6 +100,7 @@ const DB_KEY_MAP: Record<string, keyof BusinessRules> = {
   long_distance_threshold_miles: "longDistanceThresholdMiles",
   extended_delivery_per_mile_cents: "extendedDeliveryPerMileCents",
   max_delivery_radius_miles: "maxDeliveryRadiusMiles",
+  extended_min_order_cents: "extendedMinOrderCents",
 };
 
 // ===========================================

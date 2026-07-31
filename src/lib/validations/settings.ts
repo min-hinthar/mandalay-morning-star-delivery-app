@@ -63,6 +63,15 @@ export const deliverySettingsBaseSchema = z.object({
   extended_delivery_enabled: z.boolean().optional(),
   extended_delivery_per_mile_cents: z.number().int().min(0).max(100_000).optional(),
   max_delivery_radius_miles: z.number().min(1).max(100).optional(),
+  // Matches the admin form's own cap (validateDeliveryField: $500) so a direct
+  // API set can't exceed what the UI allows.
+  // NOTE: this schema is currently INERT for every field — the PATCH route
+  // safeParses the request BEFORE snake-casing, and the client sends camelCase,
+  // so no key ever matches and the parse yields {}. Fixing that would start
+  // enforcing bounds across all delivery settings at once (a behavior change
+  // beyond this PR); tracked in issue #207. The real bounds today are the
+  // client validator and the checkout gate.
+  extended_min_order_cents: z.number().int().min(0).max(50_000).optional(),
 });
 
 /** Full delivery settings with cross-field validation */

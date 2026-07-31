@@ -34,6 +34,7 @@ const DEFAULT_SETTINGS = [
   { key: "extended_delivery_enabled", value: true, category: "delivery" },
   { key: "extended_delivery_per_mile_cents", value: 150, category: "delivery" },
   { key: "max_delivery_radius_miles", value: 100, category: "delivery" },
+  { key: "extended_min_order_cents", value: 10000, category: "delivery" },
   // Operations settings
   { key: "max_stops_per_route", value: 15, category: "operations" },
   { key: "auto_assign_enabled", value: false, category: "operations" },

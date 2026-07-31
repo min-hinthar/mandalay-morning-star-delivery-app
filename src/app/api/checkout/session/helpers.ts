@@ -226,11 +226,23 @@ export async function resolveAddressDistance(
     | number
     | null;
 
-  // Lazy-fill from coverage API
+  // Lazy-fill from coverage API.
+  //
+  // Adopt the measured distance whenever the ROUTE actually resolved — not only
+  // when `isValid`. checkCoverage returns a real mileage even for
+  // DISTANCE_EXCEEDED / DURATION_EXCEEDED (it only zeroes it on
+  // ROUTE_FAILED / GEOCODE_FAILED), so gating on `isValid` discarded a perfectly
+  // good measurement and left the row NULL — which downstream pricing treats as
+  // LOCAL. That's how a far address could be priced (and gated) as if it were
+  // next door.
   if (distanceMiles == null && address.lat && address.lng) {
     try {
       const coverageResult = await checkCoverage(address.lat, address.lng);
-      if (coverageResult.isValid) {
+      const routeResolved =
+        coverageResult.reason !== "ROUTE_FAILED" &&
+        coverageResult.reason !== "GEOCODE_FAILED" &&
+        coverageResult.distanceMiles > 0;
+      if (routeResolved) {
         distanceMiles = coverageResult.distanceMiles;
         const serviceClient = createServiceClient();
         await serviceClient
@@ -238,8 +250,14 @@ export async function resolveAddressDistance(
           .update({ distance_miles: distanceMiles } as Record<string, unknown>)
           .eq("id", address.id);
       }
-    } catch {
-      // Non-critical — proceed without distance
+    } catch (err) {
+      // Proceed without a distance (treated as local downstream). Now that money
+      // depends on it, make the gap visible instead of silently swallowing it.
+      logger.warn("Address distance lazy-fill failed — proceeding without distance", {
+        api: "checkout-session",
+        addressId: address.id,
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   }
 

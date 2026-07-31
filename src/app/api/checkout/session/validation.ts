@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { resolveMinimumOrder, type DeliveryTier } from "@/lib/utils/order";
+import type { BusinessRules } from "@/lib/settings/business-rules";
 import type { createClient } from "@/lib/supabase/server";
 import type { CheckoutError, CheckoutErrorCode } from "@/types/checkout";
 import type { MenuItemsRow, ModifierOptionsRow } from "@/types/database";
@@ -162,4 +164,49 @@ export function buildRpcPayload(items: ValidatedCartItem[]) {
   }
 
   return { rpcItems, rpcModifiers };
+}
+
+/**
+ * Distance-based minimum-order gate. Returns an error response to return
+ * immediately, or null when the order clears the floor.
+ *
+ * A long-haul run costs the same to drive whatever the basket is worth, so
+ * beyond the local radius the order must clear a higher floor (incident: a
+ * 38.8mi delivery for a $27 subtotal — ~78mi round trip). Keyed off the resolved
+ * fee TIER so this boundary can never drift from the pricing boundary, and
+ * measured on the PRE-discount subtotal — the same number that selected the tier.
+ *
+ * This is also the FIRST server-side minimum-order check in the app: the
+ * existing $25 minimum was enforced only in the cart UI, so it could be bypassed
+ * by posting directly to the checkout endpoint.
+ */
+export function enforceMinimumOrder(
+  subtotalCents: number,
+  tier: DeliveryTier,
+  rules: Pick<
+    BusinessRules,
+    "minimumOrderCents" | "extendedMinOrderCents" | "longDistanceThresholdMiles"
+  >
+) {
+  const minimum = resolveMinimumOrder(subtotalCents, tier, {
+    baseMinimumCents: rules.minimumOrderCents,
+    extendedMinimumCents: rules.extendedMinOrderCents,
+  });
+  if (minimum.meetsMinimum) return null;
+
+  const need = `$${(minimum.minimumCents / 100).toFixed(2)}`;
+  const add = `$${(minimum.shortfallCents / 100).toFixed(2)}`;
+  return errorResponse(
+    "MINIMUM_ORDER_NOT_MET",
+    minimum.isExtendedMinimum
+      ? `Deliveries beyond ${rules.longDistanceThresholdMiles} miles require a ${need} minimum. Please add ${add} more to your order.`
+      : `Orders require a ${need} minimum. Please add ${add} more to your order.`,
+    400,
+    {
+      minimumCents: minimum.minimumCents,
+      shortfallCents: minimum.shortfallCents,
+      subtotalCents,
+      isExtendedMinimum: minimum.isExtendedMinimum,
+    }
+  );
 }

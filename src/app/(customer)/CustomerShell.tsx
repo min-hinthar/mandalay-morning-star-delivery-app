@@ -16,6 +16,8 @@ interface CustomerShellProps {
   children: ReactNode;
   deliveryFeeCents: number;
   freeDeliveryThresholdCents: number;
+  minimumOrderCents?: number;
+  extendedMinOrderCents?: number;
   cutoffDay: number;
   cutoffHour: number;
   deliveryDays?: DeliveryDayConfig[];
@@ -32,6 +34,8 @@ export function CustomerShell({
   children,
   deliveryFeeCents,
   freeDeliveryThresholdCents,
+  minimumOrderCents,
+  extendedMinOrderCents,
   cutoffDay,
   cutoffHour,
   deliveryDays,
@@ -50,6 +54,8 @@ export function CustomerShell({
       <DeliverySettingsSync
         deliveryFeeCents={deliveryFeeCents}
         freeDeliveryThresholdCents={freeDeliveryThresholdCents}
+        minimumOrderCents={minimumOrderCents}
+        extendedMinOrderCents={extendedMinOrderCents}
         cutoffDay={cutoffDay}
         cutoffHour={cutoffHour}
         deliveryDays={deliveryDays}

@@ -67,6 +67,8 @@ export interface DeliverySettings {
   extendedDeliveryPerMileCents: number;
   /** Absolute max delivery radius (miles), incl. the long-distance tier */
   maxDeliveryRadiusMiles: number;
+  /** Minimum subtotal (cents) for deliveries beyond the local radius */
+  extendedMinOrderCents: number;
 }
 
 export interface OperationsSettings {

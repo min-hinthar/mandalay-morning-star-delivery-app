@@ -10,6 +10,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useCartValidation, useCartHydrated } from "@/lib/hooks/useCartValidation";
 import { useMenu } from "@/lib/hooks/useMenu";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { useShallow } from "zustand/react/shallow";
 import { CartEmptyState } from "@/components/ui/cart/CartEmptyState";
 import {
   ClearCartConfirmation,
@@ -23,7 +24,6 @@ import { CartItemGroup } from "./CartItemGroup";
 import { CartPageSummary } from "./CartPageSummary";
 import { CheckoutGate } from "./CheckoutGate";
 import { AttentionSection } from "./AttentionSection";
-import { MINIMUM_ORDER_CENTS } from "@/types/cart";
 import type { CartItem } from "@/types/cart";
 import type { SelectedModifier } from "@/types/cart";
 import type { MenuItem } from "@/types/menu";
@@ -244,7 +244,11 @@ export function CartPageContent() {
   }, [items, menuData, validation.validations]);
 
   // Minimum order shortfall
-  const minimumShortfallCents = Math.max(0, MINIMUM_ORDER_CENTS - itemsSubtotal);
+  // Distance-aware: beyond the local radius a higher floor applies, resolved by
+  // the SAME engine the server checkout gate uses so the cart can never invite a
+  // checkout the server will reject.
+  const minimumOrder = useCartStore(useShallow((s) => s.getMinimumOrder()));
+  const minimumShortfallCents = minimumOrder.shortfallCents;
 
   // Stale item count (sold-out + unavailable)
   const staleCount = validation.soldOutIds.length + validation.unavailableIds.length;
@@ -373,6 +377,8 @@ export function CartPageContent() {
           subtotalCents={itemsSubtotal}
           deliveryFeeCents={estimatedDeliveryFee}
           minimumShortfallCents={minimumShortfallCents}
+          minimumCents={minimumOrder.minimumCents}
+          isExtendedMinimum={minimumOrder.isExtendedMinimum}
           amountToFreeDelivery={amountToFreeDelivery}
           isExtendedRange={isExtendedRange}
           isOutOfRange={isOutOfRange}

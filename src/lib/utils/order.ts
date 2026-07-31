@@ -219,6 +219,8 @@ export function resolveDeliveryFee(
   return { feeCents: 0, tier: "out-of-range", isFree: false };
 }
 
+export { resolveMinimumOrder, type MinimumOrderResult } from "./minimum-order";
+
 /**
  * Calculate sales tax for Covina CA (10.5%)
  */

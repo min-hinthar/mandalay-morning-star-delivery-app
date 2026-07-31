@@ -7,7 +7,8 @@ import { cartIDBStorage } from "@/lib/services/cart-idb-storage";
 import { toast } from "@/lib/hooks/useToastV8";
 import { triggerHaptic } from "@/lib/swipe-gestures/utils";
 import type { DeliveryDayConfig } from "@/types/delivery";
-import { resolveDeliveryFee, type DeliveryPricingConfig } from "@/lib/utils/order";
+import { resolveDeliveryFee, resolveMinimumOrder } from "@/lib/utils/order";
+import { buildCartPricingConfig } from "./cart-pricing";
 
 // ============================================
 // DEDUPLICATION SIGNATURE
@@ -83,6 +84,13 @@ export const useCartStore = create<CartStore>()(
       setAddressDistance: (miles: number | null) => set({ addressDistanceMiles: miles }),
       setLongDistanceSettings: (fee: number, threshold: number) =>
         set({ longDistanceFeeCents: fee, longDistanceThresholdMiles: threshold }),
+
+      // Minimum-order floors (defaults match BUSINESS_RULES_DEFAULTS). The
+      // extended floor applies beyond the local radius.
+      minimumOrderCents: 2500,
+      extendedMinOrderCents: 10000,
+      setMinimumOrderSettings: (baseCents: number, extendedCents: number) =>
+        set({ minimumOrderCents: baseCents, extendedMinOrderCents: extendedCents }),
 
       // Graduated pricing settings (defaults match BUSINESS_RULES_DEFAULTS)
       deliveryFeeBands: [
@@ -300,24 +308,25 @@ export const useCartStore = create<CartStore>()(
         // below-free-threshold local order can differ if per-day fees are set. Harmless
         // under the default config (all days share one fee).
         const s = get();
-        const pricing: DeliveryPricingConfig = {
-          localFeeCents: s.deliveryFeeCents,
-          localRadiusMiles: s.longDistanceThresholdMiles,
-          freeDeliveryThresholdCents: s.freeDeliveryThresholdCents,
-          bands:
-            s.deliveryFeeBands.length > 0
-              ? s.deliveryFeeBands
-              : [{ maxMiles: s.standardRadiusMiles, feeCents: s.longDistanceFeeCents }],
-          standardRadiusMiles: s.standardRadiusMiles,
-          extendedEnabled: s.extendedDeliveryEnabled,
-          extendedPerMileCents: s.extendedPerMileCents,
-          maxRadiusMiles: s.maxRadiusMiles,
-        };
-        return resolveDeliveryFee(s.addressDistanceMiles, s.getItemsSubtotal(), pricing);
+        return resolveDeliveryFee(
+          s.addressDistanceMiles,
+          s.getItemsSubtotal(),
+          buildCartPricingConfig(s)
+        );
       },
 
       getEstimatedDeliveryFee: () => {
         return get().getDeliveryQuote().feeCents;
+      },
+
+      getMinimumOrder: () => {
+        // Same engine + same tier the SERVER gate uses, so the cart can never
+        // promise a checkout that the server will reject.
+        const s = get();
+        return resolveMinimumOrder(s.getItemsSubtotal(), s.getDeliveryQuote().tier, {
+          baseMinimumCents: s.minimumOrderCents,
+          extendedMinimumCents: s.extendedMinOrderCents,
+        });
       },
 
       getItemCount: () => {

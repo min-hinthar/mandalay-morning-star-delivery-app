@@ -22,6 +22,8 @@ export default async function CustomerLayout({ children }: { children: ReactNode
     <CustomerShell
       deliveryFeeCents={rules.deliveryFeeCents}
       freeDeliveryThresholdCents={rules.freeDeliveryThresholdCents}
+      minimumOrderCents={rules.minimumOrderCents}
+      extendedMinOrderCents={rules.extendedMinOrderCents}
       cutoffDay={rules.cutoffDay}
       cutoffHour={rules.cutoffHour}
       deliveryDays={rules.deliveryDays}

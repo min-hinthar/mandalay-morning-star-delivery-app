@@ -18,6 +18,10 @@ export interface CartPageSummaryProps {
   subtotalCents: number;
   deliveryFeeCents: number;
   minimumShortfallCents: number;
+  /** The floor that applies to this address (cents). */
+  minimumCents?: number;
+  /** True when the higher long-haul floor is the one in force. */
+  isExtendedMinimum?: boolean;
   amountToFreeDelivery: number;
   className?: string;
   isExtendedRange?: boolean;
@@ -44,6 +48,8 @@ export const CartPageSummary = memo(function CartPageSummary({
   subtotalCents,
   deliveryFeeCents,
   minimumShortfallCents,
+  minimumCents,
+  isExtendedMinimum = false,
   amountToFreeDelivery,
   className,
   isExtendedRange = false,
@@ -135,12 +141,24 @@ export const CartPageSummary = memo(function CartPageSummary({
               initial={shouldAnimate ? { opacity: 0, height: 0 } : undefined}
               animate={shouldAnimate ? { opacity: 1, height: "auto" } : undefined}
               transition={getSpring(spring.gentle)}
-              className="flex justify-between pt-1 text-sm"
+              className="space-y-1 pt-1"
             >
-              <span className="font-medium text-status-error">Below minimum</span>
-              <span className="font-semibold text-status-error">
-                ${(minimumShortfallCents / 100).toFixed(2)} short
-              </span>
+              <div className="flex justify-between text-sm">
+                <span className="font-medium text-status-error">
+                  {isExtendedMinimum ? "Below long-distance minimum" : "Below minimum"}
+                </span>
+                <span className="font-semibold text-status-error">
+                  ${(minimumShortfallCents / 100).toFixed(2)} short
+                </span>
+              </div>
+              {/* Say WHY the floor is higher out here — a bare "below minimum"
+                  on a $90 order reads as a bug to a far customer. */}
+              {isExtendedMinimum && minimumCents != null && (
+                <p className="text-xs leading-snug text-hero-ink-muted">
+                  Deliveries to your area need a ${(minimumCents / 100).toFixed(0)} minimum —
+                  it&rsquo;s a long drive, so we group them into bigger orders.
+                </p>
+              )}
             </m.div>
           )}
 

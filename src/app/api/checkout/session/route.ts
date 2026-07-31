@@ -26,6 +26,7 @@ import {
   fetchAndValidateCart,
   buildRpcPayload,
   revalidateItemAvailability,
+  enforceMinimumOrder,
 } from "./validation";
 
 const MAX_DELIVERY_DAYS_FUTURE = 30;
@@ -197,6 +198,9 @@ export async function POST(request: Request) {
         400
       );
     }
+
+    const minimumError = enforceMinimumOrder(subtotalCents, feeResult.tier, rules);
+    if (minimumError) return minimumError;
 
     const isExtendedRange =
       addressDistanceMiles != null && addressDistanceMiles > rules.longDistanceThresholdMiles;
