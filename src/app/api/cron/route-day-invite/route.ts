@@ -77,6 +77,22 @@ const MAX_SENDS_PER_RUN = 100;
  * already answer. Full addresses would turn a pasted dry-run output into a
  * customer-list leak, and operators paste these into chat.
  */
+/**
+ * Deterministic per-recipient rotation of the shared dish pool. The payload
+ * must be byte-identical for a given idempotency key (`route-day-<date>-<user>`),
+ * so the pick is derived from that same pair rather than from run-order.
+ */
+function pickForRecipient<T>(pool: T[], seed: string): T[] {
+  if (pool.length === 0) return pool;
+  let hash = 0x811c9dc5;
+  for (let i = 0; i < seed.length; i++) {
+    hash ^= seed.charCodeAt(i);
+    hash = Math.imul(hash, 0x01000193) >>> 0;
+  }
+  const offset = hash % pool.length;
+  return [...pool.slice(offset), ...pool.slice(0, offset)];
+}
+
 function maskEmail(email: string): string {
   const at = email.indexOf("@");
   if (at <= 0) return "***";
@@ -270,38 +286,45 @@ export async function GET(request: Request) {
 
     const userIds = [...coordsByUser.keys()];
 
-    const [{ data: profiles, error: profilesErr }, { data: settings, error: settingsErr }] =
-      await Promise.all([
-        supabase
-          .from("profiles")
-          .select("id, email, full_name")
-          .eq("role", "customer")
-          .in("id", userIds),
-        supabase
-          .from("customer_settings")
-          .select("user_id, notification_prefs")
-          .in("user_id", userIds),
-      ]);
-
-    // Fail CLOSED on the preferences read. `settings ?? []` on an error would
-    // yield an EMPTY opted-out set, i.e. "nobody opted out" — so a transient DB
-    // or permissions failure would mail promotional email to customers who
-    // explicitly disabled marketing. sendEmail's own per-recipient check can't
-    // save us either: it swallows its query error and proceeds. Consent is not
-    // something to guess at, so abort the run instead.
-    if (settingsErr) {
-      logger.exception(settingsErr, { flowId: FLOW_ID, api: "cron" });
-      return apiError("INTERNAL_ERROR", "Failed to load marketing preferences", 500);
-    }
-    if (profilesErr) {
-      logger.exception(profilesErr, { flowId: FLOW_ID, api: "cron" });
-      return apiError("INTERNAL_ERROR", "Failed to load profiles", 500);
+    // Chunked. PostgREST caps every select at max_rows (1000), silently — and
+    // for the PREFERENCES read that is a consent bug, not just truncation: a
+    // dropped row reads as "no preferences on file", which this code (correctly,
+    // for a genuinely absent row) treats as opted IN. Someone who set
+    // marketing:false would be mailed. Chunking the `.in()` keeps every page
+    // under the cap so absence means absence.
+    const ID_CHUNK = 500;
+    const profiles: { id: string; email: string | null; full_name: string | null }[] = [];
+    const settings: { user_id: string; notification_prefs: unknown }[] = [];
+    for (let i = 0; i < userIds.length; i += ID_CHUNK) {
+      const chunk = userIds.slice(i, i + ID_CHUNK);
+      const [{ data: profileRows, error: profilesErr }, { data: settingRows, error: settingsErr }] =
+        await Promise.all([
+          supabase
+            .from("profiles")
+            .select("id, email, full_name")
+            .eq("role", "customer")
+            .in("id", chunk),
+          supabase
+            .from("customer_settings")
+            .select("user_id, notification_prefs")
+            .in("user_id", chunk),
+        ]);
+      if (settingsErr) {
+        logger.exception(settingsErr, { flowId: FLOW_ID, api: "cron" });
+        return apiError("INTERNAL_ERROR", "Failed to load marketing preferences", 500);
+      }
+      if (profilesErr) {
+        logger.exception(profilesErr, { flowId: FLOW_ID, api: "cron" });
+        return apiError("INTERNAL_ERROR", "Failed to load profiles", 500);
+      }
+      profiles.push(...(profileRows ?? []));
+      settings.push(...(settingRows ?? []));
     }
 
     // Marketing is opt-OUT (absent row ⇒ opted in, matching sendEmail's rule),
     // but we filter here too so the dry run reports the true audience.
     const optedOut = new Set(
-      (settings ?? [])
+      settings
         .filter(
           (s) => (s.notification_prefs as unknown as NotificationPrefs | null)?.marketing === false
         )
@@ -317,7 +340,7 @@ export async function GET(request: Request) {
     // operator signal, so an audience smaller than the address list has to be
     // explainable. Without this the numbers just don't reconcile.
     let noEmailCandidates = 0;
-    for (const p of profiles ?? []) {
+    for (const p of profiles) {
       const coords = coordsByUser.get(p.id);
       if (!coords) continue;
       if (!p.email) {
@@ -392,34 +415,35 @@ export async function GET(request: Request) {
       const ranges = dates.map(getZonedDayRangeUtc);
       const startUtc = ranges.map((r) => r.startUtc).sort()[0];
       const endUtc = ranges.map((r) => r.endUtc).sort()[ranges.length - 1];
-      const { data: existing, error: existingErr } = await supabase
-        .from("orders")
-        .select("user_id, delivery_window_start, status")
-        .in("user_id", [...new Set(planned.map((p) => p.c.userId))])
-        .gte("delivery_window_start", startUtc)
-        .lte("delivery_window_start", endUtc)
-        // Statuses that mean a REAL order exists — not `!= cancelled`. Plain
-        // `pending` is an unpaid checkout that may never complete (the checkout
-        // route documents that a failed session-id write can strand one
-        // indefinitely), and counting it as ordered suppresses the nudge for
-        // exactly the customer most worth nudging: someone who started and
-        // didn't finish. `pending_approval` is a placed COD order and does count.
-        .in("status", [
-          "pending_approval",
-          "confirmed",
-          "preparing",
-          "out_for_delivery",
-          "delivered",
-        ]);
-      // Fail CLOSED. Swallowing this error leaves `ordered` empty, which filters
-      // NOBODY and mails customers who already ordered — the exact guardrail
-      // this job exists to honour. Abort the run instead.
-      if (existingErr) {
-        logger.exception(existingErr, { flowId: FLOW_ID, api: "cron" });
-        return apiError("INTERNAL_ERROR", "Failed to load existing orders", 500);
+      // Chunked for the same max_rows reason as the audience reads, and it
+      // matters more here: this result has no deterministic ordering, so a
+      // truncated page could drop the ONLY order row for a customer still in
+      // `toSend` — and we would invite someone who already ordered, the one
+      // thing this job promises never to do.
+      const existing: { user_id: string; delivery_window_start: string | null }[] = [];
+      const plannedUserIds = [...new Set(planned.map((p) => p.c.userId))];
+      for (let i = 0; i < plannedUserIds.length; i += 500) {
+        const { data: rows, error: existingErr } = await supabase
+          .from("orders")
+          .select("user_id, delivery_window_start, status")
+          .in("user_id", plannedUserIds.slice(i, i + 500))
+          .gte("delivery_window_start", startUtc)
+          .lte("delivery_window_start", endUtc)
+          .in("status", [
+            "pending_approval",
+            "confirmed",
+            "preparing",
+            "out_for_delivery",
+            "delivered",
+          ]);
+        if (existingErr) {
+          logger.exception(existingErr, { flowId: FLOW_ID, api: "cron" });
+          return apiError("INTERNAL_ERROR", "Failed to load existing orders", 500);
+        }
+        existing.push(...(rows ?? []));
       }
       const ordered = new Set(
-        (existing ?? [])
+        existing
           .filter((o) => o.delivery_window_start)
           // delivery_window_start is timestamptz returned in UTC; the planned
           // date is LA-zoned. Slicing the UTC string would roll an evening PT
@@ -460,10 +484,11 @@ export async function GET(request: Request) {
     }
 
     // Real dishes with hostable photos — shared across the whole run.
-    // Seeded by delivery date so a re-run renders the SAME dishes — the
-    // idempotency key is per (date, user), and Resend rejects a reused key
-    // whose payload changed.
-    const featuredItems = await fetchSuggestedItems(supabase, [], planned[0]?.date ?? "route-day");
+    // One fetch for the run; the per-recipient SEED is applied below. Seeding
+    // off planned[0] would give everyone the first recipient's date, and a
+    // shifting audience would change that seed between runs — re-rendering a
+    // different payload under an already-used key.
+    const dishPool = await fetchSuggestedItems(supabase, []);
 
     let sent = 0;
     let suppressed = 0;
@@ -488,7 +513,7 @@ export async function GET(request: Request) {
             headline: p.headline,
             cutoffText: p.cutoffText,
             dayName: p.dayName,
-            featuredItems,
+            featuredItems: pickForRecipient(dishPool, `${p.date}:${p.c.userId}`),
           }),
           type: "route_day_invite",
           // No order exists yet; orderId is only used for tagging/logging and

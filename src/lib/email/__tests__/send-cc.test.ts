@@ -30,7 +30,11 @@ vi.mock("@/lib/supabase/server", () => ({
   createServiceClient: () => ({
     from: () => ({
       select: () => ({
-        eq: () => ({ single: async () => ({ data: null, error: null }) }),
+        eq: () => ({
+          single: async () => ({ data: null, error: null }),
+          // The notification_logs duplicate-resend_id check uses maybeSingle.
+          maybeSingle: async () => ({ data: null, error: null }),
+        }),
       }),
       insert: async () => ({ data: null, error: null }),
       update: () => ({ eq: async () => ({ data: null, error: null }) }),

@@ -136,6 +136,12 @@ export function RouteDayCallout({
           if (row?.lat != null && row?.lng != null && row.is_verified) {
             coords = { lat: row.lat, lng: row.lng };
             distanceRef.current = row.distance_miles ?? null;
+          } else {
+            // MUST reset. A stale distance outlives the address it came from:
+            // delete a far verified address in another tab and the resolver's
+            // coverage pre-check still sees 60mi, suppressing even the generic
+            // unplaced-visitor banner.
+            distanceRef.current = null;
           }
         }
       } catch {

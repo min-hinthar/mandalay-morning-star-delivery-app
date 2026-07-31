@@ -35,6 +35,9 @@ vi.mock("@/lib/supabase/server", () => ({
     from: (table: string) => ({
       select: () => ({
         eq: () => ({
+          // The notification_logs duplicate-resend_id check uses maybeSingle;
+          // no prior log row exists in these fixtures.
+          maybeSingle: async () => ({ data: null, error: null }),
           single: async () => {
             if (table === "app_settings") return { data: { value: killSwitchValue }, error: null };
             if (table === "customer_settings") {

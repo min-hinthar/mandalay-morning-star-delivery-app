@@ -213,7 +213,26 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       // -----------------------------------------------
       const resendId = data?.id;
       const isUnlogged = (UNLOGGED_EMAIL_TYPES as readonly string[]).includes(options.type);
-      if (!isUnlogged) {
+
+      // A dedupe REPLAY returns the original send's id, so two callers sharing
+      // a key (the Stripe webhook and verify-payment both send
+      // `order-confirmation-<orderId>`) would each insert a row carrying the
+      // SAME resend_id. The Resend status webhook looks that id up with
+      // `.single()`, which errors on duplicates — silently stopping
+      // delivery/bounce/complaint tracking for those orders. Only the first
+      // caller logs. Now that the idempotency key is actually honoured this is
+      // reachable on every Stripe order, not a theoretical race.
+      let alreadyLogged = false;
+      if (!isUnlogged && resendId) {
+        const { data: existingLog } = await supabase
+          .from("notification_logs")
+          .select("id")
+          .eq("resend_id", resendId)
+          .maybeSingle();
+        alreadyLogged = existingLog != null;
+      }
+
+      if (!isUnlogged && !alreadyLogged) {
         await supabase.from("notification_logs").insert({
           order_id: options.orderId,
           user_id: options.userId,
