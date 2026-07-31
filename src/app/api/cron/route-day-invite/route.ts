@@ -129,6 +129,14 @@ const ATTEMPT_TIMEOUT_MS = 3_000;
 const WORST_CASE_BACKOFF_MS =
   MAX_RETRY_ATTEMPTS * (MAX_RETRY_ATTEMPTS - 1) * (RETRY_BASE_DELAY_MS / 2);
 const WORST_CASE_SEND_MS = WORST_CASE_BACKOFF_MS + MAX_RETRY_ATTEMPTS * ATTEMPT_TIMEOUT_MS;
+// The flat headroom absorbs the per-recipient work that is NOT under the
+// attempt ceiling: sendEmail renders the template twice (HTML + plain text)
+// and does two Supabase reads (kill switch + prefs) before the bounded call,
+// plus the response/log writes after it. All sub-second in practice, so 5s
+// covers the one last-started send this reserve exists for. If any of that
+// ever grows past ~1s per recipient (a heavy template, a slow region), grow
+// this — the budget is only a hard ceiling while everything outside the
+// bounded call fits in here.
 const SEND_BUDGET_MS = maxDuration * 1000 - WORST_CASE_SEND_MS - 5_000;
 
 function isAuthorized(request: Request): boolean {
