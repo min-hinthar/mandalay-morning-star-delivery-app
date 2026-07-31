@@ -69,14 +69,16 @@ describe("sendEmail idempotency key", () => {
     // Resend only turns the SECOND argument into the HTTP Idempotency-Key
     // header; a key inside the payload's `headers` is just a header on the
     // outgoing message and dedupes nothing.
-    expect(requestOptions).toEqual({ idempotencyKey: "confirmed-abc" });
+    expect(requestOptions.idempotencyKey).toBe("confirmed-abc");
     expect(payload.headers).not.toHaveProperty("Idempotency-Key");
   });
 
-  it("omits the request options entirely when no key is given", async () => {
+  it("omits the idempotency key when none is given", async () => {
     await sendEmail(options("order_confirmation"));
 
-    expect(sendMock.mock.calls[0][1]).toBeUndefined();
+    // The options object itself is always present now — it carries the
+    // per-attempt AbortSignal — so assert on the key, not the object.
+    expect(sendMock.mock.calls[0][1]).not.toHaveProperty("idempotencyKey");
   });
 
   it("keeps the List-Unsubscribe link and does not claim one-click", async () => {

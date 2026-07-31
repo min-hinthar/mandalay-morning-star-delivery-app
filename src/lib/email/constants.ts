@@ -46,6 +46,28 @@ export const MAX_RETRY_ATTEMPTS = 3;
 /** Base delay between retries in ms (multiplied by attempt number) */
 export const RETRY_BASE_DELAY_MS = 10_000;
 
+/**
+ * Hard ceiling on ONE attempt's request to Resend.
+ *
+ * Without it a `sendEmail` call has no upper bound at all — only the backoff
+ * sleeps are bounded, so worst case is `30s of sleeps + 3 × (unbounded
+ * latency)`. That can outlive a Vercel invocation, which kills it mid-loop:
+ * for the route-day cron that means no summary line, i.e. no way to tell a
+ * truncated run from a complete one.
+ *
+ * DELIBERATELY GENEROUS, because aborting is not free. A timed-out attempt may
+ * still have been ACCEPTED by Resend, and the retry reuses the same request —
+ * so for a caller that passes an `idempotencyKey` the retry is deduped, but for
+ * one that does NOT, an abort-then-retry can send the customer two copies.
+ * 15s is far above Resend's normal sub-second response, so only a genuinely
+ * stuck request trips it; shaving this to squeeze a cron budget would trade a
+ * rare missing log line for real duplicate mail.
+ *
+ * Callers whose sends ARE key-protected can pass a tighter
+ * `attemptTimeoutMs` — see SendEmailOptions.
+ */
+export const SEND_ATTEMPT_TIMEOUT_MS = 15_000;
+
 // ===========================================
 // ERROR GUIDANCE (operator-friendly messages)
 // ===========================================

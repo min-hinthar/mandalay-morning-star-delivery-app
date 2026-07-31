@@ -39,6 +39,19 @@ export interface SendEmailOptions {
   idempotencyKey?: string;
   /** If true, email is sent regardless of user preferences */
   mandatory?: boolean;
+  /**
+   * Override the per-attempt request ceiling (default
+   * `SEND_ATTEMPT_TIMEOUT_MS`, 15s).
+   *
+   * Only lower this when the send carries an `idempotencyKey`. Aborting a
+   * request that Resend may already have ACCEPTED and then retrying is exactly
+   * what the key makes safe — without one, a tighter ceiling buys bounded
+   * duration at the cost of possible duplicate mail to a customer.
+   *
+   * The bulk cron does lower it, because a per-recipient ceiling is what makes
+   * its wall-clock budget sound, and every one of its sends is key-protected.
+   */
+  attemptTimeoutMs?: number;
 }
 
 export interface SendEmailResult {
