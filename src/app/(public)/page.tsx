@@ -148,6 +148,7 @@ export default async function HomePage(): Promise<ReactElement> {
         <RouteDayCallout
           deliveryDays={rules.deliveryDays}
           deliveryZones={rules.deliveryZones}
+          maxRadiusMiles={rules.maxDeliveryRadiusMiles}
           className="mx-auto max-w-3xl px-4 pt-4"
         />
 

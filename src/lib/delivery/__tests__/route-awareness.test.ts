@@ -135,6 +135,51 @@ describe("resolveRouteDayAwareness", () => {
     expect(unknown!.isLocal).toBe(false);
   });
 
+  describe("coverage ceiling", () => {
+    it("says nothing for an address now beyond the max radius", () => {
+      // A bearing exists for any coordinate, so without a distance check this
+      // address would keep matching the West run after the operator lowered the
+      // radius — while checkout answers OUT_OF_COVERAGE.
+      expect(
+        resolveRouteDayAwareness({
+          coords: SANTA_MONICA,
+          deliveryDays: DAYS,
+          deliveryZones: ZONES,
+          now: SUNDAY,
+          distanceMiles: 60,
+          maxRadiusMiles: 50,
+        })
+      ).toBeNull();
+    });
+
+    it("still resolves an address exactly at the ceiling", () => {
+      const a = resolveRouteDayAwareness({
+        coords: SANTA_MONICA,
+        deliveryDays: DAYS,
+        deliveryZones: ZONES,
+        now: SUNDAY,
+        distanceMiles: 50,
+        maxRadiusMiles: 50,
+      });
+      expect(a).not.toBeNull();
+      expect(a!.dayName).toBe("Wednesday");
+    });
+
+    it("treats an unmeasured distance as in range rather than silencing them", () => {
+      // 4 of the live addresses have a null distance; suppressing those would
+      // mute real local customers over missing backfill.
+      const a = resolveRouteDayAwareness({
+        coords: SANTA_MONICA,
+        deliveryDays: DAYS,
+        deliveryZones: ZONES,
+        now: SUNDAY,
+        distanceMiles: null,
+        maxRadiusMiles: 50,
+      });
+      expect(a).not.toBeNull();
+    });
+  });
+
   it("returns null when the address's direction matches no configured run", () => {
     // Only an EAST run exists, but the address is far west.
     const a = resolveRouteDayAwareness({

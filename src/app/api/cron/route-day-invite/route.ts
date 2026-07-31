@@ -130,6 +130,8 @@ interface Candidate {
   name: string;
   lat: number;
   lng: number;
+  /** Persisted drive distance, or null when never measured. */
+  distanceMiles: number | null;
 }
 
 export async function GET(request: Request) {
@@ -160,7 +162,7 @@ export async function GET(request: Request) {
     // unordered, making the pick deterministic run-to-run.
     const { data: addresses, error: addrError } = await supabase
       .from("addresses")
-      .select("user_id, lat, lng, is_default, created_at")
+      .select("user_id, lat, lng, is_default, created_at, distance_miles")
       .order("is_default", { ascending: false })
       .order("created_at", { ascending: false });
 
@@ -172,7 +174,10 @@ export async function GET(request: Request) {
     // First address per user wins (is_default first, then newest). If that one
     // has no coords we record the user as unplaceable rather than falling
     // through to an older address — see the query comment.
-    const coordsByUser = new Map<string, { lat: number; lng: number }>();
+    const coordsByUser = new Map<
+      string,
+      { lat: number; lng: number; distanceMiles: number | null }
+    >();
     const seenUsers = new Set<string>();
     let skippedUnplaceable = 0;
     for (const a of addresses ?? []) {
@@ -182,7 +187,11 @@ export async function GET(request: Request) {
         skippedUnplaceable++;
         continue;
       }
-      coordsByUser.set(a.user_id, { lat: a.lat, lng: a.lng });
+      coordsByUser.set(a.user_id, {
+        lat: a.lat,
+        lng: a.lng,
+        distanceMiles: (a as { distance_miles?: number | null }).distance_miles ?? null,
+      });
     }
     if (coordsByUser.size === 0) return NextResponse.json({ ok: true, candidates: 0, sent: 0 });
 
@@ -248,6 +257,7 @@ export async function GET(request: Request) {
         name: p.full_name || "there",
         lat: coords.lat,
         lng: coords.lng,
+        distanceMiles: coords.distanceMiles,
       });
     }
 
@@ -273,6 +283,8 @@ export async function GET(request: Request) {
     for (const c of candidates) {
       const awareness = resolveRouteDayAwareness({
         coords: { lat: c.lat, lng: c.lng },
+        distanceMiles: c.distanceMiles,
+        maxRadiusMiles: rules.maxDeliveryRadiusMiles,
         deliveryDays: rules.deliveryDays,
         deliveryZones: rules.deliveryZones,
         now,

@@ -45,10 +45,17 @@ const RECHECK_INTERVAL_MS = 60_000;
 export interface RouteDayCalloutProps {
   deliveryDays: DeliveryDayConfig[];
   deliveryZones?: DeliveryZoneConfig[];
+  /** Current coverage ceiling — suppresses a saved address now out of range. */
+  maxRadiusMiles?: number;
   className?: string;
 }
 
-export function RouteDayCallout({ deliveryDays, deliveryZones, className }: RouteDayCalloutProps) {
+export function RouteDayCallout({
+  deliveryDays,
+  deliveryZones,
+  maxRadiusMiles,
+  className,
+}: RouteDayCalloutProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const [awareness, setAwareness] = useState<RouteDayAwareness | null>(null);
   const [dismissed, setDismissed] = useState(true); // hidden until resolved (hydration-safe)
@@ -56,12 +63,19 @@ export function RouteDayCallout({ deliveryDays, deliveryZones, className }: Rout
   // Cached so the periodic re-check re-runs only the pure resolver, never the
   // auth + addresses round-trip.
   const coordsRef = useRef<{ lat: number; lng: number } | null>(null);
+  const distanceRef = useRef<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
     function applyResolved(coords: { lat: number; lng: number } | null) {
-      const next = resolveRouteDayAwareness({ coords, deliveryDays, deliveryZones });
+      const next = resolveRouteDayAwareness({
+        coords,
+        deliveryDays,
+        deliveryZones,
+        distanceMiles: distanceRef.current,
+        maxRadiusMiles,
+      });
       // The resolver builds a fresh object every call, so setting it
       // unconditionally would re-render the banner on every timer tick. Every
       // field is derived from the delivery date, so that's the only one worth
@@ -84,12 +98,16 @@ export function RouteDayCallout({ deliveryDays, deliveryZones, className }: Rout
         if (user) {
           const { data } = await supabase
             .from("addresses")
-            .select("lat, lng, is_default")
+            .select("lat, lng, is_default, distance_miles")
             .eq("user_id", user.id)
             .order("is_default", { ascending: false })
             .limit(1)
             .maybeSingle();
-          if (data?.lat != null && data?.lng != null) coords = { lat: data.lat, lng: data.lng };
+          if (data?.lat != null && data?.lng != null) {
+            coords = { lat: data.lat, lng: data.lng };
+            distanceRef.current =
+              (data as { distance_miles?: number | null }).distance_miles ?? null;
+          }
         }
       } catch {
         // Anonymous or offline — fall through to the generic signal.
@@ -121,7 +139,7 @@ export function RouteDayCallout({ deliveryDays, deliveryZones, className }: Rout
       clearInterval(recheck);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [deliveryDays, deliveryZones]);
+  }, [deliveryDays, deliveryZones, maxRadiusMiles]);
 
   const handleDismiss = useCallback(() => {
     if (awareness) {

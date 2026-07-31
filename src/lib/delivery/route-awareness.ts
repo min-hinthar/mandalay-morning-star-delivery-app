@@ -51,6 +51,17 @@ export interface RouteDayAwarenessInput {
   deliveryDays: DeliveryDayConfig[];
   deliveryZones?: DeliveryZoneConfig[];
   now?: Date;
+  /**
+   * Persisted drive distance for the address, when known. Pass together with
+   * `maxRadiusMiles` so an address that no longer falls inside coverage is
+   * suppressed — a bearing exists for ANY coordinate, so without this a
+   * previously-verified far address keeps matching a route long after the
+   * operator lowers the radius, and checkout answers OUT_OF_COVERAGE.
+   * Null/undefined means unknown, which is treated as in-range rather than
+   * silencing customers whose distance was never backfilled.
+   */
+  distanceMiles?: number | null;
+  maxRadiusMiles?: number | null;
 }
 
 /**
@@ -65,9 +76,19 @@ export function resolveRouteDayAwareness({
   deliveryDays,
   deliveryZones,
   now = new Date(),
+  distanceMiles,
+  maxRadiusMiles,
 }: RouteDayAwarenessInput): RouteDayAwareness | null {
   const activeDays = deliveryDays.filter((d) => d.isActive);
   if (activeDays.length === 0) return null;
+
+  // Out of coverage ⇒ say nothing. A compass bearing exists for every
+  // coordinate, so direction matching alone would keep advertising a run to an
+  // address the operator has since put out of range — and checkout would answer
+  // OUT_OF_COVERAGE. `== null` on purpose: 0 is a real distance.
+  if (distanceMiles != null && maxRadiusMiles != null && distanceMiles > maxRadiusMiles) {
+    return null;
+  }
 
   const zones = deliveryZones && deliveryZones.length > 0 ? deliveryZones : DEFAULT_ZONES;
 
