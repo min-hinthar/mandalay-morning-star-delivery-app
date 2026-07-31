@@ -111,7 +111,14 @@ describe("sendEmail notification_logs failures", () => {
 
     expect(loggerMock.error).toHaveBeenCalledWith(
       expect.stringContaining("notification_logs"),
-      expect.objectContaining({ dbError: "permission denied", dbErrorCode: "42501" })
+      expect.objectContaining({
+        dbError: "permission denied",
+        dbErrorCode: "42501",
+        // The id the Resend status webhook matches on — without it the operator
+        // can't find the message this dropped row was supposed to track.
+        resendId: "resend-1",
+        orderId: "11111111-2222-3333-4444-555555555555",
+      })
     );
   });
 
@@ -123,7 +130,7 @@ describe("sendEmail notification_logs failures", () => {
     expect(loggerMock.warn).not.toHaveBeenCalled();
   });
 
-  it("warns and inserts anyway when the duplicate check errors", async () => {
+  it("warns and inserts anyway when the duplicate check genuinely fails", async () => {
     dupCheckResult = { data: null, error: { message: "timeout", code: "57014" } };
 
     const result = await sendEmail(options());
@@ -133,8 +140,31 @@ describe("sendEmail notification_logs failures", () => {
     // operator has to know: duplicates are what break the webhook's .single().
     expect(insertMock).toHaveBeenCalledTimes(1);
     expect(loggerMock.warn).toHaveBeenCalledWith(
-      expect.stringContaining("duplicate check"),
-      expect.objectContaining({ dbErrorCode: "57014" })
+      expect.stringContaining("duplicate check failed"),
+      expect.objectContaining({ dbErrorCode: "57014", resendId: "resend-1" })
+    );
+  });
+
+  it("does NOT insert a third row when PGRST116 says duplicates already exist", async () => {
+    // On a GET, maybeSingle() asks for application/json and postgrest-js
+    // synthesizes PGRST116 client-side when >1 row comes back. So this code is
+    // "rows already exist", not "the lookup broke" — inserting would deepen the
+    // exact duplication the guard exists to prevent.
+    dupCheckResult = {
+      data: null,
+      error: {
+        message: "JSON object requested, multiple (or no) rows returned",
+        code: "PGRST116",
+      },
+    };
+
+    const result = await sendEmail(options());
+
+    expect(result.success).toBe(true);
+    expect(insertMock).not.toHaveBeenCalled();
+    expect(loggerMock.warn).toHaveBeenCalledWith(
+      expect.stringContaining("skipping insert"),
+      expect.objectContaining({ dbErrorCode: "PGRST116", resendId: "resend-1" })
     );
   });
 

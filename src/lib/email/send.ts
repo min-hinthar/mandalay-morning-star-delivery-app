@@ -235,21 +235,36 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
           .select("id")
           .eq("resend_id", resendId)
           .maybeSingle();
-        // A failed lookup falls through to the insert (alreadyLogged stays
-        // false) — a possible duplicate row beats dropping the log entirely,
-        // but it's the exact condition the `.single()` webhook lookup chokes
-        // on, so surface it rather than letting it read as "no row found".
+        // PGRST116 here means rows ALREADY EXIST, not "lookup broke": on a GET,
+        // maybeSingle() asks for `application/json` and postgrest-js synthesizes
+        // that code client-side when the array comes back with >1 row (it never
+        // reaches PostgREST's singular-representation check). So the duplicates
+        // this guard exists to prevent are already there, and inserting anyway
+        // would add a third. Treat it as logged and skip.
+        const duplicatesExist = existingLogError?.code === "PGRST116";
+
+        // Any OTHER error is a genuinely failed lookup — fall through to the
+        // insert (alreadyLogged stays false), since a possible duplicate row
+        // beats dropping the log entirely. Either way it must be surfaced
+        // rather than read as a clean "no row found": duplicates are the exact
+        // condition the `.single()` webhook lookup chokes on.
         if (existingLogError) {
-          logger.warn("notification_logs duplicate check failed — inserting anyway", {
-            flowId,
-            orderId: options.orderId,
-            userId: options.userId,
-            emailType: options.type,
-            dbError: existingLogError.message,
-            dbErrorCode: existingLogError.code,
-          });
+          logger.warn(
+            duplicatesExist
+              ? "notification_logs already holds duplicate rows for this resend_id — skipping insert"
+              : "notification_logs duplicate check failed — inserting anyway",
+            {
+              flowId,
+              orderId: options.orderId,
+              userId: options.userId,
+              emailType: options.type,
+              resendId,
+              dbError: existingLogError.message,
+              dbErrorCode: existingLogError.code,
+            }
+          );
         }
-        alreadyLogged = existingLog != null;
+        alreadyLogged = existingLog != null || duplicatesExist;
       }
 
       if (!isUnlogged && !alreadyLogged) {
