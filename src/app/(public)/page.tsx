@@ -145,9 +145,11 @@ export default async function HomePage(): Promise<ReactElement> {
         {/* "We're driving your way" — next run that actually serves this
             customer's address + its ordering deadline (schedule-derived, so it
             never references other customers' orders). */}
-        <div className="mx-auto max-w-3xl px-4 pt-4">
-          <RouteDayCallout deliveryDays={rules.deliveryDays} deliveryZones={rules.deliveryZones} />
-        </div>
+        <RouteDayCallout
+          deliveryDays={rules.deliveryDays}
+          deliveryZones={rules.deliveryZones}
+          className="mx-auto max-w-3xl px-4 pt-4"
+        />
 
         {/* Rewards welcome-back pill - signed-in customers with Stars (client) */}
         <RewardsWelcomeBack />

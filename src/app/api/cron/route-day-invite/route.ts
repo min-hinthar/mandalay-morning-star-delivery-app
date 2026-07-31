@@ -34,12 +34,29 @@ const CRON_SECRET = process.env.CRON_SECRET;
 const STAGGER_DELAY_MS = 100;
 const FLOW_ID = "route-day-invite";
 
-/** Only nudge when the deadline is close enough to be actionable, but not past. */
+/**
+ * Only nudge when the deadline is close enough to be actionable, but not past.
+ *
+ * The upper bound is deliberately kept well inside Resend's ~24h
+ * Idempotency-Key TTL. This type writes no notification_logs row (the
+ * notification_type enum has no value for it), so that key is the ONLY thing
+ * preventing a duplicate send — a window wider than the TTL lets the key age
+ * out while a customer is still inside the window, and they get mailed twice
+ * for the same delivery date. Trade-off: with a once-daily cron, cutoffs
+ * landing outside 2–20h are simply not nudged. A missed nudge is much cheaper
+ * than a duplicate marketing email. Exact-once arrives with the enum migration.
+ */
 const MIN_HOURS_BEFORE_CUTOFF = 2;
-const MAX_HOURS_BEFORE_CUTOFF = 36;
+const MAX_HOURS_BEFORE_CUTOFF = 20;
 
-/** Hard cap per run — a runaway audience query can never mass-mail. */
-const MAX_SENDS_PER_RUN = 200;
+/** Hard cap per run — matches the other marketing crons (win-back, abandoned-cart). */
+const MAX_SENDS_PER_RUN = 100;
+
+/**
+ * Serial sends + 100ms stagger + Resend retries can exceed the default function
+ * timeout; without this a long run is silently truncated mid-loop.
+ */
+export const maxDuration = 300;
 
 function isAuthorized(request: Request): boolean {
   // Fail CLOSED: without a secret nobody may trigger a marketing send.
