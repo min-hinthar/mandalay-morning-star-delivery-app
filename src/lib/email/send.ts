@@ -5,6 +5,7 @@ import { logger } from "@/lib/utils/logger";
 import type { NotificationPrefs } from "@/components/ui/account/SettingsTab/settings-types";
 
 import { getResendClient } from "./client";
+import { buildUnsubscribeHeaders } from "./unsubscribe";
 import {
   APP_URL,
   EMAIL_CC,
@@ -136,6 +137,18 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   const resend = getResendClient();
   let lastError: string | undefined;
 
+  // One-click is offered ONLY for mail the recipient can actually stop.
+  //
+  // A MANDATORY type (order confirmation, refund) bypasses the preference
+  // check entirely, so a one-click unsubscribe on it would report success and
+  // keep sending — the same broken promise this feature exists to fix, just
+  // relocated. Those messages keep the plain settings link, which is honest:
+  // the customer can manage the prefs that DO apply. Transactional mail needs
+  // no unsubscribe under CAN-SPAM anyway.
+  const unsubscribeHeaders = isMandatory
+    ? { "List-Unsubscribe": `<${APP_URL}/account?tab=settings>` }
+    : buildUnsubscribeHeaders(options.userId, mapTypeToPrefKey(options.type));
+
   for (let attempt = 1; attempt <= MAX_RETRY_ATTEMPTS; attempt++) {
     try {
       const { data, error } = await resend.emails.send(
@@ -151,17 +164,16 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
             { name: "type", value: options.type },
             { name: "order_id", value: options.orderId },
           ],
-          headers: {
-            // RFC 2369 link only. `List-Unsubscribe-Post: One-Click` (RFC 8058)
-            // is deliberately NOT set: it promises the mail client that a plain
-            // POST to this URL unsubscribes the reader, but the URL is an
-            // authenticated settings PAGE with no POST handler — so a one-click
-            // unsubscribe would appear to succeed in the client and change
-            // nothing, which is worse than not offering it. Restore the header
-            // together with a real signed-token endpoint (see the tracking
-            // issue) before this is claimed again.
-            "List-Unsubscribe": `<${APP_URL}/account?tab=settings>`,
-          },
+          // Per-recipient, because a one-click URL has to carry a token that
+          // identifies WHO is unsubscribing — a constant header can't. The
+          // helper emits the RFC 8058 `List-Unsubscribe-Post` pair only when it
+          // can actually mint a token, and falls back to the plain RFC 2369
+          // link otherwise: advertising one-click against a URL that can't
+          // honor it is what made Gmail's unsubscribe silently do nothing.
+          //
+          // Keyed to the pref this message is gated on, so unsubscribing from
+          // marketing doesn't also silence order updates.
+          headers: unsubscribeHeaders,
         },
         // MUST be the second argument. Resend reads the dedupe key from the
         // request OPTIONS and sets it as the HTTP `Idempotency-Key` header
