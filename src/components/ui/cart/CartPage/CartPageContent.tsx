@@ -10,6 +10,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useCartValidation, useCartHydrated } from "@/lib/hooks/useCartValidation";
 import { useMenu } from "@/lib/hooks/useMenu";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { useShallow } from "zustand/react/shallow";
 import { CartEmptyState } from "@/components/ui/cart/CartEmptyState";
 import {
   ClearCartConfirmation,
@@ -246,7 +247,7 @@ export function CartPageContent() {
   // Distance-aware: beyond the local radius a higher floor applies, resolved by
   // the SAME engine the server checkout gate uses so the cart can never invite a
   // checkout the server will reject.
-  const minimumOrder = useCartStore((s) => s.getMinimumOrder());
+  const minimumOrder = useCartStore(useShallow((s) => s.getMinimumOrder()));
   const minimumShortfallCents = minimumOrder.shortfallCents;
 
   // Stale item count (sold-out + unavailable)
