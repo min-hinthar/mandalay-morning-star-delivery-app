@@ -42,6 +42,19 @@ const DISMISS_PREFIX = "route-day-callout-dismissed:";
  */
 const RECHECK_INTERVAL_MS = 60_000;
 
+/** Every field the banner actually renders — see the note at the call site. */
+function isSameAwareness(a: RouteDayAwareness | null, b: RouteDayAwareness | null): boolean {
+  if (a === b) return true;
+  if (!a || !b) return false;
+  return (
+    a.deliveryDateString === b.deliveryDateString &&
+    a.cutoffText === b.cutoffText &&
+    a.routeLabel === b.routeLabel &&
+    a.dayName === b.dayName &&
+    a.isLocal === b.isLocal
+  );
+}
+
 export interface RouteDayCalloutProps {
   deliveryDays: DeliveryDayConfig[];
   deliveryZones?: DeliveryZoneConfig[];
@@ -77,10 +90,12 @@ export function RouteDayCallout({
         maxRadiusMiles,
       });
       // The resolver builds a fresh object every call, so setting it
-      // unconditionally would re-render the banner on every timer tick. Every
-      // field is derived from the delivery date, so that's the only one worth
-      // comparing — equal date means an identical result.
-      setAwareness((prev) => (prev?.deliveryDateString === next?.deliveryDateString ? prev : next));
+      // unconditionally would re-render the banner on every timer tick. Compare
+      // the DISPLAYED fields, not just the date: an admin changing a cutoff
+      // hour or a route's direction produces new copy for the SAME delivery
+      // date, and keying only on the date would leave the banner showing the
+      // old deadline until the component remounted.
+      setAwareness((prev) => (isSameAwareness(prev, next) ? prev : next));
       setDismissed(
         next ? localStorage.getItem(`${DISMISS_PREFIX}${next.deliveryDateString}`) === "true" : true
       );

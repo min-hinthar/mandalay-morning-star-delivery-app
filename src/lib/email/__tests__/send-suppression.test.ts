@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import React from "react";
 
 /**
@@ -67,6 +67,10 @@ function options(type: string) {
 }
 
 describe("sendEmail suppression signal", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   beforeEach(() => {
     sendMock.mockReset();
     sendMock.mockResolvedValue({ data: { id: "resend-1" }, error: null });
@@ -111,6 +115,42 @@ describe("sendEmail suppression signal", () => {
 
     expect(result.suppressed).toBeFalsy();
     expect(sendMock).toHaveBeenCalledTimes(1);
+  });
+
+  it("does NOT claim delivery for a malformed idempotency key", async () => {
+    // invalid_idempotency_key means the key itself was rejected — nothing was
+    // sent. Reporting success here would lose the email silently.
+    sendMock.mockResolvedValue({
+      data: null,
+      error: { name: "invalid_idempotency_key", message: "Idempotency key is invalid" },
+    });
+
+    // Fake timers so the real 10s+20s retry backoff doesn't add 30s per test.
+    vi.useFakeTimers();
+    const pending = sendEmail({ ...options("order_confirmation"), idempotencyKey: "bad" });
+    await vi.runAllTimersAsync();
+    const result = await pending;
+
+    expect(result.success).toBe(false);
+    expect(result.suppressed).toBeFalsy();
+  });
+
+  it("does NOT claim delivery while a same-key request is still in flight", async () => {
+    // concurrent_idempotent_requests means another call holds the key and may
+    // yet FAIL. Assuming it delivered could leave the customer with no email
+    // while every caller reports success.
+    sendMock.mockResolvedValue({
+      data: null,
+      error: { name: "concurrent_idempotent_requests", message: "Concurrent request" },
+    });
+
+    vi.useFakeTimers();
+    const pending = sendEmail({ ...options("order_confirmation"), idempotencyKey: "k" });
+    await vi.runAllTimersAsync();
+    const result = await pending;
+
+    expect(result.success).toBe(false);
+    expect(result.suppressed).toBeFalsy();
   });
 
   it("treats an idempotency conflict as already-delivered, not a failure", async () => {

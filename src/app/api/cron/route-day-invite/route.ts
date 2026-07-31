@@ -125,6 +125,17 @@ function isAuthorized(request: Request): boolean {
   return request.headers.get("authorization") === `Bearer ${CRON_SECRET}`;
 }
 
+interface AddressRow {
+  id: string;
+  user_id: string;
+  lat: number | null;
+  lng: number | null;
+  is_default: boolean | null;
+  created_at: string | null;
+  distance_miles: number | null;
+  is_verified: boolean | null;
+}
+
 interface Candidate {
   userId: string;
   email: string;
@@ -147,6 +158,38 @@ export async function GET(request: Request) {
   const supabase = createServiceClient();
 
   try {
+    // Verify the email kill switch BEFORE building an audience. sendEmail
+    // checks it too, but that check fails OPEN — it swallows the query error
+    // and proceeds — which is a reasonable default for one transactional email
+    // and the wrong one for a bulk campaign: a permissions blip on app_settings
+    // would mail everybody while the operator believes sending is disabled.
+    const { data: killSwitch, error: killSwitchErr } = await supabase
+      .from("app_settings")
+      .select("value")
+      .eq("key", "email_sending_enabled")
+      .maybeSingle();
+    if (killSwitchErr) {
+      logger.exception(killSwitchErr, { flowId: FLOW_ID, api: "cron" });
+      return apiError("INTERNAL_ERROR", "Could not verify the email kill switch", 500);
+    }
+    if (killSwitch?.value === false) {
+      logger.info("Email sending disabled — skipping route-day run", { flowId: FLOW_ID });
+      return NextResponse.json({ ok: true, skipped: "email sending disabled" });
+    }
+
+    // The schedule is the entire claim this email makes, so it gets verified
+    // directly. getBusinessRules falls back to — and CACHES —
+    // BUSINESS_RULES_DEFAULTS when its reads fail, meaning a transient
+    // delivery_days failure would silently hand back the DEFAULT Mon/Wed/Thu/Sat
+    // schedule. This cron would then invite customers to runs the operator had
+    // disabled. A cheap direct read with real error handling turns that into an
+    // aborted run instead of a wrong promise.
+    const { error: daysErr } = await supabase.from("delivery_days").select("id").limit(1);
+    if (daysErr) {
+      logger.exception(daysErr, { flowId: FLOW_ID, api: "cron" });
+      return apiError("INTERNAL_ERROR", "Could not verify the delivery schedule", 500);
+    }
+
     const rules = await getBusinessRules();
     if (rules.deliveryDays.filter((d) => d.isActive).length === 0) {
       return NextResponse.json({ ok: true, skipped: "no active delivery days" });
@@ -166,16 +209,36 @@ export async function GET(request: Request) {
     // and decide in code, so an unplaceable default suppresses the customer
     // instead. `created_at` breaks ties that `is_default` alone leaves
     // unordered, making the pick deterministic run-to-run.
-    const { data: addresses, error: addrError } = await supabase
-      .from("addresses")
-      .select("user_id, lat, lng, is_default, created_at, distance_miles, is_verified")
-      .order("is_default", { ascending: false })
-      .order("created_at", { ascending: false });
+    // Paged. PostgREST caps a select at max_rows (1000, supabase/config.toml),
+    // and because the ordering is GLOBAL rather than per-user, an unpaged query
+    // past that cap wouldn't just truncate — every customer sorting after row
+    // 1000 would vanish from the audience entirely, identically on every run,
+    // with no error. `id` is the stable cursor: the two ordering columns aren't
+    // unique, so paging on them could skip or repeat rows at a page boundary.
+    const ADDRESS_PAGE_SIZE = 1000;
+    const addresses: AddressRow[] = [];
+    for (let page = 0; ; page++) {
+      const { data, error: addrError } = await supabase
+        .from("addresses")
+        .select("id, user_id, lat, lng, is_default, created_at, distance_miles, is_verified")
+        .order("id", { ascending: true })
+        .range(page * ADDRESS_PAGE_SIZE, (page + 1) * ADDRESS_PAGE_SIZE - 1);
 
-    if (addrError) {
-      logger.exception(addrError, { flowId: FLOW_ID, api: "cron" });
-      return apiError("INTERNAL_ERROR", "Failed to load addresses", 500);
+      if (addrError) {
+        logger.exception(addrError, { flowId: FLOW_ID, api: "cron" });
+        return apiError("INTERNAL_ERROR", "Failed to load addresses", 500);
+      }
+      if (!data || data.length === 0) break;
+      addresses.push(...(data as AddressRow[]));
+      if (data.length < ADDRESS_PAGE_SIZE) break;
     }
+    // Ordering that the page cursor can't provide, applied once we hold them
+    // all: default first, then newest.
+    addresses.sort(
+      (a, b) =>
+        Number(b.is_default) - Number(a.is_default) ||
+        (b.created_at ?? "").localeCompare(a.created_at ?? "")
+    );
 
     // First address per user wins (is_default first, then newest). If that one
     // has no coords we record the user as unplaceable rather than falling
@@ -186,21 +249,21 @@ export async function GET(request: Request) {
     >();
     const seenUsers = new Set<string>();
     let skippedUnplaceable = 0;
-    for (const a of addresses ?? []) {
+    for (const a of addresses) {
       if (seenUsers.has(a.user_id)) continue;
       seenUsers.add(a.user_id);
       // Unverified is a hard checkout reject ("Address not verified for
       // delivery" → OUT_OF_COVERAGE), so an invite built on one would be
       // unorderable. Treated like an unplaceable default rather than falling
       // through to an older address.
-      if (a.lat == null || a.lng == null || !(a as { is_verified?: boolean }).is_verified) {
+      if (a.lat == null || a.lng == null || !a.is_verified) {
         skippedUnplaceable++;
         continue;
       }
       coordsByUser.set(a.user_id, {
         lat: a.lat,
         lng: a.lng,
-        distanceMiles: (a as { distance_miles?: number | null }).distance_miles ?? null,
+        distanceMiles: a.distance_miles ?? null,
       });
     }
     if (coordsByUser.size === 0) return NextResponse.json({ ok: true, candidates: 0, sent: 0 });
