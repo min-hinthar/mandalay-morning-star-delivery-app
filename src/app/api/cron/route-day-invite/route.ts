@@ -31,6 +31,7 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
 import type { NotificationPrefs } from "@/components/ui/account/SettingsTab/settings-types";
+import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 const STAGGER_DELAY_MS = 100;
@@ -181,27 +182,60 @@ export async function GET(request: Request) {
       return NextResponse.json({ ok: true, skipped: "email sending disabled" });
     }
 
-    // The schedule is the entire claim this email makes, so it gets verified
-    // directly. getBusinessRules falls back to — and CACHES —
-    // BUSINESS_RULES_DEFAULTS when its reads fail, meaning a transient
-    // delivery_days failure would silently hand back the DEFAULT Mon/Wed/Thu/Sat
-    // schedule. This cron would then invite customers to runs the operator had
-    // disabled. A cheap direct read with real error handling turns that into an
-    // aborted run instead of a wrong promise.
-    const { error: daysErr } = await supabase.from("delivery_days").select("id").limit(1);
-    if (daysErr) {
-      logger.exception(daysErr, { flowId: FLOW_ID, api: "cron" });
+    // The schedule and the zone bearings ARE the claim this email makes, so
+    // both are read directly with real error handling rather than taken from
+    // getBusinessRules. That helper falls back per-source — `if (zonesResult.data)`
+    // — and caches the result for five minutes, so a cache populated during a
+    // transient zones failure serves DEFAULT bearings for the next five minutes
+    // while a fresh probe of delivery_days still succeeds. This cron would then
+    // send route-specific invitations based on bearings the operator never
+    // configured. Reading both here means a failure aborts the run instead.
+    const [daysRes, zonesRes] = await Promise.all([
+      supabase
+        .from("delivery_days")
+        .select(
+          "id, day_of_week, is_active, cutoff_day, cutoff_hour, delivery_fee_cents, display_order, direction"
+        ),
+      supabase.from("delivery_zones").select("id, direction, bearing_start, bearing_end"),
+    ]);
+    if (daysRes.error) {
+      logger.exception(daysRes.error, { flowId: FLOW_ID, api: "cron" });
       return apiError("INTERNAL_ERROR", "Could not verify the delivery schedule", 500);
     }
-
-    const rules = await getBusinessRules();
-    if (rules.deliveryDays.filter((d) => d.isActive).length === 0) {
-      return NextResponse.json({ ok: true, skipped: "no active delivery days" });
+    if (zonesRes.error) {
+      logger.exception(zonesRes.error, { flowId: FLOW_ID, api: "cron" });
+      return apiError("INTERNAL_ERROR", "Could not verify the delivery zones", 500);
     }
+
+    const verifiedDays: DeliveryDayConfig[] = (daysRes.data ?? []).map((row) => ({
+      id: row.id,
+      dayOfWeek: row.day_of_week,
+      isActive: row.is_active,
+      cutoffDay: row.cutoff_day,
+      cutoffHour: row.cutoff_hour,
+      deliveryFeeCents: row.delivery_fee_cents,
+      displayOrder: row.display_order,
+      direction: (row.direction || "all") as DeliveryDayConfig["direction"],
+    }));
+    const verifiedZones: DeliveryZoneConfig[] = (zonesRes.data ?? []).map((row) => ({
+      id: row.id,
+      direction: row.direction as DeliveryZoneConfig["direction"],
+      bearingStart: row.bearing_start,
+      bearingEnd: row.bearing_end,
+      referenceCities: [],
+    }));
+
+    // Pricing only — a stale fee band can't make this email promise a route
+    // that doesn't exist, which is the failure mode that matters here.
+    const rules = await getBusinessRules();
 
     // The distance past which checkout answers OUT_OF_COVERAGE. Not
     // maxDeliveryRadiusMiles on its own — that ceiling only applies while
     // long-distance delivery is switched on.
+    if (verifiedDays.filter((d) => d.isActive).length === 0) {
+      return NextResponse.json({ ok: true, skipped: "no active delivery days" });
+    }
+
     const serviceableCeiling = serviceableCeilingMiles(getDeliveryPricingConfig(rules));
 
     // ---- Audience: default addresses with real coords -----------------------
@@ -373,8 +407,8 @@ export async function GET(request: Request) {
         coords: { lat: c.lat, lng: c.lng },
         distanceMiles: c.distanceMiles,
         maxRadiusMiles: serviceableCeiling,
-        deliveryDays: rules.deliveryDays,
-        deliveryZones: rules.deliveryZones,
+        deliveryDays: verifiedDays,
+        deliveryZones: verifiedZones,
         now,
       });
       if (!awareness) {

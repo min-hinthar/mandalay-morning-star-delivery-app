@@ -105,6 +105,12 @@ export function RouteDayCallout({
       // Personalize when we know where they are; otherwise show the plain
       // schedule fact, which is still useful to a logged-out visitor.
       let coords: { lat: number; lng: number } | null = null;
+      // Cleared up front, not per-branch. A cached distance outlives whatever
+      // produced it: sign out (the header's router.refresh keeps this component
+      // mounted), delete the address, or fail the query, and a stale 60mi would
+      // still fail the resolver's coverage pre-check — suppressing even the
+      // generic anonymous banner. Only a verified address may set it again.
+      distanceRef.current = null;
       try {
         const supabase = createClient();
         const {
@@ -136,12 +142,6 @@ export function RouteDayCallout({
           if (row?.lat != null && row?.lng != null && row.is_verified) {
             coords = { lat: row.lat, lng: row.lng };
             distanceRef.current = row.distance_miles ?? null;
-          } else {
-            // MUST reset. A stale distance outlives the address it came from:
-            // delete a far verified address in another tab and the resolver's
-            // coverage pre-check still sees 60mi, suppressing even the generic
-            // unplaced-visitor banner.
-            distanceRef.current = null;
           }
         }
       } catch {
