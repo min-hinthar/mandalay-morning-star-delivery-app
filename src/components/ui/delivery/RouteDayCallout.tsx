@@ -78,8 +78,17 @@ export function RouteDayCallout({ deliveryDays, deliveryZones, className }: Rout
     }
 
     void resolve();
+
+    // Re-resolve when the tab regains focus. A homepage left open past the
+    // cutoff would otherwise keep advertising a deadline that has already
+    // passed — the resolver is cheap and returns null once the run closes.
+    const onVisible = () => {
+      if (document.visibilityState === "visible") void resolve();
+    };
+    document.addEventListener("visibilitychange", onVisible);
     return () => {
       cancelled = true;
+      document.removeEventListener("visibilitychange", onVisible);
     };
   }, [deliveryDays, deliveryZones]);
 

@@ -24,7 +24,7 @@ import { fetchSuggestedItems } from "@/lib/email/suggestions";
 import { sendEmail } from "@/lib/email/send";
 import { getBusinessRules } from "@/lib/settings";
 import { resolveRouteDayAwareness, routeDayHeadline } from "@/lib/delivery/route-awareness";
-import { getZonedDateString } from "@/lib/utils/delivery-dates";
+import { getZonedDateString, getZonedDayRangeUtc } from "@/lib/utils/delivery-dates";
 import { createServiceClient } from "@/lib/supabase/server";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
@@ -132,9 +132,17 @@ export async function GET(request: Request) {
     );
 
     const candidates: Candidate[] = [];
+    // Count opt-outs that were otherwise MAILABLE (had coords + an address), so
+    // this bucket is comparable to the other skipped.* counters, which all count
+    // real candidates dropped rather than the whole opted-out population.
+    let optedOutCandidates = 0;
     for (const p of profiles ?? []) {
       const coords = coordsByUser.get(p.id);
-      if (!coords || !p.email || optedOut.has(p.id)) continue;
+      if (!coords || !p.email) continue;
+      if (optedOut.has(p.id)) {
+        optedOutCandidates++;
+        continue;
+      }
       candidates.push({
         userId: p.id,
         email: p.email,
@@ -154,7 +162,7 @@ export async function GET(request: Request) {
       date: string;
     };
     const planned: Planned[] = [];
-    const skipped = { noRun: 0, outsideWindow: 0, alreadyOrdered: 0, optedOut: optedOut.size };
+    const skipped = { noRun: 0, outsideWindow: 0, alreadyOrdered: 0, optedOut: optedOutCandidates };
 
     for (const c of candidates) {
       const awareness = resolveRouteDayAwareness({
@@ -184,10 +192,17 @@ export async function GET(request: Request) {
     // ---- Never nudge someone who already ordered for that date --------------
     const dates = [...new Set(planned.map((p) => p.date))];
     if (dates.length > 0) {
+      // Bound to the planned delivery dates' UTC range — otherwise this pulls
+      // every non-cancelled order these customers have ever placed.
+      const ranges = dates.map(getZonedDayRangeUtc);
+      const startUtc = ranges.map((r) => r.startUtc).sort()[0];
+      const endUtc = ranges.map((r) => r.endUtc).sort()[ranges.length - 1];
       const { data: existing, error: existingErr } = await supabase
         .from("orders")
         .select("user_id, delivery_window_start, status")
         .in("user_id", [...new Set(planned.map((p) => p.c.userId))])
+        .gte("delivery_window_start", startUtc)
+        .lte("delivery_window_start", endUtc)
         .neq("status", "cancelled");
       // Fail CLOSED. Swallowing this error leaves `ordered` empty, which filters
       // NOBODY and mails customers who already ordered — the exact guardrail
