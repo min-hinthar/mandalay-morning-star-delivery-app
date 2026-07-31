@@ -286,6 +286,7 @@ export async function GET(request: Request) {
     const featuredItems = await fetchSuggestedItems(supabase, []);
 
     let sent = 0;
+    let suppressed = 0;
     let attempted = 0;
     const startedAt = Date.now();
     for (let i = 0; i < toSend.length; i++) {
@@ -319,7 +320,12 @@ export async function GET(request: Request) {
           // a re-run for the same customer + delivery date is one send.
           idempotencyKey: `route-day-${p.date}-${p.c.userId}`,
         });
-        if (result.success) sent++;
+        // `success` alone can't answer "did mail go out?" — the admin kill
+        // switch and an opt-out both short-circuit to success WITHOUT calling
+        // Resend. Counting those as sent would report a full run while mailing
+        // nobody, and this type writes no notification_logs row to contradict it.
+        if (result.suppressed) suppressed++;
+        else if (result.success) sent++;
       } catch (err) {
         logger.exception(err, { flowId: FLOW_ID, userId: p.c.userId });
       }
@@ -337,13 +343,14 @@ export async function GET(request: Request) {
     // `failed` counts only sends we actually ATTEMPTED — anything left after an
     // early stop is `remaining`, not a failure, and conflating them would make
     // a healthy budget-limited run look like a Resend outage.
-    const failed = attempted - sent;
+    const failed = attempted - sent - suppressed;
     const remaining = toSend.length - attempted;
     logger.info("Route-day invites processed", {
       flowId: FLOW_ID,
       candidates: candidates.length,
       planned: toSend.length,
       sent,
+      suppressed,
       failed,
       remaining,
     });
@@ -351,6 +358,7 @@ export async function GET(request: Request) {
       ok: true,
       candidates: candidates.length,
       sent,
+      suppressed,
       failed,
       remaining,
       skipped,

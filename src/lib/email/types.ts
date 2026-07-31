@@ -45,6 +45,17 @@ export interface SendEmailResult {
   success: boolean;
   resendId?: string;
   error?: string;
+  /**
+   * True when the send was deliberately NOT handed to Resend — the admin kill
+   * switch is off, or the recipient opted out of this type.
+   *
+   * Both are successes (nothing went wrong), so they return `success: true`,
+   * which makes `success` alone useless for answering "did mail actually go
+   * out?". A bulk caller counting successes would report a full run while the
+   * kill switch silently mailed nobody. Callers that report send counts must
+   * tally this separately.
+   */
+  suppressed?: boolean;
 }
 
 // ===========================================

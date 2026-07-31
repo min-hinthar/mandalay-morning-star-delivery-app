@@ -70,7 +70,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
         orderId: options.orderId,
         userId: options.userId,
       });
-      return { success: true };
+      return { success: true, suppressed: true };
     }
   } catch {
     // If we can't read the setting, continue sending (fail open)
@@ -104,7 +104,7 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
             userId: options.userId,
             orderId: options.orderId,
           });
-          return { success: true };
+          return { success: true, suppressed: true };
         }
       }
     } catch {
