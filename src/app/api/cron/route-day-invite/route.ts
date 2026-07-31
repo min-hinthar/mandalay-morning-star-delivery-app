@@ -24,6 +24,7 @@ import { fetchSuggestedItems } from "@/lib/email/suggestions";
 import { sendEmail } from "@/lib/email/send";
 import { getBusinessRules } from "@/lib/settings";
 import { resolveRouteDayAwareness, routeDayHeadline } from "@/lib/delivery/route-awareness";
+import { getZonedDateString } from "@/lib/utils/delivery-dates";
 import { createServiceClient } from "@/lib/supabase/server";
 import { apiError } from "@/lib/utils/api-error";
 import { logger } from "@/lib/utils/logger";
@@ -174,7 +175,11 @@ export async function GET(request: Request) {
       const ordered = new Set(
         (existing ?? [])
           .filter((o) => o.delivery_window_start)
-          .map((o) => `${o.user_id}:${o.delivery_window_start!.slice(0, 10)}`)
+          // delivery_window_start is timestamptz returned in UTC; the planned
+          // date is LA-zoned. Slicing the UTC string would roll an evening PT
+          // window (>= 17:00 PT = 00:00 UTC next day) to the following date and
+          // silently miss the match — re-nudging someone who already ordered.
+          .map((o) => `${o.user_id}:${getZonedDateString(new Date(o.delivery_window_start!))}`)
       );
       for (let i = planned.length - 1; i >= 0; i--) {
         if (ordered.has(`${planned[i].c.userId}:${planned[i].date}`)) {

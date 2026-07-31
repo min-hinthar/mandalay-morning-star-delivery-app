@@ -26,6 +26,9 @@ import {
 // SEND EMAIL
 // ===========================================
 
+/** `orders.id` is a uuid — non-order email passes a synthetic handle instead. */
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 /**
  * Sends an email through Resend with:
  * 1. Admin kill switch check
@@ -228,6 +231,14 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   // -----------------------------------------------
   // Step 7: Flag order for manual customer contact
   // -----------------------------------------------
+  // Only meaningful for order-scoped mail. Non-order email (e.g. the route-day
+  // invite, which passes a synthetic `route-<date>` handle) would make Postgres
+  // reject `id=eq.<non-uuid>` with 22P02 on EVERY failed send — swallowed, but
+  // it logs an exception that masquerades as a real order-flagging failure.
+  if (!UUID_RE.test(options.orderId)) {
+    return { success: false, error: lastError };
+  }
+
   try {
     // needs_contact column added in migration 030 — not in generated types yet
     await (supabase
