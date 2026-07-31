@@ -69,7 +69,7 @@ export const deliverySettingsBaseSchema = z.object({
   // safeParses the request BEFORE snake-casing, and the client sends camelCase,
   // so no key ever matches and the parse yields {}. Fixing that would start
   // enforcing bounds across all delivery settings at once (a behavior change
-  // beyond this PR); tracked as a follow-up. The real bounds today are the
+  // beyond this PR); tracked in issue #207. The real bounds today are the
   // client validator and the checkout gate.
   extended_min_order_cents: z.number().int().min(0).max(50_000).optional(),
 });
