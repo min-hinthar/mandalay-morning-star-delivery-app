@@ -49,6 +49,23 @@ const FLOW_ID = "route-day-invite";
 const MIN_HOURS_BEFORE_CUTOFF = 2;
 const MAX_HOURS_BEFORE_CUTOFF = 20;
 
+/**
+ * SCHEDULING: this window is relative to when the cron FIRES, so the schedule
+ * is not a free choice — pick it against the cutoff or a cohort silently lands
+ * in `outsideWindow` on every run and is never nudged (no error, just zeros in
+ * the summary).
+ *
+ * Cutoffs are 15:00 PT (`delivery_days.cutoff_hour`, default 15). Vercel crons
+ * are UTC, so a fixed entry drifts an hour across DST — pick one that stays
+ * inside 2–20h on BOTH sides of the shift. `"0 16 * * *"` = 09:00 PDT / 08:00
+ * PST, i.e. 6h or 7h before a same-day cutoff. Comfortably inside on both.
+ *
+ * Avoid early-afternoon PT (under 2h out) and late evening PT (over 20h out to
+ * the NEXT cutoff). Verify any new time with `?dryRun=1`, which reports the
+ * `outsideWindow` count without sending: a run where that number equals the
+ * candidate count means the schedule, not the audience, is wrong.
+ */
+
 /** Hard cap per run — matches the other marketing crons (win-back, abandoned-cart). */
 const MAX_SENDS_PER_RUN = 100;
 

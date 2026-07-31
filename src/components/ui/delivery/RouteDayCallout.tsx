@@ -13,7 +13,7 @@
  * blur on mobile — iOS GPU budget); reduced-motion honored; bilingual EN/MY.
  */
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { m, AnimatePresence } from "framer-motion";
 import { ArrowRight, Clock, Truck, X } from "lucide-react";
@@ -32,6 +32,16 @@ import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 
 const DISMISS_PREFIX = "route-day-callout-dismissed:";
 
+/**
+ * How often to re-check the deadline on an open tab.
+ *
+ * visibilitychange alone isn't enough: a homepage left OPEN and visible across
+ * the cutoff never fires it, so the card would keep advertising a deadline that
+ * has already passed. This re-runs the pure resolver against cached coords —
+ * no network, no auth call — so it's cheap enough to sit on a timer.
+ */
+const RECHECK_INTERVAL_MS = 60_000;
+
 export interface RouteDayCalloutProps {
   deliveryDays: DeliveryDayConfig[];
   deliveryZones?: DeliveryZoneConfig[];
@@ -43,8 +53,20 @@ export function RouteDayCallout({ deliveryDays, deliveryZones, className }: Rout
   const [awareness, setAwareness] = useState<RouteDayAwareness | null>(null);
   const [dismissed, setDismissed] = useState(true); // hidden until resolved (hydration-safe)
 
+  // Cached so the periodic re-check re-runs only the pure resolver, never the
+  // auth + addresses round-trip.
+  const coordsRef = useRef<{ lat: number; lng: number } | null>(null);
+
   useEffect(() => {
     let cancelled = false;
+
+    function applyResolved(coords: { lat: number; lng: number } | null) {
+      const next = resolveRouteDayAwareness({ coords, deliveryDays, deliveryZones });
+      setAwareness(next);
+      setDismissed(
+        next ? localStorage.getItem(`${DISMISS_PREFIX}${next.deliveryDateString}`) === "true" : true
+      );
+    }
 
     async function resolve() {
       // Personalize when we know where they are; otherwise show the plain
@@ -70,24 +92,29 @@ export function RouteDayCallout({ deliveryDays, deliveryZones, className }: Rout
       }
       if (cancelled) return;
 
-      const next = resolveRouteDayAwareness({ coords, deliveryDays, deliveryZones });
-      setAwareness(next);
-      setDismissed(
-        next ? localStorage.getItem(`${DISMISS_PREFIX}${next.deliveryDateString}`) === "true" : true
-      );
+      coordsRef.current = coords;
+      applyResolved(coords);
     }
 
     void resolve();
 
-    // Re-resolve when the tab regains focus. A homepage left open past the
-    // cutoff would otherwise keep advertising a deadline that has already
-    // passed — the resolver is cheap and returns null once the run closes.
+    // Re-resolve when the tab regains focus, AND on a timer. Focus alone misses
+    // the case that matters most: a homepage left open and VISIBLE straight
+    // through the cutoff never fires visibilitychange, so it would keep
+    // advertising a deadline that has already passed. The timer re-runs only the
+    // pure resolver (which returns null once the run closes), so it costs
+    // nothing per tick; the focus listener still covers a tab waking from
+    // background, where timers are throttled or paused.
     const onVisible = () => {
       if (document.visibilityState === "visible") void resolve();
     };
+    const recheck = setInterval(() => {
+      if (!cancelled) applyResolved(coordsRef.current);
+    }, RECHECK_INTERVAL_MS);
     document.addEventListener("visibilitychange", onVisible);
     return () => {
       cancelled = true;
+      clearInterval(recheck);
       document.removeEventListener("visibilitychange", onVisible);
     };
   }, [deliveryDays, deliveryZones]);
