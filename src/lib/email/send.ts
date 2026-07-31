@@ -269,7 +269,14 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
 
       if (!isUnlogged && !alreadyLogged) {
         const { error: logError } = await supabase.from("notification_logs").insert({
-          order_id: options.orderId,
+          // `notification_logs.order_id` is a uuid column, but non-order mail
+          // passes a synthetic handle (`route-<date>`) purely for tagging. Now
+          // that route_day_invite is a LOGGED type, sending that string
+          // straight through would make Postgres reject every marketing row
+          // with 22P02. The column is nullable and ON DELETE SET NULL, so null
+          // is the honest value: the row still records recipient, type and
+          // user_id, which is what an opt-out or spam-complaint audit needs.
+          order_id: UUID_RE.test(options.orderId) ? options.orderId : null,
           user_id: options.userId,
           notification_type: options.type as CustomerEmailType,
           channel: "email",
@@ -324,7 +331,8 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
   const isUnloggedFailed = (UNLOGGED_EMAIL_TYPES as readonly string[]).includes(options.type);
   if (!isUnloggedFailed) {
     const { error: failLogError } = await supabase.from("notification_logs").insert({
-      order_id: options.orderId,
+      // Same uuid-column constraint as the success path above.
+      order_id: UUID_RE.test(options.orderId) ? options.orderId : null,
       user_id: options.userId,
       notification_type: options.type as CustomerEmailType,
       channel: "email",

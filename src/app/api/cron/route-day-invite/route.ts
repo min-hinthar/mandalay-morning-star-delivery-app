@@ -41,13 +41,20 @@ const FLOW_ID = "route-day-invite";
  * Only nudge when the deadline is close enough to be actionable, but not past.
  *
  * The upper bound is deliberately kept well inside Resend's ~24h
- * Idempotency-Key TTL. This type writes no notification_logs row (the
- * notification_type enum has no value for it), so that key is the ONLY thing
- * preventing a duplicate send — a window wider than the TTL lets the key age
- * out while a customer is still inside the window, and they get mailed twice
- * for the same delivery date. Trade-off: with a once-daily cron, cutoffs
- * landing outside 2–20h are simply not nudged. A missed nudge is much cheaper
- * than a duplicate marketing email. Exact-once arrives with the enum migration.
+ * Idempotency-Key TTL, because that key is still the ONLY thing preventing a
+ * duplicate send — a window wider than the TTL lets the key age out while a
+ * customer is still inside the window, and they get mailed twice for the same
+ * delivery date. Trade-off: with a once-daily cron, cutoffs landing outside
+ * 2–20h are simply not nudged. A missed nudge is much cheaper than a duplicate
+ * marketing email.
+ *
+ * The notification_type enum now HAS a route_day_invite value, so each send
+ * finally writes a notification_logs row — but that alone changes nothing
+ * here. A written row is an audit trail, not a guard: widening this window
+ * safely needs a pre-send READ of notification_logs (does a route_day_invite
+ * row already exist for this user + delivery date?) to replace the Resend key
+ * as the dedupe mechanism. Until that check exists, keep the cap inside the
+ * TTL — the row is a necessary condition for exact-once, not a sufficient one.
  */
 const MIN_HOURS_BEFORE_CUTOFF = 2;
 const MAX_HOURS_BEFORE_CUTOFF = 20;
