@@ -70,10 +70,23 @@ const MAX_HOURS_BEFORE_CUTOFF = 20;
 const MAX_SENDS_PER_RUN = 100;
 
 /**
- * Serial sends + 100ms stagger + Resend retries can exceed the default function
- * timeout; without this a long run is silently truncated mid-loop.
+ * Matches the repo's only other cron (payment-reconciliation). 60s is the
+ * Hobby-plan ceiling and Vercel silently CLAMPS anything higher, so a larger
+ * value here would be a bet on the plan tier rather than a guarantee.
  */
-export const maxDuration = 300;
+export const maxDuration = 60;
+
+/**
+ * Wall-clock budget for the send loop, with headroom under maxDuration.
+ *
+ * Serial sends + stagger + Resend retries scale with audience size, so a big
+ * enough run WILL eventually reach the timeout — and being killed mid-loop is
+ * silent: no summary, no log line, no way to tell a truncated run from a
+ * complete one. Stopping ourselves instead turns that into a clean exit that
+ * reports `remaining`. Safe to cut short: the stable idempotency key means a
+ * re-run inside the notice window re-sends to nobody who already got one.
+ */
+const SEND_BUDGET_MS = 45_000;
 
 function isAuthorized(request: Request): boolean {
   // Fail CLOSED: without a secret nobody may trigger a marketing send.
@@ -273,7 +286,18 @@ export async function GET(request: Request) {
     const featuredItems = await fetchSuggestedItems(supabase, []);
 
     let sent = 0;
+    let attempted = 0;
+    const startedAt = Date.now();
     for (let i = 0; i < toSend.length; i++) {
+      if (Date.now() - startedAt > SEND_BUDGET_MS) {
+        logger.warn("Route-day invite run hit its time budget — stopping early", {
+          flowId: FLOW_ID,
+          attempted,
+          remaining: toSend.length - attempted,
+        });
+        break;
+      }
+      attempted++;
       const p = toSend[i];
       try {
         const result = await sendEmail({
@@ -309,15 +333,28 @@ export async function GET(request: Request) {
     // sent: 0 — indistinguishable from "everyone was suppressed". This type
     // writes no notification_logs row, so this summary is the only structured
     // signal an operator gets.
-    const failed = toSend.length - sent;
+    //
+    // `failed` counts only sends we actually ATTEMPTED — anything left after an
+    // early stop is `remaining`, not a failure, and conflating them would make
+    // a healthy budget-limited run look like a Resend outage.
+    const failed = attempted - sent;
+    const remaining = toSend.length - attempted;
     logger.info("Route-day invites processed", {
       flowId: FLOW_ID,
       candidates: candidates.length,
       planned: toSend.length,
       sent,
       failed,
+      remaining,
     });
-    return NextResponse.json({ ok: true, candidates: candidates.length, sent, failed, skipped });
+    return NextResponse.json({
+      ok: true,
+      candidates: candidates.length,
+      sent,
+      failed,
+      remaining,
+      skipped,
+    });
   } catch (error) {
     logger.exception(error, { flowId: FLOW_ID, api: "cron" });
     return apiError("INTERNAL_ERROR", "Route-day invite run failed", 500);

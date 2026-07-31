@@ -87,6 +87,17 @@ export function resolveRouteDayAwareness({
       // day this address can't actually be served on.
       if (eligibleDays.length === 0) return null;
     }
+  } else {
+    // No coords (logged-out visitor, or no saved address) means we do NOT know
+    // this person is local — only that we can't place them. Falling through to
+    // every active day would quote the nearest run outright, e.g. "we're
+    // delivering this Monday" to a West-side visitor on an East-only Monday:
+    // the same overstatement the directional branch above returns null to
+    // avoid. So advertise only runs that serve EVERY direction ("all"), which
+    // is true for whoever is reading. If none is configured, say nothing.
+    isLocal = false;
+    eligibleDays = activeDays.filter((d) => !d.direction || d.direction === "all");
+    if (eligibleDays.length === 0) return null;
   }
 
   const deliveryDate = getNextDeliveryDate(now, eligibleDays);

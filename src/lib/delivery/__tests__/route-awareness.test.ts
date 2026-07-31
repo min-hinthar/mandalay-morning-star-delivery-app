@@ -71,11 +71,48 @@ describe("resolveRouteDayAwareness", () => {
     expect(routeDayHeadline(a!)).toBe("We're delivering this Monday");
   });
 
-  it("falls back to the generic schedule when no address is known", () => {
+  it("with no address known, advertises only a run that serves EVERY direction", () => {
     const a = resolveRouteDayAwareness({ deliveryDays: DAYS, deliveryZones: ZONES, now: SUNDAY });
     expect(a).not.toBeNull();
     expect(a!.directions).toEqual([]);
-    expect(a!.dayName).toBe("Monday");
+    // NOT Monday, even though it's the nearest run: Monday is east-only, and a
+    // west-side anonymous visitor can't be served by it. Saturday is the
+    // "all"-direction run, so it's true for whoever is reading.
+    expect(a!.dayName).toBe("Saturday");
+    expect(a!.routeLabel).toBeNull();
+    expect(routeDayHeadline(a!)).toBe("We're delivering this Saturday");
+  });
+
+  it("with no address known and no all-directions run, says nothing", () => {
+    // Every configured run is direction-scoped, so there is no day we could
+    // honestly promise an unplaced visitor.
+    expect(
+      resolveRouteDayAwareness({
+        deliveryDays: [day(1, "east"), day(3, "west")],
+        deliveryZones: ZONES,
+        now: SUNDAY,
+      })
+    ).toBeNull();
+  });
+
+  it("a KNOWN local address still sees every run — unknown is not the same as local", () => {
+    // The no-coords path must not be conflated with the local path: a nearby
+    // customer is genuinely served by all days and still gets Monday.
+    const local = resolveRouteDayAwareness({
+      coords: NEARBY,
+      deliveryDays: DAYS,
+      deliveryZones: ZONES,
+      now: SUNDAY,
+    });
+    const unknown = resolveRouteDayAwareness({
+      deliveryDays: DAYS,
+      deliveryZones: ZONES,
+      now: SUNDAY,
+    });
+    expect(local!.dayName).toBe("Monday");
+    expect(local!.isLocal).toBe(true);
+    expect(unknown!.dayName).toBe("Saturday");
+    expect(unknown!.isLocal).toBe(false);
   });
 
   it("returns null when the address's direction matches no configured run", () => {
