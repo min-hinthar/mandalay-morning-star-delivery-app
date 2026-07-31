@@ -154,6 +154,19 @@ describe("POST /api/unsubscribe", () => {
     expect(upsertSpy).not.toHaveBeenCalled();
   });
 
+  it("succeeds idempotently for a DELETED account instead of retry-looping", async () => {
+    // customer_settings.user_id cascades from profiles, but the token has no
+    // expiry — so a link in an old email outlives account deletion. The upsert
+    // then hits a FK violation (23503). A 500 would put the provider's
+    // One-Click POST into a retry-forever loop; there is nobody left to
+    // unsubscribe, so it's a success.
+    writeError = { message: "violates foreign key constraint", code: "23503" };
+
+    const res = await POST(postRequest(createUnsubscribeToken("user-gone", "marketing")));
+
+    expect(res.status).toBe(200);
+  });
+
   it("500s on a failed write so the provider retries", async () => {
     // A silent 200 here would leave the customer subscribed while their mail
     // client reports they're not.

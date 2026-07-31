@@ -105,6 +105,21 @@ async function applyUnsubscribe(
   );
 
   if (writeError) {
+    // 23503 = FK violation: the profile is GONE (customer_settings.user_id
+    // cascades from profiles, so account deletion removed the row), but the
+    // token has no expiry, so a link in an old email stays valid forever.
+    // There is nobody left to unsubscribe — succeed idempotently. Returning
+    // 500 here would put a mail provider's One-Click POST into a retry-forever
+    // loop and show a human an error page they can do nothing about.
+    if (writeError.code === "23503") {
+      logger.info("Unsubscribe for a deleted account — nothing to update", {
+        flowId: FLOW_ID,
+        userId,
+        prefKey,
+      });
+      return { ok: true };
+    }
+
     logger.error("Unsubscribe could not write customer settings", {
       flowId: FLOW_ID,
       userId,
