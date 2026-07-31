@@ -89,6 +89,15 @@ async function applyUnsubscribe(
   // model note on the tracking issue). Write a full defaults row with this one
   // key flipped off, rather than a partial one, so the other prefs keep their
   // documented values instead of becoming undefined.
+  // KNOWN, ACCEPTED RACE: this is a read-modify-write, so two concurrent
+  // POSTs for the same user but DIFFERENT pref keys can lose one — both read
+  // the same row, each merges its own key off, last write wins. Same-key
+  // concurrency converges harmlessly (both write false). The window is tens of
+  // ms and requires one recipient submitting two different unsubscribe links
+  // simultaneously — effectively unreachable at current volume (~30 customers,
+  // one marketing type). Closing it needs an atomic single-statement flip
+  // (jsonb_set via an RPC = a migration); do that if marketing volume ever
+  // makes concurrent distinct-key unsubscribes plausible.
   const current = (existing?.notification_prefs as unknown as NotificationPrefs | null) ?? null;
   const nextPrefs: NotificationPrefs = {
     ...DEFAULT_NOTIFICATION_PREFS,
