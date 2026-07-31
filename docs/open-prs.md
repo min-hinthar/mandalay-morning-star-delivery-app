@@ -4,9 +4,61 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-06-24._
+_Last reconciled: 2026-07-31._
 
-## In flight
+## Recently closed — issue-backlog sweep 2026-07-31 (ALL FIVE MERGED on the owner's "Merge all thoughtfully")
+
+Merged in dependency-safe order — #214 (`3c454a3`), #215 (`43537b6`), #213 (`6cbcb11`),
+then the email trio's remaining two with a main-merge + full local re-verify + green CI
+between each: #216 (`808ff55`), #217 (`d1a699c`). The trio shares `send.ts`/`types.ts`/the
+cron; both branch updates auto-merged cleanly and the combined suite passed at every step
+(final: 1470 tests). Owner decisions captured: **#210 nearby sees every day**; **#209 keep
+opt-out + one-click unsubscribe**. Extended floor stays **$100**. Every auto-review finding
+across the five was fixed or explicitly justified in-PR (~15 findings over the sweep,
+including two real saves: the #217 GET-prefetch scanner hole and #214's fourth
+`[]`-direction consumer).
+
+> **Two OWNER ACTIONS still open (both gate the route-day cron, nothing else):**
+>
+> 1. **Apply #213's migration to prod** (`ALTER TYPE notification_type ADD VALUE IF NOT
+EXISTS 'route_day_invite';` — Supabase Studio SQL editor works; the delivery DB is
+>    not MCP-reachable from sessions). Until then nothing emits the type, so it's inert.
+> 2. **Set `UNSUBSCRIBE_TOKEN_SECRET` in Vercel** (`openssl rand -base64 32`) before the
+>    first marketing send — unset = one-click dormant, mail falls back to the settings link.
+
+- **#213 — route_day_invite notification_type enum** (closes #208, branch
+  `claude/route-day-invite-notification-type`). Migration + local `gen:types` (drift guard
+  green); type moves into `CustomerEmailType`; both `notification_logs` inserts null a
+  non-uuid synthetic `order_id` (verified vs local DB: the enum move alone would 22P02
+  every marketing row). Deliberately did NOT widen `MAX_HOURS_BEFORE_CUTOFF` — a log row
+  is an audit trail, not a dedupe guard; needs a pre-send read first. **Apply the migration
+  at/before deploy** or audit rows silently drop (send still succeeds).
+- **#214 — nearby customers order every delivery day** (closes #210, branch
+  `claude/nearby-all-delivery-days`). One shared predicate `addressServesDay` behind ALL
+  direction gates (picker + checkout gate + date engine + homepage coverage checker —
+  the 4th consumer was an auto-review catch). `[]` = nearby = every direction; missing
+  `direction` still drops (config gap); unplaced (`undefined`) still quotes `all`-runs only.
+- **#215 — settings PATCH validation actually enforces** (closes #207, branch
+  `claude/settings-validation-enforce`). camelCase-vs-snake_case made every bound inert;
+  one `toSnakeCaseKeys` normalizer inside the schema so validated keys == stored keys.
+  Errors name fields in the toast string. NOTE: whole-category saves mean a pre-existing
+  out-of-bounds stored value would 400 that tab's save — local rows verified in-bounds,
+  prod spot-check is cheap if a save 400s post-merge.
+- **#216 — per-attempt Resend timeout** (closes #211, branch `claude/send-attempt-timeout`).
+  AbortController per attempt (owned timer — Resend swallows aborts); timeout = retryable,
+  same key → `invalid_idempotent_request` = delivered; cron reserve now counts request time
+  (3s ceiling, key-gated at the TYPE level: `attemptTimeoutMs` requires `idempotencyKey`).
+  `resend` pinned `~6.9.x` — the signal rides an UNDECLARED options-spread; a bump must
+  re-verify `post()` still spreads or the timeout silently no-ops.
+- **#217 — one-click unsubscribe, RFC 8058** (closes #209, branch
+  `claude/one-click-unsubscribe`). HMAC token `userId.prefKey.sig`, no expiry, allow-listed
+  keys, off-only. **GET NEVER MUTATES** (auto-review Major: Safe Links/Proofpoint GET-prefetch
+  every email URL with the real token — GET renders a confirm form that POSTs). Mandatory
+  types + admin compose deliberately stay on the plain settings link. **Owner: set
+  `UNSUBSCRIBE_TOKEN_SECRET` in Vercel before the first marketing send** (unset = dormant,
+  fails closed; rotation kills outstanding links).
+
+## In flight (older)
 
 - **#194 — holistic-audit security fixes** (branch `claude/app-ui-security-branding-ezpqkq`, **draft**).
   Cross-repo adversarial audit (`docs/holistic-improvement-plan.md`). Three confirmed fixes: (1) **stored XSS**
