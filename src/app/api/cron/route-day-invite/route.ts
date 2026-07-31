@@ -560,18 +560,22 @@ export async function GET(request: Request) {
             featuredItems,
           }),
           type: "route_day_invite",
-          // No order exists yet; orderId is only used for tagging/logging and
-          // this type is not written to notification_logs.
+          // No order exists yet. This is a synthetic handle for Resend's
+          // `order_id` tag only — sendEmail nulls it before it reaches
+          // notification_logs.order_id, which is a uuid column.
           orderId: `route-${p.date}`,
           userId: p.c.userId,
-          // Stable key = the dedupe (no notification_logs row for this type):
-          // a re-run for the same customer + delivery date is one send.
+          // Stable key = THE dedupe. The notification_logs row this type now
+          // writes is an audit trail, not a guard: nothing reads it before
+          // sending. So the key is still what makes a re-run for the same
+          // customer + delivery date one send.
           idempotencyKey: `route-day-${p.date}-${p.c.userId}`,
         });
         // `success` alone can't answer "did mail go out?" — the admin kill
         // switch and an opt-out both short-circuit to success WITHOUT calling
         // Resend. Counting those as sent would report a full run while mailing
-        // nobody, and this type writes no notification_logs row to contradict it.
+        // nobody, and a suppressed send returns before Step 5, so no
+        // notification_logs row exists to contradict it either.
         if (result.suppressed) suppressed++;
         else if (result.success) sent++;
       } catch (err) {
@@ -584,9 +588,11 @@ export async function GET(request: Request) {
 
     // sendEmail returns {success:false} after exhausting retries WITHOUT
     // throwing, so a run where every send hard-fails would otherwise report
-    // sent: 0 — indistinguishable from "everyone was suppressed". This type
-    // writes no notification_logs row, so this summary is the only structured
-    // signal an operator gets.
+    // sent: 0 — indistinguishable from "everyone was suppressed". This summary
+    // is the RUN-level signal: notification_logs now records the sends that
+    // happened, but a suppressed or never-attempted recipient writes no row at
+    // all, so the log alone can't tell "mailed nobody" from "mailed no one
+    // yet". Only these counters carry that.
     //
     // `failed` counts only sends we actually ATTEMPTED — anything left after an
     // early stop is `remaining`, not a failure, and conflating them would make
