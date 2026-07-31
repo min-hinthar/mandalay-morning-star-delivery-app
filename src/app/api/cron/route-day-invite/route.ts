@@ -411,24 +411,36 @@ export async function GET(request: Request) {
       const existing: { user_id: string; delivery_window_start: string | null }[] = [];
       const plannedUserIds = [...new Set(planned.map((p) => p.c.userId))];
       for (let i = 0; i < plannedUserIds.length; i += 500) {
-        const { data: rows, error: existingErr } = await supabase
-          .from("orders")
-          .select("user_id, delivery_window_start, status")
-          .in("user_id", plannedUserIds.slice(i, i + 500))
-          .gte("delivery_window_start", startUtc)
-          .lte("delivery_window_start", endUtc)
-          .in("status", [
-            "pending_approval",
-            "confirmed",
-            "preparing",
-            "out_for_delivery",
-            "delivered",
-          ]);
-        if (existingErr) {
-          logger.exception(existingErr, { flowId: FLOW_ID, api: "cron" });
-          return apiError("INTERNAL_ERROR", "Failed to load existing orders", 500);
+        const chunk = plannedUserIds.slice(i, i + 500);
+        // Pages the ROWS too, not just the user ids. Chunking users alone still
+        // assumed 500 users produce under max_rows orders — but a customer can
+        // have several qualifying orders across the covered dates, so a chunk
+        // could overflow the cap and drop the only row proving someone already
+        // ordered. `id` gives the stable cursor.
+        for (let page = 0; ; page++) {
+          const { data: rows, error: existingErr } = await supabase
+            .from("orders")
+            .select("id, user_id, delivery_window_start, status")
+            .in("user_id", chunk)
+            .gte("delivery_window_start", startUtc)
+            .lte("delivery_window_start", endUtc)
+            .in("status", [
+              "pending_approval",
+              "confirmed",
+              "preparing",
+              "out_for_delivery",
+              "delivered",
+            ])
+            .order("id", { ascending: true })
+            .range(page * 1000, (page + 1) * 1000 - 1);
+          if (existingErr) {
+            logger.exception(existingErr, { flowId: FLOW_ID, api: "cron" });
+            return apiError("INTERNAL_ERROR", "Failed to load existing orders", 500);
+          }
+          if (!rows || rows.length === 0) break;
+          existing.push(...rows);
+          if (rows.length < 1000) break;
         }
-        existing.push(...(rows ?? []));
       }
       const ordered = new Set(
         existing

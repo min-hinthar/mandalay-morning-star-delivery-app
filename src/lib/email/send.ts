@@ -222,6 +222,12 @@ export async function sendEmail(options: SendEmailOptions): Promise<SendEmailRes
       // delivery/bounce/complaint tracking for those orders. Only the first
       // caller logs. Now that the idempotency key is actually honoured this is
       // reachable on every Stripe order, not a theoretical race.
+      //
+      // NOT fully atomic: two truly concurrent callers can both see no row and
+      // both insert. Closing that needs a UNIQUE index on resend_id (the
+      // baseline has a plain btree) plus upsert-on-conflict — a schema change,
+      // so it waits on the Docker session tracked in #208. This narrows a
+      // certainty to a race, which is worth doing on its own.
       let alreadyLogged = false;
       if (!isUnlogged && resendId) {
         const { data: existingLog } = await supabase

@@ -69,15 +69,18 @@ export async function POST(request: Request) {
     const resend = getResendClient();
     const html = await render(react);
 
+    // No idempotency key at all. This previously set one as a payload HEADER,
+    // which Resend ignores for dedupe (it reads the key from the request
+    // options) — so it never did anything. A test route wants every click to
+    // actually send anyway, so the honest version is to omit it rather than
+    // move a `Date.now()` key to the second argument and re-create the same
+    // no-op with extra steps.
     const { data, error } = await resend.emails.send({
       from: EMAIL_FROM,
       to: recipientEmail,
       cc: EMAIL_CC,
       subject: `[TEST] ${subject}`,
       html,
-      headers: {
-        "Idempotency-Key": `test-${type}-${Date.now()}`,
-      },
     });
 
     if (error) {
