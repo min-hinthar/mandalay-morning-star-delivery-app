@@ -139,11 +139,14 @@ export async function PATCH(request: NextRequest) {
       updated_by: string;
     }[] = [];
 
+    // Keys are ALREADY snake_case: updateSettingsSchema normalizes them (via
+    // toSnakeCaseKeys) before the category check, so what was validated is
+    // exactly what gets stored. Re-converting here would reintroduce the split
+    // that made every bound inert — storage and validation must share one
+    // normalization step, not each do their own.
     for (const [key, value] of Object.entries(settings)) {
-      // Convert camelCase to snake_case for database
-      const snakeKey = key.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
       updates.push({
-        key: snakeKey,
+        key,
         value: JSON.parse(JSON.stringify(value)), // Ensure JSONB-compatible
         category,
         updated_by: userId,
