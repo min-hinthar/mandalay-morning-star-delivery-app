@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useCartStore } from "@/lib/stores/cart-store";
-import type { DeliveryDayConfig } from "@/types/delivery";
+import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 import type { DeliveryFeeBand } from "@/lib/utils/order";
 
 interface DeliverySettingsSyncProps {
@@ -14,6 +14,8 @@ interface DeliverySettingsSyncProps {
   cutoffHour: number;
   /** Multi-day delivery configs from business rules */
   deliveryDays?: DeliveryDayConfig[];
+  /** Zone configs — lets cart surfaces resolve the customer's directions */
+  deliveryZones?: DeliveryZoneConfig[];
   /** Fee for addresses beyond long-distance threshold (cents) */
   longDistanceFeeCents?: number;
   /** Miles threshold for long-distance fee */
@@ -43,6 +45,7 @@ export function DeliverySettingsSync({
   cutoffDay,
   cutoffHour,
   deliveryDays = [],
+  deliveryZones,
   longDistanceFeeCents,
   longDistanceThresholdMiles,
   deliveryFeeBands,
@@ -62,6 +65,9 @@ export function DeliverySettingsSync({
     }
     useCartStore.getState().setCutoffSettings(cutoffDay, cutoffHour);
     useCartStore.getState().setDeliveryDays(deliveryDays);
+    if (deliveryZones !== undefined) {
+      useCartStore.getState().setDeliveryZones(deliveryZones);
+    }
     if (longDistanceFeeCents !== undefined && longDistanceThresholdMiles !== undefined) {
       useCartStore
         .getState()
@@ -90,6 +96,7 @@ export function DeliverySettingsSync({
     cutoffDay,
     cutoffHour,
     deliveryDays,
+    deliveryZones,
     longDistanceFeeCents,
     longDistanceThresholdMiles,
     deliveryFeeBands,

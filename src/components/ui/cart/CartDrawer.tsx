@@ -14,12 +14,16 @@
  */
 
 import { useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useCartValidation } from "@/lib/hooks/useCartValidation";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { useCheckoutStore } from "@/lib/stores/checkout-store";
+import { buildCartPricingConfig } from "@/lib/stores/cart-pricing";
+import { serviceableCeilingMiles } from "@/lib/utils/order";
+import { useCustomerDeliveryDays } from "@/lib/hooks/useCustomerDeliveryDays";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { Drawer } from "@/components/ui/Drawer";
 import { AfterDarkAmbient } from "@/components/ui/AfterDarkAmbient";
@@ -63,10 +67,49 @@ function CartContent({ onClose, showFullCartLink, isMobile = false }: CartConten
   const cutoffDay = useCartStore((state) => state.cutoffDay);
   const cutoffHour = useCartStore((state) => state.cutoffHour);
   const deliveryDays = useCartStore((state) => state.deliveryDays);
+  const deliveryZones = useCartStore((state) => state.deliveryZones);
+  // The SERVICEABLE ceiling, not raw maxRadiusMiles: with extended delivery
+  // switched off the far branch is out of range at the standard ceiling, and
+  // the raw cap would keep personalizing an address checkout answers
+  // OUT_OF_COVERAGE (menu/page.tsx makes the same call server-side — the two
+  // surfaces must agree).
+  const serviceableCeiling = useCartStore((state) =>
+    serviceableCeilingMiles(buildCartPricingConfig(state))
+  );
   const validation = useCartValidation();
+  // Drawer receipt + CTA count down to the customer's OWN next run when their
+  // verified address resolves — the all-days gate quoted the nearest run of
+  // ANY direction ("Delivery Monday" + false urgency to a West customer whose
+  // checkout then lands on Saturday). Falls back to all days for guests.
+  // A checkout-SELECTED address outranks the DB default lookup: mid-checkout
+  // the customer may have picked a non-default address, and the drawer (which
+  // stays reachable on /checkout) must gate on the same route TimeStep uses.
+  // But ONLY while checkout owns the flow (an active /checkout path): the
+  // selection persists in sessionStorage across sign-out (the Stripe
+  // round-trip intentionally skips reset), so without the path gate a later
+  // user in the same tab would have their drawer gated by the previous
+  // user's coordinates. Elsewhere the user-scoped DB lookup is the truth.
+  // TRUTHY coord check on purpose, mirroring TimeStepV8's placement guard: the
+  // addresses API converts null coords to 0, and a 0,0 placeholder must fall
+  // through to the default lookup, never resolve a Gulf-of-Guinea bearing.
+  const pathname = usePathname();
+  const checkoutOwnsAddress = (pathname ?? "").startsWith("/checkout");
+  const checkoutAddress = useCheckoutStore((s) => s.address);
+  const { days: customerDays } = useCustomerDeliveryDays(
+    deliveryDays,
+    deliveryZones,
+    serviceableCeiling,
+    checkoutOwnsAddress && checkoutAddress?.lat && checkoutAddress?.lng
+      ? {
+          lat: checkoutAddress.lat,
+          lng: checkoutAddress.lng,
+          distanceMiles: checkoutAddress.distanceMiles,
+        }
+      : undefined
+  );
   const gateState = useCartDeliveryGate({
     hasBlockingIssues: validation.hasBlockingIssues,
-    deliveryDays,
+    deliveryDays: customerDays,
     cutoffDay,
     cutoffHour,
   });

@@ -9,7 +9,7 @@ import { OfflineBanner } from "@/components/ui/customer";
 import { DomMaxProvider } from "@/components/providers/DomMaxProvider";
 import { FeedbackFAB, FeedbackSheet } from "@/components/ui/feedback";
 import { VtNavSync } from "@/components/ui/VtNavSync";
-import type { DeliveryDayConfig } from "@/types/delivery";
+import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 import type { DeliveryFeeBand } from "@/lib/utils/order";
 
 interface CustomerShellProps {
@@ -21,6 +21,7 @@ interface CustomerShellProps {
   cutoffDay: number;
   cutoffHour: number;
   deliveryDays?: DeliveryDayConfig[];
+  deliveryZones?: DeliveryZoneConfig[];
   longDistanceFeeCents?: number;
   longDistanceThresholdMiles?: number;
   deliveryFeeBands?: DeliveryFeeBand[];
@@ -39,6 +40,7 @@ export function CustomerShell({
   cutoffDay,
   cutoffHour,
   deliveryDays,
+  deliveryZones,
   longDistanceFeeCents,
   longDistanceThresholdMiles,
   deliveryFeeBands,
@@ -59,6 +61,7 @@ export function CustomerShell({
         cutoffDay={cutoffDay}
         cutoffHour={cutoffHour}
         deliveryDays={deliveryDays}
+        deliveryZones={deliveryZones}
         longDistanceFeeCents={longDistanceFeeCents}
         longDistanceThresholdMiles={longDistanceThresholdMiles}
         deliveryFeeBands={deliveryFeeBands}

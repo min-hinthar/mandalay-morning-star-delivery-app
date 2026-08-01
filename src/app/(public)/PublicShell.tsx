@@ -69,6 +69,7 @@ export function PublicShell({
         cutoffDay={cutoffDay}
         cutoffHour={cutoffHour}
         deliveryDays={deliveryDays}
+        deliveryZones={deliveryZones}
         longDistanceFeeCents={longDistanceFeeCents}
         longDistanceThresholdMiles={longDistanceThresholdMiles}
         deliveryFeeBands={deliveryFeeBands}

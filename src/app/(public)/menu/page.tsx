@@ -1,5 +1,6 @@
 import { Suspense } from "react";
-import { getBusinessRules } from "@/lib/settings";
+import { getBusinessRules, getDeliveryPricingConfig } from "@/lib/settings";
+import { serviceableCeilingMiles } from "@/lib/utils/order";
 import { MenuContent, MenuSkeleton, MenuPageAmbient } from "@/components/ui/menu";
 
 export const metadata = {
@@ -21,6 +22,8 @@ export default async function MenuPage() {
           cutoffDay={rules.cutoffDay}
           cutoffHour={rules.cutoffHour}
           deliveryDays={rules.deliveryDays}
+          deliveryZones={rules.deliveryZones}
+          maxRadiusMiles={serviceableCeilingMiles(getDeliveryPricingConfig(rules))}
         />
       </Suspense>
     </main>

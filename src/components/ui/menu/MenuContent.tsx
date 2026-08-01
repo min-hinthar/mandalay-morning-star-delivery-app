@@ -26,9 +26,11 @@ import { useFavorites } from "@/lib/hooks/useFavorites";
 import { useCart } from "@/lib/hooks/useCart";
 import { useMenuFilters } from "@/lib/hooks/useMenuFilters";
 import { useCustomerOfflineSync } from "@/lib/hooks/useCustomerOfflineSync";
+import { useCustomerDeliveryDays } from "@/lib/hooks/useCustomerDeliveryDays";
+import { routeDayHeadline } from "@/lib/delivery/route-awareness";
 import { cn } from "@/lib/utils/cn";
 import type { MenuItem, MenuCategory } from "@/types/menu";
-import type { DeliveryDayConfig } from "@/types/delivery";
+import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 import { useMenuCache } from "./useMenuCache";
 import type { SelectedModifier } from "@/lib/utils/price";
 
@@ -47,6 +49,11 @@ import { StaleBadge } from "@/components/ui/offline";
 // TYPES
 // ============================================
 
+// Stable fallback — an inline `?? []` would hand the personalization hook a
+// fresh array every render, re-running its auth+address fetch on unrelated
+// state changes (search keystrokes) whenever deliveryDays is undefined.
+const NO_DELIVERY_DAYS: DeliveryDayConfig[] = [];
+
 export interface MenuContentProps {
   /** Additional className */
   className?: string;
@@ -56,18 +63,44 @@ export interface MenuContentProps {
   cutoffHour?: number;
   /** Multi-day delivery config */
   deliveryDays?: DeliveryDayConfig[];
+  /** Zone configs — lets the banner + rail chip count down to THIS customer's runs */
+  deliveryZones?: DeliveryZoneConfig[];
+  /** Coverage ceiling — suppresses personalization for an out-of-range address */
+  maxRadiusMiles?: number;
 }
 
 // ============================================
 // MAIN COMPONENT
 // ============================================
 
-export function MenuContent({ className, cutoffDay, cutoffHour, deliveryDays }: MenuContentProps) {
+export function MenuContent({
+  className,
+  cutoffDay,
+  cutoffHour,
+  deliveryDays,
+  deliveryZones,
+  maxRadiusMiles,
+}: MenuContentProps) {
   // ============================================
   // ROUTING
   // ============================================
   const searchParams = useSearchParams();
   const router = useRouter();
+
+  // ============================================
+  // PERSONALIZED DELIVERY DAYS
+  // ============================================
+  // One resolve feeds BOTH the masthead banner and the rail chip, so the two
+  // countdowns can never disagree. A direction-scoped customer (incl. one
+  // landing from the route-day-invite email) counts down to THEIR next run,
+  // not the nearest run of any direction; anonymous visitors keep the
+  // all-days schedule.
+  const {
+    days: customerDays,
+    awareness,
+    personalized,
+  } = useCustomerDeliveryDays(deliveryDays ?? NO_DELIVERY_DAYS, deliveryZones, maxRadiusMiles);
+  const effectiveDays = deliveryDays && deliveryDays.length > 0 ? customerDays : deliveryDays;
 
   // ============================================
   // OFFLINE STATE
@@ -306,11 +339,14 @@ export function MenuContent({ className, cutoffDay, cutoffHour, deliveryDays }: 
       <MenuHeader />
 
       {/* Delivery cutoff — full countdown banner in the scroll-away masthead
-          region (a condensed live chip also lives in the pinned rail). */}
+          region (a condensed live chip also lives in the pinned rail). Runs on
+          the customer's OWN day list when personalization resolved, and carries
+          the route-day headline so the invite email's promise survives landing. */}
       <DeliveryBanner
         cutoffDay={cutoffDay ?? 5}
         cutoffHour={cutoffHour ?? 15}
-        deliveryDays={deliveryDays}
+        deliveryDays={effectiveDays}
+        routeHeadline={personalized && awareness ? routeDayHeadline(awareness) : null}
       />
 
       {/* Welcome + referral offers */}
@@ -328,7 +364,7 @@ export function MenuContent({ className, cutoffDay, cutoffHour, deliveryDays }: 
         onDietaryChange={setDietaryFilters}
         cutoffDay={cutoffDay}
         cutoffHour={cutoffHour}
-        deliveryDays={deliveryDays}
+        deliveryDays={effectiveDays}
       />
 
       {/* Stale Badge - shown above menu grid when offline with cached data */}

@@ -22,7 +22,10 @@ export interface RailCutoffChipProps {
  * urgency-tinted pill so the order deadline stays in view while browsing.
  *
  * Compact: shows just the live countdown when ordering is open, or a muted
- * "Closed" when past cutoff. Hidden below sm to protect the tabs' width.
+ * "Closed" when past cutoff. Below sm it hides at NORMAL urgency to protect
+ * the tabs' width — but surfaces at warning/critical: the masthead banner has
+ * scrolled away by then, and the customer most likely to miss a cutoff (phone,
+ * 2pm on cutoff day, deep in the dish grid) had no deadline in view at all.
  */
 export function RailCutoffChip({
   cutoffDay,
@@ -35,10 +38,13 @@ export function RailCutoffChip({
   const gate = deliveryDays && deliveryDays.length > 0 ? multiDayGate : legacyGate;
   const { isOpen, cutoffDate, urgency } = gate;
 
+  const urgent = isOpen && (urgency === "warning" || urgency === "critical");
+
   return (
     <div
       className={cn(
-        "menu-rail-chip hidden shrink-0 items-center gap-1.5 rounded-pill px-3 py-1.5 sm:flex",
+        "menu-rail-chip shrink-0 items-center gap-1.5 rounded-pill px-3 py-1.5 sm:flex",
+        urgent ? "flex" : "hidden",
         "text-xs font-semibold",
         isOpen && urgency === "normal" && "text-text-secondary",
         isOpen && urgency === "warning" && "menu-rail-chip-warn text-hero-clay",

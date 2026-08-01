@@ -1,5 +1,5 @@
 import type { MenuItem } from "@/types/menu";
-import type { DeliveryDayConfig } from "@/types/delivery";
+import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 import type { DeliveryFeeBand, DeliveryFeeResult, MinimumOrderResult } from "@/lib/utils/order";
 
 export interface SelectedModifier {
@@ -44,6 +44,10 @@ export interface CartStore {
   /** Multi-day delivery configs (populated from server on page load) */
   deliveryDays: DeliveryDayConfig[];
   setDeliveryDays: (days: DeliveryDayConfig[]) => void;
+
+  /** Zone configs — cart surfaces resolve the customer's directions from these */
+  deliveryZones: DeliveryZoneConfig[];
+  setDeliveryZones: (zones: DeliveryZoneConfig[]) => void;
 
   /** Distance-based fee settings (populated from server on page load) */
   addressDistanceMiles: number | null;
