@@ -20,6 +20,8 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useCartValidation } from "@/lib/hooks/useCartValidation";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { buildCartPricingConfig } from "@/lib/stores/cart-pricing";
+import { serviceableCeilingMiles } from "@/lib/utils/order";
 import { useCustomerDeliveryDays } from "@/lib/hooks/useCustomerDeliveryDays";
 import { useMediaQuery } from "@/lib/hooks/useMediaQuery";
 import { Drawer } from "@/components/ui/Drawer";
@@ -65,7 +67,14 @@ function CartContent({ onClose, showFullCartLink, isMobile = false }: CartConten
   const cutoffHour = useCartStore((state) => state.cutoffHour);
   const deliveryDays = useCartStore((state) => state.deliveryDays);
   const deliveryZones = useCartStore((state) => state.deliveryZones);
-  const maxRadiusMiles = useCartStore((state) => state.maxRadiusMiles);
+  // The SERVICEABLE ceiling, not raw maxRadiusMiles: with extended delivery
+  // switched off the far branch is out of range at the standard ceiling, and
+  // the raw cap would keep personalizing an address checkout answers
+  // OUT_OF_COVERAGE (menu/page.tsx makes the same call server-side — the two
+  // surfaces must agree).
+  const serviceableCeiling = useCartStore((state) =>
+    serviceableCeilingMiles(buildCartPricingConfig(state))
+  );
   const validation = useCartValidation();
   // Drawer receipt + CTA count down to the customer's OWN next run when their
   // verified address resolves — the all-days gate quoted the nearest run of
@@ -74,7 +83,7 @@ function CartContent({ onClose, showFullCartLink, isMobile = false }: CartConten
   const { days: customerDays } = useCustomerDeliveryDays(
     deliveryDays,
     deliveryZones,
-    maxRadiusMiles
+    serviceableCeiling
   );
   const gateState = useCartDeliveryGate({
     hasBlockingIssues: validation.hasBlockingIssues,
