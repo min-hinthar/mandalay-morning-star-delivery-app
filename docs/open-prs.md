@@ -6,7 +6,7 @@
 
 _Last reconciled: 2026-08-01._
 
-## In flight — route-creation debug 2026-08-01 (three DRAFT PRs, all off `main`, awaiting the owner's per-PR go)
+## Recently closed — route-creation debug 2026-08-01 (ALL THREE MERGED on the owner's "Merge, go thoughtfully")
 
 From "failed to create Delivery route or automatically assign to available driver". Root
 cause was already fixed and merged as **#223** (`e909ccc`): `POST /api/admin/routes` wrote
@@ -55,9 +55,23 @@ that debug turned up. **Independent** — no shared files, each sits directly on
 > reads it. Building real auto-assignment needs a definition of "available", and drivers
 > carry no day or zone affiliation today. Build it, or hide the control?
 
+Merged #224 (`235eebc`) → #225 (`6747e46`) → #226. **#224 and #226 both touch
+`src/app/api/admin/drivers/route.ts`** (POST rewrite vs. the GET `?active=` filter), so the
+three-way merge was verified before any of them landed: a scratch worktree merging all three
+onto `main` ran typecheck + lint + every admin suite green (155 tests), and #226 was then
+updated onto the post-#224 `main` so its blocking CI validated the real post-merge state
+rather than a stale base. #225 was disjoint from both.
+
 Local full-suite runs OOM this container, so verification is targeted suites + the blocking
 CI `verify` job. Every new test in all three was **falsified** (fix reverted, confirmed red,
 restored) before pushing.
+
+**Six rounds of auto-review on #224 earned their keep** — every finding was a hazard the fix
+itself created by making previously-inert writes actually land: admin demotion (single-enum
+role), phone/license-plate wipes from omitted optional fields, a silent un-archive, and three
+separate cases of a 200 claiming something the write hadn't done. The recurring lesson: an
+honest API response is worthless if the caller discards it — both `DriverDetailClient` and
+`handleAddDriver` had to be wired to render it.
 
 ## Recently closed — route-day UX sweep 2026-08-01 (BOTH MERGED on the owner's "pre-merge go and merge when ready")
 
