@@ -6,10 +6,14 @@
  * discount, no order counts, no social proof — the claim is purely the schedule,
  * so it's true and non-identifying at any volume.
  *
- * NOT registered in vercel.json on purpose: this is the only outbound MARKETING
- * send in the app, so it stays dormant until the owner adds a schedule entry.
- * Verify the audience first with `?dryRun=1`, which reports exactly who would be
- * mailed without sending anything.
+ * SCHEDULED in vercel.json at `30 16 * * *` (09:30 PDT / 08:30 PST — 5.5h/6.5h
+ * before a same-day 15:00 PT cutoff, inside the 2–20h window on both sides of
+ * DST; deliberately offset from loyalty-anniversary's 16:00 slot so one
+ * customer never gets two sends in the same minute). Scheduling was gated on
+ * two prerequisites, both since met: the notification_type enum migration
+ * applied to prod, and UNSUBSCRIBE_TOKEN_SECRET set in Vercel. Verify any
+ * audience/schedule change with `?dryRun=1`, which reports exactly who would
+ * be mailed without sending anything.
  *
  * Suppressions, in order: marketing opt-out, no deliverable email, no saved
  * coords, address not served by any upcoming run, cutoff outside the notice
@@ -67,8 +71,10 @@ const MAX_HOURS_BEFORE_CUTOFF = 20;
  *
  * Cutoffs are 15:00 PT (`delivery_days.cutoff_hour`, default 15). Vercel crons
  * are UTC, so a fixed entry drifts an hour across DST — pick one that stays
- * inside 2–20h on BOTH sides of the shift. `"0 16 * * *"` = 09:00 PDT / 08:00
- * PST, i.e. 6h or 7h before a same-day cutoff. Comfortably inside on both.
+ * inside 2–20h on BOTH sides of the shift. The registered `"30 16 * * *"` =
+ * 09:30 PDT / 08:30 PST, i.e. 5.5h or 6.5h before a same-day cutoff.
+ * Comfortably inside on both (the :30 offset dodges loyalty-anniversary's
+ * top-of-hour slot).
  *
  * Avoid early-afternoon PT (under 2h out) and late evening PT (over 20h out to
  * the NEXT cutoff). Verify any new time with `?dryRun=1`, which reports the
