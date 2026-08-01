@@ -436,6 +436,36 @@ describe("POST /admin/drivers — profile promotion", () => {
     }
   });
 
+  // Same rule as phone, on the row the heal path UPDATES: an omitted plate
+  // must not clear a stored one. (The INSERT path keeps `?? null` — there's
+  // nothing to preserve on a row being created.)
+  it("does not null a stored license plate when the form omits one", async () => {
+    mockCreateContext({
+      profile: { id: "u-1", role: "customer" },
+      existingDriver: { id: "existing-driver", is_active: true },
+    });
+    const { update } = mockPromoteClient([{ id: "u-1" }]);
+    const { phone: _p, ...noPlate } = NEW_DRIVER_BODY;
+
+    await CREATE_DRIVER(createReq(noPlate));
+
+    for (const call of update.mock.calls) {
+      expect(call[0]).not.toHaveProperty("license_plate");
+    }
+  });
+
+  it("writes the license plate on heal when one IS submitted", async () => {
+    mockCreateContext({
+      profile: { id: "u-1", role: "customer" },
+      existingDriver: { id: "existing-driver", is_active: true },
+    });
+    const { update } = mockPromoteClient([{ id: "u-1" }]);
+
+    await CREATE_DRIVER(createReq({ ...NEW_DRIVER_BODY, licensePlate: "8ABC123" }));
+
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({ license_plate: "8ABC123" }));
+  });
+
   it("still writes the phone when one IS submitted", async () => {
     mockCreateContext({ profile: { id: "u-1", role: "customer" }, existingDriver: null });
     const { update } = mockPromoteClient([{ id: "u-1" }]);

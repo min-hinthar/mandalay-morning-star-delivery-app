@@ -143,11 +143,25 @@ export async function POST(request: NextRequest) {
 
     const { email, fullName, phone, vehicleType, licensePlate } = result.data;
 
-    // `phone` is OPTIONAL in createDriverSchema, so `phone ?? null` would WIPE a
-    // stored number whenever the admin re-submits the form without one — silent
-    // data loss on a request that reports success. Omit the column instead when
-    // nothing was submitted, so an absent field means "leave it alone".
+    // `phone`, `vehicleType` and `licensePlate` are all OPTIONAL in
+    // createDriverSchema, so `x ?? null` would WIPE a stored value whenever the
+    // admin re-submits the form without one — silent data loss on a request
+    // that reports success. Omit the column instead when nothing was submitted,
+    // so an absent field means "leave it alone".
+    //
+    // These are for UPDATES to a pre-existing row (the heal path). The INSERT
+    // below deliberately keeps `?? null`: there is nothing to preserve on a row
+    // being created, and an explicit null is the honest value.
     const optionalPhone = phone ? { phone } : {};
+    // Written out rather than leaning on `vehicle_type: vehicleType as ... |
+    // null` evaluating to `undefined` and supabase-js dropping undefined keys.
+    // That works, but it makes correctness depend on serialization behaviour
+    // rather than on intent, and it reads as the opposite of what it does.
+    const optionalDriverFields = {
+      ...(vehicleType ? { vehicle_type: vehicleType as VehicleType } : {}),
+      ...(licensePlate ? { license_plate: licensePlate } : {}),
+      ...optionalPhone,
+    };
 
     // One elevated client for the whole handler, matching PATCH
     // /api/admin/drivers/[id]. Instantiated only AFTER requireAdmin() above —
@@ -221,9 +235,7 @@ export async function POST(request: NextRequest) {
           const { data: detailRows, error: detailsError } = await db
             .from("drivers")
             .update({
-              vehicle_type: vehicleType as VehicleType | null,
-              license_plate: licensePlate ?? null,
-              ...optionalPhone,
+              ...optionalDriverFields,
               // Re-adding someone through the add-driver form IS a request to
               // have them driving, so reactivating is the right value — but it
               // must be said out loud rather than silently undoing a
