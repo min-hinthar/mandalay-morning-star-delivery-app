@@ -24,7 +24,7 @@
  * needed in this file for Phase 111.
  */
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { m } from "framer-motion";
 import { Clock, ArrowLeft, CalendarX2, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
@@ -121,10 +121,14 @@ export function TimeStepV8({
 
   // A silent date change is worse than no change — when the effect below has
   // to move the selection, say so (aria-live, bilingual) instead of leaving a
-  // differently-highlighted pill as the only clue.
+  // differently-highlighted pill as the only clue. The ref remembers WHICH
+  // address triggered the move: a LATER address change that revalidates
+  // without moving clears the now-stale notice, while the re-run right after
+  // the reseat (same address) keeps it visible.
   const [moveNotice, setMoveNotice] = useState<{ toDisplay: string; reason: MoveReason } | null>(
     null
   );
+  const noticeAddressRef = useRef<string | undefined>(undefined);
 
   // Determine customer's delivery directions from address coordinates
   const addressDirections = useMemo(() => {
@@ -205,7 +209,12 @@ export function TimeStepV8({
     }
 
     const current = availableDates.find((d) => d.dateString === delivery.date);
-    if (current && !current.cutoffPassed) return; // still valid — never override
+    if (current && !current.cutoffPassed) {
+      // Still valid — never override. A DIFFERENT address than the one that
+      // caused the move also serving this date means the notice is stale.
+      if (noticeAddressRef.current !== address?.id) setMoveNotice(null);
+      return;
+    }
 
     if (firstAvailable) {
       // Keep the chosen window when it still exists; windows are global.
@@ -225,6 +234,7 @@ export function TimeStepV8({
         windowStart: windowValid ? delivery.windowStart : fallbackWindow.start,
         windowEnd: windowValid ? delivery.windowEnd : fallbackWindow.end,
       });
+      noticeAddressRef.current = address?.id;
       setMoveNotice({
         toDisplay: firstAvailable.displayDate,
         reason: cutoffCrossed ? "cutoff" : "route",
@@ -232,7 +242,16 @@ export function TimeStepV8({
     } else {
       clearDelivery();
     }
-  }, [noServe, delivery, availableDates, timeWindows, deliveryDays, setDelivery, clearDelivery]);
+  }, [
+    noServe,
+    delivery,
+    availableDates,
+    timeWindows,
+    deliveryDays,
+    address?.id,
+    setDelivery,
+    clearDelivery,
+  ]);
 
   const handleSelectionChange = useCallback(
     (selection: DeliverySelection) => {

@@ -311,6 +311,54 @@ describe("TimeStepV8 — address-change revalidation of the selected date", () =
     expect(screen.getByText(/route runs on different days/i)).toBeInTheDocument();
   });
 
+  it("clears the move notice when a LATER address change still serves the moved date", () => {
+    // Move 1: west → east forces a reseat and shows the notice.
+    mockDirections = ["west"];
+    const first = renderStep();
+    first.unmount();
+    const wedDate = (() => {
+      const now = new Date();
+      for (let i = 0; i < 14; i++) {
+        const d = new Date(now.getTime() + i * 86_400_000);
+        if (getZonedDayOfWeek(d) === 3) {
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, "0");
+          const dd = String(d.getDate()).padStart(2, "0");
+          return `${y}-${m}-${dd}`;
+        }
+      }
+      throw new Error("no wednesday found");
+    })();
+    act(() => {
+      useCheckoutStore.setState({
+        delivery: { date: wedDate, windowStart: "10:00", windowEnd: "12:00" },
+      });
+    });
+    mockDirections = ["east"];
+    act(() => {
+      useCheckoutStore.setState({
+        address: { ...ADDRESS, id: "addr-east", lat: 34.2, lng: -117.5 },
+        addressId: "addr-east",
+      });
+    });
+    renderStep();
+    expect(screen.getByText(/we moved your delivery/i)).toBeInTheDocument();
+    const moved = useCheckoutStore.getState().delivery;
+
+    // Move 2: a nearby address serves the ALREADY-moved date — no new move, so
+    // the old "we moved your delivery" notice is stale and must clear.
+    mockDirections = [];
+    act(() => {
+      useCheckoutStore.setState({
+        address: { ...ADDRESS, id: "addr-nearby", lat: 34.1, lng: -117.9 },
+        addressId: "addr-nearby",
+      });
+    });
+
+    expect(useCheckoutStore.getState().delivery).toEqual(moved);
+    expect(screen.queryByText(/we moved your delivery/i)).toBeNull();
+  });
+
   it("keeps a still-valid selection untouched when the address change also serves it", () => {
     mockDirections = ["west"];
     renderStep();

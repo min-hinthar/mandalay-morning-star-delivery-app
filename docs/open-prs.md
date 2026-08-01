@@ -4,7 +4,25 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-07-31._
+_Last reconciled: 2026-08-01._
+
+## Open — route-day UX sweep (from the 6-agent survey; owner: "Plan-build thoughtfully")
+
+Both independent off `main`; no shared files; **await the owner's per-PR merge go.**
+
+- **#220 — checkout day integrity** (branch `claude/checkout-day-integrity`). Address-aware
+  CutoffModal gate + reschedule; selected-date cutoff chip/watcher; date revalidation on
+  address change (bilingual notice); no-serve empty state (unfiltered fallback REMOVED);
+  cart-drawer minimum gate + receipt shortfall row; middleware `?next=` for
+  /checkout·/cart·/orders·/account. Auto-review: clean, 1 Minor justified (same-weekday
+  split = pre-existing 1:1 weekday→run model assumption shared by the whole day engine),
+  1 Nit fixed (stale moveNotice — cleared on later-address revalidation, ref-guarded so
+  the post-reseat re-run keeps it). +27 tests.
+- **#221 — pre-checkout route-day truth** (branch `claude/menu-route-day-truth`). New
+  `useCustomerDeliveryDays` (verified-default-address → `addressServesDay` filter,
+  fail-open); menu banner leads with the route-day headline (invite-email landing
+  continuity); RailCutoffChip surfaces on mobile at warning/critical; cart drawer runs on
+  the personalized days (zones synced into cart store). +13 tests.
 
 ## Recently closed — issue-backlog sweep 2026-07-31 (ALL FIVE MERGED on the owner's "Merge all thoughtfully")
 
