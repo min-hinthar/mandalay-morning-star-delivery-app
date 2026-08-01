@@ -229,8 +229,9 @@ import { requireAdmin } from "@/lib/auth";
 function mockCreateContext(opts: {
   profile: { id: string; role: string } | null;
   existingDriver: { id: string; is_active?: boolean } | null;
-  insertedDriverId?: string;
 }) {
+  // Reads only — every WRITE on this path (insert included) goes through the
+  // service client, so it lives on mockPromoteClient.
   const from = vi.fn((table: string) => {
     if (table === "profiles") {
       return {
@@ -248,17 +249,9 @@ function mockCreateContext(opts: {
             single: vi.fn().mockResolvedValue({ data: opts.existingDriver, error: null }),
           }),
         }),
-        insert: vi.fn().mockReturnValue({
-          select: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { id: opts.insertedDriverId ?? "new-driver" },
-              error: null,
-            }),
-          }),
-        }),
       };
     }
-    return { select: vi.fn(), insert: vi.fn() };
+    return { select: vi.fn() };
   });
   vi.mocked(requireAdmin).mockResolvedValue({
     success: true,
@@ -274,7 +267,8 @@ function mockCreateContext(opts: {
  */
 function mockPromoteClient(
   promotedRows: Array<{ id: string }> | null,
-  driversUpdateError?: { message: string }
+  driversUpdateError?: { message: string },
+  insertedDriverId = "new-driver"
 ) {
   const del = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) });
   // `.update().eq()` is awaited bare for the heal path's vehicle-detail write
@@ -294,13 +288,20 @@ function mockPromoteClient(
 
   const update = vi.fn().mockReturnValue({ eq: makeEq(null) });
   const driversUpdate = vi.fn().mockReturnValue({ eq: makeEq(driversUpdateError ?? null) });
+  // The new-driver INSERT goes through the SERVICE client too, so it lives here
+  // rather than on the auth-client mock.
+  const insert = vi.fn().mockReturnValue({
+    select: vi.fn().mockReturnValue({
+      single: vi.fn().mockResolvedValue({ data: { id: insertedDriverId }, error: null }),
+    }),
+  });
   const from = vi.fn((table: string) =>
     table === "drivers"
-      ? { update: driversUpdateError ? driversUpdate : update, delete: del }
-      : { update, delete: del }
+      ? { update: driversUpdateError ? driversUpdate : update, delete: del, insert }
+      : { update, delete: del, insert }
   );
   createServiceClient.mockReturnValue({ from });
-  return { from, update, del };
+  return { from, update, del, insert };
 }
 
 function createReq(body: unknown) {
@@ -336,19 +337,29 @@ describe("POST /admin/drivers — profile promotion", () => {
   });
 
   it("500s AND rolls back the orphan driver row when the promotion matches no rows", async () => {
-    mockCreateContext({
-      profile: { id: "u-1", role: "customer" },
-      existingDriver: null,
-      insertedDriverId: "orphan-1",
-    });
-    const { from, del } = mockPromoteClient([]);
+    mockCreateContext({ profile: { id: "u-1", role: "customer" }, existingDriver: null });
+    const { from, del } = mockPromoteClient([], undefined, "orphan-1");
 
     const res = await CREATE_DRIVER(createReq(NEW_DRIVER_BODY));
 
     expect(res.status).toBe(500);
     // Without the rollback the drivers row survives and every retry 409s.
     expect(from).toHaveBeenCalledWith("drivers");
-    expect(del).toHaveBeenCalled();
+    // Pinned to the row just inserted — a rollback that deleted anything else
+    // would be far worse than the orphan it's cleaning up.
+    expect(del.mock.results[0].value.eq).toHaveBeenCalledWith("id", "orphan-1");
+  });
+
+  it("creates the driver row through the SERVICE client, not the RLS-scoped one", async () => {
+    // drivers_insert grants is_admin() so the caller-scoped client works today,
+    // but that policy is the only thing between this write and the same silent
+    // zero-row failure the rest of this PR fixes.
+    mockCreateContext({ profile: { id: "u-1", role: "customer" }, existingDriver: null });
+    const { insert } = mockPromoteClient([{ id: "u-1" }]);
+
+    await CREATE_DRIVER(createReq(NEW_DRIVER_BODY));
+
+    expect(insert).toHaveBeenCalledWith(expect.objectContaining({ user_id: "u-1" }));
   });
 
   it("repairs an account left stuck by the RLS bug instead of 409ing", async () => {

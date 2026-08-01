@@ -128,7 +128,24 @@ export default function AdminDriversPage() {
       throw new Error(err.error || "Failed to create driver");
     }
 
+    // A 200 here is not always a plain "created". Re-adding someone whose
+    // account was stranded by the RLS bug takes the HEAL path, which reports
+    // whether it also reactivated an archived record — and, when its
+    // (non-fatal) driver-row write fails, that the record is STILL ARCHIVED and
+    // cannot be assigned. Discarding the body would put the admin right back in
+    // the dark this PR is getting them out of.
+    const result = (await response.json()) as {
+      message?: string;
+      detailsSaved?: boolean;
+      reactivated?: boolean;
+    };
+
     await fetchDrivers();
+
+    toast({
+      message: result.message ?? "Driver added",
+      type: result.detailsSaved === false ? "warning" : "success",
+    });
   };
 
   const handleInviteSuccess = () => {

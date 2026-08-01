@@ -279,8 +279,12 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Create driver record for existing user
-      const { data: newDriver, error: driverError } = await supabase
+      // Create driver record for existing user. Uses the elevated client like
+      // every other write here — `drivers_insert` does grant is_admin() so the
+      // caller-scoped client works TODAY, but that is the one policy standing
+      // between this line and the exact silent zero-row failure the rest of
+      // this PR exists to fix. Don't leave one write depending on it.
+      const { data: newDriver, error: driverError } = await db
         .from("drivers")
         .insert({
           user_id: existingProfile.id,
