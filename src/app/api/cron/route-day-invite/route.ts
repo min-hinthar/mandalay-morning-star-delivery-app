@@ -71,8 +71,10 @@ const MAX_HOURS_BEFORE_CUTOFF = 20;
  *
  * Cutoffs are 15:00 PT (`delivery_days.cutoff_hour`, default 15). Vercel crons
  * are UTC, so a fixed entry drifts an hour across DST — pick one that stays
- * inside 2–20h on BOTH sides of the shift. `"0 16 * * *"` = 09:00 PDT / 08:00
- * PST, i.e. 6h or 7h before a same-day cutoff. Comfortably inside on both.
+ * inside 2–20h on BOTH sides of the shift. The registered `"30 16 * * *"` =
+ * 09:30 PDT / 08:30 PST, i.e. 5.5h or 6.5h before a same-day cutoff.
+ * Comfortably inside on both (the :30 offset dodges loyalty-anniversary's
+ * top-of-hour slot).
  *
  * Avoid early-afternoon PT (under 2h out) and late evening PT (over 20h out to
  * the NEXT cutoff). Verify any new time with `?dryRun=1`, which reports the
