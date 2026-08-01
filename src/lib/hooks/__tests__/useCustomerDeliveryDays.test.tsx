@@ -357,6 +357,28 @@ describe("useCustomerDeliveryDays", () => {
     expect(ids(result.current.days)).toEqual(["mon", "wed", "sat"]);
   });
 
+  it("never replays the PREVIOUS user's coords when the new user's read fails", async () => {
+    // User A personalizes west; an account switch in another tab makes the
+    // next refresh resolve user B, whose address read then FAILS. The refs
+    // still hold A's coords — replaying them would paint A's route for B.
+    mockUser = { id: "user-a" };
+    mockAddressRow = VERIFIED_ROW;
+    mockDirections = ["west"];
+    const { result } = renderHook(() => useCustomerDeliveryDays(DAYS, ZONES, 100));
+    await waitFor(() => {
+      expect(result.current.personalized).toBe(true);
+    });
+
+    mockUser = { id: "user-b" };
+    mockAddressError = { message: "permission denied for table addresses" };
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    await waitFor(() => {
+      expect(result.current.personalized).toBe(false);
+    });
+    expect(ids(result.current.days)).toEqual(["mon", "wed", "sat"]);
+  });
+
   it("a network-failed auth check retains the route; a real sign-out downgrades", async () => {
     mockUser = { id: "user-1" };
     mockAddressRow = VERIFIED_ROW;

@@ -90,6 +90,10 @@ export function useCustomerDeliveryDays(
   // addresses round-trip (mirrors RouteDayCallout's pattern).
   const coordsRef = useRef<{ lat: number; lng: number } | null>(null);
   const distanceRef = useRef<number | null>(null);
+  // Whose resolution the refs hold — the failed-read replay below must never
+  // repaint user A's coords for user B (account switch in another tab, then
+  // B's address read fails).
+  const refsUserRef = useRef<string | null>(null);
 
   const overrideLat = overrideAddress?.lat;
   const overrideLng = overrideAddress?.lng;
@@ -218,13 +222,26 @@ export function useCustomerDeliveryDays(
           import("@sentry/nextjs").then((s) => s.captureException(err)).catch(() => {});
         }
         if (cancelled || myGeneration !== generation) return;
-        // A failed READ says nothing about the route — replay the last
-        // successful coords (refs + module cache untouched, resolvePublished
-        // stays false so a pending seed may still land) instead of
-        // downgrading a personalized surface to the generic gate. With
-        // nothing resolved yet the refs are null, so first-mount failures
-        // still render the fail-open generic list — but with the CURRENT
-        // props (an admin day edit mid-outage must not pin the old list).
+        if (resolvedUserId !== null && resolvedUserId !== refsUserRef.current) {
+          // The failure happened while resolving a DIFFERENT user than the
+          // refs belong to (getUser succeeded — identity is known — but the
+          // new user's address read failed): the previous user's route must
+          // not survive. Downgrade to the fail-open generic list until a
+          // successful resolve re-personalizes.
+          coordsRef.current = null;
+          distanceRef.current = null;
+          refsUserRef.current = resolvedUserId;
+          applyResolved(null);
+          return;
+        }
+        // Same (or unknown) user: a failed READ says nothing about the route
+        // — replay the last successful coords (refs + module cache
+        // untouched, resolvePublished stays false so a pending seed may
+        // still land) instead of downgrading a personalized surface to the
+        // generic gate. With nothing resolved yet the refs are null, so
+        // first-mount failures still render the fail-open generic list —
+        // but with the CURRENT props (an admin day edit mid-outage must not
+        // pin the old list).
         applyResolved(coordsRef.current);
         return;
       }
@@ -232,6 +249,7 @@ export function useCustomerDeliveryDays(
       resolvePublished = true;
       coordsRef.current = coords;
       distanceRef.current = distance;
+      refsUserRef.current = resolvedUserId;
       cachedResolution = { userId: resolvedUserId, coords, distance };
       applyResolved(coords);
     }
@@ -251,6 +269,7 @@ export function useCustomerDeliveryDays(
         if ((session?.user?.id ?? null) !== cachedResolution.userId) return;
         coordsRef.current = cachedResolution.coords;
         distanceRef.current = cachedResolution.distance;
+        refsUserRef.current = cachedResolution.userId;
         applyResolved(cachedResolution.coords);
       } catch {
         // Seeding is best-effort — resolve() is already in flight.
