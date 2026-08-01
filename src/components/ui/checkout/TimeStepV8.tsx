@@ -232,7 +232,13 @@ export function TimeStepV8({
         (w) => w.start === delivery.windowStart && w.end === delivery.windowEnd
       );
       const fallbackWindow = timeWindows[0];
-      if (!windowValid && !fallbackWindow) return;
+      if (!windowValid && !fallbackWindow) {
+        // No valid window to reseat onto — clear rather than leave a
+        // known-invalid date that Continue (delivery !== null) would carry
+        // straight to a server rejection.
+        clearDelivery();
+        return;
+      }
       // The multi-day date list PRE-FILTERS passed dates, so a cutoff-crossed
       // selection is simply absent (never flagged cutoffPassed) — derive the
       // reason from the date's own cutoff instant instead.

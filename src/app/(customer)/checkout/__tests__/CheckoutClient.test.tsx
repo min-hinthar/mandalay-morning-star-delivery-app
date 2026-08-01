@@ -126,12 +126,14 @@ vi.mock("@/lib/hooks/useNavigationGuard", () => ({
   }),
 }));
 
-// Mock delivery gates — multiDay is a mutable ref so the address-aware modal
-// tests can flip the gate closed per test (reset in afterEach).
+// Mock delivery gates — both are mutable refs so the address-aware modal
+// tests (multi-day) and the legacy sticky-gate test can flip them per test
+// (reset in afterEach).
 const OPEN_GATE = { isOpen: true, deliveryDate: { displayDate: "Saturday" } };
 let mockMultiDayGate: { isOpen: boolean; deliveryDate: { displayDate: string } } = OPEN_GATE;
+let mockLegacyGate: { isOpen: boolean; deliveryDate: { displayDate: string } } = OPEN_GATE;
 vi.mock("@/lib/hooks/useDeliveryGate", () => ({
-  useDeliveryGate: () => ({ isOpen: true, deliveryDate: { displayDate: "Saturday" } }),
+  useDeliveryGate: () => mockLegacyGate,
   useDeliveryGateMultiDay: () => mockMultiDayGate,
 }));
 
@@ -944,6 +946,27 @@ describe("day integrity — selected-date cutoff watcher", () => {
 
     const props = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
     expect(props.isOpen).toBe(false);
+  });
+
+  it("LEGACY mode: a closed gate keeps Place Order blocked even after modal dismissal", () => {
+    // deliveryDays empty = legacy Saturday config → no selectedCutoffMs, so
+    // the sticky flag can't engage; the closed gate itself must hold the line.
+    mockDelivery = undefined;
+    mockLegacyGate = { isOpen: false, deliveryDate: { displayDate: "Saturday" } };
+    paymentStepSpy.mockClear();
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={[]} />);
+
+    const modalProps = cutoffModalSpy.mock.calls.at(-1)![0] as {
+      isOpen: boolean;
+      onClose: () => void;
+    };
+    expect(modalProps.isOpen).toBe(true);
+    act(() => modalProps.onClose());
+
+    const stepProps = paymentStepSpy.mock.calls.at(-1)![0] as { cutoffModalOpen: boolean };
+    expect(stepProps.cutoffModalOpen).toBe(true);
+    mockLegacyGate = OPEN_GATE;
   });
 
   it("keeps Place Order blocked after dismissing the modal while the expired date is still selected", () => {

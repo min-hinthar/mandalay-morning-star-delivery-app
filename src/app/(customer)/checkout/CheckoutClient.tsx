@@ -527,7 +527,7 @@ export default function CheckoutClient({
                         deliveryDays={deliveryDays}
                         onCutoffPassed={() => setShowCutoffModal(true)}
                         codEnabled={codEnabled}
-                        cutoffModalOpen={showCutoffModal || selectedCutoffPassed}
+                        cutoffModalOpen={showCutoffModal || selectedCutoffPassed || !gate.isOpen}
                       />
                     </m.div>
                   )}
