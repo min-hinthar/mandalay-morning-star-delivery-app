@@ -49,6 +49,9 @@ export function resolveSelectedCutoff(
   }
   const deliveryDate = parseDeliveryDateToUtc(dateString);
   const dayOfWeek = getZonedDayOfWeek(deliveryDate);
+  // Assumes the 1:1 weekday→run model the whole day engine shares (a
+  // DeliverySelection carries only a date). If same-weekday split runs ever
+  // land, this needs the selected day's direction/id threaded through.
   const dayConfig = deliveryDays.find((d) => d.isActive && d.dayOfWeek === dayOfWeek);
   if (!dayConfig) return null;
   return getCutoffForDeliveryDay(deliveryDate, dayConfig);
