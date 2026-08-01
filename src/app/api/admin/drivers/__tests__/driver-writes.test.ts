@@ -42,8 +42,10 @@ const { createClient, createServiceClient } = vi.hoisted(() => ({
   createServiceClient: vi.fn(),
 }));
 vi.mock("@/lib/supabase/server", () => ({ createClient, createServiceClient }));
+vi.mock("@/lib/auth", () => ({ requireAdmin: vi.fn() }));
 
 import { PATCH, DELETE } from "../[id]/route";
+import { POST as CREATE_DRIVER } from "../route";
 
 /** Auth client: an authenticated admin, plus the pre-write driver lookup. */
 function mockAuthClient(driverRow: Record<string, unknown> | null = { user_id: "u-1" }) {
@@ -174,5 +176,147 @@ describe("admin driver writes — service client + row verification", () => {
 
     expect(res.status).toBe(200);
     expect(createServiceClient).toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// POST /admin/drivers — profile promotion (the write whose silent failure left
+// drivers unable to sign in).
+// ---------------------------------------------------------------------------
+
+import { requireAdmin } from "@/lib/auth";
+
+/**
+ * Auth-client mock for the create path: an existing profile, and whether that
+ * user already has a drivers row.
+ */
+function mockCreateContext(opts: {
+  profile: { id: string; role: string } | null;
+  existingDriver: { id: string } | null;
+  insertedDriverId?: string;
+}) {
+  const from = vi.fn((table: string) => {
+    if (table === "profiles") {
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: opts.profile, error: null }),
+          }),
+        }),
+      };
+    }
+    if (table === "drivers") {
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({ data: opts.existingDriver, error: null }),
+          }),
+        }),
+        insert: vi.fn().mockReturnValue({
+          select: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: { id: opts.insertedDriverId ?? "new-driver" },
+              error: null,
+            }),
+          }),
+        }),
+      };
+    }
+    return { select: vi.fn(), insert: vi.fn() };
+  });
+  vi.mocked(requireAdmin).mockResolvedValue({
+    success: true,
+    userId: "admin-1",
+    supabase: { from },
+  } as never);
+}
+
+/** Service client for the create path: promotion result + a delete spy. */
+function mockPromoteClient(promotedRows: Array<{ id: string }> | null) {
+  const del = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) });
+  const update = vi.fn().mockReturnValue({
+    eq: vi.fn().mockReturnValue({
+      select: vi.fn().mockResolvedValue({ data: promotedRows, error: null }),
+    }),
+  });
+  const from = vi.fn(() => ({ update, delete: del }));
+  createServiceClient.mockReturnValue({ from });
+  return { from, update, del };
+}
+
+function createReq(body: unknown) {
+  return new Request("http://localhost/api/admin/drivers", {
+    method: "POST",
+    body: JSON.stringify(body),
+    headers: { "content-type": "application/json" },
+  }) as unknown as NextRequest;
+}
+
+const NEW_DRIVER_BODY = {
+  email: "d@example.com",
+  fullName: "Dee Driver",
+  phone: "6265551234",
+  vehicleType: "car",
+};
+
+describe("POST /admin/drivers — profile promotion", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  it("promotes the profile through the SERVICE client (RLS blocks the caller's)", async () => {
+    mockCreateContext({ profile: { id: "u-1", role: "customer" }, existingDriver: null });
+    const { from, update } = mockPromoteClient([{ id: "u-1" }]);
+
+    const res = await CREATE_DRIVER(createReq(NEW_DRIVER_BODY));
+
+    expect(res.status).toBe(201);
+    expect(createServiceClient).toHaveBeenCalled();
+    expect(from).toHaveBeenCalledWith("profiles");
+    expect(update).toHaveBeenCalledWith(
+      expect.objectContaining({ role: "driver", full_name: "Dee Driver" })
+    );
+  });
+
+  it("500s AND rolls back the orphan driver row when the promotion matches no rows", async () => {
+    mockCreateContext({
+      profile: { id: "u-1", role: "customer" },
+      existingDriver: null,
+      insertedDriverId: "orphan-1",
+    });
+    const { from, del } = mockPromoteClient([]);
+
+    const res = await CREATE_DRIVER(createReq(NEW_DRIVER_BODY));
+
+    expect(res.status).toBe(500);
+    // Without the rollback the drivers row survives and every retry 409s.
+    expect(from).toHaveBeenCalledWith("drivers");
+    expect(del).toHaveBeenCalled();
+  });
+
+  it("repairs an account left stuck by the RLS bug instead of 409ing", async () => {
+    // driver row exists, profile role never got promoted — the exact wreckage
+    // the old code produced, which re-adding used to reject outright.
+    mockCreateContext({
+      profile: { id: "u-1", role: "customer" },
+      existingDriver: { id: "existing-driver" },
+    });
+    const { update } = mockPromoteClient([{ id: "u-1" }]);
+
+    const res = await CREATE_DRIVER(createReq(NEW_DRIVER_BODY));
+
+    expect(res.status).toBe(200);
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({ role: "driver" }));
+    expect((await res.json()).message).toMatch(/repaired/i);
+  });
+
+  it("still 409s a genuine duplicate (driver row AND driver role)", async () => {
+    mockCreateContext({
+      profile: { id: "u-1", role: "driver" },
+      existingDriver: { id: "existing-driver" },
+    });
+    mockPromoteClient([{ id: "u-1" }]);
+
+    const res = await CREATE_DRIVER(createReq(NEW_DRIVER_BODY));
+
+    expect(res.status).toBe(409);
   });
 });

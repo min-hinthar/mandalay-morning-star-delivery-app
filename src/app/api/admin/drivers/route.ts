@@ -146,7 +146,7 @@ export async function POST(request: NextRequest) {
     // Check if email already exists
     const { data: existingProfile } = await supabase
       .from("profiles")
-      .select("id")
+      .select("id, role")
       .eq("email", email)
       .single();
 
@@ -159,6 +159,40 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (existingDriver) {
+        // A driver row WITHOUT the matching profile role is the wreckage of the
+        // RLS bug this PR fixes: the insert succeeded (drivers_insert grants
+        // is_admin()) while the promotion silently matched zero rows. Those
+        // accounts show up in the driver picker but can't sign in to the driver
+        // app, and re-adding them was the natural fix an admin would reach for
+        // — which 409'd, leaving no way out. Heal it instead of rejecting.
+        if (existingProfile.role !== "driver") {
+          const { data: healed, error: healError } = await createServiceClient()
+            .from("profiles")
+            .update({ role: "driver", full_name: fullName, phone: phone ?? null })
+            .eq("id", existingProfile.id)
+            .select("id");
+
+          if (healError || !healed || healed.length === 0) {
+            logger.exception(healError ?? new Error("Profile role repair affected no rows"), {
+              api: "admin/drivers",
+              flowId: "create-heal-role",
+              userId: existingProfile.id,
+            });
+            return NextResponse.json(
+              { error: "Could not promote the existing account to a driver role" },
+              { status: 500 }
+            );
+          }
+
+          return NextResponse.json({
+            id: existingDriver.id,
+            userId: existingProfile.id,
+            email,
+            fullName,
+            message: "Existing driver record repaired — account promoted to driver",
+          });
+        }
+
         return NextResponse.json(
           { error: "A driver with this email already exists" },
           { status: 409 }
@@ -202,14 +236,15 @@ export async function POST(request: NextRequest) {
           flowId: "create-promote-profile",
           userId: existingProfile.id,
         });
-        // The drivers row exists but the account is not a driver — report it
-        // rather than returning a success the admin cannot act on.
+        // Roll back the orphan so the state stays clean and a retry is
+        // actually possible — without this the drivers row survives, the
+        // profile stays a customer, and every retry 409s on the guard above.
+        // (Same rollback shape POST /api/admin/routes uses when stop creation
+        // fails after the route insert.)
+        await createServiceClient().from("drivers").delete().eq("id", newDriver.id);
+
         return NextResponse.json(
-          {
-            error:
-              "Driver record created but the account could not be promoted to a driver role. Please retry or contact support.",
-            driverId: newDriver.id,
-          },
+          { error: "Could not promote the account to a driver role — no changes were saved" },
           { status: 500 }
         );
       }
