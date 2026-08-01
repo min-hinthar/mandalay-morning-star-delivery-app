@@ -130,6 +130,19 @@ function mockCreatePath(orderRows: Array<Record<string, unknown>> = [PAID_ORDER]
       };
     }
     if (table === "routes") return { insert: routesInsert };
+    if (table === "drivers") {
+      // The create path now verifies the driver exists and is active before
+      // inserting, so the happy path must resolve one.
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            maybeSingle: vi
+              .fn()
+              .mockResolvedValue({ data: { id: DRIVER_ID, is_active: true }, error: null }),
+          }),
+        }),
+      };
+    }
     return { select: vi.fn(), insert: vi.fn() };
   });
 
@@ -219,5 +232,73 @@ describe("POST /api/admin/routes — collision pre-check errors", () => {
 
     expect(res.status).toBe(500);
     expect((await res.json()).error).toMatch(/verify order assignments/i);
+  });
+});
+
+describe("POST /api/admin/routes — driver must exist and be active", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  /** Auth client whose drivers lookup returns `driver`. */
+  function mockDriverLookup(driver: { id: string; is_active: boolean } | null) {
+    const from = vi.fn((table: string) => {
+      if (table === "drivers") {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              maybeSingle: vi.fn().mockResolvedValue({ data: driver, error: null }),
+            }),
+          }),
+        };
+      }
+      if (table === "orders") {
+        return {
+          select: vi
+            .fn()
+            .mockReturnValue({ in: vi.fn().mockResolvedValue({ data: [], error: null }) }),
+        };
+      }
+      return { select: vi.fn(), insert: vi.fn() };
+    });
+    vi.mocked(requireAdmin).mockResolvedValue({
+      success: true,
+      userId: "admin-1",
+      supabase: { from },
+    } as never);
+  }
+
+  // Status + wording deliberately mirror PATCH /api/admin/orders/[id]/driver
+  // (404 unknown / 400 inactive) so the two admin assignment paths can't report
+  // the same condition differently.
+  it("rejects an unknown driver id before touching orders", async () => {
+    mockDriverLookup(null);
+
+    const res = await POST(
+      makeReq({ deliveryDate: "2026-08-01", driverId: DRIVER_ID, orderIds: [OID] })
+    );
+
+    expect(res.status).toBe(404);
+    expect((await res.json()).error).toMatch(/driver not found/i);
+  });
+
+  it("rejects a deactivated driver, matching the per-order assign endpoint", async () => {
+    mockDriverLookup({ id: DRIVER_ID, is_active: false });
+
+    const res = await POST(
+      makeReq({ deliveryDate: "2026-08-01", driverId: DRIVER_ID, orderIds: [OID] })
+    );
+
+    expect(res.status).toBe(400);
+    expect((await res.json()).error).toMatch(/inactive driver/i);
+  });
+
+  it("does not run the driver lookup at all when no driver is selected", async () => {
+    // An unassigned route is legitimate — the guard must not block it.
+    const routesInsert = mockCreatePath();
+
+    const res = await POST(makeReq({ deliveryDate: "2026-08-01", orderIds: [OID] }));
+
+    expect(res.status).toBe(201);
+    const row = routesInsert.mock.calls[0][0] as { driver_id: string | null };
+    expect(row.driver_id).toBeNull();
   });
 });

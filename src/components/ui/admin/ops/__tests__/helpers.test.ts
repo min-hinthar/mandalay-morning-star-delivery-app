@@ -111,6 +111,54 @@ describe("deriveDriverReadiness", () => {
     expect(result.unavailableReason).toBeNull();
   });
 
+  it("reports an UNSET schedule as such, not as a refusal", () => {
+    // availability_json's DB default is {"blocked_dates": [], "available_days": []}
+    // and only the driver's own schedule screen ever fills it in, so a freshly
+    // onboarded driver fell through to the day check and was reported as "Not
+    // available on Saturdays" — a refusal the driver never made, which sent the
+    // admin hunting a scheduling problem that didn't exist.
+    const driver = mockDriver({
+      isActive: true,
+      availability: { available_days: [], blocked_dates: [] },
+    });
+    const saturday = new Date(2026, 2, 7);
+    const result = deriveDriverReadiness(driver, saturday);
+    expect(result.isAvailable).toBe(false);
+    expect(result.unavailableReason).toBe("Schedule not set");
+    // Drives the third visual state — without this the ops panel paints an
+    // unset schedule identically to a genuine refusal.
+    expect(result.scheduleUnknown).toBe(true);
+  });
+
+  it("does NOT mark a real decline as schedule-unknown", () => {
+    const declined = deriveDriverReadiness(
+      mockDriver({
+        isActive: true,
+        availability: { available_days: ["sunday"], blocked_dates: [] },
+      }),
+      new Date(2026, 2, 7)
+    );
+    expect(declined.scheduleUnknown).toBe(false);
+
+    const inactive = deriveDriverReadiness(
+      mockDriver({
+        isActive: false,
+        availability: { available_days: [], blocked_dates: [] },
+      }),
+      new Date(2026, 2, 7)
+    );
+    expect(inactive.scheduleUnknown).toBe(false);
+
+    const blocked = deriveDriverReadiness(
+      mockDriver({
+        isActive: true,
+        availability: { available_days: [], blocked_dates: ["2026-03-07"] },
+      }),
+      new Date(2026, 2, 7)
+    );
+    expect(blocked.scheduleUnknown).toBe(false);
+  });
+
   it("returns unavailable when day not in available_days", () => {
     const driver = mockDriver({
       isActive: true,
@@ -133,6 +181,31 @@ describe("deriveDriverReadiness", () => {
     expect(result.unavailableReason).toBe("Blocked for 2026-03-07");
   });
 
+  // An explicit block on THIS date is the most specific thing the driver has
+  // told us, so it must beat the empty-schedule short-circuit. With the checks
+  // in the other order, a driver who had declined this exact date was reported
+  // as "Schedule not set" — the same dishonesty this helper fixes, inverted.
+  it("reports a blocked date even when no weekly schedule was ever set", () => {
+    const driver = mockDriver({
+      isActive: true,
+      availability: { available_days: [], blocked_dates: ["2026-03-07"] },
+    });
+    const saturday = new Date(2026, 2, 7);
+    const result = deriveDriverReadiness(driver, saturday);
+    expect(result.isAvailable).toBe(false);
+    expect(result.unavailableReason).toBe("Blocked for 2026-03-07");
+  });
+
+  it("still says 'Schedule not set' when nothing is set AND nothing is blocked", () => {
+    const driver = mockDriver({
+      isActive: true,
+      availability: { available_days: [], blocked_dates: ["2026-03-14"] },
+    });
+    const saturday = new Date(2026, 2, 7);
+    const result = deriveDriverReadiness(driver, saturday);
+    expect(result.unavailableReason).toBe("Schedule not set");
+  });
+
   it("returns unavailable for inactive driver", () => {
     const driver = mockDriver({
       isActive: false,
@@ -149,7 +222,10 @@ describe("deriveDriverReadiness", () => {
     const saturday = new Date(2026, 2, 7);
     const result = deriveDriverReadiness(driver, saturday);
     expect(result.isAvailable).toBe(false);
-    expect(result.unavailableReason).toBe("No availability set");
+    // Renamed from "No availability set": an unset schedule is now reported
+    // identically whether availability_json is null or has an empty
+    // available_days (the DB default).
+    expect(result.unavailableReason).toBe("Schedule not set");
   });
 });
 

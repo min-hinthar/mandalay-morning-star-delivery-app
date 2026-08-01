@@ -6,6 +6,73 @@
 
 _Last reconciled: 2026-08-01._
 
+## Recently closed — route-creation debug 2026-08-01 (ALL THREE MERGED on the owner's "Merge, go thoughtfully")
+
+From "failed to create Delivery route or automatically assign to available driver". Root
+cause was already fixed and merged as **#223** (`e909ccc`): `POST /api/admin/routes` wrote
+`status:'planned'` with a `driver_id`, violating `chk_planned_unassigned` (`planned` means
+UNASSIGNED) — every driver-assigned route creation 500'd. These three are the rest of what
+that debug turned up. **Independent** — no shared files, each sits directly on `main`.
+
+- **#224 — admin driver writes were silent no-ops** (branch `claude/fix-admin-driver-writes`).
+  RLS asymmetry: `drivers_update`/`profiles_update` grant only `user_id/id = auth.uid()`
+  with NO `is_admin()` clause, unlike the matching select/insert/delete policies. So every
+  admin write through the caller-scoped client matched ZERO rows — and since `.update()`
+  returns no row count and none of these chained `.select()`, a zero-row update carried no
+  error. Field edits, DELETE, and archive all returned 200 while changing nothing, and the
+  profile promotion in driver-create silently failed, leaving accounts that appear in the
+  driver picker but can't sign in to the driver app. Fix: authenticate with the user client,
+  write with the SERVICE client after the admin gate (the pattern `GET /admin/routes` and the
+  driver-invite route already use), and verify affected rows via `.select("id")` → 404 on
+  zero. Plus an idempotent **heal** path (re-adding a stranded driver repairs the role
+  instead of 409ing — those accounts already exist in prod) and an **orphan rollback** if the
+  promotion fails after the drivers insert. Chose the service client over widening RLS: no
+  migration, tighter blast radius, existing precedent. Auto-review findings fixed: the
+  service client made an **admin→driver demotion** newly reachable (`profiles.role` is a
+  single enum, so "promote" is also "strip admin") — now 409s in both create paths; and the
+  heal path claimed "repaired" while dropping the submitted vehicle fields.
+- **#225 — route builder offered orders POST would reject** (branch
+  `claude/fix-route-builder-order-set`). The picker hid any order with ANY `route_stops` row,
+  including stops on COMPLETED routes, so an order skipped on a finished run could never be
+  re-added for redelivery — while POST only blocks non-completed routes (the file's own
+  comment already claimed the correct rule). It also applied no payment filter, though POST
+  400s the WHOLE batch over one unpaid/fully-refunded card order. Both queries now share one
+  `isOfferable` predicate and one `OFFERABLE_COLUMNS` select fragment, so the picker and the
+  "N orders on other dates" badge can't drift (the badge mismatch was an auto-review catch).
+  `RouteBuilderClient` also names the offending orders instead of a bare "Failed to create
+  route".
+- **#226 — driver availability honesty + server-side driver validation** (branch
+  `claude/fix-driver-availability-picker`). `availability_json` defaults to empty and only
+  the driver's own `/driver/schedule` screen fills it in, so a freshly-onboarded driver was
+  reported as "Not available on Saturdays" — a refusal they never made. Now "Schedule not
+  set". Picker cards are real buttons with aria-labels; **only `isActive` is a hard block**
+  (blocking on an unset schedule would lock the admin out of assigning anyone — the same
+  over-block failure mode as the legacy checkout cutoff gate). `POST /api/admin/routes` now
+  verifies `driverId` resolves to a real active driver, mirroring
+  `PATCH /api/admin/orders/[id]/driver`; the FK can't tell "deactivated" from "gone".
+
+> **Owner decision still open:** the `auto_assign_enabled` admin toggle is DEAD — nothing
+> reads it. Building real auto-assignment needs a definition of "available", and drivers
+> carry no day or zone affiliation today. Build it, or hide the control?
+
+Merged #224 (`235eebc`) → #225 (`6747e46`) → #226. **#224 and #226 both touch
+`src/app/api/admin/drivers/route.ts`** (POST rewrite vs. the GET `?active=` filter), so the
+three-way merge was verified before any of them landed: a scratch worktree merging all three
+onto `main` ran typecheck + lint + every admin suite green (155 tests), and #226 was then
+updated onto the post-#224 `main` so its blocking CI validated the real post-merge state
+rather than a stale base. #225 was disjoint from both.
+
+Local full-suite runs OOM this container, so verification is targeted suites + the blocking
+CI `verify` job. Every new test in all three was **falsified** (fix reverted, confirmed red,
+restored) before pushing.
+
+**Six rounds of auto-review on #224 earned their keep** — every finding was a hazard the fix
+itself created by making previously-inert writes actually land: admin demotion (single-enum
+role), phone/license-plate wipes from omitted optional fields, a silent un-archive, and three
+separate cases of a 200 claiming something the write hadn't done. The recurring lesson: an
+honest API response is worthless if the caller discards it — both `DriverDetailClient` and
+`handleAddDriver` had to be wired to render it.
+
 ## Recently closed — route-day UX sweep 2026-08-01 (BOTH MERGED on the owner's "pre-merge go and merge when ready")
 
 From the 6-agent survey (47 gaps → a 6-PR plan); these were PRs A and B. Both were
