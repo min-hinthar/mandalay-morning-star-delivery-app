@@ -51,9 +51,13 @@ export async function updateSession(request: NextRequest) {
   // in — cart intact but checkout intent gone. Redirecting here (with next=)
   // runs before that layout guard, which stays as a belt.
   const path = request.nextUrl.pathname;
-  const isCustomerProtected = CUSTOMER_PROTECTED_PATHS.some(
-    (p) => path === p || path.startsWith(`${p}/`)
-  );
+  // /orders/{token}/share is the deliberately-unauthenticated share page (the
+  // (public) route group, service-client read keyed on share_token) — its
+  // whole audience is logged-out recipients, so it must never bounce to login.
+  const isPublicOrderShare = /^\/orders\/[^/]+\/share\/?$/.test(path);
+  const isCustomerProtected =
+    !isPublicOrderShare &&
+    CUSTOMER_PROTECTED_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
   if (!user && (path.startsWith("/admin") || path.startsWith("/driver") || isCustomerProtected)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";

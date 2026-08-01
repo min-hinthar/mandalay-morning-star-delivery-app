@@ -62,6 +62,25 @@ describe("updateSession — unauthenticated redirects carry ?next=", () => {
     }
   });
 
+  it("does NOT redirect guests on the PUBLIC order-share page (its whole audience is logged out)", async () => {
+    // /orders/{token}/share is the (public) share page — service-client read
+    // keyed on share_token, deliberately unauthenticated. Gating it kills
+    // every shared link for its intended recipients.
+    for (const path of ["/orders/abc123token/share", "/orders/abc123token/share/"]) {
+      const res = await updateSession(req(path));
+      expect(res.headers.get("location")).toBeNull();
+    }
+  });
+
+  it("still gates deeper /orders paths that only RESEMBLE the share page", async () => {
+    for (const path of ["/orders/abc/share/extra", "/orders/share/tracking"]) {
+      const res = await updateSession(req(path));
+      const location = new URL(res.headers.get("location")!);
+      expect(location.pathname).toBe("/login");
+      expect(location.searchParams.get("next")).toBe(path);
+    }
+  });
+
   it("does NOT redirect an authenticated user on protected paths", async () => {
     mockUser = { id: "user-1" };
     for (const path of ["/checkout", "/cart", "/admin/orders"]) {
