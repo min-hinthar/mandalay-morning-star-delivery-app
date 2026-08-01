@@ -348,7 +348,13 @@ export default function CheckoutClient({
     // Explicit no-serve guard (belt): TimeStep clears the selection for a
     // no-serve address, which already inerts this watcher — but don't rely on
     // that ordering to keep the wrong modal from firing.
-    if (noServe || selectedCutoffMs == null || !selectedDate) return;
+    // Payment step only: while the TIME step is visible, TimeStep's own
+    // minute-tick revalidation reseats an expired date with the inline
+    // auto-move notice — popping this modal over it would double-surface the
+    // same event. Steps are keyed AnimatePresence children (one mounted at a
+    // time), so entering payment re-arms; an already-passed cutoff fires
+    // immediately on arrival.
+    if (noServe || selectedCutoffMs == null || !selectedDate || step !== "payment") return;
     let id: ReturnType<typeof setTimeout> | undefined;
     const fire = () => {
       if (useCheckoutStore.getState().delivery?.date === selectedDate) {
@@ -375,7 +381,7 @@ export default function CheckoutClient({
     };
     arm();
     return () => clearTimeout(id);
-  }, [selectedCutoffMs, noServe, selectedDate]);
+  }, [selectedCutoffMs, noServe, selectedDate, step]);
 
   // Redirect if not authenticated
   useEffect(() => {

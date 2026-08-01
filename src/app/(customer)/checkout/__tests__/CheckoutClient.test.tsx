@@ -939,6 +939,21 @@ describe("day integrity — selected-date cutoff watcher", () => {
     expect(props.isOpen).toBe(true);
   });
 
+  it("stays quiet on the TIME step even for an expired date (TimeStep owns the reseat there)", () => {
+    // Same expired Saturday as the immediate-fire test, but the time step is
+    // visible: TimeStep's minute-tick revalidation reseats + shows the inline
+    // auto-move notice, so the watcher popping the modal over it would
+    // double-surface one event. The watcher arms only on the payment step.
+    mockStep = "time";
+    mockDelivery = { date: "2020-01-04", windowStart: "10:00", windowEnd: "12:00" };
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={SATURDAY_DAY} />);
+
+    const props = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
+    expect(props.isOpen).toBe(false);
+    mockStep = "payment";
+  });
+
   it("stays quiet for a selected date whose cutoff is still ahead", () => {
     mockDelivery = { date: "2100-01-02", windowStart: "10:00", windowEnd: "12:00" };
 
