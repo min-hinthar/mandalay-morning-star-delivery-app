@@ -114,10 +114,17 @@ export function useCustomerDeliveryDays(
       let personalized = false;
       if (coords && zones.length > 0 && !outOfCoverage) {
         const directions = getDirectionsForCoords(coords.lat, coords.lng, zones);
-        const filtered = filterDaysByDirection(directions, deliveryDays);
-        // Empty filter = no run serves this address. The menu/cart surfaces
-        // aren't the place to announce that (checkout's empty state is) — fall
-        // back to the generic list rather than a dead countdown.
+        // ACTIVE rows only — filterDaysByDirection doesn't know isActive, so
+        // an admin-disabled direction row would "succeed" personalization
+        // with a list the delivery gate then empties (drawer reporting no
+        // delivery while other active runs exist).
+        const filtered = filterDaysByDirection(
+          directions,
+          deliveryDays.filter((d) => d.isActive)
+        );
+        // Empty filter = no ACTIVE run serves this address. The menu/cart
+        // surfaces aren't the place to announce that (checkout's empty state
+        // is) — fall back to the generic list rather than a dead countdown.
         if (filtered.length > 0) {
           days = filtered;
           personalized = true;

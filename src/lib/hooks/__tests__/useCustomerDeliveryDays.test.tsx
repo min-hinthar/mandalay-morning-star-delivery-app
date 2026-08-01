@@ -254,6 +254,22 @@ describe("useCustomerDeliveryDays", () => {
     });
   });
 
+  it("falls back to the generic list when the only serving day is INACTIVE", async () => {
+    // Admin disabled the West run but left the row: personalization must not
+    // "succeed" with a list the delivery gate then empties.
+    mockUser = { id: "user-1" };
+    mockAddressRow = VERIFIED_ROW;
+    mockDirections = ["west"];
+    const days = [day("mon", 1, "east"), { ...day("wed", 3, "west"), isActive: false }];
+
+    const { result } = renderHook(() => useCustomerDeliveryDays(days, ZONES, 100));
+
+    await waitFor(() => {
+      expect(ids(result.current.days)).toEqual(["mon", "wed"]);
+    });
+    expect(result.current.personalized).toBe(false);
+  });
+
   it("nearby address (empty directions) keeps every day, personalized", async () => {
     mockUser = { id: "user-1" };
     mockAddressRow = VERIFIED_ROW;
