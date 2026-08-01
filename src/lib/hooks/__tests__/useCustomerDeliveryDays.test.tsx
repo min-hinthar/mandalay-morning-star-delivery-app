@@ -12,13 +12,15 @@
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { renderHook, waitFor } from "@testing-library/react";
+import { AuthRetryableFetchError } from "@supabase/supabase-js";
 import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 
 // ---------------------------------------------------------------------------
-// Supabase client mock — controllable auth user + address row
+// Supabase client mock — controllable auth user + address row + failures
 // ---------------------------------------------------------------------------
 
 let mockUser: { id: string } | null = null;
+let mockUserError: Error | null = null;
 let authGetUserCalls = 0;
 let mockAddressRow: {
   lat: number | null;
@@ -26,13 +28,19 @@ let mockAddressRow: {
   distance_miles?: number | null;
   is_verified?: boolean;
 } | null = null;
+// PostgREST failures resolve {data: null, error} WITHOUT throwing — the mock
+// mirrors that shape so the hook's error inspection is what's under test.
+let mockAddressError: { message: string } | null = null;
+
+const { captureException } = vi.hoisted(() => ({ captureException: vi.fn() }));
+vi.mock("@sentry/nextjs", () => ({ captureException }));
 
 vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({
     auth: {
       getUser: async () => {
         authGetUserCalls += 1;
-        return { data: { user: mockUser } };
+        return { data: { user: mockUser }, error: mockUserError };
       },
       // Local session read used by the SWR-cache seed's user check.
       getSession: async () => ({ data: { session: mockUser ? { user: mockUser } : null } }),
@@ -43,7 +51,10 @@ vi.mock("@/lib/supabase/client", () => ({
           order: () => ({
             order: () => ({
               limit: () => ({
-                maybeSingle: async () => ({ data: mockAddressRow }),
+                maybeSingle: async () => ({
+                  data: mockAddressError ? null : mockAddressRow,
+                  error: mockAddressError,
+                }),
               }),
             }),
           }),
@@ -103,9 +114,12 @@ const VERIFIED_ROW = { lat: 34.1, lng: -117.9, distance_miles: 10, is_verified: 
 
 beforeEach(() => {
   mockUser = null;
+  mockUserError = null;
   mockAddressRow = null;
+  mockAddressError = null;
   mockDirections = [];
   authGetUserCalls = 0;
+  captureException.mockClear();
   __resetCustomerDeliveryDaysCache();
 });
 
@@ -279,6 +293,95 @@ describe("useCustomerDeliveryDays", () => {
 
     await waitFor(() => {
       expect(result.current.personalized).toBe(true);
+    });
+    expect(ids(result.current.days)).toEqual(["mon", "wed", "sat"]);
+  });
+
+  it("a failed address refresh keeps the personalized route (no downgrade)", async () => {
+    // maybeSingle resolves {data: null, error} without throwing on RLS /
+    // PostgREST failures — an uninspected error used to publish "no address"
+    // over a good resolution on every visibility refresh.
+    mockUser = { id: "user-1" };
+    mockAddressRow = VERIFIED_ROW;
+    mockDirections = ["west"];
+    const { result } = renderHook(() => useCustomerDeliveryDays(DAYS, ZONES, 100));
+    await waitFor(() => {
+      expect(result.current.personalized).toBe(true);
+    });
+
+    mockAddressError = { message: "permission denied for table addresses" };
+    document.dispatchEvent(new Event("visibilitychange"));
+
+    await waitFor(() => {
+      expect(captureException).toHaveBeenCalled();
+    });
+    expect(result.current.personalized).toBe(true);
+    expect(ids(result.current.days)).toEqual(["wed", "sat"]);
+  });
+
+  it("keeps the cached route across remounts while the read keeps failing", async () => {
+    mockUser = { id: "user-1" };
+    mockAddressRow = VERIFIED_ROW;
+    mockDirections = ["west"];
+    const first = renderHook(() => useCustomerDeliveryDays(DAYS, ZONES, 100));
+    await waitFor(() => {
+      expect(first.result.current.personalized).toBe(true);
+    });
+    first.unmount();
+
+    // Same user remounts (e.g. drawer re-open) mid-outage: the seed paints
+    // the cached route and the failing resolve must not overwrite it.
+    mockAddressError = { message: "permission denied for table addresses" };
+    const second = renderHook(() => useCustomerDeliveryDays(DAYS, ZONES, 100));
+    await waitFor(() => {
+      expect(second.result.current.personalized).toBe(true);
+    });
+    expect(ids(second.result.current.days)).toEqual(["wed", "sat"]);
+    await waitFor(() => {
+      expect(captureException).toHaveBeenCalled();
+    });
+    expect(second.result.current.personalized).toBe(true);
+  });
+
+  it("initial mount with a failing read stays fail-open generic", async () => {
+    mockUser = { id: "user-1" };
+    mockAddressError = { message: "permission denied for table addresses" };
+    mockDirections = ["west"];
+
+    const { result } = renderHook(() => useCustomerDeliveryDays(DAYS, ZONES, 100));
+
+    await waitFor(() => {
+      expect(captureException).toHaveBeenCalled();
+    });
+    expect(result.current.personalized).toBe(false);
+    expect(ids(result.current.days)).toEqual(["mon", "wed", "sat"]);
+  });
+
+  it("a network-failed auth check retains the route; a real sign-out downgrades", async () => {
+    mockUser = { id: "user-1" };
+    mockAddressRow = VERIFIED_ROW;
+    mockDirections = ["west"];
+    const { result } = renderHook(() => useCustomerDeliveryDays(DAYS, ZONES, 100));
+    await waitFor(() => {
+      expect(result.current.personalized).toBe(true);
+    });
+
+    // getUser resolves {user: null, error} on a network blip — "we don't
+    // know" must not repaint the generic gate over a known route.
+    mockUser = null;
+    mockUserError = new AuthRetryableFetchError("fetch failed", 0);
+    document.dispatchEvent(new Event("visibilitychange"));
+    await waitFor(() => {
+      expect(captureException).toHaveBeenCalled();
+    });
+    expect(result.current.personalized).toBe(true);
+    expect(ids(result.current.days)).toEqual(["wed", "sat"]);
+
+    // A definitive signed-out answer (no error) IS a downgrade.
+    mockUserError = null;
+    document.dispatchEvent(new Event("visibilitychange"));
+    await waitFor(() => {
+      expect(result.current.personalized).toBe(false);
     });
     expect(ids(result.current.days)).toEqual(["mon", "wed", "sat"]);
   });

@@ -14,7 +14,7 @@
  */
 
 import { useCallback } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils/cn";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
@@ -84,15 +84,22 @@ function CartContent({ onClose, showFullCartLink, isMobile = false }: CartConten
   // A checkout-SELECTED address outranks the DB default lookup: mid-checkout
   // the customer may have picked a non-default address, and the drawer (which
   // stays reachable on /checkout) must gate on the same route TimeStep uses.
+  // But ONLY while checkout owns the flow (an active /checkout path): the
+  // selection persists in sessionStorage across sign-out (the Stripe
+  // round-trip intentionally skips reset), so without the path gate a later
+  // user in the same tab would have their drawer gated by the previous
+  // user's coordinates. Elsewhere the user-scoped DB lookup is the truth.
   // TRUTHY coord check on purpose, mirroring TimeStepV8's placement guard: the
   // addresses API converts null coords to 0, and a 0,0 placeholder must fall
   // through to the default lookup, never resolve a Gulf-of-Guinea bearing.
+  const pathname = usePathname();
+  const checkoutOwnsAddress = (pathname ?? "").startsWith("/checkout");
   const checkoutAddress = useCheckoutStore((s) => s.address);
   const { days: customerDays } = useCustomerDeliveryDays(
     deliveryDays,
     deliveryZones,
     serviceableCeiling,
-    checkoutAddress?.lat && checkoutAddress?.lng
+    checkoutOwnsAddress && checkoutAddress?.lat && checkoutAddress?.lng
       ? {
           lat: checkoutAddress.lat,
           lng: checkoutAddress.lng,

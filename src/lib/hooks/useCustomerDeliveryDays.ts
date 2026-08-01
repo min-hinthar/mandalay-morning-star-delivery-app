@@ -21,6 +21,7 @@
  */
 
 import { useEffect, useRef, useState } from "react";
+import { isAuthRetryableFetchError } from "@supabase/supabase-js";
 
 import { createClient } from "@/lib/supabase/client";
 import { filterDaysByDirection, getDirectionsForCoords } from "@/lib/utils/delivery-zones";
@@ -172,13 +173,19 @@ export function useCustomerDeliveryDays(
         const supabase = createClient();
         const {
           data: { user },
+          error: userError,
         } = await supabase.auth.getUser();
+        // Session-missing / invalid-token results ARE the signed-out answer
+        // and must publish (downgrading to the generic list is correct); only
+        // a network-class failure means "we don't know" — treat it like the
+        // thrown path below and keep the last known route.
+        if (userError && isAuthRetryableFetchError(userError)) throw userError;
         resolvedUserId = user?.id ?? null;
         if (user) {
           // Same audience rule as the route-day-invite cron + RouteDayCallout:
           // verified default address, created_at tiebreak. Unverified is an
           // unconditional checkout reject — never personalize on one.
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from("addresses")
             .select("lat, lng, is_default, distance_miles, is_verified")
             .eq("user_id", user.id)
@@ -186,6 +193,11 @@ export function useCustomerDeliveryDays(
             .order("created_at", { ascending: false })
             .limit(1)
             .maybeSingle();
+          // PostgREST failures (RLS regression, 5xx) resolve {data:null,
+          // error} WITHOUT throwing — surface them as the failure they are,
+          // or a failed visibility refresh would publish "no address" over a
+          // good resolution.
+          if (error) throw error;
           const row = data as {
             lat: number | null;
             lng: number | null;
@@ -198,13 +210,23 @@ export function useCustomerDeliveryDays(
           }
         }
       } catch (err) {
-        // Offline / transient is the expected fail-open path (generic list).
         // A real persistent read failure (RLS regression, renamed column)
         // would otherwise silently degrade every signed-in customer with
-        // zero telemetry — capture when we were actually online.
+        // zero telemetry — capture when we were actually online (offline is
+        // the expected fail-open path).
         if (typeof navigator === "undefined" || navigator.onLine) {
           import("@sentry/nextjs").then((s) => s.captureException(err)).catch(() => {});
         }
+        if (cancelled || myGeneration !== generation) return;
+        // A failed READ says nothing about the route — replay the last
+        // successful coords (refs + module cache untouched, resolvePublished
+        // stays false so a pending seed may still land) instead of
+        // downgrading a personalized surface to the generic gate. With
+        // nothing resolved yet the refs are null, so first-mount failures
+        // still render the fail-open generic list — but with the CURRENT
+        // props (an admin day edit mid-outage must not pin the old list).
+        applyResolved(coordsRef.current);
+        return;
       }
       if (cancelled || myGeneration !== generation) return;
       resolvePublished = true;
