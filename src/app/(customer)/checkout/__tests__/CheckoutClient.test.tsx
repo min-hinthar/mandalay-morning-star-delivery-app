@@ -991,4 +991,59 @@ describe("day integrity — selected-date cutoff watcher", () => {
     const stepProps = paymentStepSpy.mock.calls.at(-1)![0] as { cutoffModalOpen: boolean };
     expect(stepProps.cutoffModalOpen).toBe(true);
   });
+
+  it("re-arms on a same-instant date switch (two days sharing one cutoff)", () => {
+    // Monday + Wednesday runs both closing Sunday 3pm: switching dates leaves
+    // selectedCutoffMs numerically unchanged, so an instant-keyed watcher
+    // would keep the OLD date in its fire() closure — and the store re-check
+    // would then suppress the modal for the new date at cutoff time.
+    const sharedCutoffDays = [
+      {
+        id: "day-monday",
+        dayOfWeek: 1,
+        isActive: true,
+        cutoffDay: 0,
+        cutoffHour: 15,
+        deliveryFeeCents: 1500,
+        displayOrder: 0,
+        direction: "all" as const,
+      },
+      {
+        id: "day-wednesday",
+        dayOfWeek: 3,
+        isActive: true,
+        cutoffDay: 0,
+        cutoffHour: 15,
+        deliveryFeeCents: 1500,
+        displayOrder: 0,
+        direction: "all" as const,
+      },
+    ];
+    vi.useFakeTimers();
+    // One hour before the shared Sunday-3pm-PT cutoff (2100-01-03T23:00Z).
+    vi.setSystemTime(new Date("2100-01-03T22:00:00Z"));
+    paymentStepSpy.mockClear();
+    try {
+      mockDelivery = { date: "2100-01-04", windowStart: "10:00", windowEnd: "12:00" };
+      const { rerender } = render(
+        <CheckoutClient timeWindows={[]} deliveryDays={sharedCutoffDays} />
+      );
+      expect((cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean }).isOpen).toBe(false);
+
+      // Switch Monday → Wednesday before the cutoff passes.
+      mockDelivery = { date: "2100-01-06", windowStart: "10:00", windowEnd: "12:00" };
+      rerender(<CheckoutClient timeWindows={[]} deliveryDays={sharedCutoffDays} />);
+
+      act(() => {
+        vi.advanceTimersByTime(2 * 60 * 60 * 1000);
+      });
+
+      const modalProps = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
+      expect(modalProps.isOpen).toBe(true);
+      const stepProps = paymentStepSpy.mock.calls.at(-1)![0] as { cutoffModalOpen: boolean };
+      expect(stepProps.cutoffModalOpen).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });

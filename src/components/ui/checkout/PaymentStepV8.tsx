@@ -8,6 +8,7 @@ import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
+import { useCartStore } from "@/lib/stores/cart-store";
 import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
 import type { DeliveryDayConfig, TimeWindow } from "@/types/delivery";
 import { CheckoutSectionHeader } from "./CheckoutSectionHeader";
@@ -63,6 +64,11 @@ export function PaymentStepV8({
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { items, itemsSubtotal } = useCart();
   const canProceed = useCanProceed();
+  // The summary's shortfall notice must not be display-only: an
+  // extended-range address selected mid-checkout RAISES the floor to the
+  // long-distance minimum, and an enabled Place Order would just collect the
+  // server's MINIMUM_ORDER_NOT_MET. Same source as the notice + cart CTA.
+  const belowMinimum = useCartStore((s) => s.getMinimumOrder().shortfallCents > 0);
   const {
     address,
     delivery,
@@ -96,6 +102,7 @@ export function PaymentStepV8({
     delivery,
     canProceed,
     cutoffModalOpen,
+    belowMinimum,
     items,
     customerNotes,
     tipCents,
@@ -319,7 +326,7 @@ export function PaymentStepV8({
               variant="success"
               size="lg"
               onClick={handleCheckout}
-              disabled={isCreatingSession || !canProceed || cutoffModalOpen}
+              disabled={isCreatingSession || !canProceed || cutoffModalOpen || belowMinimum}
               isLoading={isCreatingSession}
               className="ck-cta"
               loadingText="Processing..."

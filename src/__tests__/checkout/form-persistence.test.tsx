@@ -155,6 +155,7 @@ function CheckoutSubmitHarness() {
     delivery,
     canProceed: true,
     cutoffModalOpen: false,
+    belowMinimum: false,
     items: [
       {
         menuItemId: "mi-1",

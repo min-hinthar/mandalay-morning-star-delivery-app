@@ -63,6 +63,7 @@ const BASE_ARGS = {
   },
   canProceed: true,
   cutoffModalOpen: false,
+  belowMinimum: false,
   items: [
     {
       menuItemId: "item-1",
@@ -130,6 +131,19 @@ describe("usePaymentSubmit CFIX-04 (Phase 110 D-23..D-27)", () => {
 
     expect(fetchSpy).not.toHaveBeenCalled();
     // Stays not-loading since we returned before setIsCreatingSession
+    expect(result.current.isCreatingSession).toBe(false);
+  });
+
+  it("returns immediately without firing fetch when belowMinimum is true", async () => {
+    // An extended-range address can RAISE the floor mid-checkout — the guard
+    // must refuse (server would reject MINIMUM_ORDER_NOT_MET anyway).
+    const { result } = renderPaymentSubmit({ belowMinimum: true });
+
+    await act(async () => {
+      await result.current.handleCheckout();
+    });
+
+    expect(fetchSpy).not.toHaveBeenCalled();
     expect(result.current.isCreatingSession).toBe(false);
   });
 

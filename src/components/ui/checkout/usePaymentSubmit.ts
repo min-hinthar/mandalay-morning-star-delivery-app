@@ -25,6 +25,8 @@ export interface UsePaymentSubmitArgs {
   } | null;
   canProceed: boolean;
   cutoffModalOpen: boolean;
+  /** True when the cart is under the (possibly extended-range) order minimum */
+  belowMinimum: boolean;
   items: CartItem[];
   customerNotes: string;
   tipCents: number;
@@ -85,6 +87,7 @@ export function usePaymentSubmit(args: UsePaymentSubmitArgs): UsePaymentSubmitRe
     delivery,
     canProceed,
     cutoffModalOpen,
+    belowMinimum,
     items,
     customerNotes,
     tipCents,
@@ -109,6 +112,11 @@ export function usePaymentSubmit(args: UsePaymentSubmitArgs): UsePaymentSubmitRe
     // browsers). Server-side CUTOFF_PASSED check in /api/checkout/session
     // is the third layer.
     if (cutoffModalOpen) return;
+    // Below the order minimum (an extended-range address can RAISE the floor
+    // to $100 mid-checkout) — the server rejects with MINIMUM_ORDER_NOT_MET
+    // anyway; refusing here keeps the summary's shortfall notice the story
+    // instead of a post-submit error banner.
+    if (belowMinimum) return;
     if (!addressId || !delivery || !canProceed) return;
 
     setIsCreatingSession(true);
@@ -241,6 +249,7 @@ export function usePaymentSubmit(args: UsePaymentSubmitArgs): UsePaymentSubmitRe
     delivery,
     canProceed,
     cutoffModalOpen,
+    belowMinimum,
     items,
     customerNotes,
     tipCents,

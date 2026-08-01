@@ -338,13 +338,17 @@ export default function CheckoutClient({
   // effect below resets it whenever selectedCutoffMs re-derives.
   const [selectedCutoffPassed, setSelectedCutoffPassed] = useState(false);
 
+  // The watcher keys on the DATE as well as the instant: two configured days
+  // can share one cutoff (e.g. Monday and Wednesday both closing Sunday 3pm),
+  // and a same-ms date switch would otherwise keep the OLD date in the fire()
+  // closure — whose store re-check then suppresses the modal for the new one.
+  const selectedDate = delivery?.date;
   useEffect(() => {
     setSelectedCutoffPassed(false); // fresh selection (or none) → valid again
     // Explicit no-serve guard (belt): TimeStep clears the selection for a
     // no-serve address, which already inerts this watcher — but don't rely on
     // that ordering to keep the wrong modal from firing.
-    if (noServe || selectedCutoffMs == null) return;
-    const selectedDate = useCheckoutStore.getState().delivery?.date;
+    if (noServe || selectedCutoffMs == null || !selectedDate) return;
     let id: ReturnType<typeof setTimeout> | undefined;
     const fire = () => {
       if (useCheckoutStore.getState().delivery?.date === selectedDate) {
@@ -371,7 +375,7 @@ export default function CheckoutClient({
     };
     arm();
     return () => clearTimeout(id);
-  }, [selectedCutoffMs, noServe]);
+  }, [selectedCutoffMs, noServe, selectedDate]);
 
   // Redirect if not authenticated
   useEffect(() => {
