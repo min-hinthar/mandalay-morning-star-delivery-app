@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { createDriverSchema } from "@/lib/validations/driver";
 import type { ProfilesRow } from "@/types/database";
@@ -182,11 +183,36 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Failed to create driver" }, { status: 500 });
       }
 
-      // Update profile role to driver
-      await supabase
+      // Promote the profile to `driver`. This MUST use the service client and
+      // MUST be checked: profiles_update grants UPDATE only to the row's owner
+      // (id = auth.uid()), so an admin promoting someone else matched zero rows
+      // — and the result was neither destructured nor awaited for errors. The
+      // drivers row was created (drivers_insert does grant is_admin()) so the
+      // person appeared in the driver picker, but their role stayed "customer"
+      // and they could never sign in to the driver app.
+      const { data: promotedRows, error: promoteError } = await createServiceClient()
         .from("profiles")
         .update({ role: "driver", full_name: fullName, phone: phone ?? null })
-        .eq("id", existingProfile.id);
+        .eq("id", existingProfile.id)
+        .select("id");
+
+      if (promoteError || !promotedRows || promotedRows.length === 0) {
+        logger.exception(promoteError ?? new Error("Profile role update affected no rows"), {
+          api: "admin/drivers",
+          flowId: "create-promote-profile",
+          userId: existingProfile.id,
+        });
+        // The drivers row exists but the account is not a driver — report it
+        // rather than returning a success the admin cannot act on.
+        return NextResponse.json(
+          {
+            error:
+              "Driver record created but the account could not be promoted to a driver role. Please retry or contact support.",
+            driverId: newDriver.id,
+          },
+          { status: 500 }
+        );
+      }
 
       return NextResponse.json(
         {
