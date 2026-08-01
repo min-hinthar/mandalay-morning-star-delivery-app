@@ -563,7 +563,11 @@ export default function CheckoutClient({
       <CutoffModal
         isOpen={showCutoffModal}
         onClose={() => setShowCutoffModal(false)}
-        nextDeliveryDate={gate.deliveryDate.displayDate}
+        // Same fresh computation as the reschedule button — the gate's own
+        // deliveryDate refreshes on a 60s/10s poll, so at watcher-fire time
+        // its cached value can still NAME the just-expired run while the
+        // button (recomputed on modal open) offers the next valid one.
+        nextDeliveryDate={nextDelivery?.displayDate ?? gate.deliveryDate.displayDate}
         rescheduleOption={nextDelivery}
         onReschedule={handleReschedule}
       />
