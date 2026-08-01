@@ -238,11 +238,24 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if orders are already assigned to other routes
-    const { data: existingStops } = await supabase
+    const { data: existingStops, error: existingStopsError } = await supabase
       .from("route_stops")
       .select("order_id, routes!inner(status)")
       .in("order_id", orderIds)
       .neq("routes.status", "completed");
+
+    // Don't let a failed GATE query read as "no collision": swallowing this error let a real
+    // double-booking through to the insert, where it surfaced as an opaque 500 instead of the
+    // actionable 400 below.
+    if (existingStopsError) {
+      logger.exception(existingStopsError, {
+        api: "admin/routes",
+        flowId: "create-check-existing-stops",
+        driverId,
+        orderIds,
+      });
+      return NextResponse.json({ error: "Failed to verify order assignments" }, { status: 500 });
+    }
 
     if (existingStops && existingStops.length > 0) {
       return NextResponse.json(
@@ -263,12 +276,19 @@ export async function POST(request: NextRequest) {
       completion_rate: 0,
     };
 
+    // `planned` means UNASSIGNED — the DB enforces it:
+    //   CONSTRAINT chk_planned_unassigned CHECK (status <> 'planned' OR driver_id IS NULL)
+    // Inserting 'planned' together with a driver_id violated that check, so creating a route
+    // with a driver picked in the builder ALWAYS failed with an opaque 500 "Failed to create
+    // route" (creating one without a driver worked, which is why this survived). Mirror the
+    // rule PATCH /api/admin/routes/[id] already applies: a driver means `assigned`.
+    // `accepted_at` stays NULL on insert — the driver hasn't accepted yet.
     const { data: newRoute, error: routeError } = await supabase
       .from("routes")
       .insert({
         delivery_date: deliveryDate,
         driver_id: driverId ?? null,
-        status: "planned",
+        status: driverId ? "assigned" : "planned",
         stats_json: initialStats as unknown as import("@/types/database").Json,
       })
       .select("id, delivery_date, status")
