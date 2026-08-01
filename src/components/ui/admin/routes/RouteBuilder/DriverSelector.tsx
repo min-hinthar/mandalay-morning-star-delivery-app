@@ -170,6 +170,7 @@ export function DriverSelector({
     // "No schedule set" is not the same as "declined this date" — the former is
     // the DB default and says nothing about the driver.
     const hasSchedule = (driver.availability?.available_days?.length ?? 0) > 0;
+    const blockedToday = driver.availability?.blocked_dates?.includes(deliveryDate) ?? false;
     const available = isDriverAvailable(driver.availability, deliveryDate);
 
     let state: AvailabilityState = "available";
@@ -177,6 +178,14 @@ export function DriverSelector({
     if (!driver.isActive) {
       state = "unavailable";
       unavailableReason = "Inactive";
+    } else if (blockedToday) {
+      // Checked BEFORE the unset-schedule case: a block on this exact date is
+      // the most specific thing the driver has told us, and it holds whether or
+      // not they ever set weekly availability. Ordering it after `hasSchedule`
+      // reported "Schedule not set" for a driver who had explicitly declined —
+      // the same dishonesty this component is fixing, just inverted.
+      state = "unavailable";
+      unavailableReason = "Blocked this date";
     } else if (!hasSchedule) {
       state = "unknown";
       unavailableReason = "Schedule not set";

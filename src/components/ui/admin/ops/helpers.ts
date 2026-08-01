@@ -99,6 +99,15 @@ export function deriveDriverReadiness(driver: DriverInput, today: Date): DriverR
     return { ...base, unavailableReason: "Inactive" };
   }
 
+  // Checked FIRST among the availability cases: a block on this exact date is
+  // the most specific thing the driver has told us, and it holds whether or not
+  // they ever set weekly availability. Behind the empty-days check it would
+  // report "Schedule not set" for someone who had explicitly declined.
+  const dateStr = format(today, "yyyy-MM-dd");
+  if (driver.availability?.blocked_dates.includes(dateStr)) {
+    return { ...base, unavailableReason: `Blocked for ${dateStr}` };
+  }
+
   // An EMPTY available_days is "never told us", not "declined every day".
   // availability_json defaults to {"blocked_dates": [], "available_days": []}
   // and only the driver's own /driver/schedule screen ever fills it in, so a
@@ -114,11 +123,6 @@ export function deriveDriverReadiness(driver: DriverInput, today: Date): DriverR
   if (!driver.availability.available_days.includes(dayName)) {
     const capitalizedDay = dayName.charAt(0).toUpperCase() + dayName.slice(1);
     return { ...base, unavailableReason: `Not available on ${capitalizedDay}s` };
-  }
-
-  const dateStr = format(today, "yyyy-MM-dd");
-  if (driver.availability.blocked_dates.includes(dateStr)) {
-    return { ...base, unavailableReason: `Blocked for ${dateStr}` };
   }
 
   return { ...base, isAvailable: true };

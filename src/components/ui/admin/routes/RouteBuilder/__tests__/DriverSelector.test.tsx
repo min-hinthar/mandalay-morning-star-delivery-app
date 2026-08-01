@@ -73,6 +73,25 @@ describe("DriverSelector", () => {
     expect(screen.getByText("Unavailable on this date")).toBeInTheDocument();
   });
 
+  // An explicit block on THIS date beats the empty-schedule short-circuit —
+  // it's the most specific thing the driver has told us. With the checks in the
+  // other order, a driver who had declined this exact date read as "Schedule
+  // not set": the same dishonesty this component fixes, inverted.
+  it("reports a blocked date even when no weekly schedule was ever set", () => {
+    renderSelector([driver({ availability: { available_days: [], blocked_dates: [SATURDAY] } })]);
+
+    expect(screen.getByText("Blocked this date")).toBeInTheDocument();
+    expect(screen.queryByText("Schedule not set")).not.toBeInTheDocument();
+  });
+
+  it("still says 'Schedule not set' when the block is for some OTHER date", () => {
+    renderSelector([
+      driver({ availability: { available_days: [], blocked_dates: ["2026-08-15"] } }),
+    ]);
+
+    expect(screen.getByText("Schedule not set")).toBeInTheDocument();
+  });
+
   it("disables an inactive driver — the one hard block", () => {
     renderSelector([driver({ isActive: false })]);
 

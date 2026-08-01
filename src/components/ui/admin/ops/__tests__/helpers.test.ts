@@ -149,6 +149,31 @@ describe("deriveDriverReadiness", () => {
     expect(result.unavailableReason).toBe("Blocked for 2026-03-07");
   });
 
+  // An explicit block on THIS date is the most specific thing the driver has
+  // told us, so it must beat the empty-schedule short-circuit. With the checks
+  // in the other order, a driver who had declined this exact date was reported
+  // as "Schedule not set" — the same dishonesty this helper fixes, inverted.
+  it("reports a blocked date even when no weekly schedule was ever set", () => {
+    const driver = mockDriver({
+      isActive: true,
+      availability: { available_days: [], blocked_dates: ["2026-03-07"] },
+    });
+    const saturday = new Date(2026, 2, 7);
+    const result = deriveDriverReadiness(driver, saturday);
+    expect(result.isAvailable).toBe(false);
+    expect(result.unavailableReason).toBe("Blocked for 2026-03-07");
+  });
+
+  it("still says 'Schedule not set' when nothing is set AND nothing is blocked", () => {
+    const driver = mockDriver({
+      isActive: true,
+      availability: { available_days: [], blocked_dates: ["2026-03-14"] },
+    });
+    const saturday = new Date(2026, 2, 7);
+    const result = deriveDriverReadiness(driver, saturday);
+    expect(result.unavailableReason).toBe("Schedule not set");
+  });
+
   it("returns unavailable for inactive driver", () => {
     const driver = mockDriver({
       isActive: false,
