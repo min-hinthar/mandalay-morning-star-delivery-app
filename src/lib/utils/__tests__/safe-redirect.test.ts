@@ -43,7 +43,13 @@ describe("isSafeRedirect", () => {
 
   it("rejects backslash and stripped-whitespace bypasses (the real bug)", () => {
     // Each of these resolves to https://evil.com/ via new URL(path, origin).
-    for (const p of ["/\\evil.com", "/\t/evil.com", "/\n/evil.com", "/\r/evil.com", "/\\\\evil.com"]) {
+    for (const p of [
+      "/\\evil.com",
+      "/\t/evil.com",
+      "/\n/evil.com",
+      "/\r/evil.com",
+      "/\\\\evil.com",
+    ]) {
       expect(isSafeRedirect(p), JSON.stringify(p)).toBe(false);
     }
   });

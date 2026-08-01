@@ -40,8 +40,6 @@ import type { CheckoutStep } from "@/types/checkout";
 import { stepVariants, STEPS } from "./checkoutStepMotion";
 import type { DeliveryDayConfig, DeliveryZoneConfig, TimeWindow } from "@/types/delivery";
 
-
-
 interface CheckoutClientProps {
   timeWindows: TimeWindow[];
   /** Cutoff day of week (0=Sun..6=Sat). Defaults to Friday (5). */
@@ -77,9 +75,13 @@ export default function CheckoutClient({
   // deadlines and dates for runs that may not drive the customer's way.
   // Mirrors TimeStepV8's filtering; `undefined` directions = no placeable
   // address yet, `[]` = nearby (keeps every day via filterDaysByDirection).
+  // TRUTHY coord check, matching TimeStepV8 and CartDrawer: the addresses API
+  // converts null coords to 0, and `== null` would treat that 0,0 placeholder
+  // as a PLACED address — resolving a Gulf-of-Guinea bearing here while the
+  // picker (truthy) still showed every day, so checkout could claim "no run
+  // serves you" over a full date list. A real address can't sit at 0,0.
   const addressDirections = useMemo(() => {
-    if (address?.lat == null || address?.lng == null || deliveryZones.length === 0)
-      return undefined;
+    if (!address?.lat || !address?.lng || deliveryZones.length === 0) return undefined;
     return getDirectionsForCoords(address.lat, address.lng, deliveryZones);
   }, [address?.lat, address?.lng, deliveryZones]);
 

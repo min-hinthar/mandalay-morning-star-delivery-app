@@ -7,6 +7,7 @@ import { ArrowLeft, CreditCard, ShieldCheck, Lock, Banknote } from "lucide-react
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
+import { useShallow } from "zustand/react/shallow";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
@@ -68,7 +69,8 @@ export function PaymentStepV8({
   // extended-range address selected mid-checkout RAISES the floor to the
   // long-distance minimum, and an enabled Place Order would just collect the
   // server's MINIMUM_ORDER_NOT_MET. Same source as the notice + cart CTA.
-  const belowMinimum = useCartStore((s) => s.getMinimumOrder().shortfallCents > 0);
+  const minimumOrder = useCartStore(useShallow((s) => s.getMinimumOrder()));
+  const belowMinimum = minimumOrder.shortfallCents > 0;
   const {
     address,
     delivery,
@@ -344,6 +346,22 @@ export function PaymentStepV8({
             </Button>
           </CtaMagnet>
         </m.div>
+      )}
+
+      {/* A disabled primary CTA needs its reason NEXT to it. The full
+          shortfall breakdown lives in CheckoutSummaryV8, which sits in a
+          separate column (below the fold on mobile) — without this line the
+          customer just sees a dead button. */}
+      {!isCreatingSession && belowMinimum && (
+        <p role="status" className="pt-2 text-right text-sm font-medium text-status-error">
+          Add ${(minimumOrder.shortfallCents / 100).toFixed(2)} to reach the $
+          {(minimumOrder.minimumCents / 100).toFixed(0)}{" "}
+          {minimumOrder.isExtendedMinimum ? "long-distance " : ""}minimum
+          <span className="font-burmese font-normal" lang="my">
+            {" "}
+            · အနည်းဆုံးပမာဏ မပြည့်သေးပါ
+          </span>
+        </p>
       )}
     </m.div>
   );

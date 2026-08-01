@@ -194,4 +194,23 @@ describe("PaymentStepV8 CFIX-03 submit button disabled contract", () => {
       mockShortfallCents = 0;
     }
   });
+
+  it("explains WHY Place Order is disabled, next to the button", () => {
+    // The full breakdown lives in CheckoutSummaryV8 (separate column, below
+    // the fold on mobile) — a disabled CTA with no adjacent reason is a dead
+    // end.
+    mockShortfallCents = 7500;
+    try {
+      render(<PaymentStepV8 cutoffModalOpen={false} />);
+      const notice = screen.getByRole("status");
+      expect(notice).toHaveTextContent(/Add \$75\.00 to reach the \$25 minimum/);
+    } finally {
+      mockShortfallCents = 0;
+    }
+  });
+
+  it("shows no shortfall explanation when the cart clears the minimum", () => {
+    render(<PaymentStepV8 cutoffModalOpen={false} />);
+    expect(screen.queryByRole("status")).toBeNull();
+  });
 });
