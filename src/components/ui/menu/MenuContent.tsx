@@ -49,6 +49,11 @@ import { StaleBadge } from "@/components/ui/offline";
 // TYPES
 // ============================================
 
+// Stable fallback — an inline `?? []` would hand the personalization hook a
+// fresh array every render, re-running its auth+address fetch on unrelated
+// state changes (search keystrokes) whenever deliveryDays is undefined.
+const NO_DELIVERY_DAYS: DeliveryDayConfig[] = [];
+
 export interface MenuContentProps {
   /** Additional className */
   className?: string;
@@ -94,7 +99,7 @@ export function MenuContent({
     days: customerDays,
     awareness,
     personalized,
-  } = useCustomerDeliveryDays(deliveryDays ?? [], deliveryZones, maxRadiusMiles);
+  } = useCustomerDeliveryDays(deliveryDays ?? NO_DELIVERY_DAYS, deliveryZones, maxRadiusMiles);
   const effectiveDays = deliveryDays && deliveryDays.length > 0 ? customerDays : deliveryDays;
 
   // ============================================
