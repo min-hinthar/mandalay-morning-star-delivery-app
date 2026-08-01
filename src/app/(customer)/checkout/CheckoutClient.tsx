@@ -18,7 +18,9 @@ import { menuQueryFn } from "@/lib/hooks/useMenu";
 import { addressesQueryFn } from "@/lib/hooks/useAddresses";
 import { CartNavigationGuard } from "@/components/ui/cart/CartNavigationGuard";
 import { CutoffModal } from "@/components/ui/delivery";
-import { getNextDeliveryDate } from "@/lib/utils/delivery-dates";
+import { getNextDeliveryDate, CUTOFF_SAFETY_BUFFER_MS } from "@/lib/utils/delivery-dates";
+import { getDirectionsForCoords, filterDaysByDirection } from "@/lib/utils/delivery-zones";
+import { resolveSelectedCutoff } from "@/components/ui/checkout/SelectedCutoffChip";
 import { spring } from "@/lib/motion-tokens";
 import {
   CheckoutStepperV8,
@@ -97,23 +99,46 @@ export default function CheckoutClient({
   const queryClient = useQueryClient();
   const { user, isLoading: authLoading } = useAuth();
   const { isEmpty } = useCart();
-  const { step, setStep, reset, setDelivery } = useCheckoutStore();
+  const { step, setStep, reset, setDelivery, address, delivery } = useCheckoutStore();
   const { shouldAnimate, getSpring } = useAnimationPreference();
+
+  // Address-aware day list: once an address is placed, every date this
+  // component reasons about (gate, modal's "next chance", reschedule target)
+  // must come from the days that actually serve it — the all-days list quotes
+  // deadlines and dates for runs that may not drive the customer's way.
+  // Mirrors TimeStepV8's filtering; `undefined` directions = no placeable
+  // address yet, `[]` = nearby (keeps every day via filterDaysByDirection).
+  const addressDirections = useMemo(() => {
+    if (address?.lat == null || address?.lng == null || deliveryZones.length === 0)
+      return undefined;
+    return getDirectionsForCoords(address.lat, address.lng, deliveryZones);
+  }, [address?.lat, address?.lng, deliveryZones]);
+
+  const gateDays = useMemo(
+    () =>
+      addressDirections ? filterDaysByDirection(addressDirections, deliveryDays) : deliveryDays,
+    [addressDirections, deliveryDays]
+  );
+
+  // No run serves the placed address — TimeStep renders its empty state; the
+  // CutoffModal ("ordering closed, next chance is…") would be the wrong story.
+  const noServe = addressDirections !== undefined && gateDays.length === 0;
 
   // Use multi-day gate when delivery days are configured, legacy otherwise
   const hasMultiDay = deliveryDays.length > 0;
   const legacyGate = useDeliveryGate(cutoffDay, cutoffHour);
-  const multiDayGate = useDeliveryGateMultiDay(deliveryDays);
+  const multiDayGate = useDeliveryGateMultiDay(gateDays.length > 0 ? gateDays : deliveryDays);
   const gate = hasMultiDay ? multiDayGate : legacyGate;
 
   const [showCutoffModal, setShowCutoffModal] = useState(false);
 
   // Phase 111 CHKP-04 D-30 — compute next available delivery for the
   // cutoff modal reschedule action. Uses Phase 106 timezone-correct
-  // helper (NEVER use getUTCDay() — LA timezone bug).
+  // helper (NEVER use getUTCDay() — LA timezone bug). Address-aware: the
+  // reschedule target must be a day that serves the customer's address.
   const nextDelivery = useMemo(() => {
-    if (deliveryDays.length === 0) return undefined;
-    const next = getNextDeliveryDate(new Date(), deliveryDays);
+    if (gateDays.length === 0) return undefined;
+    const next = getNextDeliveryDate(new Date(), gateDays);
     if (!next) return undefined;
     // Build local-date ISO string (YYYY-MM-DD) — NOT toISOString()
     // (which would shift days near UTC midnight in LA timezone).
@@ -127,7 +152,7 @@ export default function CheckoutClient({
       day: "numeric",
     });
     return { dateString, displayDate };
-  }, [deliveryDays]);
+  }, [gateDays]);
 
   // Phase 111 CHKP-04 D-31 — compose setDelivery + setStep("time") + close modal.
   // Missing ANY of these three breaks the UX per D-31. D-32: auto-pick the
@@ -261,12 +286,59 @@ export default function CheckoutClient({
     }
   };
 
-  // Show CutoffModal when ordering closes (on mount if past cutoff, or mid-session when gate flips)
+  // Show CutoffModal when ordering closes (on mount if past cutoff, or mid-session
+  // when gate flips). Suppressed for a no-serve address — TimeStep's empty state
+  // owns that story ("no runs your way"), not "ordering closed until {date}".
   useEffect(() => {
-    if (!gate.isOpen) {
+    if (!gate.isOpen && !noServe) {
       setShowCutoffModal(true);
     }
-  }, [gate.isOpen]);
+  }, [gate.isOpen, noServe]);
+
+  // Proactively surface the modal the moment the SELECTED date's own cutoff
+  // passes. The multi-day gate above rolls to the next open run when one
+  // closes, so its isOpen almost never flips mid-session — without this arm,
+  // a customer who picked Saturday at 2:50pm Friday types name/phone/tip and
+  // learns about the miss only from the server's CUTOFF_PASSED at Place
+  // Order. One timeout to (cutoff − safety buffer), re-checked against the
+  // live store so a reseated date (TimeStep revalidation) can't fire a stale
+  // modal.
+  const selectedCutoffMs = useMemo(() => {
+    const dateStr = delivery?.date;
+    if (!dateStr || deliveryDays.length === 0) return null;
+    const cutoff = resolveSelectedCutoff(dateStr, deliveryDays);
+    return cutoff ? cutoff.getTime() - CUTOFF_SAFETY_BUFFER_MS : null;
+  }, [delivery?.date, deliveryDays]);
+
+  useEffect(() => {
+    if (selectedCutoffMs == null) return;
+    const selectedDate = useCheckoutStore.getState().delivery?.date;
+    let id: ReturnType<typeof setTimeout> | undefined;
+    const fire = () => {
+      if (useCheckoutStore.getState().delivery?.date === selectedDate) {
+        setShowCutoffModal(true);
+      }
+    };
+    // setTimeout overflows (and fires ~immediately) past 2^31−1 ms — clamp and
+    // re-arm so a far-future cutoff waits instead of misfiring or going dead.
+    const MAX_DELAY_MS = 2 ** 31 - 1;
+    const arm = () => {
+      const ms = selectedCutoffMs - Date.now();
+      if (ms <= 0) {
+        fire();
+        return;
+      }
+      id = setTimeout(
+        () => {
+          if (Date.now() >= selectedCutoffMs) fire();
+          else arm();
+        },
+        Math.min(ms, MAX_DELAY_MS)
+      );
+    };
+    arm();
+    return () => clearTimeout(id);
+  }, [selectedCutoffMs]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -419,6 +491,7 @@ export default function CheckoutClient({
                         onBack={goToPrevStep}
                         disableGuard={disableGuard}
                         timeWindows={timeWindows}
+                        deliveryDays={deliveryDays}
                         onCutoffPassed={() => setShowCutoffModal(true)}
                         codEnabled={codEnabled}
                         cutoffModalOpen={showCutoffModal}

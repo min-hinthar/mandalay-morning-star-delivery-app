@@ -1,6 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+/** Auth-only customer routes — mirrors the (customer) route group's layout guard. */
+const CUSTOMER_PROTECTED_PATHS = ["/checkout", "/cart", "/orders", "/account"];
+
 /**
  * Refresh Supabase auth session on every request and gate
  * /admin + /driver routes for unauthenticated users.
@@ -41,9 +44,17 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Gate protected routes for unauthenticated users
+  // Gate protected routes for unauthenticated users. Customer paths carry
+  // ?next= too: the (customer) layout's own redirect("/login") has no access
+  // to the request path, so a guest tapping "Proceed to Checkout" used to land
+  // on /login without a destination and get dumped back on /menu after signing
+  // in — cart intact but checkout intent gone. Redirecting here (with next=)
+  // runs before that layout guard, which stays as a belt.
   const path = request.nextUrl.pathname;
-  if (!user && (path.startsWith("/admin") || path.startsWith("/driver"))) {
+  const isCustomerProtected = CUSTOMER_PROTECTED_PATHS.some(
+    (p) => path === p || path.startsWith(`${p}/`)
+  );
+  if (!user && (path.startsWith("/admin") || path.startsWith("/driver") || isCustomerProtected)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     url.searchParams.set("next", path);

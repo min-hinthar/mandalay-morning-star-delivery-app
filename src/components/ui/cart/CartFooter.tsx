@@ -8,6 +8,8 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useDeliveryGate, useDeliveryGateMultiDay } from "@/lib/hooks/useDeliveryGate";
+import { useCartStore } from "@/lib/stores/cart-store";
+import { useShallow } from "zustand/react/shallow";
 import { getNextCutoffText } from "@/lib/utils/delivery-schedule";
 import { Button } from "@/components/ui/button";
 import { DeliveryCountdown } from "@/components/ui/delivery";
@@ -51,13 +53,19 @@ export function useCartDeliveryGate({
   const legacyGate = useDeliveryGate(cutoffDay, cutoffHour);
   const gate = hasMultiDay ? multiDayGate : legacyGate;
 
-  const isDisabled = hasBlockingIssues || !gate.isOpen;
+  // Same engine + tier the server gate uses (see cart-store.getMinimumOrder).
+  // The /cart page already blocks below-minimum checkouts; without this the
+  // DRAWER was a bypass — a below-floor far-address cart could enter checkout,
+  // fill all three steps, and only learn at Place Order (MINIMUM_ORDER_NOT_MET).
+  const minimumOrder = useCartStore(useShallow((s) => s.getMinimumOrder()));
+
+  const isDisabled = hasBlockingIssues || !gate.isOpen || minimumOrder.shortfallCents > 0;
   const closedText =
     hasMultiDay && gate.deliveryDayOfWeek !== undefined
       ? getNextCutoffText(gate.deliveryDayOfWeek, deliveryDays!)
       : `Checkout opens Friday at 3:00 PM`;
 
-  return { gate, isDisabled, closedText };
+  return { gate, isDisabled, closedText, minimumOrder };
 }
 
 export type CartDeliveryGateState = ReturnType<typeof useCartDeliveryGate>;
@@ -127,7 +135,8 @@ export function CartActions({
   showFullCartLink,
 }: CartActionsProps) {
   const { shouldAnimate, getSpring } = useAnimationPreference();
-  const { gate, isDisabled, closedText } = gateState;
+  const { gate, isDisabled, closedText, minimumOrder } = gateState;
+  const belowMinimum = gate.isOpen && !hasBlockingIssues && minimumOrder.shortfallCents > 0;
 
   return (
     <m.div
@@ -175,6 +184,28 @@ export function CartActions({
             <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
             Remove unavailable items to checkout
           </p>
+        )}
+
+        {/* Why the CTA is off — mirrors the /cart page's CheckoutGate, incl. the
+            long-drive rationale so a $90 far-address cart doesn't read as a bug */}
+        {belowMinimum && (
+          <div className="text-center">
+            <p className="flex items-center justify-center gap-1.5 text-xs font-medium text-text-muted">
+              <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />$
+              {(minimumOrder.shortfallCents / 100).toFixed(2)} below the $
+              {(minimumOrder.minimumCents / 100).toFixed(0)}
+              {minimumOrder.isExtendedMinimum ? " long-distance minimum" : " minimum"}
+            </p>
+            {minimumOrder.isExtendedMinimum && (
+              <p className="mt-1 text-2xs leading-snug text-text-muted">
+                It&rsquo;s a long drive to you, so we group deliveries into bigger orders.{" "}
+                <span className="font-burmese" lang="my">
+                  ခရီးဝေးပို့ဆောင်မှုအတွက် အနည်းဆုံး ${(minimumOrder.minimumCents / 100).toFixed(0)}{" "}
+                  မှာယူပေးပါ။
+                </span>
+              </p>
+            )}
+          </div>
         )}
 
         <Button variant="outline" size="lg" className="w-full" onClick={onClose}>

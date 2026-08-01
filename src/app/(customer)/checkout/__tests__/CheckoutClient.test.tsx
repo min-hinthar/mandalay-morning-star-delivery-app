@@ -126,26 +126,52 @@ vi.mock("@/lib/hooks/useNavigationGuard", () => ({
   }),
 }));
 
-// Mock delivery gates
+// Mock delivery gates — multiDay is a mutable ref so the address-aware modal
+// tests can flip the gate closed per test (reset in afterEach).
+const OPEN_GATE = { isOpen: true, deliveryDate: { displayDate: "Saturday" } };
+let mockMultiDayGate: { isOpen: boolean; deliveryDate: { displayDate: string } } = OPEN_GATE;
 vi.mock("@/lib/hooks/useDeliveryGate", () => ({
   useDeliveryGate: () => ({ isOpen: true, deliveryDate: { displayDate: "Saturday" } }),
-  useDeliveryGateMultiDay: () => ({ isOpen: true, deliveryDate: { displayDate: "Saturday" } }),
+  useDeliveryGateMultiDay: () => mockMultiDayGate,
 }));
 
+// Direction resolution controlled per-test (only consulted when the mocked
+// store carries an address with coords AND deliveryZones is non-empty — so
+// pre-existing tests, which set neither, are untouched).
+let mockDirections: Array<"east" | "west" | "south"> = [];
+vi.mock("@/lib/utils/delivery-zones", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/utils/delivery-zones")>(
+    "@/lib/utils/delivery-zones"
+  );
+  return {
+    ...actual,
+    getDirectionsForCoords: () => mockDirections,
+  };
+});
+
 // Mock checkout store — stable fn identity + spy accessor for assertions.
-// mockStep is a mutable ref so CHKP-03 prefetch tests can flip step per test.
+// mockStep is a mutable ref so CHKP-03 prefetch tests can flip step per test;
+// mockAddress/mockDelivery feed the address-aware gate + selected-cutoff
+// watcher (which reads live state via useCheckoutStore.getState()).
 let mockStep: "address" | "time" | "payment" = "address";
 const mockResetFn = vi.fn();
 const mockSetStepFn = vi.fn();
 const mockSetDeliveryFn = vi.fn();
-vi.mock("@/lib/stores/checkout-store", () => ({
-  useCheckoutStore: () => ({
+let mockAddress: { lat: number; lng: number } | undefined = undefined;
+let mockDelivery: { date: string; windowStart: string; windowEnd: string } | undefined = undefined;
+vi.mock("@/lib/stores/checkout-store", () => {
+  const buildState = () => ({
     step: mockStep,
     setStep: mockSetStepFn,
     reset: mockResetFn,
     setDelivery: mockSetDeliveryFn,
-  }),
-}));
+    address: mockAddress,
+    delivery: mockDelivery,
+  });
+  const useCheckoutStore = () => buildState();
+  useCheckoutStore.getState = buildState;
+  return { useCheckoutStore };
+});
 
 // Stub all checkout step components
 // Import the REAL EmptyCheckoutError before mocking the barrel,
@@ -766,5 +792,150 @@ describe("CHKP-03 — step prefetch", () => {
     // Empty cart short-circuits to EmptyCheckoutError before any prefetch
     // effect runs — but even if the effect ran, the isEmpty guard blocks it.
     expect(prefetchQuerySpy).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Checkout day integrity — address-aware CutoffModal + selected-cutoff watcher
+// ---------------------------------------------------------------------------
+
+describe("day integrity — address-aware CutoffModal gating", () => {
+  const DIRECTIONAL_DAYS = [
+    {
+      id: "day-monday",
+      dayOfWeek: 1,
+      isActive: true,
+      cutoffDay: 0,
+      cutoffHour: 15,
+      deliveryFeeCents: 1500,
+      displayOrder: 0,
+      direction: "east" as const,
+    },
+    {
+      id: "day-wednesday",
+      dayOfWeek: 3,
+      isActive: true,
+      cutoffDay: 2,
+      cutoffHour: 15,
+      deliveryFeeCents: 1500,
+      displayOrder: 1,
+      direction: "west" as const,
+    },
+  ];
+  const ZONES = [
+    {
+      id: "z-east",
+      direction: "east" as const,
+      bearingStart: 45,
+      bearingEnd: 135,
+      referenceCities: [],
+    },
+  ];
+
+  beforeEach(() => {
+    cutoffModalSpy.mockClear();
+    mockIsEmpty = false;
+    mockStep = "address";
+    mockAddress = { lat: 34.09, lng: -117.89 };
+    mockDelivery = undefined;
+    mockCartStoreItems = [];
+  });
+
+  afterEach(() => {
+    mockMultiDayGate = OPEN_GATE;
+    mockAddress = undefined;
+    mockDelivery = undefined;
+    mockDirections = [];
+  });
+
+  it("suppresses the CutoffModal when NO run serves the placed address (noServe)", () => {
+    mockDirections = ["south"]; // neither east nor west day matches
+    mockMultiDayGate = { isOpen: false, deliveryDate: { displayDate: "Monday" } };
+
+    render(
+      <CheckoutClient timeWindows={[]} deliveryDays={DIRECTIONAL_DAYS} deliveryZones={ZONES} />
+    );
+
+    const props = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
+    expect(props.isOpen).toBe(false);
+  });
+
+  it("still shows the CutoffModal on a closed gate when the address IS served", () => {
+    mockDirections = ["east"];
+    mockMultiDayGate = { isOpen: false, deliveryDate: { displayDate: "Monday" } };
+
+    render(
+      <CheckoutClient timeWindows={[]} deliveryDays={DIRECTIONAL_DAYS} deliveryZones={ZONES} />
+    );
+
+    const props = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
+    expect(props.isOpen).toBe(true);
+  });
+
+  it("reschedule target comes from the days serving the address, not the all-days list", () => {
+    mockDirections = ["east"]; // only Monday serves — Wednesday must never be offered
+    const timeWindows = [{ start: "10:00", end: "12:00", label: "Morning" }];
+
+    render(
+      <CheckoutClient
+        timeWindows={timeWindows}
+        deliveryDays={DIRECTIONAL_DAYS}
+        deliveryZones={ZONES}
+      />
+    );
+
+    const props = cutoffModalSpy.mock.calls.at(-1)![0] as {
+      rescheduleOption?: { dateString: string };
+    };
+    expect(props.rescheduleOption).toBeDefined();
+    // Parse as LA-noon to avoid UTC day drift; 1 = Monday
+    const d = new Date(`${props.rescheduleOption!.dateString}T12:00:00-07:00`);
+    expect(d.getDay()).toBe(1);
+  });
+});
+
+describe("day integrity — selected-date cutoff watcher", () => {
+  const SATURDAY_DAY = [
+    {
+      id: "day-saturday",
+      dayOfWeek: 6,
+      isActive: true,
+      cutoffDay: 5,
+      cutoffHour: 15,
+      deliveryFeeCents: 1500,
+      displayOrder: 0,
+      direction: "all" as const,
+    },
+  ];
+
+  beforeEach(() => {
+    cutoffModalSpy.mockClear();
+    mockIsEmpty = false;
+    mockStep = "payment";
+    mockCartStoreItems = [];
+  });
+
+  afterEach(() => {
+    mockDelivery = undefined;
+  });
+
+  it("opens the modal immediately when the SELECTED date's cutoff already passed", () => {
+    // A long-past Saturday — its Friday-3PM cutoff is far behind us, while the
+    // (mocked) gate stays open: exactly the case the all-days gate never catches.
+    mockDelivery = { date: "2020-01-04", windowStart: "10:00", windowEnd: "12:00" };
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={SATURDAY_DAY} />);
+
+    const props = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
+    expect(props.isOpen).toBe(true);
+  });
+
+  it("stays quiet for a selected date whose cutoff is still ahead", () => {
+    mockDelivery = { date: "2100-01-02", windowStart: "10:00", windowEnd: "12:00" };
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={SATURDAY_DAY} />);
+
+    const props = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
+    expect(props.isOpen).toBe(false);
   });
 });

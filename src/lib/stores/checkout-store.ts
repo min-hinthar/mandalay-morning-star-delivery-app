@@ -12,6 +12,7 @@ interface CheckoutStore extends CheckoutState {
   prevStep: () => void;
   setAddress: (address: Address) => void;
   setDelivery: (delivery: DeliverySelection) => void;
+  clearDelivery: () => void;
   setCustomerNotes: (notes: string) => void;
   setTipPercent: (percent: number | null) => void;
   setCustomTipCents: (cents: number) => void;
@@ -74,6 +75,11 @@ export const useCheckoutStore = create<CheckoutStore>()(
         useCartStore.getState().setAddressDistance(address.distanceMiles ?? null);
       },
       setDelivery: (delivery) => set({ delivery }),
+      // For when the stored date stops being valid (address swap to a route the
+      // date doesn't serve, or its cutoff passed) and no replacement exists —
+      // a cleared selection disables Continue via useCanProceed instead of
+      // letting a stale date ride to a server rejection at Place Order.
+      clearDelivery: () => set({ delivery: null }),
       setCustomerNotes: (notes) => set({ customerNotes: notes }),
 
       setTipPercent: (percent) => set({ tipPercent: percent }),

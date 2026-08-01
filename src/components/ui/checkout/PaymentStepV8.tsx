@@ -9,7 +9,7 @@ import { spring, staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCart } from "@/lib/hooks/useCart";
 import { useCheckoutStore, useCanProceed } from "@/lib/stores/checkout-store";
-import type { TimeWindow } from "@/types/delivery";
+import type { DeliveryDayConfig, TimeWindow } from "@/types/delivery";
 import { CheckoutSectionHeader } from "./CheckoutSectionHeader";
 import { CtaMagnet } from "./CtaMagnet";
 import { TipSelector } from "./TipSelector";
@@ -39,6 +39,8 @@ export interface PaymentStepV8Props {
   onBack?: () => void;
   disableGuard?: () => void;
   timeWindows?: TimeWindow[];
+  /** Multi-day configs — lets the summary card show the selected date's live cutoff */
+  deliveryDays?: DeliveryDayConfig[];
   onCutoffPassed?: () => void;
   codEnabled?: boolean;
   /** Phase 110 CFIX-03 — defense-in-depth gate when CutoffModal is visible */
@@ -50,6 +52,7 @@ export function PaymentStepV8({
   onBack,
   disableGuard,
   timeWindows = [],
+  deliveryDays = [],
   onCutoffPassed,
   codEnabled = false,
   cutoffModalOpen = false,
@@ -174,6 +177,7 @@ export function PaymentStepV8({
                 formattedAddress={address?.formattedAddress}
                 delivery={delivery}
                 timeWindows={timeWindows}
+                deliveryDays={deliveryDays}
               />
             </m.div>
 

@@ -24,9 +24,9 @@
  * needed in this file for Phase 111.
  */
 
-import { useCallback, useEffect, useMemo } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { m } from "framer-motion";
-import { Clock, ArrowLeft } from "lucide-react";
+import { Clock, ArrowLeft, CalendarX2, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { staggerContainer, staggerItem } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -35,9 +35,11 @@ import {
   getAvailableDeliveryDates,
   getAvailableDeliveryDatesMultiDay,
   getZonedDayOfWeek,
+  CUTOFF_SAFETY_BUFFER_MS,
 } from "@/lib/utils/delivery-dates";
 import { CheckoutSectionHeader } from "./CheckoutSectionHeader";
 import { CtaMagnet } from "./CtaMagnet";
+import { SelectedCutoffChip, resolveSelectedCutoff } from "./SelectedCutoffChip";
 import { TimeSlotPicker } from "./TimeSlotPicker";
 import { DeliveryZoneInfoCard } from "./DeliveryZoneInfoCard";
 import { Button } from "@/components/ui/button";
@@ -49,6 +51,9 @@ import type {
   TimeWindow,
 } from "@/types/delivery";
 import { getDirectionsForCoords, filterDaysByDirection } from "@/lib/utils/delivery-zones";
+
+/** Why the step silently changed the selected date — drives the notice copy. */
+type MoveReason = "route" | "cutoff";
 
 /** Button entry animation variant */
 const buttonEntry = {
@@ -96,6 +101,7 @@ export function TimeStepV8({
     address,
     delivery,
     setDelivery,
+    clearDelivery,
     nextStep: storeNextStep,
     prevStep: storePrevStep,
   } = useCheckoutStore();
@@ -103,6 +109,22 @@ export function TimeStepV8({
 
   const handleNext = onNext || storeNextStep;
   const handleBack = onBack || storePrevStep;
+
+  // Minute tick so availableDates (and each pill's cutoffPassed) re-derive as
+  // time passes — the memo below is otherwise frozen at mount, letting a pill
+  // read "orderable" long after its cutoff crossed mid-session.
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNowTick(Date.now()), 60_000);
+    return () => clearInterval(id);
+  }, []);
+
+  // A silent date change is worse than no change — when the effect below has
+  // to move the selection, say so (aria-live, bilingual) instead of leaving a
+  // differently-highlighted pill as the only clue.
+  const [moveNotice, setMoveNotice] = useState<{ toDisplay: string; reason: MoveReason } | null>(
+    null
+  );
 
   // Determine customer's delivery directions from address coordinates
   const addressDirections = useMemo(() => {
@@ -122,15 +144,26 @@ export function TimeStepV8({
     return filterDaysByDirection(addressDirections, deliveryDays);
   }, [addressDirections, deliveryDays]);
 
+  // A placed address whose direction filter leaves NOTHING is a real answer,
+  // not a gap to paper over: the old fallback re-offered the UNFILTERED list
+  // here, so the exact customer no run serves picked a day and got a
+  // direction-mismatch rejection at Place Order. Now it renders an honest
+  // empty state instead (below). `undefined` directions (no placeable address
+  // yet) still offer everything; `[]` is nearby and keeps every day via
+  // filterDaysByDirection.
+  const noServe = addressDirections !== undefined && filteredDays.length === 0;
+
   // Use multi-day dates when delivery days are configured, legacy otherwise
   const availableDates = useMemo(
     () =>
-      filteredDays.length > 0
-        ? getAvailableDeliveryDatesMultiDay(new Date(), filteredDays, 6)
-        : deliveryDays.length > 0
-          ? getAvailableDeliveryDatesMultiDay(new Date(), deliveryDays, 6)
-          : getAvailableDeliveryDates(),
-    [filteredDays, deliveryDays]
+      noServe
+        ? []
+        : filteredDays.length > 0
+          ? getAvailableDeliveryDatesMultiDay(new Date(nowTick), filteredDays, 6)
+          : deliveryDays.length > 0
+            ? getAvailableDeliveryDatesMultiDay(new Date(nowTick), deliveryDays, 6)
+            : getAvailableDeliveryDates(new Date(nowTick)),
+    [noServe, filteredDays, deliveryDays, nowTick]
   );
 
   // Build direction lookup for date pills
@@ -146,21 +179,64 @@ export function TimeStepV8({
     return map;
   }, [availableDates, filteredDays]);
 
-  // Auto-select first available delivery date when none selected
+  // Ensure a VALID selection, not just any selection. Beyond the original
+  // auto-select this also revalidates an existing choice, because a stored
+  // date can go stale two ways mid-checkout: the customer goes back and swaps
+  // to an address whose route doesn't serve that day, or the date's own cutoff
+  // passes (incl. a sessionStorage rehydration from an earlier visit). The old
+  // effect early-returned on `delivery` and the stale date rode through
+  // Continue to a guaranteed server rejection at Place Order.
   useEffect(() => {
-    if (delivery) return; // Already selected, don't override user choice
+    if (noServe) {
+      if (delivery) clearDelivery();
+      return;
+    }
     const firstAvailable = availableDates.find((d) => !d.cutoffPassed);
-    if (firstAvailable && timeWindows.length > 0) {
+
+    if (!delivery) {
+      if (firstAvailable && timeWindows.length > 0) {
+        setDelivery({
+          date: firstAvailable.dateString,
+          windowStart: timeWindows[0].start,
+          windowEnd: timeWindows[0].end,
+        });
+      }
+      return;
+    }
+
+    const current = availableDates.find((d) => d.dateString === delivery.date);
+    if (current && !current.cutoffPassed) return; // still valid — never override
+
+    if (firstAvailable) {
+      // Keep the chosen window when it still exists; windows are global.
+      const windowValid = timeWindows.some(
+        (w) => w.start === delivery.windowStart && w.end === delivery.windowEnd
+      );
+      const fallbackWindow = timeWindows[0];
+      if (!windowValid && !fallbackWindow) return;
+      // The multi-day date list PRE-FILTERS passed dates, so a cutoff-crossed
+      // selection is simply absent (never flagged cutoffPassed) — derive the
+      // reason from the date's own cutoff instant instead.
+      const cutoff = resolveSelectedCutoff(delivery.date, deliveryDays);
+      const cutoffCrossed =
+        cutoff != null && cutoff.getTime() - CUTOFF_SAFETY_BUFFER_MS <= Date.now();
       setDelivery({
         date: firstAvailable.dateString,
-        windowStart: timeWindows[0].start,
-        windowEnd: timeWindows[0].end,
+        windowStart: windowValid ? delivery.windowStart : fallbackWindow.start,
+        windowEnd: windowValid ? delivery.windowEnd : fallbackWindow.end,
       });
+      setMoveNotice({
+        toDisplay: firstAvailable.displayDate,
+        reason: cutoffCrossed ? "cutoff" : "route",
+      });
+    } else {
+      clearDelivery();
     }
-  }, [delivery, availableDates, timeWindows, setDelivery]);
+  }, [noServe, delivery, availableDates, timeWindows, deliveryDays, setDelivery, clearDelivery]);
 
   const handleSelectionChange = useCallback(
     (selection: DeliverySelection) => {
+      setMoveNotice(null); // a deliberate pick supersedes the auto-move notice
       setDelivery(selection);
     },
     [setDelivery]
@@ -175,40 +251,104 @@ export function TimeStepV8({
     >
       {/* Header with stagger */}
       <m.div variants={shouldAnimate ? staggerItem : undefined}>
-        <CheckoutSectionHeader
-          icon={Clock}
-          eyebrow="Delivery Time"
-          eyebrowMy="အချိန်"
-          lead="When it"
-          accent="arrives"
-          sub="Choose your preferred delivery window"
-        />
+        <div className="flex flex-wrap items-start justify-between gap-2">
+          <CheckoutSectionHeader
+            icon={Clock}
+            eyebrow="Delivery Time"
+            eyebrowMy="အချိန်"
+            lead="When it"
+            accent="arrives"
+            sub="Choose your preferred delivery window"
+          />
+          {/* Live deadline for the SELECTED date — the one countdown that
+              matters once a day is chosen */}
+          {!noServe && delivery?.date && (
+            <SelectedCutoffChip
+              dateString={delivery.date}
+              deliveryDays={deliveryDays}
+              className="mt-1"
+            />
+          )}
+        </div>
         <p className="font-body text-xs text-hero-ink-muted mt-1.5">
           Time windows are preferred delivery times, not guaranteed arrival times.
         </p>
       </m.div>
 
-      {/* Delivery zone info card */}
-      {address?.lat && address?.lng && deliveryZones.length > 0 && (
-        <m.div variants={shouldAnimate ? staggerItem : undefined}>
-          <DeliveryZoneInfoCard
-            address={address}
-            deliveryZones={deliveryZones}
-            deliveryDays={filteredDays.length > 0 ? filteredDays : deliveryDays}
-          />
-        </m.div>
+      {/* Auto-move notice — the effect above changed the date; say so out loud */}
+      {!noServe && moveNotice && (
+        <div
+          role="status"
+          className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-4 py-3"
+        >
+          <p className="font-body text-sm font-medium text-hero-ink">
+            {moveNotice.reason === "cutoff"
+              ? `That date's ordering cutoff passed — we moved your delivery to ${moveNotice.toDisplay}.`
+              : `Your address's route runs on different days — we moved your delivery to ${moveNotice.toDisplay}.`}
+          </p>
+          <p className="font-burmese text-xs text-hero-ink-muted mt-0.5" lang="my">
+            သင့်ပို့ဆောင်မှုရက်ကို {moveNotice.toDisplay} သို့ ပြောင်းထားပါသည်။
+          </p>
+        </div>
       )}
 
-      {/* Time slot picker with stagger */}
-      <m.div variants={shouldAnimate ? staggerItem : undefined}>
-        <TimeSlotPicker
-          availableDates={availableDates}
-          selectedDelivery={delivery}
-          onSelectionChange={handleSelectionChange}
-          timeWindows={timeWindows}
-          dateDirectionMap={dateDirectionMap}
-        />
-      </m.div>
+      {noServe ? (
+        /* Honest empty state — no run serves this address; never re-offer the
+           unfiltered day list the server would reject. */
+        <m.div
+          variants={shouldAnimate ? staggerItem : undefined}
+          role="status"
+          className="hero-surface-paper relative rounded-2xl border border-hero-line p-6 text-center"
+        >
+          <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-hero-clay/10">
+            <CalendarX2 className="h-6 w-6 text-hero-accent" aria-hidden="true" />
+          </span>
+          <h3 className="font-display mt-3 text-lg font-semibold text-hero-ink">
+            No upcoming runs serve your address
+          </h3>
+          <p className="font-burmese text-sm text-hero-ink-muted" lang="my">
+            သင့်လိပ်စာသို့ လက်ရှိပို့ဆောင်မှုလမ်းကြောင်း မရှိသေးပါ
+          </p>
+          <p className="font-body mx-auto mt-2 max-w-md text-sm text-hero-ink-muted">
+            Each delivery day drives a set route, and none currently pass your way. Try a different
+            address, or check back soon — routes grow with our kitchen.
+          </p>
+          <div className="mt-4 flex flex-col items-center justify-center gap-2 sm:flex-row">
+            <Button
+              variant="outline"
+              onClick={handleBack}
+              className="min-h-11 border-hero-line text-hero-ink hover:border-hero-clay/60 hover:bg-hero-clay/10"
+            >
+              <MapPin className="mr-2 h-4 w-4" aria-hidden="true" />
+              Use a different address
+            </Button>
+          </div>
+        </m.div>
+      ) : (
+        <>
+          {/* Delivery zone info card */}
+          {address?.lat && address?.lng && deliveryZones.length > 0 && (
+            <m.div variants={shouldAnimate ? staggerItem : undefined}>
+              <DeliveryZoneInfoCard
+                address={address}
+                deliveryZones={deliveryZones}
+                deliveryDays={filteredDays.length > 0 ? filteredDays : deliveryDays}
+              />
+            </m.div>
+          )}
+
+          {/* Time slot picker with stagger */}
+          <m.div variants={shouldAnimate ? staggerItem : undefined}>
+            <TimeSlotPicker
+              availableDates={availableDates}
+              selectedDelivery={delivery}
+              onSelectionChange={handleSelectionChange}
+              timeWindows={timeWindows}
+              dateDirectionMap={dateDirectionMap}
+            />
+          </m.div>
+        </>
+      )}
 
       {/* Navigation with button entry animation */}
       <m.div
