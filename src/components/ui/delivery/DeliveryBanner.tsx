@@ -17,6 +17,12 @@ export interface DeliveryBannerProps {
   cutoffHour?: number;
   /** Multi-day delivery config (preferred) */
   deliveryDays?: DeliveryDayConfig[];
+  /**
+   * Personalized route-day headline ("We're driving the West Route this
+   * Wednesday") — replaces the generic "Delivering {date}" lead when the
+   * caller resolved the customer's own route. Null/omitted keeps generic copy.
+   */
+  routeHeadline?: string | null;
   className?: string;
 }
 
@@ -36,6 +42,7 @@ export function DeliveryBanner({
   cutoffDay,
   cutoffHour,
   deliveryDays,
+  routeHeadline,
   className,
 }: DeliveryBannerProps) {
   // Use multi-day gate if deliveryDays provided, otherwise legacy
@@ -49,7 +56,7 @@ export function DeliveryBanner({
     <div
       className={cn(
         "border-b",
-        "flex items-center justify-center gap-2 px-4 py-2 text-sm",
+        "flex flex-wrap items-center justify-center gap-x-2 gap-y-0.5 px-4 py-2 text-sm",
         isOpen && urgency === "normal" && "bg-surface-secondary border-border text-text-secondary",
         isOpen &&
           urgency === "warning" &&
@@ -63,14 +70,24 @@ export function DeliveryBanner({
       role="status"
       aria-label={
         isOpen
-          ? `Ordering open. Delivering ${deliveryDate.displayDate}.`
+          ? `Ordering open. ${routeHeadline ? `${routeHeadline}. ` : ""}Delivering ${deliveryDate.displayDate}.`
           : `Ordering closed. Next delivery ${deliveryDate.displayDate}.`
       }
     >
       {isOpen ? (
         <>
           <Clock className="h-4 w-4 shrink-0" aria-hidden="true" />
-          <span className="font-medium">Delivering {deliveryDate.displayDate}</span>
+          <span className="font-medium">
+            {/* Personalized: name the customer's route so the invite email's
+                promise ("we're driving your way") survives landing here */}
+            {routeHeadline ?? `Delivering ${deliveryDate.displayDate}`}
+            {routeHeadline && (
+              <span className="font-burmese font-normal text-xs" lang="my">
+                {" "}
+                · သင့်ဒေသသို့
+              </span>
+            )}
+          </span>
           <span aria-hidden="true" className="text-text-muted">
             &mdash;
           </span>

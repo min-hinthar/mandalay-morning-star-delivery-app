@@ -6,7 +6,7 @@ import { MAX_CART_ITEMS, MAX_ITEM_QUANTITY } from "@/types/cart";
 import { cartIDBStorage } from "@/lib/services/cart-idb-storage";
 import { toast } from "@/lib/hooks/useToastV8";
 import { triggerHaptic } from "@/lib/swipe-gestures/utils";
-import type { DeliveryDayConfig } from "@/types/delivery";
+import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 import { resolveDeliveryFee, resolveMinimumOrder } from "@/lib/utils/order";
 import { buildCartPricingConfig } from "./cart-pricing";
 
@@ -76,6 +76,11 @@ export const useCartStore = create<CartStore>()(
       // Multi-day delivery configs
       deliveryDays: [] as DeliveryDayConfig[],
       setDeliveryDays: (days: DeliveryDayConfig[]) => set({ deliveryDays: days }),
+
+      // Zone configs — let cart surfaces resolve the customer's directions so
+      // the drawer's delivery row/countdown can run on THEIR days, not all days
+      deliveryZones: [] as DeliveryZoneConfig[],
+      setDeliveryZones: (zones: DeliveryZoneConfig[]) => set({ deliveryZones: zones }),
 
       // Distance-aware delivery fee
       addressDistanceMiles: null as number | null,
@@ -460,8 +465,7 @@ function buildMenuLookup(menuData: {
  */
 async function syncPendingCartItems(): Promise<void> {
   const { items } = useCartStore.getState();
-  const pendingItems = items.filter((i) => i.pendingSync);
-  if (pendingItems.length === 0) return;
+  if (!items.some((i) => i.pendingSync)) return;
 
   try {
     const response = await fetch("/api/menu");
