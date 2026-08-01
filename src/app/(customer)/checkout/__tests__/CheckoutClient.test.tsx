@@ -129,9 +129,16 @@ vi.mock("@/lib/hooks/useNavigationGuard", () => ({
 // Mock delivery gates — both are mutable refs so the address-aware modal
 // tests (multi-day) and the legacy sticky-gate test can flip them per test
 // (reset in afterEach).
-const OPEN_GATE = { isOpen: true, deliveryDate: { displayDate: "Saturday" } };
-let mockMultiDayGate: { isOpen: boolean; deliveryDate: { displayDate: string } } = OPEN_GATE;
-let mockLegacyGate: { isOpen: boolean; deliveryDate: { displayDate: string } } = OPEN_GATE;
+// `dateString` mirrors the real gate: in LEGACY mode it is the next ORDERABLE
+// Saturday (which is next week's once this week's cutoff passes), and the
+// submit gate compares the selected date against it.
+type GateMock = { isOpen: boolean; deliveryDate: { displayDate: string; dateString?: string } };
+const OPEN_GATE: GateMock = {
+  isOpen: true,
+  deliveryDate: { displayDate: "Saturday", dateString: "2026-08-08" },
+};
+let mockMultiDayGate: GateMock = OPEN_GATE;
+let mockLegacyGate: GateMock = OPEN_GATE;
 vi.mock("@/lib/hooks/useDeliveryGate", () => ({
   useDeliveryGate: () => mockLegacyGate,
   useDeliveryGateMultiDay: () => mockMultiDayGate,
@@ -963,11 +970,16 @@ describe("day integrity — selected-date cutoff watcher", () => {
     expect(props.isOpen).toBe(false);
   });
 
-  it("LEGACY mode: a closed gate keeps Place Order blocked even after modal dismissal", () => {
+  it("LEGACY mode: an EXPIRED/absent selection keeps Place Order blocked after dismissal", () => {
     // deliveryDays empty = legacy Saturday config → no selectedCutoffMs, so
-    // the sticky flag can't engage; the closed gate itself must hold the line.
+    // the sticky flag can't engage; the selection check must hold the line.
+    // (useCanProceed does NOT require a delivery on the payment step, so a
+    // missing selection has to block here.)
     mockDelivery = undefined;
-    mockLegacyGate = { isOpen: false, deliveryDate: { displayDate: "Saturday" } };
+    mockLegacyGate = {
+      isOpen: false,
+      deliveryDate: { displayDate: "Saturday", dateString: "2026-08-15" },
+    };
     paymentStepSpy.mockClear();
 
     render(<CheckoutClient timeWindows={[]} deliveryDays={[]} />);
@@ -1005,6 +1017,60 @@ describe("day integrity — selected-date cutoff watcher", () => {
     expect(modalProps.isOpen).toBe(false);
     const stepProps = paymentStepSpy.mock.calls.at(-1)![0] as { cutoffModalOpen: boolean };
     expect(stepProps.cutoffModalOpen).toBe(true);
+  });
+
+  it("LEGACY mode: a VALID later Saturday stays orderable while the gate reads closed", () => {
+    // The legacy gate's isOpen means "THIS Saturday's cutoff passed", not
+    // "ordering is impossible" — the picker still offers (and the server still
+    // accepts) the following Saturdays. Verified against the real helpers: at
+    // Fri 4pm PT, computeDeliveryGate(5,15).isOpen === false while
+    // getAvailableDeliveryDates returns 08-15 and 08-22 with cutoffPassed:false.
+    // A bare !gate.isOpen in the submit gate killed checkout for that whole
+    // window, with no reschedule escape (the modal's button needs multi-day
+    // days). Dismissing the modal must hand the customer back their valid date.
+    mockDelivery = { date: "2026-08-15", windowStart: "10:00", windowEnd: "12:00" };
+    mockLegacyGate = {
+      isOpen: false,
+      deliveryDate: { displayDate: "Saturday, August 15", dateString: "2026-08-15" },
+    };
+    paymentStepSpy.mockClear();
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={[]} />);
+
+    const modalProps = cutoffModalSpy.mock.calls.at(-1)![0] as {
+      isOpen: boolean;
+      onClose: () => void;
+    };
+    // The modal still tells the truth (this Saturday is closed) — but it is
+    // dismissible, and dismissal must NOT leave the submit gate engaged.
+    expect(modalProps.isOpen).toBe(true);
+    act(() => modalProps.onClose());
+
+    const stepProps = paymentStepSpy.mock.calls.at(-1)![0] as { cutoffModalOpen: boolean };
+    expect(stepProps.cutoffModalOpen).toBe(false);
+    mockLegacyGate = OPEN_GATE;
+  });
+
+  it("LEGACY mode: a selection BEFORE the next orderable Saturday stays blocked", () => {
+    // The sessionStorage-persisted date from before the cutoff passed.
+    mockDelivery = { date: "2026-08-08", windowStart: "10:00", windowEnd: "12:00" };
+    mockLegacyGate = {
+      isOpen: false,
+      deliveryDate: { displayDate: "Saturday, August 15", dateString: "2026-08-15" },
+    };
+    paymentStepSpy.mockClear();
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={[]} />);
+
+    const modalProps = cutoffModalSpy.mock.calls.at(-1)![0] as {
+      isOpen: boolean;
+      onClose: () => void;
+    };
+    act(() => modalProps.onClose());
+
+    const stepProps = paymentStepSpy.mock.calls.at(-1)![0] as { cutoffModalOpen: boolean };
+    expect(stepProps.cutoffModalOpen).toBe(true);
+    mockLegacyGate = OPEN_GATE;
   });
 
   it("re-arms on a same-instant date switch (two days sharing one cutoff)", () => {

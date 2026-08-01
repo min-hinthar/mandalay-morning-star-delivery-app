@@ -105,12 +105,20 @@ export const useCheckoutStore = create<CheckoutStore>()(
 
       reset: () => {
         set(initialState);
-        // The distance was written into the CART store by setAddress and
-        // outlives this store's reset — leaving it behind kept far-address
-        // pricing (and the drawer's $100 long-distance minimum gate) applied
-        // to a customer who no longer has ANY address selected, with no
-        // address picker outside checkout to correct it.
-        useCartStore.getState().setAddressDistance(null);
+        // NOTE: deliberately does NOT clear the cart store's
+        // addressDistanceMiles. CheckoutClient calls reset() on every
+        // non-Stripe unmount — i.e. simply navigating /checkout → /menu — so
+        // clearing here made a far-address customer's cart silently fall back
+        // to LOCAL pricing for the rest of the session: the free-delivery
+        // meter promised FREE while the server would still charge the
+        // extended fee, and the drawer's minimum gate re-enabled the very
+        // cart checkout had just blocked. Keeping the last known distance is
+        // the conservative direction (it over-quotes, never baits) and it is
+        // self-correcting — setAddress rewrites it, and it is not persisted
+        // (cart partialize keeps only `items`), so it dies on reload.
+        // The real fix for the inverse staleness is to derive the distance
+        // from the resolved default address globally rather than treat it as
+        // a checkout-session artifact — tracked as a follow-up.
       },
     }),
     {

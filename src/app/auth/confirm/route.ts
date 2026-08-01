@@ -5,6 +5,7 @@ import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { getRoleDashboard } from "@/lib/auth/role-redirect";
 import { maybeSendWelcomeEmail } from "@/lib/email/welcome";
 import { logger } from "@/lib/utils/logger";
+import { isSafeRedirect } from "@/lib/utils/safe-redirect";
 
 interface DriverInviteRow {
   id: string;
@@ -13,9 +14,6 @@ interface DriverInviteRow {
 }
 
 /** Validate that a redirect path is safe (no open redirect) */
-function isSafeRedirect(path: string): boolean {
-  return path.startsWith("/") && !path.startsWith("//") && !path.includes("://");
-}
 
 /**
  * Resolve where to send the user after a verified magic link.

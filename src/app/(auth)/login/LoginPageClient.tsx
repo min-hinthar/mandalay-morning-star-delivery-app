@@ -19,6 +19,7 @@ import { m } from "framer-motion";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { createClient } from "@/lib/supabase/client";
+import { isSafeRedirect } from "@/lib/utils/safe-redirect";
 
 interface SuccessProfile {
   name: string | null;
@@ -28,9 +29,6 @@ interface SuccessProfile {
 }
 
 /** Validate that a redirect path is safe (no open redirect) */
-function isSafeRedirect(path: string): boolean {
-  return path.startsWith("/") && !path.startsWith("//") && !path.includes("://");
-}
 
 function AuthCardContent({
   onOAuthStart,

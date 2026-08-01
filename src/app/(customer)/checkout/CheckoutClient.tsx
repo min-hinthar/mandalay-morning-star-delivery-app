@@ -37,41 +37,10 @@ import { CheckoutRewardsCard } from "@/components/ui/checkout/CheckoutRewardsCar
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import type { CheckoutStep } from "@/types/checkout";
+import { stepVariants, STEPS } from "./checkoutStepMotion";
 import type { DeliveryDayConfig, DeliveryZoneConfig, TimeWindow } from "@/types/delivery";
 
-/**
- * Direction-aware step transition variants with scale morph and glow
- * - Forward (1): current slides left, new slides from right
- * - Backward (-1): current slides right, new slides from left
- * - Scale morph gives premium feel to transitions
- * - Subtle glow enhances visual interest
- *
- * Note: boxShadow values are ~--shadow-glow-primary equivalent,
- * kept numeric for Framer Motion interpolation between states.
- */
-/* eslint-disable no-restricted-syntax -- FM animation needs numeric boxShadow for interpolation */
-const stepVariants = {
-  initial: (direction: number) => ({
-    opacity: 0,
-    x: direction > 0 ? 100 : -100,
-    scale: 0.95,
-  }),
-  animate: {
-    opacity: 1,
-    x: 0,
-    scale: 1,
-    boxShadow: "0 0 30px rgba(164, 16, 52, 0.08)", // ~--shadow-glow-primary light
-  },
-  exit: (direction: number) => ({
-    opacity: 0,
-    x: direction > 0 ? -100 : 100,
-    scale: 0.95,
-    boxShadow: "0 0 0px rgba(164, 16, 52, 0)",
-  }),
-};
-/* eslint-enable no-restricted-syntax */
 
-const STEPS: CheckoutStep[] = ["address", "time", "payment"];
 
 interface CheckoutClientProps {
   timeWindows: TimeWindow[];
@@ -137,6 +106,23 @@ export default function CheckoutClient({
   const gate = hasMultiDay ? multiDayGate : legacyGate;
 
   const [showCutoffModal, setShowCutoffModal] = useState(false);
+
+  // LEGACY (no multi-day config) submit gate. The legacy gate's `isOpen` means
+  // "THIS Saturday's cutoff has passed" — NOT "ordering is impossible": the
+  // picker still offers the following Saturdays and the server accepts them
+  // (verified: Fri 4pm PT ⇒ isOpen false, yet 08-15 and 08-22 come back
+  // cutoffPassed:false). Folding a bare `!gate.isOpen` into the submit gate
+  // therefore killed checkout for the whole ~33h the legacy gate stays closed,
+  // with no escape (the modal's reschedule button needs multi-day days, so it
+  // renders without one). Gate on the SELECTED date instead: the legacy gate's
+  // own deliveryDate is the next orderable Saturday, so anything at or after it
+  // is orderable. Missing dateString (defensive) ⇒ don't block; the modal still
+  // shows and the server still validates.
+  const legacySelectionExpired =
+    !hasMultiDay &&
+    (!delivery?.date ||
+      (typeof gate.deliveryDate?.dateString === "string" &&
+        delivery.date < gate.deliveryDate.dateString));
 
   // Phase 111 CHKP-04 D-30 — compute next available delivery for the
   // cutoff modal reschedule action. Uses Phase 106 timezone-correct
@@ -537,7 +523,14 @@ export default function CheckoutClient({
                         deliveryDays={deliveryDays}
                         onCutoffPassed={() => setShowCutoffModal(true)}
                         codEnabled={codEnabled}
-                        cutoffModalOpen={showCutoffModal || selectedCutoffPassed || !gate.isOpen}
+                        cutoffModalOpen={
+                          showCutoffModal ||
+                          selectedCutoffPassed ||
+                          // Multi-day: the gate rolls to the next open run, so
+                          // isOpen is false only when NO active run exists —
+                          // blocking is right. Legacy: judge the selection.
+                          (hasMultiDay ? !gate.isOpen : legacySelectionExpired)
+                        }
                       />
                     </m.div>
                   )}
