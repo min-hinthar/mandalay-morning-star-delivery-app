@@ -347,6 +347,10 @@ export function MenuContent({
         cutoffHour={cutoffHour ?? 15}
         deliveryDays={effectiveDays}
         routeHeadline={personalized && awareness ? routeDayHeadline(awareness) : null}
+        // The awareness behind the headline refreshes on a 60s tick while the
+        // banner's own gate ticks down to 10s near a cutoff — hand over the
+        // date so the banner can drop a headline the countdown has outrun.
+        routeHeadlineDate={awareness?.deliveryDateString ?? null}
       />
 
       {/* Welcome + referral offers */}

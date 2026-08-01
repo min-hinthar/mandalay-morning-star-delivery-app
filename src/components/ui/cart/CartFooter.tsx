@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { DeliveryCountdown } from "@/components/ui/delivery";
 import { CartSummary } from "./CartSummary";
 import type { DeliveryDayConfig } from "@/types/delivery";
+import { formatFloorDollars } from "@/lib/utils/format";
 
 // ============================================
 // CART FOOTER — split into a scrollable receipt + a pinned action bar.
@@ -197,15 +198,15 @@ export function CartActions({
             <p className="flex items-center justify-center gap-1.5 text-xs font-medium text-text-muted">
               <AlertTriangle className="h-3.5 w-3.5 shrink-0 text-amber-500" />$
               {(minimumOrder.shortfallCents / 100).toFixed(2)} below the $
-              {(minimumOrder.minimumCents / 100).toFixed(0)}
+              {formatFloorDollars(minimumOrder.minimumCents)}
               {minimumOrder.isExtendedMinimum ? " long-distance minimum" : " minimum"}
             </p>
             {minimumOrder.isExtendedMinimum && (
               <p className="mt-1 text-2xs leading-snug text-text-muted">
                 It&rsquo;s a long drive to you, so we group deliveries into bigger orders.{" "}
                 <span className="font-burmese" lang="my">
-                  ခရီးဝေးပို့ဆောင်မှုအတွက် အနည်းဆုံး ${(minimumOrder.minimumCents / 100).toFixed(0)}{" "}
-                  မှာယူပေးပါ။
+                  ခရီးဝေးပို့ဆောင်မှုအတွက် အနည်းဆုံး $
+                  {formatFloorDollars(minimumOrder.minimumCents)} မှာယူပေးပါ။
                 </span>
               </p>
             )}

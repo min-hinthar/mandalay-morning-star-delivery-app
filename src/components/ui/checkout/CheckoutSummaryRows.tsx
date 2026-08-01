@@ -7,6 +7,7 @@ import { useShallow } from "zustand/react/shallow";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { formatFloorDollars } from "@/lib/utils/format";
 
 /** A ledger row: muted label left, value right; subtle slide-in. */
 export function LedgerRow({
@@ -90,10 +91,10 @@ export function MinimumShortfallNotice({
             $90 order reads as a bug to a far customer. */}
         {minimumOrder.isExtendedMinimum && (
           <p className="mt-1 pl-6 text-xs leading-snug text-hero-ink-muted">
-            Deliveries to your area need a ${(minimumOrder.minimumCents / 100).toFixed(0)} minimum —
-            it&rsquo;s a long drive, so we group them into bigger orders.{" "}
+            Deliveries to your area need a ${formatFloorDollars(minimumOrder.minimumCents)} minimum
+            — it&rsquo;s a long drive, so we group them into bigger orders.{" "}
             <span className="font-burmese" lang="my">
-              ခရီးဝေးပို့ဆောင်မှုအတွက် အနည်းဆုံး ${(minimumOrder.minimumCents / 100).toFixed(0)}{" "}
+              ခရီးဝေးပို့ဆောင်မှုအတွက် အနည်းဆုံး ${formatFloorDollars(minimumOrder.minimumCents)}{" "}
               မှာယူပေးပါ။
             </span>
           </p>
