@@ -266,6 +266,9 @@ describe("POST /api/admin/routes — driver must exist and be active", () => {
     } as never);
   }
 
+  // Status + wording deliberately mirror PATCH /api/admin/orders/[id]/driver
+  // (404 unknown / 400 inactive) so the two admin assignment paths can't report
+  // the same condition differently.
   it("rejects an unknown driver id before touching orders", async () => {
     mockDriverLookup(null);
 
@@ -273,7 +276,7 @@ describe("POST /api/admin/routes — driver must exist and be active", () => {
       makeReq({ deliveryDate: "2026-08-01", driverId: DRIVER_ID, orderIds: [OID] })
     );
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(404);
     expect((await res.json()).error).toMatch(/driver not found/i);
   });
 

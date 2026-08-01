@@ -31,12 +31,15 @@ export async function verifyAssignableDriver(
     return NextResponse.json({ error: "Failed to verify driver" }, { status: 500 });
   }
 
+  // Status codes and wording match PATCH /api/admin/orders/[id]/driver exactly
+  // (404 unknown / 400 inactive) so the two admin driver-assignment paths can't
+  // report the same condition differently.
   const driver = data as { id: string; is_active: boolean } | null;
   if (!driver) {
-    return NextResponse.json({ error: "Driver not found" }, { status: 400 });
+    return NextResponse.json({ error: "Driver not found" }, { status: 404 });
   }
   if (!driver.is_active) {
-    return NextResponse.json({ error: "Cannot assign an inactive driver" }, { status: 400 });
+    return NextResponse.json({ error: "Cannot assign inactive driver" }, { status: 400 });
   }
 
   return null;

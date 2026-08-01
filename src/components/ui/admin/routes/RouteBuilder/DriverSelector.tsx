@@ -64,17 +64,33 @@ function DriverAvatar({ driver }: { driver: DriverApiResponse }) {
 // DRIVER CARD
 // ============================================
 
+/**
+ * Three states, not two. `isDriverAvailable` returns TRUE for an empty
+ * `available_days` ("no restrictions = available all days"), which is the DB
+ * default — so a two-state green/grey dot confidently marked every
+ * freshly-onboarded driver as available, and a reason gated on `!isAvailable`
+ * never rendered for exactly the case this component needs to explain.
+ * "We haven't heard from them" is its own state.
+ */
+type AvailabilityState = "available" | "unknown" | "unavailable";
+
+const DOT_CLASS: Record<AvailabilityState, string> = {
+  available: "bg-green-500",
+  unknown: "bg-amber-500",
+  unavailable: "bg-text-muted",
+};
+
 function DriverCard({
   driver,
+  state,
   isSelected,
-  isAvailable,
   isSelectable,
   unavailableReason,
   onSelect,
 }: {
   driver: DriverApiResponse;
+  state: AvailabilityState;
   isSelected: boolean;
-  isAvailable: boolean;
   /**
    * Only a DEACTIVATED driver is a hard block. A driver who simply has no
    * schedule set, or isn't down for this date, stays selectable — the admin
@@ -102,7 +118,10 @@ function DriverCard({
         isSelected
           ? "border-accent-teal bg-accent-teal/5 ring-2 ring-accent-teal"
           : "border-border bg-surface-primary hover:bg-surface-secondary",
-        !isAvailable && "opacity-60",
+        // Dim only what's genuinely unavailable. An unset schedule is missing
+        // information, not a negative — dimming those would grey out the whole
+        // list on a fleet that has never filled schedules in.
+        state === "unavailable" && "opacity-60",
         !isSelectable && "cursor-not-allowed"
       )}
     >
@@ -112,7 +131,7 @@ function DriverCard({
           <div
             className={cn(
               "absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-surface-primary",
-              isAvailable ? "bg-green-500" : "bg-text-muted"
+              DOT_CLASS[state]
             )}
           />
         </div>
@@ -128,7 +147,7 @@ function DriverCard({
             <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
             <span className="text-xs text-text-muted">{driver.ratingAvg.toFixed(1)}</span>
           </div>
-          {!isAvailable && unavailableReason && (
+          {unavailableReason && (
             <p className="text-xs text-text-muted mt-0.5 truncate">{unavailableReason}</p>
           )}
         </div>
@@ -148,15 +167,36 @@ export function DriverSelector({
   deliveryDate,
 }: DriverSelectorProps) {
   const driversWithAvailability = drivers.map((driver) => {
+    // "No schedule set" is not the same as "declined this date" — the former is
+    // the DB default and says nothing about the driver.
+    const hasSchedule = (driver.availability?.available_days?.length ?? 0) > 0;
     const available = isDriverAvailable(driver.availability, deliveryDate);
-    return { driver, available };
+
+    let state: AvailabilityState = "available";
+    let unavailableReason: string | null = null;
+    if (!driver.isActive) {
+      state = "unavailable";
+      unavailableReason = "Inactive";
+    } else if (!hasSchedule) {
+      state = "unknown";
+      unavailableReason = "Schedule not set";
+    } else if (!available) {
+      state = "unavailable";
+      unavailableReason = "Unavailable on this date";
+    }
+
+    return { driver, state, unavailableReason };
   });
 
-  // Sort: available first, then unavailable
-  const sorted = [...driversWithAvailability].sort((a, b) => {
-    if (a.available === b.available) return 0;
-    return a.available ? -1 : 1;
-  });
+  // Sort: confirmed available first, unknown next, unavailable last.
+  const STATE_RANK: Record<AvailabilityState, number> = {
+    available: 0,
+    unknown: 1,
+    unavailable: 2,
+  };
+  const sorted = [...driversWithAvailability].sort(
+    (a, b) => STATE_RANK[a.state] - STATE_RANK[b.state]
+  );
 
   if (drivers.length === 0) {
     return (
@@ -181,31 +221,17 @@ export function DriverSelector({
       </div>
 
       <div className="grid grid-cols-1 gap-2">
-        {sorted.map(({ driver, available }) => {
-          // "No schedule set" is not the same as "declined this date" — the
-          // former is the DB default and says nothing about the driver.
-          const hasSchedule = (driver.availability?.available_days?.length ?? 0) > 0;
-          let unavailableReason: string | null = null;
-          if (!driver.isActive) {
-            unavailableReason = "Inactive";
-          } else if (!hasSchedule) {
-            unavailableReason = "Schedule not set";
-          } else if (!available) {
-            unavailableReason = "Unavailable on this date";
-          }
-
-          return (
-            <DriverCard
-              key={driver.id}
-              driver={driver}
-              isSelected={selectedDriverId === driver.id}
-              isAvailable={available && driver.isActive}
-              isSelectable={driver.isActive}
-              unavailableReason={unavailableReason}
-              onSelect={() => onSelect(selectedDriverId === driver.id ? null : driver.id)}
-            />
-          );
-        })}
+        {sorted.map(({ driver, state, unavailableReason }) => (
+          <DriverCard
+            key={driver.id}
+            driver={driver}
+            state={state}
+            isSelected={selectedDriverId === driver.id}
+            isSelectable={driver.isActive}
+            unavailableReason={unavailableReason}
+            onSelect={() => onSelect(selectedDriverId === driver.id ? null : driver.id)}
+          />
+        ))}
       </div>
 
       <p className="text-xs text-text-muted">
