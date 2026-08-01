@@ -39,6 +39,7 @@ import {
   badgeVariants,
   triggerHaptic,
 } from "@/lib/motion-tokens";
+import { formatFloorDollars } from "@/lib/utils/format";
 
 // ============================================
 // CONSTANTS
@@ -312,7 +313,7 @@ export function CartBar({
                 className="text-xs text-status-warning text-center px-4 pb-1"
               >
                 ${(shortfall / 100).toFixed(2)} more to reach $
-                {(effectiveMinimumCents / 100).toFixed(0)}
+                {formatFloorDollars(effectiveMinimumCents)}
                 {minimumOrder.isExtendedMinimum ? " long-distance" : ""} minimum
               </m.p>
             )}
