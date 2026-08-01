@@ -98,8 +98,14 @@ export function SelectedCutoffChip({
         ? "warning"
         : "normal";
   const cutoffLabel = cutoffTimeFormatter.format(cutoffDate);
+  // useCountdown's hours are TOTAL (no days field) — roll ≥48h into days so a
+  // far-out auto-selected run reads "4d 19h", never "115h".
   const remaining =
-    countdown.hours > 0 ? `${countdown.hours}h ${countdown.minutes}m` : `${countdown.minutes}m`;
+    countdown.hours >= 48
+      ? `${Math.floor(countdown.hours / 24)}d ${countdown.hours % 24}h`
+      : countdown.hours > 0
+        ? `${countdown.hours}h ${countdown.minutes}m`
+        : `${countdown.minutes}m`;
 
   const Icon = countdown.isPast ? AlertTriangle : Clock;
 
