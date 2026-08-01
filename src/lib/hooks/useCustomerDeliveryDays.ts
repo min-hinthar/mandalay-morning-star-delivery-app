@@ -30,6 +30,24 @@ import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 /** Awareness (headline copy) can outlive its run — re-derive on a timer. */
 const RECHECK_INTERVAL_MS = 60_000;
 
+/** Every field the gate/countdown consumers read — id alone misses admin edits. */
+function dayContentKey(d: DeliveryDayConfig): string {
+  return `${d.id}:${d.dayOfWeek}:${d.isActive}:${d.cutoffDay}:${d.cutoffHour}:${d.direction ?? ""}`;
+}
+
+/**
+ * Last successful DB resolution, module-scoped (stale-while-revalidate). The
+ * cart drawer mounts its content per OPEN, so without this every open starts
+ * from the generic all-days state for the fetch round-trip — a brief wrong
+ * countdown + enabled CTA flash for direction-scoped customers. Seeded before
+ * fetching; the fresh resolve then overwrites (incl. back to null on
+ * sign-out, since resolve() publishes whatever it finds).
+ */
+let cachedResolution: {
+  coords: { lat: number; lng: number } | null;
+  distance: number | null;
+} | null = null;
+
 export interface CustomerDeliveryDays {
   /** Direction-filtered days when personalized; the input list otherwise. */
   days: DeliveryDayConfig[];
@@ -101,20 +119,30 @@ export function useCustomerDeliveryDays(
         }
       }
 
-      const awareness = resolveRouteDayAwareness({
-        coords,
-        deliveryDays,
-        deliveryZones,
-        distanceMiles: distance,
-        maxRadiusMiles,
-      });
+      // Same zones gate as personalization above — resolveRouteDayAwareness
+      // falls back to DEFAULT_ZONES for empty input, and letting the two read
+      // the same prop differently is a latent trap for any future consumer of
+      // `awareness` that skips the `personalized` guard.
+      const awareness =
+        zones.length > 0
+          ? resolveRouteDayAwareness({
+              coords,
+              deliveryDays,
+              deliveryZones: zones,
+              distanceMiles: distance,
+              maxRadiusMiles,
+            })
+          : null;
 
       // filterDaysByDirection builds a fresh array per call, so an identity
-      // check would re-render every timer tick — compare displayed content.
+      // check would re-render every timer tick — compare displayed CONTENT.
+      // The comparison must cover every gate-relevant field, not just ids: an
+      // admin editing a day's cutoff hour (same ids) must propagate, or the
+      // countdown keeps the old deadline until remount.
       setResult((prev) =>
         prev.personalized === personalized &&
         prev.days.length === days.length &&
-        prev.days.every((d, i) => d.id === days[i].id) &&
+        prev.days.every((d, i) => dayContentKey(d) === dayContentKey(days[i])) &&
         prev.awareness?.deliveryDateString === awareness?.deliveryDateString &&
         prev.awareness?.cutoffText === awareness?.cutoffText &&
         prev.awareness?.routeLabel === awareness?.routeLabel
@@ -161,6 +189,7 @@ export function useCustomerDeliveryDays(
       if (cancelled || myGeneration !== generation) return;
       coordsRef.current = coords;
       distanceRef.current = distance;
+      cachedResolution = { coords, distance };
       applyResolved(coords);
     }
 
@@ -177,6 +206,15 @@ export function useCustomerDeliveryDays(
         cancelled = true;
         clearInterval(recheck);
       };
+    }
+
+    // Stale-while-revalidate: paint the last known resolution immediately so
+    // a remount (the drawer opens fresh each time) doesn't flash the generic
+    // gate while the round-trip runs; resolve() below refreshes it.
+    if (cachedResolution) {
+      coordsRef.current = cachedResolution.coords;
+      distanceRef.current = cachedResolution.distance;
+      applyResolved(cachedResolution.coords);
     }
 
     void resolve();
@@ -199,6 +237,11 @@ export function useCustomerDeliveryDays(
   }, [deliveryDays, deliveryZones, maxRadiusMiles, overrideLat, overrideLng, overrideDistance]);
 
   return result;
+}
+
+/** Test-only: clears the module-level stale-while-revalidate cache. */
+export function __resetCustomerDeliveryDaysCache(): void {
+  cachedResolution = null;
 }
 
 export default useCustomerDeliveryDays;

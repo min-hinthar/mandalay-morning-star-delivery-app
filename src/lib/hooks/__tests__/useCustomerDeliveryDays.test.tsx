@@ -63,7 +63,10 @@ vi.mock("@/lib/utils/delivery-zones", async () => {
   };
 });
 
-import { useCustomerDeliveryDays } from "../useCustomerDeliveryDays";
+import {
+  useCustomerDeliveryDays,
+  __resetCustomerDeliveryDaysCache,
+} from "../useCustomerDeliveryDays";
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -101,6 +104,7 @@ beforeEach(() => {
   mockAddressRow = null;
   mockDirections = [];
   authGetUserCalls = 0;
+  __resetCustomerDeliveryDaysCache();
 });
 
 function ids(days: DeliveryDayConfig[]): string[] {
@@ -200,6 +204,30 @@ describe("useCustomerDeliveryDays", () => {
       expect(ids(result.current.days)).toEqual(["mon", "wed", "sat"]);
     });
     expect(result.current.personalized).toBe(false);
+  });
+
+  it("propagates admin edits to a day's schedule fields (same ids, new cutoff)", async () => {
+    mockUser = { id: "user-1" };
+    mockAddressRow = VERIFIED_ROW;
+    mockDirections = ["west"];
+
+    const { result, rerender } = renderHook(
+      ({ days }: { days: DeliveryDayConfig[] }) => useCustomerDeliveryDays(days, ZONES, 100),
+      { initialProps: { days: DAYS } }
+    );
+    await waitFor(() => {
+      expect(result.current.personalized).toBe(true);
+    });
+    expect(result.current.days.find((d) => d.id === "wed")!.cutoffHour).toBe(23);
+
+    // Same ids, edited cutoff hour — the id-only comparison used to keep the
+    // stale objects until remount.
+    const edited = DAYS.map((d) => (d.id === "wed" ? { ...d, cutoffHour: 12 } : d));
+    rerender({ days: edited });
+
+    await waitFor(() => {
+      expect(result.current.days.find((d) => d.id === "wed")!.cutoffHour).toBe(12);
+    });
   });
 
   it("nearby address (empty directions) keeps every day, personalized", async () => {
