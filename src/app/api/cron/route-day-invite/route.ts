@@ -6,10 +6,14 @@
  * discount, no order counts, no social proof — the claim is purely the schedule,
  * so it's true and non-identifying at any volume.
  *
- * NOT registered in vercel.json on purpose: this is the only outbound MARKETING
- * send in the app, so it stays dormant until the owner adds a schedule entry.
- * Verify the audience first with `?dryRun=1`, which reports exactly who would be
- * mailed without sending anything.
+ * SCHEDULED in vercel.json at `30 16 * * *` (09:30 PDT / 08:30 PST — 5.5h/6.5h
+ * before a same-day 15:00 PT cutoff, inside the 2–20h window on both sides of
+ * DST; deliberately offset from loyalty-anniversary's 16:00 slot so one
+ * customer never gets two sends in the same minute). Scheduling was gated on
+ * two prerequisites, both since met: the notification_type enum migration
+ * applied to prod, and UNSUBSCRIBE_TOKEN_SECRET set in Vercel. Verify any
+ * audience/schedule change with `?dryRun=1`, which reports exactly who would
+ * be mailed without sending anything.
  *
  * Suppressions, in order: marketing opt-out, no deliverable email, no saved
  * coords, address not served by any upcoming run, cutoff outside the notice

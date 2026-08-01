@@ -18,13 +18,13 @@ across the five was fixed or explicitly justified in-PR (~15 findings over the s
 including two real saves: the #217 GET-prefetch scanner hole and #214's fourth
 `[]`-direction consumer).
 
-> **Two OWNER ACTIONS still open (both gate the route-day cron, nothing else):**
->
-> 1. **Apply #213's migration to prod** (`ALTER TYPE notification_type ADD VALUE IF NOT
-EXISTS 'route_day_invite';` — Supabase Studio SQL editor works; the delivery DB is
->    not MCP-reachable from sessions). Until then nothing emits the type, so it's inert.
-> 2. **Set `UNSUBSCRIBE_TOKEN_SECRET` in Vercel** (`openssl rand -base64 32`) before the
->    first marketing send — unset = one-click dormant, mail falls back to the settings link.
+> **Both owner actions DONE (2026-07-31):** the `notification_type` enum migration is
+> applied to prod and `UNSUBSCRIBE_TOKEN_SECRET` is set in Vercel. The route-day cron is
+> now **SCHEDULED** in `vercel.json` at `30 16 * * *` (09:30 PDT / 08:30 PST — 5.5h/6.5h
+> before a same-day 15:00 PT cutoff, inside the 2–20h notice window on both sides of DST;
+> offset from loyalty-anniversary's 16:00 slot so one customer never gets two sends in the
+> same minute). Verify the audience anytime without sending:
+> `curl -H "Authorization: Bearer $CRON_SECRET" "https://mandalaymorningstar.com/api/cron/route-day-invite?dryRun=1"`
 
 - **#213 — route_day_invite notification_type enum** (closes #208, branch
   `claude/route-day-invite-notification-type`). Migration + local `gen:types` (drift guard
