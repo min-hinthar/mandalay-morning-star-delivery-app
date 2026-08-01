@@ -359,7 +359,10 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
     // Soft delete by deactivating. Service client + row-count check: under RLS
     // this matched zero rows and still returned "Driver deleted successfully".
-    const { data: deletedRows, error: deleteError } = await createServiceClient()
+    // (Instantiated here rather than at the top of the handler so it still sits
+    // AFTER the admin gate — same ordering as PATCH, one local per handler.)
+    const db = createServiceClient();
+    const { data: deletedRows, error: deleteError } = await db
       .from("drivers")
       .update({ is_active: false })
       .eq("id", id)

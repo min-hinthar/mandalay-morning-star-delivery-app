@@ -240,15 +240,36 @@ export async function POST(request: NextRequest) {
             });
           }
 
+          // Report what LANDED, not what was attempted. `reactivated` and the
+          // message key off this write's outcome, not off the pre-write
+          // is_active: the details write is deliberately non-fatal, so without
+          // this an admin re-adding an archived driver could get a 200 saying
+          // "REACTIVATED" while the row stayed is_active=false and unassignable
+          // — the same silent partial-truth this PR fixes for the profile half
+          // of PATCH /[id].
+          const detailsSaved = !detailsError;
+          const wasArchived = !existingDriver.is_active;
+
+          let message: string;
+          if (!detailsSaved) {
+            message = wasArchived
+              ? "Account promoted to driver, but the driver record could not be updated — it is STILL ARCHIVED and cannot be assigned"
+              : "Account promoted to driver, but the vehicle details could not be saved";
+          } else if (wasArchived) {
+            message =
+              "Existing driver record repaired, promoted to driver, and REACTIVATED (it had been archived)";
+          } else {
+            message = "Existing driver record repaired — account promoted to driver";
+          }
+
           return NextResponse.json({
             id: existingDriver.id,
             userId: existingProfile.id,
             email,
             fullName,
-            reactivated: !existingDriver.is_active,
-            message: existingDriver.is_active
-              ? "Existing driver record repaired — account promoted to driver"
-              : "Existing driver record repaired, promoted to driver, and REACTIVATED (it had been archived)",
+            detailsSaved,
+            reactivated: detailsSaved && wasArchived,
+            message,
           });
         }
 

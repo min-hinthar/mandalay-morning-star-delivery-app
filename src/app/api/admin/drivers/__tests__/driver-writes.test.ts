@@ -267,21 +267,38 @@ function mockCreateContext(opts: {
   } as never);
 }
 
-/** Service client for the create path: promotion result + a delete spy. */
-function mockPromoteClient(promotedRows: Array<{ id: string }> | null) {
+/**
+ * Service client for the create path: promotion result + a delete spy.
+ * `driversUpdateError` makes the heal path's (non-fatal) drivers write fail, so
+ * a test can check the response doesn't claim what that write didn't do.
+ */
+function mockPromoteClient(
+  promotedRows: Array<{ id: string }> | null,
+  driversUpdateError?: { message: string }
+) {
   const del = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) });
   // `.update().eq()` is awaited bare for the heal path's vehicle-detail write
   // and `.select("id")`d for the role promotion — return a thenable carrying
   // `select` so both shapes resolve.
-  const eq = vi.fn().mockImplementation(() => {
-    const p = Promise.resolve({ data: promotedRows, error: null }) as Promise<unknown> & {
-      select?: () => Promise<unknown>;
-    };
-    p.select = () => Promise.resolve({ data: promotedRows, error: null });
-    return p;
-  });
-  const update = vi.fn().mockReturnValue({ eq });
-  const from = vi.fn(() => ({ update, delete: del }));
+  const makeEq = (error: { message: string } | null) =>
+    vi.fn().mockImplementation(() => {
+      const p = Promise.resolve({
+        data: error ? null : promotedRows,
+        error,
+      }) as Promise<unknown> & {
+        select?: () => Promise<unknown>;
+      };
+      p.select = () => Promise.resolve({ data: error ? null : promotedRows, error });
+      return p;
+    });
+
+  const update = vi.fn().mockReturnValue({ eq: makeEq(null) });
+  const driversUpdate = vi.fn().mockReturnValue({ eq: makeEq(driversUpdateError ?? null) });
+  const from = vi.fn((table: string) =>
+    table === "drivers"
+      ? { update: driversUpdateError ? driversUpdate : update, delete: del }
+      : { update, delete: del }
+  );
   createServiceClient.mockReturnValue({ from });
   return { from, update, del };
 }
@@ -432,6 +449,24 @@ describe("POST /admin/drivers — profile promotion", () => {
 
     expect(body.reactivated).toBe(true);
     expect(body.message).toMatch(/reactivated/i);
+  });
+
+  // The details write is deliberately non-fatal (the role promotion is the
+  // repair that matters), so the response must key off what LANDED — otherwise
+  // a 200 claims "REACTIVATED" on a row that is still archived and unassignable.
+  it("does not claim a reactivation the details write failed to make", async () => {
+    mockCreateContext({
+      profile: { id: "u-1", role: "customer" },
+      existingDriver: { id: "existing-driver", is_active: false },
+    });
+    mockPromoteClient([{ id: "u-1" }], { message: "drivers update failed" });
+
+    const body = await (await CREATE_DRIVER(createReq(NEW_DRIVER_BODY))).json();
+
+    expect(body.detailsSaved).toBe(false);
+    expect(body.reactivated).toBe(false);
+    expect(body.message).not.toMatch(/REACTIVATED \(/);
+    expect(body.message).toMatch(/still archived/i);
   });
 
   it("does not claim a reactivation when the driver was already active", async () => {
