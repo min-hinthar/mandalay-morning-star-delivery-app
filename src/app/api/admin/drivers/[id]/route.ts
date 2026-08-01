@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { updateDriverSchema, toggleDriverActiveSchema } from "@/lib/validations/driver";
 import { logger } from "@/lib/utils/logger";
 import type { ProfileRole, ProfilesRow } from "@/types/database";
@@ -156,19 +156,38 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     // Parse and validate request body
     const body = await request.json();
 
+    // Writes go through the SERVICE client. The admin identity above was proven
+    // with the caller's own session, but RLS grants UPDATE on `drivers` and
+    // `profiles` only to the row's owner:
+    //   drivers_update  USING (user_id = auth.uid())
+    //   profiles_update USING (id = auth.uid())
+    // — no is_admin() clause, unlike the matching insert/delete/select policies.
+    // So every admin write here matched ZERO rows: the toggle 500'd on
+    // .single(), and the field updates below reported success while changing
+    // nothing. Same pattern the driver-invite route and GET /admin/routes
+    // already use: authenticate with the user client, write with the service
+    // client, and scope every write by id explicitly.
+    const db = createServiceClient();
+
     // Check if this is an activation toggle
     const toggleResult = toggleDriverActiveSchema.safeParse(body);
     if (toggleResult.success) {
-      const { data: updatedDriver, error: updateError } = await supabase
+      const { data: updatedDriver, error: updateError } = await db
         .from("drivers")
         .update({ is_active: toggleResult.data.isActive })
         .eq("id", id)
-        .select()
-        .single();
+        .select("id, is_active")
+        .maybeSingle();
 
       if (updateError) {
         logger.exception(updateError, { api: "admin/drivers/[id]", flowId: "toggle-active" });
         return NextResponse.json({ error: "Failed to update driver" }, { status: 500 });
+      }
+
+      // No row matched — a missing driver is a 404, not a 500 (and never a
+      // silent success).
+      if (!updatedDriver) {
+        return NextResponse.json({ error: "Driver not found" }, { status: 404 });
       }
 
       return NextResponse.json({
@@ -209,16 +228,28 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (phone !== undefined) driverUpdate.phone = phone;
     if (profileImageUrl !== undefined) driverUpdate.profile_image_url = profileImageUrl;
 
-    // Update driver record if there are changes
+    // Update driver record if there are changes. `.select("id")` is what proves
+    // the write landed — a bare .update() reports no row count, so an update
+    // that matched nothing is indistinguishable from success (exactly how the
+    // RLS block above stayed invisible).
     if (Object.keys(driverUpdate).length > 0) {
-      const { error: driverUpdateError } = await supabase
+      const { data: updatedRows, error: driverUpdateError } = await db
         .from("drivers")
         .update(driverUpdate)
-        .eq("id", id);
+        .eq("id", id)
+        .select("id");
 
       if (driverUpdateError) {
         logger.exception(driverUpdateError, { api: "admin/drivers/[id]", flowId: "update-driver" });
         return NextResponse.json({ error: "Failed to update driver" }, { status: 500 });
+      }
+      if (!updatedRows || updatedRows.length === 0) {
+        logger.warn("Driver update affected no rows", {
+          api: "admin/drivers/[id]",
+          flowId: "update-driver",
+          driverId: id,
+        });
+        return NextResponse.json({ error: "Driver not found" }, { status: 404 });
       }
     }
 
@@ -227,24 +258,44 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (fullName !== undefined) profileUpdate.full_name = fullName;
     if (phone !== undefined) profileUpdate.phone = phone;
 
+    // Tracks whether the name/phone half actually landed. A zero-row or failed
+    // profile write must NOT 500 (the driver row above already committed —
+    // never fail a request for a secondary write that follows a successful
+    // primary one), but it must also not be reported as an unqualified success:
+    // the admin would see "updated successfully" for a name that didn't save.
+    let profileSaved = true;
+
     if (Object.keys(profileUpdate).length > 0) {
-      const { error: profileUpdateError } = await supabase
+      const { data: updatedProfiles, error: profileUpdateError } = await db
         .from("profiles")
         .update(profileUpdate)
-        .eq("id", existingDriver.user_id);
+        .eq("id", existingDriver.user_id)
+        .select("id");
 
       if (profileUpdateError) {
         logger.exception(profileUpdateError, {
           api: "admin/drivers/[id]",
           flowId: "update-profile",
         });
-        // Don't fail the whole request, driver update already succeeded
+        profileSaved = false;
+      } else if (!updatedProfiles || updatedProfiles.length === 0) {
+        // Surfaced rather than swallowed: the name/phone the admin typed did
+        // NOT persist, even though the driver row may have.
+        logger.warn("Driver profile update affected no rows", {
+          api: "admin/drivers/[id]",
+          flowId: "update-profile",
+          driverId: id,
+        });
+        profileSaved = false;
       }
     }
 
     return NextResponse.json({
       id,
-      message: "Driver updated successfully",
+      profileSaved,
+      message: profileSaved
+        ? "Driver updated successfully"
+        : "Vehicle details saved, but the name and phone could not be updated",
     });
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/[id]" });
@@ -306,15 +357,23 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Soft delete by deactivating
-    const { error: deleteError } = await supabase
+    // Soft delete by deactivating. Service client + row-count check: under RLS
+    // this matched zero rows and still returned "Driver deleted successfully".
+    // (Instantiated here rather than at the top of the handler so it still sits
+    // AFTER the admin gate — same ordering as PATCH, one local per handler.)
+    const db = createServiceClient();
+    const { data: deletedRows, error: deleteError } = await db
       .from("drivers")
       .update({ is_active: false })
-      .eq("id", id);
+      .eq("id", id)
+      .select("id");
 
     if (deleteError) {
       logger.exception(deleteError, { api: "admin/drivers/[id]", flowId: "delete" });
       return NextResponse.json({ error: "Failed to delete driver" }, { status: 500 });
+    }
+    if (!deletedRows || deletedRows.length === 0) {
+      return NextResponse.json({ error: "Driver not found" }, { status: 404 });
     }
 
     return NextResponse.json({

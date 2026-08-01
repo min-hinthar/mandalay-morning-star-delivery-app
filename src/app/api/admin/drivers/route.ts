@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/auth";
+import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { createDriverSchema } from "@/lib/validations/driver";
 import type { ProfilesRow } from "@/types/database";
@@ -142,30 +143,166 @@ export async function POST(request: NextRequest) {
 
     const { email, fullName, phone, vehicleType, licensePlate } = result.data;
 
+    // `phone`, `vehicleType` and `licensePlate` are all OPTIONAL in
+    // createDriverSchema, so `x ?? null` would WIPE a stored value whenever the
+    // admin re-submits the form without one — silent data loss on a request
+    // that reports success. Omit the column instead when nothing was submitted,
+    // so an absent field means "leave it alone".
+    //
+    // These are for UPDATES to a pre-existing row (the heal path). The INSERT
+    // below deliberately keeps `?? null`: there is nothing to preserve on a row
+    // being created, and an explicit null is the honest value.
+    const optionalPhone = phone ? { phone } : {};
+    // Written out rather than leaning on `vehicle_type: vehicleType as ... |
+    // null` evaluating to `undefined` and supabase-js dropping undefined keys.
+    // That works, but it makes correctness depend on serialization behaviour
+    // rather than on intent, and it reads as the opposite of what it does.
+    const optionalDriverFields = {
+      ...(vehicleType ? { vehicle_type: vehicleType as VehicleType } : {}),
+      ...(licensePlate ? { license_plate: licensePlate } : {}),
+      ...optionalPhone,
+    };
+
+    // One elevated client for the whole handler, matching PATCH
+    // /api/admin/drivers/[id]. Instantiated only AFTER requireAdmin() above —
+    // authz is always proven before elevation.
+    const db = createServiceClient();
+
     // Check if email already exists
     const { data: existingProfile } = await supabase
       .from("profiles")
-      .select("id")
+      .select("id, role")
       .eq("email", email)
       .single();
 
     if (existingProfile) {
-      // Check if already a driver
+      // `profiles.role` is a single enum, so promoting someone to `driver`
+      // NECESSARILY strips whatever they were. That was harmless while the
+      // promotion silently matched zero rows under profiles_update; now that
+      // it writes with the service client, adding an admin's email here would
+      // really demote them out of the admin app — from a form that gives no
+      // hint that's about to happen. Refuse and say so instead.
+      if (existingProfile.role === "admin") {
+        return NextResponse.json(
+          {
+            error:
+              "That email belongs to an admin account. Promoting it to driver would remove their admin access — change the role directly if that's intended.",
+          },
+          { status: 409 }
+        );
+      }
+
+      // `is_active` comes along so the heal path can report a reactivation
+      // instead of silently un-archiving.
       const { data: existingDriver } = await supabase
         .from("drivers")
-        .select("id")
+        .select("id, is_active")
         .eq("user_id", existingProfile.id)
         .single();
 
       if (existingDriver) {
+        // A driver row WITHOUT the matching profile role is the wreckage of the
+        // RLS bug this PR fixes: the insert succeeded (drivers_insert grants
+        // is_admin()) while the promotion silently matched zero rows. Those
+        // accounts show up in the driver picker but can't sign in to the driver
+        // app, and re-adding them was the natural fix an admin would reach for
+        // — which 409'd, leaving no way out. Heal it instead of rejecting.
+        if (existingProfile.role !== "driver") {
+          const { data: healed, error: healError } = await db
+            .from("profiles")
+            .update({ role: "driver", full_name: fullName, ...optionalPhone })
+            .eq("id", existingProfile.id)
+            .select("id");
+
+          if (healError || !healed || healed.length === 0) {
+            logger.exception(healError ?? new Error("Profile role repair affected no rows"), {
+              api: "admin/drivers",
+              flowId: "create-heal-role",
+              userId: existingProfile.id,
+            });
+            return NextResponse.json(
+              { error: "Could not promote the existing account to a driver role" },
+              { status: 500 }
+            );
+          }
+
+          // Honour the vehicle details the admin just typed. Without this the
+          // response says "repaired" while the pre-existing drivers row keeps
+          // its stale vehicle_type/license_plate — and correcting those is a
+          // plausible reason the admin re-submitted the form in the first
+          // place. Non-fatal: the role promotion above is the repair that
+          // matters, so a failure here is logged, not surfaced as a 500.
+          const { data: detailRows, error: detailsError } = await db
+            .from("drivers")
+            .update({
+              ...optionalDriverFields,
+              // Re-adding someone through the add-driver form IS a request to
+              // have them driving, so reactivating is the right value — but it
+              // must be said out loud rather than silently undoing a
+              // deliberate archive, hence the message below.
+              is_active: true,
+            })
+            .eq("id", existingDriver.id)
+            .select("id");
+
+          if (detailsError) {
+            logger.exception(detailsError, {
+              api: "admin/drivers",
+              flowId: "create-heal-details",
+              driverId: existingDriver.id,
+            });
+          }
+
+          // Report what LANDED, not what was attempted. `reactivated` and the
+          // message key off this write's outcome, not off the pre-write
+          // is_active: the details write is deliberately non-fatal, so without
+          // this an admin re-adding an archived driver could get a 200 saying
+          // "REACTIVATED" while the row stayed is_active=false and unassignable
+          // — the same silent partial-truth this PR fixes for the profile half
+          // of PATCH /[id].
+          // Row-count-checked like every other write in this PR, rather than
+          // keying off the error alone: `.update()` reports no row count, so a
+          // zero-row match carries NO error — and this is the flag whose entire
+          // job is knowing whether the write landed. Without the check it would
+          // have claimed "REACTIVATED" on a match of nothing.
+          const detailsSaved = !detailsError && (detailRows?.length ?? 0) > 0;
+          const wasArchived = !existingDriver.is_active;
+
+          let message: string;
+          if (!detailsSaved) {
+            message = wasArchived
+              ? "Account promoted to driver, but the driver record could not be updated — it is STILL ARCHIVED and cannot be assigned"
+              : "Account promoted to driver, but the vehicle details could not be saved";
+          } else if (wasArchived) {
+            message =
+              "Existing driver record repaired, promoted to driver, and REACTIVATED (it had been archived)";
+          } else {
+            message = "Existing driver record repaired — account promoted to driver";
+          }
+
+          return NextResponse.json({
+            id: existingDriver.id,
+            userId: existingProfile.id,
+            email,
+            fullName,
+            detailsSaved,
+            reactivated: detailsSaved && wasArchived,
+            message,
+          });
+        }
+
         return NextResponse.json(
           { error: "A driver with this email already exists" },
           { status: 409 }
         );
       }
 
-      // Create driver record for existing user
-      const { data: newDriver, error: driverError } = await supabase
+      // Create driver record for existing user. Uses the elevated client like
+      // every other write here — `drivers_insert` does grant is_admin() so the
+      // caller-scoped client works TODAY, but that is the one policy standing
+      // between this line and the exact silent zero-row failure the rest of
+      // this PR exists to fix. Don't leave one write depending on it.
+      const { data: newDriver, error: driverError } = await db
         .from("drivers")
         .insert({
           user_id: existingProfile.id,
@@ -182,11 +319,48 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: "Failed to create driver" }, { status: 500 });
       }
 
-      // Update profile role to driver
-      await supabase
+      // Promote the profile to `driver`. This MUST use the service client and
+      // MUST be checked: profiles_update grants UPDATE only to the row's owner
+      // (id = auth.uid()), so an admin promoting someone else matched zero rows
+      // — and the result was neither destructured nor awaited for errors. The
+      // drivers row was created (drivers_insert does grant is_admin()) so the
+      // person appeared in the driver picker, but their role stayed "customer"
+      // and they could never sign in to the driver app.
+      const { data: promotedRows, error: promoteError } = await db
         .from("profiles")
-        .update({ role: "driver", full_name: fullName, phone: phone ?? null })
-        .eq("id", existingProfile.id);
+        .update({ role: "driver", full_name: fullName, ...optionalPhone })
+        .eq("id", existingProfile.id)
+        .select("id");
+
+      if (promoteError || !promotedRows || promotedRows.length === 0) {
+        logger.exception(promoteError ?? new Error("Profile role update affected no rows"), {
+          api: "admin/drivers",
+          flowId: "create-promote-profile",
+          userId: existingProfile.id,
+        });
+        // Roll back the orphan so the state stays clean and a retry is
+        // actually possible — without this the drivers row survives, the
+        // profile stays a customer, and every retry 409s on the guard above.
+        // (Same rollback shape POST /api/admin/routes uses when stop creation
+        // fails after the route insert.) A compensating action that fails
+        // silently is worse than one that fails loudly — log it so a surviving
+        // orphan leaves a breadcrumb rather than only showing up later as a
+        // mysterious heal-path hit.
+        const { error: rollbackError } = await db.from("drivers").delete().eq("id", newDriver.id);
+
+        if (rollbackError) {
+          logger.exception(rollbackError, {
+            api: "admin/drivers",
+            flowId: "create-rollback-orphan",
+            driverId: newDriver.id,
+          });
+        }
+
+        return NextResponse.json(
+          { error: "Could not promote the account to a driver role — no changes were saved" },
+          { status: 500 }
+        );
+      }
 
       return NextResponse.json(
         {

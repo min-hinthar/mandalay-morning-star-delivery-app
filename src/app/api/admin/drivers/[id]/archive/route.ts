@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { archiveDriverSchema } from "@/lib/validations/driver";
 import { logger } from "@/lib/utils/logger";
 import type { ProfileRole } from "@/types/database";
@@ -106,14 +106,22 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
 
     // Archive the driver (soft delete by setting is_active = false)
     const archivedAt = new Date().toISOString();
-    const { error: updateError } = await supabase
+    // Service client + row-count check. Under RLS this UPDATE matched zero rows
+    // (drivers_update grants only the driver themselves), and because it had no
+    // .select() the zero-row result carried no error — so the endpoint returned
+    // 200 "Driver archived successfully" while is_active stayed true.
+    const { data: archivedRows, error: updateError } = await createServiceClient()
       .from("drivers")
       .update({ is_active: false })
-      .eq("id", id);
+      .eq("id", id)
+      .select("id");
 
     if (updateError) {
       logger.exception(updateError, { api: "admin/drivers/[id]/archive", flowId: "archive" });
       return NextResponse.json({ error: "Failed to archive driver" }, { status: 500 });
+    }
+    if (!archivedRows || archivedRows.length === 0) {
+      return NextResponse.json({ error: "Driver not found" }, { status: 404 });
     }
 
     // Log the archive action with reason for audit purposes
