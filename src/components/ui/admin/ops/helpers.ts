@@ -99,8 +99,15 @@ export function deriveDriverReadiness(driver: DriverInput, today: Date): DriverR
     return { ...base, unavailableReason: "Inactive" };
   }
 
-  if (!driver.availability) {
-    return { ...base, unavailableReason: "No availability set" };
+  // An EMPTY available_days is "never told us", not "declined every day".
+  // availability_json defaults to {"blocked_dates": [], "available_days": []}
+  // and only the driver's own /driver/schedule screen ever fills it in, so a
+  // freshly-onboarded driver hit the day check below and was reported as
+  // "Not available on Saturdays" — which reads as a refusal the driver never
+  // made, and sent the admin looking for a scheduling problem that didn't
+  // exist. Report the real state instead.
+  if (!driver.availability || driver.availability.available_days.length === 0) {
+    return { ...base, unavailableReason: "Schedule not set" };
   }
 
   const dayName = format(today, "EEEE").toLowerCase();

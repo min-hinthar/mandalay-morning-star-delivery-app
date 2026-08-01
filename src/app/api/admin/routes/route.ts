@@ -8,6 +8,7 @@ import type { RoutesRow, DriversRow, RouteStats } from "@/types/driver";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 import { optimizeRouteStops } from "@/lib/services/route-optimization";
 import { transformRouteForList } from "@/lib/utils/route-transformers";
+import { verifyAssignableDriver } from "./create-guards";
 
 interface RouteWithDriver extends RoutesRow {
   drivers:
@@ -185,6 +186,14 @@ export async function POST(request: NextRequest) {
     }
 
     const { deliveryDate, driverId, orderIds } = result.data;
+
+    if (driverId) {
+      const rejection = await verifyAssignableDriver(
+        () => supabase.from("drivers").select("id, is_active").eq("id", driverId).maybeSingle(),
+        driverId
+      );
+      if (rejection) return rejection;
+    }
 
     // Verify all orders exist and are in confirmed status
     const { data: orders, error: ordersError } = await supabase

@@ -68,24 +68,42 @@ function DriverCard({
   driver,
   isSelected,
   isAvailable,
+  isSelectable,
   unavailableReason,
   onSelect,
 }: {
   driver: DriverApiResponse;
   isSelected: boolean;
   isAvailable: boolean;
+  /**
+   * Only a DEACTIVATED driver is a hard block. A driver who simply has no
+   * schedule set, or isn't down for this date, stays selectable — the admin
+   * often knows they're working. Disabling every "unavailable" card would make
+   * assignment impossible whenever schedules are unset, which is the DB default
+   * (availability_json starts with an empty available_days and only the
+   * driver's own schedule screen fills it in).
+   */
+  isSelectable: boolean;
   unavailableReason: string | null;
   onSelect: () => void;
 }) {
   return (
     <button
+      type="button"
+      disabled={!isSelectable}
+      aria-label={
+        unavailableReason
+          ? `${driver.fullName ?? "Driver"} — ${unavailableReason}`
+          : (driver.fullName ?? "Driver")
+      }
       onClick={onSelect}
       className={cn(
         "w-full text-left rounded-xl p-3 border transition-all",
         isSelected
           ? "border-accent-teal bg-accent-teal/5 ring-2 ring-accent-teal"
           : "border-border bg-surface-primary hover:bg-surface-secondary",
-        !isAvailable && "opacity-60"
+        !isAvailable && "opacity-60",
+        !isSelectable && "cursor-not-allowed"
       )}
     >
       <div className="flex items-center gap-3">
@@ -164,10 +182,14 @@ export function DriverSelector({
 
       <div className="grid grid-cols-1 gap-2">
         {sorted.map(({ driver, available }) => {
-          // Compute unavailable reason via simple check
+          // "No schedule set" is not the same as "declined this date" — the
+          // former is the DB default and says nothing about the driver.
+          const hasSchedule = (driver.availability?.available_days?.length ?? 0) > 0;
           let unavailableReason: string | null = null;
           if (!driver.isActive) {
             unavailableReason = "Inactive";
+          } else if (!hasSchedule) {
+            unavailableReason = "Schedule not set";
           } else if (!available) {
             unavailableReason = "Unavailable on this date";
           }
@@ -178,6 +200,7 @@ export function DriverSelector({
               driver={driver}
               isSelected={selectedDriverId === driver.id}
               isAvailable={available && driver.isActive}
+              isSelectable={driver.isActive}
               unavailableReason={unavailableReason}
               onSelect={() => onSelect(selectedDriverId === driver.id ? null : driver.id)}
             />
