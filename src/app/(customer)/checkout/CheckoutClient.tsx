@@ -18,7 +18,9 @@ import { menuQueryFn } from "@/lib/hooks/useMenu";
 import { addressesQueryFn } from "@/lib/hooks/useAddresses";
 import { CartNavigationGuard } from "@/components/ui/cart/CartNavigationGuard";
 import { CutoffModal } from "@/components/ui/delivery";
-import { getNextDeliveryDate } from "@/lib/utils/delivery-dates";
+import { getNextDeliveryDate, CUTOFF_SAFETY_BUFFER_MS } from "@/lib/utils/delivery-dates";
+import { getDirectionsForCoords, filterDaysByDirection } from "@/lib/utils/delivery-zones";
+import { resolveSelectedCutoff } from "@/components/ui/checkout/SelectedCutoffChip";
 import { spring } from "@/lib/motion-tokens";
 import {
   CheckoutStepperV8,
@@ -35,41 +37,8 @@ import { CheckoutRewardsCard } from "@/components/ui/checkout/CheckoutRewardsCar
 import { HeroCardLayers } from "@/components/ui/homepage/Hero/HeroCardLayers";
 import { OfferBanner } from "@/components/ui/referrals/OfferBanner";
 import type { CheckoutStep } from "@/types/checkout";
+import { stepVariants, STEPS } from "./checkoutStepMotion";
 import type { DeliveryDayConfig, DeliveryZoneConfig, TimeWindow } from "@/types/delivery";
-
-/**
- * Direction-aware step transition variants with scale morph and glow
- * - Forward (1): current slides left, new slides from right
- * - Backward (-1): current slides right, new slides from left
- * - Scale morph gives premium feel to transitions
- * - Subtle glow enhances visual interest
- *
- * Note: boxShadow values are ~--shadow-glow-primary equivalent,
- * kept numeric for Framer Motion interpolation between states.
- */
-/* eslint-disable no-restricted-syntax -- FM animation needs numeric boxShadow for interpolation */
-const stepVariants = {
-  initial: (direction: number) => ({
-    opacity: 0,
-    x: direction > 0 ? 100 : -100,
-    scale: 0.95,
-  }),
-  animate: {
-    opacity: 1,
-    x: 0,
-    scale: 1,
-    boxShadow: "0 0 30px rgba(164, 16, 52, 0.08)", // ~--shadow-glow-primary light
-  },
-  exit: (direction: number) => ({
-    opacity: 0,
-    x: direction > 0 ? -100 : 100,
-    scale: 0.95,
-    boxShadow: "0 0 0px rgba(164, 16, 52, 0)",
-  }),
-};
-/* eslint-enable no-restricted-syntax */
-
-const STEPS: CheckoutStep[] = ["address", "time", "payment"];
 
 interface CheckoutClientProps {
   timeWindows: TimeWindow[];
@@ -97,23 +66,73 @@ export default function CheckoutClient({
   const queryClient = useQueryClient();
   const { user, isLoading: authLoading } = useAuth();
   const { isEmpty } = useCart();
-  const { step, setStep, reset, setDelivery } = useCheckoutStore();
+  const { step, setStep, reset, setDelivery, address, delivery } = useCheckoutStore();
   const { shouldAnimate, getSpring } = useAnimationPreference();
+
+  // Address-aware day list: once an address is placed, every date this
+  // component reasons about (gate, modal's "next chance", reschedule target)
+  // must come from the days that actually serve it — the all-days list quotes
+  // deadlines and dates for runs that may not drive the customer's way.
+  // Mirrors TimeStepV8's filtering; `undefined` directions = no placeable
+  // address yet, `[]` = nearby (keeps every day via filterDaysByDirection).
+  // TRUTHY coord check, matching TimeStepV8 and CartDrawer: the addresses API
+  // converts null coords to 0, and `== null` would treat that 0,0 placeholder
+  // as a PLACED address — resolving a Gulf-of-Guinea bearing here while the
+  // picker (truthy) still showed every day, so checkout could claim "no run
+  // serves you" over a full date list. A real address can't sit at 0,0.
+  const addressDirections = useMemo(() => {
+    if (!address?.lat || !address?.lng || deliveryZones.length === 0) return undefined;
+    return getDirectionsForCoords(address.lat, address.lng, deliveryZones);
+  }, [address?.lat, address?.lng, deliveryZones]);
+
+  // Active rows only — mirrors TimeStepV8: an inactive row must neither count
+  // as "serving" nor defeat the no-serve detection.
+  const activeDays = useMemo(() => deliveryDays.filter((d) => d.isActive), [deliveryDays]);
+
+  const gateDays = useMemo(
+    () => (addressDirections ? filterDaysByDirection(addressDirections, activeDays) : activeDays),
+    [addressDirections, activeDays]
+  );
+
+  // No ACTIVE run serves the placed address — TimeStep renders its empty
+  // state; the CutoffModal ("ordering closed, next chance is…") would be the
+  // wrong story. With zero active days overall (legacy config, or every run
+  // switched off) this stays false so the legacy gate / closed-modal paths
+  // keep working.
+  const noServe = activeDays.length > 0 && addressDirections !== undefined && gateDays.length === 0;
 
   // Use multi-day gate when delivery days are configured, legacy otherwise
   const hasMultiDay = deliveryDays.length > 0;
   const legacyGate = useDeliveryGate(cutoffDay, cutoffHour);
-  const multiDayGate = useDeliveryGateMultiDay(deliveryDays);
+  const multiDayGate = useDeliveryGateMultiDay(gateDays.length > 0 ? gateDays : deliveryDays);
   const gate = hasMultiDay ? multiDayGate : legacyGate;
 
   const [showCutoffModal, setShowCutoffModal] = useState(false);
 
+  // LEGACY (no multi-day config) submit gate. The legacy gate's `isOpen` means
+  // "THIS Saturday's cutoff has passed" — NOT "ordering is impossible": the
+  // picker still offers the following Saturdays and the server accepts them
+  // (verified: Fri 4pm PT ⇒ isOpen false, yet 08-15 and 08-22 come back
+  // cutoffPassed:false). Folding a bare `!gate.isOpen` into the submit gate
+  // therefore killed checkout for the whole ~33h the legacy gate stays closed,
+  // with no escape (the modal's reschedule button needs multi-day days, so it
+  // renders without one). Gate on the SELECTED date instead: the legacy gate's
+  // own deliveryDate is the next orderable Saturday, so anything at or after it
+  // is orderable. Missing dateString (defensive) ⇒ don't block; the modal still
+  // shows and the server still validates.
+  const legacySelectionExpired =
+    !hasMultiDay &&
+    (!delivery?.date ||
+      (typeof gate.deliveryDate?.dateString === "string" &&
+        delivery.date < gate.deliveryDate.dateString));
+
   // Phase 111 CHKP-04 D-30 — compute next available delivery for the
   // cutoff modal reschedule action. Uses Phase 106 timezone-correct
-  // helper (NEVER use getUTCDay() — LA timezone bug).
-  const nextDelivery = useMemo(() => {
-    if (deliveryDays.length === 0) return undefined;
-    const next = getNextDeliveryDate(new Date(), deliveryDays);
+  // helper (NEVER use getUTCDay() — LA timezone bug). Address-aware: the
+  // reschedule target must be a day that serves the customer's address.
+  const computeNextDelivery = useCallback(() => {
+    if (gateDays.length === 0) return undefined;
+    const next = getNextDeliveryDate(new Date(), gateDays);
     if (!next) return undefined;
     // Build local-date ISO string (YYYY-MM-DD) — NOT toISOString()
     // (which would shift days near UTC midnight in LA timezone).
@@ -127,7 +146,17 @@ export default function CheckoutClient({
       day: "numeric",
     });
     return { dateString, displayDate };
-  }, [deliveryDays]);
+  }, [gateDays]);
+
+  // Wall-clock-derived, so it goes stale sitting in a memo: a checkout mounted
+  // at 2:50pm caches the imminent run; when the watcher opens the modal at
+  // 3pm, the button would still offer the now-closed date. `showCutoffModal`
+  // in the deps re-derives it at the moment it becomes visible.
+  const nextDelivery = useMemo(
+    () => computeNextDelivery(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- showCutoffModal forces a fresh wall-clock read on open
+    [computeNextDelivery, showCutoffModal]
+  );
 
   // Phase 111 CHKP-04 D-31 — compose setDelivery + setStep("time") + close modal.
   // Missing ANY of these three breaks the UX per D-31. D-32: auto-pick the
@@ -136,17 +165,20 @@ export default function CheckoutClient({
   // global). D-33: navigate to "time" step (not payment) so customer reviews
   // the new window before re-committing to payment.
   const handleReschedule = useCallback(() => {
-    if (!nextDelivery) return;
+    // Recompute at CLICK time — the displayed option may itself have aged
+    // while the modal sat open; the action must never seat a closed run.
+    const freshNext = computeNextDelivery();
+    if (!freshNext) return;
     if (timeWindows.length === 0) return;
     const firstWindow = timeWindows[0];
     setDelivery({
-      date: nextDelivery.dateString,
+      date: freshNext.dateString,
       windowStart: firstWindow.start,
       windowEnd: firstWindow.end,
     });
     setStep("time");
     setShowCutoffModal(false);
-  }, [nextDelivery, timeWindows, setDelivery, setStep]);
+  }, [computeNextDelivery, timeWindows, setDelivery, setStep]);
 
   // Phase 111 CFIX-09 + CHKP-02 — Live menu validation detects price changes
   // from polling. When non-empty, render PRICE_CHANGED banner explaining
@@ -261,12 +293,83 @@ export default function CheckoutClient({
     }
   };
 
-  // Show CutoffModal when ordering closes (on mount if past cutoff, or mid-session when gate flips)
+  // Show CutoffModal when ordering closes (on mount if past cutoff, or mid-session
+  // when gate flips). Suppressed for a no-serve address — TimeStep's empty state
+  // owns that story ("no runs your way"), not "ordering closed until {date}".
   useEffect(() => {
-    if (!gate.isOpen) {
+    if (!gate.isOpen && !noServe) {
       setShowCutoffModal(true);
     }
-  }, [gate.isOpen]);
+  }, [gate.isOpen, noServe]);
+
+  // Proactively surface the modal the moment the SELECTED date's own cutoff
+  // passes. The multi-day gate above rolls to the next open run when one
+  // closes, so its isOpen almost never flips mid-session — without this arm,
+  // a customer who picked Saturday at 2:50pm Friday types name/phone/tip and
+  // learns about the miss only from the server's CUTOFF_PASSED at Place
+  // Order. One timeout to (cutoff − safety buffer), re-checked against the
+  // live store so a reseated date (TimeStep revalidation) can't fire a stale
+  // modal.
+  const selectedCutoffMs = useMemo(() => {
+    const dateStr = delivery?.date;
+    if (!dateStr || deliveryDays.length === 0) return null;
+    const cutoff = resolveSelectedCutoff(dateStr, deliveryDays);
+    return cutoff ? cutoff.getTime() - CUTOFF_SAFETY_BUFFER_MS : null;
+  }, [delivery?.date, deliveryDays]);
+
+  // Sticky "the selected date's cutoff HAS passed" state — the modal alone
+  // isn't enough: dismissing it with "Got it" would re-enable Place Order
+  // while the expired date is still selected (the one-shot timeout doesn't
+  // re-arm), and the customer only learns again from the server's
+  // CUTOFF_PASSED. This flag keeps the submit disabled until the selection
+  // actually changes (reschedule, or TimeStep's revalidation reseat) — the
+  // effect below resets it whenever selectedCutoffMs re-derives.
+  const [selectedCutoffPassed, setSelectedCutoffPassed] = useState(false);
+
+  // The watcher keys on the DATE as well as the instant: two configured days
+  // can share one cutoff (e.g. Monday and Wednesday both closing Sunday 3pm),
+  // and a same-ms date switch would otherwise keep the OLD date in the fire()
+  // closure — whose store re-check then suppresses the modal for the new one.
+  const selectedDate = delivery?.date;
+  useEffect(() => {
+    setSelectedCutoffPassed(false); // fresh selection (or none) → valid again
+    // Explicit no-serve guard (belt): TimeStep clears the selection for a
+    // no-serve address, which already inerts this watcher — but don't rely on
+    // that ordering to keep the wrong modal from firing.
+    // Payment step only: while the TIME step is visible, TimeStep's own
+    // minute-tick revalidation reseats an expired date with the inline
+    // auto-move notice — popping this modal over it would double-surface the
+    // same event. Steps are keyed AnimatePresence children (one mounted at a
+    // time), so entering payment re-arms; an already-passed cutoff fires
+    // immediately on arrival.
+    if (noServe || selectedCutoffMs == null || !selectedDate || step !== "payment") return;
+    let id: ReturnType<typeof setTimeout> | undefined;
+    const fire = () => {
+      if (useCheckoutStore.getState().delivery?.date === selectedDate) {
+        setShowCutoffModal(true);
+        setSelectedCutoffPassed(true);
+      }
+    };
+    // setTimeout overflows (and fires ~immediately) past 2^31−1 ms — clamp and
+    // re-arm so a far-future cutoff waits instead of misfiring or going dead.
+    const MAX_DELAY_MS = 2 ** 31 - 1;
+    const arm = () => {
+      const ms = selectedCutoffMs - Date.now();
+      if (ms <= 0) {
+        fire();
+        return;
+      }
+      id = setTimeout(
+        () => {
+          if (Date.now() >= selectedCutoffMs) fire();
+          else arm();
+        },
+        Math.min(ms, MAX_DELAY_MS)
+      );
+    };
+    arm();
+    return () => clearTimeout(id);
+  }, [selectedCutoffMs, noServe, selectedDate, step]);
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -419,9 +522,17 @@ export default function CheckoutClient({
                         onBack={goToPrevStep}
                         disableGuard={disableGuard}
                         timeWindows={timeWindows}
+                        deliveryDays={deliveryDays}
                         onCutoffPassed={() => setShowCutoffModal(true)}
                         codEnabled={codEnabled}
-                        cutoffModalOpen={showCutoffModal}
+                        cutoffModalOpen={
+                          showCutoffModal ||
+                          selectedCutoffPassed ||
+                          // Multi-day: the gate rolls to the next open run, so
+                          // isOpen is false only when NO active run exists —
+                          // blocking is right. Legacy: judge the selection.
+                          (hasMultiDay ? !gate.isOpen : legacySelectionExpired)
+                        }
                       />
                     </m.div>
                   )}
@@ -457,7 +568,11 @@ export default function CheckoutClient({
       <CutoffModal
         isOpen={showCutoffModal}
         onClose={() => setShowCutoffModal(false)}
-        nextDeliveryDate={gate.deliveryDate.displayDate}
+        // Same fresh computation as the reschedule button — the gate's own
+        // deliveryDate refreshes on a 60s/10s poll, so at watcher-fire time
+        // its cached value can still NAME the just-expired run while the
+        // button (recomputed on modal open) offers the next valid one.
+        nextDeliveryDate={nextDelivery?.displayDate ?? gate.deliveryDate.displayDate}
         rescheduleOption={nextDelivery}
         onReschedule={handleReschedule}
       />

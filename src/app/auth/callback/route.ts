@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getRoleDashboard } from "@/lib/auth/role-redirect";
 import { resolveOAuthEmail } from "@/lib/auth/resolve-oauth-email";
 import { logger } from "@/lib/utils/logger";
+import { isSafeRedirect } from "@/lib/utils/safe-redirect";
 
 interface DriverInviteRow {
   id: string;
@@ -11,9 +12,6 @@ interface DriverInviteRow {
 }
 
 /** Validate that a redirect path is safe (no open redirect) */
-function isSafeRedirect(path: string): boolean {
-  return path.startsWith("/") && !path.startsWith("//") && !path.includes("://");
-}
 
 /**
  * Auth callback handler for Supabase Auth

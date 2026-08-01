@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import React from "react";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -126,26 +126,61 @@ vi.mock("@/lib/hooks/useNavigationGuard", () => ({
   }),
 }));
 
-// Mock delivery gates
+// Mock delivery gates — both are mutable refs so the address-aware modal
+// tests (multi-day) and the legacy sticky-gate test can flip them per test
+// (reset in afterEach).
+// `dateString` mirrors the real gate: in LEGACY mode it is the next ORDERABLE
+// Saturday (which is next week's once this week's cutoff passes), and the
+// submit gate compares the selected date against it.
+type GateMock = { isOpen: boolean; deliveryDate: { displayDate: string; dateString?: string } };
+const OPEN_GATE: GateMock = {
+  isOpen: true,
+  deliveryDate: { displayDate: "Saturday", dateString: "2026-08-08" },
+};
+let mockMultiDayGate: GateMock = OPEN_GATE;
+let mockLegacyGate: GateMock = OPEN_GATE;
 vi.mock("@/lib/hooks/useDeliveryGate", () => ({
-  useDeliveryGate: () => ({ isOpen: true, deliveryDate: { displayDate: "Saturday" } }),
-  useDeliveryGateMultiDay: () => ({ isOpen: true, deliveryDate: { displayDate: "Saturday" } }),
+  useDeliveryGate: () => mockLegacyGate,
+  useDeliveryGateMultiDay: () => mockMultiDayGate,
 }));
 
+// Direction resolution controlled per-test (only consulted when the mocked
+// store carries an address with coords AND deliveryZones is non-empty — so
+// pre-existing tests, which set neither, are untouched).
+let mockDirections: Array<"east" | "west" | "south"> = [];
+vi.mock("@/lib/utils/delivery-zones", async () => {
+  const actual = await vi.importActual<typeof import("@/lib/utils/delivery-zones")>(
+    "@/lib/utils/delivery-zones"
+  );
+  return {
+    ...actual,
+    getDirectionsForCoords: () => mockDirections,
+  };
+});
+
 // Mock checkout store — stable fn identity + spy accessor for assertions.
-// mockStep is a mutable ref so CHKP-03 prefetch tests can flip step per test.
+// mockStep is a mutable ref so CHKP-03 prefetch tests can flip step per test;
+// mockAddress/mockDelivery feed the address-aware gate + selected-cutoff
+// watcher (which reads live state via useCheckoutStore.getState()).
 let mockStep: "address" | "time" | "payment" = "address";
 const mockResetFn = vi.fn();
 const mockSetStepFn = vi.fn();
 const mockSetDeliveryFn = vi.fn();
-vi.mock("@/lib/stores/checkout-store", () => ({
-  useCheckoutStore: () => ({
+let mockAddress: { lat: number; lng: number } | undefined = undefined;
+let mockDelivery: { date: string; windowStart: string; windowEnd: string } | undefined = undefined;
+vi.mock("@/lib/stores/checkout-store", () => {
+  const buildState = () => ({
     step: mockStep,
     setStep: mockSetStepFn,
     reset: mockResetFn,
     setDelivery: mockSetDeliveryFn,
-  }),
-}));
+    address: mockAddress,
+    delivery: mockDelivery,
+  });
+  const useCheckoutStore = () => buildState();
+  useCheckoutStore.getState = buildState;
+  return { useCheckoutStore };
+});
 
 // Stub all checkout step components
 // Import the REAL EmptyCheckoutError before mocking the barrel,
@@ -157,11 +192,18 @@ import { EmptyCheckoutError as RealEmptyCheckoutError } from "@/components/ui/ch
 // onUpdateCart directly without needing to render the full banner DOM.
 const checkoutErrorBannerSpy = vi.fn();
 
+// Spy capturing PaymentStep props — the sticky selected-cutoff state asserts
+// against the cutoffModalOpen value the step receives.
+const paymentStepSpy = vi.fn();
+
 vi.mock("@/components/ui/checkout", () => ({
   CheckoutStepperV8: () => <div data-testid="stepper" />,
   AddressStep: () => <div data-testid="address-step" />,
   TimeStep: () => <div data-testid="time-step" />,
-  PaymentStep: () => <div data-testid="payment-step" />,
+  PaymentStep: (props: Record<string, unknown>) => {
+    paymentStepSpy(props);
+    return <div data-testid="payment-step" />;
+  },
   CheckoutSummary: () => <div data-testid="checkout-summary" />,
   // Render a testid wrapper so CheckoutClient tests can detect it in the DOM
   EmptyCheckoutError: () => (
@@ -766,5 +808,323 @@ describe("CHKP-03 — step prefetch", () => {
     // Empty cart short-circuits to EmptyCheckoutError before any prefetch
     // effect runs — but even if the effect ran, the isEmpty guard blocks it.
     expect(prefetchQuerySpy).not.toHaveBeenCalled();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Checkout day integrity — address-aware CutoffModal + selected-cutoff watcher
+// ---------------------------------------------------------------------------
+
+describe("day integrity — address-aware CutoffModal gating", () => {
+  const DIRECTIONAL_DAYS = [
+    {
+      id: "day-monday",
+      dayOfWeek: 1,
+      isActive: true,
+      cutoffDay: 0,
+      cutoffHour: 15,
+      deliveryFeeCents: 1500,
+      displayOrder: 0,
+      direction: "east" as const,
+    },
+    {
+      id: "day-wednesday",
+      dayOfWeek: 3,
+      isActive: true,
+      cutoffDay: 2,
+      cutoffHour: 15,
+      deliveryFeeCents: 1500,
+      displayOrder: 1,
+      direction: "west" as const,
+    },
+  ];
+  const ZONES = [
+    {
+      id: "z-east",
+      direction: "east" as const,
+      bearingStart: 45,
+      bearingEnd: 135,
+      referenceCities: [],
+    },
+  ];
+
+  beforeEach(() => {
+    cutoffModalSpy.mockClear();
+    mockIsEmpty = false;
+    mockStep = "address";
+    mockAddress = { lat: 34.09, lng: -117.89 };
+    mockDelivery = undefined;
+    mockCartStoreItems = [];
+  });
+
+  afterEach(() => {
+    mockMultiDayGate = OPEN_GATE;
+    mockAddress = undefined;
+    mockDelivery = undefined;
+    mockDirections = [];
+  });
+
+  it("suppresses the CutoffModal when NO run serves the placed address (noServe)", () => {
+    mockDirections = ["south"]; // neither east nor west day matches
+    mockMultiDayGate = { isOpen: false, deliveryDate: { displayDate: "Monday" } };
+
+    render(
+      <CheckoutClient timeWindows={[]} deliveryDays={DIRECTIONAL_DAYS} deliveryZones={ZONES} />
+    );
+
+    const props = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
+    expect(props.isOpen).toBe(false);
+  });
+
+  it("still shows the CutoffModal on a closed gate when the address IS served", () => {
+    mockDirections = ["east"];
+    mockMultiDayGate = { isOpen: false, deliveryDate: { displayDate: "Monday" } };
+
+    render(
+      <CheckoutClient timeWindows={[]} deliveryDays={DIRECTIONAL_DAYS} deliveryZones={ZONES} />
+    );
+
+    const props = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
+    expect(props.isOpen).toBe(true);
+  });
+
+  it("reschedule target comes from the days serving the address, not the all-days list", () => {
+    mockDirections = ["east"]; // only Monday serves — Wednesday must never be offered
+    const timeWindows = [{ start: "10:00", end: "12:00", label: "Morning" }];
+
+    render(
+      <CheckoutClient
+        timeWindows={timeWindows}
+        deliveryDays={DIRECTIONAL_DAYS}
+        deliveryZones={ZONES}
+      />
+    );
+
+    const props = cutoffModalSpy.mock.calls.at(-1)![0] as {
+      rescheduleOption?: { dateString: string };
+    };
+    expect(props.rescheduleOption).toBeDefined();
+    // Parse as LA-noon to avoid UTC day drift; 1 = Monday
+    const d = new Date(`${props.rescheduleOption!.dateString}T12:00:00-07:00`);
+    expect(d.getDay()).toBe(1);
+  });
+});
+
+describe("day integrity — selected-date cutoff watcher", () => {
+  const SATURDAY_DAY = [
+    {
+      id: "day-saturday",
+      dayOfWeek: 6,
+      isActive: true,
+      cutoffDay: 5,
+      cutoffHour: 15,
+      deliveryFeeCents: 1500,
+      displayOrder: 0,
+      direction: "all" as const,
+    },
+  ];
+
+  beforeEach(() => {
+    cutoffModalSpy.mockClear();
+    mockIsEmpty = false;
+    mockStep = "payment";
+    mockCartStoreItems = [];
+  });
+
+  afterEach(() => {
+    mockDelivery = undefined;
+  });
+
+  it("opens the modal immediately when the SELECTED date's cutoff already passed", () => {
+    // A long-past Saturday — its Friday-3PM cutoff is far behind us, while the
+    // (mocked) gate stays open: exactly the case the all-days gate never catches.
+    mockDelivery = { date: "2020-01-04", windowStart: "10:00", windowEnd: "12:00" };
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={SATURDAY_DAY} />);
+
+    const props = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
+    expect(props.isOpen).toBe(true);
+  });
+
+  it("stays quiet on the TIME step even for an expired date (TimeStep owns the reseat there)", () => {
+    // Same expired Saturday as the immediate-fire test, but the time step is
+    // visible: TimeStep's minute-tick revalidation reseats + shows the inline
+    // auto-move notice, so the watcher popping the modal over it would
+    // double-surface one event. The watcher arms only on the payment step.
+    mockStep = "time";
+    mockDelivery = { date: "2020-01-04", windowStart: "10:00", windowEnd: "12:00" };
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={SATURDAY_DAY} />);
+
+    const props = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
+    expect(props.isOpen).toBe(false);
+    mockStep = "payment";
+  });
+
+  it("stays quiet for a selected date whose cutoff is still ahead", () => {
+    mockDelivery = { date: "2100-01-02", windowStart: "10:00", windowEnd: "12:00" };
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={SATURDAY_DAY} />);
+
+    const props = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
+    expect(props.isOpen).toBe(false);
+  });
+
+  it("LEGACY mode: an EXPIRED/absent selection keeps Place Order blocked after dismissal", () => {
+    // deliveryDays empty = legacy Saturday config → no selectedCutoffMs, so
+    // the sticky flag can't engage; the selection check must hold the line.
+    // (useCanProceed does NOT require a delivery on the payment step, so a
+    // missing selection has to block here.)
+    mockDelivery = undefined;
+    mockLegacyGate = {
+      isOpen: false,
+      deliveryDate: { displayDate: "Saturday", dateString: "2026-08-15" },
+    };
+    paymentStepSpy.mockClear();
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={[]} />);
+
+    const modalProps = cutoffModalSpy.mock.calls.at(-1)![0] as {
+      isOpen: boolean;
+      onClose: () => void;
+    };
+    expect(modalProps.isOpen).toBe(true);
+    act(() => modalProps.onClose());
+
+    const stepProps = paymentStepSpy.mock.calls.at(-1)![0] as { cutoffModalOpen: boolean };
+    expect(stepProps.cutoffModalOpen).toBe(true);
+    mockLegacyGate = OPEN_GATE;
+  });
+
+  it("keeps Place Order blocked after dismissing the modal while the expired date is still selected", () => {
+    mockDelivery = { date: "2020-01-04", windowStart: "10:00", windowEnd: "12:00" };
+    paymentStepSpy.mockClear();
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={SATURDAY_DAY} />);
+
+    // Watcher fired: modal open, payment step gated.
+    let modalProps = cutoffModalSpy.mock.calls.at(-1)![0] as {
+      isOpen: boolean;
+      onClose: () => void;
+    };
+    expect(modalProps.isOpen).toBe(true);
+
+    // Customer clicks "Got it" — the modal closes, but the expired selection
+    // is unchanged, so the submit gate must STAY engaged.
+    act(() => modalProps.onClose());
+
+    modalProps = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean; onClose: () => void };
+    expect(modalProps.isOpen).toBe(false);
+    const stepProps = paymentStepSpy.mock.calls.at(-1)![0] as { cutoffModalOpen: boolean };
+    expect(stepProps.cutoffModalOpen).toBe(true);
+  });
+
+  it("LEGACY mode: a VALID later Saturday stays orderable while the gate reads closed", () => {
+    // The legacy gate's isOpen means "THIS Saturday's cutoff passed", not
+    // "ordering is impossible" — the picker still offers (and the server still
+    // accepts) the following Saturdays. Verified against the real helpers: at
+    // Fri 4pm PT, computeDeliveryGate(5,15).isOpen === false while
+    // getAvailableDeliveryDates returns 08-15 and 08-22 with cutoffPassed:false.
+    // A bare !gate.isOpen in the submit gate killed checkout for that whole
+    // window, with no reschedule escape (the modal's button needs multi-day
+    // days). Dismissing the modal must hand the customer back their valid date.
+    mockDelivery = { date: "2026-08-15", windowStart: "10:00", windowEnd: "12:00" };
+    mockLegacyGate = {
+      isOpen: false,
+      deliveryDate: { displayDate: "Saturday, August 15", dateString: "2026-08-15" },
+    };
+    paymentStepSpy.mockClear();
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={[]} />);
+
+    const modalProps = cutoffModalSpy.mock.calls.at(-1)![0] as {
+      isOpen: boolean;
+      onClose: () => void;
+    };
+    // The modal still tells the truth (this Saturday is closed) — but it is
+    // dismissible, and dismissal must NOT leave the submit gate engaged.
+    expect(modalProps.isOpen).toBe(true);
+    act(() => modalProps.onClose());
+
+    const stepProps = paymentStepSpy.mock.calls.at(-1)![0] as { cutoffModalOpen: boolean };
+    expect(stepProps.cutoffModalOpen).toBe(false);
+    mockLegacyGate = OPEN_GATE;
+  });
+
+  it("LEGACY mode: a selection BEFORE the next orderable Saturday stays blocked", () => {
+    // The sessionStorage-persisted date from before the cutoff passed.
+    mockDelivery = { date: "2026-08-08", windowStart: "10:00", windowEnd: "12:00" };
+    mockLegacyGate = {
+      isOpen: false,
+      deliveryDate: { displayDate: "Saturday, August 15", dateString: "2026-08-15" },
+    };
+    paymentStepSpy.mockClear();
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={[]} />);
+
+    const modalProps = cutoffModalSpy.mock.calls.at(-1)![0] as {
+      isOpen: boolean;
+      onClose: () => void;
+    };
+    act(() => modalProps.onClose());
+
+    const stepProps = paymentStepSpy.mock.calls.at(-1)![0] as { cutoffModalOpen: boolean };
+    expect(stepProps.cutoffModalOpen).toBe(true);
+    mockLegacyGate = OPEN_GATE;
+  });
+
+  it("re-arms on a same-instant date switch (two days sharing one cutoff)", () => {
+    // Monday + Wednesday runs both closing Sunday 3pm: switching dates leaves
+    // selectedCutoffMs numerically unchanged, so an instant-keyed watcher
+    // would keep the OLD date in its fire() closure — and the store re-check
+    // would then suppress the modal for the new date at cutoff time.
+    const sharedCutoffDays = [
+      {
+        id: "day-monday",
+        dayOfWeek: 1,
+        isActive: true,
+        cutoffDay: 0,
+        cutoffHour: 15,
+        deliveryFeeCents: 1500,
+        displayOrder: 0,
+        direction: "all" as const,
+      },
+      {
+        id: "day-wednesday",
+        dayOfWeek: 3,
+        isActive: true,
+        cutoffDay: 0,
+        cutoffHour: 15,
+        deliveryFeeCents: 1500,
+        displayOrder: 0,
+        direction: "all" as const,
+      },
+    ];
+    vi.useFakeTimers();
+    // One hour before the shared Sunday-3pm-PT cutoff (2100-01-03T23:00Z).
+    vi.setSystemTime(new Date("2100-01-03T22:00:00Z"));
+    paymentStepSpy.mockClear();
+    try {
+      mockDelivery = { date: "2100-01-04", windowStart: "10:00", windowEnd: "12:00" };
+      const { rerender } = render(
+        <CheckoutClient timeWindows={[]} deliveryDays={sharedCutoffDays} />
+      );
+      expect((cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean }).isOpen).toBe(false);
+
+      // Switch Monday → Wednesday before the cutoff passes.
+      mockDelivery = { date: "2100-01-06", windowStart: "10:00", windowEnd: "12:00" };
+      rerender(<CheckoutClient timeWindows={[]} deliveryDays={sharedCutoffDays} />);
+
+      act(() => {
+        vi.advanceTimersByTime(2 * 60 * 60 * 1000);
+      });
+
+      const modalProps = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
+      expect(modalProps.isOpen).toBe(true);
+      const stepProps = paymentStepSpy.mock.calls.at(-1)![0] as { cutoffModalOpen: boolean };
+      expect(stepProps.cutoffModalOpen).toBe(true);
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });

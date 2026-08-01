@@ -13,6 +13,11 @@ export default async function CustomerLayout({ children }: { children: ReactNode
   } = await supabase.auth.getUser();
 
   if (authError || !user) {
+    // Belt only — the middleware (src/lib/supabase/middleware.ts) redirects
+    // unauthenticated hits on these paths first, WITH ?next=<path> so the
+    // post-login flow returns the customer here. This layout cannot see the
+    // request path, so if it ever fires (middleware matcher gap), the
+    // destination is lost — keep the protected-path lists in sync.
     redirect("/login");
   }
 

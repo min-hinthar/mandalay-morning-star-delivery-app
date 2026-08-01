@@ -12,6 +12,7 @@ interface CheckoutStore extends CheckoutState {
   prevStep: () => void;
   setAddress: (address: Address) => void;
   setDelivery: (delivery: DeliverySelection) => void;
+  clearDelivery: () => void;
   setCustomerNotes: (notes: string) => void;
   setTipPercent: (percent: number | null) => void;
   setCustomTipCents: (cents: number) => void;
@@ -74,6 +75,11 @@ export const useCheckoutStore = create<CheckoutStore>()(
         useCartStore.getState().setAddressDistance(address.distanceMiles ?? null);
       },
       setDelivery: (delivery) => set({ delivery }),
+      // For when the stored date stops being valid (address swap to a route the
+      // date doesn't serve, or its cutoff passed) and no replacement exists —
+      // a cleared selection disables Continue via useCanProceed instead of
+      // letting a stale date ride to a server rejection at Place Order.
+      clearDelivery: () => set({ delivery: null }),
       setCustomerNotes: (notes) => set({ customerNotes: notes }),
 
       setTipPercent: (percent) => set({ tipPercent: percent }),
@@ -97,7 +103,23 @@ export const useCheckoutStore = create<CheckoutStore>()(
 
       setCustomerName: (name) => set({ customerName: name }),
 
-      reset: () => set(initialState),
+      reset: () => {
+        set(initialState);
+        // NOTE: deliberately does NOT clear the cart store's
+        // addressDistanceMiles. CheckoutClient calls reset() on every
+        // non-Stripe unmount — i.e. simply navigating /checkout → /menu — so
+        // clearing here made a far-address customer's cart silently fall back
+        // to LOCAL pricing for the rest of the session: the free-delivery
+        // meter promised FREE while the server would still charge the
+        // extended fee, and the drawer's minimum gate re-enabled the very
+        // cart checkout had just blocked. Keeping the last known distance is
+        // the conservative direction (it over-quotes, never baits) and it is
+        // self-correcting — setAddress rewrites it, and it is not persisted
+        // (cart partialize keeps only `items`), so it dies on reload.
+        // The real fix for the inverse staleness is to derive the distance
+        // from the resolved default address globally rather than treat it as
+        // a checkout-session artifact — tracked as a follow-up.
+      },
     }),
     {
       name: "checkout-store",

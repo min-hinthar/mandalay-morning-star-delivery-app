@@ -26,7 +26,7 @@ import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
 import { useTilt } from "@/components/ui/homepage/Hero/interactions";
 import { GoldLeaf } from "@/components/ui/GoldLeaf";
 import { PriceTicker } from "@/components/ui/PriceTicker";
-import { LedgerRow, FadeRow } from "./CheckoutSummaryRows";
+import { LedgerRow, FadeRow, MinimumShortfallNotice } from "./CheckoutSummaryRows";
 import { formatPrice } from "@/lib/utils/format";
 import { COVINA_TAX_RATE } from "@/lib/utils/order";
 import { wasVtNav } from "@/lib/navigation/view-transition-nav";
@@ -180,6 +180,9 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
             {/* Totals — on a perforated ledger */}
             <div className="space-y-3 px-5 pb-5 pt-4">
               <div className="checkout-perf checkout-rule-draw -mx-5 mb-1" aria-hidden="true" />
+
+              {/* Below-minimum warning — foreshadows the server's floor */}
+              <MinimumShortfallNotice shouldAnimate={shouldAnimate} getSpring={getSpring} />
 
               {/* Extended range notice */}
               {isExtendedRange && (

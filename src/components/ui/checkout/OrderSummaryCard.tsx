@@ -2,13 +2,16 @@
 
 import { MapPin, Clock } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
+import { SelectedCutoffChip } from "./SelectedCutoffChip";
 import { TimeSlotDisplay } from "./TimeSlotDisplay";
-import type { DeliverySelection, TimeWindow } from "@/types/delivery";
+import type { DeliveryDayConfig, DeliverySelection, TimeWindow } from "@/types/delivery";
 
 interface OrderSummaryCardProps {
   formattedAddress?: string;
   delivery: DeliverySelection | null;
   timeWindows: TimeWindow[];
+  /** When provided, shows the selected date's live order-by deadline */
+  deliveryDays?: DeliveryDayConfig[];
   className?: string;
 }
 
@@ -16,6 +19,7 @@ export function OrderSummaryCard({
   formattedAddress,
   delivery,
   timeWindows,
+  deliveryDays = [],
   className,
 }: OrderSummaryCardProps) {
   return (
@@ -45,11 +49,22 @@ export function OrderSummaryCard({
           </h3>
         </div>
         {delivery && (
-          <TimeSlotDisplay
-            selection={delivery}
-            timeWindows={timeWindows}
-            className="mt-1 bg-hero-clay/12 rounded-lg p-3 justify-center text-hero-ink"
-          />
+          <>
+            <TimeSlotDisplay
+              selection={delivery}
+              timeWindows={timeWindows}
+              className="mt-1 bg-hero-clay/12 rounded-lg p-3 justify-center text-hero-ink"
+            />
+            {/* Live deadline on the final step — the payment pane is where a
+                session lingers longest, and this order still needs to be
+                placed before the selected date's cutoff */}
+            <SelectedCutoffChip
+              dateString={delivery.date}
+              deliveryDays={deliveryDays}
+              variant="row"
+              className="mt-2 justify-center"
+            />
+          </>
         )}
       </div>
     </div>
