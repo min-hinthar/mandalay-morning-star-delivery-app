@@ -1,6 +1,9 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+/** Auth-only customer routes — mirrors the (customer) route group's layout guard. */
+const CUSTOMER_PROTECTED_PATHS = ["/checkout", "/cart", "/orders", "/account"];
+
 /**
  * Refresh Supabase auth session on every request and gate
  * /admin + /driver routes for unauthenticated users.
@@ -41,12 +44,32 @@ export async function updateSession(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // Gate protected routes for unauthenticated users
+  // Gate protected routes for unauthenticated users. Customer paths carry
+  // ?next= too: the (customer) layout's own redirect("/login") has no access
+  // to the request path, so a guest tapping "Proceed to Checkout" used to land
+  // on /login without a destination and get dumped back on /menu after signing
+  // in — cart intact but checkout intent gone. Redirecting here (with next=)
+  // runs before that layout guard, which stays as a belt.
   const path = request.nextUrl.pathname;
-  if (!user && (path.startsWith("/admin") || path.startsWith("/driver"))) {
+  // /orders/{token}/share is the deliberately-unauthenticated share page (the
+  // (public) route group, service-client read keyed on share_token) — its
+  // whole audience is logged-out recipients, so it must never bounce to login.
+  const isPublicOrderShare = /^\/orders\/[^/]+\/share\/?$/.test(path);
+  const isCustomerProtected =
+    !isPublicOrderShare &&
+    CUSTOMER_PROTECTED_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
+  // Same (public)-group collision class under /driver: onboard renders a
+  // logged-out "check your email" landing for invited drivers, deactivated is
+  // an informational page — neither may bounce to login.
+  const isPublicDriverPage = /^\/driver\/(onboard|deactivated)\/?$/.test(path);
+  const isDriverProtected = !isPublicDriverPage && path.startsWith("/driver");
+  if (!user && (path.startsWith("/admin") || isDriverProtected || isCustomerProtected)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("next", path);
+    // Path + query, not just path: /orders/{id}/confirmation?session_id=…
+    // (Stripe return with an expired session) is useless without its params.
+    url.search = "";
+    url.searchParams.set("next", `${path}${request.nextUrl.search}`);
     return NextResponse.redirect(url);
   }
 

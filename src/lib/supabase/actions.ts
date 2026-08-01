@@ -13,6 +13,7 @@ import { getResendClient } from "@/lib/email/client";
 import { EMAIL_FROM, EMAIL_REPLY_TO } from "@/lib/email/constants";
 import { MagicLinkLogin } from "@/emails/MagicLinkLogin";
 import { getRoleDashboard } from "@/lib/auth/role-redirect";
+import { isSafeRedirect } from "@/lib/utils/safe-redirect";
 
 export interface ActionResult {
   error?: string;
@@ -24,9 +25,6 @@ function stripWww(url: string): string {
 }
 
 /** Safe internal redirect path (no open-redirect / off-site jumps). */
-function isSafeRedirect(path: string): boolean {
-  return path.startsWith("/") && !path.startsWith("//") && !path.includes("://");
-}
 
 /**
  * Auth redirect URLs are normalized to the canonical apex host (no www, no

@@ -218,6 +218,7 @@ ComponentName/
 ## Gotchas (from learnings)
 
 - `void asyncFn()` killed on Vercel — use `await` or `after()` for fire-and-forget
+- **Adding a path prefix to the middleware auth gate must first audit the `(public)` route group for collisions** — route groups don't show in URLs, so `/orders/*` looks customer-only while `(public)/orders/[id]/share` (the logged-out share page) lives under the same prefix; gating it bounced every shared link to /login. Exempt exact public subpaths + pin with a guest-not-redirected test
 - Service client `auth.getUser()` returns null — use `auth.admin.getUserById()`
 - `!value` falsy check on numbers treats 0 as missing — use `value == null`
 - `getUTCDay()` wrong in LA timezone — use `getZonedDayOfWeek()` helper

@@ -68,6 +68,19 @@ vi.mock("@/lib/hooks/useCart", () => ({
   }),
 }));
 
+// Mock cart store — controllable minimum-order shortfall (selector-style)
+let mockShortfallCents = 0;
+vi.mock("@/lib/stores/cart-store", () => ({
+  useCartStore: (selector: (s: unknown) => unknown) =>
+    selector({
+      getMinimumOrder: () => ({
+        minimumCents: 2500,
+        shortfallCents: mockShortfallCents,
+        isExtendedMinimum: false,
+      }),
+    }),
+}));
+
 // Mock checkout store
 vi.mock("@/lib/stores/checkout-store", () => ({
   useCheckoutStore: () => ({
@@ -167,5 +180,37 @@ describe("PaymentStepV8 CFIX-03 submit button disabled contract", () => {
     const button = screen.getByRole("button", { name: /place order/i });
     // disabled attribute is set
     expect(button).toHaveAttribute("disabled");
+  });
+
+  it("Place Order button is disabled while the cart is below the order minimum", () => {
+    // An extended-range address selected mid-checkout raises the floor to the
+    // long-distance minimum — the shortfall notice must not be display-only.
+    mockShortfallCents = 7500;
+    try {
+      render(<PaymentStepV8 cutoffModalOpen={false} />);
+      const button = screen.getByRole("button", { name: /place order/i });
+      expect(button).toBeDisabled();
+    } finally {
+      mockShortfallCents = 0;
+    }
+  });
+
+  it("explains WHY Place Order is disabled, next to the button", () => {
+    // The full breakdown lives in CheckoutSummaryV8 (separate column, below
+    // the fold on mobile) — a disabled CTA with no adjacent reason is a dead
+    // end.
+    mockShortfallCents = 7500;
+    try {
+      render(<PaymentStepV8 cutoffModalOpen={false} />);
+      const notice = screen.getByRole("status");
+      expect(notice).toHaveTextContent(/Add \$75\.00 to reach the \$25 minimum/);
+    } finally {
+      mockShortfallCents = 0;
+    }
+  });
+
+  it("shows no shortfall explanation when the cart clears the minimum", () => {
+    render(<PaymentStepV8 cutoffModalOpen={false} />);
+    expect(screen.queryByRole("status")).toBeNull();
   });
 });
