@@ -11,7 +11,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { renderHook, waitFor } from "@testing-library/react";
+import { act, renderHook, waitFor } from "@testing-library/react";
 import { AuthRetryableFetchError } from "@supabase/supabase-js";
 import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 
@@ -355,6 +355,51 @@ describe("useCustomerDeliveryDays", () => {
     });
     expect(result.current.personalized).toBe(false);
     expect(ids(result.current.days)).toEqual(["mon", "wed", "sat"]);
+  });
+
+  it("captures a persistent outage ONCE, re-arming only after a successful resolve", async () => {
+    // Every visibilitychange re-fires resolve() across two live instances —
+    // an unsampled capture would drip an event per surface per flip for the
+    // whole outage. One capture per outage window, re-armed on recovery.
+    const flush = () =>
+      act(async () => {
+        await new Promise((r) => setTimeout(r, 0));
+      });
+    mockUser = { id: "user-1" };
+    mockAddressRow = VERIFIED_ROW;
+    mockDirections = ["west"];
+    const { result } = renderHook(() => useCustomerDeliveryDays(DAYS, ZONES, 100));
+    await waitFor(() => {
+      expect(result.current.personalized).toBe(true);
+    });
+
+    mockAddressError = { message: "permission denied for table addresses" };
+    document.dispatchEvent(new Event("visibilitychange"));
+    await flush();
+    await waitFor(() => {
+      expect(captureException).toHaveBeenCalledTimes(1);
+    });
+
+    // Second failing refresh in the same outage: no second event.
+    document.dispatchEvent(new Event("visibilitychange"));
+    await flush();
+    expect(captureException).toHaveBeenCalledTimes(1);
+
+    // Recovery (observable via the nearby-all day list) re-arms the capture.
+    mockAddressError = null;
+    mockDirections = [];
+    document.dispatchEvent(new Event("visibilitychange"));
+    await flush();
+    await waitFor(() => {
+      expect(ids(result.current.days)).toEqual(["mon", "wed", "sat"]);
+    });
+
+    mockAddressError = { message: "permission denied for table addresses" };
+    document.dispatchEvent(new Event("visibilitychange"));
+    await flush();
+    await waitFor(() => {
+      expect(captureException).toHaveBeenCalledTimes(2);
+    });
   });
 
   it("never replays the PREVIOUS user's coords when the new user's read fails", async () => {

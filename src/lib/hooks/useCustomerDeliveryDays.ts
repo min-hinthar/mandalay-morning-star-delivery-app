@@ -51,6 +51,15 @@ let cachedResolution: {
   distance: number | null;
 } | null = null;
 
+/**
+ * One-shot Sentry gate, module-scoped: a persistent read failure (RLS
+ * regression, renamed column) would otherwise fire once per hook instance on
+ * mount AND on every visibilitychange, across two live instances (menu +
+ * drawer) — a steady drip during exactly the outage you're firefighting.
+ * Capture the first failure, stay quiet until a resolve succeeds again.
+ */
+let captureArmed = true;
+
 export interface CustomerDeliveryDays {
   /** Direction-filtered days when personalized; the input list otherwise. */
   days: DeliveryDayConfig[];
@@ -217,8 +226,10 @@ export function useCustomerDeliveryDays(
         // A real persistent read failure (RLS regression, renamed column)
         // would otherwise silently degrade every signed-in customer with
         // zero telemetry — capture when we were actually online (offline is
-        // the expected fail-open path).
-        if (typeof navigator === "undefined" || navigator.onLine) {
+        // the expected fail-open path). One-shot until the next success so a
+        // broad outage doesn't drip an event per surface per visibility flip.
+        if (captureArmed && (typeof navigator === "undefined" || navigator.onLine)) {
+          captureArmed = false;
           import("@sentry/nextjs").then((s) => s.captureException(err)).catch(() => {});
         }
         if (cancelled || myGeneration !== generation) return;
@@ -246,6 +257,7 @@ export function useCustomerDeliveryDays(
         return;
       }
       if (cancelled || myGeneration !== generation) return;
+      captureArmed = true; // healthy again — re-arm for the next outage
       resolvePublished = true;
       coordsRef.current = coords;
       distanceRef.current = distance;
@@ -320,6 +332,7 @@ export function useCustomerDeliveryDays(
 /** Test-only: clears the module-level stale-while-revalidate cache. */
 export function __resetCustomerDeliveryDaysCache(): void {
   cachedResolution = null;
+  captureArmed = true;
 }
 
 export default useCustomerDeliveryDays;
