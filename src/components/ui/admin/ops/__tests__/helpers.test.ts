@@ -125,6 +125,38 @@ describe("deriveDriverReadiness", () => {
     const result = deriveDriverReadiness(driver, saturday);
     expect(result.isAvailable).toBe(false);
     expect(result.unavailableReason).toBe("Schedule not set");
+    // Drives the third visual state — without this the ops panel paints an
+    // unset schedule identically to a genuine refusal.
+    expect(result.scheduleUnknown).toBe(true);
+  });
+
+  it("does NOT mark a real decline as schedule-unknown", () => {
+    const declined = deriveDriverReadiness(
+      mockDriver({
+        isActive: true,
+        availability: { available_days: ["sunday"], blocked_dates: [] },
+      }),
+      new Date(2026, 2, 7)
+    );
+    expect(declined.scheduleUnknown).toBe(false);
+
+    const inactive = deriveDriverReadiness(
+      mockDriver({
+        isActive: false,
+        availability: { available_days: [], blocked_dates: [] },
+      }),
+      new Date(2026, 2, 7)
+    );
+    expect(inactive.scheduleUnknown).toBe(false);
+
+    const blocked = deriveDriverReadiness(
+      mockDriver({
+        isActive: true,
+        availability: { available_days: [], blocked_dates: ["2026-03-07"] },
+      }),
+      new Date(2026, 2, 7)
+    );
+    expect(blocked.scheduleUnknown).toBe(false);
   });
 
   it("returns unavailable when day not in available_days", () => {

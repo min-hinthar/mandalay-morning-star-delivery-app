@@ -188,18 +188,38 @@ export function OpsDriverPanel({ date }: { date?: string } = {}) {
                   href={`/admin/drivers/${driver.id}`}
                   className={cn(
                     "flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors",
-                    driver.isAvailable
-                      ? "border-green-200 bg-green-50/50 hover:bg-green-50"
-                      : "border-border bg-surface-secondary opacity-60 hover:opacity-80"
+                    driver.isAvailable && "border-green-200 bg-green-50/50 hover:bg-green-50",
+                    // An unset schedule is missing information, not a refusal —
+                    // so it is NOT dimmed. Dimming it would repeat, visually,
+                    // the exact false accusation this panel was fixed to stop
+                    // making in words.
+                    !driver.isAvailable &&
+                      driver.scheduleUnknown &&
+                      "border-border bg-surface-secondary hover:bg-surface-secondary/80",
+                    !driver.isAvailable &&
+                      !driver.scheduleUnknown &&
+                      "border-border bg-surface-secondary opacity-60 hover:opacity-80"
                   )}
                 >
-                  {/* Availability indicator */}
+                  {/* Availability indicator — three states, matching the route
+                      builder's DriverSelector: green available, amber unknown,
+                      grey unavailable. */}
                   <span
                     className={cn(
                       "h-2.5 w-2.5 shrink-0 rounded-full",
-                      driver.isAvailable ? "bg-green-500" : "bg-gray-300"
+                      driver.isAvailable
+                        ? "bg-green-500"
+                        : driver.scheduleUnknown
+                          ? "bg-amber-500"
+                          : "bg-gray-300"
                     )}
-                    aria-label={driver.isAvailable ? "Available" : "Unavailable"}
+                    aria-label={
+                      driver.isAvailable
+                        ? "Available"
+                        : driver.scheduleUnknown
+                          ? "Schedule not set"
+                          : "Unavailable"
+                    }
                   />
 
                   {/* Name */}

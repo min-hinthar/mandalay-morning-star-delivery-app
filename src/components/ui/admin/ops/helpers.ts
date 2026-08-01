@@ -28,6 +28,13 @@ export interface DriverReadiness {
   vehicleType: string | null;
   ratingAvg: number;
   isAvailable: boolean;
+  /**
+   * "We haven't heard from them" — distinct from both available and
+   * unavailable. Lets a consumer render the third state instead of collapsing
+   * an unset schedule into a refusal the driver never made, which is the whole
+   * point of the "Schedule not set" reason.
+   */
+  scheduleUnknown: boolean;
   unavailableReason: string | null;
 }
 
@@ -92,6 +99,7 @@ export function deriveDriverReadiness(driver: DriverInput, today: Date): DriverR
     vehicleType: driver.vehicleType,
     ratingAvg: driver.ratingAvg,
     isAvailable: false,
+    scheduleUnknown: false,
     unavailableReason: null,
   };
 
@@ -116,7 +124,7 @@ export function deriveDriverReadiness(driver: DriverInput, today: Date): DriverR
   // made, and sent the admin looking for a scheduling problem that didn't
   // exist. Report the real state instead.
   if (!driver.availability || driver.availability.available_days.length === 0) {
-    return { ...base, unavailableReason: "Schedule not set" };
+    return { ...base, scheduleUnknown: true, unavailableReason: "Schedule not set" };
   }
 
   const dayName = format(today, "EEEE").toLowerCase();
