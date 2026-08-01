@@ -10,7 +10,7 @@
  */
 
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { render, screen, act } from "@testing-library/react";
 import React from "react";
 import { queryKeys } from "@/lib/queryKeys";
 
@@ -183,11 +183,18 @@ import { EmptyCheckoutError as RealEmptyCheckoutError } from "@/components/ui/ch
 // onUpdateCart directly without needing to render the full banner DOM.
 const checkoutErrorBannerSpy = vi.fn();
 
+// Spy capturing PaymentStep props — the sticky selected-cutoff state asserts
+// against the cutoffModalOpen value the step receives.
+const paymentStepSpy = vi.fn();
+
 vi.mock("@/components/ui/checkout", () => ({
   CheckoutStepperV8: () => <div data-testid="stepper" />,
   AddressStep: () => <div data-testid="address-step" />,
   TimeStep: () => <div data-testid="time-step" />,
-  PaymentStep: () => <div data-testid="payment-step" />,
+  PaymentStep: (props: Record<string, unknown>) => {
+    paymentStepSpy(props);
+    return <div data-testid="payment-step" />;
+  },
   CheckoutSummary: () => <div data-testid="checkout-summary" />,
   // Render a testid wrapper so CheckoutClient tests can detect it in the DOM
   EmptyCheckoutError: () => (
@@ -937,5 +944,28 @@ describe("day integrity — selected-date cutoff watcher", () => {
 
     const props = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean };
     expect(props.isOpen).toBe(false);
+  });
+
+  it("keeps Place Order blocked after dismissing the modal while the expired date is still selected", () => {
+    mockDelivery = { date: "2020-01-04", windowStart: "10:00", windowEnd: "12:00" };
+    paymentStepSpy.mockClear();
+
+    render(<CheckoutClient timeWindows={[]} deliveryDays={SATURDAY_DAY} />);
+
+    // Watcher fired: modal open, payment step gated.
+    let modalProps = cutoffModalSpy.mock.calls.at(-1)![0] as {
+      isOpen: boolean;
+      onClose: () => void;
+    };
+    expect(modalProps.isOpen).toBe(true);
+
+    // Customer clicks "Got it" — the modal closes, but the expired selection
+    // is unchanged, so the submit gate must STAY engaged.
+    act(() => modalProps.onClose());
+
+    modalProps = cutoffModalSpy.mock.calls.at(-1)![0] as { isOpen: boolean; onClose: () => void };
+    expect(modalProps.isOpen).toBe(false);
+    const stepProps = paymentStepSpy.mock.calls.at(-1)![0] as { cutoffModalOpen: boolean };
+    expect(stepProps.cutoffModalOpen).toBe(true);
   });
 });

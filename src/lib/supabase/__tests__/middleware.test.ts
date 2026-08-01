@@ -56,11 +56,18 @@ describe("updateSession — unauthenticated redirects carry ?next=", () => {
   });
 
   it("still gates /admin and /driver with ?next=", async () => {
-    for (const path of ["/admin/orders", "/driver"]) {
+    for (const path of ["/admin/orders", "/driver", "/driver/routes/abc"]) {
       const res = await updateSession(req(path));
       const location = new URL(res.headers.get("location")!);
       expect(location.pathname).toBe("/login");
       expect(location.searchParams.get("next")).toBe(path);
+    }
+  });
+
+  it("does NOT redirect guests on the PUBLIC driver pages (onboard renders a logged-out landing)", async () => {
+    for (const path of ["/driver/onboard", "/driver/deactivated", "/driver/onboard/"]) {
+      const res = await updateSession(req(path));
+      expect(res.headers.get("location")).toBeNull();
     }
   });
 

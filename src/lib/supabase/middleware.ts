@@ -58,7 +58,12 @@ export async function updateSession(request: NextRequest) {
   const isCustomerProtected =
     !isPublicOrderShare &&
     CUSTOMER_PROTECTED_PATHS.some((p) => path === p || path.startsWith(`${p}/`));
-  if (!user && (path.startsWith("/admin") || path.startsWith("/driver") || isCustomerProtected)) {
+  // Same (public)-group collision class under /driver: onboard renders a
+  // logged-out "check your email" landing for invited drivers, deactivated is
+  // an informational page — neither may bounce to login.
+  const isPublicDriverPage = /^\/driver\/(onboard|deactivated)\/?$/.test(path);
+  const isDriverProtected = !isPublicDriverPage && path.startsWith("/driver");
+  if (!user && (path.startsWith("/admin") || isDriverProtected || isCustomerProtected)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
     // Path + query, not just path: /orders/{id}/confirmation?session_id=…

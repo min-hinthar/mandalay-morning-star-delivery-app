@@ -329,7 +329,17 @@ export default function CheckoutClient({
     return cutoff ? cutoff.getTime() - CUTOFF_SAFETY_BUFFER_MS : null;
   }, [delivery?.date, deliveryDays]);
 
+  // Sticky "the selected date's cutoff HAS passed" state — the modal alone
+  // isn't enough: dismissing it with "Got it" would re-enable Place Order
+  // while the expired date is still selected (the one-shot timeout doesn't
+  // re-arm), and the customer only learns again from the server's
+  // CUTOFF_PASSED. This flag keeps the submit disabled until the selection
+  // actually changes (reschedule, or TimeStep's revalidation reseat) — the
+  // effect below resets it whenever selectedCutoffMs re-derives.
+  const [selectedCutoffPassed, setSelectedCutoffPassed] = useState(false);
+
   useEffect(() => {
+    setSelectedCutoffPassed(false); // fresh selection (or none) → valid again
     // Explicit no-serve guard (belt): TimeStep clears the selection for a
     // no-serve address, which already inerts this watcher — but don't rely on
     // that ordering to keep the wrong modal from firing.
@@ -339,6 +349,7 @@ export default function CheckoutClient({
     const fire = () => {
       if (useCheckoutStore.getState().delivery?.date === selectedDate) {
         setShowCutoffModal(true);
+        setSelectedCutoffPassed(true);
       }
     };
     // setTimeout overflows (and fires ~immediately) past 2^31−1 ms — clamp and
@@ -516,7 +527,7 @@ export default function CheckoutClient({
                         deliveryDays={deliveryDays}
                         onCutoffPassed={() => setShowCutoffModal(true)}
                         codEnabled={codEnabled}
-                        cutoffModalOpen={showCutoffModal}
+                        cutoffModalOpen={showCutoffModal || selectedCutoffPassed}
                       />
                     </m.div>
                   )}
