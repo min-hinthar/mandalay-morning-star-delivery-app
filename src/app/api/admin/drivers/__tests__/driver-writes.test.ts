@@ -267,27 +267,26 @@ function mockCreateContext(opts: {
  */
 function mockPromoteClient(
   promotedRows: Array<{ id: string }> | null,
-  driversUpdateError?: { message: string },
+  driversUpdate?: { error?: { message: string }; rows?: Array<{ id: string }> },
   insertedDriverId = "new-driver"
 ) {
   const del = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) });
-  // `.update().eq()` is awaited bare for the heal path's vehicle-detail write
-  // and `.select("id")`d for the role promotion — return a thenable carrying
-  // `select` so both shapes resolve.
-  const makeEq = (error: { message: string } | null) =>
+  // `.update().eq()` is awaited bare in some places and `.select("id")`d in
+  // others — return a thenable carrying `select` so both shapes resolve.
+  const makeEq = (error: { message: string } | null, rows: Array<{ id: string }> | null) =>
     vi.fn().mockImplementation(() => {
-      const p = Promise.resolve({
-        data: error ? null : promotedRows,
-        error,
-      }) as Promise<unknown> & {
+      const answer = { data: error ? null : rows, error };
+      const p = Promise.resolve(answer) as Promise<unknown> & {
         select?: () => Promise<unknown>;
       };
-      p.select = () => Promise.resolve({ data: error ? null : promotedRows, error });
+      p.select = () => Promise.resolve(answer);
       return p;
     });
 
-  const update = vi.fn().mockReturnValue({ eq: makeEq(null) });
-  const driversUpdate = vi.fn().mockReturnValue({ eq: makeEq(driversUpdateError ?? null) });
+  const update = vi.fn().mockReturnValue({ eq: makeEq(null, promotedRows) });
+  const driversUpdateFn = vi.fn().mockReturnValue({
+    eq: makeEq(driversUpdate?.error ?? null, driversUpdate?.rows ?? promotedRows),
+  });
   // The new-driver INSERT goes through the SERVICE client too, so it lives here
   // rather than on the auth-client mock.
   const insert = vi.fn().mockReturnValue({
@@ -297,7 +296,7 @@ function mockPromoteClient(
   });
   const from = vi.fn((table: string) =>
     table === "drivers"
-      ? { update: driversUpdateError ? driversUpdate : update, delete: del, insert }
+      ? { update: driversUpdate ? driversUpdateFn : update, delete: del, insert }
       : { update, delete: del, insert }
   );
   createServiceClient.mockReturnValue({ from });
@@ -470,13 +469,30 @@ describe("POST /admin/drivers — profile promotion", () => {
       profile: { id: "u-1", role: "customer" },
       existingDriver: { id: "existing-driver", is_active: false },
     });
-    mockPromoteClient([{ id: "u-1" }], { message: "drivers update failed" });
+    mockPromoteClient([{ id: "u-1" }], { error: { message: "drivers update failed" } });
 
     const body = await (await CREATE_DRIVER(createReq(NEW_DRIVER_BODY))).json();
 
     expect(body.detailsSaved).toBe(false);
     expect(body.reactivated).toBe(false);
     expect(body.message).not.toMatch(/REACTIVATED \(/);
+    expect(body.message).toMatch(/still archived/i);
+  });
+
+  // A zero-row match carries NO error (the PR's own thesis), so `detailsSaved`
+  // has to observe the row count too or it would claim a reactivation that
+  // matched nothing.
+  it("does not claim a reactivation when the details write matched zero rows", async () => {
+    mockCreateContext({
+      profile: { id: "u-1", role: "customer" },
+      existingDriver: { id: "existing-driver", is_active: false },
+    });
+    mockPromoteClient([{ id: "u-1" }], { rows: [] });
+
+    const body = await (await CREATE_DRIVER(createReq(NEW_DRIVER_BODY))).json();
+
+    expect(body.detailsSaved).toBe(false);
+    expect(body.reactivated).toBe(false);
     expect(body.message).toMatch(/still archived/i);
   });
 

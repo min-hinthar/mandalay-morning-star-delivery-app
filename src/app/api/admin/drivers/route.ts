@@ -218,7 +218,7 @@ export async function POST(request: NextRequest) {
           // plausible reason the admin re-submitted the form in the first
           // place. Non-fatal: the role promotion above is the repair that
           // matters, so a failure here is logged, not surfaced as a 500.
-          const { error: detailsError } = await db
+          const { data: detailRows, error: detailsError } = await db
             .from("drivers")
             .update({
               vehicle_type: vehicleType as VehicleType | null,
@@ -230,7 +230,8 @@ export async function POST(request: NextRequest) {
               // deliberate archive, hence the message below.
               is_active: true,
             })
-            .eq("id", existingDriver.id);
+            .eq("id", existingDriver.id)
+            .select("id");
 
           if (detailsError) {
             logger.exception(detailsError, {
@@ -247,7 +248,12 @@ export async function POST(request: NextRequest) {
           // "REACTIVATED" while the row stayed is_active=false and unassignable
           // — the same silent partial-truth this PR fixes for the profile half
           // of PATCH /[id].
-          const detailsSaved = !detailsError;
+          // Row-count-checked like every other write in this PR, rather than
+          // keying off the error alone: `.update()` reports no row count, so a
+          // zero-row match carries NO error — and this is the flag whose entire
+          // job is knowing whether the write landed. Without the check it would
+          // have claimed "REACTIVATED" on a match of nothing.
+          const detailsSaved = !detailsError && (detailRows?.length ?? 0) > 0;
           const wasArchived = !existingDriver.is_active;
 
           let message: string;
