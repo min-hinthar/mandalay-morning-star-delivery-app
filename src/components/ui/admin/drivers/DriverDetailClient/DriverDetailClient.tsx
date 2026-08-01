@@ -129,7 +129,15 @@ export function DriverDetailClient() {
 
       if (!response.ok) throw new Error("Failed to update profile");
 
-      toast({ message: "Driver profile updated", type: "success" });
+      // The route can save the vehicle half while the name/phone half matches
+      // no rows — it deliberately doesn't 500, because the driver write already
+      // committed. A hardcoded green toast would then tell the admin their edit
+      // saved when it didn't, so report what the server actually says.
+      const result = (await response.json()) as { profileSaved?: boolean; message?: string };
+      toast({
+        message: result.message ?? "Driver profile updated",
+        type: result.profileSaved === false ? "warning" : "success",
+      });
       setShowEditModal(false);
       fetchDriver();
     } catch {

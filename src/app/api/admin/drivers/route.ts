@@ -143,6 +143,17 @@ export async function POST(request: NextRequest) {
 
     const { email, fullName, phone, vehicleType, licensePlate } = result.data;
 
+    // `phone` is OPTIONAL in createDriverSchema, so `phone ?? null` would WIPE a
+    // stored number whenever the admin re-submits the form without one — silent
+    // data loss on a request that reports success. Omit the column instead when
+    // nothing was submitted, so an absent field means "leave it alone".
+    const optionalPhone = phone ? { phone } : {};
+
+    // One elevated client for the whole handler, matching PATCH
+    // /api/admin/drivers/[id]. Instantiated only AFTER requireAdmin() above —
+    // authz is always proven before elevation.
+    const db = createServiceClient();
+
     // Check if email already exists
     const { data: existingProfile } = await supabase
       .from("profiles")
@@ -167,10 +178,11 @@ export async function POST(request: NextRequest) {
         );
       }
 
-      // Check if already a driver
+      // `is_active` comes along so the heal path can report a reactivation
+      // instead of silently un-archiving.
       const { data: existingDriver } = await supabase
         .from("drivers")
-        .select("id")
+        .select("id, is_active")
         .eq("user_id", existingProfile.id)
         .single();
 
@@ -182,9 +194,9 @@ export async function POST(request: NextRequest) {
         // app, and re-adding them was the natural fix an admin would reach for
         // — which 409'd, leaving no way out. Heal it instead of rejecting.
         if (existingProfile.role !== "driver") {
-          const { data: healed, error: healError } = await createServiceClient()
+          const { data: healed, error: healError } = await db
             .from("profiles")
-            .update({ role: "driver", full_name: fullName, phone: phone ?? null })
+            .update({ role: "driver", full_name: fullName, ...optionalPhone })
             .eq("id", existingProfile.id)
             .select("id");
 
@@ -206,12 +218,16 @@ export async function POST(request: NextRequest) {
           // plausible reason the admin re-submitted the form in the first
           // place. Non-fatal: the role promotion above is the repair that
           // matters, so a failure here is logged, not surfaced as a 500.
-          const { error: detailsError } = await createServiceClient()
+          const { error: detailsError } = await db
             .from("drivers")
             .update({
               vehicle_type: vehicleType as VehicleType | null,
               license_plate: licensePlate ?? null,
-              phone: phone ?? null,
+              ...optionalPhone,
+              // Re-adding someone through the add-driver form IS a request to
+              // have them driving, so reactivating is the right value — but it
+              // must be said out loud rather than silently undoing a
+              // deliberate archive, hence the message below.
               is_active: true,
             })
             .eq("id", existingDriver.id);
@@ -229,7 +245,10 @@ export async function POST(request: NextRequest) {
             userId: existingProfile.id,
             email,
             fullName,
-            message: "Existing driver record repaired — account promoted to driver",
+            reactivated: !existingDriver.is_active,
+            message: existingDriver.is_active
+              ? "Existing driver record repaired — account promoted to driver"
+              : "Existing driver record repaired, promoted to driver, and REACTIVATED (it had been archived)",
           });
         }
 
@@ -264,9 +283,9 @@ export async function POST(request: NextRequest) {
       // drivers row was created (drivers_insert does grant is_admin()) so the
       // person appeared in the driver picker, but their role stayed "customer"
       // and they could never sign in to the driver app.
-      const { data: promotedRows, error: promoteError } = await createServiceClient()
+      const { data: promotedRows, error: promoteError } = await db
         .from("profiles")
-        .update({ role: "driver", full_name: fullName, phone: phone ?? null })
+        .update({ role: "driver", full_name: fullName, ...optionalPhone })
         .eq("id", existingProfile.id)
         .select("id");
 
@@ -280,8 +299,19 @@ export async function POST(request: NextRequest) {
         // actually possible — without this the drivers row survives, the
         // profile stays a customer, and every retry 409s on the guard above.
         // (Same rollback shape POST /api/admin/routes uses when stop creation
-        // fails after the route insert.)
-        await createServiceClient().from("drivers").delete().eq("id", newDriver.id);
+        // fails after the route insert.) A compensating action that fails
+        // silently is worse than one that fails loudly — log it so a surviving
+        // orphan leaves a breadcrumb rather than only showing up later as a
+        // mysterious heal-path hit.
+        const { error: rollbackError } = await db.from("drivers").delete().eq("id", newDriver.id);
+
+        if (rollbackError) {
+          logger.exception(rollbackError, {
+            api: "admin/drivers",
+            flowId: "create-rollback-orphan",
+            driverId: newDriver.id,
+          });
+        }
 
         return NextResponse.json(
           { error: "Could not promote the account to a driver role — no changes were saved" },

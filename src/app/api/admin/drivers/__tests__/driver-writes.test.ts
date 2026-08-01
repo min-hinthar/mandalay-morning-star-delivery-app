@@ -95,15 +95,24 @@ function mockAuthClient(driverRow: Record<string, unknown> | null = { user_id: "
   return from;
 }
 
-/** Service client whose UPDATE resolves to `rows` (mimics a zero-match RLS result). */
-function mockServiceClient(rows: Array<Record<string, unknown>> | null) {
+/**
+ * Service client whose UPDATE resolves to `rows` (mimics a zero-match RLS
+ * result). `laterRows`, when given, answers every call AFTER the first — PATCH
+ * writes `drivers` then `profiles`, so it can model one landing and one not.
+ */
+function mockServiceClient(
+  rows: Array<Record<string, unknown>> | null,
+  laterRows?: Array<Record<string, unknown>> | null
+) {
+  let call = 0;
   // `.update().eq().select("id")` is awaited directly in some handlers and
   // `.maybeSingle()`d in others — return a thenable that supports both.
   const select = vi.fn().mockImplementation(() => {
-    const p = Promise.resolve({ data: rows, error: null }) as Promise<unknown> & {
+    const answer = call++ === 0 || laterRows === undefined ? rows : laterRows;
+    const p = Promise.resolve({ data: answer, error: null }) as Promise<unknown> & {
       maybeSingle?: () => Promise<unknown>;
     };
-    p.maybeSingle = () => Promise.resolve({ data: rows?.[0] ?? null, error: null });
+    p.maybeSingle = () => Promise.resolve({ data: answer?.[0] ?? null, error: null });
     return p;
   });
   const update = vi.fn().mockReturnValue({ eq: vi.fn().mockReturnValue({ select }) });
@@ -163,6 +172,33 @@ describe("admin driver writes — service client + row verification", () => {
     expect(res.status).toBe(404);
   });
 
+  // The driver write commits first, so a failed profile write must NOT 500 —
+  // but "Driver updated successfully" would then be a partial truth about a
+  // name the admin watched not save.
+  it("does not report unqualified success when the profile half saved nothing", async () => {
+    mockAuthClient();
+    mockServiceClient([{ id: DRIVER_ID }], []);
+
+    const res = await PATCH(makeReq({ vehicleType: "van", fullName: "New Name" }), params);
+    const body = await res.json();
+
+    expect(res.status).toBe(200);
+    expect(body.profileSaved).toBe(false);
+    expect(body.message).not.toMatch(/^Driver updated successfully$/);
+  });
+
+  it("reports plain success when both halves landed", async () => {
+    mockAuthClient();
+    mockServiceClient([{ id: DRIVER_ID }]);
+
+    const body = await (
+      await PATCH(makeReq({ vehicleType: "van", fullName: "New Name" }), params)
+    ).json();
+
+    expect(body.profileSaved).toBe(true);
+    expect(body.message).toMatch(/updated successfully/i);
+  });
+
   it("DELETE succeeds through the service client when a row matched", async () => {
     mockAuthClient();
     mockServiceClient([{ id: DRIVER_ID }]);
@@ -192,7 +228,7 @@ import { requireAdmin } from "@/lib/auth";
  */
 function mockCreateContext(opts: {
   profile: { id: string; role: string } | null;
-  existingDriver: { id: string } | null;
+  existingDriver: { id: string; is_active?: boolean } | null;
   insertedDriverId?: string;
 }) {
   const from = vi.fn((table: string) => {
@@ -356,5 +392,58 @@ describe("POST /admin/drivers — profile promotion", () => {
 
     expect(res.status).toBe(409);
     expect(update).not.toHaveBeenCalled();
+  });
+
+  // `phone` is OPTIONAL in createDriverSchema, so `phone ?? null` would WIPE a
+  // stored number on any re-submit that omits it — silent data loss on a
+  // request that reports success. Absent means "leave it alone".
+  it("does not null a stored phone when the form omits one", async () => {
+    mockCreateContext({ profile: { id: "u-1", role: "customer" }, existingDriver: null });
+    const { update } = mockPromoteClient([{ id: "u-1" }]);
+    const { phone: _omitted, ...noPhone } = NEW_DRIVER_BODY;
+
+    await CREATE_DRIVER(createReq(noPhone));
+
+    for (const call of update.mock.calls) {
+      expect(call[0]).not.toHaveProperty("phone");
+    }
+  });
+
+  it("still writes the phone when one IS submitted", async () => {
+    mockCreateContext({ profile: { id: "u-1", role: "customer" }, existingDriver: null });
+    const { update } = mockPromoteClient([{ id: "u-1" }]);
+
+    await CREATE_DRIVER(createReq(NEW_DRIVER_BODY));
+
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({ phone: "6265551234" }));
+  });
+
+  // Re-adding through the add-driver form IS a request to have them driving, so
+  // reactivating is right — but it must be said, not done silently to a
+  // deliberate archive.
+  it("says so when the heal path reactivates an archived driver", async () => {
+    mockCreateContext({
+      profile: { id: "u-1", role: "customer" },
+      existingDriver: { id: "existing-driver", is_active: false },
+    });
+    mockPromoteClient([{ id: "u-1" }]);
+
+    const body = await (await CREATE_DRIVER(createReq(NEW_DRIVER_BODY))).json();
+
+    expect(body.reactivated).toBe(true);
+    expect(body.message).toMatch(/reactivated/i);
+  });
+
+  it("does not claim a reactivation when the driver was already active", async () => {
+    mockCreateContext({
+      profile: { id: "u-1", role: "customer" },
+      existingDriver: { id: "existing-driver", is_active: true },
+    });
+    mockPromoteClient([{ id: "u-1" }]);
+
+    const body = await (await CREATE_DRIVER(createReq(NEW_DRIVER_BODY))).json();
+
+    expect(body.reactivated).toBe(false);
+    expect(body.message).not.toMatch(/reactivated/i);
   });
 });

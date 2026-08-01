@@ -258,6 +258,13 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     if (fullName !== undefined) profileUpdate.full_name = fullName;
     if (phone !== undefined) profileUpdate.phone = phone;
 
+    // Tracks whether the name/phone half actually landed. A zero-row or failed
+    // profile write must NOT 500 (the driver row above already committed —
+    // never fail a request for a secondary write that follows a successful
+    // primary one), but it must also not be reported as an unqualified success:
+    // the admin would see "updated successfully" for a name that didn't save.
+    let profileSaved = true;
+
     if (Object.keys(profileUpdate).length > 0) {
       const { data: updatedProfiles, error: profileUpdateError } = await db
         .from("profiles")
@@ -270,7 +277,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           api: "admin/drivers/[id]",
           flowId: "update-profile",
         });
-        // Don't fail the whole request, driver update already succeeded
+        profileSaved = false;
       } else if (!updatedProfiles || updatedProfiles.length === 0) {
         // Surfaced rather than swallowed: the name/phone the admin typed did
         // NOT persist, even though the driver row may have.
@@ -279,12 +286,16 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           flowId: "update-profile",
           driverId: id,
         });
+        profileSaved = false;
       }
     }
 
     return NextResponse.json({
       id,
-      message: "Driver updated successfully",
+      profileSaved,
+      message: profileSaved
+        ? "Driver updated successfully"
+        : "Vehicle details saved, but the name and phone could not be updated",
     });
   } catch (error) {
     logger.exception(error, { api: "admin/drivers/[id]" });
