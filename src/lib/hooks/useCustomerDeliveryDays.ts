@@ -39,11 +39,13 @@ function dayContentKey(d: DeliveryDayConfig): string {
  * Last successful DB resolution, module-scoped (stale-while-revalidate). The
  * cart drawer mounts its content per OPEN, so without this every open starts
  * from the generic all-days state for the fetch round-trip — a brief wrong
- * countdown + enabled CTA flash for direction-scoped customers. Seeded before
- * fetching; the fresh resolve then overwrites (incl. back to null on
- * sign-out, since resolve() publishes whatever it finds).
+ * countdown + enabled CTA flash for direction-scoped customers. Keyed by
+ * USER: seeding checks the (local, no-network) session first, so a sign-out
+ * or account switch can never paint the previous user's route while the
+ * fresh resolve is in flight. The fresh resolve then overwrites.
  */
 let cachedResolution: {
+  userId: string | null;
   coords: { lat: number; lng: number } | null;
   distance: number | null;
 } | null = null;
@@ -99,6 +101,9 @@ export function useCustomerDeliveryDays(
     // otherwise publish last — pinning stale coords into the refs the minute
     // timer then replays indefinitely. Only the latest generation may publish.
     let generation = 0;
+    // Set once the first resolve() publishes — the async cache seed must
+    // never overwrite a fresher resolution that landed before it.
+    let resolvePublished = false;
 
     function applyResolved(coords: { lat: number; lng: number } | null) {
       const zones = deliveryZones ?? [];
@@ -155,11 +160,13 @@ export function useCustomerDeliveryDays(
       const myGeneration = ++generation;
       let coords: { lat: number; lng: number } | null = null;
       let distance: number | null = null;
+      let resolvedUserId: string | null = null;
       try {
         const supabase = createClient();
         const {
           data: { user },
         } = await supabase.auth.getUser();
+        resolvedUserId = user?.id ?? null;
         if (user) {
           // Same audience rule as the route-day-invite cron + RouteDayCallout:
           // verified default address, created_at tiebreak. Unverified is an
@@ -183,14 +190,42 @@ export function useCustomerDeliveryDays(
             distance = row.distance_miles ?? null;
           }
         }
-      } catch {
-        // Anonymous or offline — generic list.
+      } catch (err) {
+        // Offline / transient is the expected fail-open path (generic list).
+        // A real persistent read failure (RLS regression, renamed column)
+        // would otherwise silently degrade every signed-in customer with
+        // zero telemetry — capture when we were actually online.
+        if (typeof navigator === "undefined" || navigator.onLine) {
+          import("@sentry/nextjs").then((s) => s.captureException(err)).catch(() => {});
+        }
       }
       if (cancelled || myGeneration !== generation) return;
+      resolvePublished = true;
       coordsRef.current = coords;
       distanceRef.current = distance;
-      cachedResolution = { coords, distance };
+      cachedResolution = { userId: resolvedUserId, coords, distance };
       applyResolved(coords);
+    }
+
+    // Seed from the cache ONLY after confirming (via the local, no-network
+    // session read) that it belongs to the CURRENT user — a sign-out or
+    // account switch must never paint the previous user's route while the
+    // fresh resolve is in flight. resolvePublished guards ordering: a fresh
+    // resolve that lands first must not be overwritten by the stale seed.
+    async function seedFromCache() {
+      if (!cachedResolution) return;
+      try {
+        const {
+          data: { session },
+        } = await createClient().auth.getSession();
+        if (cancelled || resolvePublished || !cachedResolution) return;
+        if ((session?.user?.id ?? null) !== cachedResolution.userId) return;
+        coordsRef.current = cachedResolution.coords;
+        distanceRef.current = cachedResolution.distance;
+        applyResolved(cachedResolution.coords);
+      } catch {
+        // Seeding is best-effort — resolve() is already in flight.
+      }
     }
 
     if (overrideLat != null && overrideLng != null) {
@@ -208,15 +243,10 @@ export function useCustomerDeliveryDays(
       };
     }
 
-    // Stale-while-revalidate: paint the last known resolution immediately so
-    // a remount (the drawer opens fresh each time) doesn't flash the generic
-    // gate while the round-trip runs; resolve() below refreshes it.
-    if (cachedResolution) {
-      coordsRef.current = cachedResolution.coords;
-      distanceRef.current = cachedResolution.distance;
-      applyResolved(cachedResolution.coords);
-    }
-
+    // Stale-while-revalidate: paint the last known resolution (user-checked
+    // inside seedFromCache) so a remount doesn't flash the generic gate while
+    // the round-trip runs; resolve() refreshes it.
+    void seedFromCache();
     void resolve();
 
     // Focus re-fetches (sign-in/out, address edits in another tab); the timer

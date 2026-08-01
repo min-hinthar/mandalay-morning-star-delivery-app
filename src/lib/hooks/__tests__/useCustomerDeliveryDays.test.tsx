@@ -34,6 +34,8 @@ vi.mock("@/lib/supabase/client", () => ({
         authGetUserCalls += 1;
         return { data: { user: mockUser } };
       },
+      // Local session read used by the SWR-cache seed's user check.
+      getSession: async () => ({ data: { session: mockUser ? { user: mockUser } : null } }),
     },
     from: () => ({
       select: () => ({
@@ -204,6 +206,28 @@ describe("useCustomerDeliveryDays", () => {
       expect(ids(result.current.days)).toEqual(["mon", "wed", "sat"]);
     });
     expect(result.current.personalized).toBe(false);
+  });
+
+  it("never seeds one user's cached route for a DIFFERENT user (account switch)", async () => {
+    // User A (west, verified) resolves and populates the module cache.
+    mockUser = { id: "user-a" };
+    mockAddressRow = VERIFIED_ROW;
+    mockDirections = ["west"];
+    const first = renderHook(() => useCustomerDeliveryDays(DAYS, ZONES, 100));
+    await waitFor(() => {
+      expect(first.result.current.personalized).toBe(true);
+    });
+    first.unmount();
+
+    // User B signs in (no saved address) — A's cached west route must not
+    // paint, and the final state must be the generic list.
+    mockUser = { id: "user-b" };
+    mockAddressRow = null;
+    const second = renderHook(() => useCustomerDeliveryDays(DAYS, ZONES, 100));
+    await waitFor(() => {
+      expect(second.result.current.personalized).toBe(false);
+    });
+    expect(ids(second.result.current.days)).toEqual(["mon", "wed", "sat"]);
   });
 
   it("propagates admin edits to a day's schedule fields (same ids, new cutoff)", async () => {
