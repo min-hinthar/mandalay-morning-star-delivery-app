@@ -52,16 +52,23 @@ function order(id: string, extra: Record<string, unknown> = {}) {
   };
 }
 
-/** Mocks the orders query; the endpoint also issues a second count query. */
-function mockOrders(rows: Array<Record<string, unknown>>) {
+/**
+ * Mocks the orders query. When `?date=` is present the endpoint issues a
+ * SECOND query for the other-date badge counts, so `otherRows` feeds that one.
+ */
+function mockOrders(rows: Array<Record<string, unknown>>, otherRows?: Array<unknown>) {
   const chain: Record<string, unknown> = {};
   chain.select = vi.fn().mockReturnValue(chain);
   chain.in = vi.fn().mockReturnValue(chain);
   chain.gte = vi.fn().mockReturnValue(chain);
   chain.lt = vi.fn().mockReturnValue(chain);
+  chain.or = vi.fn().mockReturnValue(chain);
   chain.order = vi.fn().mockReturnValue(chain);
   chain.limit = vi.fn().mockReturnValue(chain);
-  chain.returns = vi.fn().mockResolvedValue({ data: rows, error: null });
+  chain.returns = vi
+    .fn()
+    .mockResolvedValueOnce({ data: rows, error: null })
+    .mockResolvedValue({ data: otherRows ?? [], error: null });
   chain.then = undefined;
 
   const from = vi.fn(() => chain);
@@ -122,5 +129,50 @@ describe("builder-orders — offers exactly what POST accepts", () => {
     mockOrders([order("o-cod", { payment_method: "cod", stripe_payment_intent_id: null })]);
 
     expect(await idsFrom(await GET(req()))).toContain("o-cod");
+  });
+
+  // The "N orders on other dates" badge is a promise about what switching
+  // dates would show. Counting rows the picker then hides sends the admin to
+  // a date that turns up empty.
+  it("counts only OFFERABLE orders in the other-date badge", async () => {
+    mockOrders(
+      [],
+      [
+        order("x-ok", { delivery_window_start: "2026-08-15T17:00:00Z" }),
+        order("x-unpaid", {
+          delivery_window_start: "2026-08-15T17:00:00Z",
+          stripe_payment_intent_id: null,
+        }),
+        order("x-active", {
+          delivery_window_start: "2026-08-15T17:00:00Z",
+          route_stops: [{ id: "s1", routes: { status: "assigned" } }],
+        }),
+      ]
+    );
+
+    const res = await GET(
+      new Request("http://localhost/api/admin/routes/builder-orders?date=2026-08-08")
+    );
+    const body = await res.json();
+
+    expect(body.otherDateCounts).toEqual({ "2026-08-15": 1 });
+  });
+
+  it("counts an other-date order whose only stop was on a COMPLETED route", async () => {
+    mockOrders(
+      [],
+      [
+        order("x-redeliver", {
+          delivery_window_start: "2026-08-15T17:00:00Z",
+          route_stops: [{ id: "s1", routes: { status: "completed" } }],
+        }),
+      ]
+    );
+
+    const res = await GET(
+      new Request("http://localhost/api/admin/routes/builder-orders?date=2026-08-08")
+    );
+
+    expect((await res.json()).otherDateCounts).toEqual({ "2026-08-15": 1 });
   });
 });

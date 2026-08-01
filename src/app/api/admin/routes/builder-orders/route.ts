@@ -8,7 +8,31 @@ import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
 // TYPES
 // ============================================
 
-interface OrderRow {
+/**
+ * The columns the offerability predicates need. Both the picker query and the
+ * other-date badge query select these, so the two can share one filter.
+ */
+interface OfferableColumns {
+  payment_method: string | null;
+  stripe_payment_intent_id: string | null;
+  refund_status: string | null;
+  route_stops: Array<{ id: string; routes: { status: string } | null }> | null;
+}
+
+/** SELECT fragment for `OfferableColumns` — keep the two in sync. */
+const OFFERABLE_COLUMNS = `
+  payment_method,
+  stripe_payment_intent_id,
+  refund_status,
+  route_stops (
+    id,
+    routes (
+      status
+    )
+  )
+`;
+
+interface OrderRow extends OfferableColumns {
   id: string;
   status: OrderStatus;
   total_cents: number;
@@ -26,11 +50,28 @@ interface OrderRow {
     lat: number | null;
     lng: number | null;
   } | null;
-  payment_method: string | null;
-  stripe_payment_intent_id: string | null;
-  refund_status: string | null;
-  route_stops: Array<{ id: string; routes: { status: string } | null }> | null;
 }
+
+// Offer exactly what POST /api/admin/routes will accept — no more, no less.
+//
+// (a) Active-route collision. This used to reject an order that had ANY
+//     route_stops row, including stops on COMPLETED routes, so an order that
+//     was skipped on a finished run could never be re-added for redelivery.
+//     POST only blocks stops whose route is not completed, and the comment
+//     here always claimed the same — now it actually does it.
+// (b) Payment. POST rejects the WHOLE batch when any order is an unpaid or
+//     fully-refunded card order, so leaving one in the picker let a single
+//     stale order 400 an otherwise-valid route. Unpaid orders are surfaced on
+//     the orders dashboard (with its "Payment not received" badge) — the route
+//     builder is not where you discover them.
+const isOnActiveRoute = (row: OfferableColumns) =>
+  (row.route_stops ?? []).some((stop) => stop.routes?.status !== "completed");
+
+const isUnpaid = (row: OfferableColumns) =>
+  row.payment_method !== "cod" && (!row.stripe_payment_intent_id || row.refund_status === "full");
+
+/** True when POST /api/admin/routes would accept this order into a route. */
+const isOfferable = (row: OfferableColumns) => !isOnActiveRoute(row) && !isUnpaid(row);
 
 // ============================================
 // GET /api/admin/routes/builder-orders
@@ -91,15 +132,7 @@ export async function GET(request: Request) {
           lat,
           lng
         ),
-        payment_method,
-        stripe_payment_intent_id,
-        refund_status,
-        route_stops (
-          id,
-          routes (
-            status
-          )
-        )
+        ${OFFERABLE_COLUMNS}
       `
       )
       .in("status", ["confirmed", "preparing"]);
@@ -118,62 +151,44 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
     }
 
-    // Offer exactly what POST /api/admin/routes will accept — no more, no less.
-    //
-    // (a) Active-route collision. This used to reject an order that had ANY
-    //     route_stops row, including stops on COMPLETED routes, so an order
-    //     that was skipped on a finished run could never be re-added for
-    //     redelivery. POST only blocks stops whose route is not completed, and
-    //     the comment here always claimed the same — now it actually does it.
-    // (b) Payment. POST rejects the WHOLE batch when any order is an unpaid or
-    //     fully-refunded card order, so leaving one in the picker let a single
-    //     stale order 400 an otherwise-valid route. Unpaid orders are surfaced
-    //     on the orders dashboard (with its "Payment not received" badge) —
-    //     the route builder is not where you discover them.
-    const isOnActiveRoute = (row: OrderRow) =>
-      (row.route_stops ?? []).some((stop) => stop.routes?.status !== "completed");
-    const isUnpaid = (row: OrderRow) =>
-      row.payment_method !== "cod" &&
-      (!row.stripe_payment_intent_id || row.refund_status === "full");
-
-    const mapped = (orders ?? [])
-      .filter((row) => !isOnActiveRoute(row) && !isUnpaid(row))
-      .map((row) => ({
-        id: row.id,
-        status: row.status,
-        totalCents: row.total_cents,
-        customerName: row.profiles?.full_name ?? null,
-        customerEmail: row.profiles?.email ?? "",
-        deliveryWindowStart: row.delivery_window_start,
-        deliveryWindowEnd: row.delivery_window_end,
-        itemCount: row.order_items.reduce((sum, i) => sum + i.quantity, 0),
-        lat: row.addresses?.lat ?? null,
-        lng: row.addresses?.lng ?? null,
-        addressLine1: row.addresses?.line_1 ?? null,
-        city: row.addresses?.city ?? null,
-      }));
+    const mapped = (orders ?? []).filter(isOfferable).map((row) => ({
+      id: row.id,
+      status: row.status,
+      totalCents: row.total_cents,
+      customerName: row.profiles?.full_name ?? null,
+      customerEmail: row.profiles?.email ?? "",
+      deliveryWindowStart: row.delivery_window_start,
+      deliveryWindowEnd: row.delivery_window_end,
+      itemCount: row.order_items.reduce((sum, i) => sum + i.quantity, 0),
+      lat: row.addresses?.lat ?? null,
+      lng: row.addresses?.lng ?? null,
+      addressLine1: row.addresses?.line_1 ?? null,
+      city: row.addresses?.city ?? null,
+    }));
 
     // Compute counts of unassigned orders on other dates when filtering by date
     let otherDateCounts: Record<string, number> | undefined;
     if (dateParam && startBound && endBound) {
+      // Same offerability rules as the picker above. This badge is a promise
+      // about what you'd find by switching dates, so counting rows the picker
+      // would then hide (a stop on a COMPLETED route, an unpaid card order)
+      // sends the admin to a date that turns up empty.
       const { data: otherOrders } = await supabase
         .from("orders")
-        .select("id, delivery_window_start, route_stops(id)")
+        .select(`id, delivery_window_start, ${OFFERABLE_COLUMNS}`)
         .in("status", ["confirmed", "preparing"])
         .or(`delivery_window_start.lt.${startBound},delivery_window_start.gte.${endBound}`)
         .limit(200)
         .returns<
-          {
+          ({
             id: string;
             delivery_window_start: string | null;
-            route_stops: { id: string }[] | null;
-          }[]
+          } & OfferableColumns)[]
         >();
 
       if (otherOrders) {
-        const unassignedOther = otherOrders.filter((o) => (o.route_stops?.length ?? 0) === 0);
         otherDateCounts = {};
-        for (const o of unassignedOther) {
+        for (const o of otherOrders.filter(isOfferable)) {
           if (o.delivery_window_start) {
             const d = o.delivery_window_start.split("T")[0];
             otherDateCounts[d] = (otherDateCounts[d] ?? 0) + 1;
