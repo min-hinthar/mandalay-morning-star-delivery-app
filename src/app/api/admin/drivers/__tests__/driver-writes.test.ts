@@ -234,11 +234,17 @@ function mockCreateContext(opts: {
 /** Service client for the create path: promotion result + a delete spy. */
 function mockPromoteClient(promotedRows: Array<{ id: string }> | null) {
   const del = vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) });
-  const update = vi.fn().mockReturnValue({
-    eq: vi.fn().mockReturnValue({
-      select: vi.fn().mockResolvedValue({ data: promotedRows, error: null }),
-    }),
+  // `.update().eq()` is awaited bare for the heal path's vehicle-detail write
+  // and `.select("id")`d for the role promotion — return a thenable carrying
+  // `select` so both shapes resolve.
+  const eq = vi.fn().mockImplementation(() => {
+    const p = Promise.resolve({ data: promotedRows, error: null }) as Promise<unknown> & {
+      select?: () => Promise<unknown>;
+    };
+    p.select = () => Promise.resolve({ data: promotedRows, error: null });
+    return p;
   });
+  const update = vi.fn().mockReturnValue({ eq });
   const from = vi.fn(() => ({ update, delete: del }));
   createServiceClient.mockReturnValue({ from });
   return { from, update, del };
@@ -306,6 +312,10 @@ describe("POST /admin/drivers — profile promotion", () => {
     expect(res.status).toBe(200);
     expect(update).toHaveBeenCalledWith(expect.objectContaining({ role: "driver" }));
     expect((await res.json()).message).toMatch(/repaired/i);
+    // "Repaired" must honour the form: the pre-existing drivers row keeps its
+    // stale vehicle_type/license_plate otherwise, and correcting those is a
+    // plausible reason the admin re-submitted at all.
+    expect(update).toHaveBeenCalledWith(expect.objectContaining({ vehicle_type: "car" }));
   });
 
   it("still 409s a genuine duplicate (driver row AND driver role)", async () => {
@@ -318,5 +328,33 @@ describe("POST /admin/drivers — profile promotion", () => {
     const res = await CREATE_DRIVER(createReq(NEW_DRIVER_BODY));
 
     expect(res.status).toBe(409);
+  });
+
+  // `profiles.role` is a single enum, so "promote to driver" is also "strip
+  // admin". Under the old RLS-scoped write that was a silent no-op; with the
+  // service client it would really demote them, from a form that gives no
+  // warning. Refuse in BOTH create paths.
+  it("refuses to demote an admin when no drivers row exists yet", async () => {
+    mockCreateContext({ profile: { id: "u-1", role: "admin" }, existingDriver: null });
+    const { update } = mockPromoteClient([{ id: "u-1" }]);
+
+    const res = await CREATE_DRIVER(createReq(NEW_DRIVER_BODY));
+
+    expect(res.status).toBe(409);
+    expect((await res.json()).error).toMatch(/admin/i);
+    expect(update).not.toHaveBeenCalled();
+  });
+
+  it("refuses to demote an admin on the heal path too", async () => {
+    mockCreateContext({
+      profile: { id: "u-1", role: "admin" },
+      existingDriver: { id: "existing-driver" },
+    });
+    const { update } = mockPromoteClient([{ id: "u-1" }]);
+
+    const res = await CREATE_DRIVER(createReq(NEW_DRIVER_BODY));
+
+    expect(res.status).toBe(409);
+    expect(update).not.toHaveBeenCalled();
   });
 });

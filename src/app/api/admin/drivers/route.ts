@@ -151,6 +151,22 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (existingProfile) {
+      // `profiles.role` is a single enum, so promoting someone to `driver`
+      // NECESSARILY strips whatever they were. That was harmless while the
+      // promotion silently matched zero rows under profiles_update; now that
+      // it writes with the service client, adding an admin's email here would
+      // really demote them out of the admin app — from a form that gives no
+      // hint that's about to happen. Refuse and say so instead.
+      if (existingProfile.role === "admin") {
+        return NextResponse.json(
+          {
+            error:
+              "That email belongs to an admin account. Promoting it to driver would remove their admin access — change the role directly if that's intended.",
+          },
+          { status: 409 }
+        );
+      }
+
       // Check if already a driver
       const { data: existingDriver } = await supabase
         .from("drivers")
@@ -182,6 +198,30 @@ export async function POST(request: NextRequest) {
               { error: "Could not promote the existing account to a driver role" },
               { status: 500 }
             );
+          }
+
+          // Honour the vehicle details the admin just typed. Without this the
+          // response says "repaired" while the pre-existing drivers row keeps
+          // its stale vehicle_type/license_plate — and correcting those is a
+          // plausible reason the admin re-submitted the form in the first
+          // place. Non-fatal: the role promotion above is the repair that
+          // matters, so a failure here is logged, not surfaced as a 500.
+          const { error: detailsError } = await createServiceClient()
+            .from("drivers")
+            .update({
+              vehicle_type: vehicleType as VehicleType | null,
+              license_plate: licensePlate ?? null,
+              phone: phone ?? null,
+              is_active: true,
+            })
+            .eq("id", existingDriver.id);
+
+          if (detailsError) {
+            logger.exception(detailsError, {
+              api: "admin/drivers",
+              flowId: "create-heal-details",
+              driverId: existingDriver.id,
+            });
           }
 
           return NextResponse.json({
