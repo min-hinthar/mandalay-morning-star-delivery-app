@@ -26,6 +26,47 @@ import type { MapStop } from "@/components/ui/admin/routes/RouteBuilderMap";
 // SKELETON
 // ============================================
 
+/**
+ * Turn a failed create-route response into something the admin can act on.
+ *
+ * The API already returns WHICH orders blocked the batch (invalidOrderIds /
+ * unpaidOrderIds / assignedOrderIds) — the old handler read only the top-level
+ * `error` string and dropped them, so "Some orders are already assigned to
+ * active routes" left the admin to guess which of 30 selected orders it meant.
+ *
+ * Also stops assuming a non-OK body is JSON: a gateway 502/504 or an auth
+ * redirect returns HTML, and the bare `response.json()` threw a SyntaxError
+ * that surfaced as "Unexpected token '<'" instead of anything useful.
+ */
+async function describeRouteError(response: Response): Promise<string> {
+  let payload: Record<string, unknown> | null = null;
+  try {
+    payload = (await response.json()) as Record<string, unknown>;
+  } catch {
+    return `Failed to create route (server returned ${response.status})`;
+  }
+
+  const base = typeof payload?.error === "string" ? payload.error : "Failed to create route";
+  const idLists: Array<[string, string]> = [
+    ["unpaidOrderIds", "unpaid"],
+    ["invalidOrderIds", "not ready"],
+    ["assignedOrderIds", "already routed"],
+  ];
+
+  const details = idLists
+    .map(([key, label]) => {
+      const ids = payload?.[key];
+      if (!Array.isArray(ids) || ids.length === 0) return null;
+      // Short ids keep the toast readable; the full set is rarely needed to act.
+      const shown = ids.slice(0, 3).map((id) => String(id).slice(0, 8));
+      const more = ids.length > shown.length ? ` +${ids.length - shown.length} more` : "";
+      return `${label}: ${shown.join(", ")}${more}`;
+    })
+    .filter(Boolean);
+
+  return details.length > 0 ? `${base} — ${details.join("; ")}` : base;
+}
+
 function RouteBuilderSkeleton() {
   return (
     <div className="p-4 md:p-8 space-y-6 animate-pulse">
@@ -190,8 +231,7 @@ export function RouteBuilderClient({ activeDays = [] }: RouteBuilderClientProps)
       });
 
       if (!response.ok) {
-        const err = await response.json();
-        throw new Error((err as { error?: string }).error ?? "Failed to create route");
+        throw new Error(await describeRouteError(response));
       }
 
       toast({ message: "Route created successfully", type: "success" });

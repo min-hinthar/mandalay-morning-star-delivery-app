@@ -26,7 +26,10 @@ interface OrderRow {
     lat: number | null;
     lng: number | null;
   } | null;
-  route_stops: Array<{ id: string }> | null;
+  payment_method: string | null;
+  stripe_payment_intent_id: string | null;
+  refund_status: string | null;
+  route_stops: Array<{ id: string; routes: { status: string } | null }> | null;
 }
 
 // ============================================
@@ -88,7 +91,15 @@ export async function GET(request: Request) {
           lat,
           lng
         ),
-        route_stops (id)
+        payment_method,
+        stripe_payment_intent_id,
+        refund_status,
+        route_stops (
+          id,
+          routes (
+            status
+          )
+        )
       `
       )
       .in("status", ["confirmed", "preparing"]);
@@ -107,9 +118,26 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: "Failed to fetch orders" }, { status: 500 });
     }
 
-    // Only return orders not currently on an active (non-completed) route
+    // Offer exactly what POST /api/admin/routes will accept — no more, no less.
+    //
+    // (a) Active-route collision. This used to reject an order that had ANY
+    //     route_stops row, including stops on COMPLETED routes, so an order
+    //     that was skipped on a finished run could never be re-added for
+    //     redelivery. POST only blocks stops whose route is not completed, and
+    //     the comment here always claimed the same — now it actually does it.
+    // (b) Payment. POST rejects the WHOLE batch when any order is an unpaid or
+    //     fully-refunded card order, so leaving one in the picker let a single
+    //     stale order 400 an otherwise-valid route. Unpaid orders are surfaced
+    //     on the orders dashboard (with its "Payment not received" badge) —
+    //     the route builder is not where you discover them.
+    const isOnActiveRoute = (row: OrderRow) =>
+      (row.route_stops ?? []).some((stop) => stop.routes?.status !== "completed");
+    const isUnpaid = (row: OrderRow) =>
+      row.payment_method !== "cod" &&
+      (!row.stripe_payment_intent_id || row.refund_status === "full");
+
     const mapped = (orders ?? [])
-      .filter((row) => (row.route_stops?.length ?? 0) === 0)
+      .filter((row) => !isOnActiveRoute(row) && !isUnpaid(row))
       .map((row) => ({
         id: row.id,
         status: row.status,
