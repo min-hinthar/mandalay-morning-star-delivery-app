@@ -39,10 +39,25 @@ export interface CustomerDeliveryDays {
   personalized: boolean;
 }
 
+export interface CustomerAddressOverride {
+  lat: number;
+  lng: number;
+  distanceMiles?: number | null;
+}
+
 export function useCustomerDeliveryDays(
   deliveryDays: DeliveryDayConfig[],
   deliveryZones: DeliveryZoneConfig[] | undefined,
-  maxRadiusMiles?: number | null
+  maxRadiusMiles?: number | null,
+  /**
+   * A concretely-chosen address (e.g. the checkout store's selection) that
+   * outranks the DB default lookup. While present, no auth/addresses fetch
+   * runs at all — the surface that knows WHICH address applies must never be
+   * contradicted by a background default-address resolve (the cart drawer on
+   * /checkout showed the DEFAULT address's route while checkout used the
+   * selected one).
+   */
+  overrideAddress?: CustomerAddressOverride | null
 ): CustomerDeliveryDays {
   const [result, setResult] = useState<CustomerDeliveryDays>({
     days: deliveryDays,
@@ -55,8 +70,17 @@ export function useCustomerDeliveryDays(
   const coordsRef = useRef<{ lat: number; lng: number } | null>(null);
   const distanceRef = useRef<number | null>(null);
 
+  const overrideLat = overrideAddress?.lat;
+  const overrideLng = overrideAddress?.lng;
+  const overrideDistance = overrideAddress?.distanceMiles;
+
   useEffect(() => {
     let cancelled = false;
+    // Guards overlapping resolves: a visibilitychange can start a second
+    // resolve() while the first is in flight, and the SLOWER one would
+    // otherwise publish last — pinning stale coords into the refs the minute
+    // timer then replays indefinitely. Only the latest generation may publish.
+    let generation = 0;
 
     function applyResolved(coords: { lat: number; lng: number } | null) {
       const zones = deliveryZones ?? [];
@@ -100,8 +124,9 @@ export function useCustomerDeliveryDays(
     }
 
     async function resolve() {
+      const myGeneration = ++generation;
       let coords: { lat: number; lng: number } | null = null;
-      distanceRef.current = null;
+      let distance: number | null = null;
       try {
         const supabase = createClient();
         const {
@@ -127,15 +152,31 @@ export function useCustomerDeliveryDays(
           } | null;
           if (row?.lat != null && row?.lng != null && row.is_verified) {
             coords = { lat: row.lat, lng: row.lng };
-            distanceRef.current = row.distance_miles ?? null;
+            distance = row.distance_miles ?? null;
           }
         }
       } catch {
         // Anonymous or offline — generic list.
       }
-      if (cancelled) return;
+      if (cancelled || myGeneration !== generation) return;
       coordsRef.current = coords;
+      distanceRef.current = distance;
       applyResolved(coords);
+    }
+
+    if (overrideLat != null && overrideLng != null) {
+      // Concrete address supplied — no fetch, no focus re-fetch; the timer
+      // below still re-runs the pure resolvers so a passed cutoff rolls over.
+      coordsRef.current = { lat: overrideLat, lng: overrideLng };
+      distanceRef.current = overrideDistance ?? null;
+      applyResolved(coordsRef.current);
+      const recheck = setInterval(() => {
+        if (!cancelled) applyResolved(coordsRef.current);
+      }, RECHECK_INTERVAL_MS);
+      return () => {
+        cancelled = true;
+        clearInterval(recheck);
+      };
     }
 
     void resolve();
@@ -155,7 +196,7 @@ export function useCustomerDeliveryDays(
       clearInterval(recheck);
       document.removeEventListener("visibilitychange", onVisible);
     };
-  }, [deliveryDays, deliveryZones, maxRadiusMiles]);
+  }, [deliveryDays, deliveryZones, maxRadiusMiles, overrideLat, overrideLng, overrideDistance]);
 
   return result;
 }

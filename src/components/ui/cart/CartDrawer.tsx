@@ -20,6 +20,7 @@ import { useCart } from "@/lib/hooks/useCart";
 import { useCartDrawer } from "@/lib/hooks/useCartDrawer";
 import { useCartValidation } from "@/lib/hooks/useCartValidation";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { buildCartPricingConfig } from "@/lib/stores/cart-pricing";
 import { serviceableCeilingMiles } from "@/lib/utils/order";
 import { useCustomerDeliveryDays } from "@/lib/hooks/useCustomerDeliveryDays";
@@ -80,10 +81,21 @@ function CartContent({ onClose, showFullCartLink, isMobile = false }: CartConten
   // verified address resolves — the all-days gate quoted the nearest run of
   // ANY direction ("Delivery Monday" + false urgency to a West customer whose
   // checkout then lands on Saturday). Falls back to all days for guests.
+  // A checkout-SELECTED address outranks the DB default lookup: mid-checkout
+  // the customer may have picked a non-default address, and the drawer (which
+  // stays reachable on /checkout) must gate on the same route TimeStep uses.
+  const checkoutAddress = useCheckoutStore((s) => s.address);
   const { days: customerDays } = useCustomerDeliveryDays(
     deliveryDays,
     deliveryZones,
-    serviceableCeiling
+    serviceableCeiling,
+    checkoutAddress?.lat != null && checkoutAddress?.lng != null
+      ? {
+          lat: checkoutAddress.lat,
+          lng: checkoutAddress.lng,
+          distanceMiles: checkoutAddress.distanceMiles,
+        }
+      : undefined
   );
   const gateState = useCartDeliveryGate({
     hasBlockingIssues: validation.hasBlockingIssues,

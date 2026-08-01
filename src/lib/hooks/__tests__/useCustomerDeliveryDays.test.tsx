@@ -19,6 +19,7 @@ import type { DeliveryDayConfig, DeliveryZoneConfig } from "@/types/delivery";
 // ---------------------------------------------------------------------------
 
 let mockUser: { id: string } | null = null;
+let authGetUserCalls = 0;
 let mockAddressRow: {
   lat: number | null;
   lng: number | null;
@@ -29,7 +30,10 @@ let mockAddressRow: {
 vi.mock("@/lib/supabase/client", () => ({
   createClient: () => ({
     auth: {
-      getUser: async () => ({ data: { user: mockUser } }),
+      getUser: async () => {
+        authGetUserCalls += 1;
+        return { data: { user: mockUser } };
+      },
     },
     from: () => ({
       select: () => ({
@@ -96,6 +100,7 @@ beforeEach(() => {
   mockUser = null;
   mockAddressRow = null;
   mockDirections = [];
+  authGetUserCalls = 0;
 });
 
 function ids(days: DeliveryDayConfig[]): string[] {
@@ -162,6 +167,37 @@ describe("useCustomerDeliveryDays", () => {
 
     await waitFor(() => {
       expect(ids(result.current.days)).toEqual(["mon", "wed"]);
+    });
+    expect(result.current.personalized).toBe(false);
+  });
+
+  it("an override address outranks the DB default and skips the fetch entirely", async () => {
+    // DB default would personalize WEST — but the checkout-selected override
+    // must win, and no auth/addresses round-trip may fire while it's present.
+    mockUser = { id: "user-1" };
+    mockAddressRow = VERIFIED_ROW;
+    mockDirections = ["west"];
+
+    const { result } = renderHook(() =>
+      useCustomerDeliveryDays(DAYS, ZONES, 100, { lat: 34.2, lng: -117.5, distanceMiles: 12 })
+    );
+
+    // Directions mock applies to the override coords too (["west"]), so days
+    // filter — the point under test is the fetch never ran.
+    await waitFor(() => {
+      expect(result.current.personalized).toBe(true);
+    });
+    expect(authGetUserCalls).toBe(0);
+  });
+
+  it("an out-of-coverage override falls back to the generic list", async () => {
+    mockDirections = ["west"];
+    const { result } = renderHook(() =>
+      useCustomerDeliveryDays(DAYS, ZONES, 50, { lat: 34.2, lng: -117.5, distanceMiles: 80 })
+    );
+
+    await waitFor(() => {
+      expect(ids(result.current.days)).toEqual(["mon", "wed", "sat"]);
     });
     expect(result.current.personalized).toBe(false);
   });
