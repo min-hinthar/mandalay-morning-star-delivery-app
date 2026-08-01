@@ -23,6 +23,17 @@ export interface DeliveryBannerProps {
    * caller resolved the customer's own route. Null/omitted keeps generic copy.
    */
   routeHeadline?: string | null;
+  /**
+   * The delivery date (YYYY-MM-DD) the headline was derived from. The headline
+   * and the countdown run on INDEPENDENT clocks — the headline's awareness is
+   * recomputed on useCustomerDeliveryDays' fixed 60s tick, while this banner's
+   * gate self-schedules down to 10s near a cutoff — so right after a cutoff
+   * rolls, the gate can already say Saturday while the headline still says
+   * "this Wednesday". Passing the headline's own date lets the banner detect
+   * the disagreement and fall back to the generic (always self-consistent)
+   * lead until the headline catches up. Omit to skip the check.
+   */
+  routeHeadlineDate?: string | null;
   className?: string;
 }
 
@@ -43,6 +54,7 @@ export function DeliveryBanner({
   cutoffHour,
   deliveryDays,
   routeHeadline,
+  routeHeadlineDate,
   className,
 }: DeliveryBannerProps) {
   // Use multi-day gate if deliveryDays provided, otherwise legacy
@@ -51,6 +63,14 @@ export function DeliveryBanner({
 
   const gate = deliveryDays && deliveryDays.length > 0 ? multiDayGate : legacyGate;
   const { isOpen, deliveryDate, cutoffDate, urgency } = gate;
+
+  // Only lead with the headline while it agrees with the clock driving the
+  // countdown beside it — otherwise the banner reads "this Wednesday" next to a
+  // 71-hour Saturday countdown for up to a minute after a cutoff rolls.
+  const headline =
+    routeHeadline && (!routeHeadlineDate || routeHeadlineDate === deliveryDate.dateString)
+      ? routeHeadline
+      : null;
 
   return (
     <div
@@ -70,7 +90,7 @@ export function DeliveryBanner({
       role="status"
       aria-label={
         isOpen
-          ? `Ordering open. ${routeHeadline ? `${routeHeadline}. ` : ""}Delivering ${deliveryDate.displayDate}.`
+          ? `Ordering open. ${headline ? `${headline}. ` : ""}Delivering ${deliveryDate.displayDate}.`
           : `Ordering closed. Next delivery ${deliveryDate.displayDate}.`
       }
     >
@@ -80,8 +100,8 @@ export function DeliveryBanner({
           <span className="font-medium">
             {/* Personalized: name the customer's route so the invite email's
                 promise ("we're driving your way") survives landing here */}
-            {routeHeadline ?? `Delivering ${deliveryDate.displayDate}`}
-            {routeHeadline && (
+            {headline ?? `Delivering ${deliveryDate.displayDate}`}
+            {headline && (
               <span className="font-burmese font-normal text-xs" lang="my">
                 {" "}
                 · သင့်ဒေသသို့

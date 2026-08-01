@@ -13,6 +13,7 @@ import { useTilt } from "@/components/ui/homepage/Hero/interactions";
 import { GoldLeaf } from "@/components/ui/GoldLeaf";
 import { FreeDeliveryProgress } from "../FreeDeliveryProgress";
 import { COVINA_TAX_RATE } from "@/lib/utils/order";
+import { formatFloorDollars } from "@/lib/utils/format";
 
 export interface CartPageSummaryProps {
   subtotalCents: number;
@@ -155,7 +156,7 @@ export const CartPageSummary = memo(function CartPageSummary({
                   on a $90 order reads as a bug to a far customer. */}
               {isExtendedMinimum && minimumCents != null && (
                 <p className="text-xs leading-snug text-hero-ink-muted">
-                  Deliveries to your area need a ${(minimumCents / 100).toFixed(0)} minimum —
+                  Deliveries to your area need a ${formatFloorDollars(minimumCents)} minimum —
                   it&rsquo;s a long drive, so we group them into bigger orders.
                 </p>
               )}

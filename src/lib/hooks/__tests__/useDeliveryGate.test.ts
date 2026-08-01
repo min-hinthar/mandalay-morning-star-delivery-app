@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { computeDeliveryGate } from "../useDeliveryGate";
+import { getZonedDateString } from "@/lib/utils/delivery-dates";
 
 // All tests use cutoffDay=5 (Friday), cutoffHour=15 (3 PM PT)
 // Delivery date is always the next Saturday in LA time
@@ -113,5 +114,42 @@ describe("computeDeliveryGate", () => {
       const result = computeDeliveryGate(5, 15, WEDNESDAY_10AM);
       expect(result.cutoffDate.getTime()).toBeLessThan(result.deliveryDate.date.getTime());
     });
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Date-string zoning
+// ---------------------------------------------------------------------------
+
+describe("deliveryDate.dateString zoning", () => {
+  // The gate used to build this string with browser-local
+  // getFullYear/getMonth/getDate. The dates it formats are LA-MIDNIGHT instants
+  // (07:00/08:00 UTC), so any browser west of LA — Hawaii (UTC-10), Alaska in
+  // winter — read them as the PREVIOUS calendar day. Verified by running this
+  // file under TZ=Pacific/Honolulu before the fix: dateString came back
+  // "2026-08-07" while displayDate said "Saturday, August 8".
+  //
+  // That string is NOT display-only: useTimeSlot feeds it straight into the
+  // delivery SELECTION (so a Honolulu customer would have submitted a Friday),
+  // and the checkout submit gate + the menu banner's headline check compare it
+  // against LA-zoned strings.
+  //
+  // NOTE: CI runs in UTC, where the pre-fix and post-fix values coincide (an
+  // LA-midnight instant lands on the same UTC calendar day) — so this test
+  // cannot reproduce the failure on its own. It pins the CONTRACT instead: the
+  // gate's dateString must be exactly what the shared LA-zoned formatter
+  // produces for the same instant. Re-run with TZ=Pacific/Honolulu to see the
+  // real failure.
+  it("matches the shared LA-zoned formatter for the same instant", () => {
+    for (const now of [WEDNESDAY_10AM, FRIDAY_1PM, FRIDAY_4PM]) {
+      const { deliveryDate } = computeDeliveryGate(5, 15, now);
+      expect(deliveryDate.dateString).toBe(getZonedDateString(deliveryDate.date));
+    }
+  });
+
+  it("never disagrees with its own displayDate about the day", () => {
+    const { deliveryDate } = computeDeliveryGate(5, 15, FRIDAY_4PM);
+    const dayFromDisplay = Number(deliveryDate.displayDate.match(/(\d+)$/)![1]);
+    expect(Number(deliveryDate.dateString.split("-")[2])).toBe(dayFromDisplay);
   });
 });

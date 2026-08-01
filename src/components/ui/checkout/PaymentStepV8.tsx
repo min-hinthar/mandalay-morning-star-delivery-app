@@ -26,6 +26,7 @@ import { BrandedSpinner } from "@/components/ui/branded-spinner";
 import { DietarySummaryCard } from "./DietarySummaryCard";
 import { CheckoutErrorBanner } from "./CheckoutErrorBanner";
 import { usePaymentSubmit } from "./usePaymentSubmit";
+import { formatFloorDollars } from "@/lib/utils/format";
 
 const buttonEntry = {
   hidden: { opacity: 0, scale: 0.9 },
@@ -355,7 +356,7 @@ export function PaymentStepV8({
       {!isCreatingSession && belowMinimum && (
         <p role="status" className="pt-2 text-right text-sm font-medium text-status-error">
           Add ${(minimumOrder.shortfallCents / 100).toFixed(2)} to reach the $
-          {(minimumOrder.minimumCents / 100).toFixed(0)}{" "}
+          {formatFloorDollars(minimumOrder.minimumCents)}{" "}
           {minimumOrder.isExtendedMinimum ? "long-distance " : ""}minimum
           <span className="font-burmese font-normal" lang="my">
             {" "}

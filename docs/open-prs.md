@@ -6,23 +6,72 @@
 
 _Last reconciled: 2026-08-01._
 
-## Open — route-day UX sweep (from the 6-agent survey; owner: "Plan-build thoughtfully")
+## Recently closed — route-day UX sweep 2026-08-01 (BOTH MERGED on the owner's "pre-merge go and merge when ready")
 
-Both independent off `main`; no shared files; **await the owner's per-PR merge go.**
+From the 6-agent survey (47 gaps → a 6-PR plan); these were PRs A and B. Both were
+independent off `main` — the only shared file was `(customer)/layout.tsx`, in
+non-overlapping hunks, and the two-branch merge was verified clean before merging
+(`git merge-tree`, plus a scratch merged worktree that ran typecheck + lint + the full
+affected suite green). Merged #220 (`83ba560`) first, then updated #221 onto the new
+`main` so its blocking CI validated the real post-merge state.
 
-- **#220 — checkout day integrity** (branch `claude/checkout-day-integrity`). Address-aware
-  CutoffModal gate + reschedule; selected-date cutoff chip/watcher; date revalidation on
-  address change (bilingual notice); no-serve empty state (unfiltered fallback REMOVED);
-  cart-drawer minimum gate + receipt shortfall row; middleware `?next=` for
-  /checkout·/cart·/orders·/account. Auto-review: clean, 1 Minor justified (same-weekday
-  split = pre-existing 1:1 weekday→run model assumption shared by the whole day engine),
-  1 Nit fixed (stale moveNotice — cleared on later-address revalidation, ref-guarded so
-  the post-reseat re-run keeps it). +27 tests.
-- **#221 — pre-checkout route-day truth** (branch `claude/menu-route-day-truth`). New
+- **#220 — checkout day integrity** (`83ba560`). Address-aware CutoffModal gate +
+  reschedule; selected-date cutoff chip/watcher (payment-step scoped); date revalidation
+  on address change (bilingual notice); no-serve empty state (unfiltered fallback
+  REMOVED); order-minimum gate on Place Order + cart-drawer caption + receipt shortfall
+  row; middleware `?next=` for /checkout·/cart·/orders·/account.
+- **#221 — pre-checkout route-day truth** (`33138bf`). New
   `useCustomerDeliveryDays` (verified-default-address → `addressServesDay` filter,
   fail-open); menu banner leads with the route-day headline (invite-email landing
   continuity); RailCutoffChip surfaces on mobile at warning/critical; cart drawer runs on
-  the personalized days (zones synced into cart store). +13 tests.
+  the personalized days (zones synced into cart store); cart/menu coverage-ceiling parity.
+
+**The pre-merge adversarial pass earned its keep — it caught three real defects that ~12
+rounds of auto-review had missed, two of them over-corrections from EARLIER review rounds:**
+
+1. **Legacy-config over-block** (introduced by #220's own response to a Codex P2). The
+   legacy gate's `isOpen` means "THIS Saturday's cutoff passed", not "ordering is
+   impossible" — verified by execution: at Fri 4pm PT `computeDeliveryGate(5,15).isOpen`
+   is `false` while `getAvailableDeliveryDates` still returns the next two Saturdays with
+   `cutoffPassed:false`, and the server accepts them. A bare `!gate.isOpen` in the submit
+   gate killed checkout for that whole window with no reschedule escape. Now gates on the
+   SELECTED date vs the gate's own next-orderable date.
+2. **`reset()` clearing the cart's `addressDistanceMiles`** (also from an earlier P2).
+   CheckoutClient resets on every non-Stripe unmount — i.e. navigating /checkout → /menu —
+   so a far-address customer dropped to LOCAL pricing for the rest of the session: the
+   free-delivery meter promised FREE while the server would still charge the extended fee,
+   and the new drawer minimum gate re-enabled the very cart checkout had just blocked.
+   Retaining the last known distance over-quotes rather than baits, and self-corrects.
+3. **`isSafeRedirect` open redirect.** All four copy-pasted predicates accepted
+   `/\evil.com` and `/<TAB>/evil.com`, both of which the WHATWG parser resolves off-site
+   (backslash aliases to `/` for special schemes; tab/LF/CR are stripped pre-parse) — on
+   the path #220 makes the standard customer flow. Replaced by one hardened shared guard
+   in `src/lib/utils/safe-redirect.ts` that also resolves the candidate and demands the
+   origin back.
+
+Out of scope / on the record: the `delivery_days` **1:1 weekday→run assumption** (engine-wide,
+marked in-code); the cart's local-band fee using the first active day's fee rather than the
+SCHEDULED day's (pre-existing, already documented at `cart-store.ts:307`); `hasFreeDelivery`
+ignoring the out-of-range tier (pre-existing, neither diff); the `route-day-invite` cron's
+lack of a per-customer frequency cap (shipped in #219, not in either diff).
+
+### Follow-ups this pair leaves behind
+
+- **`useCustomerRouteAddress` extraction** — dedupe the menu + drawer auth/address
+  round-trip (the module cache dedupes the paint, not the fetch), share `isSameAwareness`,
+  rename the `maxRadiusMiles` param.
+- **Derive `addressDistanceMiles` from the resolved default address** instead of treating it
+  as a checkout-session artifact. `useCustomerDeliveryDays` already resolves that distance;
+  feeding it into the cart store closes BOTH the first-session gap (never-visited-checkout
+  customers see local pricing) and the inverse staleness that #220's `reset()` clear was
+  reaching for.
+- **Checkout store address vs auth identity** — the checkout address persists in
+  (per-tab) sessionStorage across sign-out, so a second user in the same tab can briefly see
+  the first user's route on /checkout. Display-only: `/api/checkout/session` scopes the
+  address read with `.eq("id", addressId).eq("user_id", user.id)`, so it can never produce an
+  order for the wrong user. Clear it on auth change to close the window.
+- **Owner spot-check:** the mobile rail-chip pop-in at warning/critical urgency on a narrow
+  (~360px) viewport — statically verified nowrap, never eyeballed.
 
 ## Recently closed — issue-backlog sweep 2026-07-31 (ALL FIVE MERGED on the owner's "Merge all thoughtfully")
 

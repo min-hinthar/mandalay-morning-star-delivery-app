@@ -9,6 +9,7 @@ import {
   getNextDeliveryDate,
   getTimeUntilNextCutoff,
   getCutoffForDeliveryDay,
+  getZonedDateString,
 } from "@/lib/utils/delivery-dates";
 import { TIMEZONE, type DeliveryDate, type DeliveryDayConfig } from "@/types/delivery";
 
@@ -49,11 +50,19 @@ function formatDateString(date: Date): string {
   }).format(date);
 }
 
+/**
+ * LA-zoned YYYY-MM-DD, same as every other delivery-date string in the app.
+ *
+ * This used browser-local `getFullYear/getMonth/getDate`, which is the
+ * `getUTCDay()`-in-LA gotcha wearing a different hat. The dates it formats are
+ * LA-midnight instants (07:00/08:00 UTC), so any browser west of LA — Hawaii
+ * (UTC-10), Alaska in winter — reads them as the PREVIOUS calendar day. That
+ * string is not display-only: `useTimeSlot` feeds it straight into the delivery
+ * SELECTION, and it is compared against LA-zoned strings by the checkout submit
+ * gate and the menu banner's headline check.
+ */
 function toDateString(date: Date): string {
-  const y = date.getFullYear();
-  const m = String(date.getMonth() + 1).padStart(2, "0");
-  const d = String(date.getDate()).padStart(2, "0");
-  return `${y}-${m}-${d}`;
+  return getZonedDateString(date);
 }
 
 // ============================================

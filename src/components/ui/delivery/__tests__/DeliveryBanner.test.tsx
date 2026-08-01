@@ -13,7 +13,7 @@ import { render, screen } from "@testing-library/react";
 
 let mockGate = {
   isOpen: true,
-  deliveryDate: { displayDate: "Saturday, August 8" },
+  deliveryDate: { displayDate: "Saturday, August 8", dateString: "2026-08-08" },
   cutoffDate: new Date(Date.now() + 3 * 60 * 60 * 1000),
   urgency: "normal" as const,
 };
@@ -69,5 +69,36 @@ describe("DeliveryBanner — route headline", () => {
     expect(screen.getByText(/next delivery: saturday, august 8/i)).toBeInTheDocument();
     expect(screen.queryByText(/west route/i)).toBeNull();
     mockGate = { ...mockGate, isOpen: true };
+  });
+
+  it("drops a headline whose date the countdown has already outrun", () => {
+    // The headline's awareness refreshes on a 60s tick; the gate ticks down to
+    // 10s near a cutoff. In the window between them the gate has already rolled
+    // to Saturday while the headline still says Wednesday — showing both puts
+    // "this Wednesday" next to a 71-hour Saturday countdown. Fall back to the
+    // generic lead (always consistent with the countdown beside it).
+    render(
+      <DeliveryBanner
+        deliveryDays={DAYS}
+        routeHeadline="We're driving the West Route this Wednesday"
+        routeHeadlineDate="2026-08-05"
+      />
+    );
+
+    expect(screen.queryByText(/west route/i)).toBeNull();
+    expect(screen.getByText(/Delivering Saturday, August 8/)).toBeInTheDocument();
+    expect(screen.getByRole("status").getAttribute("aria-label")).not.toMatch(/west route/i);
+  });
+
+  it("keeps the headline while its date still matches the gate", () => {
+    render(
+      <DeliveryBanner
+        deliveryDays={DAYS}
+        routeHeadline="We're driving the West Route this Saturday"
+        routeHeadlineDate="2026-08-08"
+      />
+    );
+
+    expect(screen.getByText(/west route this saturday/i)).toBeInTheDocument();
   });
 });

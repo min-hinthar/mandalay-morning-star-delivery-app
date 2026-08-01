@@ -21,6 +21,7 @@ import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { freeDeliveryQualifier, localRangeLabel } from "@/lib/utils/delivery-promo";
+import { formatFloorDollars } from "@/lib/utils/format";
 
 // ============================================
 // TYPES
@@ -204,7 +205,7 @@ export function FreeDeliveryProgress({
               {Math.round(progressPercent)}% there
             </span>
             <span className="font-medium text-hero-ink-muted">
-              Free at ${(freeDeliveryThresholdCents / 100).toFixed(0)}
+              Free at ${formatFloorDollars(freeDeliveryThresholdCents)}
             </span>
           </div>
 
