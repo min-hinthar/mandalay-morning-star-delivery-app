@@ -103,7 +103,15 @@ export const useCheckoutStore = create<CheckoutStore>()(
 
       setCustomerName: (name) => set({ customerName: name }),
 
-      reset: () => set(initialState),
+      reset: () => {
+        set(initialState);
+        // The distance was written into the CART store by setAddress and
+        // outlives this store's reset — leaving it behind kept far-address
+        // pricing (and the drawer's $100 long-distance minimum gate) applied
+        // to a customer who no longer has ANY address selected, with no
+        // address picker outside checkout to correct it.
+        useCartStore.getState().setAddressDistance(null);
+      },
     }),
     {
       name: "checkout-store",

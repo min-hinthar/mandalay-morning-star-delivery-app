@@ -379,6 +379,48 @@ describe("TimeStepV8 — address-change revalidation of the selected date", () =
   });
 });
 
+describe("TimeStepV8 — no-serve must not fire without active multi-day config", () => {
+  it("preserves the LEGACY Saturday schedule when deliveryDays is empty (zones + address present)", () => {
+    // Legacy config: no multi-day rows at all. The no-serve branch must not
+    // win here — the documented legacy fallback owns this case.
+    mockDirections = ["west"];
+    render(<TimeStepV8 timeWindows={TIME_WINDOWS} deliveryDays={[]} deliveryZones={ZONES} />);
+
+    expect(screen.queryByText(/no upcoming runs serve your address/i)).toBeNull();
+    const days = [...new Set(offeredDays())];
+    expect(days.length).toBeGreaterThan(0);
+    expect(days).toEqual([6]); // legacy = Saturdays only
+  });
+
+  it("shows the empty state when the only days serving the address are INACTIVE", () => {
+    // Admin turned off the West run but left the row: direction-wise the
+    // address is "served", active-wise it is not — the picker would render
+    // zero pills with no explanation.
+    const days = [
+      { ...day("mon", 1, "east"), isActive: true },
+      { ...day("wed", 3, "west"), isActive: false },
+    ];
+    mockDirections = ["west"];
+    render(<TimeStepV8 timeWindows={TIME_WINDOWS} deliveryDays={days} deliveryZones={ZONES} />);
+
+    expect(screen.getByText(/no upcoming runs serve your address/i)).toBeInTheDocument();
+    expect(screen.queryAllByTestId(/^date-/)).toHaveLength(0);
+  });
+
+  it("does NOT claim 'no runs serve your address' when EVERY day is inactive (global closure)", () => {
+    const days = [
+      { ...day("mon", 1, "east"), isActive: false },
+      { ...day("wed", 3, "west"), isActive: false },
+    ];
+    mockDirections = ["west"];
+    render(<TimeStepV8 timeWindows={TIME_WINDOWS} deliveryDays={days} deliveryZones={ZONES} />);
+
+    // A global shutdown is the ordering-closed gate's story, not a
+    // personalized "your address isn't served".
+    expect(screen.queryByText(/no upcoming runs serve your address/i)).toBeNull();
+  });
+});
+
 describe("TimeStepV8 — selected-date cutoff chip", () => {
   it("shows a live order-by deadline for the selected date", () => {
     mockDirections = ["west"];

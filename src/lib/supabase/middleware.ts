@@ -61,7 +61,10 @@ export async function updateSession(request: NextRequest) {
   if (!user && (path.startsWith("/admin") || path.startsWith("/driver") || isCustomerProtected)) {
     const url = request.nextUrl.clone();
     url.pathname = "/login";
-    url.searchParams.set("next", path);
+    // Path + query, not just path: /orders/{id}/confirmation?session_id=…
+    // (Stripe return with an expired session) is useless without its params.
+    url.search = "";
+    url.searchParams.set("next", `${path}${request.nextUrl.search}`);
     return NextResponse.redirect(url);
   }
 

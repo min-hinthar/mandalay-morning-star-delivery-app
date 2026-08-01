@@ -29,6 +29,9 @@ export interface SelectedCutoffChipProps {
 // HELPERS
 // ============================================
 
+/** Stable placeholder target for the unconditional useCountdown call. */
+const EPOCH = new Date(0);
+
 const cutoffTimeFormatter = new Intl.DateTimeFormat("en-US", {
   weekday: "short",
   hour: "numeric",
@@ -75,8 +78,13 @@ export function SelectedCutoffChip({
     [dateString, deliveryDays]
   );
 
-  // Hooks must run unconditionally — count down to epoch when unknown, gate render below.
-  const countdown = useCountdown(cutoffDate ?? new Date(0), "order cutoff");
+  // Hooks must run unconditionally — count down to epoch when unknown, gate
+  // render below. The epoch MUST be a stable module-level instance: an inline
+  // `new Date(0)` changes identity every render, so useCountdown's effect
+  // (deps: [targetDate]) re-runs and setStates a fresh object each cycle —
+  // an infinite effect loop that live-locks any checkout where the cutoff is
+  // unresolvable (e.g. the legacy no-multi-day config).
+  const countdown = useCountdown(cutoffDate ?? EPOCH, "order cutoff");
   if (!cutoffDate) return null;
 
   const totalMinutes = countdown.hours * 60 + countdown.minutes;
@@ -117,7 +125,11 @@ export function SelectedCutoffChip({
           </span>
         </span>
       ) : (
-        <span aria-live="polite">
+        // Deliberately NOT aria-live: the text updates every minute, and a
+        // polite region would re-announce the full deadline string each time
+        // (twice — the chip mounts on two steps). The deadline is static
+        // context; only the "cutoff passed" branch above announces.
+        <span>
           Order by {cutoffLabel}
           <span className={cn("tabular-nums", urgency === "normal" && "text-hero-ink")}>
             {" "}

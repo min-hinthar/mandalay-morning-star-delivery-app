@@ -136,6 +136,12 @@ export function TimeStepV8({
     return getDirectionsForCoords(address.lat, address.lng, deliveryZones);
   }, [address?.lat, address?.lng, deliveryZones]);
 
+  // ACTIVE days only — filterDaysByDirection doesn't know about isActive, and
+  // an inactive row that "serves" the address would defeat the no-serve
+  // predicate below while the date engine (which does drop inactive rows)
+  // renders zero pills: an empty picker with no explanation.
+  const activeDays = useMemo(() => deliveryDays.filter((d) => d.isActive), [deliveryDays]);
+
   // Filter delivery days by direction when available.
   //
   // `undefined` = no placeable address yet, so offer everything. An EMPTY array
@@ -144,9 +150,9 @@ export function TimeStepV8({
   // to also keep days with NO configured direction, which checkout rejects:
   // the customer picked one and got a direction-mismatch error at submit.
   const filteredDays = useMemo(() => {
-    if (!addressDirections) return deliveryDays;
-    return filterDaysByDirection(addressDirections, deliveryDays);
-  }, [addressDirections, deliveryDays]);
+    if (!addressDirections) return activeDays;
+    return filterDaysByDirection(addressDirections, activeDays);
+  }, [addressDirections, activeDays]);
 
   // A placed address whose direction filter leaves NOTHING is a real answer,
   // not a gap to paper over: the old fallback re-offered the UNFILTERED list
@@ -154,8 +160,12 @@ export function TimeStepV8({
   // direction-mismatch rejection at Place Order. Now it renders an honest
   // empty state instead (below). `undefined` directions (no placeable address
   // yet) still offer everything; `[]` is nearby and keeps every day via
-  // filterDaysByDirection.
-  const noServe = addressDirections !== undefined && filteredDays.length === 0;
+  // filterDaysByDirection. Requires at least one ACTIVE day: with none, the
+  // right story is the legacy schedule (no multi-day config at all) or the
+  // ordering-closed gate (all runs off) — "no runs serve your address" would
+  // be false personalization of a global state.
+  const noServe =
+    activeDays.length > 0 && addressDirections !== undefined && filteredDays.length === 0;
 
   // Use multi-day dates when delivery days are configured, legacy otherwise
   const availableDates = useMemo(

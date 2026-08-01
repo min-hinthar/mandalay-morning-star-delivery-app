@@ -46,6 +46,15 @@ describe("updateSession — unauthenticated redirects carry ?next=", () => {
     }
   );
 
+  it("preserves the query string in next= (Stripe returns need session_id)", async () => {
+    const res = await updateSession(req("/orders/abc/confirmation?session_id=cs_test_123&x=1"));
+    const location = new URL(res.headers.get("location")!);
+    expect(location.pathname).toBe("/login");
+    expect(location.searchParams.get("next")).toBe(
+      "/orders/abc/confirmation?session_id=cs_test_123&x=1"
+    );
+  });
+
   it("still gates /admin and /driver with ?next=", async () => {
     for (const path of ["/admin/orders", "/driver"]) {
       const res = await updateSession(req(path));

@@ -114,15 +114,21 @@ export default function CheckoutClient({
     return getDirectionsForCoords(address.lat, address.lng, deliveryZones);
   }, [address?.lat, address?.lng, deliveryZones]);
 
+  // Active rows only — mirrors TimeStepV8: an inactive row must neither count
+  // as "serving" nor defeat the no-serve detection.
+  const activeDays = useMemo(() => deliveryDays.filter((d) => d.isActive), [deliveryDays]);
+
   const gateDays = useMemo(
-    () =>
-      addressDirections ? filterDaysByDirection(addressDirections, deliveryDays) : deliveryDays,
-    [addressDirections, deliveryDays]
+    () => (addressDirections ? filterDaysByDirection(addressDirections, activeDays) : activeDays),
+    [addressDirections, activeDays]
   );
 
-  // No run serves the placed address — TimeStep renders its empty state; the
-  // CutoffModal ("ordering closed, next chance is…") would be the wrong story.
-  const noServe = addressDirections !== undefined && gateDays.length === 0;
+  // No ACTIVE run serves the placed address — TimeStep renders its empty
+  // state; the CutoffModal ("ordering closed, next chance is…") would be the
+  // wrong story. With zero active days overall (legacy config, or every run
+  // switched off) this stays false so the legacy gate / closed-modal paths
+  // keep working.
+  const noServe = activeDays.length > 0 && addressDirections !== undefined && gateDays.length === 0;
 
   // Use multi-day gate when delivery days are configured, legacy otherwise
   const hasMultiDay = deliveryDays.length > 0;
@@ -136,7 +142,7 @@ export default function CheckoutClient({
   // cutoff modal reschedule action. Uses Phase 106 timezone-correct
   // helper (NEVER use getUTCDay() — LA timezone bug). Address-aware: the
   // reschedule target must be a day that serves the customer's address.
-  const nextDelivery = useMemo(() => {
+  const computeNextDelivery = useCallback(() => {
     if (gateDays.length === 0) return undefined;
     const next = getNextDeliveryDate(new Date(), gateDays);
     if (!next) return undefined;
@@ -154,6 +160,16 @@ export default function CheckoutClient({
     return { dateString, displayDate };
   }, [gateDays]);
 
+  // Wall-clock-derived, so it goes stale sitting in a memo: a checkout mounted
+  // at 2:50pm caches the imminent run; when the watcher opens the modal at
+  // 3pm, the button would still offer the now-closed date. `showCutoffModal`
+  // in the deps re-derives it at the moment it becomes visible.
+  const nextDelivery = useMemo(
+    () => computeNextDelivery(),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- showCutoffModal forces a fresh wall-clock read on open
+    [computeNextDelivery, showCutoffModal]
+  );
+
   // Phase 111 CHKP-04 D-31 — compose setDelivery + setStep("time") + close modal.
   // Missing ANY of these three breaks the UX per D-31. D-32: auto-pick the
   // first time window (mirrors TimeStepV8.tsx:135-140 default-selection
@@ -161,17 +177,20 @@ export default function CheckoutClient({
   // global). D-33: navigate to "time" step (not payment) so customer reviews
   // the new window before re-committing to payment.
   const handleReschedule = useCallback(() => {
-    if (!nextDelivery) return;
+    // Recompute at CLICK time — the displayed option may itself have aged
+    // while the modal sat open; the action must never seat a closed run.
+    const freshNext = computeNextDelivery();
+    if (!freshNext) return;
     if (timeWindows.length === 0) return;
     const firstWindow = timeWindows[0];
     setDelivery({
-      date: nextDelivery.dateString,
+      date: freshNext.dateString,
       windowStart: firstWindow.start,
       windowEnd: firstWindow.end,
     });
     setStep("time");
     setShowCutoffModal(false);
-  }, [nextDelivery, timeWindows, setDelivery, setStep]);
+  }, [computeNextDelivery, timeWindows, setDelivery, setStep]);
 
   // Phase 111 CFIX-09 + CHKP-02 — Live menu validation detects price changes
   // from polling. When non-empty, render PRICE_CHANGED banner explaining
@@ -311,7 +330,10 @@ export default function CheckoutClient({
   }, [delivery?.date, deliveryDays]);
 
   useEffect(() => {
-    if (selectedCutoffMs == null) return;
+    // Explicit no-serve guard (belt): TimeStep clears the selection for a
+    // no-serve address, which already inerts this watcher — but don't rely on
+    // that ordering to keep the wrong modal from firing.
+    if (noServe || selectedCutoffMs == null) return;
     const selectedDate = useCheckoutStore.getState().delivery?.date;
     let id: ReturnType<typeof setTimeout> | undefined;
     const fire = () => {
@@ -338,7 +360,7 @@ export default function CheckoutClient({
     };
     arm();
     return () => clearTimeout(id);
-  }, [selectedCutoffMs]);
+  }, [selectedCutoffMs, noServe]);
 
   // Redirect if not authenticated
   useEffect(() => {

@@ -57,6 +57,10 @@ export function useCartDeliveryGate({
   // The /cart page already blocks below-minimum checkouts; without this the
   // DRAWER was a bypass — a below-floor far-address cart could enter checkout,
   // fill all three steps, and only learn at Place Order (MINIMUM_ORDER_NOT_MET).
+  // NOTE: the EXTENDED tier depends on addressDistanceMiles, which is only
+  // known once an address has been picked (checkout-store.setAddress /
+  // rehydration) — for a first-session customer this gate enforces the base
+  // floor only; the checkout receipt row + server own the far floor then.
   const minimumOrder = useCartStore(useShallow((s) => s.getMinimumOrder()));
 
   const isDisabled = hasBlockingIssues || !gate.isOpen || minimumOrder.shortfallCents > 0;
