@@ -149,6 +149,28 @@ describe("driver dashboard queries", () => {
       expect(chain).not.toMatch(/\.single\(\)/);
     }
 
+    // Stronger: exactly ONE .single() survives on this loader — the `drivers`
+    // lookup, which is a genuine must-exist read and notFound()s on its error,
+    // so PGRST116 there is unambiguous. Every other read tolerates absence via
+    // `?? …`, which is precisely where .single() turns a failure into an empty
+    // day. A new .single() anywhere else fails here.
+    const singles = code.match(/\.single\(\)/g) ?? [];
+    expect(
+      singles.length,
+      "a new .single() appeared — use maybeSingle unless the row genuinely must exist"
+    ).toBe(1);
+
+    const driversAt = code.indexOf('.from("drivers")');
+    const singleAt = code.indexOf(".single()");
+    expect(driversAt, "the drivers lookup moved — this anchor is stale").toBeGreaterThan(-1);
+    expect(singleAt, "the surviving .single() is not the drivers lookup").toBeGreaterThan(
+      driversAt
+    );
+    expect(
+      code.slice(driversAt + 1, singleAt),
+      'another query sits between .from("drivers") and the surviving .single()'
+    ).not.toContain('.from("');
+
     // And a real error must be reported rather than swallowed — for EVERY
     // result, not just the two that were provably broken. All of them reach the
     // view through `?? 0` / `?? []` / `?? null`, so any one failing renders as
@@ -179,6 +201,25 @@ describe("driver dashboard queries", () => {
       expect(reporting, `${name} can fail silently — nothing reports its error`).toContain(name);
     }
     expect(reporting, "nothing reads .error").toMatch(/\.error\b/);
+
+    // The reads OUTSIDE the parallel block need the same rule, and asserting it
+    // per-query would just go stale. Generalize: no `await supabase` read may
+    // destructure `data` without also destructuring `error`. That is literally
+    // what went wrong — the phantom column produced a perfectly good `error`
+    // object that nothing was binding.
+    //
+    // This assertion exists because deleting the profiles error capture passed
+    // every OTHER assertion in this file. A guard nobody falsifies is decoration.
+    const destructures = code.match(/const \{[^;]*?\} = await supabase/g) ?? [];
+    expect(
+      destructures.length,
+      "parsed no supabase destructures — the loader's shape changed"
+    ).toBeGreaterThan(2);
+    for (const d of destructures) {
+      expect(d, `this read binds .data but not .error, so a failure is invisible:\n${d}`).toMatch(
+        /\berror\b/
+      );
+    }
   });
 
   it("no longer references the phantom area_description anywhere", () => {

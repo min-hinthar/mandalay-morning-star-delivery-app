@@ -97,13 +97,25 @@ async function getDriverData() {
     notFound();
   }
 
-  // Get profile for full name
-  const { data: profile } = await supabase
+  // Get profile for full name. The last read on this loader that could fail
+  // invisibly: it fed `full_name ?? null`, so an RLS or connectivity failure
+  // degraded to a nameless greeting with nothing in Sentry. Cosmetic, but it is
+  // the same pattern, and leaving one of eight open would make the rule
+  // ("a failure must never read as empty") one nobody can rely on.
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("full_name")
     .eq("id", user.id)
     .returns<ProfileQueryResult[]>()
-    .single();
+    .maybeSingle();
+
+  if (profileError) {
+    logger.exception(profileError, {
+      api: "driver/dashboard",
+      flowId: "dashboard-load-profile",
+      driverId: driver.id,
+    });
+  }
 
   // Get today's date in LA timezone
   const { todayStr, dayOfWeek, dateDisplay } = getDateInfo();
