@@ -37,7 +37,6 @@ const DEFAULT_SETTINGS = [
   { key: "extended_min_order_cents", value: 10000, category: "delivery" },
   // Operations settings
   { key: "max_stops_per_route", value: 15, category: "operations" },
-  { key: "auto_assign_enabled", value: false, category: "operations" },
   { key: "route_optimization_enabled", value: true, category: "operations" },
   { key: "default_vehicle_type", value: "car", category: "operations" },
   {

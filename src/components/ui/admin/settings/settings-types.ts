@@ -73,7 +73,8 @@ export interface DeliverySettings {
 
 export interface OperationsSettings {
   maxStopsPerRoute: number;
-  autoAssignEnabled: boolean;
+  // NOTE: `autoAssignEnabled` was removed — see settings-defaults.ts. The
+  // app_settings row is intentionally left in the DB.
   routeOptimizationEnabled: boolean;
   defaultVehicleType: "car" | "motorcycle" | "bicycle" | "van" | "truck";
   storeHours: WeeklyStoreHours;

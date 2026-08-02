@@ -31,7 +31,13 @@ export const DEFAULT_SETTINGS: AllSettings = {
   },
   operations: {
     maxStopsPerRoute: 15,
-    autoAssignEnabled: false,
+    // `autoAssignEnabled` removed: it was a switch for a feature that does not
+    // exist. Nothing anywhere read the setting, so toggling it on did nothing
+    // and the UI promised automation the app never performed. Real
+    // auto-assignment needs a rule for WHICH driver gets a route, and drivers
+    // carry no day or zone affiliation to decide from — a product decision,
+    // not a wiring gap. The app_settings row is deliberately left in the DB so
+    // re-adding the feature is a UI change, not a migration.
     routeOptimizationEnabled: true,
     defaultVehicleType: "car",
     storeHours: {
@@ -103,8 +109,6 @@ export function mapApiResponse(data: any): AllSettings {
     operations: {
       maxStopsPerRoute:
         data.operations?.maxStopsPerRoute ?? DEFAULT_SETTINGS.operations.maxStopsPerRoute,
-      autoAssignEnabled:
-        data.operations?.autoAssignEnabled ?? DEFAULT_SETTINGS.operations.autoAssignEnabled,
       routeOptimizationEnabled:
         data.operations?.routeOptimizationEnabled ??
         DEFAULT_SETTINGS.operations.routeOptimizationEnabled,

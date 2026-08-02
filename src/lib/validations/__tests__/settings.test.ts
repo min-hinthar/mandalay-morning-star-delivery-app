@@ -89,6 +89,10 @@ describe("updateSettingsSchema — real payloads still parse", () => {
     const day = { open: "09:00", close: "17:00", closed: false };
     const result = parse("operations", {
       maxStopsPerRoute: 20,
+      // `autoAssignEnabled` is deliberately still sent here: it models a stale
+      // client (a tab open across the deploy that removed the control). The
+      // category schemas are non-strict, so it must be STRIPPED, not rejected —
+      // asserted below.
       autoAssignEnabled: true,
       storeHours: {
         monday: day,
@@ -101,6 +105,18 @@ describe("updateSettingsSchema — real payloads still parse", () => {
       },
     });
     expect(result.success).toBe(true);
+    // A tab open across the deploy that removed the Auto-Assign control must
+    // not start failing every operations save. The category schemas are
+    // non-strict AND the payload is a transformed record rather than a pruned
+    // object, so the retired key passes THROUGH to storage rather than being
+    // stripped — writing a row nothing reads. Harmless, and pinned here so the
+    // pass-through is a known property rather than a surprise.
+    if (result.success) {
+      expect(result.data.settings).toHaveProperty("auto_assign_enabled", true);
+      // What matters: it arrives snake_cased like every other key, so it can
+      // never collide with a live camelCase field.
+      expect(result.data.settings).not.toHaveProperty("autoAssignEnabled");
+    }
   });
 });
 

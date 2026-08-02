@@ -92,7 +92,10 @@ describe("POST /api/admin/routes — payment guard (incident #71DC108A)", () => 
  * Mocks the full happy path far enough to capture the routes insert payload.
  * Returns the spy so a test can assert the row the DB would receive.
  */
-function mockCreatePath(orderRows: Array<Record<string, unknown>> = [PAID_ORDER]) {
+function mockCreatePath(
+  orderRows: Array<Record<string, unknown>> = [PAID_ORDER],
+  optimizeSetting: { value: unknown } | null = null
+) {
   const routesInsert = vi.fn().mockReturnValue({
     select: vi.fn().mockReturnValue({
       returns: vi.fn().mockReturnValue({
@@ -101,6 +104,12 @@ function mockCreatePath(orderRows: Array<Record<string, unknown>> = [PAID_ORDER]
           error: null,
         }),
       }),
+    }),
+  });
+
+  const optimizeStopsFetch = vi.fn().mockReturnValue({
+    order: vi.fn().mockReturnValue({
+      returns: vi.fn().mockResolvedValue({ data: [], error: null }),
     }),
   });
 
@@ -120,16 +129,24 @@ function mockCreatePath(orderRows: Array<Record<string, unknown>> = [PAID_ORDER]
             neq: vi.fn().mockResolvedValue({ data: [], error: null }),
           }),
           // Post-insert stop fetch for optimization: .select().eq().order().returns()
-          eq: vi.fn().mockReturnValue({
-            order: vi.fn().mockReturnValue({
-              returns: vi.fn().mockResolvedValue({ data: [], error: null }),
-            }),
-          }),
+          // Spied so a test can prove the optimization WORK is skipped, not
+          // merely that the response message says so.
+          eq: optimizeStopsFetch,
         }),
         insert: vi.fn().mockResolvedValue({ error: null }),
       };
     }
     if (table === "routes") return { insert: routesInsert };
+    if (table === "app_settings") {
+      // route_optimization_enabled — absent by default, which must fail OPEN.
+      return {
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            maybeSingle: vi.fn().mockResolvedValue({ data: optimizeSetting, error: null }),
+          }),
+        }),
+      };
+    }
     if (table === "drivers") {
       // The create path now verifies the driver exists and is active before
       // inserting, so the happy path must resolve one.
@@ -152,7 +169,7 @@ function mockCreatePath(orderRows: Array<Record<string, unknown>> = [PAID_ORDER]
     supabase: { from },
   } as never);
 
-  return routesInsert;
+  return Object.assign(routesInsert, { optimizeStopsFetch });
 }
 
 describe("POST /api/admin/routes — status vs driver (chk_planned_unassigned)", () => {
@@ -196,6 +213,72 @@ describe("POST /api/admin/routes — status vs driver (chk_planned_unassigned)",
       const row = routesInsert.mock.calls[0][0] as { status: string; driver_id: string | null };
       expect(row.status === "planned" && row.driver_id !== null).toBe(false);
     }
+  });
+});
+
+describe("POST /api/admin/routes — route_optimization_enabled is honoured", () => {
+  beforeEach(() => vi.clearAllMocks());
+
+  // The setting was editable in Settings -> Operations ("Automatically
+  // optimize stop order for efficiency") while NOTHING read it, so switching
+  // it off changed nothing and route creation optimized regardless.
+  it("skips the optimization WORK when the setting is false", async () => {
+    const { optimizeStopsFetch } = mockCreatePath([PAID_ORDER], { value: false });
+
+    const res = await POST(makeReq({ deliveryDate: "2026-08-01", orderIds: [OID] }));
+    const body = await res.json();
+
+    expect(res.status).toBe(201);
+    expect(body.optimized).toBe(false);
+    // The load-bearing assertion: the post-insert stop fetch that feeds the
+    // optimizer must not run at all. Asserting only on the response message
+    // would pass even with the gate forced open, since that message branches
+    // on the same flag independently (this test was rewritten after
+    // falsification proved exactly that).
+    expect(optimizeStopsFetch).not.toHaveBeenCalled();
+    // And it says WHY — blaming missing coordinates would send the admin
+    // hunting a data problem that isn't there.
+    expect(body.message).toMatch(/auto-optimization is off/i);
+  });
+
+  it("still runs the optimization work when the setting is absent", async () => {
+    const { optimizeStopsFetch } = mockCreatePath([PAID_ORDER], null);
+
+    await POST(makeReq({ deliveryDate: "2026-08-01", orderIds: [OID] }));
+
+    expect(optimizeStopsFetch).toHaveBeenCalled();
+  });
+
+  it('treats a jsonb string "false" as off', async () => {
+    mockCreatePath([PAID_ORDER], { value: "false" });
+
+    const body = await (
+      await POST(makeReq({ deliveryDate: "2026-08-01", orderIds: [OID] }))
+    ).json();
+
+    expect(body.message).toMatch(/auto-optimization is off/i);
+  });
+
+  it("fails OPEN when the setting row is missing", async () => {
+    // Optimization has always been the default; an absent row must not
+    // silently change how routes are built.
+    mockCreatePath([PAID_ORDER], null);
+
+    const body = await (
+      await POST(makeReq({ deliveryDate: "2026-08-01", orderIds: [OID] }))
+    ).json();
+
+    expect(body.message).not.toMatch(/auto-optimization is off/i);
+  });
+
+  it("fails OPEN when the setting is explicitly true", async () => {
+    mockCreatePath([PAID_ORDER], { value: true });
+
+    const body = await (
+      await POST(makeReq({ deliveryDate: "2026-08-01", orderIds: [OID] }))
+    ).json();
+
+    expect(body.message).not.toMatch(/auto-optimization is off/i);
   });
 });
 

@@ -145,7 +145,9 @@ export type DeliverySettings = z.infer<typeof deliverySettingsSchema>;
 
 export const operationsSettingsSchema = z.object({
   max_stops_per_route: z.number().min(1).max(50),
-  auto_assign_enabled: z.boolean(),
+  // `auto_assign_enabled` removed with its dead UI control. The category
+  // schemas are non-strict, so a stale client still sending the key has it
+  // stripped rather than rejected.
   route_optimization_enabled: z.boolean().optional(),
   default_vehicle_type: z.enum(["car", "motorcycle", "bicycle", "van", "truck"]).optional(),
   store_hours: weeklyStoreHoursSchema.optional(),
