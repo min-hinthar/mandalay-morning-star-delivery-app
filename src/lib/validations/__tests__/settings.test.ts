@@ -90,9 +90,9 @@ describe("updateSettingsSchema — real payloads still parse", () => {
     const result = parse("operations", {
       maxStopsPerRoute: 20,
       // `autoAssignEnabled` is deliberately still sent here: it models a stale
-      // client (a tab open across the deploy that removed the control). The
-      // category schemas are non-strict, so it must be STRIPPED, not rejected —
-      // asserted below.
+      // client (a tab open across the deploy that removed the control). It must
+      // not be REJECTED — what actually happens to it is asserted below, and it
+      // is not what you would guess.
       autoAssignEnabled: true,
       storeHours: {
         monday: day,
