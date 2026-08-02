@@ -6,7 +6,6 @@
  *
  * Fields:
  * - Max stops per route (1-50)
- * - Auto-assign enabled (toggle)
  * - Route optimization enabled (toggle)
  * - Default vehicle type (select)
  * - Store hours (open/close per day, toggle closed days)
