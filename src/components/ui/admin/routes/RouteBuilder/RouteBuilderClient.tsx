@@ -207,6 +207,13 @@ export function RouteBuilderClient({ activeDays = [] }: RouteBuilderClientProps)
       toast({
         message: outcome.message,
         type: outcome.hasWindowViolations ? "warning" : "success",
+        // A late-arriving stop needs a decision, and the very next line
+        // navigates away — a 5s auto-dismiss would let the one actionable
+        // outcome expire while the admin is still reading the route list.
+        // `duration: 0` is persistent; the toast has a dismiss control
+        // (Toast.tsx "Dismiss notification") and supports swipe, so making it
+        // stick costs an explicit acknowledgement rather than trapping anyone.
+        ...(outcome.hasWindowViolations ? { duration: 0 } : {}),
       });
       router.push("/admin/routes");
     } catch (err) {
