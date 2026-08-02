@@ -11,10 +11,6 @@ import { cn } from "@/lib/utils/cn";
 import { toast } from "@/lib/hooks/useToastV8";
 import { useAnimationPreference } from "@/lib/hooks";
 import { RouteListTable, type AdminRoute } from "@/components/ui/admin/routes/RouteListTable";
-import {
-  CreateRouteModal,
-  type CreateRouteData,
-} from "@/components/ui/admin/routes/CreateRouteModal";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { SkeletonCrossfade } from "@/components/ui/SkeletonCrossfade";
 import { InlineErrorCard } from "@/components/ui/admin/InlineErrorCard";
@@ -31,7 +27,6 @@ export default function AdminRoutesPage() {
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   const fetchRoutes = useCallback(async () => {
@@ -112,21 +107,6 @@ export default function AdminRoutesPage() {
         type: "error",
       });
     }
-  };
-
-  const handleCreateRoute = async (data: CreateRouteData) => {
-    const response = await fetch("/api/admin/routes", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    });
-
-    if (!response.ok) {
-      const err = await response.json();
-      throw new Error(err.error || "Failed to create route");
-    }
-
-    await fetchRoutes();
   };
 
   const goToPreviousDay = () => {
@@ -249,12 +229,6 @@ export default function AdminRoutesPage() {
             />
           </m.div>
         )}
-
-        <CreateRouteModal
-          open={isCreateModalOpen}
-          onOpenChange={setIsCreateModalOpen}
-          onSubmit={handleCreateRoute}
-        />
       </div>
     </SkeletonCrossfade>
   );
