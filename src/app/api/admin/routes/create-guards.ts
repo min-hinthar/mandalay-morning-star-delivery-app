@@ -2,6 +2,47 @@ import { NextResponse } from "next/server";
 import { logger } from "@/lib/utils/logger";
 
 /**
+ * Should route creation auto-optimize the stop order?
+ *
+ * The `route_optimization_enabled` operations setting has existed — and been
+ * editable in Settings → Operations, labelled "Automatically optimize stop
+ * order for efficiency" — while NOTHING read it. Route creation optimized
+ * unconditionally, so an admin who switched it OFF still got optimized routes.
+ * A control that doesn't control anything is worse than no control.
+ *
+ * Fails OPEN (true) on a missing row or a read error: optimization is the
+ * long-standing default (`settings-defaults.ts` ships it `true`), so an
+ * unreadable setting must not silently change how routes are built. Only an
+ * explicit `false` disables it.
+ *
+ * Deliberately does NOT gate POST /api/admin/routes/optimize — the setting
+ * says "AUTOMATICALLY optimize", and an admin clicking Optimize is asking for
+ * it directly.
+ */
+export async function isAutoOptimizeEnabled(
+  // Thunk for the same reason as below: a structural SupabaseClient subset
+  // trips TS2589 against the generated Database generics.
+  lookup: () => PromiseLike<{ data: { value: unknown } | null; error: unknown }>
+): Promise<boolean> {
+  try {
+    const { data, error } = await lookup();
+    if (error) {
+      logger.warn("Could not read route_optimization_enabled — defaulting to enabled", {
+        api: "admin/routes",
+        flowId: "create-read-optimize-setting",
+      });
+      return true;
+    }
+    if (!data) return true;
+    // app_settings.value is jsonb, so it can arrive as a boolean or a string
+    // depending on how it was written.
+    return !(data.value === false || data.value === "false");
+  } catch {
+    return true;
+  }
+}
+
+/**
  * Reject an unknown or deactivated driver before a route is created.
  *
  * Mirrors PATCH /api/admin/orders/[id]/driver, which already refuses with

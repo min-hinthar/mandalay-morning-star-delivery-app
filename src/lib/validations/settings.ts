@@ -145,7 +145,15 @@ export type DeliverySettings = z.infer<typeof deliverySettingsSchema>;
 
 export const operationsSettingsSchema = z.object({
   max_stops_per_route: z.number().min(1).max(50),
-  auto_assign_enabled: z.boolean(),
+  // `auto_assign_enabled` removed with its dead UI control. A stale client
+  // still sending the key is NOT rejected — and not stripped either: this
+  // schema is only consulted inside updateSettingsSchema's superRefine, whose
+  // pruned output is discarded, so `.data.settings` is the full transformed
+  // record and the PATCH route upserts every key in it. The retired key is
+  // therefore written through to a row nothing reads. That pass-through is
+  // pre-existing and applies to ANY key absent from a category schema, not
+  // just this one; see the test in validations/__tests__/settings.test.ts,
+  // which pins it.
   route_optimization_enabled: z.boolean().optional(),
   default_vehicle_type: z.enum(["car", "motorcycle", "bicycle", "van", "truck"]).optional(),
   store_hours: weeklyStoreHoursSchema.optional(),

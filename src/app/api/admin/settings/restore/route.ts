@@ -37,7 +37,6 @@ const DEFAULT_SETTINGS = [
   { key: "extended_min_order_cents", value: 10000, category: "delivery" },
   // Operations settings
   { key: "max_stops_per_route", value: 15, category: "operations" },
-  { key: "auto_assign_enabled", value: false, category: "operations" },
   { key: "route_optimization_enabled", value: true, category: "operations" },
   { key: "default_vehicle_type", value: "car", category: "operations" },
   {
@@ -102,9 +101,11 @@ export async function POST() {
     });
     if (rl.limited) return rl.response;
 
-    // Delete all existing settings and re-insert defaults
-    // This requires using service role or bypassing RLS temporarily
-    // Since we're admin-only, we'll use upsert to restore values
+    // Upsert every default over its existing row. Nothing is DELETED — a key
+    // that is no longer in DEFAULT_SETTINGS (e.g. the retired
+    // `auto_assign_enabled`) keeps whatever value it holds rather than being
+    // removed or reset. The comment here previously said "delete all existing
+    // settings", which described neither the code nor the outcome.
 
     for (const setting of DEFAULT_SETTINGS) {
       const { error: upsertError } = await supabase.from("app_settings").upsert(

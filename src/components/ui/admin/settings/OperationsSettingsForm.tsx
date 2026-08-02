@@ -6,7 +6,6 @@
  *
  * Fields:
  * - Max stops per route (1-50)
- * - Auto-assign enabled (toggle)
  * - Route optimization enabled (toggle)
  * - Default vehicle type (select)
  * - Store hours (open/close per day, toggle closed days)
@@ -237,19 +236,12 @@ export function OperationsSettingsForm({
         <div
           className={cn(
             "space-y-1 divide-y divide-border-subtle",
-            (isFieldChanged(settings, originalSettings, "autoAssignEnabled") ||
-              isFieldChanged(settings, originalSettings, "routeOptimizationEnabled")) &&
-              changedBorder
+            isFieldChanged(settings, originalSettings, "routeOptimizationEnabled") && changedBorder
           )}
         >
-          <ToggleSwitch
-            id="autoAssign"
-            checked={settings.autoAssignEnabled}
-            onChange={(checked) => handleToggleChange("autoAssignEnabled", checked)}
-            label="Auto-Assign Drivers"
-            description="Automatically assign available drivers to new routes"
-          />
-
+          {/* "Auto-Assign Drivers" lived here and did nothing — nothing in the
+              codebase read the setting. Removed rather than left as a switch
+              that promises automation the app never performs. */}
           <ToggleSwitch
             id="routeOptimization"
             checked={settings.routeOptimizationEnabled}

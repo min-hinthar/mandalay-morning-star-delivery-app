@@ -6,9 +6,9 @@ import { logger } from "@/lib/utils/logger";
 import type { ProfilesRow } from "@/types/database";
 import type { RoutesRow, DriversRow, RouteStats } from "@/types/driver";
 import { checkRateLimit, adminLimiter } from "@/lib/rate-limit";
-import { optimizeRouteStops } from "@/lib/services/route-optimization";
 import { transformRouteForList } from "@/lib/utils/route-transformers";
 import { verifyAssignableDriver } from "./create-guards";
+import { optimizeNewRoute } from "./create-optimize";
 
 interface RouteWithDriver extends RoutesRow {
   drivers:
@@ -337,113 +337,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Failed to create route stops" }, { status: 500 });
     }
 
-    // Auto-optimize stop order
-    let optimized = false;
-    let totalDurationSeconds: number | undefined;
-    let totalDistanceMeters: number | undefined;
-    let optimizationMethod: string | undefined;
-    let timeWindowViolations: Array<{
-      stopId: string;
-      orderId: string;
-      eta: string;
-      windowEnd: string;
-      minutesLate: number;
-    }> = [];
-
-    try {
-      // Fetch stops with order addresses (same pattern as optimize endpoint)
-      const { data: routeStops } = await supabase
-        .from("route_stops")
-        .select(
-          `
-          id,
-          order_id,
-          orders (
-            delivery_window_start,
-            delivery_window_end,
-            addresses (
-              lat,
-              lng,
-              line_1,
-              city,
-              state,
-              postal_code
-            )
-          )
-        `
-        )
-        .eq("route_id", newRoute.id)
-        .order("stop_index", { ascending: true })
-        .returns<
-          Array<{
-            id: string;
-            order_id: string;
-            orders: {
-              delivery_window_start: string | null;
-              delivery_window_end: string | null;
-              addresses: {
-                lat: number | null;
-                lng: number | null;
-                line_1: string;
-                city: string;
-                state: string;
-                postal_code: string;
-              } | null;
-            } | null;
-          }>
-        >();
-
-      // Only optimize if all stops have coordinates
-      const validStops = routeStops?.filter(
-        (s) => s.orders?.addresses?.lat != null && s.orders?.addresses?.lng != null
-      );
-
-      if (validStops && validStops.length === routeStops?.length && validStops.length > 1) {
-        const stopsForOptimization = validStops.map((stop) => ({
-          id: stop.id,
-          order_id: stop.order_id,
-          address: {
-            lat: stop.orders!.addresses!.lat,
-            lng: stop.orders!.addresses!.lng,
-            line_1: stop.orders!.addresses!.line_1,
-            city: stop.orders!.addresses!.city,
-            state: stop.orders!.addresses!.state,
-            postal_code: stop.orders!.addresses!.postal_code,
-          },
-          deliveryWindowStart: stop.orders?.delivery_window_start,
-          deliveryWindowEnd: stop.orders?.delivery_window_end,
-        }));
-
-        const result = await optimizeRouteStops(newRoute.id, stopsForOptimization);
-
-        // Batch update stop indices via RPC
-        await supabase.rpc("batch_update_stop_indices", {
-          p_stop_ids: result.orderedStopIds,
-          p_indices: result.orderedStopIds.map((_, i) => i),
-        });
-
-        // Update route with polyline
-        if (result.polyline) {
-          await supabase
-            .from("routes")
-            .update({ optimized_polyline: result.polyline })
-            .eq("id", newRoute.id);
-        }
-
-        optimized = true;
-        totalDurationSeconds = result.totalDuration;
-        totalDistanceMeters = result.totalDistance;
-        optimizationMethod = result.method;
-        timeWindowViolations = result.timeWindowViolations;
-      }
-    } catch (optimizeError) {
-      // Don't block route creation on optimization failure
-      logger.warn("Auto-optimization failed for new route", {
-        api: "admin/routes",
-        routeId: newRoute.id,
-        error: optimizeError instanceof Error ? optimizeError.message : String(optimizeError),
-      });
-    }
+    const optimization = await optimizeNewRoute(supabase, newRoute.id);
+    const {
+      autoOptimizeEnabled,
+      optimized,
+      totalDurationSeconds,
+      totalDistanceMeters,
+      optimizationMethod,
+      timeWindowViolations,
+    } = optimization;
 
     return NextResponse.json(
       {
@@ -460,7 +362,13 @@ export async function POST(request: NextRequest) {
           ? timeWindowViolations.length > 0
             ? `Route created and optimized with ${timeWindowViolations.length} time window warning(s)`
             : "Route created and optimized successfully"
-          : "Route created (not optimized — missing coordinates or single stop)",
+          : // Say WHICH reason. Blaming missing coordinates when the admin
+            // simply switched auto-optimization off sends them looking for a
+            // data problem that isn't there — the same false-diagnosis trap as
+            // the driver "Not available on Saturdays" message.
+            autoOptimizeEnabled
+            ? "Route created (not optimized — missing coordinates or single stop)"
+            : "Route created (auto-optimization is off in Settings → Operations)",
       },
       { status: 201 }
     );
