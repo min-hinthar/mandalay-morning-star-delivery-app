@@ -92,6 +92,19 @@ describe("readRouteCreateOutcome", () => {
     expect(res.hasWindowViolations).toBe(false);
   });
 
+  it("never pairs a warning with the word 'successfully' when the message is missing", async () => {
+    // Unreachable under today's server contract, but a warning-styled toast
+    // reading "Route created successfully" is self-contradictory — precisely
+    // the dishonesty this module removes.
+    const res = await readRouteCreateOutcome(
+      json({ optimized: true, timeWindowViolations: [{ stopId: "s1" }, { stopId: "s2" }] })
+    );
+
+    expect(res.hasWindowViolations).toBe(true);
+    expect(res.message).not.toMatch(/successfully/i);
+    expect(res.message).toMatch(/2 stop/);
+  });
+
   it("falls back when message is present but not a string", async () => {
     const res = await readRouteCreateOutcome(json({ message: { nested: "oops" } }));
 

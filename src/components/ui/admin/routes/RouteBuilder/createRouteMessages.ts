@@ -68,10 +68,23 @@ export async function readRouteCreateOutcome(
   try {
     const payload = (await response.json()) as Record<string, unknown> | null;
     const violations = payload?.timeWindowViolations;
-    return {
-      message: typeof payload?.message === "string" ? payload.message : fallback.message,
-      hasWindowViolations: Array.isArray(violations) && violations.length > 0,
-    };
+    const hasWindowViolations = Array.isArray(violations) && violations.length > 0;
+
+    if (typeof payload?.message === "string") {
+      return { message: payload.message, hasWindowViolations };
+    }
+
+    // No usable message. Unreachable under today's server contract (the route
+    // always sends one alongside violations), but the fallback must not pair a
+    // WARNING toast with the words "Route created successfully" — a warning
+    // that reads as unqualified success is the exact dishonesty this file
+    // exists to remove, and it would land the moment that contract drifts.
+    return hasWindowViolations
+      ? {
+          message: `Route created — ${violations.length} stop(s) may miss their delivery window`,
+          hasWindowViolations,
+        }
+      : fallback;
   } catch {
     return fallback;
   }
