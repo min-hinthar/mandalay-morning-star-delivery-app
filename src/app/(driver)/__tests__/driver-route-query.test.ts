@@ -38,55 +38,72 @@ function read(rel: string): string {
   return readFileSync(join(ROOT, rel), "utf8");
 }
 
-/** Pull the `.select("…")` column list out of a `.from("routes")` chain. */
-function selectedColumns(source: string, afterMarker: string): string[] {
-  const from = source.indexOf(afterMarker);
-  expect(from).toBeGreaterThan(-1);
-  const select = source.indexOf('.select("', from);
-  expect(select).toBeGreaterThan(-1);
-  const open = select + '.select("'.length;
-  const close = source.indexOf('")', open);
-  return source
-    .slice(open, close)
-    .split(",")
-    .map((c) => c.trim())
-    .filter(Boolean);
+/**
+ * Every `.from("<table>").select(...)` in a source file, as
+ * `{ table, columns }`.
+ *
+ * Handles BOTH select forms the loader uses — `.select("a, b")` and the
+ * multi-line `.select(\`\n a,\n b\n\`)` — because the first version of this
+ * guard only understood the quoted form, which silently covered one of the
+ * three queries in the file and skipped the rest.
+ *
+ * Embedded relation selects (`profiles ( email )`) are not used by this loader;
+ * a nested one would surface here as a column name containing "(" and fail
+ * loudly rather than being silently mis-parsed.
+ */
+function tableSelects(source: string): Array<{ table: string; columns: string[] }> {
+  const out: Array<{ table: string; columns: string[] }> = [];
+  const fromRe = /\.from\("(\w+)"\)\s*\.select\(\s*(["`])([\s\S]*?)\2/g;
+  let m: RegExpExecArray | null;
+  while ((m = fromRe.exec(source)) !== null) {
+    const columns = m[3]
+      .split(",")
+      .map((c) => c.trim())
+      .filter(Boolean);
+    out.push({ table: m[1], columns });
+  }
+  return out;
 }
 
-describe("driver dashboard route query", () => {
-  it("selects only columns that exist on routes in the generated schema", () => {
+/** The generated Row block for one table, sliced to the NEXT table at the same indent. */
+function generatedTableBlock(generated: string, table: string): string {
+  const start = generated.indexOf(`      ${table}: {`);
+  expect(start, `${table} not found in database.generated.ts`).toBeGreaterThan(-1);
+  // The generated file is alphabetical, so a hardcoded end-marker can slice
+  // BACKWARDS to an empty string (route_stops precedes routes) and make every
+  // assertion vacuously pass. Scan forward for the next 6-space-indented table.
+  const rest = generated.slice(start + table.length + 12);
+  const next = /\n {6}\w+: \{/.exec(rest);
+  return generated.slice(start, next ? start + table.length + 12 + next.index : generated.length);
+}
+
+describe("driver dashboard queries", () => {
+  it("selects only columns that exist, for EVERY table the loader queries", () => {
     const page = read("src/app/(driver)/driver/page.tsx");
     const generated = read("src/types/database.generated.ts");
 
-    const columns = selectedColumns(page, '.from("routes")');
-    expect(columns.length).toBeGreaterThan(0);
+    const selects = tableSelects(page);
+    // The loader queries drivers, profiles, routes (x3), driver_badges and
+    // app_settings. If this drops, the parser silently stopped matching and
+    // every assertion below would pass vacuously.
+    expect(selects.length).toBeGreaterThanOrEqual(6);
 
-    // The generated Row type for `routes` is the source of truth for what
-    // PostgREST will accept. A column absent from it makes the whole query
-    // fail — not just that field come back null.
-    // Slice from `routes: {` to whichever table is declared NEXT at the same
-    // indent — the generated file is alphabetical, so `route_stops` comes
-    // BEFORE `routes` and a hardcoded end-marker slices backwards to nothing.
-    const start = generated.indexOf("      routes: {");
-    expect(start).toBeGreaterThan(-1);
-    const nextTable = /\n {6}\w+: \{/.exec(generated.slice(start + 20));
-    const routesBlock = generated.slice(
-      start,
-      nextTable ? start + 20 + nextTable.index : generated.length
-    );
-    // Guard the slice itself: an empty or truncated block would make every
-    // assertion below vacuously pass. (This guard already earned its keep —
-    // it caught the backwards slice above.)
-    expect(routesBlock).toContain("delivery_date");
-    expect(routesBlock.length).toBeGreaterThan(200);
+    for (const { table, columns } of selects) {
+      const block = generatedTableBlock(generated, table);
+      // Guard the slice itself — an empty block passes everything. (This guard
+      // already earned its keep: the first version sliced backwards.)
+      expect(block.length, `${table} block looks empty`).toBeGreaterThan(120);
+      expect(columns.length, `no columns parsed for ${table}`).toBeGreaterThan(0);
 
-    for (const column of columns) {
-      expect(
-        routesBlock.includes(`${column}:`),
-        `routes.${column} is selected by the driver dashboard but does not exist in database.generated.ts. ` +
-          `.returns<T>() casts the result, so tsc will not catch this — PostgREST rejects the query at runtime ` +
-          `and the driver silently sees no route.`
-      ).toBe(true);
+      for (const column of columns) {
+        expect(
+          block.includes(`${column}:`),
+          `${table}.${column} is selected by the driver dashboard but does not exist in ` +
+            `database.generated.ts. .returns<T>() CASTS the result to a hand-written ` +
+            `interface, so tsc cannot catch this — PostgREST rejects the whole query at ` +
+            `runtime and the loader, which reads only .data, silently sees nothing.`
+        ).toBe(true);
+      }
     }
   });
 
