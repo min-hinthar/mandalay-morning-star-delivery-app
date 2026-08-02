@@ -136,12 +136,25 @@ async function getDriverData() {
       .eq("driver_id", driver.id)
       .eq("delivery_date", todayStr)
       .in("status", ["assigned", "accepted", "planned", "in_progress"])
+      // order + limit are load-bearing, not cosmetic. maybeSingle synthesizes
+      // PGRST116 when MORE than one row returns, and nothing stops a driver
+      // having two active routes on one date: idx_routes_driver_date is a plain
+      // non-unique index, and split_route INSERTs a second route at the same
+      // delivery_date with a caller-chosen driver (merge_routes exists to undo
+      // exactly that). Unbounded, that legitimate shape would log an exception
+      // on every dashboard load, all day, while the driver still saw "no route
+      // today" — the reporting below poisoning its own signal.
+      .order("created_at", { ascending: true })
+      .limit(1)
       .returns<RouteQueryResult[]>()
       // maybeSingle, not single: `.single()` returns PGRST116 for ZERO rows, so
-      // "no route today" and a REAL failure are indistinguishable in `.error` —
-      // which is what let a phantom column read as an empty schedule. maybeSingle
-      // gives {data:null,error:null} for no rows, so a genuine error stays a
-      // genuine error and can be logged below.
+      // once errors are actually reported it would fire on every legitimately
+      // empty day. maybeSingle gives {data:null,error:null} for no rows, so a
+      // genuine error stays a genuine error and can be logged below.
+      //
+      // Note this is NOT what hid the phantom column — an unknown column is a
+      // 400 / Postgres 42703, always distinguishable. Nothing was BINDING the
+      // error. maybeSingle is what makes binding it safe.
       .maybeSingle(),
     supabase.rpc("calculate_driver_streak", { p_driver_id: driver.id }),
     supabase.rpc("calculate_driver_weekly_deliveries", { p_driver_id: driver.id }),
