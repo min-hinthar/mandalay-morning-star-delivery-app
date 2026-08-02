@@ -144,7 +144,14 @@ async function getDriverData() {
       .select("value")
       .eq("key", "driver_pay_per_stop_cents")
       .returns<AppSettingResult[]>()
-      .single(),
+      // maybeSingle for the same reason as the routes queries, plus one specific
+      // to this row: the squashed baseline creates app_settings but seeds NO
+      // rows, so `driver_pay_per_stop_cents` is absent on a fresh environment
+      // and the documented `?? 500` fallback below is the DESIGNED path. With
+      // .single() that legitimate absence is a PGRST116 error, so reporting it
+      // would page on every dashboard load; with maybeSingle only a real
+      // failure (RLS, connectivity) reaches the loop.
+      .maybeSingle(),
     // Today's completed routes with stats for earnings calculation
     supabase
       .from("routes")
@@ -166,20 +173,33 @@ async function getDriverData() {
       .maybeSingle(),
   ]);
 
-  // Report a failed route lookup instead of rendering it as "no route today".
-  // The page still degrades to the empty state — a driver seeing a broken
-  // dashboard helps nobody — but the failure stops being invisible. This is the
-  // runtime half of the phantom-column fix: the guard test catches a bad column
-  // at build time, this catches anything else (an RLS change, a PostgREST
-  // quirk, more than one route matching) at run time.
+  // Report a failed lookup instead of rendering it as "nothing to show".
+  //
+  // EVERY read below reaches the view through `?? 0` / `?? []` / `?? null`, so
+  // a failure is indistinguishable from an empty day at the UI: no route, $0
+  // today, $0 this week, no streak, no badges. That is the exact bug this PR
+  // exists to kill — the phantom column was only the instance we happened to
+  // find. So the loop covers all seven results rather than the two that were
+  // provably broken; each gets its own flowId so Sentry says WHICH read failed.
+  //
+  // The page still degrades to the empty state — a driver staring at a 404
+  // helps nobody — but the failure stops being invisible. This is the runtime
+  // half of the fix: the guard test catches a bad column at build time, this
+  // catches everything else (an RLS change, a PostgREST quirk, a failed RPC,
+  // more than one route matching) at run time.
   for (const [label, result] of [
     ["today", routeResult],
     ["next", nextRouteResult],
+    ["earnings", todayRoutesResult],
+    ["streak", streakResult],
+    ["weekly", weeklyResult],
+    ["badges", badgesResult],
+    ["pay-rate", payRateResult],
   ] as const) {
     if (result.error) {
       logger.exception(result.error, {
         api: "driver/dashboard",
-        flowId: `route-lookup-${label}`,
+        flowId: `dashboard-load-${label}`,
         driverId: driver.id,
       });
     }

@@ -149,19 +149,35 @@ describe("driver dashboard queries", () => {
       expect(chain).not.toMatch(/\.single\(\)/);
     }
 
-    // And a real error must be reported rather than swallowed. The shape is
-    // deliberately free — two `if (x.error)` blocks or one loop over both — but
-    // the reporting has to sit after the Promise.all and name BOTH results, so
-    // dropping either one fails here.
-    const awaitAt = code.indexOf("await Promise.all([");
+    // And a real error must be reported rather than swallowed — for EVERY
+    // result, not just the two that were provably broken. All of them reach the
+    // view through `?? 0` / `?? []` / `?? null`, so any one failing renders as
+    // an ordinary empty day. Rather than hardcode today's list (which would go
+    // stale the moment a query is added), read the destructured names straight
+    // out of the source and require each to be reported. Add an eighth query
+    // and forget to log it, and this fails.
+    const awaitAt = code.indexOf("] = await Promise.all([");
     expect(awaitAt, "the parallel data load moved — this anchor is stale").toBeGreaterThan(-1);
+
+    const openAt = code.lastIndexOf("const [", awaitAt);
+    expect(openAt, "could not find the destructure of the parallel load").toBeGreaterThan(-1);
+    const names = code
+      .slice(openAt + "const [".length, awaitAt)
+      .split(",")
+      .map((n) => n.trim())
+      .filter(Boolean);
+    expect(names.length, "parsed no result names — the destructure shape changed").toBeGreaterThan(
+      5
+    );
+
     const afterAwait = code.slice(code.indexOf("]);", awaitAt));
     const reportAt = afterAwait.indexOf("logger.exception");
-    expect(reportAt, "no logger.exception after the route lookups").toBeGreaterThan(-1);
+    expect(reportAt, "no logger.exception after the parallel load").toBeGreaterThan(-1);
 
     const reporting = afterAwait.slice(0, reportAt);
-    expect(reporting, "today's route lookup error is not reported").toContain("routeResult");
-    expect(reporting, "the next-route lookup error is not reported").toContain("nextRouteResult");
+    for (const name of names) {
+      expect(reporting, `${name} can fail silently — nothing reports its error`).toContain(name);
+    }
     expect(reporting, "nothing reads .error").toMatch(/\.error\b/);
   });
 
