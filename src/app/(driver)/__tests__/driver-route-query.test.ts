@@ -13,10 +13,16 @@
  *     generated types — neither of which knows what the app SELECTS.
  *   - no test covered the driver dashboard loader.
  *
- * The consequence is silent and total: PostgREST rejects the unknown column,
- * `.single()` returns `{ data: null, error }`, the page reads only
- * `routeResult.data`, so `todayRoute` is null — and `AcceptDeclineCard`, the
- * only accept/decline surface a driver has, never renders.
+ * The consequence is silent: PostgREST rejects the unknown column, `.single()`
+ * returns `{ data: null, error }`, the page reads only `routeResult.data`, so
+ * `todayRoute` is null. The driver HOME screen then reports "no route today"
+ * to a driver who has one, and its `AcceptDeclineCard` never renders.
+ *
+ * Drivers are not blocked: `AcceptDeclineBar` on /driver/route (a primary tab
+ * in DriverNav) is a second accept/decline surface, and that page's query does
+ * NOT select the phantom column, so it works. Today's earnings survive too —
+ * they come from a separate query. Scoping this correctly matters: the first
+ * version of this comment claimed the whole accept/decline flow was dead.
  *
  * This pins every column the loader asks for against the generated schema, so
  * the next phantom column fails here instead of in a driver's hands.
