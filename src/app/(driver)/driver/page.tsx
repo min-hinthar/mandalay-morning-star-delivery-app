@@ -5,6 +5,7 @@ import { DriverHomeSwitch } from "./DriverHomeSwitch";
 import { Skeleton } from "@/components/ui/skeleton/base";
 import type { RoutesRow, RouteStats, VehicleType, DriverBadgesRow } from "@/types/driver";
 import { TIMEZONE } from "@/types/delivery";
+import { logger } from "@/lib/utils/logger";
 
 function getDateInfo(): { todayStr: string; dayOfWeek: string; dateDisplay: string } {
   const now = new Date();
@@ -124,7 +125,12 @@ async function getDriverData() {
       .eq("delivery_date", todayStr)
       .in("status", ["assigned", "accepted", "planned", "in_progress"])
       .returns<RouteQueryResult[]>()
-      .single(),
+      // maybeSingle, not single: `.single()` returns PGRST116 for ZERO rows, so
+      // "no route today" and a REAL failure are indistinguishable in `.error` —
+      // which is what let a phantom column read as an empty schedule. maybeSingle
+      // gives {data:null,error:null} for no rows, so a genuine error stays a
+      // genuine error and can be logged below.
+      .maybeSingle(),
     supabase.rpc("calculate_driver_streak", { p_driver_id: driver.id }),
     supabase.rpc("calculate_driver_weekly_deliveries", { p_driver_id: driver.id }),
     supabase
@@ -157,8 +163,27 @@ async function getDriverData() {
       .order("delivery_date", { ascending: true })
       .limit(1)
       .returns<{ delivery_date: string }[]>()
-      .single(),
+      .maybeSingle(),
   ]);
+
+  // Report a failed route lookup instead of rendering it as "no route today".
+  // The page still degrades to the empty state — a driver seeing a broken
+  // dashboard helps nobody — but the failure stops being invisible. This is the
+  // runtime half of the phantom-column fix: the guard test catches a bad column
+  // at build time, this catches anything else (an RLS change, a PostgREST
+  // quirk, more than one route matching) at run time.
+  for (const [label, result] of [
+    ["today", routeResult],
+    ["next", nextRouteResult],
+  ] as const) {
+    if (result.error) {
+      logger.exception(result.error, {
+        api: "driver/dashboard",
+        flowId: `route-lookup-${label}`,
+        driverId: driver.id,
+      });
+    }
+  }
 
   const route = routeResult.data;
   const streakDays = (streakResult.data as number) ?? 0;

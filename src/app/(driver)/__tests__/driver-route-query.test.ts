@@ -128,6 +128,43 @@ describe("driver dashboard queries", () => {
     }
   });
 
+  it("uses maybeSingle + surfaces errors, so a failure cannot read as 'no route'", () => {
+    // The COMPILE-time half of this fix is the column guard above. This is the
+    // runtime half: `.single()` returns PGRST116 for zero rows, so an empty
+    // schedule and a real failure are indistinguishable in `.error` — which is
+    // precisely what let the phantom column masquerade as "no route today".
+    const page = read("src/app/(driver)/driver/page.tsx");
+
+    // Strip line comments first — the explanation of WHY we avoid .single()
+    // naturally contains the string ".single()", and the first version of this
+    // assertion matched its own documentation.
+    const code = page.replace(/^\s*\/\/.*$/gm, "");
+
+    // Every routes query must terminate in maybeSingle (or not be a
+    // single-row query at all); none may use .single().
+    const routeQueries = code.split('.from("routes")').slice(1);
+    expect(routeQueries.length).toBeGreaterThanOrEqual(2);
+    for (const q of routeQueries) {
+      const chain = q.slice(0, q.indexOf("),") + 1);
+      expect(chain).not.toMatch(/\.single\(\)/);
+    }
+
+    // And a real error must be reported rather than swallowed. The shape is
+    // deliberately free — two `if (x.error)` blocks or one loop over both — but
+    // the reporting has to sit after the Promise.all and name BOTH results, so
+    // dropping either one fails here.
+    const awaitAt = code.indexOf("await Promise.all([");
+    expect(awaitAt, "the parallel data load moved — this anchor is stale").toBeGreaterThan(-1);
+    const afterAwait = code.slice(code.indexOf("]);", awaitAt));
+    const reportAt = afterAwait.indexOf("logger.exception");
+    expect(reportAt, "no logger.exception after the route lookups").toBeGreaterThan(-1);
+
+    const reporting = afterAwait.slice(0, reportAt);
+    expect(reporting, "today's route lookup error is not reported").toContain("routeResult");
+    expect(reporting, "the next-route lookup error is not reported").toContain("nextRouteResult");
+    expect(reporting, "nothing reads .error").toMatch(/\.error\b/);
+  });
+
   it("no longer references the phantom area_description anywhere", () => {
     // It survived in three files (the query, the switch, and the card), so a
     // partial removal would leave a dead prop chain behind.
