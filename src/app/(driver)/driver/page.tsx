@@ -54,7 +54,6 @@ interface RouteQueryResult {
   stats_json: RouteStats | null;
   started_at: string | null;
   optimized_polyline: string | null;
-  area_description: string | null;
 }
 
 interface AppSettingResult {
@@ -120,7 +119,7 @@ async function getDriverData() {
   ] = await Promise.all([
     supabase
       .from("routes")
-      .select("id, status, stats_json, started_at, optimized_polyline, area_description")
+      .select("id, status, stats_json, started_at, optimized_polyline")
       .eq("driver_id", driver.id)
       .eq("delivery_date", todayStr)
       .in("status", ["assigned", "accepted", "planned", "in_progress"])
@@ -200,7 +199,6 @@ async function getDriverData() {
           pendingCount: route.stats_json?.pending_stops ?? 0,
           totalDurationMinutes: route.stats_json?.total_duration_minutes ?? null,
           startedAt: route.started_at,
-          areaDescription: route.area_description,
         }
       : null,
     nextRouteDate: nextRouteResult.data?.delivery_date ?? null,
