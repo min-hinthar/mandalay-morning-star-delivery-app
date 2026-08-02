@@ -36,9 +36,12 @@ export async function GET(request: Request) {
     const limit = Math.min(100, Math.max(1, parseInt(searchParams.get("limit") || "25", 10)));
     const rangeStart = (page - 1) * limit;
     const rangeEnd = rangeStart + limit - 1;
-    // CreateRouteModal has always requested ?active=true; the param was simply
-    // ignored, so the modal received deactivated drivers too and filtered (or
-    // failed to filter) client-side.
+    // Filter to assignable drivers only. Added for the (since-deleted)
+    // CreateRouteModal, which requested ?active=true against a route that
+    // ignored it; kept because "list only drivers I can actually assign" is a
+    // reasonable thing for any caller to ask. The route builder deliberately
+    // does NOT pass it — it shows inactive drivers as a disabled state rather
+    // than hiding them.
     const activeParam = searchParams.get("active");
     const activeOnly = activeParam === "true";
 
