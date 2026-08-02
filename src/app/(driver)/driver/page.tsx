@@ -143,6 +143,11 @@ async function getDriverData() {
       // exactly that). Unbounded, that legitimate shape would log an exception
       // on every dashboard load, all day, while the driver still saw "no route
       // today" — the reporting below poisoning its own signal.
+      // A STARTED route wins. `started_at` is set when a driver begins a run,
+      // so descending-with-nulls-last surfaces the in-progress one; picking the
+      // earliest-created instead could show an untouched `assigned` route to a
+      // driver already mid-run. created_at only breaks ties.
+      .order("started_at", { ascending: false, nullsFirst: false })
       .order("created_at", { ascending: true })
       .limit(1)
       .returns<RouteQueryResult[]>()
