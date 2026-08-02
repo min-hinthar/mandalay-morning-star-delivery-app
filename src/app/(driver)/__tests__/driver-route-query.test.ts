@@ -77,6 +77,27 @@ function generatedTableBlock(generated: string, table: string): string {
   return generated.slice(start, next ? start + table.length + 12 + next.index : generated.length);
 }
 
+/**
+ * Does the generated Row block declare EXACTLY this column?
+ *
+ * A substring check (`block.includes(column + ":")`) matches a SUFFIX of a real
+ * column, so a phantom `type` would false-pass against `vehicle_type:`, `at`
+ * against `started_at:`, and `id` against every `*_id:` — quietly gutting a
+ * guard whose entire value is rigor. Anchor to a boundary so the assertion
+ * means "this column exists", not "some column ends with this".
+ */
+function hasColumn(block: string, column: string): boolean {
+  // Postgres identifiers reaching here are [a-z0-9_]; anything else means the
+  // select parser mis-read the source (a nested relation select, say), and a
+  // silently-skipped column is exactly the failure mode this file exists to
+  // prevent — so reject it loudly rather than regex-escaping it into a pass.
+  expect(
+    column,
+    `unexpected column token "${column}" — the select parser mis-read the source`
+  ).toMatch(/^\w+$/);
+  return new RegExp(`(^|[\\s{])${column}\\s*:`, "m").test(block);
+}
+
 describe("driver dashboard queries", () => {
   it("selects only columns that exist, for EVERY table the loader queries", () => {
     const page = read("src/app/(driver)/driver/page.tsx");
@@ -97,7 +118,7 @@ describe("driver dashboard queries", () => {
 
       for (const column of columns) {
         expect(
-          block.includes(`${column}:`),
+          hasColumn(block, column),
           `${table}.${column} is selected by the driver dashboard but does not exist in ` +
             `database.generated.ts. .returns<T>() CASTS the result to a hand-written ` +
             `interface, so tsc cannot catch this — PostgREST rejects the whole query at ` +
