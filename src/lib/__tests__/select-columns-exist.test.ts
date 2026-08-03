@@ -138,6 +138,71 @@ const ALL_SELECTS = sourceFiles(join(ROOT, "src")).flatMap((f) =>
   selectsIn(readFileSync(f, "utf8"), f)
 );
 
+/**
+ * Columns named in FILTERS — `.eq()`, `.order()`, `.in()`, and friends.
+ *
+ * PostgREST rejects an unknown column in a filter exactly as it rejects one in
+ * a select, so a phantom `.eq("nope", x)` fails the whole query the same way.
+ * #230's single-file guard checked these; the repo-wide version has to as well.
+ *
+ * Filters bind to the nearest preceding `.from(...)`, so the file is chunked on
+ * `.from(` and each chunk's filters are held against that table. Two forms must
+ * be excluded or this reports pure noise — both were live false positives the
+ * first time this ran:
+ *
+ *   - `.order("stop_index", { referencedTable: "route_stops" })` orders the
+ *     EMBEDDED relation, so the column belongs to route_stops, not the parent.
+ *     (Verified load-bearing: dropping this exclusion false-positives on three
+ *     legitimate call sites.)
+ *   - `.from("customer_feedback" as any)` — a table deliberately cast past the
+ *     generated types. It resolves to no Row block and is skipped rather than
+ *     being attributed to whatever `.from()` came before it.
+ */
+interface Filter {
+  file: string;
+  line: number;
+  table: string;
+  column: string;
+  method: string;
+}
+
+const FILTER_CALL =
+  /\.(eq|neq|gt|gte|lt|lte|like|ilike|is|in|contains|order)\(\s*"([\w.]+)"([^)]*)\)/g;
+// Match EVERY .from(...) form, including `.from("x" as any)` and `.from(v)`, so
+// a chunk boundary is never missed and filters cannot leak to a previous table.
+const ANY_FROM = /\.from\(\s*(?:"(\w+)")?[^)]*\)/g;
+
+function filtersIn(source: string, file: string): Filter[] {
+  const out: Filter[] = [];
+  const froms = [...source.matchAll(ANY_FROM)];
+
+  for (let i = 0; i < froms.length; i++) {
+    const table = froms[i][1];
+    if (!table) continue; // .from(variable) — table unknowable from source
+
+    const start = froms[i].index;
+    const end = i + 1 < froms.length ? froms[i + 1].index : source.length;
+
+    for (const m of source.slice(start, end).matchAll(FILTER_CALL)) {
+      const [, method, column, args] = m;
+      if (column.includes(".")) continue; // embedded-relation path
+      if (/referencedTable|foreignTable/.test(args)) continue; // orders the relation
+      out.push({
+        file: file.replace(`${ROOT}/`, ""),
+        line: source.slice(0, start + m.index).split("\n").length,
+        table,
+        column,
+        method,
+      });
+    }
+  }
+  return out;
+}
+
+const ALL_FILTERS = sourceFiles(join(ROOT, "src")).flatMap((f) =>
+  filtersIn(readFileSync(f, "utf8"), f)
+);
+
 describe("every selected column exists in the generated schema", () => {
   it("parses a realistic number of selects — a broken parser must not read as green", () => {
     // The whole guard is worthless if the regex silently stops matching, so
@@ -175,6 +240,25 @@ describe("every selected column exists in the generated schema", () => {
         `and any caller that reads only .data renders this as "no results" rather than ` +
         `as a failure. .returns<T>() CASTS past the generated types, so tsc cannot ` +
         `catch it and a green build proves nothing.\n\n` +
+        phantom.map((p) => `  ${p}`).join("\n")
+    ).toEqual([]);
+  });
+
+  it("filters on no column that does not exist", () => {
+    expect(ALL_FILTERS.length, "the filter parser stopped matching").toBeGreaterThan(500);
+
+    const phantom: string[] = [];
+    for (const { file, line, table, column, method } of ALL_FILTERS) {
+      const existing = rowColumns(table);
+      if (!existing) continue;
+      if (!existing.has(column)) phantom.push(`${table}.${column} — ${file}:${line} (.${method})`);
+    }
+
+    expect(
+      phantom,
+      `These columns are used in a FILTER but do not exist in database.generated.ts.\n` +
+        `PostgREST rejects an unknown filter column exactly as it rejects an unknown ` +
+        `selected one — the whole query fails.\n\n` +
         phantom.map((p) => `  ${p}`).join("\n")
     ).toEqual([]);
   });
