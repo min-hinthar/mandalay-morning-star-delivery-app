@@ -5,6 +5,7 @@ import { DriverHomeSwitch } from "./DriverHomeSwitch";
 import { Skeleton } from "@/components/ui/skeleton/base";
 import type { RoutesRow, RouteStats, VehicleType, DriverBadgesRow } from "@/types/driver";
 import { TIMEZONE } from "@/types/delivery";
+import { logger } from "@/lib/utils/logger";
 
 function getDateInfo(): { todayStr: string; dayOfWeek: string; dateDisplay: string } {
   const now = new Date();
@@ -53,8 +54,6 @@ interface RouteQueryResult {
   status: string;
   stats_json: RouteStats | null;
   started_at: string | null;
-  optimized_polyline: string | null;
-  area_description: string | null;
 }
 
 interface AppSettingResult {
@@ -97,13 +96,25 @@ async function getDriverData() {
     notFound();
   }
 
-  // Get profile for full name
-  const { data: profile } = await supabase
+  // Get profile for full name. The last read on this loader that could fail
+  // invisibly: it fed `full_name ?? null`, so an RLS or connectivity failure
+  // degraded to a nameless greeting with nothing in Sentry. Cosmetic, but it is
+  // the same pattern, and leaving one of eight open would make the rule
+  // ("a failure must never read as empty") one nobody can rely on.
+  const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("full_name")
     .eq("id", user.id)
     .returns<ProfileQueryResult[]>()
-    .single();
+    .maybeSingle();
+
+  if (profileError) {
+    logger.exception(profileError, {
+      api: "driver/dashboard",
+      flowId: "dashboard-load-profile",
+      driverId: driver.id,
+    });
+  }
 
   // Get today's date in LA timezone
   const { todayStr, dayOfWeek, dateDisplay } = getDateInfo();
@@ -120,12 +131,35 @@ async function getDriverData() {
   ] = await Promise.all([
     supabase
       .from("routes")
-      .select("id, status, stats_json, started_at, optimized_polyline, area_description")
+      .select("id, status, stats_json, started_at")
       .eq("driver_id", driver.id)
       .eq("delivery_date", todayStr)
       .in("status", ["assigned", "accepted", "planned", "in_progress"])
+      // order + limit are load-bearing, not cosmetic. maybeSingle synthesizes
+      // PGRST116 when MORE than one row returns, and nothing stops a driver
+      // having two active routes on one date: idx_routes_driver_date is a plain
+      // non-unique index, and split_route INSERTs a second route at the same
+      // delivery_date with a caller-chosen driver (merge_routes exists to undo
+      // exactly that). Unbounded, that legitimate shape would log an exception
+      // on every dashboard load, all day, while the driver still saw "no route
+      // today" — the reporting below poisoning its own signal.
+      // A STARTED route wins. `started_at` is set when a driver begins a run,
+      // so descending-with-nulls-last surfaces the in-progress one; picking the
+      // earliest-created instead could show an untouched `assigned` route to a
+      // driver already mid-run. created_at only breaks ties.
+      .order("started_at", { ascending: false, nullsFirst: false })
+      .order("created_at", { ascending: true })
+      .limit(1)
       .returns<RouteQueryResult[]>()
-      .single(),
+      // maybeSingle, not single: `.single()` returns PGRST116 for ZERO rows, so
+      // once errors are actually reported it would fire on every legitimately
+      // empty day. maybeSingle gives {data:null,error:null} for no rows, so a
+      // genuine error stays a genuine error and can be logged below.
+      //
+      // Note this is NOT what hid the phantom column — an unknown column is a
+      // 400 / Postgres 42703, always distinguishable. Nothing was BINDING the
+      // error. maybeSingle is what makes binding it safe.
+      .maybeSingle(),
     supabase.rpc("calculate_driver_streak", { p_driver_id: driver.id }),
     supabase.rpc("calculate_driver_weekly_deliveries", { p_driver_id: driver.id }),
     supabase
@@ -139,7 +173,14 @@ async function getDriverData() {
       .select("value")
       .eq("key", "driver_pay_per_stop_cents")
       .returns<AppSettingResult[]>()
-      .single(),
+      // maybeSingle for the same reason as the routes queries, plus one specific
+      // to this row: the squashed baseline creates app_settings but seeds NO
+      // rows, so `driver_pay_per_stop_cents` is absent on a fresh environment
+      // and the documented `?? 500` fallback below is the DESIGNED path. With
+      // .single() that legitimate absence is a PGRST116 error, so reporting it
+      // would page on every dashboard load; with maybeSingle only a real
+      // failure (RLS, connectivity) reaches the loop.
+      .maybeSingle(),
     // Today's completed routes with stats for earnings calculation
     supabase
       .from("routes")
@@ -158,8 +199,40 @@ async function getDriverData() {
       .order("delivery_date", { ascending: true })
       .limit(1)
       .returns<{ delivery_date: string }[]>()
-      .single(),
+      .maybeSingle(),
   ]);
+
+  // Report a failed lookup instead of rendering it as "nothing to show".
+  //
+  // EVERY read below reaches the view through `?? 0` / `?? []` / `?? null`, so
+  // a failure is indistinguishable from an empty day at the UI: no route, $0
+  // today, $0 this week, no streak, no badges. That is the exact bug this PR
+  // exists to kill — the phantom column was only the instance we happened to
+  // find. So the loop covers all seven results rather than the two that were
+  // provably broken; each gets its own flowId so Sentry says WHICH read failed.
+  //
+  // The page still degrades to the empty state — a driver staring at a 404
+  // helps nobody — but the failure stops being invisible. This is the runtime
+  // half of the fix: the guard test catches a bad column at build time, this
+  // catches everything else (an RLS change, a PostgREST quirk, a failed RPC,
+  // more than one route matching) at run time.
+  for (const [label, result] of [
+    ["today", routeResult],
+    ["next", nextRouteResult],
+    ["earnings", todayRoutesResult],
+    ["streak", streakResult],
+    ["weekly", weeklyResult],
+    ["badges", badgesResult],
+    ["pay-rate", payRateResult],
+  ] as const) {
+    if (result.error) {
+      logger.exception(result.error, {
+        api: "driver/dashboard",
+        flowId: `dashboard-load-${label}`,
+        driverId: driver.id,
+      });
+    }
+  }
 
   const route = routeResult.data;
   const streakDays = (streakResult.data as number) ?? 0;
@@ -200,7 +273,6 @@ async function getDriverData() {
           pendingCount: route.stats_json?.pending_stops ?? 0,
           totalDurationMinutes: route.stats_json?.total_duration_minutes ?? null,
           startedAt: route.started_at,
-          areaDescription: route.area_description,
         }
       : null,
     nextRouteDate: nextRouteResult.data?.delivery_date ?? null,

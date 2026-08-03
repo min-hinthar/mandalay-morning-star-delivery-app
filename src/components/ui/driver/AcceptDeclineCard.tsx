@@ -9,7 +9,7 @@
 
 import { useState, useCallback } from "react";
 import { m } from "framer-motion";
-import { Loader2, MapPin, Package } from "lucide-react";
+import { Loader2, Package } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -22,7 +22,6 @@ interface AcceptDeclineCardProps {
     id: string;
     status: string;
     stopCount: number;
-    area_description?: string | null;
   };
   onAccepted?: () => void;
   onDeclined?: () => void;
@@ -84,12 +83,6 @@ export function AcceptDeclineCard({ route, onAccepted, onDeclined }: AcceptDecli
               {stopCount} {stopCount === 1 ? "stop" : "stops"}
             </span>
           </div>
-          {route.area_description && (
-            <div className="flex items-center gap-2 text-text-muted">
-              <MapPin className="h-4 w-4 shrink-0" />
-              <span className="font-body text-base">{route.area_description}</span>
-            </div>
-          )}
         </div>
 
         {/* Actions */}
