@@ -65,12 +65,22 @@ function rowColumns(table: string): Set<string> | null {
   return cols.size > 0 ? cols : null;
 }
 
+/**
+ * Application sources only.
+ *
+ * Test files and stories are excluded: a mock or fixture may deliberately name
+ * a column that does not exist, and failing the build for that would be a false
+ * positive on code that never reaches PostgREST. Only queries that actually run
+ * against the database are in scope.
+ */
 function sourceFiles(dir: string, out: string[] = []): string[] {
   for (const entry of readdirSync(dir)) {
     const path = join(dir, entry);
     if (statSync(path).isDirectory()) {
-      if (entry !== "node_modules") sourceFiles(path, out);
-    } else if (/\.tsx?$/.test(entry)) {
+      if (entry !== "node_modules" && entry !== "__tests__" && entry !== "__mocks__") {
+        sourceFiles(path, out);
+      }
+    } else if (/\.tsx?$/.test(entry) && !/\.(test|spec|stories)\.tsx?$/.test(entry)) {
       out.push(path);
     }
   }
@@ -84,13 +94,44 @@ interface Select {
   columns: string[];
 }
 
+// Matches EVERY .from(...) form, including `.from("x" as any)` and `.from(v)`,
+// so a chunk boundary is never missed and columns cannot leak to a prior table.
+const ANY_FROM = /\.from\(\s*(?:"(\w+)")?[^)]*\)/g;
+
 /**
- * Pull `.from("<table>").select("<cols>")` out of a source file.
+ * Split a file into one chunk per `.from(...)`, each running to the next one.
  *
- * Handles the quoted and multi-line template forms, and a newline between
- * `.from(...)` and `.select(...)` — all three appear in this repo, and a
- * parser that understands only one silently skips the rest, which would gut
- * the guard while still reporting green.
+ * Selects and filters both bind to the nearest preceding `.from(...)`, so this
+ * is the single place that mapping is decided. Chunks whose table cannot be
+ * read from the source are dropped rather than guessed: `.from(variable)` is
+ * unknowable, and `.from("customer_feedback" as any)` names a table that is
+ * deliberately absent from the generated types. Skipping the chunk (rather
+ * than not matching it at all) is what stops its columns being attributed to
+ * whatever `.from()` came before — four of seven initial false positives.
+ */
+function fromChunks(source: string): Array<{ table: string; chunk: string; offset: number }> {
+  const froms = [...source.matchAll(ANY_FROM)];
+  const out: Array<{ table: string; chunk: string; offset: number }> = [];
+
+  for (let i = 0; i < froms.length; i++) {
+    const table = froms[i][1];
+    const start = froms[i].index;
+    const end = i + 1 < froms.length ? froms[i + 1].index : source.length;
+    if (!table) continue;
+    out.push({ table, chunk: source.slice(start, end), offset: start });
+  }
+  return out;
+}
+
+/**
+ * Every `.select(...)` belonging to a `.from("<table>")`, with its columns.
+ *
+ * Deliberately NOT anchored to `.select(` immediately following `.from(...)`.
+ * That shape sees 418 of the 493 select calls in app code; chunking on `.from(`
+ * sees 473. The extra 55 are mostly the `.update({...}).eq(...).select("id")`
+ * verify-affected-rows pattern, whose columns are just as capable of being
+ * phantom. It also matches how the filter scan below binds a column to a table,
+ * so both checks share one definition of "which table does this belong to".
  *
  * Embedded relation selects (`addresses ( line_1, city )`) name a TABLE, not a
  * column on the parent, so the relation name and its parenthesised body are
@@ -99,37 +140,38 @@ interface Select {
  */
 function selectsIn(source: string, file: string): Select[] {
   const out: Select[] = [];
-  const re = /\.from\(\s*"(\w+)"\s*\)\s*(?:\r?\n\s*)?\.select\(\s*(["'`])([\s\S]*?)\2/g;
 
-  for (const m of source.matchAll(re)) {
-    const [, table, , raw] = m;
-    const line = source.slice(0, m.index).split("\n").length;
+  for (const { table, chunk, offset } of fromChunks(source)) {
+    for (const m of chunk.matchAll(/\.select\(\s*(["'`])([\s\S]*?)\1/g)) {
+      const raw = m[2];
+      const line = source.slice(0, offset + m.index).split("\n").length;
 
-    // Keep only depth-0 text, so nested relation bodies drop out entirely.
-    let depth = 0;
-    let topLevel = "";
-    for (const ch of raw) {
-      if (ch === "(") depth++;
-      else if (ch === ")") depth--;
-      else if (depth === 0) topLevel += ch;
+      // Keep only depth-0 text, so nested relation bodies drop out entirely.
+      let depth = 0;
+      let topLevel = "";
+      for (const ch of raw) {
+        if (ch === "(") depth++;
+        else if (ch === ")") depth--;
+        else if (depth === 0) topLevel += ch;
+      }
+
+      // A token immediately before "(" is a relation name (optionally carrying
+      // a !fk_name disambiguation hint), never a column.
+      const relations = new Set([...raw.matchAll(/([\w!]+)\s*\(/g)].map((r) => r[1].split("!")[0]));
+
+      const columns: string[] = [];
+      for (const part of topLevel.split(",")) {
+        let col = part.trim();
+        if (!col || col === "*") continue;
+        if (col.includes(":")) col = col.split(":").pop()!.trim(); // alias:column
+        col = col.replace(/->.*$/, "").replace(/::.*$/, "").trim(); // json path / cast
+        if (!col || !/^\w+$/.test(col)) continue;
+        if (relations.has(col)) continue;
+        columns.push(col);
+      }
+
+      out.push({ file: file.replace(`${ROOT}/`, ""), line, table, columns });
     }
-
-    // A token immediately before "(" is a relation name (optionally carrying a
-    // !fk_name disambiguation hint), never a column.
-    const relations = new Set([...raw.matchAll(/([\w!]+)\s*\(/g)].map((r) => r[1].split("!")[0]));
-
-    const columns: string[] = [];
-    for (const part of topLevel.split(",")) {
-      let col = part.trim();
-      if (!col || col === "*") continue;
-      if (col.includes(":")) col = col.split(":").pop()!.trim(); // alias:column
-      col = col.replace(/->.*$/, "").replace(/::.*$/, "").trim(); // json path / cast
-      if (!col || !/^\w+$/.test(col)) continue;
-      if (relations.has(col)) continue;
-      columns.push(col);
-    }
-
-    out.push({ file: file.replace(`${ROOT}/`, ""), line, table, columns });
   }
   return out;
 }
@@ -168,28 +210,17 @@ interface Filter {
 
 const FILTER_CALL =
   /\.(eq|neq|gt|gte|lt|lte|like|ilike|is|in|contains|order)\(\s*"([\w.]+)"([^)]*)\)/g;
-// Match EVERY .from(...) form, including `.from("x" as any)` and `.from(v)`, so
-// a chunk boundary is never missed and filters cannot leak to a previous table.
-const ANY_FROM = /\.from\(\s*(?:"(\w+)")?[^)]*\)/g;
-
 function filtersIn(source: string, file: string): Filter[] {
   const out: Filter[] = [];
-  const froms = [...source.matchAll(ANY_FROM)];
 
-  for (let i = 0; i < froms.length; i++) {
-    const table = froms[i][1];
-    if (!table) continue; // .from(variable) — table unknowable from source
-
-    const start = froms[i].index;
-    const end = i + 1 < froms.length ? froms[i + 1].index : source.length;
-
-    for (const m of source.slice(start, end).matchAll(FILTER_CALL)) {
+  for (const { table, chunk, offset } of fromChunks(source)) {
+    for (const m of chunk.matchAll(FILTER_CALL)) {
       const [, method, column, args] = m;
       if (column.includes(".")) continue; // embedded-relation path
       if (/referencedTable|foreignTable/.test(args)) continue; // orders the relation
       out.push({
         file: file.replace(`${ROOT}/`, ""),
-        line: source.slice(0, start + m.index).split("\n").length,
+        line: source.slice(0, offset + m.index).split("\n").length,
         table,
         column,
         method,
