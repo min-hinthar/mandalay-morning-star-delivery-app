@@ -14,8 +14,6 @@ interface OrderRow {
   placed_at: string;
   confirmed_at: string | null;
   delivered_at: string | null;
-  cancelled_at: string | null;
-  cancellation_reason: string | null;
   delivery_window_start: string | null;
   delivery_window_end: string | null;
   special_instructions: string | null;
@@ -76,7 +74,7 @@ export async function fetchTrackingData(
     .from("orders")
     .select(
       `id, user_id, status, placed_at, confirmed_at, delivered_at,
-       cancelled_at, cancellation_reason, delivery_window_start,
+       delivery_window_start,
        delivery_window_end, special_instructions, subtotal_cents,
        delivery_fee_cents, tax_cents, tip_cents, discount_cents, total_cents,
        addresses (line_1, line_2, city, state, postal_code, lat, lng),
@@ -235,8 +233,18 @@ export async function fetchTrackingData(
       placedAt: order.placed_at,
       confirmedAt: order.confirmed_at,
       deliveredAt: order.delivered_at,
-      cancelledAt: order.cancelled_at ?? null,
-      cancellationReason: order.cancellation_reason ?? null,
+      // `orders` has NO cancelled_at / cancellation_reason column — it never
+      // has, in any migration. Selecting them made PostgREST reject the whole
+      // query, so this loader returned null and the tracking page 404'd for
+      // EVERY order. These stay null until cancellation gets a real home:
+      // today the reason lands in three different places depending on who
+      // cancelled (order_audit_log.reason for admin, a special_instructions
+      // note for account self-serve, nowhere for the pending-order route).
+      // Both consumers already handle null — CancelledOverlay renders the
+      // reason only `&&`-gated, and StatusStepper derives cancellation from
+      // `currentStatus`, not from this field.
+      cancelledAt: null,
+      cancellationReason: null,
       deliveryWindowStart: order.delivery_window_start,
       deliveryWindowEnd: order.delivery_window_end,
       specialInstructions: order.special_instructions,
