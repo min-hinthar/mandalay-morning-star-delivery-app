@@ -6,6 +6,7 @@ import { Calendar } from "lucide-react";
 import { AdminPageHeader } from "@/components/ui/admin/AdminPageHeader";
 import { SkeletonCrossfade } from "@/components/ui/SkeletonCrossfade";
 import { toast } from "@/lib/hooks/useToastV8";
+import { describeRouteError, readRouteCreateOutcome } from "./createRouteMessages";
 import { clusterOrders, estimateRouteDuration, getUnclusteredOrders } from "@/lib/utils/clustering";
 import { RouteBuilderMap } from "@/components/ui/admin/routes/RouteBuilderMap";
 import { UnassignedOrdersPanel } from "./UnassignedOrdersPanel";
@@ -25,47 +26,6 @@ import type { MapStop } from "@/components/ui/admin/routes/RouteBuilderMap";
 // ============================================
 // SKELETON
 // ============================================
-
-/**
- * Turn a failed create-route response into something the admin can act on.
- *
- * The API already returns WHICH orders blocked the batch (invalidOrderIds /
- * unpaidOrderIds / assignedOrderIds) — the old handler read only the top-level
- * `error` string and dropped them, so "Some orders are already assigned to
- * active routes" left the admin to guess which of 30 selected orders it meant.
- *
- * Also stops assuming a non-OK body is JSON: a gateway 502/504 or an auth
- * redirect returns HTML, and the bare `response.json()` threw a SyntaxError
- * that surfaced as "Unexpected token '<'" instead of anything useful.
- */
-async function describeRouteError(response: Response): Promise<string> {
-  let payload: Record<string, unknown> | null = null;
-  try {
-    payload = (await response.json()) as Record<string, unknown>;
-  } catch {
-    return `Failed to create route (server returned ${response.status})`;
-  }
-
-  const base = typeof payload?.error === "string" ? payload.error : "Failed to create route";
-  const idLists: Array<[string, string]> = [
-    ["unpaidOrderIds", "unpaid"],
-    ["invalidOrderIds", "not ready"],
-    ["assignedOrderIds", "already routed"],
-  ];
-
-  const details = idLists
-    .map(([key, label]) => {
-      const ids = payload?.[key];
-      if (!Array.isArray(ids) || ids.length === 0) return null;
-      // Short ids keep the toast readable; the full set is rarely needed to act.
-      const shown = ids.slice(0, 3).map((id) => String(id).slice(0, 8));
-      const more = ids.length > shown.length ? ` +${ids.length - shown.length} more` : "";
-      return `${label}: ${shown.join(", ")}${more}`;
-    })
-    .filter(Boolean);
-
-  return details.length > 0 ? `${base} — ${details.join("; ")}` : base;
-}
 
 function RouteBuilderSkeleton() {
   return (
@@ -234,7 +194,27 @@ export function RouteBuilderClient({ activeDays = [] }: RouteBuilderClientProps)
         throw new Error(await describeRouteError(response));
       }
 
-      toast({ message: "Route created successfully", type: "success" });
+      // Report what the server actually did. A hardcoded "Route created
+      // successfully" discarded three outcomes the API distinguishes:
+      //   - stops that will arrive AFTER their delivery window closes
+      //     (timeWindowViolations) — the admin has to know that now, while
+      //     the route can still be changed
+      //   - auto-optimization being off in Settings -> Operations
+      //   - optimization skipped for missing coordinates / a single stop
+      // The route IS created in every one of those cases, so only the
+      // window violations warrant a warning; the rest are informational.
+      const outcome = await readRouteCreateOutcome(response);
+      toast({
+        message: outcome.message,
+        type: outcome.hasWindowViolations ? "warning" : "success",
+        // A late-arriving stop needs a decision, and the very next line
+        // navigates away — a 5s auto-dismiss would let the one actionable
+        // outcome expire while the admin is still reading the route list.
+        // `duration: 0` is persistent; the toast has a dismiss control
+        // (Toast.tsx "Dismiss notification") and supports swipe, so making it
+        // stick costs an explicit acknowledgement rather than trapping anyone.
+        ...(outcome.hasWindowViolations ? { duration: 0 } : {}),
+      });
       router.push("/admin/routes");
     } catch (err) {
       toast({
