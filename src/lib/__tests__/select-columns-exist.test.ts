@@ -30,6 +30,14 @@
  * columns are unguarded. Those are COUNTED instead, and the count is pinned, so
  * adding a new one is a deliberate act rather than a silent gap.
  *
+ * ALSO NOT — query-shaped text INSIDE a string literal. `stripComments` walks
+ * past a quoted span without blanking it (it has to: the select columns live
+ * inside exactly such a span), so an error message or doc string containing
+ * `.from("orders").select("cancelled_at")` would be read as a real query. No
+ * such string exists today. If this test ever fails on prose rather than on a
+ * query, that is why — quote the offending text differently or move it into a
+ * comment, which IS stripped.
+ *
  * ALSO NOT — this catches phantom COLUMNS. It cannot catch a hand-written
  * interface naming real columns with the wrong TYPE or nullability (e.g.
  * `rating_avg: number` where the schema says `number | null`). Only dropping
