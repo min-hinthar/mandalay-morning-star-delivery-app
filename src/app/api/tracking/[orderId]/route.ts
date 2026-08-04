@@ -16,6 +16,7 @@ import { getDeliveryPhotoSignedUrl } from "@/lib/supabase/delivery-photos";
 import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import { calculateETA, calculateRemainingStops } from "@/lib/utils/eta";
+import { getOrderCancellation } from "@/lib/orders/cancellation";
 import type { OrderStatus } from "@/types/database";
 import type { RouteStatus, RouteStopStatus, VehicleType } from "@/types/driver";
 import type {
@@ -171,6 +172,22 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
           lng: null,
         };
 
+    // Only cancelled orders have a cancellation record to read — and only the
+    // OWNER sees it, not a share-token holder.
+    //
+    // Whether the reason is customer-facing at all is decided in the reader,
+    // which withholds it unless the admin opted to notify. This extra gate is
+    // about a different question: even a customer-safe reason is the business's
+    // explanation OF the customer's order. Sharing the order is the customer's
+    // call; passing on the explanation is not theirs to make.
+    const isOwner = order.user_id === user.id;
+    // Not cancelled, or not the owner -> there is nothing to look up, so a null
+    // answer IS authoritative. Only a failed read is "unknown".
+    const cancellation =
+      (order.status as OrderStatus) === "cancelled" && isOwner
+        ? await getOrderCancellation(order.id)
+        : { ok: true, cancellation: null };
+
     // Build order info
     const orderInfo: TrackingOrderInfo = {
       id: order.id,
@@ -178,12 +195,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
       placedAt: order.placed_at,
       confirmedAt: order.confirmed_at,
       deliveredAt: order.delivered_at,
-      // See fetchTrackingData: `orders` has no cancelled_at /
-      // cancellation_reason column, so selecting them failed this whole query
-      // and the polling refresh died alongside the SSR page. Null until
-      // cancellation data gets a single home.
-      cancelledAt: null,
-      cancellationReason: null,
+      // From order_audit_log, matching fetchTrackingData — see that file and
+      // lib/orders/cancellation.ts. Only queried when the order is cancelled.
+      cancelledAt: cancellation.cancellation?.cancelledAt ?? null,
+      cancellationReason: cancellation.cancellation?.reason ?? null,
+      cancellationKnown: cancellation.ok,
       deliveryWindowStart: order.delivery_window_start,
       deliveryWindowEnd: order.delivery_window_end,
       specialInstructions: order.special_instructions,

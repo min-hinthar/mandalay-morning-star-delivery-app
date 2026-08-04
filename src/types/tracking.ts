@@ -42,6 +42,12 @@ export interface TrackingOrderInfo {
   deliveredAt: string | null;
   cancelledAt: string | null;
   cancellationReason: string | null;
+  /**
+   * False when the cancellation lookup FAILED. The two fields above are then
+   * unknown rather than empty, and a client must not treat them as
+   * authoritative — see useTrackingSubscription's cancellationSynced.
+   */
+  cancellationKnown: boolean;
   deliveryWindowStart: string | null;
   deliveryWindowEnd: string | null;
   specialInstructions: string | null;
@@ -148,6 +154,30 @@ export interface TrackingSubscriptionState {
   driverLocation: DriverLocation | null;
   stopEta: string | null;
   deliveryPhotoUrl: string | null;
+  /**
+   * Cancellation details for an order cancelled WHILE the page is open.
+   *
+   * The SSR snapshot cannot carry these — at page load the order was not yet
+   * cancelled, so both are null there. Realtime only flips the status (the
+   * `orders` row has no reason column; it lives in `order_audit_log`), so
+   * these arrive on the next API fetch. Null means "not known yet", and the
+   * consumer falls back to the SSR value.
+   */
+  cancellationReason: string | null;
+  cancelledAt: string | null;
+  /**
+   * True once a tracking fetch has succeeded, making the two fields above
+   * AUTHORITATIVE — including when they are null.
+   *
+   * Consumers must not `??` their way from a live null back to the SSR
+   * snapshot. `cancelled -> pending -> cancelled` is a supported sequence, and
+   * the second cancellation legitimately has no readable reason when the admin
+   * opts out of notifying or a non-audited path did it. Falling back would then
+   * show the FIRST cancellation's reason for the second one — the same
+   * superseded-reason bug the server-side reader was fixed for, one layer up.
+   * Not `lastUpdate`: realtime handlers stamp that without refreshing these.
+   */
+  cancellationSynced: boolean;
   lastUpdate: Date | null;
 }
 

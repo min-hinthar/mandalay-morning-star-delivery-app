@@ -120,7 +120,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       actor_id: userId,
       actor_role: "admin",
       old_value: { status: previousStatus } as Json,
-      new_value: { status: "cancelled" } as Json,
+      // `notified` records the admin's INTENT, which is what the customer
+      // tracking page keys off before showing this reason back to them.
+      // `reason` is a single required free-text field with no
+      // customer-copy/internal-note distinction, so an admin who opts out of
+      // notifying may well have written it for staff. Without this flag the
+      // reader cannot tell those apart. Deliberately the choice, not delivery
+      // success — a bounced email does not mean the admin wanted it hidden.
+      new_value: { status: "cancelled", notified: notifyCustomer } as Json,
       reason,
     });
 

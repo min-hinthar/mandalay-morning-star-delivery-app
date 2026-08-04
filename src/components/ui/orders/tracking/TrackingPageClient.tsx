@@ -32,6 +32,8 @@ import { SupportActions } from "./SupportActions";
 import { DeliveryNotesEditor } from "./DeliveryNotesEditor";
 import { DeliveredScreen } from "./DeliveredScreen";
 import { CancelledOverlay } from "./CancelledOverlay";
+import { resolveCancellationReason } from "./resolveCancellationReason";
+import { STATUS_TITLES } from "./statusTitles";
 import { ShareButton } from "./ShareButton";
 import { NearbyBanner } from "./NearbyBanner";
 import { ReconnectingBanner } from "./ReconnectingBanner";
@@ -46,16 +48,6 @@ import { calculateETA, calculateRemainingStops } from "@/lib/utils/eta";
 import type { TrackingData } from "@/types/tracking";
 import type { OrderStatus } from "@/types/database";
 import type { VehicleType } from "@/types/driver";
-
-const STATUS_TITLES: Record<OrderStatus, string> = {
-  pending_approval: "Awaiting Approval | Morning Star",
-  pending: "Order Placed | Morning Star",
-  confirmed: "Confirmed | Morning Star",
-  preparing: "Preparing... | Morning Star",
-  out_for_delivery: "Out for Delivery | Morning Star",
-  delivered: "Delivered! | Morning Star",
-  cancelled: "Cancelled | Morning Star",
-};
 
 interface TrackingPageClientProps {
   orderId: string;
@@ -210,7 +202,14 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
     <AnimatePresence>
       {orderStatus === "cancelled" && (
         <CancelledOverlay
-          cancellationReason={initialData.order.cancellationReason}
+          // Snapshot until synced, live answer forever after — deliberately
+          // NOT `??`. See resolveCancellationReason for why the fallback is a
+          // bug once a fetch has succeeded.
+          cancellationReason={resolveCancellationReason({
+            synced: subscription.cancellationSynced,
+            live: subscription.cancellationReason,
+            snapshot: initialData.order.cancellationReason,
+          })}
           orderId={orderId}
         />
       )}
@@ -231,7 +230,16 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <StatusStepper currentStatus={orderStatus} cancelledAt={initialData.order.cancelledAt} />
+        {/*
+          No cancelledAt: StatusStepper derives cancellation from currentStatus
+          already (`currentStatus === "cancelled" || !!cancelledAt`), and the
+          only value available here is the FROZEN SSR snapshot. Feeding it in
+          gave that `||` a way to disagree with the live status — after the
+          supported `cancelled -> pending` transition the rail and its
+          aria text stayed cancelled while the overlay and tab title said
+          pending. The branch was dead before this PR populated cancelledAt.
+        */}
+        <StatusStepper currentStatus={orderStatus} />
       </m.div>
 
       {/* ETA Countdown */}

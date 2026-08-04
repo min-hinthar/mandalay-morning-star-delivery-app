@@ -32,6 +32,14 @@ const POLLING_INTERVAL = 30000; // 30 seconds
 // Reconnect delay replaced by getBackoffDelay() — Phase 112 Plan 01 TRAK-04.
 // Curve: [1000, 2000, 4000, 8000, 16000, 30000, 30000, ...] vs linear 5000ms.
 
+/**
+ * Backoff for re-reading cancellation details after realtime reports a
+ * cancellation. Two extra attempts, ~4s total — long enough for the audit
+ * insert that follows the committed status UPDATE, short enough that a
+ * customer watching the page is not left staring at an unexplained overlay.
+ */
+const CANCELLATION_RETRY_DELAYS_MS = [1000, 3000];
+
 interface UseTrackingSubscriptionOptions {
   orderId: string;
   routeId?: string | null;
@@ -64,6 +72,9 @@ export function useTrackingSubscription({
     driverLocation: null,
     stopEta: null,
     deliveryPhotoUrl: null,
+    cancellationReason: null,
+    cancelledAt: null,
+    cancellationSynced: false,
     lastUpdate: null,
   });
 
@@ -72,6 +83,12 @@ export function useTrackingSubscription({
   const locationChannelRef = useRef<RealtimeChannel | null>(null);
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const cancellationRetryRef = useRef<NodeJS.Timeout | null>(null);
+  // Settles the retry loop's pending delay. Clearing the timeout alone would
+  // leave that promise unresolved forever, so the loop would hang instead of
+  // returning and never reach its abandon check.
+  const cancellationWakeRef = useRef<(() => void) | null>(null);
+  const abandonCancellationSyncRef = useRef(false);
   // TRAK-04: attempt counter for exponential backoff (ref not state — avoids re-render storms)
   const attemptRef = useRef<number>(0);
   // TRAK-03: visibility handler stored in ref to avoid stale closures without useEffectEvent
@@ -92,13 +109,59 @@ export function useTrackingSubscription({
           stopEta: data.routeStop?.eta ?? null,
           deliveryPhotoUrl: data.routeStop?.deliveryPhotoUrl ?? null,
           driverLocation: data.driverLocation,
+          // Adopted ONLY when the lookup actually succeeded.
+          // getOrderCancellation swallows a failed audit-log read into a null
+          // while the API still answers 200, so assigning unconditionally would
+          // let a transient failure overwrite a good reason with nothing AND
+          // mark it authoritative — hiding it for the rest of the session.
+          // Skipping leaves the previous values untouched, so a failure changes
+          // nothing rather than making things worse.
+          ...(data.order.cancellationKnown
+            ? {
+                // Only ever set for a cancelled order, and only for the owner —
+                // the API withholds it from share-token holders.
+                cancellationReason: data.order.cancellationReason ?? null,
+                cancelledAt: data.order.cancelledAt ?? null,
+                cancellationSynced: true,
+              }
+            : {}),
           lastUpdate: new Date(),
         }));
+        return data.order as { cancelledAt: string | null };
       }
     } catch {
       // Network error — will retry on next poll or realtime reconnect
     }
+    return null;
   }, [orderId]);
+
+  /**
+   * Pull cancellation details, retrying briefly until the audit row lands.
+   *
+   * Both admin routes commit the `orders` UPDATE and only THEN insert the
+   * order_audit_log row, so realtime can deliver `cancelled` before the reason
+   * exists. A healthy realtime connection has already called stopPolling(), so
+   * the first empty answer would otherwise stand until a reload.
+   *
+   * `cancelledAt` is the probe, not the reason: it is non-null whenever an
+   * audit row exists AT ALL — including one whose reason is deliberately
+   * withheld because the admin opted out of notifying. So a legitimately
+   * reason-less cancellation settles on the first attempt instead of burning
+   * every retry, and only a genuinely absent row keeps trying.
+   */
+  const syncCancellationDetails = useCallback(async () => {
+    if ((await fetchTrackingData())?.cancelledAt) return;
+
+    for (const delay of CANCELLATION_RETRY_DELAYS_MS) {
+      await new Promise<void>((resolve) => {
+        cancellationWakeRef.current = resolve;
+        cancellationRetryRef.current = setTimeout(resolve, delay);
+      });
+      cancellationWakeRef.current = null;
+      if (abandonCancellationSyncRef.current) return;
+      if ((await fetchTrackingData())?.cancelledAt) return;
+    }
+  }, [fetchTrackingData]);
 
   /**
    * Handle order update from Realtime
@@ -112,8 +175,17 @@ export function useTrackingSubscription({
         lastUpdate: new Date(),
       }));
       onOrderUpdate?.(newStatus);
+
+      // Realtime carries the `orders` row, which has no cancellation reason —
+      // that lives in `order_audit_log` and only the API assembles it. Without
+      // this, a customer watching the page when their order is cancelled sees
+      // the overlay appear with no explanation until they reload. One extra
+      // request, on a terminal transition that happens at most once.
+      if (newStatus === "cancelled") {
+        void syncCancellationDetails();
+      }
     },
-    [onOrderUpdate]
+    [onOrderUpdate, syncCancellationDetails]
   );
 
   /**
@@ -292,6 +364,13 @@ export function useTrackingSubscription({
       return;
     }
 
+    // Re-arm the cancellation retry. This effect's cleanup latches the flag,
+    // and cleanup runs on every dependency change — and twice on mount under
+    // React Strict Mode — not only on unmount. Left latched, every later
+    // cancellation would do the single race-prone fetch and skip both retries,
+    // quietly restoring the audit-insert race the retry loop exists to close.
+    abandonCancellationSyncRef.current = false;
+
     // Initial fetch
     fetchTrackingData();
 
@@ -347,6 +426,15 @@ export function useTrackingSubscription({
         clearTimeout(reconnectTimeoutRef.current);
         reconnectTimeoutRef.current = null;
       }
+      // Order matters: latch abandon BEFORE waking, so the resumed loop sees
+      // it and returns rather than firing another fetch.
+      abandonCancellationSyncRef.current = true;
+      if (cancellationRetryRef.current) {
+        clearTimeout(cancellationRetryRef.current);
+        cancellationRetryRef.current = null;
+      }
+      cancellationWakeRef.current?.();
+      cancellationWakeRef.current = null;
       attemptRef.current = 0;
     };
   }, [
