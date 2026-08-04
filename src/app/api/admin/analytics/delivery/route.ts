@@ -143,11 +143,25 @@ export async function GET(request: NextRequest) {
 
     // Fetch previous period for trend comparison
     const previousRange = getPreviousPeriodRange(period);
-    const { data: previousMetricsRows } = await supabase
+    const { data: previousMetricsRows, error: previousError } = await supabase
       .rpc("get_delivery_metrics_admin")
       .gte("delivery_date", previousRange.startDate.toISOString().split("T")[0])
       .lte("delivery_date", previousRange.endDate.toISOString().split("T")[0])
       .returns<DeliveryMetricsMvRow[]>();
+
+    // A dropped error here is not cosmetic. calculateMetricsSummary leaves
+    // ordersTrend/revenueTrend/successRateTrend at their initial 0 when the
+    // previous period is empty, and the dashboard renders that 0 as a real
+    // "0%" — so a failed read is presented to an admin as a genuinely flat
+    // period. Reported rather than swallowed; the primary query above already
+    // 500s on its own error, and failing the whole page over a TREND would be
+    // a worse trade than showing current-period numbers without one.
+    if (previousError) {
+      logger.exception(previousError, {
+        api: "admin/analytics/delivery",
+        flowId: "previous-period-trend",
+      });
+    }
 
     const previousMetrics = (previousMetricsRows || []).map(transformDeliveryMetrics);
 
