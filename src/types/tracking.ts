@@ -159,6 +159,19 @@ export interface TrackingSubscriptionState {
    */
   cancellationReason: string | null;
   cancelledAt: string | null;
+  /**
+   * True once a tracking fetch has succeeded, making the two fields above
+   * AUTHORITATIVE — including when they are null.
+   *
+   * Consumers must not `??` their way from a live null back to the SSR
+   * snapshot. `cancelled -> pending -> cancelled` is a supported sequence, and
+   * the second cancellation legitimately has no readable reason when the admin
+   * opts out of notifying or a non-audited path did it. Falling back would then
+   * show the FIRST cancellation's reason for the second one — the same
+   * superseded-reason bug the server-side reader was fixed for, one layer up.
+   * Not `lastUpdate`: realtime handlers stamp that without refreshing these.
+   */
+  cancellationSynced: boolean;
   lastUpdate: Date | null;
 }
 

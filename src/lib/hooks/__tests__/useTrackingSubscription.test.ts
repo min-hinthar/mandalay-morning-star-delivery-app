@@ -867,6 +867,25 @@ describe("useTrackingSubscription — live cancellation", () => {
     expect(result.current.cancelledAt).toBeNull();
   });
 
+  it("marks the fields authoritative only after a fetch succeeds", async () => {
+    // The consumer keys off this to decide whether the SSR snapshot still
+    // applies. Before the first successful fetch it must be false, or a live
+    // null would be mistaken for an authoritative "no reason" and suppress a
+    // snapshot reason that is still the right answer.
+    stubFetch({ status: "cancelled", cancellationReason: null, cancelledAt: null });
+
+    const { result } = renderHook(() =>
+      useTrackingSubscription({ orderId: "order-123", enabled: true })
+    );
+    expect(result.current.cancellationSynced).toBe(false);
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(result.current.cancellationSynced).toBe(true);
+  });
+
   it("refetches when realtime reports a cancellation, because the row has no reason", async () => {
     // Realtime delivers the `orders` row. The reason is not on it — it lives in
     // order_audit_log and only the API assembles it — so without this refetch
@@ -895,5 +914,122 @@ describe("useTrackingSubscription — live cancellation", () => {
     });
 
     expect(global.fetch).toHaveBeenCalledWith("/api/tracking/order-123");
+  });
+});
+
+// ============================================================================
+// The audit row lands AFTER the status commits
+// ============================================================================
+//
+// Both admin routes commit the `orders` UPDATE and only then insert the
+// order_audit_log row, so realtime can deliver `cancelled` while the reason
+// does not exist yet. A healthy realtime connection has already called
+// stopPolling(), so a single fetch's empty answer would stand until reload.
+describe("useTrackingSubscription — cancellation detail retry", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    mockChannels.length = 0;
+    mockRemoveChannel.mockClear();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  /** Drive the realtime `orders` UPDATE handler the hook registered. */
+  async function fireCancelled() {
+    const channel = mockChannels.find((c) => c.name.includes("order-123"));
+    const handler = channel?.on.mock.calls.find((call) => call[1]?.table === "orders")?.[2] as (p: {
+      new: { status: string };
+    }) => void;
+    await act(async () => {
+      handler({ new: { status: "cancelled" } });
+      await Promise.resolve();
+    });
+  }
+
+  it("keeps retrying until the audit row appears", async () => {
+    // First answer: status committed, audit row not yet written.
+    const responses = [
+      { status: "cancelled", cancellationReason: null, cancelledAt: null },
+      { status: "cancelled", cancellationReason: null, cancelledAt: null },
+      {
+        status: "cancelled",
+        cancellationReason: "Kitchen fire",
+        cancelledAt: "2026-08-04T01:00:00Z",
+      },
+    ];
+    let call = 0;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockImplementation(async () => ({
+        ok: true,
+        json: async () => ({
+          data: {
+            order: responses[Math.min(call++, responses.length - 1)],
+            routeStop: null,
+            driverLocation: null,
+          },
+        }),
+      }))
+    );
+
+    const { result } = renderHook(() =>
+      useTrackingSubscription({ orderId: "order-123", enabled: true })
+    );
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    call = 0; // realtime fires; restart the scripted sequence
+    await fireCancelled();
+    expect(result.current.cancellationReason).toBeNull();
+
+    // Drain both backoff steps.
+    for (const _ of [0, 1]) {
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(3000);
+      });
+    }
+
+    expect(result.current.cancellationReason).toBe("Kitchen fire");
+  });
+
+  it("stops on a withheld reason instead of burning every retry", async () => {
+    // cancelledAt non-null means the audit row EXISTS — the null reason is the
+    // admin's deliberate choice not to notify, not a race. Retrying would be
+    // pointless load on every opt-out cancellation.
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: {
+            order: {
+              status: "cancelled",
+              cancellationReason: null,
+              cancelledAt: "2026-08-04T01:00:00Z",
+            },
+            routeStop: null,
+            driverLocation: null,
+          },
+        }),
+      })
+    );
+
+    renderHook(() => useTrackingSubscription({ orderId: "order-123", enabled: true }));
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    await fireCancelled();
+    const afterFirst = (global.fetch as ReturnType<typeof vi.fn>).mock.calls.length;
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(10000);
+    });
+
+    expect((global.fetch as ReturnType<typeof vi.fn>).mock.calls.length).toBe(afterFirst);
   });
 });

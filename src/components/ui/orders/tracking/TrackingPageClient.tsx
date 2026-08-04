@@ -32,6 +32,8 @@ import { SupportActions } from "./SupportActions";
 import { DeliveryNotesEditor } from "./DeliveryNotesEditor";
 import { DeliveredScreen } from "./DeliveredScreen";
 import { CancelledOverlay } from "./CancelledOverlay";
+import { resolveCancellationReason } from "./resolveCancellationReason";
+import { STATUS_TITLES } from "./statusTitles";
 import { ShareButton } from "./ShareButton";
 import { NearbyBanner } from "./NearbyBanner";
 import { ReconnectingBanner } from "./ReconnectingBanner";
@@ -46,16 +48,6 @@ import { calculateETA, calculateRemainingStops } from "@/lib/utils/eta";
 import type { TrackingData } from "@/types/tracking";
 import type { OrderStatus } from "@/types/database";
 import type { VehicleType } from "@/types/driver";
-
-const STATUS_TITLES: Record<OrderStatus, string> = {
-  pending_approval: "Awaiting Approval | Morning Star",
-  pending: "Order Placed | Morning Star",
-  confirmed: "Confirmed | Morning Star",
-  preparing: "Preparing... | Morning Star",
-  out_for_delivery: "Out for Delivery | Morning Star",
-  delivered: "Delivered! | Morning Star",
-  cancelled: "Cancelled | Morning Star",
-};
 
 interface TrackingPageClientProps {
   orderId: string;
@@ -210,15 +202,14 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
     <AnimatePresence>
       {orderStatus === "cancelled" && (
         <CancelledOverlay
-          // Live value first: the overlay's visibility follows the LIVE status,
-          // so an order cancelled while this page is open shows the overlay
-          // against an SSR snapshot taken before the cancellation existed —
-          // where the reason is necessarily null. Falling back to the snapshot
-          // keeps the ordinary case (loading a page for an already-cancelled
-          // order) unchanged.
-          cancellationReason={
-            subscription.cancellationReason ?? initialData.order.cancellationReason
-          }
+          // Snapshot until synced, live answer forever after — deliberately
+          // NOT `??`. See resolveCancellationReason for why the fallback is a
+          // bug once a fetch has succeeded.
+          cancellationReason={resolveCancellationReason({
+            synced: subscription.cancellationSynced,
+            live: subscription.cancellationReason,
+            snapshot: initialData.order.cancellationReason,
+          })}
           orderId={orderId}
         />
       )}
