@@ -203,10 +203,22 @@ export async function GET(request: NextRequest) {
 
     // Fetch top drivers
     // via the wrapper, not the view — see analytics/drivers/route.ts for why.
-    const { data: driverStatsRows } = await supabase
+    const { data: driverStatsRows, error: driverStatsError } = await supabase
       .rpc("get_driver_stats_admin")
       .eq("is_active", true)
       .returns<DriverStatsMvRow[]>();
+
+    // Reported, not swallowed. Degrading to an empty Top Drivers panel rather
+    // than 500-ing the whole dashboard is the right trade, but doing it
+    // SILENTLY is how the missing-grant bug this PR fixes stayed hidden: the
+    // read had been failing for every caller and the page just showed no
+    // drivers. Now the panel still degrades, and the failure is visible.
+    if (driverStatsError) {
+      logger.exception(driverStatsError, {
+        api: "admin/analytics/delivery",
+        flowId: "top-drivers",
+      });
+    }
 
     const drivers = (driverStatsRows || []).map(transformDriverStats);
     const topDrivers = generateLeaderboard(drivers, 5);
