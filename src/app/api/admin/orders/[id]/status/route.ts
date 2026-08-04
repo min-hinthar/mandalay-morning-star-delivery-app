@@ -193,7 +193,14 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       actor_id: userId,
       actor_role: "admin",
       old_value: { status: currentStatus } as Json,
-      new_value: { status: newStatus } as Json,
+      // `notified` records the admin's INTENT. This route can transition an
+      // order to `cancelled` with the same free-text `reason` the dedicated
+      // cancel route takes, and the customer tracking page keys off this flag
+      // before showing that reason back to them (lib/orders/cancellation.ts).
+      // Without it a reason written for staff would be surfaced to the
+      // customer. Deliberately the choice, not delivery success — a bounced
+      // email does not mean the admin wanted it hidden.
+      new_value: { status: newStatus, notified: notifyCustomer } as Json,
       reason: reason ?? null,
     });
 
