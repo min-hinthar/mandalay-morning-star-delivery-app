@@ -97,12 +97,16 @@ in JSX — because that wiring had no test. Extracting the decision into
   identical on `main`, untouched by #233 (that page types its state as `AdminDriver`, which
   was already `number | null`). Only a partially-rated fleet misreports — an all-unrated
   fleet sums to 0, which is falsy and correctly renders an em dash.
-- **Both admin analytics routes read `driver_stats_mv` on the caller-scoped client.**
-  `api/admin/analytics/delivery/route.ts` and `api/admin/analytics/drivers/route.ts`. The
-  baseline emits 99 `GRANT ... ON TABLE` lines and **none** names `driver_stats_mv`, so
-  `authenticated` holds no SELECT grant: one route swallows the permission error into an
-  empty Top Drivers list, the other 500s. There is a `get_driver_stats_admin()` wrapper that
-  is being bypassed.
+- **THREE admin routes read `driver_stats_mv` on the caller-scoped client.**
+  `api/admin/analytics/delivery/route.ts`, `api/admin/analytics/drivers/route.ts`, and
+  `api/admin/analytics/drivers/[driverId]/route.ts` — all three use `createClient()`, not the
+  service client. The baseline emits 99 `GRANT ... ON TABLE` lines and **none** names
+  `driver_stats_mv`, so `authenticated` holds no SELECT grant: one route swallows the
+  permission error into an empty Top Drivers list, the others fail. There is a
+  `get_driver_stats_admin()` wrapper that all three bypass. (The third caller was missed on
+  first write-up and added after an auto-review caught it — fix all three together, or the
+  per-driver drill-down stays broken after the list pages are fixed.)
+
 - **Nit (recorded, not fixed):** concurrent `syncCancellationDetails` invocations share the
   single `cancellationWakeRef`/`cancellationRetryRef` slots. Self-healing (each `setTimeout`
   closes over its own `resolve`; the post-wake abandon check blocks any fetch after unmount)
