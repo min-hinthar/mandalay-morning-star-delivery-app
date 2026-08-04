@@ -16,6 +16,7 @@ import { getDeliveryPhotoSignedUrl } from "@/lib/supabase/delivery-photos";
 import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
 import { calculateETA, calculateRemainingStops } from "@/lib/utils/eta";
+import { getOrderCancellation } from "@/lib/orders/cancellation";
 import type { OrderStatus } from "@/types/database";
 import type { RouteStatus, RouteStopStatus, VehicleType } from "@/types/driver";
 import type {
@@ -171,6 +172,13 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
           lng: null,
         };
 
+    // Only cancelled orders have a cancellation record to read. Note this is
+    // also reachable via a valid share token, which is consistent with the rest
+    // of this payload — address, items and driver name are already shared that
+    // way, and the reason is admin-written copy the customer was emailed.
+    const cancellation =
+      (order.status as OrderStatus) === "cancelled" ? await getOrderCancellation(order.id) : null;
+
     // Build order info
     const orderInfo: TrackingOrderInfo = {
       id: order.id,
@@ -178,12 +186,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
       placedAt: order.placed_at,
       confirmedAt: order.confirmed_at,
       deliveredAt: order.delivered_at,
-      // See fetchTrackingData: `orders` has no cancelled_at /
-      // cancellation_reason column, so selecting them failed this whole query
-      // and the polling refresh died alongside the SSR page. Null until
-      // cancellation data gets a single home.
-      cancelledAt: null,
-      cancellationReason: null,
+      // From order_audit_log, matching fetchTrackingData — see that file and
+      // lib/orders/cancellation.ts. Only queried when the order is cancelled.
+      cancelledAt: cancellation?.cancelledAt ?? null,
+      cancellationReason: cancellation?.reason ?? null,
       deliveryWindowStart: order.delivery_window_start,
       deliveryWindowEnd: order.delivery_window_end,
       specialInstructions: order.special_instructions,
