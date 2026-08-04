@@ -5,15 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import type { ReactElement } from "react";
-
-interface AdminContactInfo {
-  email?: string;
-  phone?: string;
-}
-
-interface AppSettingRow {
-  value: string;
-}
+import { parseAdminContactInfo } from "./contact-info";
 
 export default async function DriverDeactivatedPage(): Promise<ReactElement> {
   const supabase = await createClient();
@@ -27,24 +19,21 @@ export default async function DriverDeactivatedPage(): Promise<ReactElement> {
     redirect("/login");
   }
 
-  // Fetch admin contact info from app_settings
+  // Admin contact info. No .returns<T>() cast: letting the generated types
+  // infer `value: Json` is what makes the shape honest — the old cast claimed
+  // `string`, so JSON.parse() on the real (already-parsed) object threw into an
+  // empty catch and the contact links never rendered. maybeSingle, not single,
+  // because the baseline seeds no app_settings rows: an absent key is a normal
+  // state, not an error.
   const serviceSupabase = createServiceClient();
-  let contactInfo: AdminContactInfo = {};
 
   const { data: setting } = await serviceSupabase
     .from("app_settings")
     .select("value")
     .eq("key", "admin_contact_info")
-    .returns<AppSettingRow[]>()
-    .single();
+    .maybeSingle();
 
-  if (setting?.value) {
-    try {
-      contactInfo = JSON.parse(setting.value) as AdminContactInfo;
-    } catch {
-      // Invalid JSON — ignore
-    }
-  }
+  const contactInfo = parseAdminContactInfo(setting?.value);
 
   return (
     <main className="min-h-screen bg-background flex items-center justify-center p-4">
