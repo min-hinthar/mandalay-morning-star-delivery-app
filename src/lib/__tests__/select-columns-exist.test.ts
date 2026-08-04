@@ -344,9 +344,18 @@ describe("every queried column exists in the generated schema", () => {
    * today's numbers so any real loss of coverage trips them.
    */
   it("parses essentially every query in the repo — losing coverage must fail here", () => {
-    expect(selectCalls, "select calls parsed").toBeGreaterThan(455);
-    expect(SELECT_REFS.length, "select columns validated").toBeGreaterThan(1750);
-    expect(FILTER_REFS.length, "filter columns validated").toBeGreaterThan(770);
+    // IF YOU ARE READING THIS BECAUSE CI FAILED HERE: this is not necessarily a
+    // bug. These floors sit ~3% under the real counts so a parser regression
+    // (or a refactor that hides queries from it, e.g. `.from(TABLES.x)`) cannot
+    // pass silently. If you DELIBERATELY reduced the number of queries — deleted
+    // a feature, consolidated call sites — then nothing is broken: re-pin the
+    // numbers to the new reality and say so in the PR. What you must not do is
+    // lower them to make a red build green without checking which queries
+    // disappeared, because that is exactly the failure this guards against.
+    const reBaseline = "if you intentionally reduced query count, re-pin this floor";
+    expect(selectCalls, `select calls parsed — ${reBaseline}`).toBeGreaterThan(455);
+    expect(SELECT_REFS.length, `select columns validated — ${reBaseline}`).toBeGreaterThan(1750);
+    expect(FILTER_REFS.length, `filter columns validated — ${reBaseline}`).toBeGreaterThan(770);
   });
 
   it("validates columns inside embedded relations, not just top-level ones", () => {

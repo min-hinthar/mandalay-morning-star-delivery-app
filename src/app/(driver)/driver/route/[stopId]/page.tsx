@@ -47,7 +47,6 @@ interface StopQueryResult {
       // snapshot, which is how every other query in this repo reads it.
       menu_item: {
         name_en: string;
-        name_my: string | null;
       } | null;
       modifiers: Array<{
         name_snapshot: string;
@@ -97,8 +96,7 @@ async function getStopDetail(stopId: string) {
           id,
           quantity,
           menu_item:menu_items (
-            name_en,
-            name_my
+            name_en
           ),
           modifiers:order_item_modifiers (
             name_snapshot
