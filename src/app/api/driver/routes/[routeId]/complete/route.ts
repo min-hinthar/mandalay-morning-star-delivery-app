@@ -129,7 +129,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
         .from("drivers")
         .select("deliveries_count, rating_avg")
         .eq("id", driverId)
-        .returns<{ deliveries_count: number; rating_avg: number }[]>()
+        .returns<{ deliveries_count: number; rating_avg: number | null }[]>()
         .single();
 
       // deliveries_count already includes this route's stops (trigger fires per-stop on delivery)

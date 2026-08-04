@@ -26,7 +26,7 @@ export interface DriverReadiness {
   id: string;
   fullName: string | null;
   vehicleType: string | null;
-  ratingAvg: number;
+  ratingAvg: number | null;
   isAvailable: boolean;
   /**
    * "We haven't heard from them" — distinct from both available and
@@ -83,7 +83,7 @@ export interface DriverInput {
   id: string;
   fullName: string | null;
   vehicleType: string | null;
-  ratingAvg: number;
+  ratingAvg: number | null;
   isActive: boolean;
   availability: { available_days: string[]; blocked_dates: string[] } | null;
 }

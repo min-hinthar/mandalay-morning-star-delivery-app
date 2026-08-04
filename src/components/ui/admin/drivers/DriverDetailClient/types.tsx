@@ -12,7 +12,7 @@ export interface DriverDetail {
   profileImageUrl: string | null;
   isActive: boolean;
   onboardingCompletedAt: string | null;
-  ratingAvg: number;
+  ratingAvg: number | null;
   deliveriesCount: number;
   createdAt: string;
   updatedAt: string;

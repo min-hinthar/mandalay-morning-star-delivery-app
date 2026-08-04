@@ -21,7 +21,7 @@ interface AppSettingResult {
 interface DriverResult {
   id: string;
   deliveries_count: number;
-  rating_avg: number;
+  rating_avg: number | null;
 }
 
 async function getEarningsData() {
@@ -43,7 +43,8 @@ async function getEarningsData() {
       rateCents: DEFAULT_PAY_RATE_CENTS,
       badges: [],
       streakDays: 0,
-      driverStats: { deliveriesCount: 0, ratingAvg: 0 },
+      // null = unknown (no driver record), not a zero score.
+      driverStats: { deliveriesCount: 0, ratingAvg: null },
     };
   }
 

@@ -42,7 +42,7 @@ interface DriverQueryResult {
   phone: string | null;
   profile_image_url: string | null;
   deliveries_count: number;
-  rating_avg: number;
+  rating_avg: number | null;
 }
 
 interface ProfileQueryResult {

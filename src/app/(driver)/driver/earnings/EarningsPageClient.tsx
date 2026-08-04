@@ -21,7 +21,7 @@ interface EarningsPageClientProps {
   rateCents: number;
   badges: Array<{ id: string; name: string; icon: string; earnedAt: string }>;
   streakDays: number;
-  driverStats: { deliveriesCount: number; ratingAvg: number };
+  driverStats: { deliveriesCount: number; ratingAvg: number | null };
 }
 
 // ===========================================

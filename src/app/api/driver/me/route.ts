@@ -24,7 +24,7 @@ interface DriverMeResponse {
     licensePlate: string | null;
     profileImageUrl: string | null;
     deliveriesCount: number;
-    ratingAvg: number;
+    ratingAvg: number | null;
     createdAt: string;
   };
   todayRoute: {
@@ -60,7 +60,7 @@ export async function GET() {
       phone: string | null;
       profile_image_url: string | null;
       deliveries_count: number;
-      rating_avg: number;
+      rating_avg: number | null;
       created_at: string;
     }
 

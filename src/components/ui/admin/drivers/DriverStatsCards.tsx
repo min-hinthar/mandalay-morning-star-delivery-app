@@ -16,7 +16,7 @@ import { AnimatedValue } from "@/components/ui/admin/AdminDashboard/AnimatedValu
 
 interface Driver {
   id: string;
-  ratingAvg: number;
+  ratingAvg: number | null;
   deliveriesCount: number;
   isActive: boolean;
   createdAt: string;
@@ -85,6 +85,10 @@ function StatCard({ title, value, displayValue, format, icon, subtitle }: StatCa
 export function DriverStatsCards({ driver }: DriverStatsCardsProps) {
   const { shouldAnimate } = useAnimationPreference();
 
+  // null = no ratings yet, which reads the same as 0 here: show an em dash
+  // rather than a 0.0 that looks like a bad score.
+  const rated = driver.ratingAvg !== null && driver.ratingAvg > 0;
+
   const formatDate = (dateStr: string) => {
     return new Date(dateStr).toLocaleDateString("en-US", {
       month: "short",
@@ -101,10 +105,10 @@ export function DriverStatsCards({ driver }: DriverStatsCardsProps) {
     >
       <StatCard
         title="Rating"
-        value={driver.ratingAvg > 0 ? driver.ratingAvg : null}
-        displayValue={driver.ratingAvg > 0 ? driver.ratingAvg.toFixed(1) : "—"}
+        value={rated ? driver.ratingAvg : null}
+        displayValue={rated ? driver.ratingAvg!.toFixed(1) : "—"}
         icon={<Star className="h-5 w-5 text-accent-teal fill-current" />}
-        subtitle={driver.ratingAvg > 0 ? "/ 5" : undefined}
+        subtitle={rated ? "/ 5" : undefined}
       />
 
       <StatCard

@@ -22,7 +22,7 @@ interface DriverApiResponse {
   phone: string | null;
   vehicleType: string | null;
   isActive: boolean;
-  ratingAvg: number;
+  ratingAvg: number | null;
   deliveriesCount: number;
   availability: { available_days: string[]; blocked_dates: string[] } | null;
 }
@@ -45,8 +45,11 @@ function getVehicleIcon(vehicleType: string | null) {
   }
 }
 
-function formatRating(rating: number): string {
-  return rating > 0 ? rating.toFixed(1) : "N/A";
+// Deliberately NOT the shared analytics formatRating: that one renders 0 as
+// "0.0", this renders it "N/A". Widening the local copy keeps the display
+// identical and adds the null case (no ratings yet), which reads the same as 0.
+function formatRating(rating: number | null): string {
+  return rating !== null && rating > 0 ? rating.toFixed(1) : "N/A";
 }
 
 function sortDrivers(drivers: DriverReadiness[]): DriverReadiness[] {
