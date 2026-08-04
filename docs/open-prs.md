@@ -4,7 +4,116 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-08-01._
+_Last reconciled: 2026-08-04._
+
+## Recently closed — phantom-column sweep 2026-08-04 (ALL FOUR MERGED on the owner's "Merge all four when ready")
+
+Fallout from #231's repo-wide `.returns<T>()` cast scan. **All four independent off
+`main@2602a2fd` with ZERO file overlap between any pair**, so merge order was free.
+
+**Pre-merge discipline that paid for itself:** before merging, all four were merged into a
+local `integration-check` branch off `main` and the FULL suite run against the combined
+state (each PR's own CI had only ever seen it alone against `main`). A 5-lens adversarial
+audit ran over that merged tree — 13 candidate findings, 2 survived refutation, both
+**pre-existing** and neither attributable to these PRs (see Follow-ups below). The most
+plausible cross-PR break was checked directly and was clean: #236 revokes
+`get_driver_performance` / `calculate_route_stats` / `is_driver`, all of which have **zero**
+`.rpc()` callers in `src/`, while #233's driver stats UI uses `calculate_driver_streak` /
+`calculate_driver_weekly_deliveries`, which #236 does not touch.
+
+- **#233 — `drivers.rating_avg` is nullable** (`f03ed8d7`). `numeric(3,2) DEFAULT 0` with no
+  `NOT NULL` (baseline:211), but seven hand-written interfaces declared it `number` and
+  `.returns<T>()` cast that straight past `tsc`, so `.toFixed(1)` on a null threw inside
+  render and took three screens down. Widened ~20 files + fixed 9 render sites; unrated shows
+  an em dash, never an animated `0.0`.
+- **#234 — the deactivated page leaked admin contact** (`89a82cde`). It gated on "is anyone
+  logged in", so ANY signed-in customer who guessed `/driver/deactivated` was shown the
+  admin's email and phone. `middleware.ts` deliberately exempts the route (a deactivated
+  driver must reach it without passing the driver-layout guard), which is exactly why the
+  page itself must check. Now defers to `getRoleDashboard` and renders only when it returns
+  this page's own path. Verified it **fails closed**: on a DB error the catch returns
+  `/login?error=role_lookup_failed`, and the driver lookup discards its `error` so a blip
+  yields `no_record` → `/driver/onboard` — a deactivated driver is locked out (annoying)
+  rather than a customer let in (a leak).
+- **#235 — cancellation reason was structurally dead** (`6983e094`). See its own section
+  below; it took four review rounds and seven real defects.
+- **#236 — `get_driver_performance` failed OPEN** (`792f9cf0`). The guard was
+  `IF NOT is_admin() AND p_driver_id != get_my_driver_id()`; `get_my_driver_id()` returns
+  NULL for a non-driver, so `p_driver_id != NULL` is NULL, `TRUE AND NULL` is NULL, the IF is
+  not taken, and any authenticated customer read any driver's stats. It only ever fired for a
+  caller who WAS a driver asking about a different driver. Fixed with the NULL-safe
+  `IS DISTINCT FROM` (the same shape #173 applied to three sibling RPCs) + 7 REVOKEs.
+  `db-drift` passed: the `RETURNS TABLE` signature is byte-identical to the baseline's, so
+  `CREATE OR REPLACE` cannot move the generated Functions block.
+
+### #235 in detail — seven real defects across four review rounds
+
+Worth recording because **four of the seven were introduced by the fixes for the earlier
+three**, each one a new way for the display to disagree with reality:
+
+1. **Only one of two admin cancel paths was read.** `PATCH /admin/orders/[id]/status` also
+   reaches `cancelled`, takes the same free-text `reason`, and emails the same template — but
+   writes `action:'status_change'`. Scoping to `action='cancel'` left it dead.
+2. **The widened read then reached too far back.** A 10-row scan for the newest _cancellation_
+   skipped the un-cancel row. `cancelled -> pending` is permitted, and **five** paths re-cancel
+   writing no audit row (account self-serve x2, pending-order route, Stripe `charge-refunded`
+   and `checkout-session-expired`) — so it attributed a superseded reason, with a stale
+   timestamp, to an unrelated cancellation. Fixed by _removing_ code: `.in()` leaves only
+   decisive row types, so the newest row alone decides → back to `limit(1)`.
+3. **The API half was computed and discarded.** `CancelledOverlay`'s visibility follows the
+   LIVE status but it read its reason from the SSR snapshot, which predates any cancellation
+   that lands while the page is open.
+4. **The `??` fallback reintroduced (2) client-side** — an authoritative live null fell back
+   to the snapshot. Now `cancellationSynced` + `resolveCancellationReason`, never `??`.
+5. **The refetch could beat the audit row.** Both admin routes commit the `orders` UPDATE
+   _before_ the audit insert, and `SUBSCRIBED` calls `stopPolling()`, so one empty answer
+   would stand until reload. Bounded retry probing on `cancelledAt` (non-null even when the
+   reason is deliberately withheld, so an opt-out settles on attempt one).
+6. **The retry's abandon flag latched forever.** Set in cleanup, never re-armed — and cleanup
+   runs on every dep change and twice on mount under Strict Mode, so the retry was silently
+   dead in dev. (Remounting would NOT catch it: a fresh hook gets a fresh ref.)
+7. **A failed lookup passed as an authoritative null.** `getOrderCancellation` swallows a
+   failed audit-log read while the API still answers 200, so a transient failure overwrote a
+   real reason with nothing _and_ marked it authoritative. Now `{ ok, cancellation }` →
+   `order.cancellationKnown` → the hook adopts the fields only on a successful read.
+
+Plus a frozen `cancelledAt` reactivating a previously-dead `||` branch in `StatusStepper`
+(`currentStatus === "cancelled" || !!cancelledAt`), which kept the rail cancelled after
+`cancelled -> pending`; the prop is simply no longer passed. **20 mutations falsified.**
+
+**Lesson:** the one mutation an earlier pass failed to catch was reverting an inline ternary
+in JSX — because that wiring had no test. Extracting the decision into
+`resolveCancellationReason` was not tidying; it was the only way to pin it.
+
+## Follow-ups from the 2026-08-04 audit (pre-existing on `main`, NOT from these PRs)
+
+- **`/admin/drivers` fleet average is materially wrong.** `src/app/(admin)/admin/drivers/page.tsx:166-170`
+  filters unrated drivers out of the denominator with `d.ratingAvg !== null`, but the DB
+  sentinel for unrated is **0**, not null (`rating_avg numeric(3,2) DEFAULT 0`, and the
+  recompute trigger writes `COALESCE(v_new_avg, 0)`). `driver_ratings_rating_check CHECK
+(rating >= 1 AND rating <= 5)` makes 0 an _unambiguous_ unrated sentinel — a rated driver
+  can never average below 1. So the filter excludes nobody and every unrated driver enters as
+  a genuine 0-star score: one 4.8 driver plus four unrated renders **"1.0 / 5.0"**. Byte-
+  identical on `main`, untouched by #233 (that page types its state as `AdminDriver`, which
+  was already `number | null`). Only a partially-rated fleet misreports — an all-unrated
+  fleet sums to 0, which is falsy and correctly renders an em dash.
+- **THREE admin routes read `driver_stats_mv` on the caller-scoped client.**
+  `api/admin/analytics/delivery/route.ts`, `api/admin/analytics/drivers/route.ts`, and
+  `api/admin/analytics/drivers/[driverId]/route.ts` — all three use `createClient()`, not the
+  service client. The baseline emits 99 `GRANT ... ON TABLE` lines and **none** names
+  `driver_stats_mv` — in fact NO grant of any form mentions it, verified directly. So
+  `authenticated` holds no SELECT grant: one route swallows the permission error into an
+  empty Top Drivers list, the others fail. The view is created UNQUALIFIED at
+  `baseline:639` (grepping `public.driver_stats_mv` finds nothing — search bare), and
+  `get_driver_stats_admin()` at `baseline:1164` is `RETURNS SETOF driver_stats_mv`, i.e. the
+  intended path all three bypass. (The third caller was missed on
+  first write-up and added after an auto-review caught it — fix all three together, or the
+  per-driver drill-down stays broken after the list pages are fixed.)
+
+- **Nit (recorded, not fixed):** concurrent `syncCancellationDetails` invocations share the
+  single `cancellationWakeRef`/`cancellationRetryRef` slots. Self-healing (each `setTimeout`
+  closes over its own `resolve`; the post-wake abandon check blocks any fetch after unmount)
+  and a terminal transition fires ~once, so the worst case is a duplicate fetch.
 
 ## Recently closed — route-creation debug 2026-08-01 (ALL THREE MERGED on the owner's "Merge, go thoughtfully")
 

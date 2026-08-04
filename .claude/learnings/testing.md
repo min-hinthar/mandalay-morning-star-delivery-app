@@ -1,5 +1,58 @@
 # Testing Learnings
 
+## The full local suite DOES run in the cloud container
+
+The standing "local full suite OOMs, verify via targeted suites" workaround is obsolete.
+Constrain the worker pool and raise the heap:
+
+```bash
+node --max-old-space-size=3072 ./node_modules/vitest/vitest.mjs run --pool=forks --maxWorkers=2
+```
+
+139 files / 1668 tests, ~75s, exit 0. `--poolOptions.*` is NOT a valid vitest 4 CLI flag —
+it aborts with `CACError: Unknown option`; use `--maxWorkers`.
+
+**Watch the exit code, not the tail.** `cmd; echo "exit=$?"; tail log` reports *tail's*
+status, so a run that never started can look like a pass. Capture `$?` immediately and
+print it last.
+
+**Apply when:** verifying before a PR. Running the real suite beats guessing which targeted
+subset covers a change.
+
+---
+
+## A mutation your suite cannot catch is a missing test, not a safe change
+
+Mutation-test every guard: revert the fix, confirm red, restore. The one that gets away is
+the finding.
+
+On #235 the escaped mutation was reverting an inline ternary in JSX
+(`synced ? live : snapshot` → `live ?? snapshot`) — the wiring lived in a component with no
+test, and `tsc` cannot see a semantic swap between two same-typed expressions. Extracting
+the decision into a pure helper (`resolveCancellationReason`) was not tidying; it was the
+only way to pin it. **If a mutation survives, extract the decision to where it can be
+tested.**
+
+Related traps hit in the same pass:
+
+- **A test can encode the bug.** A test asserted the OLD (wrong) answer and passed happily
+  through the fix. When a fix changes behaviour, re-derive what each existing assertion
+  *should* say rather than making them green again.
+- **Remounting does not exercise cleanup-without-unmount.** A latched ref bug (cleanup sets
+  a flag, nothing re-arms it) is invisible to unmount→remount, because a fresh hook gets a
+  fresh ref. Force the effect to re-run on the SAME instance: `renderHook` with
+  `initialProps`, then `rerender({ cb: otherStableFn })`.
+- **A fresh inline callback per render is an infinite loop in `renderHook`** when the effect
+  depends on it and setStates — the test times out at 10s with no assertion failure. Use two
+  stable callbacks swapped once. (Not a product bug: React Compiler memoizes the real
+  consumer's callbacks.)
+- **Don't switch to fake timers mid-test.** Install them in `beforeEach` for the whole
+  block, or an already-pending real-timer promise never settles.
+
+**Apply when:** adding any guard, gate, or fallback.
+
+---
+
 ## E2E DOM Removal for AnimatePresence
 
 Don't use `.not.toBeVisible()` — element may be invisible but still blocking clicks. Use `.count()` for complete DOM removal:
