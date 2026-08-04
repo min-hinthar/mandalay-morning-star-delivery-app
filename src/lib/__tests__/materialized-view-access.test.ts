@@ -94,12 +94,43 @@ describe("the grants this guard depends on", () => {
     expect(grants).toEqual([]);
   });
 
+  /**
+   * Slice out ONE function's body, bounded at its real terminator.
+   *
+   * The terminator is `$function$\n;` — the literal `$function$;` appears zero
+   * times in the baseline. An `indexOf("$function$;")` therefore returns -1,
+   * `slice(0, -1)` spans the rest of the file, and the gate assertion below
+   * matches ANY later function's `is_admin()` check. There are only three in
+   * the whole baseline, so deleting the gate from `get_delivery_metrics_admin`
+   * would still have passed on `get_driver_stats_admin`'s — a guard whose
+   * stated point is that this gate is load-bearing, passing for the wrong
+   * reason.
+   */
+  function functionBody(name: string): string {
+    const start = baseline.indexOf(`FUNCTION public.${name}()`);
+    expect(start, `${name} not found in the baseline`).toBeGreaterThan(-1);
+
+    const rest = baseline.slice(start);
+    const end = rest.search(/\$function\$\s*;/);
+    expect(end, `no terminator found for ${name} — has the dump format changed?`).toBeGreaterThan(
+      -1
+    );
+
+    const body = rest.slice(0, end);
+    // Belt for the exact failure above: if the slice ever overruns into a
+    // neighbouring definition, say so instead of silently widening the search.
+    expect(
+      body.match(/CREATE OR REPLACE FUNCTION/g)?.length ?? 0,
+      `${name}'s extracted body ran past its own definition`
+    ).toBeLessThan(2);
+    return body;
+  }
+
   it.each(Object.values(GUARDED_VIEWS))("%s re-checks is_admin itself", (wrapper) => {
     // These are SECURITY DEFINER, so they bypass RLS by design. The is_admin()
     // gate inside them is the only thing standing between `authenticated` and
     // every driver's stats — it is load-bearing, not decorative.
-    const body = baseline.slice(baseline.indexOf(`FUNCTION public.${wrapper}()`));
-    expect(body.slice(0, body.indexOf("$function$;"))).toMatch(
+    expect(functionBody(wrapper)).toMatch(
       /IF NOT public\.is_admin\(\) THEN\s*\n\s*RAISE EXCEPTION/
     );
   });
