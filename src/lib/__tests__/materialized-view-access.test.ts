@@ -84,7 +84,7 @@ describe("the grants this guard depends on", () => {
     expect(baseline).toContain(`GRANT EXECUTE ON FUNCTION public.${wrapper}() TO authenticated`);
   });
 
-  it.each(Object.keys(GUARDED_VIEWS))("nothing grants SELECT on %s", (view) => {
+  it.each(Object.keys(GUARDED_VIEWS))("nothing grants SELECT on %s by name", (view) => {
     // The premise. If this ever fails, a migration granted access to the view
     // and the guard above can be reconsidered — deliberately, not by accident.
     const grants = baseline
@@ -92,6 +92,27 @@ describe("the grants this guard depends on", () => {
       .filter((line) => line.startsWith("GRANT") && line.includes(view));
 
     expect(grants).toEqual([]);
+  });
+
+  it("no blanket grant could reach the views without naming them", () => {
+    // The test above only rejects grants that NAME a view, so on its own it
+    // would keep passing after a `GRANT ... ON ALL TABLES IN SCHEMA public` or
+    // an `ALTER DEFAULT PRIVILEGES` — the assertion would still be green while
+    // its stated meaning ("nothing grants SELECT") had become false. That is
+    // the same passes-for-the-wrong-reason shape as the $function$ slice above.
+    //
+    // Today the dump contains exactly two GRANT forms: `ON TABLE <name>` and
+    // `ON FUNCTION <name>`, both explicit. Pinning that keeps the premise
+    // honest rather than merely unfalsified.
+    const blanket = baseline
+      .split("\n")
+      .filter((line) => /^(GRANT|ALTER DEFAULT PRIVILEGES)\b/.test(line))
+      .filter((line) => /ON ALL \w+ IN SCHEMA|^ALTER DEFAULT PRIVILEGES/.test(line));
+
+    expect(
+      blanket,
+      "a blanket grant may now cover the materialized views — re-verify the premise of this whole guard"
+    ).toEqual([]);
   });
 
   /**
