@@ -109,10 +109,19 @@ function rpcReturnColumns(fn: string): Set<string> | null {
   const block = GENERATED.slice(start, next ? afterHeader + next.index : GENERATED.length);
 
   const returns = block.indexOf("Returns: {");
-  if (returns < 0) return null;
+  if (returns < 0) return null; // scalar return — nothing to filter on
+
+  // Stop at the close of the Returns object. Every `RETURNS SETOF` function
+  // also emits a `SetofOptions: { from; to; isOneToOne; isSetofReturn }` block
+  // whose keys sit at the SAME 10-space indent as the real columns, so scanning
+  // to the end of the function folded those four names into the valid set —
+  // `.rpc("f").eq("isSetofReturn", true)` would have passed the guard.
+  const afterReturns = block.slice(returns);
+  const close = afterReturns.search(/\n {8}\}/);
+  const returnsBlock = close < 0 ? afterReturns : afterReturns.slice(0, close);
 
   const cols = new Set<string>();
-  for (const m of block.slice(returns).matchAll(/^\s{10}(\w+)\??:/gm)) cols.add(m[1]);
+  for (const m of returnsBlock.matchAll(/^\s{10}(\w+)\??:/gm)) cols.add(m[1]);
   return cols.size > 0 ? cols : null;
 }
 
@@ -437,6 +446,21 @@ describe("every queried column exists in the generated schema", () => {
       [...new Set(SELECT_REFS.map((r) => r.table))].length,
       "selects resolved against too few distinct tables"
     ).toBeGreaterThan(30);
+  });
+
+  it("resolves a function's columns without absorbing its SetofOptions", () => {
+    // The generated types emit SetofOptions for every RETURNS SETOF function,
+    // and its keys share the 10-space indent of the real columns. Unbounded,
+    // the scan adopted them and a phantom filter on `isSetofReturn` would have
+    // read as valid — quietly weakening the precision this guard exists for.
+    const cols = rpcReturnColumns("get_driver_stats_admin");
+
+    expect(cols, "get_driver_stats_admin has no resolvable Returns shape").toBeTruthy();
+    expect(
+      [...cols!].filter((c) => ["from", "to", "isOneToOne", "isSetofReturn"].includes(c))
+    ).toEqual([]);
+    expect(cols!.has("driver_id"), "lost a real column while excluding SetofOptions").toBe(true);
+    expect(cols!.has("is_active")).toBe(true);
   });
 
   it("resolves every queried table in database.generated.ts", () => {
