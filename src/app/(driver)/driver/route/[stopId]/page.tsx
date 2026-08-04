@@ -42,13 +42,15 @@ interface StopQueryResult {
     items: Array<{
       id: string;
       quantity: number;
+      // menu_items has name_en / name_my, NOT `name`; and there is no
+      // `modifiers` table — the name lives on order_item_modifiers as a
+      // snapshot, which is how every other query in this repo reads it.
       menu_item: {
-        name: string;
-      };
+        name_en: string;
+        name_my: string | null;
+      } | null;
       modifiers: Array<{
-        modifier: {
-          name: string;
-        };
+        name_snapshot: string;
       }>;
     }>;
   };
@@ -95,12 +97,11 @@ async function getStopDetail(stopId: string) {
           id,
           quantity,
           menu_item:menu_items (
-            name
+            name_en,
+            name_my
           ),
           modifiers:order_item_modifiers (
-            modifier:modifiers (
-              name
-            )
+            name_snapshot
           )
         )
       )
@@ -169,9 +170,9 @@ async function StopDetailPageContent({ params }: PageProps) {
   // Transform order items
   const orderItems = (stop.order?.items ?? []).map((item) => ({
     id: item.id,
-    name: item.menu_item?.name ?? "Unknown Item",
+    name: item.menu_item?.name_en ?? "Unknown Item",
     quantity: item.quantity,
-    modifiers: item.modifiers?.map((m) => m.modifier?.name).filter(Boolean) as string[],
+    modifiers: (item.modifiers ?? []).map((m) => m.name_snapshot).filter(Boolean),
   }));
 
   return (
