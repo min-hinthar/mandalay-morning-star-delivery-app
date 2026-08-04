@@ -45,7 +45,7 @@ export async function GET(request: NextRequest) {
     // Get driver stats
     interface DriverStatsResult {
       deliveries_count: number;
-      rating_avg: number;
+      rating_avg: number | null;
     }
 
     const { data: driverStats } = await supabase
@@ -102,7 +102,10 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       driver: {
         deliveriesCount: driverStats?.deliveries_count ?? 0,
-        ratingAvg: driverStats?.rating_avg ?? 0,
+        // Pass the null through instead of flattening it to 0 — the only
+        // consumer (DriverHistoryContent) renders an em dash for it, and a 0
+        // here would read as a bottom-of-the-scale score.
+        ratingAvg: driverStats?.rating_avg ?? null,
       },
       routes: historyRoutes,
       totalRoutes: totalCount ?? 0,

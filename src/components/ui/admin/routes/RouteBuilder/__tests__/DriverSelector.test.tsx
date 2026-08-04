@@ -33,6 +33,29 @@ function driver(over: Partial<DriverApiResponse> = {}): DriverApiResponse {
   };
 }
 
+describe("an unrated driver", () => {
+  /**
+   * `drivers.rating_avg` is `numeric(3,2) DEFAULT 0` with NO `NOT NULL`, so it
+   * is genuinely nullable — but seven hand-written interfaces declared it
+   * `number`, and `.returns<T>()` cast that lie straight past tsc. This card
+   * called `driver.ratingAvg.toFixed(1)` unguarded, so a null rating threw
+   * inside render and took the whole route builder down.
+   *
+   * An em dash, not "0.0": a driver with no ratings must not be shown at the
+   * bottom of the scale in the picker an admin uses to choose one.
+   */
+  it("renders an em dash instead of throwing", () => {
+    expect(() => renderSelector([driver({ ratingAvg: null })])).not.toThrow();
+    expect(screen.getByText("—")).toBeInTheDocument();
+    expect(screen.queryByText("0.0")).not.toBeInTheDocument();
+  });
+
+  it("still shows a real rating when there is one", () => {
+    renderSelector([driver({ ratingAvg: 4.25 })]);
+    expect(screen.getByText("4.3")).toBeInTheDocument();
+  });
+});
+
 // 2026-08-08 is a Saturday.
 const SATURDAY = "2026-08-08";
 

@@ -21,7 +21,7 @@ interface DriverHomeData {
     licensePlate: string | null;
     profileImageUrl: string | null;
     deliveriesCount: number;
-    ratingAvg: number;
+    ratingAvg: number | null;
   };
   todayRoute: {
     id: string;

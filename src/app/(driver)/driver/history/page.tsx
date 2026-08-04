@@ -13,7 +13,7 @@ import type { RouteStats } from "@/types/driver";
 interface DriverQueryResult {
   id: string;
   deliveries_count: number;
-  rating_avg: number;
+  rating_avg: number | null;
 }
 
 interface RouteQueryResult {
@@ -56,7 +56,9 @@ async function getDriverHistory() {
 
   if (!driver) {
     return {
-      driver: { deliveriesCount: 0, ratingAvg: 0, onTimePercentage: 0 },
+      // ratingAvg null, not 0: there is no driver record, so the rating is
+      // unknown rather than zero. The UI renders an em dash for null.
+      driver: { deliveriesCount: 0, ratingAvg: null, onTimePercentage: 0 },
       routes: [],
       totalRoutes: 0,
     };

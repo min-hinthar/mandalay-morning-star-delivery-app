@@ -35,7 +35,7 @@ interface DriverRatingResponse {
 }
 
 interface DriverRecord {
-  rating_avg: number;
+  rating_avg: number | null;
 }
 
 /**

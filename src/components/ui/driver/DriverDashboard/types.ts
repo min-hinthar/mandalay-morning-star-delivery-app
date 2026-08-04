@@ -10,7 +10,7 @@ export interface DriverDashboardProps {
     licensePlate: string | null;
     profileImageUrl: string | null;
     deliveriesCount: number;
-    ratingAvg: number;
+    ratingAvg: number | null;
   };
   /** Today's route information */
   todayRoute: {

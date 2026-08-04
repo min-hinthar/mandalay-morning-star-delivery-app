@@ -54,7 +54,7 @@ export interface DriversRow {
   profile_image_url: string | null;
   is_active: boolean;
   onboarding_completed_at: string | null;
-  rating_avg: number;
+  rating_avg: number | null;
   deliveries_count: number;
   availability_json: DriverAvailability | null;
   simple_mode: boolean;
@@ -375,7 +375,7 @@ export interface DriverListItem {
   profileImageUrl: string | null;
   isActive: boolean;
   onboardingCompletedAt: string | null;
-  ratingAvg: number;
+  ratingAvg: number | null;
   deliveriesCount: number;
   createdAt: string;
 }

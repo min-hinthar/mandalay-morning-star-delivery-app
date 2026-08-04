@@ -20,7 +20,7 @@ type HistoryPeriod = "daily" | "weekly" | "monthly";
 interface DriverHistoryContentProps {
   driver: {
     deliveriesCount: number;
-    ratingAvg: number;
+    ratingAvg: number | null;
     onTimePercentage: number;
   };
   routes: HistoryRouteData[];
@@ -82,7 +82,10 @@ function StatMiniCard({
   index,
 }: {
   icon: React.ReactNode;
-  value: number;
+  // string is for "no data" (an em dash). A driver with no ratings must not be
+  // shown an animated 0.0, which reads as a bad score rather than no score.
+  // Mirrors StatCard, which already switches on `typeof value === "number"`.
+  value: number | string;
   label: string;
   format: "number" | "percentage";
   suffix?: string;
@@ -103,7 +106,7 @@ function StatMiniCard({
       <div className="flex items-center justify-center gap-1">
         {icon}
         <span className="text-xl font-bold text-text-primary">
-          <AnimatedValue value={value} format={format} />
+          {typeof value === "number" ? <AnimatedValue value={value} format={format} /> : value}
           {suffix}
         </span>
       </div>
@@ -272,7 +275,7 @@ export function DriverHistoryContent({
         />
         <StatMiniCard
           icon={<Star className="h-4 w-4 text-secondary fill-secondary" />}
-          value={parseFloat(driver.ratingAvg.toFixed(1))}
+          value={driver.ratingAvg !== null ? parseFloat(driver.ratingAvg.toFixed(1)) : "—"}
           label="Rating"
           format="number"
           index={1}

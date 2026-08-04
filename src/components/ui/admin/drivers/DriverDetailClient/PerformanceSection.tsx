@@ -125,7 +125,8 @@ export function PerformanceSection({ driver }: PerformanceSectionProps) {
   // use deliveriesCount as proxy (real API would provide these)
   const totalDeliveries = driver.deliveriesCount;
   const avgDeliveryTime = totalDeliveries > 0 ? 28 : 0; // placeholder avg minutes
-  const onTimeRate = totalDeliveries > 0 ? Math.min(Math.round(driver.ratingAvg * 20), 100) : 0;
+  const onTimeRate =
+    totalDeliveries > 0 ? Math.min(Math.round((driver.ratingAvg ?? 0) * 20), 100) : 0;
   const exceptions = 0; // placeholder; real API would provide exception count
 
   return (

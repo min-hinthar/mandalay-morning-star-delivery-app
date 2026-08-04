@@ -109,7 +109,7 @@ export function DriverDashboard({
           />
           <StatCard
             icon={<Star className="w-6 h-6 text-secondary fill-secondary" />}
-            value={driver.ratingAvg.toFixed(1)}
+            value={driver.ratingAvg !== null ? driver.ratingAvg.toFixed(1) : "—"}
             label="Rating"
             color="bg-secondary"
             index={1}
