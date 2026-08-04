@@ -101,9 +101,12 @@ in JSX — because that wiring had no test. Extracting the decision into
   `api/admin/analytics/delivery/route.ts`, `api/admin/analytics/drivers/route.ts`, and
   `api/admin/analytics/drivers/[driverId]/route.ts` — all three use `createClient()`, not the
   service client. The baseline emits 99 `GRANT ... ON TABLE` lines and **none** names
-  `driver_stats_mv`, so `authenticated` holds no SELECT grant: one route swallows the
-  permission error into an empty Top Drivers list, the others fail. There is a
-  `get_driver_stats_admin()` wrapper that all three bypass. (The third caller was missed on
+  `driver_stats_mv` — in fact NO grant of any form mentions it, verified directly. So
+  `authenticated` holds no SELECT grant: one route swallows the permission error into an
+  empty Top Drivers list, the others fail. The view is created UNQUALIFIED at
+  `baseline:639` (grepping `public.driver_stats_mv` finds nothing — search bare), and
+  `get_driver_stats_admin()` at `baseline:1164` is `RETURNS SETOF driver_stats_mv`, i.e. the
+  intended path all three bypass. (The third caller was missed on
   first write-up and added after an auto-review caught it — fix all three together, or the
   per-driver drill-down stays broken after the list pages are fixed.)
 
