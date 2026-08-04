@@ -87,7 +87,7 @@ in JSX — because that wiring had no test. Extracting the decision into
 
 ## Follow-ups from the 2026-08-04 audit (pre-existing on `main`, NOT from these PRs)
 
-- **`/admin/drivers` fleet average is materially wrong.** `src/app/(admin)/admin/drivers/page.tsx:165-171`
+- **`/admin/drivers` fleet average is materially wrong.** `src/app/(admin)/admin/drivers/page.tsx:166-170`
   filters unrated drivers out of the denominator with `d.ratingAvg !== null`, but the DB
   sentinel for unrated is **0**, not null (`rating_avg numeric(3,2) DEFAULT 0`, and the
   recompute trigger writes `COALESCE(v_new_avg, 0)`). `driver_ratings_rating_check CHECK
