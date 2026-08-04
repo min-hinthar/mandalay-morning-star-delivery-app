@@ -1,11 +1,15 @@
 import { redirect } from "next/navigation";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
+import { getRoleDashboard } from "@/lib/auth/role-redirect";
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import type { ReactElement } from "react";
 import { parseAdminContactInfo } from "./contact-info";
+
+/** This page's own route — getRoleDashboard returns it for an inactive driver. */
+const DEACTIVATED_PATH = "/driver/deactivated";
 
 export default async function DriverDeactivatedPage(): Promise<ReactElement> {
   const supabase = await createClient();
@@ -19,14 +23,25 @@ export default async function DriverDeactivatedPage(): Promise<ReactElement> {
     redirect("/login");
   }
 
+  const serviceSupabase = createServiceClient();
+
+  // Only a driver who is ACTUALLY deactivated belongs here. The page gated on
+  // "is logged in" alone, so any customer could read the admin's email and
+  // phone off it. getRoleDashboard is the same source of truth the auth
+  // callback and the driver layout use, and it already returns this exact path
+  // for an inactive driver — so asking it, and rendering only when it agrees,
+  // cannot drift from the rest of the app or loop.
+  const destination = await getRoleDashboard(serviceSupabase, user.id, user.email);
+  if (destination.path !== DEACTIVATED_PATH) {
+    redirect(destination.path);
+  }
+
   // Admin contact info. No .returns<T>() cast: letting the generated types
   // infer `value: Json` is what makes the shape honest — the old cast claimed
   // `string`, so JSON.parse() on the real (already-parsed) object threw into an
   // empty catch and the contact links never rendered. maybeSingle, not single,
   // because the baseline seeds no app_settings rows: an absent key is a normal
   // state, not an error.
-  const serviceSupabase = createServiceClient();
-
   const { data: setting } = await serviceSupabase
     .from("app_settings")
     .select("value")
