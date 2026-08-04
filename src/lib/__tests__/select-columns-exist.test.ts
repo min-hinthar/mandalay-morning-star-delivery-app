@@ -382,7 +382,23 @@ for (const file of sourceFiles(join(ROOT, "src"))) {
         m[2],
         table,
         (t, column, depth) =>
-          refs.push({ file: rel, line, table: t, column, kind: "select", source: kind, depth }),
+          refs.push({
+            file: rel,
+            line,
+            table: t,
+            column,
+            // An EMBEDDED relation is a real table whatever the head was, so a
+            // nested column resolves against the table even under `.rpc(`.
+            // Only depth-0 columns belong to the function's Returns shape.
+            // Without this, `.rpc(f).select("*, profiles(full_name)")` — which
+            // PostgREST allows on a RETURNS SETOF function — would look
+            // `profiles` up as a FUNCTION, get null, and fail the
+            // "resolves every queried table" assertion as an unknown table.
+            // Latent today: no rpc chunk contains a select.
+            source: (depth ?? 0) > 0 ? "table" : kind,
+            kind: "select",
+            depth,
+          }),
         (name) => unknownRelations.push(`${name} — ${rel}:${line}`)
       );
     }
