@@ -31,6 +31,12 @@
  * dedicated cancel route need no such check — that route only ever cancels,
  * which also keeps legacy rows (written before `notified` existed) readable.
  *
+ * Read the NEWEST such row and stop. Do not scan back for an older cancel row:
+ * an order can be un-cancelled (`cancelled -> pending`) and then cancelled
+ * again by a path that writes no audit row at all, and reaching past that for
+ * the previous admin reason attributes it — and its timestamp — to a
+ * cancellation it had nothing to do with. See the note in the query below.
+ *
  * The reason is withheld unless the admin chose to notify the customer. It is a
  * single required free-text field with no customer-copy/internal-note split, so
  * an admin who opts OUT of notifying may well have written it for staff
@@ -68,16 +74,6 @@ function asObject(value: unknown): Record<string, unknown> | null {
 }
 
 /**
- * How many recent rows to consider. The newest matching row is the current
- * cancellation in every ordinary case — the only transition OUT of `cancelled`
- * is back to `pending`, so anything written after a cancellation would mean the
- * order is no longer cancelled, and callers only ask about cancelled orders.
- * The small window is slack for an interleaved non-cancel audit row rather than
- * a real expectation; it is one indexed page either way.
- */
-const CANDIDATE_ROWS = 10;
-
-/**
  * The most recent admin cancellation record for an order, or null.
  *
  * Returns null rather than throwing: this decorates a page that must still
@@ -91,21 +87,37 @@ export async function getOrderCancellation(orderId: string): Promise<OrderCancel
       .eq("order_id", orderId)
       .in("action", ["cancel", "status_change"])
       .order("created_at", { ascending: false })
-      .limit(CANDIDATE_ROWS);
+      .limit(1)
+      .maybeSingle();
 
     if (error) {
       logger.exception(error, { api: "orders/cancellation", orderId });
       return null;
     }
+    if (!data) return null;
 
-    // The dedicated cancel route only ever cancels, so its rows need no shape
-    // check. A status_change row counts only if it moved INTO cancelled —
-    // approve-cod and every forward transition share that action.
-    const row = data?.find(
-      (candidate) =>
-        candidate.action === "cancel" || asObject(candidate.new_value)?.status === "cancelled"
-    );
-    if (!row) return null;
+    // ONLY the newest row decides, and it is never skipped.
+    //
+    // The `.in()` above leaves exactly two kinds of row, and both are
+    // decisive: a 'cancel' row always cancelled, and a 'status_change' row
+    // always carries the status it moved the order TO. So if the newest one
+    // did not put the order into `cancelled`, no admin cancellation explains
+    // the state it is in now.
+    //
+    // Scanning PAST a non-cancelling row to find an older cancel row is a real
+    // bug, not a harmless fallback. `cancelled -> pending` is a permitted
+    // transition (status route's VALID_TRANSITIONS), and FIVE paths then set
+    // `cancelled` again while writing NO audit row — account self-serve (x2),
+    // the pending-order route, and the Stripe charge-refunded and
+    // checkout-session-expired handlers. Walking back past the un-cancel would
+    // attribute a superseded admin reason, and its stale timestamp, to a
+    // cancellation it had nothing to do with. Showing nothing there is right:
+    // the reason genuinely is not recorded anywhere.
+    const isCancellation =
+      data.action === "cancel" || asObject(data.new_value)?.status === "cancelled";
+    if (!isCancellation) return null;
+
+    const row = data;
 
     // Only surface the reason when the admin opted IN to telling the customer.
     // Anything other than an explicit true — false, or absent on a row written

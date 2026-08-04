@@ -804,3 +804,96 @@ describe("useTrackingSubscription — subscription lifecycle", () => {
     expect(finalLocationCount).toBeGreaterThanOrEqual(initialLocationCount + 2);
   });
 });
+
+// ============================================================================
+// A cancellation that lands WHILE the page is open
+// ============================================================================
+//
+// The tracking page's CancelledOverlay is made visible by the LIVE order
+// status but originally read its reason from the SSR snapshot — which, for an
+// order cancelled after page load, was captured before the cancellation existed
+// and so is necessarily null. The reason came back over /api/tracking and was
+// thrown away, leaving the customer an overlay with no explanation until they
+// reloaded. These pin the two halves of the wiring that fixes it.
+describe("useTrackingSubscription — live cancellation", () => {
+  function stubFetch(order: Record<string, unknown>) {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({ data: { order, routeStop: null, driverLocation: null } }),
+      })
+    );
+  }
+
+  beforeEach(() => {
+    mockChannels.length = 0;
+    mockRemoveChannel.mockClear();
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it("surfaces the cancellation reason and time from the API", async () => {
+    stubFetch({
+      status: "cancelled",
+      cancellationReason: "Kitchen closed unexpectedly",
+      cancelledAt: "2026-08-04T01:00:00Z",
+    });
+
+    const { result } = renderHook(() =>
+      useTrackingSubscription({ orderId: "order-123", enabled: true })
+    );
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(result.current.cancellationReason).toBe("Kitchen closed unexpectedly");
+    expect(result.current.cancelledAt).toBe("2026-08-04T01:00:00Z");
+  });
+
+  it("leaves both null for an order that is not cancelled", async () => {
+    stubFetch({ status: "preparing" });
+
+    const { result } = renderHook(() =>
+      useTrackingSubscription({ orderId: "order-123", enabled: true })
+    );
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(result.current.cancellationReason).toBeNull();
+    expect(result.current.cancelledAt).toBeNull();
+  });
+
+  it("refetches when realtime reports a cancellation, because the row has no reason", async () => {
+    // Realtime delivers the `orders` row. The reason is not on it — it lives in
+    // order_audit_log and only the API assembles it — so without this refetch
+    // the status flips to cancelled and the reason never arrives.
+    stubFetch({
+      status: "cancelled",
+      cancellationReason: "Ingredient shortage",
+      cancelledAt: null,
+    });
+
+    renderHook(() => useTrackingSubscription({ orderId: "order-123", enabled: true }));
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const channel = mockChannels.find((c) => c.name.includes("order-123"));
+    const orderHandler = channel?.on.mock.calls.find((call) => call[1]?.table === "orders")?.[2] as
+      | ((p: { new: { status: string } }) => void)
+      | undefined;
+    expect(orderHandler, "the hook no longer subscribes to orders UPDATEs").toBeDefined();
+
+    (global.fetch as ReturnType<typeof vi.fn>).mockClear();
+    await act(async () => {
+      orderHandler!({ new: { status: "cancelled" } });
+      await Promise.resolve();
+    });
+
+    expect(global.fetch).toHaveBeenCalledWith("/api/tracking/order-123");
+  });
+});

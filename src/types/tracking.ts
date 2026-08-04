@@ -148,6 +148,17 @@ export interface TrackingSubscriptionState {
   driverLocation: DriverLocation | null;
   stopEta: string | null;
   deliveryPhotoUrl: string | null;
+  /**
+   * Cancellation details for an order cancelled WHILE the page is open.
+   *
+   * The SSR snapshot cannot carry these — at page load the order was not yet
+   * cancelled, so both are null there. Realtime only flips the status (the
+   * `orders` row has no reason column; it lives in `order_audit_log`), so
+   * these arrive on the next API fetch. Null means "not known yet", and the
+   * consumer falls back to the SSR value.
+   */
+  cancellationReason: string | null;
+  cancelledAt: string | null;
   lastUpdate: Date | null;
 }
 

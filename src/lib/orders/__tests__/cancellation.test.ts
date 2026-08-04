@@ -75,19 +75,21 @@ beforeEach(() => {
       ordered.push([col, opts]);
       return chain;
     }),
-    // Terminal: the reader awaits the builder directly rather than calling
-    // .single()/.maybeSingle(), because it now scans a small window of rows.
     limit: vi.fn((n: number) => {
       limited.push(n);
-      return rows();
+      return chain;
     }),
+    // Terminal. maybeSingle, not single: zero rows is a normal state (an order
+    // with no audit trail), and .single() reports that as PGRST116 — an error
+    // indistinguishable from a real one.
+    maybeSingle: () => rows(),
   };
   from.mockReturnValue(chain);
 });
 
 describe("getOrderCancellation", () => {
   it("returns the admin's reason and the time it was recorded", async () => {
-    rows.mockResolvedValue({ data: [auditRow()], error: null });
+    rows.mockResolvedValue({ data: auditRow(), error: null });
 
     expect(await getOrderCancellation("o-1")).toEqual({
       cancelledAt: "2026-08-04T01:00:00Z",
@@ -102,13 +104,11 @@ describe("getOrderCancellation", () => {
     // but its audit row says action='status_change'. Scoped to 'cancel' alone,
     // that whole path stayed dead: email with a reason, tracking page without.
     rows.mockResolvedValue({
-      data: [
-        auditRow({
-          action: "status_change",
-          reason: "Ingredient shortage — sorry!",
-          new_value: { status: "cancelled", notified: true },
-        }),
-      ],
+      data: auditRow({
+        action: "status_change",
+        reason: "Ingredient shortage — sorry!",
+        new_value: { status: "cancelled", notified: true },
+      }),
       error: null,
     });
 
@@ -120,32 +120,49 @@ describe("getOrderCancellation", () => {
 
   it("does not mistake a non-cancel status_change for a cancellation", async () => {
     // 'status_change' is also what approve-cod and every forward transition
-    // write. Taking the newest row of that action — rather than the newest one
-    // that moved INTO cancelled — would surface a COD-approval note as the
-    // cancellation reason, and stamp the wrong time on the overlay.
+    // write. Reporting one of those as the cancellation would surface a
+    // COD-approval note as the reason and stamp the wrong time on the overlay.
     rows.mockResolvedValue({
-      data: [
-        auditRow({
-          action: "status_change",
-          reason: "Cash on delivery order approved by admin",
-          created_at: "2026-08-04T09:00:00Z",
-          new_value: { status: "confirmed", notified: true },
-        }),
-        auditRow({ reason: "Kitchen closed unexpectedly" }),
-      ],
+      data: auditRow({
+        action: "status_change",
+        reason: "Cash on delivery order approved by admin",
+        new_value: { status: "confirmed", notified: true },
+      }),
       error: null,
     });
 
-    expect(await getOrderCancellation("o-1")).toEqual({
-      cancelledAt: "2026-08-04T01:00:00Z",
-      reason: "Kitchen closed unexpectedly",
+    expect(await getOrderCancellation("o-1")).toBeNull();
+  });
+
+  it("does NOT reach past an un-cancel for an older, superseded reason", async () => {
+    // The bug this replaced. `cancelled -> pending` is a permitted transition
+    // (status route's VALID_TRANSITIONS), and FIVE paths then set `cancelled`
+    // again while writing NO audit row: account self-serve (x2), the
+    // pending-order route, and the Stripe charge-refunded and
+    // checkout-session-expired handlers.
+    //
+    // So this shape is real: admin cancels with a reason, admin un-cancels,
+    // something else cancels later. Scanning back for the older 'cancel' row
+    // would attribute that stale reason — and its stale timestamp — to a
+    // cancellation it had nothing to do with. Showing nothing is correct: the
+    // current cancellation's reason genuinely is not recorded anywhere.
+    rows.mockResolvedValue({
+      data: auditRow({
+        action: "status_change",
+        reason: "Reinstating — customer called back",
+        created_at: "2026-08-04T09:00:00Z",
+        new_value: { status: "pending", notified: true },
+      }),
+      error: null,
     });
+
+    expect(await getOrderCancellation("o-1")).toBeNull();
   });
 
   it("ignores a status_change row whose new_value is not an object", async () => {
     for (const newValue of [null, "cancelled", ["cancelled"], 7]) {
       rows.mockResolvedValue({
-        data: [auditRow({ action: "status_change", new_value: newValue })],
+        data: auditRow({ action: "status_change", new_value: newValue }),
         error: null,
       });
       expect(
@@ -159,7 +176,7 @@ describe("getOrderCancellation", () => {
     // Its RLS is admin-only for SELECT (baseline:2291), so a customer-scoped
     // client reads nothing. Callers prove ownership before calling — both
     // current ones match user_id in the query that fetched the order.
-    rows.mockResolvedValue({ data: [], error: null });
+    rows.mockResolvedValue({ data: null, error: null });
     await getOrderCancellation("o-1");
 
     expect(createServiceClient).toHaveBeenCalled();
@@ -167,7 +184,7 @@ describe("getOrderCancellation", () => {
   });
 
   it("scopes to this order's cancellation-bearing rows only", async () => {
-    rows.mockResolvedValue({ data: [], error: null });
+    rows.mockResolvedValue({ data: null, error: null });
     await getOrderCancellation("o-42");
 
     // Without BOTH filters a service-client read would reach other orders'
@@ -182,16 +199,18 @@ describe("getOrderCancellation", () => {
     // An order is cancelled once in practice, so this is belt not braces —
     // but without it a dropped .order() would return the OLDEST cancel row on
     // any order that somehow has two, and the suite would stay green.
-    rows.mockResolvedValue({ data: [], error: null });
+    rows.mockResolvedValue({ data: null, error: null });
     await getOrderCancellation("o-1");
 
     expect(ordered).toEqual([["created_at", { ascending: false }]]);
-    // Bounded: the scan is a small indexed page, never the whole audit trail.
-    expect(limited).toEqual([10]);
+    // Exactly one row. Reading more and scanning for a cancellation is the bug
+    // fixed above: the newest row is always decisive, so an older cancel row is
+    // by definition superseded.
+    expect(limited).toEqual([1]);
   });
 
   it("returns null when the order was never cancelled", async () => {
-    rows.mockResolvedValue({ data: [], error: null });
+    rows.mockResolvedValue({ data: null, error: null });
     expect(await getOrderCancellation("o-1")).toBeNull();
   });
 
@@ -202,13 +221,11 @@ describe("getOrderCancellation", () => {
     // an explicit choice. The timestamp is still safe to surface.
     for (const action of ["cancel", "status_change"]) {
       rows.mockResolvedValue({
-        data: [
-          auditRow({
-            action,
-            reason: "suspected card fraud — hold refund pending review",
-            new_value: { status: "cancelled", notified: false },
-          }),
-        ],
+        data: auditRow({
+          action,
+          reason: "suspected card fraud — hold refund pending review",
+          new_value: { status: "cancelled", notified: false },
+        }),
         error: null,
       });
 
@@ -226,7 +243,7 @@ describe("getOrderCancellation", () => {
     // because that route only ever cancels — the timestamp still shows.
     for (const newValue of [{ status: "cancelled" }, null, "cancelled", ["cancelled"]]) {
       rows.mockResolvedValue({
-        data: [auditRow({ reason: "internal note", new_value: newValue })],
+        data: auditRow({ reason: "internal note", new_value: newValue }),
         error: null,
       });
       expect(
@@ -237,7 +254,7 @@ describe("getOrderCancellation", () => {
   });
 
   it("keeps a null reason null — an admin can cancel without giving one", async () => {
-    rows.mockResolvedValue({ data: [auditRow({ reason: null })], error: null });
+    rows.mockResolvedValue({ data: auditRow({ reason: null }), error: null });
 
     expect(await getOrderCancellation("o-1")).toEqual({
       cancelledAt: "2026-08-04T01:00:00Z",

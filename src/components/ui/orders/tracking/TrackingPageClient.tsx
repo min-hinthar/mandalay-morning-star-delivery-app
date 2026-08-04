@@ -210,7 +210,15 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
     <AnimatePresence>
       {orderStatus === "cancelled" && (
         <CancelledOverlay
-          cancellationReason={initialData.order.cancellationReason}
+          // Live value first: the overlay's visibility follows the LIVE status,
+          // so an order cancelled while this page is open shows the overlay
+          // against an SSR snapshot taken before the cancellation existed —
+          // where the reason is necessarily null. Falling back to the snapshot
+          // keeps the ordinary case (loading a page for an already-cancelled
+          // order) unchanged.
+          cancellationReason={
+            subscription.cancellationReason ?? initialData.order.cancellationReason
+          }
           orderId={orderId}
         />
       )}

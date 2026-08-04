@@ -64,6 +64,8 @@ export function useTrackingSubscription({
     driverLocation: null,
     stopEta: null,
     deliveryPhotoUrl: null,
+    cancellationReason: null,
+    cancelledAt: null,
     lastUpdate: null,
   });
 
@@ -92,6 +94,10 @@ export function useTrackingSubscription({
           stopEta: data.routeStop?.eta ?? null,
           deliveryPhotoUrl: data.routeStop?.deliveryPhotoUrl ?? null,
           driverLocation: data.driverLocation,
+          // Only ever set for a cancelled order, and only for the owner —
+          // the API withholds it from share-token holders.
+          cancellationReason: data.order.cancellationReason ?? null,
+          cancelledAt: data.order.cancelledAt ?? null,
           lastUpdate: new Date(),
         }));
       }
@@ -112,8 +118,17 @@ export function useTrackingSubscription({
         lastUpdate: new Date(),
       }));
       onOrderUpdate?.(newStatus);
+
+      // Realtime carries the `orders` row, which has no cancellation reason —
+      // that lives in `order_audit_log` and only the API assembles it. Without
+      // this, a customer watching the page when their order is cancelled sees
+      // the overlay appear with no explanation until they reload. One extra
+      // request, on a terminal transition that happens at most once.
+      if (newStatus === "cancelled") {
+        void fetchTrackingData();
+      }
     },
-    [onOrderUpdate]
+    [onOrderUpdate, fetchTrackingData]
   );
 
   /**
