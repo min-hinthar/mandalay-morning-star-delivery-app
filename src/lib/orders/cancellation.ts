@@ -56,6 +56,19 @@
 import { createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 
+/**
+ * The outcome of the lookup, not just its answer.
+ *
+ * `ok: false` means the READ FAILED — the answer is unknown, which is not the
+ * same as "there is no reason". Callers must not let a failure present itself
+ * as an authoritative null, or a transient audit-log error would replace a
+ * reason the customer can legitimately see with nothing, and keep it hidden.
+ */
+export interface CancellationLookup {
+  ok: boolean;
+  cancellation: OrderCancellation | null;
+}
+
 export interface OrderCancellation {
   /** When the cancellation was recorded. Always safe to show. */
   cancelledAt: string;
@@ -74,12 +87,13 @@ function asObject(value: unknown): Record<string, unknown> | null {
 }
 
 /**
- * The most recent admin cancellation record for an order, or null.
+ * The most recent admin cancellation record for an order.
  *
- * Returns null rather than throwing: this decorates a page that must still
- * render without it. A failure is logged so it does not read as "no reason".
+ * Never throws: this decorates a page that must still render without it. But a
+ * failure is reported BOTH ways — logged, and surfaced as `ok: false` — so no
+ * caller can mistake "we could not read it" for "there is nothing to read".
  */
-export async function getOrderCancellation(orderId: string): Promise<OrderCancellation | null> {
+export async function getOrderCancellation(orderId: string): Promise<CancellationLookup> {
   try {
     const { data, error } = await createServiceClient()
       .from("order_audit_log")
@@ -92,9 +106,9 @@ export async function getOrderCancellation(orderId: string): Promise<OrderCancel
 
     if (error) {
       logger.exception(error, { api: "orders/cancellation", orderId });
-      return null;
+      return { ok: false, cancellation: null };
     }
-    if (!data) return null;
+    if (!data) return { ok: true, cancellation: null };
 
     // ONLY the newest row decides, and it is never skipped.
     //
@@ -115,7 +129,7 @@ export async function getOrderCancellation(orderId: string): Promise<OrderCancel
     // the reason genuinely is not recorded anywhere.
     const isCancellation =
       data.action === "cancel" || asObject(data.new_value)?.status === "cancelled";
-    if (!isCancellation) return null;
+    if (!isCancellation) return { ok: true, cancellation: null };
 
     const row = data;
 
@@ -124,9 +138,12 @@ export async function getOrderCancellation(orderId: string): Promise<OrderCancel
     // before this was recorded — withholds it.
     const notified = asObject(row.new_value)?.notified === true;
 
-    return { cancelledAt: row.created_at, reason: notified ? row.reason : null };
+    return {
+      ok: true,
+      cancellation: { cancelledAt: row.created_at, reason: notified ? row.reason : null },
+    };
   } catch (err) {
     logger.exception(err, { api: "orders/cancellation", orderId });
-    return null;
+    return { ok: false, cancellation: null };
   }
 }

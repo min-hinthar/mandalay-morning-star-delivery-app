@@ -229,7 +229,9 @@ export async function fetchTrackingData(
 
   // Only cancelled orders have anything to look up.
   const cancellation =
-    (order.status as OrderStatus) === "cancelled" ? await getOrderCancellation(order.id) : null;
+    (order.status as OrderStatus) === "cancelled"
+      ? await getOrderCancellation(order.id)
+      : { ok: true, cancellation: null };
 
   return {
     order: {
@@ -241,8 +243,9 @@ export async function fetchTrackingData(
       // Sourced from order_audit_log, not from a column: `orders` has no
       // cancelled_at / cancellation_reason and never has. Only queried for an
       // order that IS cancelled, so an ordinary tracking load costs nothing.
-      cancelledAt: cancellation?.cancelledAt ?? null,
-      cancellationReason: cancellation?.reason ?? null,
+      cancelledAt: cancellation.cancellation?.cancelledAt ?? null,
+      cancellationReason: cancellation.cancellation?.reason ?? null,
+      cancellationKnown: cancellation.ok,
       deliveryWindowStart: order.delivery_window_start,
       deliveryWindowEnd: order.delivery_window_end,
       specialInstructions: order.special_instructions,

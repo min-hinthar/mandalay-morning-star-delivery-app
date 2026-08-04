@@ -817,6 +817,9 @@ describe("useTrackingSubscription — subscription lifecycle", () => {
 // reloaded. These pin the two halves of the wiring that fixes it.
 describe("useTrackingSubscription — live cancellation", () => {
   function stubFetch(order: Record<string, unknown>) {
+    // cancellationKnown defaults true: the lookup succeeded unless a test says
+    // otherwise. The hook adopts the fields only when it is true.
+    order = { cancellationKnown: true, ...order };
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue({
@@ -851,6 +854,28 @@ describe("useTrackingSubscription — live cancellation", () => {
 
     expect(result.current.cancellationReason).toBe("Kitchen closed unexpectedly");
     expect(result.current.cancelledAt).toBe("2026-08-04T01:00:00Z");
+  });
+
+  it("ignores a response whose cancellation lookup FAILED", async () => {
+    // getOrderCancellation swallows a failed audit-log read into a null while
+    // the API still answers 200. Adopting that would overwrite a good reason
+    // with nothing AND mark it authoritative, hiding it for the session — the
+    // "a failure must never read as empty" rule, one layer out.
+    stubFetch({
+      status: "cancelled",
+      cancellationReason: null,
+      cancelledAt: null,
+      cancellationKnown: false,
+    });
+
+    const { result } = renderHook(() =>
+      useTrackingSubscription({ orderId: "order-123", enabled: true })
+    );
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(result.current.cancellationSynced).toBe(false);
   });
 
   it("leaves both null for an order that is not cancelled", async () => {
@@ -967,7 +992,10 @@ describe("useTrackingSubscription — cancellation detail retry", () => {
         ok: true,
         json: async () => ({
           data: {
-            order: responses[Math.min(call++, responses.length - 1)],
+            order: {
+              cancellationKnown: true,
+              ...responses[Math.min(call++, responses.length - 1)],
+            },
             routeStop: null,
             driverLocation: null,
           },
@@ -1010,6 +1038,7 @@ describe("useTrackingSubscription — cancellation detail retry", () => {
               status: "cancelled",
               cancellationReason: null,
               cancelledAt: "2026-08-04T01:00:00Z",
+              cancellationKnown: true,
             },
             routeStop: null,
             driverLocation: null,
@@ -1031,5 +1060,91 @@ describe("useTrackingSubscription — cancellation detail retry", () => {
     });
 
     expect((global.fetch as ReturnType<typeof vi.fn>).mock.calls.length).toBe(afterFirst);
+  });
+});
+
+// ============================================================================
+// The retry must survive an effect restart
+// ============================================================================
+describe("useTrackingSubscription — retry re-arm", () => {
+  beforeEach(() => {
+    vi.useFakeTimers();
+    mockChannels.length = 0;
+    mockRemoveChannel.mockClear();
+    vi.stubGlobal(
+      "fetch",
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          data: {
+            order: {
+              status: "cancelled",
+              cancellationReason: null,
+              cancelledAt: null,
+              cancellationKnown: true,
+            },
+            routeStop: null,
+            driverLocation: null,
+          },
+        }),
+      })
+    );
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it("re-arms the abandon flag when the effect resubscribes", async () => {
+    // The effect's cleanup latches the abandon flag, and cleanup runs on every
+    // dependency change — and twice on mount under React Strict Mode, which
+    // next.config enables. Left latched, the whole retry loop is silently dead
+    // in development and after any future dep instability in production.
+    //
+    // Remounting would NOT catch it: a fresh hook gets a fresh ref, already
+    // false. Only cleanup-then-resubscribe on the SAME instance exposes it, so
+    // this rerenders with a new inline callback to churn the effect's deps.
+    // Two STABLE callbacks, swapped once. A fresh inline callback per render
+    // would churn the effect deps on every render, and each effect run
+    // setStates — an infinite loop in this harness. (Not a product concern:
+    // React Compiler memoizes the real consumer's callbacks.)
+    const first = () => {};
+    const second = () => {};
+    const { rerender } = renderHook(
+      ({ cb }: { cb: () => void }) =>
+        useTrackingSubscription({ orderId: "order-123", enabled: true, onOrderUpdate: cb }),
+      { initialProps: { cb: first } }
+    );
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    rerender({ cb: second });
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    const channel = mockChannels.filter((c) => c.name.includes("order-123")).at(-1);
+    const handler = channel?.on.mock.calls.find((call) => call[1]?.table === "orders")?.[2] as (p: {
+      new: { status: string };
+    }) => void;
+    expect(handler, "no orders subscription after resubscribe").toBeDefined();
+
+    (global.fetch as ReturnType<typeof vi.fn>).mockClear();
+    await act(async () => {
+      handler({ new: { status: "cancelled" } });
+      await Promise.resolve();
+    });
+    const afterFirst = (global.fetch as ReturnType<typeof vi.fn>).mock.calls.length;
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1500);
+    });
+
+    // A latched flag returns before this retry ever fires.
+    expect((global.fetch as ReturnType<typeof vi.fn>).mock.calls.length).toBeGreaterThan(
+      afterFirst
+    );
   });
 });

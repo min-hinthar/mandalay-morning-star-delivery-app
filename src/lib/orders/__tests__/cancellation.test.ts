@@ -92,8 +92,8 @@ describe("getOrderCancellation", () => {
     rows.mockResolvedValue({ data: auditRow(), error: null });
 
     expect(await getOrderCancellation("o-1")).toEqual({
-      cancelledAt: "2026-08-04T01:00:00Z",
-      reason: "Kitchen closed unexpectedly",
+      ok: true,
+      cancellation: { cancelledAt: "2026-08-04T01:00:00Z", reason: "Kitchen closed unexpectedly" },
     });
   });
 
@@ -113,8 +113,8 @@ describe("getOrderCancellation", () => {
     });
 
     expect(await getOrderCancellation("o-1")).toEqual({
-      cancelledAt: "2026-08-04T01:00:00Z",
-      reason: "Ingredient shortage — sorry!",
+      ok: true,
+      cancellation: { cancelledAt: "2026-08-04T01:00:00Z", reason: "Ingredient shortage — sorry!" },
     });
   });
 
@@ -131,7 +131,7 @@ describe("getOrderCancellation", () => {
       error: null,
     });
 
-    expect(await getOrderCancellation("o-1")).toBeNull();
+    expect((await getOrderCancellation("o-1")).cancellation).toBeNull();
   });
 
   it("does NOT reach past an un-cancel for an older, superseded reason", async () => {
@@ -156,7 +156,7 @@ describe("getOrderCancellation", () => {
       error: null,
     });
 
-    expect(await getOrderCancellation("o-1")).toBeNull();
+    expect((await getOrderCancellation("o-1")).cancellation).toBeNull();
   });
 
   it("ignores a status_change row whose new_value is not an object", async () => {
@@ -166,7 +166,7 @@ describe("getOrderCancellation", () => {
         error: null,
       });
       expect(
-        await getOrderCancellation("o-1"),
+        (await getOrderCancellation("o-1")).cancellation,
         `new_value: ${JSON.stringify(newValue)}`
       ).toBeNull();
     }
@@ -211,7 +211,7 @@ describe("getOrderCancellation", () => {
 
   it("returns null when the order was never cancelled", async () => {
     rows.mockResolvedValue({ data: null, error: null });
-    expect(await getOrderCancellation("o-1")).toBeNull();
+    expect((await getOrderCancellation("o-1")).cancellation).toBeNull();
   });
 
   it("withholds the reason when the admin chose NOT to notify the customer", async () => {
@@ -230,8 +230,8 @@ describe("getOrderCancellation", () => {
       });
 
       expect(await getOrderCancellation("o-1"), `action: ${action}`).toEqual({
-        cancelledAt: "2026-08-04T01:00:00Z",
-        reason: null,
+        ok: true,
+        cancellation: { cancelledAt: "2026-08-04T01:00:00Z", reason: null },
       });
     }
   });
@@ -247,7 +247,7 @@ describe("getOrderCancellation", () => {
         error: null,
       });
       expect(
-        (await getOrderCancellation("o-1"))?.reason,
+        (await getOrderCancellation("o-1")).cancellation?.reason,
         `new_value: ${JSON.stringify(newValue)}`
       ).toBeNull();
     }
@@ -257,22 +257,40 @@ describe("getOrderCancellation", () => {
     rows.mockResolvedValue({ data: auditRow({ reason: null }), error: null });
 
     expect(await getOrderCancellation("o-1")).toEqual({
-      cancelledAt: "2026-08-04T01:00:00Z",
-      reason: null,
+      ok: true,
+      cancellation: { cancelledAt: "2026-08-04T01:00:00Z", reason: null },
     });
   });
 
   it("reports a query failure instead of letting it read as 'no reason'", async () => {
     rows.mockResolvedValue({ data: null, error: { message: "boom" } });
 
-    expect(await getOrderCancellation("o-1")).toBeNull();
+    expect((await getOrderCancellation("o-1")).cancellation).toBeNull();
     expect(loggerException).toHaveBeenCalled();
+  });
+
+  it("flags a failed read as NOT ok, so a caller cannot read it as 'no reason'", async () => {
+    // Both failure modes return the same null cancellation as a genuine
+    // absence, so `ok` is the only thing separating them. The client keys off
+    // it: without this, a transient audit-log error would overwrite a real
+    // reason with nothing and mark that authoritative for the session.
+    rows.mockResolvedValue({ data: null, error: { message: "boom" } });
+    expect((await getOrderCancellation("o-1")).ok).toBe(false);
+
+    rows.mockRejectedValue(new Error("network"));
+    expect((await getOrderCancellation("o-1")).ok).toBe(false);
+  });
+
+  it("reports a genuine absence as ok — nothing to read is not a failure", async () => {
+    rows.mockResolvedValue({ data: null, error: null });
+    expect(await getOrderCancellation("o-1")).toEqual({ ok: true, cancellation: null });
+    expect(loggerException).not.toHaveBeenCalled();
   });
 
   it("survives a thrown error, because it only decorates a page", async () => {
     rows.mockRejectedValue(new Error("network"));
 
-    expect(await getOrderCancellation("o-1")).toBeNull();
+    expect((await getOrderCancellation("o-1")).cancellation).toBeNull();
     expect(loggerException).toHaveBeenCalled();
   });
 });

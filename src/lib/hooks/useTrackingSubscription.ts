@@ -84,6 +84,10 @@ export function useTrackingSubscription({
   const pollingIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const cancellationRetryRef = useRef<NodeJS.Timeout | null>(null);
+  // Settles the retry loop's pending delay. Clearing the timeout alone would
+  // leave that promise unresolved forever, so the loop would hang instead of
+  // returning and never reach its abandon check.
+  const cancellationWakeRef = useRef<(() => void) | null>(null);
   const abandonCancellationSyncRef = useRef(false);
   // TRAK-04: attempt counter for exponential backoff (ref not state — avoids re-render storms)
   const attemptRef = useRef<number>(0);
@@ -105,13 +109,22 @@ export function useTrackingSubscription({
           stopEta: data.routeStop?.eta ?? null,
           deliveryPhotoUrl: data.routeStop?.deliveryPhotoUrl ?? null,
           driverLocation: data.driverLocation,
-          // Only ever set for a cancelled order, and only for the owner —
-          // the API withholds it from share-token holders.
-          cancellationReason: data.order.cancellationReason ?? null,
-          cancelledAt: data.order.cancelledAt ?? null,
-          // These two are now AUTHORITATIVE, including when null. Consumers
-          // must stop falling back to the SSR snapshot from here on.
-          cancellationSynced: true,
+          // Adopted ONLY when the lookup actually succeeded.
+          // getOrderCancellation swallows a failed audit-log read into a null
+          // while the API still answers 200, so assigning unconditionally would
+          // let a transient failure overwrite a good reason with nothing AND
+          // mark it authoritative — hiding it for the rest of the session.
+          // Skipping leaves the previous values untouched, so a failure changes
+          // nothing rather than making things worse.
+          ...(data.order.cancellationKnown
+            ? {
+                // Only ever set for a cancelled order, and only for the owner —
+                // the API withholds it from share-token holders.
+                cancellationReason: data.order.cancellationReason ?? null,
+                cancelledAt: data.order.cancelledAt ?? null,
+                cancellationSynced: true,
+              }
+            : {}),
           lastUpdate: new Date(),
         }));
         return data.order as { cancelledAt: string | null };
@@ -141,8 +154,10 @@ export function useTrackingSubscription({
 
     for (const delay of CANCELLATION_RETRY_DELAYS_MS) {
       await new Promise<void>((resolve) => {
+        cancellationWakeRef.current = resolve;
         cancellationRetryRef.current = setTimeout(resolve, delay);
       });
+      cancellationWakeRef.current = null;
       if (abandonCancellationSyncRef.current) return;
       if ((await fetchTrackingData())?.cancelledAt) return;
     }
@@ -349,6 +364,13 @@ export function useTrackingSubscription({
       return;
     }
 
+    // Re-arm the cancellation retry. This effect's cleanup latches the flag,
+    // and cleanup runs on every dependency change — and twice on mount under
+    // React Strict Mode — not only on unmount. Left latched, every later
+    // cancellation would do the single race-prone fetch and skip both retries,
+    // quietly restoring the audit-insert race the retry loop exists to close.
+    abandonCancellationSyncRef.current = false;
+
     // Initial fetch
     fetchTrackingData();
 
@@ -404,11 +426,15 @@ export function useTrackingSubscription({
         clearTimeout(reconnectTimeoutRef.current);
         reconnectTimeoutRef.current = null;
       }
+      // Order matters: latch abandon BEFORE waking, so the resumed loop sees
+      // it and returns rather than firing another fetch.
       abandonCancellationSyncRef.current = true;
       if (cancellationRetryRef.current) {
         clearTimeout(cancellationRetryRef.current);
         cancellationRetryRef.current = null;
       }
+      cancellationWakeRef.current?.();
+      cancellationWakeRef.current = null;
       attemptRef.current = 0;
     };
   }, [

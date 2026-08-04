@@ -230,7 +230,16 @@ export function TrackingPageClient({ orderId, initialData }: TrackingPageClientP
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1 }}
       >
-        <StatusStepper currentStatus={orderStatus} cancelledAt={initialData.order.cancelledAt} />
+        {/*
+          No cancelledAt: StatusStepper derives cancellation from currentStatus
+          already (`currentStatus === "cancelled" || !!cancelledAt`), and the
+          only value available here is the FROZEN SSR snapshot. Feeding it in
+          gave that `||` a way to disagree with the live status — after the
+          supported `cancelled -> pending` transition the rail and its
+          aria text stayed cancelled while the overlay and tab title said
+          pending. The branch was dead before this PR populated cancelledAt.
+        */}
+        <StatusStepper currentStatus={orderStatus} />
       </m.div>
 
       {/* ETA Countdown */}

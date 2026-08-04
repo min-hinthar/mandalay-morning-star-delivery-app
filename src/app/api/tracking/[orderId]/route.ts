@@ -181,10 +181,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
     // explanation OF the customer's order. Sharing the order is the customer's
     // call; passing on the explanation is not theirs to make.
     const isOwner = order.user_id === user.id;
+    // Not cancelled, or not the owner -> there is nothing to look up, so a null
+    // answer IS authoritative. Only a failed read is "unknown".
     const cancellation =
       (order.status as OrderStatus) === "cancelled" && isOwner
         ? await getOrderCancellation(order.id)
-        : null;
+        : { ok: true, cancellation: null };
 
     // Build order info
     const orderInfo: TrackingOrderInfo = {
@@ -195,8 +197,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
       deliveredAt: order.delivered_at,
       // From order_audit_log, matching fetchTrackingData — see that file and
       // lib/orders/cancellation.ts. Only queried when the order is cancelled.
-      cancelledAt: cancellation?.cancelledAt ?? null,
-      cancellationReason: cancellation?.reason ?? null,
+      cancelledAt: cancellation.cancellation?.cancelledAt ?? null,
+      cancellationReason: cancellation.cancellation?.reason ?? null,
+      cancellationKnown: cancellation.ok,
       deliveryWindowStart: order.delivery_window_start,
       deliveryWindowEnd: order.delivery_window_end,
       specialInstructions: order.special_instructions,

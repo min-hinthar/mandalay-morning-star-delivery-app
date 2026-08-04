@@ -42,6 +42,12 @@ export interface TrackingOrderInfo {
   deliveredAt: string | null;
   cancelledAt: string | null;
   cancellationReason: string | null;
+  /**
+   * False when the cancellation lookup FAILED. The two fields above are then
+   * unknown rather than empty, and a client must not treat them as
+   * authoritative — see useTrackingSubscription's cancellationSynced.
+   */
+  cancellationKnown: boolean;
   deliveryWindowStart: string | null;
   deliveryWindowEnd: string | null;
   specialInstructions: string | null;
