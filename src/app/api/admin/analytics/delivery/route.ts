@@ -124,10 +124,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Fetch daily metrics from materialized view
+    // via get_delivery_metrics_admin, NOT delivery_metrics_mv directly — same
+    // missing-grant problem as driver_stats_mv (see analytics/drivers/route.ts).
+    // This one 500s rather than degrading, so the page was fully broken.
     const { data: metricsRows, error: metricsError } = await supabase
-      .from("delivery_metrics_mv")
-      .select("*")
+      .rpc("get_delivery_metrics_admin")
       .gte("delivery_date", dateStart)
       .lte("delivery_date", dateEnd)
       .order("delivery_date", { ascending: false })
@@ -143,8 +144,7 @@ export async function GET(request: NextRequest) {
     // Fetch previous period for trend comparison
     const previousRange = getPreviousPeriodRange(period);
     const { data: previousMetricsRows } = await supabase
-      .from("delivery_metrics_mv")
-      .select("*")
+      .rpc("get_delivery_metrics_admin")
       .gte("delivery_date", previousRange.startDate.toISOString().split("T")[0])
       .lte("delivery_date", previousRange.endDate.toISOString().split("T")[0])
       .returns<DeliveryMetricsMvRow[]>();
@@ -188,9 +188,9 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => a.hour - b.hour);
 
     // Fetch top drivers
+    // via the wrapper, not the view — see analytics/drivers/route.ts for why.
     const { data: driverStatsRows } = await supabase
-      .from("driver_stats_mv")
-      .select("*")
+      .rpc("get_driver_stats_admin")
       .eq("is_active", true)
       .returns<DriverStatsMvRow[]>();
 

@@ -76,14 +76,20 @@ export async function GET(request: NextRequest) {
       // Continue anyway - views might still have recent data
     }
 
-    // Fetch driver stats from materialized view
-    let query = supabase.from("driver_stats_mv").select("*");
+    // Read through get_driver_stats_admin, NOT driver_stats_mv directly.
+    //
+    // Nothing grants SELECT on that materialized view: the baseline emits 99
+    // `GRANT ... ON TABLE` lines and no grant of any form names it, so the
+    // caller-scoped `authenticated` client reads nothing and this endpoint
+    // returned an error where it looked like an empty fleet. The wrapper is
+    // SECURITY DEFINER, is granted to `authenticated` (baseline:1811-1814), and
+    // re-checks `is_admin()` itself — so it also puts a second, database-level
+    // gate behind the route's own admin check above.
+    const statsQuery = supabase.rpc("get_driver_stats_admin");
 
-    if (!includeInactive) {
-      query = query.eq("is_active", true);
-    }
-
-    const { data: driverStatsRows, error: statsError } = await query.returns<DriverStatsMvRow[]>();
+    const { data: driverStatsRows, error: statsError } = await (
+      includeInactive ? statsQuery : statsQuery.eq("is_active", true)
+    ).returns<DriverStatsMvRow[]>();
 
     if (statsError) {
       logger.exception(statsError, { api: "admin/analytics/drivers" });

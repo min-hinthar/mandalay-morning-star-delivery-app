@@ -120,13 +120,13 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     const { driverId } = paramResult.data;
 
-    // Fetch driver stats from materialized view
+    // via the wrapper, not the view — see ../route.ts for why. The function
+    // RETURNS SETOF driver_stats_mv, so it stays filterable per driver.
     const { data: driverStatsRow, error: statsError } = await supabase
-      .from("driver_stats_mv")
-      .select("*")
+      .rpc("get_driver_stats_admin")
       .eq("driver_id", driverId)
       .returns<DriverStatsMvRow[]>()
-      .single();
+      .maybeSingle();
 
     if (statsError || !driverStatsRow) {
       return NextResponse.json({ error: "Driver not found" }, { status: 404 });
