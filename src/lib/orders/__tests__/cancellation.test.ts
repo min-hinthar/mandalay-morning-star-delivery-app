@@ -34,18 +34,28 @@ import { getOrderCancellation } from "../cancellation";
 
 /** Record the filters applied so the query's scoping can be asserted. */
 let applied: Array<[string, unknown]>;
+let ordered: Array<[string, unknown]>;
+let limited: number[];
 
 beforeEach(() => {
   vi.clearAllMocks();
   applied = [];
+  ordered = [];
+  limited = [];
   const chain = {
     select: vi.fn(() => chain),
     eq: vi.fn((col: string, val: unknown) => {
       applied.push([col, val]);
       return chain;
     }),
-    order: vi.fn(() => chain),
-    limit: vi.fn(() => chain),
+    order: vi.fn((col: string, opts: unknown) => {
+      ordered.push([col, opts]);
+      return chain;
+    }),
+    limit: vi.fn((n: number) => {
+      limited.push(n);
+      return chain;
+    }),
     maybeSingle,
   };
   from.mockReturnValue(chain);
@@ -85,6 +95,17 @@ describe("getOrderCancellation", () => {
       ["order_id", "o-42"],
       ["action", "cancel"],
     ]);
+  });
+
+  it("takes the most recent cancel row, not just any of them", async () => {
+    // An order is cancelled once in practice, so this is belt not braces —
+    // but without it a dropped .order() would return the OLDEST cancel row on
+    // any order that somehow has two, and the suite would stay green.
+    maybeSingle.mockResolvedValue({ data: null, error: null });
+    await getOrderCancellation("o-1");
+
+    expect(ordered).toEqual([["created_at", { ascending: false }]]);
+    expect(limited).toEqual([1]);
   });
 
   it("returns null when the order was never cancelled", async () => {

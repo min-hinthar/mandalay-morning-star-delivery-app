@@ -172,12 +172,21 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
           lng: null,
         };
 
-    // Only cancelled orders have a cancellation record to read. Note this is
-    // also reachable via a valid share token, which is consistent with the rest
-    // of this payload — address, items and driver name are already shared that
-    // way, and the reason is admin-written copy the customer was emailed.
+    // Only cancelled orders have a cancellation record to read — and only the
+    // OWNER sees it, not a share-token holder.
+    //
+    // An admin cancel writes `reason` to order_audit_log unconditionally, but
+    // only EMAILS it when notifyCustomer is true (admin/orders/[id]/cancel:117
+    // vs :188). So it is not reliably copy the customer has already seen, and
+    // it is free text an admin may have written in terms meant for staff.
+    // Sharing the rest of this payload is the customer's own choice about
+    // their own order; the business's explanation of it is not theirs to pass
+    // on.
+    const isOwner = order.user_id === user.id;
     const cancellation =
-      (order.status as OrderStatus) === "cancelled" ? await getOrderCancellation(order.id) : null;
+      (order.status as OrderStatus) === "cancelled" && isOwner
+        ? await getOrderCancellation(order.id)
+        : null;
 
     // Build order info
     const orderInfo: TrackingOrderInfo = {
