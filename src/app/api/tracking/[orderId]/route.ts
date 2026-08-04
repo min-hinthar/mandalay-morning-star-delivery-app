@@ -82,8 +82,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
         placed_at,
         confirmed_at,
         delivered_at,
-        cancelled_at,
-        cancellation_reason,
         delivery_window_start,
         delivery_window_end,
         special_instructions,
@@ -180,8 +178,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
       placedAt: order.placed_at,
       confirmedAt: order.confirmed_at,
       deliveredAt: order.delivered_at,
-      cancelledAt: order.cancelled_at ?? null,
-      cancellationReason: order.cancellation_reason ?? null,
+      // See fetchTrackingData: `orders` has no cancelled_at /
+      // cancellation_reason column, so selecting them failed this whole query
+      // and the polling refresh died alongside the SSR page. Null until
+      // cancellation data gets a single home.
+      cancelledAt: null,
+      cancellationReason: null,
       deliveryWindowStart: order.delivery_window_start,
       deliveryWindowEnd: order.delivery_window_end,
       specialInstructions: order.special_instructions,

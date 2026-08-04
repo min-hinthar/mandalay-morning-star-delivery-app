@@ -26,8 +26,9 @@ export interface OrderQueryResult {
   placed_at: string;
   confirmed_at: string | null;
   delivered_at: string | null;
-  cancelled_at: string | null;
-  cancellation_reason: string | null;
+  // No cancelled_at / cancellation_reason: `orders` has neither column, and
+  // declaring them here is what let the select naming them type-check. The
+  // sibling OrderRow in fetchTrackingData.ts drops them for the same reason.
   delivery_window_start: string | null;
   delivery_window_end: string | null;
   special_instructions: string | null;

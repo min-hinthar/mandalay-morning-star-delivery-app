@@ -42,13 +42,15 @@ interface StopQueryResult {
     items: Array<{
       id: string;
       quantity: number;
-      menu_item: {
-        name: string;
-      };
+      // Both names come from SNAPSHOTS on the order, not from a live join.
+      // That is what the customer actually ordered: a renamed dish would
+      // otherwise show the driver today's name, and a deleted menu item
+      // (menu_item_id is nullable) would collapse to "Unknown Item" while the
+      // snapshot still holds the real one. It is also how every other query in
+      // this repo reads item and modifier names.
+      name_snapshot: string;
       modifiers: Array<{
-        modifier: {
-          name: string;
-        };
+        name_snapshot: string;
       }>;
     }>;
   };
@@ -94,13 +96,9 @@ async function getStopDetail(stopId: string) {
         items:order_items (
           id,
           quantity,
-          menu_item:menu_items (
-            name
-          ),
+          name_snapshot,
           modifiers:order_item_modifiers (
-            modifier:modifiers (
-              name
-            )
+            name_snapshot
           )
         )
       )
@@ -169,9 +167,9 @@ async function StopDetailPageContent({ params }: PageProps) {
   // Transform order items
   const orderItems = (stop.order?.items ?? []).map((item) => ({
     id: item.id,
-    name: item.menu_item?.name ?? "Unknown Item",
+    name: item.name_snapshot,
     quantity: item.quantity,
-    modifiers: item.modifiers?.map((m) => m.modifier?.name).filter(Boolean) as string[],
+    modifiers: (item.modifiers ?? []).map((m) => m.name_snapshot).filter(Boolean),
   }));
 
   return (
