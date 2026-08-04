@@ -30,6 +30,13 @@
  * columns are unguarded. Those are COUNTED instead, and the count is pinned, so
  * adding a new one is a deliberate act rather than a silent gap.
  *
+ * ALSO NOT — plain-JS calls that share a name with a PostgREST filter. The
+ * filter matcher binds any `.match("x")` / `.order("x")` / `.in("x")` with a
+ * string-literal first argument to the nearest preceding `.from(...)`. Every
+ * current match is a real Supabase call, but a future `someString.match("x")`
+ * sitting after a `.from()` in the same file would be read as a filter on that
+ * table. If this fails on something that is plainly not a query, that is why.
+ *
  * ALSO NOT — query-shaped text INSIDE a string literal. `stripComments` walks
  * past a quoted span without blanking it (it has to: the select columns live
  * inside exactly such a span), so an error message or doc string containing
