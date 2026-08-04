@@ -175,13 +175,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
     // Only cancelled orders have a cancellation record to read — and only the
     // OWNER sees it, not a share-token holder.
     //
-    // An admin cancel writes `reason` to order_audit_log unconditionally, but
-    // only EMAILS it when notifyCustomer is true (admin/orders/[id]/cancel:117
-    // vs :188). So it is not reliably copy the customer has already seen, and
-    // it is free text an admin may have written in terms meant for staff.
-    // Sharing the rest of this payload is the customer's own choice about
-    // their own order; the business's explanation of it is not theirs to pass
-    // on.
+    // Whether the reason is customer-facing at all is decided in the reader,
+    // which withholds it unless the admin opted to notify. This extra gate is
+    // about a different question: even a customer-safe reason is the business's
+    // explanation OF the customer's order. Sharing the order is the customer's
+    // call; passing on the explanation is not theirs to make.
     const isOwner = order.user_id === user.id;
     const cancellation =
       (order.status as OrderStatus) === "cancelled" && isOwner

@@ -15,6 +15,8 @@
  */
 
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 
 const { maybeSingle, from, createServiceClient, loggerException } = vi.hoisted(() => {
   const maybeSingle = vi.fn();
@@ -64,7 +66,11 @@ beforeEach(() => {
 describe("getOrderCancellation", () => {
   it("returns the admin's reason and the time it was recorded", async () => {
     maybeSingle.mockResolvedValue({
-      data: { reason: "Kitchen closed unexpectedly", created_at: "2026-08-04T01:00:00Z" },
+      data: {
+        reason: "Kitchen closed unexpectedly",
+        created_at: "2026-08-04T01:00:00Z",
+        new_value: { status: "cancelled", notified: true },
+      },
       error: null,
     });
 
@@ -113,9 +119,48 @@ describe("getOrderCancellation", () => {
     expect(await getOrderCancellation("o-1")).toBeNull();
   });
 
+  it("withholds the reason when the admin chose NOT to notify the customer", async () => {
+    // reason is one required free-text field with no customer-copy/internal
+    // split, so an admin opting out of the email may have written it for staff
+    // ("suspected card fraud — hold refund"). Showing it anyway would override
+    // an explicit choice. The timestamp is still safe to surface.
+    maybeSingle.mockResolvedValue({
+      data: {
+        reason: "suspected card fraud — hold refund pending review",
+        created_at: "2026-08-04T01:00:00Z",
+        new_value: { status: "cancelled", notified: false },
+      },
+      error: null,
+    });
+
+    expect(await getOrderCancellation("o-1")).toEqual({
+      cancelledAt: "2026-08-04T01:00:00Z",
+      reason: null,
+    });
+  });
+
+  it("withholds the reason on a row written before the flag existed", async () => {
+    // Absent means unknowable. Withholding degrades to the pre-existing
+    // behaviour (no reason shown); showing could leak a staff note.
+    for (const newValue of [{ status: "cancelled" }, null, "cancelled", ["cancelled"]]) {
+      maybeSingle.mockResolvedValue({
+        data: { reason: "internal note", created_at: "2026-08-04T01:00:00Z", new_value: newValue },
+        error: null,
+      });
+      expect(
+        (await getOrderCancellation("o-1"))?.reason,
+        `new_value: ${JSON.stringify(newValue)}`
+      ).toBeNull();
+    }
+  });
+
   it("keeps a null reason null — an admin can cancel without giving one", async () => {
     maybeSingle.mockResolvedValue({
-      data: { reason: null, created_at: "2026-08-04T01:00:00Z" },
+      data: {
+        reason: null,
+        created_at: "2026-08-04T01:00:00Z",
+        new_value: { status: "cancelled", notified: true },
+      },
       error: null,
     });
 
@@ -137,5 +182,32 @@ describe("getOrderCancellation", () => {
 
     expect(await getOrderCancellation("o-1")).toBeNull();
     expect(loggerException).toHaveBeenCalled();
+  });
+});
+
+describe("the writer that this reader depends on", () => {
+  /**
+   * The gate above is only worth anything if the admin cancel route actually
+   * records `notified`. Nothing else pins that: there is no unit test for that
+   * route (it drives Stripe refunds and emails), so deleting the flag would
+   * leave every suite green while silently withholding the reason from every
+   * future cancellation — the exact silent-failure shape #230 and #231 were
+   * about, one layer up.
+   *
+   * A source assertion rather than a mocked route: the coupling is a data
+   * contract between two files, and no runtime test spans it.
+   */
+  it("writes notified onto the cancel audit row", () => {
+    const route = readFileSync(
+      join(process.cwd(), "src/app/api/admin/orders/[id]/cancel/route.ts"),
+      "utf8"
+    ).replace(/^\s*\/\/.*$/gm, ""); // strip comments — they discuss `notified` too
+
+    const insert = route.slice(route.indexOf('from("order_audit_log")'));
+    const call = insert.slice(0, insert.indexOf("});"));
+
+    expect(call, "the cancel audit insert no longer records notifyCustomer").toMatch(
+      /notified:\s*notifyCustomer/
+    );
   });
 });
