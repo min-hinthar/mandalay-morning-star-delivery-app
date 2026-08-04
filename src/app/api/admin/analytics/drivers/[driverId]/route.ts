@@ -128,7 +128,18 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
       .returns<DriverStatsMvRow[]>()
       .maybeSingle();
 
-    if (statsError || !driverStatsRow) {
+    // Separated deliberately. `.single()` used to report zero rows as PGRST116,
+    // so folding both into one 404 was at least defensible; `.maybeSingle()`
+    // distinguishes them at the query, and collapsing them again here would
+    // throw that away. A permission failure — the exact class of bug this
+    // change exists to fix — would otherwise read to the admin as "Driver not
+    // found" and never reach Sentry. Mirrors the sibling list route.
+    if (statsError) {
+      logger.exception(statsError, { api: "admin/analytics/drivers/[driverId]", driverId });
+      return NextResponse.json({ error: "Failed to fetch driver analytics" }, { status: 500 });
+    }
+
+    if (!driverStatsRow) {
       return NextResponse.json({ error: "Driver not found" }, { status: 404 });
     }
 
