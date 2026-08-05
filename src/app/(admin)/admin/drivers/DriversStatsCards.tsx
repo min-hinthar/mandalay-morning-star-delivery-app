@@ -61,8 +61,14 @@ export function DriversStatsCards({
             <span className="text-sm font-body font-medium">Avg Rating</span>
           </div>
           <p className="text-3xl font-display font-bold text-text-primary mt-2">
-            {avgRating ? avgRating.toFixed(1) : "\u2014"}
-            {avgRating && (
+            {avgRating !== null ? avgRating.toFixed(1) : "\u2014"}
+            {/*
+              Explicit null check, not `avgRating &&`: JSX renders the NUMBER 0
+              for a falsy-number guard, so an all-unrated fleet printed "—0".
+              computeFleetAverageRating now returns null there rather than 0,
+              but the guard has to be null-safe on its own terms.
+            */}
+            {avgRating !== null && (
               <span className="text-sm font-body font-normal text-text-muted ml-1">/ 5.0</span>
             )}
           </p>

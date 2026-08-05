@@ -20,6 +20,7 @@ import {
 import { PendingInvitesTab } from "@/components/ui/admin/drivers/PendingInvitesTab";
 import { InviteDriverModal } from "@/components/ui/admin/drivers/InviteDriverModal";
 import { DriversStatsCards } from "./DriversStatsCards";
+import { computeFleetAverageRating } from "./fleetStats";
 
 type StatusFilter = "all" | "active" | "inactive" | "pending";
 
@@ -163,11 +164,7 @@ export default function AdminDriversPage() {
   const stats = {
     total: drivers.length,
     active: drivers.filter((d) => d.isActive).length,
-    avgRating:
-      drivers.filter((d) => d.ratingAvg !== null).length > 0
-        ? drivers.reduce((sum, d) => sum + (d.ratingAvg || 0), 0) /
-          drivers.filter((d) => d.ratingAvg !== null).length
-        : null,
+    avgRating: computeFleetAverageRating(drivers),
     totalDeliveries: drivers.reduce((sum, d) => sum + d.deliveriesCount, 0),
   };
 
