@@ -190,8 +190,8 @@ describe("the migration SQL mirrors this module (source guard)", () => {
   });
 
   it("caps cumulative refunds at the remaining balance, reusing the route-matched phrase", () => {
-    expect(sql).toContain("v_remaining := v_order.total_cents - v_prior_total");
-    expect(sql).toContain("v_overshoot := v_total_refund - v_remaining");
+    expect(sql).toContain("v_refundable := v_order.total_cents - v_prior_total");
+    expect(sql).toContain("v_overshoot := v_total_refund - v_refundable");
     // The refund route's card-refund recovery path matches on this phrase —
     // if it changes here, the route's error handling silently degrades.
     expect(sql).toContain("exceeds order total");
@@ -201,10 +201,22 @@ describe("the migration SQL mirrors this module (source guard)", () => {
     // The bound: overshoot within jsonb_array_length(p_items) cents, and only
     // while something remains refundable — mirrored by clampRefundToRemaining.
     expect(sql).toContain("v_overshoot <= jsonb_array_length(p_items)");
-    expect(sql).toContain("v_remaining > 0 AND");
-    expect(sql).toContain("v_total_refund := v_remaining");
+    expect(sql).toContain("v_refundable > 0 AND");
+    expect(sql).toContain("v_total_refund := v_refundable");
     // The shave keeps the itemization summing to the clamped total.
     expect(sql).toMatch(/jsonb_set\(\s*v_results/);
+  });
+
+  it("declares every plpgsql variable exactly once (SQLSTATE 42601 guard)", () => {
+    // The SQL never parses in this repo's test environment — a duplicate
+    // DECLARE (the exact mistake that broke db-drift on this migration's
+    // first fix: v_remaining already existed for the per-item quantity
+    // check) only surfaces in CI. Pin declaration uniqueness here so the
+    // failure is local and immediate.
+    const declare = sql.slice(sql.indexOf("DECLARE"), sql.indexOf("BEGIN"));
+    const names = [...declare.matchAll(/^\s{2}(v_\w+)\s/gm)].map((m) => m[1]);
+    expect(names.length).toBeGreaterThan(5);
+    expect(new Set(names).size).toBe(names.length);
   });
 
   it("sums prior refunds from the audit log (the same rows the Stripe delta reconciles)", () => {

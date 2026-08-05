@@ -50,7 +50,7 @@ DECLARE
   v_discount_ratio numeric;
   v_prior_shipping int;
   v_prior_total int;
-  v_remaining int;
+  v_refundable int;
   v_overshoot int;
   v_last int;
   v_total_refund int := 0;
@@ -164,11 +164,11 @@ BEGIN
   -- line so the itemization still sums to the total. Anything beyond the
   -- bound is a genuine over-refund and still raises. The phrase 'exceeds
   -- order total' is matched by the refund route's recovery path.
-  v_remaining := v_order.total_cents - v_prior_total;
-  v_overshoot := v_total_refund - v_remaining;
+  v_refundable := v_order.total_cents - v_prior_total;
+  v_overshoot := v_total_refund - v_refundable;
   IF v_overshoot > 0 THEN
-    IF v_remaining > 0 AND v_overshoot <= jsonb_array_length(p_items) THEN
-      v_total_refund := v_remaining;
+    IF v_refundable > 0 AND v_overshoot <= jsonb_array_length(p_items) THEN
+      v_total_refund := v_refundable;
       v_last := jsonb_array_length(v_results) - 1;
       v_results := jsonb_set(
         v_results,
