@@ -25,7 +25,10 @@ declare const self: WorkerGlobalScope & typeof globalThis;
 //        bad opaque responses that CacheFirst permanently cached in v2
 // v3→v4: stopped caching opaque (status 0) responses for external images.
 //        Images now routed through next/image proxy (same-origin, status 200).
-const CACHE_VERSION = "v4";
+// v4→v5: authed routes left the navigation denylist late (audit D7) — old
+//        navigations-v4 caches hold admin/driver/account HTML (PII) that must
+//        be purged, not just no longer written.
+const CACHE_VERSION = "v5";
 
 // Navigation handler - NetworkFirst with 3s timeout for page navigations
 const navigationHandler = new NetworkFirst({
@@ -34,10 +37,27 @@ const navigationHandler = new NetworkFirst({
 });
 
 // Denylist: routes excluded from SW navigation interception
+//
+// The authed prefixes are a privacy boundary, not a perf choice (audit D7):
+// NetworkFirst wrote their HTML into Cache Storage, where the last admin's
+// dashboard, a driver's manifest, or a customer's account/orders pages —
+// names, addresses, phone numbers — outlived logout on a shared device, and
+// stayed readable to any script that got past the CSP. Denylisted
+// navigations go straight to the network, so offline these routes show the
+// browser error page instead of the /offline fallback — the correct trade
+// for authed PII (they are unusable offline anyway; the public menu keeps
+// its offline support). Note: /orders also covers the public (public)/
+// orders/[id]/share page — it renders a delivery address, so keeping shared
+// tracking links out of a device-wide cache is intended, not collateral.
 const denylist = [
   /^\/auth\//, // OAuth callbacks
   /^\/monitoring/, // Sentry tunnel
   /^\/api\//, // All API routes
+  /^\/admin/, // Admin dashboard (all customers' PII)
+  /^\/driver/, // Driver manifest (stop addresses, phones)
+  /^\/account/, // Customer profile, addresses, rewards
+  /^\/orders/, // Order history + tracking (addresses; incl. token share pages)
+  /^\/checkout/, // Prefilled address + payment hand-off
 ];
 
 const serwist = new Serwist({
