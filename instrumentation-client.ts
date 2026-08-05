@@ -69,6 +69,28 @@ Sentry.init({
     }
     return event;
   },
+  // beforeSend fires for ERROR events only — pageload/navigation/http.client
+  // transactions (browserTracingIntegration, 20% sampled) go through this hook
+  // instead, carrying the same token URLs in request.url, the transaction
+  // name, and fetch/xhr span descriptions + http.url attributes.
+  beforeSendTransaction(event) {
+    if (event.request?.url) {
+      event.request.url = scrubUrl(event.request.url);
+    }
+    if (event.transaction) {
+      event.transaction = scrubUrl(event.transaction);
+    }
+    for (const span of event.spans ?? []) {
+      if (typeof span.description === "string") {
+        span.description = scrubUrl(span.description);
+      }
+      const httpUrl = span.data?.["http.url"];
+      if (typeof httpUrl === "string") {
+        span.data["http.url"] = scrubUrl(httpUrl);
+      }
+    }
+    return event;
+  },
   replaysSessionSampleRate: 0,
   replaysOnErrorSampleRate: 1.0,
   debug: process.env.SENTRY_DEBUG === "true",
