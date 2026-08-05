@@ -35,6 +35,15 @@ independent verifier told to refute it. Delivery findings below are the survivor
    Only confirm to authenticated users' own email; tighten the anon limit.
 5. **D9 (med)** CSP `script-src 'unsafe-inline' 'unsafe-eval'` negates XSS defense-in-depth (what makes D1
    land). Move to nonce/hash; re-evaluate `unsafe-eval`.
+   **Re-evaluated 2026-08-05 — `unsafe-eval` must stay; the shippable work is the nonce migration.**
+   Google's Maps CSP doc (re-checked live) requires `'unsafe-eval'` in BOTH its allowlist and its
+   nonce/`strict-dynamic` configurations; the Maps JS API rotates weekly server-side, so an empirical
+   pass without eval today is not durable. Dev-only gating was tried (`8bc23ed5`) and reverted for prod
+   Maps breakage (`159cf8ee`) — checkout's Places autocomplete rides the same SDK. The remaining real
+   win is dropping `'unsafe-inline'` via per-request nonce CSP (App Router inline bootstrap scripts
+   need the nonce injected per response, likely in middleware/proxy) — a dedicated project needing
+   verification across every authed surface, not a config toggle. Rationale pinned in `next.config.ts`
+   above `script-src` so it doesn't get re-tried.
 6. **D10 (low)** Sentry `sendDefaultPii: true` + fetch/URL breadcrumbs capture IP + tokenized tracking URLs.
    `sendDefaultPii: false` + scrub `token`/PII in `beforeBreadcrumb`.
 
