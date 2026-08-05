@@ -135,4 +135,15 @@ describe("resolveFirstOrderDiscount", () => {
     expect(await resolveFirstOrderDiscount(supabase, "user-1", 9999, RECLAIM)).toBeNull();
     expect(mockReclaim).not.toHaveBeenCalled();
   });
+
+  it("never reclaims when no coupon could be granted (referral-only config, non-referred)", async () => {
+    // The destructive reclaim must not tear down a live checkout on the way
+    // to returning null — the grant is decided first.
+    delete process.env.STRIPE_WELCOME_COUPON_ID;
+    process.env.STRIPE_REFERRAL_COUPON_ID = "referral_x";
+    mockReclaim.mockResolvedValue(true);
+    const supabase = supabaseWith({ completed: 0, pending: 2, referred: false });
+    expect(await resolveFirstOrderDiscount(supabase, "user-1", 9999, RECLAIM)).toBeNull();
+    expect(mockReclaim).not.toHaveBeenCalled();
+  });
 });

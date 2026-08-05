@@ -52,7 +52,14 @@ export async function reclaimPendingCheckouts(
   if (!pendings || pendings.length === 0) return true;
 
   for (const order of pendings) {
+    // Every abort below is a WITHHELD DISCOUNT downstream — log the reason so
+    // a "where's my welcome discount?" report is traceable in Sentry/logs.
     if (order.payment_method !== "stripe" || !order.stripe_checkout_session_id) {
+      logger.warn("Reclaim aborted — pending order cannot be safely expired", {
+        api: "reclaim-pending-checkouts",
+        orderId: order.id,
+        reason: order.payment_method !== "stripe" ? "non-stripe-order" : "missing-session-id",
+      });
       return false;
     }
 
@@ -66,6 +73,14 @@ export async function reclaimPendingCheckouts(
         .retrieve(order.stripe_checkout_session_id)
         .catch(() => null);
       if (!session || session.status !== "expired") {
+        logger.warn("Reclaim aborted — session not expirable", {
+          api: "reclaim-pending-checkouts",
+          orderId: order.id,
+          reason:
+            session?.status === "complete"
+              ? "session-completed-order-paid"
+              : "session-unretrievable",
+        });
         return false;
       }
     }
@@ -91,6 +106,11 @@ export async function reclaimPendingCheckouts(
         .eq("id", order.id)
         .single();
       if (current?.status !== "cancelled") {
+        logger.warn("Reclaim aborted — order moved to an unexpected status mid-reclaim", {
+          api: "reclaim-pending-checkouts",
+          orderId: order.id,
+          reason: `status-${current?.status ?? "unknown"}`,
+        });
         return false;
       }
     }

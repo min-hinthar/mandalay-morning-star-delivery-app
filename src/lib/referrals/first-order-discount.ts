@@ -79,8 +79,28 @@ export async function resolveFirstOrderDiscount(
   }
   if ((completedCount ?? 0) > 0) return null;
 
+  // Decide the grant BEFORE any destructive step: referred → larger referee
+  // discount, else welcome. If neither coupon can actually be handed to THIS
+  // customer (e.g. referral-only config and they weren't referred), stop here
+  // — reclaiming would tear down an in-flight checkout for zero grant.
+  const { data: referral } = await supabase
+    .from("referrals")
+    .select("id")
+    .eq("referee_id", userId)
+    .eq("status", "pending")
+    .maybeSingle();
+
+  const grant: FirstOrderDiscount | null =
+    referral && referralCoupon
+      ? { couponId: referralCoupon, discountCents: REFEREE_DISCOUNT_CENTS, kind: "referee" }
+      : welcomeCoupon
+        ? { couponId: welcomeCoupon, discountCents: WELCOME_DISCOUNT_CENTS, kind: "welcome" }
+        : null;
+  if (!grant) return null;
+
   // Open DISCOUNTED checkouts block too (they can still complete WITH their
-  // discount); an undiscounted pending can't stack and is left alone.
+  // discount); an undiscounted pending can't stack and is left alone. The
+  // reclaim is destructive, so it runs LAST — only once a grant is certain.
   const { count: pendingCount, error: pendingError } = await supabase
     .from("orders")
     .select("id", { count: "exact", head: true })
@@ -97,19 +117,5 @@ export async function resolveFirstOrderDiscount(
     if (!freed) return null;
   }
 
-  // Referred → larger referee discount.
-  const { data: referral } = await supabase
-    .from("referrals")
-    .select("id")
-    .eq("referee_id", userId)
-    .eq("status", "pending")
-    .maybeSingle();
-
-  if (referral && referralCoupon) {
-    return { couponId: referralCoupon, discountCents: REFEREE_DISCOUNT_CENTS, kind: "referee" };
-  }
-  if (welcomeCoupon) {
-    return { couponId: welcomeCoupon, discountCents: WELCOME_DISCOUNT_CENTS, kind: "welcome" };
-  }
-  return null;
+  return grant;
 }
