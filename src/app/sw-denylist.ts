@@ -62,13 +62,17 @@ export function isUncacheablePath(pathname: string): boolean {
  *  - `GET /rest/v1/addresses` (street/city — read by useCustomerDeliveryDays
  *    and RouteDayCallout), `GET /rest/v1/order_items` (useOrderHistorySearch)
  *  - `GET /auth/v1/user` (email/phone)
- * Only Supabase STORAGE (`/storage/…` — public dish photos) is cacheable;
- * every other path on a Supabase host is API/auth JSON and must never enter
- * Cache Storage. Other cross-origin hosts (Google image CDNs) are unaffected.
+ * Only PUBLIC Supabase storage objects (`/storage/v1/object/public/…` —
+ * dish photos) are cacheable. Signed/authenticated storage
+ * (`/object/sign/…` — private delivery-proof + feedback photos, 1h expiry)
+ * must not outlive its signature in a 30-day cache, and every non-storage
+ * path is API/auth JSON. Other cross-origin hosts (Google image CDNs) are
+ * unaffected. (Today those photos render via next/image — same-origin — so
+ * this is defense-in-depth for any future raw <img> use.)
  */
 export function isUncacheableSupabaseRequest(hostname: string, pathname: string): boolean {
   const isSupabaseHost = hostname.endsWith(".supabase.co") || hostname.endsWith(".supabase.com");
-  return isSupabaseHost && !pathname.startsWith("/storage/");
+  return isSupabaseHost && !pathname.startsWith("/storage/v1/object/public/");
 }
 
 /**

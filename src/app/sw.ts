@@ -74,17 +74,19 @@ const serwist = new Serwist({
     // hide the real HTTP status -- a 403/429 rate-limit from Google appears as
     // status 0, indistinguishable from success. Caching bad opaque responses
     // causes images to stay broken until cache expires.
-    // Supabase hosts are matched by STORAGE PATH, not bare hostname: the
-    // browser supabase-js client also fetches PostgREST/auth JSON from the
-    // same host (`/rest/v1/addresses` street+city, `/auth/v1/user`
+    // Supabase hosts are matched by PUBLIC-STORAGE PATH, not bare hostname:
+    // the browser supabase-js client also fetches PostgREST/auth JSON from
+    // the same host (`/rest/v1/addresses` street+city, `/auth/v1/user`
     // email+phone), and a hostname-wide match cached that PII for 30 days,
     // surviving logout on shared devices (same D7 class as the pages).
+    // Signed storage (`/object/sign/…` — private delivery-proof photos,
+    // 1h expiry) is likewise excluded so it can't outlive its signature.
     {
       matcher: ({ url }) =>
         url.hostname === "drive.google.com" ||
         url.hostname.endsWith(".googleusercontent.com") ||
         ((url.hostname.endsWith(".supabase.co") || url.hostname.endsWith(".supabase.com")) &&
-          url.pathname.startsWith("/storage/")),
+          url.pathname.startsWith("/storage/v1/object/public/")),
       handler: new NetworkFirst({
         cacheName: `external-images-${CACHE_VERSION}`,
         networkTimeoutSeconds: 5,

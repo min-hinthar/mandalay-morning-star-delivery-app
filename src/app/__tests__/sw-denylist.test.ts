@@ -137,7 +137,11 @@ describe("isUncacheableSupabaseRequest / isUncacheableRequest (cross-origin half
     ["abc.supabase.co", "/rest/v1/order_items"],
     ["abc.supabase.co", "/auth/v1/user"],
     ["abc.supabase.com", "/functions/v1/anything"],
-  ])("refuses supabase API/auth JSON %s%s", (host, path) => {
+    // signed/authenticated storage: private delivery-proof + feedback
+    // photos (1h signatures) must not outlive their signature in a cache
+    ["abc.supabase.co", "/storage/v1/object/sign/delivery-photos/stop.jpg"],
+    ["abc.supabase.co", "/storage/v1/object/authenticated/feedback/x.jpg"],
+  ])("refuses supabase API/auth/signed-storage %s%s", (host, path) => {
     expect(isUncacheableSupabaseRequest(host, path)).toBe(true);
   });
 
