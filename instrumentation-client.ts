@@ -74,6 +74,11 @@ Sentry.init({
     if (event.request?.url) {
       event.request.url = scrubUrl(event.request.url);
     }
+    // Error events carry the active transaction's name too — same leak
+    // vector beforeSendTransaction scrubs below.
+    if (event.transaction) {
+      event.transaction = scrubUrl(event.transaction);
+    }
     return event;
   },
   // beforeSend fires for ERROR events only — pageload/navigation/http.client
