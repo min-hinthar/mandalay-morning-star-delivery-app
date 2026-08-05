@@ -1,5 +1,7 @@
 import { defaultCache } from "@serwist/next/worker";
-import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
+import type { PrecacheEntry, RuntimeCaching, SerwistGlobalConfig } from "serwist";
+
+import { AUTHED_PATH_PREFIXES, isAuthedPath } from "./sw-denylist";
 import {
   CacheFirst,
   NetworkFirst,
@@ -46,18 +48,16 @@ const navigationHandler = new NetworkFirst({
 // navigations go straight to the network, so offline these routes show the
 // browser error page instead of the /offline fallback — the correct trade
 // for authed PII (they are unusable offline anyway; the public menu keeps
-// its offline support). Note: /orders also covers the public (public)/
-// orders/[id]/share page — it renders a delivery address, so keeping shared
-// tracking links out of a device-wide cache is intended, not collateral.
+// its offline support). Prefix scope rationale (incl. why the public
+// /driver/onboard invite-token page is DELIBERATELY covered) lives in
+// ./sw-denylist.ts. NOTE this list only guards HARD navigations — the RSC
+// soft-nav/prefetch half of the same boundary is enforced below where
+// defaultCache is spread.
 const denylist = [
   /^\/auth\//, // OAuth callbacks
   /^\/monitoring/, // Sentry tunnel
   /^\/api\//, // All API routes
-  /^\/admin/, // Admin dashboard (all customers' PII)
-  /^\/driver/, // Driver manifest (stop addresses, phones)
-  /^\/account/, // Customer profile, addresses, rewards
-  /^\/orders/, // Order history + tracking (addresses; incl. token share pages)
-  /^\/checkout/, // Prefilled address + payment hand-off
+  ...AUTHED_PATH_PREFIXES,
 ];
 
 const serwist = new Serwist({
@@ -140,11 +140,29 @@ const serwist = new Serwist({
       }),
     },
     // Spread defaultCache for remaining Next.js assets (but NOT document/RSC)
-    ...defaultCache.filter((entry) => {
-      // OFFLINE-06: Exclude document requests to prevent App Router conflicts
-      const urlPattern = entry.matcher?.toString() || "";
-      return !urlPattern.includes("document");
-    }),
+    ...defaultCache
+      .filter((entry) => {
+        // OFFLINE-06: Exclude document requests to prevent App Router conflicts
+        const urlPattern = entry.matcher?.toString() || "";
+        return !urlPattern.includes("document");
+      })
+      // The OTHER half of the D7 privacy boundary: App-Router SOFT
+      // navigations and Link prefetches are RSC fetches (`RSC: 1` header,
+      // not `mode: "navigate"`), so they bypass the NavigationRoute denylist
+      // entirely and land in defaultCache's `pages-rsc` /
+      // `pages-rsc-prefetch` handlers — which only exclude /api/. Wrap every
+      // function matcher so same-origin requests to the authed prefixes are
+      // never cached by ANY defaultCache handler. Regex matchers (fonts,
+      // cross-origin) pass through untouched.
+      .map((entry): RuntimeCaching => {
+        const original = entry.matcher;
+        if (typeof original !== "function") return entry;
+        return {
+          ...entry,
+          matcher: (args) =>
+            args.sameOrigin && isAuthedPath(args.url.pathname) ? false : original(args),
+        };
+      }),
   ],
   // Offline fallback for document requests when both network and cache fail
   fallbacks: {
@@ -175,10 +193,18 @@ serwist.registerRoute(new NavigationRoute(navigationHandler, { denylist }));
         "static-assets-",
         "navigations-",
       ];
+      // Serwist's own RSC/page caches are UNVERSIONED, and until the D7 fix
+      // they accumulated authed-page payloads (soft navigations + Link
+      // prefetches). Purge them on every activation — activation only fires
+      // when a new SW version installs, so this costs one cold soft-nav per
+      // deploy and guarantees any pre-fix PII entries are gone.
+      const serwistPageCaches = ["pages-rsc", "pages-rsc-prefetch", "pages"];
       const toDelete = cacheNames.filter((name) => {
         // Only target our versioned caches that don't match current version
-        return versionedPrefixes.some(
-          (prefix) => name.startsWith(prefix) && !name.endsWith(currentSuffix)
+        return (
+          versionedPrefixes.some(
+            (prefix) => name.startsWith(prefix) && !name.endsWith(currentSuffix)
+          ) || serwistPageCaches.includes(name)
         );
       });
       return Promise.all(toDelete.map((name) => caches.delete(name)));
