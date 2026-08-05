@@ -211,11 +211,16 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       logger.exception(auditError, { api: "admin/orders/[id]/details" });
     }
 
-    // How much delivery fee has already been refunded — the RefundDialog uses
-    // this to preview the once-per-order shipping guard the refund RPC
-    // enforces. Summed from an UNCAPPED query: the display audit log above is
-    // limit(20), and money math must never ride a truncated list.
+    // What this order has already refunded — the RefundDialog uses these to
+    // preview the once-per-order shipping guard and the cumulative cap the
+    // refund RPC enforces. `refundedTotalCents` counts EVERY refund source
+    // (item refunds AND cancel-flow rows, which carry totalRefundCents but no
+    // shippingRefundCents) so a fully cancel-refunded order reads as fully
+    // refunded here, not as still-refundable. Summed from an UNCAPPED query:
+    // the display audit log above is limit(20), and money math must never
+    // ride a truncated list.
     let shippingRefundedCents = 0;
+    let refundedTotalCents = 0;
     {
       const { data: refundRows, error: refundRowsError } = await supabase
         .from("order_audit_log")
@@ -226,10 +231,18 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         // Non-fatal: the dialog falls back to "unknown" (server still guards).
         logger.exception(refundRowsError, { api: "admin/orders/[id]/details" });
       } else {
-        shippingRefundedCents = (refundRows ?? []).reduce((sum, row) => {
-          const nv = row.new_value as { shippingRefundCents?: unknown } | null;
-          return sum + (typeof nv?.shippingRefundCents === "number" ? nv.shippingRefundCents : 0);
-        }, 0);
+        for (const row of refundRows ?? []) {
+          const nv = row.new_value as {
+            shippingRefundCents?: unknown;
+            totalRefundCents?: unknown;
+          } | null;
+          if (typeof nv?.shippingRefundCents === "number") {
+            shippingRefundedCents += nv.shippingRefundCents;
+          }
+          if (typeof nv?.totalRefundCents === "number") {
+            refundedTotalCents += nv.totalRefundCents;
+          }
+        }
       }
     }
 
@@ -320,6 +333,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       subtotalCents: order.subtotal_cents,
       deliveryFeeCents: order.delivery_fee_cents,
       shippingRefundedCents,
+      refundedTotalCents,
       taxCents: order.tax_cents,
       tipCents: order.tip_cents,
       promoCode: order.promo_code,

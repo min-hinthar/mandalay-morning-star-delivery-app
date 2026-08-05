@@ -15,8 +15,9 @@
 -- overage silently ate goods refunds), but a COD order has no rail and the
 -- overage became an uncapped cash over-payment. The fee now refunds at most
 -- once per order (subsequent requests get the remainder, normally 0), and a
--- cumulative cap rejects any call that would push the order's total audited
--- refunds past total_cents. Prior refunds are summed from order_audit_log —
+-- cumulative cap holds every call to what the customer actually paid: a
+-- ≤1¢/line rounding overshoot clamps down to the remainder, anything beyond
+-- rejects. Prior refunds are summed from order_audit_log —
 -- the same rows the Stripe delta reconciles against, written atomically with
 -- the marking since 20260612160000. Cancel-flow refunds (refund-on-cancel.ts)
 -- write totalRefundCents rows too, so a fully cancel-refunded order is also
@@ -49,6 +50,9 @@ DECLARE
   v_discount_ratio numeric;
   v_prior_shipping int;
   v_prior_total int;
+  v_remaining int;
+  v_overshoot int;
+  v_last int;
   v_total_refund int := 0;
   v_shipping_refund int := 0;
   v_results jsonb := '[]'::jsonb;
@@ -147,20 +151,36 @@ BEGIN
     v_total_refund := v_total_refund + v_shipping_refund;
   END IF;
 
-  -- Per-call sanity (kept for the unreachable-but-cheap belt)
-  IF v_total_refund > v_order.total_cents THEN
-    RAISE EXCEPTION 'Refund $% exceeds order total $%',
-      (v_total_refund / 100.0)::numeric(10,2),
-      (v_order.total_cents / 100.0)::numeric(10,2);
-  END IF;
-
   -- Cumulative cap: everything ever audited for this order, plus this call,
   -- must fit inside what the customer actually paid.
-  IF v_prior_total + v_total_refund > v_order.total_cents THEN
-    RAISE EXCEPTION 'Cumulative refund $% exceeds order total $% ($% already refunded)',
-      ((v_prior_total + v_total_refund) / 100.0)::numeric(10,2),
-      (v_order.total_cents / 100.0)::numeric(10,2),
-      (v_prior_total / 100.0)::numeric(10,2);
+  --
+  -- One overshoot is LEGITIMATE and must not reject: each line rounds its
+  -- goods and tax shares independently (≤ +0.5¢ each), so a full refund of a
+  -- discounted no-/low-tip order can sum up to jsonb_array_length(p_items)
+  -- cents ABOVE the paid total (e.g. 2 × $1.00, 1¢ discount, 21¢ tax →
+  -- 2 × (100+11) = $2.22 vs $2.20 paid). Within that bound — and only while
+  -- something remains refundable — clamp DOWN to the remainder (the customer
+  -- gets back exactly what they paid) and shave the difference off the last
+  -- line so the itemization still sums to the total. Anything beyond the
+  -- bound is a genuine over-refund and still raises. The phrase 'exceeds
+  -- order total' is matched by the refund route's recovery path.
+  v_remaining := v_order.total_cents - v_prior_total;
+  v_overshoot := v_total_refund - v_remaining;
+  IF v_overshoot > 0 THEN
+    IF v_remaining > 0 AND v_overshoot <= jsonb_array_length(p_items) THEN
+      v_total_refund := v_remaining;
+      v_last := jsonb_array_length(v_results) - 1;
+      v_results := jsonb_set(
+        v_results,
+        ARRAY[v_last::text, 'refundAmountCents'],
+        to_jsonb(GREATEST(0, (v_results->v_last->>'refundAmountCents')::int - v_overshoot))
+      );
+    ELSE
+      RAISE EXCEPTION 'Cumulative refund $% exceeds order total $% ($% already refunded)',
+        ((v_prior_total + v_total_refund) / 100.0)::numeric(10,2),
+        (v_order.total_cents / 100.0)::numeric(10,2),
+        (v_prior_total / 100.0)::numeric(10,2);
+    END IF;
   END IF;
 
   -- Audit entry, atomic with the item marking (the durable record the card

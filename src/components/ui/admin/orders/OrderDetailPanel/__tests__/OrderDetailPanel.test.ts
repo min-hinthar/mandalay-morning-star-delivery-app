@@ -43,6 +43,7 @@ function makeOrderDetail(overrides: Partial<OrderDetail> = {}): OrderDetail {
     subtotalCents: 2400,
     deliveryFeeCents: 1500,
     shippingRefundedCents: 0,
+    refundedTotalCents: 0,
     taxCents: 200,
     tipCents: 500,
     totalCents: 4600,

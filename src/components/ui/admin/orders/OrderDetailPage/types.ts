@@ -56,6 +56,8 @@ export interface OrderDetail {
   deliveryFeeCents: number;
   /** Delivery fee already refunded (audit-log sum) — the refund RPC refunds the fee at most once per order. */
   shippingRefundedCents: number;
+  /** Everything already refunded, any source (item refunds + cancel-flow rows) — drives the cumulative-cap preview. */
+  refundedTotalCents: number;
   taxCents: number;
   tipCents: number;
   totalCents: number;

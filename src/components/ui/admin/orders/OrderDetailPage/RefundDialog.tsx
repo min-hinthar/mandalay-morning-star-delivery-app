@@ -9,6 +9,7 @@ import { toast } from "@/lib/hooks/useToastV8";
 import { extractErrorMessage } from "@/lib/utils/api-error";
 import { formatPrice } from "@/lib/utils/currency";
 import {
+  clampRefundToRemaining,
   computeItemRefund,
   itemGrossRefundCents,
   orderDiscountRatio,
@@ -24,11 +25,12 @@ interface RefundDialogProps {
   deliveryFeeCents: number;
   /** Delivery fee already refunded — the RPC refunds the fee at most once per order. */
   shippingRefundedCents: number;
+  /** Everything already refunded, any source — drives the cumulative-cap preview. */
+  refundedTotalCents: number;
   subtotalCents: number;
   discountCents: number;
   taxCents: number;
-  /** Used for refund ceiling validation display */
-  totalCents?: number;
+  totalCents: number;
   onRefundComplete: () => void;
 }
 
@@ -45,9 +47,11 @@ export function RefundDialog({
   items,
   deliveryFeeCents,
   shippingRefundedCents,
+  refundedTotalCents,
   subtotalCents,
   discountCents,
   taxCents,
+  totalCents,
   onRefundComplete,
 }: RefundDialogProps) {
   const [selections, setSelections] = useState<Record<string, RefundSelection>>({});
@@ -95,16 +99,27 @@ export function RefundDialog({
     }));
   };
 
-  // Calculate estimated refund total
-  const estimatedRefund =
+  // Cumulative cap: what money is even left to refund. Counts every prior
+  // refund source (item refunds AND cancel-flow refunds, which never mark
+  // item quantities) — so a fully cancel-refunded order is presented as
+  // fully refunded here instead of offering a refund the RPC will reject.
+  const remainingRefundableCents = Math.max(0, totalCents - refundedTotalCents);
+  const fullyRefunded = remainingRefundableCents === 0;
+
+  // Estimated refund, capped exactly the way the RPC caps it: a ≤1¢/line
+  // rounding overshoot clamps to the remainder; a genuine over-refund is
+  // rejected server-side, so submission is disabled for it here.
+  const selectedCount = Object.keys(selections).length;
+  const requestedRefund =
     Object.values(selections).reduce((sum, sel) => {
       const item = items.find((i) => i.id === sel.orderItemId);
       if (!item) return sum;
       return sum + estimateForSelection(item, sel.quantity);
     }, 0) + (refundShipping ? shippingRemainingCents : 0);
+  const capped = clampRefundToRemaining(requestedRefund, remainingRefundableCents, selectedCount);
+  const estimatedRefund = capped.outcome === "clamped" ? capped.totalCents : requestedRefund;
 
-  const selectedCount = Object.keys(selections).length;
-  const canSubmit = selectedCount > 0;
+  const canSubmit = selectedCount > 0 && !fullyRefunded && capped.outcome !== "exceeds";
 
   const handleSelectAll = () => {
     if (selectedCount === refundableItems.length) {
@@ -174,7 +189,12 @@ export function RefundDialog({
           </p>
         </div>
 
-        {refundableItems.length === 0 ? (
+        {fullyRefunded ? (
+          <p className="text-sm text-text-muted py-4 text-center">
+            Everything the customer paid ({formatPrice(totalCents)}) has already been refunded —
+            there is nothing left to refund on this order.
+          </p>
+        ) : refundableItems.length === 0 ? (
           <p className="text-sm text-text-muted py-4 text-center">
             All items have been fully refunded.
           </p>
@@ -335,14 +355,29 @@ export function RefundDialog({
 
             {/* Estimated total */}
             {selectedCount > 0 && (
-              <div className="rounded-lg bg-surface-secondary p-3 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-medium text-text-primary">
-                  <DollarSign className="h-4 w-4" />
-                  Estimated Refund
+              <div className="rounded-lg bg-surface-secondary p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-medium text-text-primary">
+                    <DollarSign className="h-4 w-4" />
+                    Estimated Refund
+                  </div>
+                  <span className="text-lg font-display font-bold text-status-error">
+                    {formatPrice(estimatedRefund)}
+                  </span>
                 </div>
-                <span className="text-lg font-display font-bold text-status-error">
-                  {formatPrice(estimatedRefund)}
-                </span>
+                {capped.outcome === "clamped" && (
+                  <p className="mt-1 text-xs text-text-muted">
+                    Capped at the customer&apos;s remaining balance (per-line rounding summed a few
+                    cents over what they paid).
+                  </p>
+                )}
+                {capped.outcome === "exceeds" && (
+                  <p className="mt-1 text-xs text-status-error">
+                    This exceeds the {formatPrice(remainingRefundableCents)} still refundable on
+                    this order ({formatPrice(refundedTotalCents)} already refunded) — reduce the
+                    selection.
+                  </p>
+                )}
               </div>
             )}
           </>

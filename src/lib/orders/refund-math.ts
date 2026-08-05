@@ -97,3 +97,35 @@ export function remainingShippingRefundCents(
 ): number {
   return Math.max(0, deliveryFeeCents - alreadyRefundedShippingCents);
 }
+
+export interface RefundCapResult {
+  /** What the RPC will actually refund for this request. */
+  totalCents: number;
+  /**
+   * "ok": fits the remaining balance. "clamped": per-line rounding overshot
+   * by ≤1¢/line and the RPC trims to the remainder. "exceeds": a genuine
+   * over-refund the RPC rejects outright.
+   */
+  outcome: "ok" | "clamped" | "exceeds";
+}
+
+/**
+ * The RPC's cumulative cap, mirrored for the dialog (audit follow-up to D4):
+ * each line rounds goods and tax independently (≤ +0.5¢ each), so a full
+ * refund of a discounted no-/low-tip order can sum up to `lineCount` cents
+ * over what the customer paid. Within that bound — and only while something
+ * remains refundable — the RPC clamps down to the remainder; beyond it, it
+ * rejects. Mirrors the migration's `v_overshoot` branch exactly.
+ */
+export function clampRefundToRemaining(
+  requestedCents: number,
+  remainingCents: number,
+  lineCount: number
+): RefundCapResult {
+  const overshoot = requestedCents - remainingCents;
+  if (overshoot <= 0) return { totalCents: requestedCents, outcome: "ok" };
+  if (remainingCents > 0 && overshoot <= lineCount) {
+    return { totalCents: remainingCents, outcome: "clamped" };
+  }
+  return { totalCents: requestedCents, outcome: "exceeds" };
+}

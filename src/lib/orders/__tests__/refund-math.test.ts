@@ -14,6 +14,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 
 import {
+  clampRefundToRemaining,
   computeItemRefund,
   itemGrossRefundCents,
   orderDiscountRatio,
@@ -126,6 +127,31 @@ describe("computeItemRefund", () => {
   });
 });
 
+describe("clampRefundToRemaining (cumulative cap mirror)", () => {
+  it("passes a refund that fits the remaining balance through unchanged", () => {
+    expect(clampRefundToRemaining(2000, 5000, 3)).toEqual({ totalCents: 2000, outcome: "ok" });
+  });
+
+  it("the reviewer's repro: per-line rounding overshoot clamps to what the customer paid", () => {
+    // 2 × $1.00 items, 1¢ discount, 21¢ tax → total paid 220¢.
+    const ctx = { subtotalCents: 200, discountCents: 1, taxCents: 21 };
+    const perLine = computeItemRefund(itemGrossRefundCents(100, 1, 1), ctx).totalCents;
+    expect(perLine).toBe(111); // round(99.5)=100 goods + round(10.5)=11 tax
+    const requested = perLine * 2; // 222 > 220 paid
+    const capped = clampRefundToRemaining(requested, 220, 2);
+    expect(capped).toEqual({ totalCents: 220, outcome: "clamped" });
+  });
+
+  it("clamps only within the ≤1¢/line rounding bound", () => {
+    // 3¢ over with only 2 lines cannot be rounding — genuine over-refund.
+    expect(clampRefundToRemaining(223, 220, 2).outcome).toBe("exceeds");
+  });
+
+  it("never clamps when nothing remains refundable (fully refunded order)", () => {
+    expect(clampRefundToRemaining(1, 0, 1).outcome).toBe("exceeds");
+  });
+});
+
 describe("remainingShippingRefundCents (D5 once-per-order guard)", () => {
   it("refunds the full fee the first time", () => {
     expect(remainingShippingRefundCents(1500, 0)).toBe(1500);
@@ -163,11 +189,22 @@ describe("the migration SQL mirrors this module (source guard)", () => {
     expect(sql).toContain("GREATEST(0, v_order.delivery_fee_cents - v_prior_shipping)");
   });
 
-  it("caps cumulative refunds at the order total, reusing the route-matched phrase", () => {
-    expect(sql).toContain("v_prior_total + v_total_refund > v_order.total_cents");
+  it("caps cumulative refunds at the remaining balance, reusing the route-matched phrase", () => {
+    expect(sql).toContain("v_remaining := v_order.total_cents - v_prior_total");
+    expect(sql).toContain("v_overshoot := v_total_refund - v_remaining");
     // The refund route's card-refund recovery path matches on this phrase —
     // if it changes here, the route's error handling silently degrades.
     expect(sql).toContain("exceeds order total");
+  });
+
+  it("clamps the ≤1¢/line rounding overshoot instead of rejecting it", () => {
+    // The bound: overshoot within jsonb_array_length(p_items) cents, and only
+    // while something remains refundable — mirrored by clampRefundToRemaining.
+    expect(sql).toContain("v_overshoot <= jsonb_array_length(p_items)");
+    expect(sql).toContain("v_remaining > 0 AND");
+    expect(sql).toContain("v_total_refund := v_remaining");
+    // The shave keeps the itemization summing to the clamped total.
+    expect(sql).toMatch(/jsonb_set\(\s*v_results/);
   });
 
   it("sums prior refunds from the audit log (the same rows the Stripe delta reconciles)", () => {
