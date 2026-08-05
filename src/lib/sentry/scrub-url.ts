@@ -37,9 +37,15 @@ export function scrubSpanDescription(description: string): string {
  * the surrounding prose (whole-message scrubUrl would percent-encode it).
  */
 export function scrubConsoleMessage(message: string): string {
-  return message.replace(/\S+/g, (token) =>
-    token.includes("/") || token.includes("?") ? scrubUrl(token) : token
-  );
+  return message.replace(/\S+/g, (token) => {
+    // Peel sentence punctuation off the token edges ("…/share," would
+    // otherwise defeat SHARE_PATH_RE's $ anchor) and re-attach after.
+    const m = /^([("'[]*)(.*?)([.,;:!?)"']*)$/.exec(token);
+    if (!m) return token;
+    const [, lead, core, trail] = m;
+    if (!core.includes("/") && !core.includes("?")) return token;
+    return lead + scrubUrl(core) + trail;
+  });
 }
 
 export function scrubUrl(rawUrl: string): string {

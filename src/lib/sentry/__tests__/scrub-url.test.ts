@@ -96,6 +96,15 @@ describe("scrubUrl", () => {
     expect(scrubConsoleMessage("ratio 3/4 is fine")).toBe("ratio 3/4 is fine");
   });
 
+  it("scrubs URLs with adjacent sentence punctuation (console path)", () => {
+    expect(scrubConsoleMessage("share link /orders/tok123/share, copied")).toBe(
+      "share link /orders/[redacted]/share, copied"
+    );
+    expect(scrubConsoleMessage("(see /api/tracking/abc?token=x).")).toBe(
+      "(see /api/tracking/abc?token=%5Bredacted%5D)."
+    );
+  });
+
   it("keeps token_hash in the sensitive list (regression pin for driver invites)", () => {
     expect(SENSITIVE_QUERY_PARAMS).toContain("token_hash");
     expect(SENSITIVE_QUERY_PARAMS).toContain("token");
