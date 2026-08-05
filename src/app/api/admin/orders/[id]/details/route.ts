@@ -211,6 +211,46 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       logger.exception(auditError, { api: "admin/orders/[id]/details" });
     }
 
+    // What this order has already refunded — the RefundDialog uses these to
+    // preview the once-per-order shipping guard and the cumulative cap the
+    // refund RPC enforces. `refundedTotalCents` counts EVERY refund source
+    // (item refunds AND cancel-flow rows, which carry totalRefundCents but no
+    // shippingRefundCents) so a fully cancel-refunded order reads as fully
+    // refunded here, not as still-refundable. Summed from an UNCAPPED query:
+    // the display audit log above is limit(20), and money math must never
+    // ride a truncated list.
+    let shippingRefundedCents = 0;
+    let refundedTotalCents = 0;
+    // A failed read must not present $0-refunded as authoritative (the same
+    // shape as the cancellationKnown gotcha): refundsKnown tells the dialog
+    // whether these sums are real or a fallback the server will re-validate.
+    let refundsKnown = false;
+    {
+      const { data: refundRows, error: refundRowsError } = await supabase
+        .from("order_audit_log")
+        .select("new_value")
+        .eq("order_id", orderId)
+        .eq("action", "refund");
+      if (refundRowsError) {
+        // Non-fatal: the dialog falls back to "unknown" (server still guards).
+        logger.exception(refundRowsError, { api: "admin/orders/[id]/details" });
+      } else {
+        refundsKnown = true;
+        for (const row of refundRows ?? []) {
+          const nv = row.new_value as {
+            shippingRefundCents?: unknown;
+            totalRefundCents?: unknown;
+          } | null;
+          if (typeof nv?.shippingRefundCents === "number") {
+            shippingRefundedCents += nv.shippingRefundCents;
+          }
+          if (typeof nv?.totalRefundCents === "number") {
+            refundedTotalCents += nv.totalRefundCents;
+          }
+        }
+      }
+    }
+
     // Fetch assigned driver name if exists
     let assignedDriverName: string | null = null;
     if (order.assigned_driver_id) {
@@ -297,6 +337,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       })),
       subtotalCents: order.subtotal_cents,
       deliveryFeeCents: order.delivery_fee_cents,
+      shippingRefundedCents,
+      refundedTotalCents,
+      refundsKnown,
       taxCents: order.tax_cents,
       tipCents: order.tip_cents,
       promoCode: order.promo_code,

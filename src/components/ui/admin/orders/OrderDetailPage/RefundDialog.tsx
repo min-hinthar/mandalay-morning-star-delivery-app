@@ -8,6 +8,13 @@ import { Modal } from "@/components/ui/Modal";
 import { toast } from "@/lib/hooks/useToastV8";
 import { extractErrorMessage } from "@/lib/utils/api-error";
 import { formatPrice } from "@/lib/utils/currency";
+import {
+  clampRefundToRemaining,
+  computeItemRefund,
+  itemGrossRefundCents,
+  orderDiscountRatio,
+  remainingShippingRefundCents,
+} from "@/lib/orders/refund-math";
 import type { OrderDetailItem } from "./types";
 
 interface RefundDialogProps {
@@ -16,8 +23,16 @@ interface RefundDialogProps {
   orderId: string;
   items: OrderDetailItem[];
   deliveryFeeCents: number;
-  /** Used for refund ceiling validation display */
-  totalCents?: number;
+  /** Delivery fee already refunded — the RPC refunds the fee at most once per order. */
+  shippingRefundedCents: number;
+  /** Everything already refunded, any source — drives the cumulative-cap preview. */
+  refundedTotalCents: number;
+  /** False when refund history couldn't be loaded — preview uncapped, server validates. */
+  refundsKnown: boolean;
+  subtotalCents: number;
+  discountCents: number;
+  taxCents: number;
+  totalCents: number;
   onRefundComplete: () => void;
 }
 
@@ -33,6 +48,13 @@ export function RefundDialog({
   orderId,
   items,
   deliveryFeeCents,
+  shippingRefundedCents,
+  refundedTotalCents,
+  refundsKnown,
+  subtotalCents,
+  discountCents,
+  taxCents,
+  totalCents,
   onRefundComplete,
 }: RefundDialogProps) {
   const [selections, setSelections] = useState<Record<string, RefundSelection>>({});
@@ -43,6 +65,19 @@ export function RefundDialog({
 
   // Filter to refundable items (not fully refunded)
   const refundableItems = items.filter((item) => item.quantity - item.refundedQuantity > 0);
+
+  // Mirror of the refund RPC's money math (see lib/orders/refund-math.ts):
+  // goods scaled by the order's discount ratio + the line's tax share. The
+  // estimate matches what the server will actually refund.
+  const refundContext = { subtotalCents, discountCents, taxCents };
+  const hasDiscount = orderDiscountRatio(refundContext) > 0;
+  const shippingRemainingCents = remainingShippingRefundCents(
+    deliveryFeeCents,
+    shippingRefundedCents
+  );
+  const estimateForSelection = (item: OrderDetailItem, quantity: number) =>
+    computeItemRefund(itemGrossRefundCents(item.lineTotal, item.quantity, quantity), refundContext)
+      .totalCents;
 
   const toggleItem = (item: OrderDetailItem) => {
     setSelections((prev) => {
@@ -67,17 +102,39 @@ export function RefundDialog({
     }));
   };
 
-  // Calculate estimated refund total
-  const estimatedRefund =
+  // Cumulative cap: what money is even left to refund. Counts every prior
+  // refund source (item refunds AND cancel-flow refunds, which never mark
+  // item quantities) — so a fully cancel-refunded order is presented as
+  // fully refunded here instead of offering a refund the RPC will reject.
+  // When the history read failed (refundsKnown false) the sums are a
+  // fallback, not authority — preview uncapped and let the server validate.
+  const remainingRefundableCents = Math.max(0, totalCents - refundedTotalCents);
+  const fullyRefunded = refundsKnown && remainingRefundableCents === 0;
+
+  // Estimated refund, capped exactly the way the RPC caps it. The rounding
+  // tolerance is the order's cumulative refunded UNITS (drift accumulates
+  // across item-by-item refunds), mirroring the RPC's bound; a genuine
+  // over-refund is rejected server-side, so submission is disabled for it.
+  const selectedCount = Object.keys(selections).length;
+  const selectedUnits = Object.values(selections).reduce((sum, sel) => sum + sel.quantity, 0);
+  const alreadyRefundedUnits = items.reduce((sum, i) => sum + i.refundedQuantity, 0);
+  const requestedRefund =
     Object.values(selections).reduce((sum, sel) => {
       const item = items.find((i) => i.id === sel.orderItemId);
       if (!item) return sum;
-      const unitPrice = item.lineTotal / item.quantity;
-      return sum + Math.round(unitPrice * sel.quantity);
-    }, 0) + (refundShipping ? deliveryFeeCents : 0);
+      return sum + estimateForSelection(item, sel.quantity);
+    }, 0) + (refundShipping ? shippingRemainingCents : 0);
+  const capped = clampRefundToRemaining(
+    requestedRefund,
+    remainingRefundableCents,
+    selectedUnits + alreadyRefundedUnits
+  );
+  const cappingActive = refundsKnown;
+  const estimatedRefund =
+    cappingActive && capped.outcome === "clamped" ? capped.totalCents : requestedRefund;
 
-  const selectedCount = Object.keys(selections).length;
-  const canSubmit = selectedCount > 0;
+  const canSubmit =
+    selectedCount > 0 && !fullyRefunded && (!cappingActive || capped.outcome !== "exceeds");
 
   const handleSelectAll = () => {
     if (selectedCount === refundableItems.length) {
@@ -147,7 +204,12 @@ export function RefundDialog({
           </p>
         </div>
 
-        {refundableItems.length === 0 ? (
+        {fullyRefunded ? (
+          <p className="text-sm text-text-muted py-4 text-center">
+            Everything the customer paid ({formatPrice(totalCents)}) has already been refunded —
+            there is nothing left to refund on this order.
+          </p>
+        ) : refundableItems.length === 0 ? (
           <p className="text-sm text-text-muted py-4 text-center">
             All items have been fully refunded.
           </p>
@@ -235,8 +297,15 @@ export function RefundDialog({
                         <span className="text-xs text-text-muted">
                           ={" "}
                           {formatPrice(
-                            Math.round(unitPrice * (selections[item.id]?.quantity ?? remainingQty))
+                            estimateForSelection(
+                              item,
+                              selections[item.id]?.quantity ?? remainingQty
+                            )
                           )}
+                          {hasDiscount && (
+                            <span className="ml-1">(after promo discount, incl. tax)</span>
+                          )}
+                          {!hasDiscount && <span className="ml-1">(incl. tax)</span>}
                         </span>
                       </div>
                     )}
@@ -245,20 +314,25 @@ export function RefundDialog({
               })}
             </div>
 
-            {/* Refund shipping */}
-            {deliveryFeeCents > 0 && (
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={refundShipping}
-                  onChange={(e) => setRefundShipping(e.target.checked)}
-                  className="h-4 w-4 rounded border-border text-primary focus-visible:ring-primary/30"
-                />
-                <span className="text-sm text-text-primary">
-                  Refund shipping ({formatPrice(deliveryFeeCents)})
-                </span>
-              </label>
-            )}
+            {/* Refund shipping — the fee refunds at most once per order */}
+            {deliveryFeeCents > 0 &&
+              (shippingRemainingCents > 0 ? (
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={refundShipping}
+                    onChange={(e) => setRefundShipping(e.target.checked)}
+                    className="h-4 w-4 rounded border-border text-primary focus-visible:ring-primary/30"
+                  />
+                  <span className="text-sm text-text-primary">
+                    Refund shipping ({formatPrice(shippingRemainingCents)})
+                  </span>
+                </label>
+              ) : (
+                <p className="text-xs text-text-muted">
+                  Shipping ({formatPrice(deliveryFeeCents)}) has already been refunded.
+                </p>
+              ))}
 
             {/* Notify customer */}
             <label className="flex items-center gap-3 cursor-pointer">
@@ -296,14 +370,35 @@ export function RefundDialog({
 
             {/* Estimated total */}
             {selectedCount > 0 && (
-              <div className="rounded-lg bg-surface-secondary p-3 flex items-center justify-between">
-                <div className="flex items-center gap-2 text-sm font-medium text-text-primary">
-                  <DollarSign className="h-4 w-4" />
-                  Estimated Refund
+              <div className="rounded-lg bg-surface-secondary p-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 text-sm font-medium text-text-primary">
+                    <DollarSign className="h-4 w-4" />
+                    Estimated Refund
+                  </div>
+                  <span className="text-lg font-display font-bold text-status-error">
+                    {formatPrice(estimatedRefund)}
+                  </span>
                 </div>
-                <span className="text-lg font-display font-bold text-status-error">
-                  {formatPrice(estimatedRefund)}
-                </span>
+                {!refundsKnown && (
+                  <p className="mt-1 text-xs text-text-muted">
+                    Past refunds couldn&apos;t be loaded — the server will validate this refund
+                    against the order&apos;s remaining balance.
+                  </p>
+                )}
+                {cappingActive && capped.outcome === "clamped" && (
+                  <p className="mt-1 text-xs text-text-muted">
+                    Capped at the customer&apos;s remaining balance (per-line rounding summed a few
+                    cents over what they paid).
+                  </p>
+                )}
+                {cappingActive && capped.outcome === "exceeds" && (
+                  <p className="mt-1 text-xs text-status-error">
+                    This exceeds the {formatPrice(remainingRefundableCents)} still refundable on
+                    this order ({formatPrice(refundedTotalCents)} already refunded) — reduce the
+                    selection.
+                  </p>
+                )}
               </div>
             )}
           </>

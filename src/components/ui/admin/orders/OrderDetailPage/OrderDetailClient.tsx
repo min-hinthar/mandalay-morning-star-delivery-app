@@ -250,6 +250,12 @@ export function OrderDetailClient() {
         orderId={order.id}
         items={order.items}
         deliveryFeeCents={order.deliveryFeeCents}
+        shippingRefundedCents={order.shippingRefundedCents}
+        refundedTotalCents={order.refundedTotalCents}
+        refundsKnown={order.refundsKnown}
+        subtotalCents={order.subtotalCents}
+        discountCents={order.discountCents}
+        taxCents={order.taxCents}
         totalCents={order.totalCents}
         onRefundComplete={() => fetchOrderDetails(false)}
       />
