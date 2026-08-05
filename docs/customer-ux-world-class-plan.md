@@ -1,5 +1,11 @@
 # Customer UX — World-Class Holistic Plan
 
+> **⚠️ Superseded (2026-08-05).** Pre-hero-era: the gold/jade/teal/magenta
+> "design spine" contradicts the current standard
+> ([hero-design-language.md](hero-design-language.md)), tier identity shipped as
+> the gem ladder (not Star/Moon/Sun), and the cutoff surface shipped as
+> `RailCutoffChip`. Docs index: [README.md](README.md).
+
 Program to elevate the customer experience end-to-end. The through-line is the
 two things no competitor can copy: **scheduled multi-day delivery as
 anticipation** (not a limitation) and **Burmese cultural identity**. Sequenced

@@ -1,5 +1,13 @@
 # Deployment Guide
 
+> **⚠️ Superseded (2026-08-05).** The Stripe webhook event list, storage bucket
+> names, and env-var table below are wrong — verify against
+> `src/app/api/webhooks/stripe/route.ts` (handles `checkout.session.completed` /
+> `checkout.session.expired` / `payment_intent.payment_failed` /
+> `charge.refunded`), the baseline's buckets (`menu-photos`, `driver-photos`,
+> `feedback-attachments`), and `scripts/launch-check.ts` for required env vars.
+> Docs index: [README.md](README.md).
+
 Complete guide for deploying Mandalay Morning Star to production.
 
 ## Prerequisites

@@ -1,5 +1,12 @@
 # docs/00-context-pack.md (v1.0) — A La Carte Saturday Delivery
 
+> **⚠️ Superseded (2026-08-05).** Every core rule below has changed: delivery is
+> multi-day (`delivery_days` table, per-day cutoffs), fees are graduated
+> distance bands (free-$100 is local-only, `resolveDeliveryFee`), and the
+> lifecycle is the `order_status` enum incl. COD `pending_approval` — no
+> draft/paid. Authority: `.claude/CLAUDE.md` +
+> `src/lib/settings/business-rules.ts`. Docs index: [README.md](README.md).
+
 ## Product
 
 Mandalay Morning Star — account-based, a la carte ordering from a full categorized menu for _upcoming Saturday delivery_ in Southern California. Inspired by Panda Express-style ordering UX: fast category browsing, item detail modals, cart drawer, scheduled pickup/delivery selection, clean checkout.

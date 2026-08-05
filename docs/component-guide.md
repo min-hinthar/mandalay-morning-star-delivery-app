@@ -1,5 +1,12 @@
 # docs/component-guide.md — Frontend Component Implementation Guide
 
+> **⚠️ Superseded (2026-08-05).** Built on the pre-hero saffron/curry/jade
+> palette and Tailwind-v3 `tailwind.config.ts` theming — under Tailwind v4 those
+> classes emit **nothing** (no `@config` in globals.css), and the flat
+> $15/$100 fee + single-Saturday cutoff patterns are wrong. Use
+> [hero-design-language.md](hero-design-language.md) + `src/styles/tokens.css`.
+> Docs index: [README.md](README.md).
+
 > **Purpose**: Detailed implementation patterns for key UI components
 > **Design System**: [docs/frontend-design-system.md](frontend-design-system.md)
 > **V4 Updates**: January 2026 - Performance, tokens, hooks

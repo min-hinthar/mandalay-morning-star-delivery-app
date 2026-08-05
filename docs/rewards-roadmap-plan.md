@@ -1,6 +1,8 @@
 # Rewards & Loyalty — Roadmap Execution Plan
 
-> Status: PLAN (no code changes yet). Scope locked with product decisions:
+> Status: **SHIPPED** (all four phases — ownership gate, tier status +
+> early-access, types split + CI drift guard; tiers later moved to lifetime
+> net spend and the gem ladder). Scope was locked with product decisions:
 > **tier perks = status + bigger coupons only**, **conservative margin** (delivery-fee
 > path untouched). Grounded in three code audits (UI/UX, security, DB-types/CI).
 

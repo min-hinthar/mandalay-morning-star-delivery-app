@@ -1,5 +1,10 @@
 # Codebase Deep-Dive Audit Report
 
+> **⚠️ Superseded (2026-08-05).** Most P0/P2 items are since fixed or deleted
+> (session refresh lives in `src/proxy.ts`, the debug route and dead nav dir are
+> gone, the toast migration is done) — do not act on this matrix. Docs index:
+> [README.md](README.md).
+
 **Date:** 2026-02-26
 **Scope:** Full codebase — 973 TS/TSX files, 92 API routes, 44 pages, 6 layouts
 **Stack:** Next.js 16 | React 19 | Supabase | Stripe | Tailwind 4 | Zustand | Framer Motion

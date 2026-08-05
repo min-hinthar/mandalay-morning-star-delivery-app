@@ -1,5 +1,10 @@
 # docs/project_status.md — Milestone Tracking (v2.1)
 
+> **⚠️ Superseded (2026-08-05).** Unmaintained since 2026-01-15; V4/V5/V6 have
+> shipped since, and the paths/migrations/design system below no longer exist.
+> Current status lives in `README.md` milestones + [open-prs.md](open-prs.md).
+> Docs index: [README.md](README.md).
+
 > **Last Updated**: 2026-01-15
 > **Current Phase**: V3 In Progress - UX Redesign (Sprint 1: Foundation)
 

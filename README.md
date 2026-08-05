@@ -521,14 +521,19 @@ pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test &
 
 ## Roadmap & Potential Improvements
 
-### Next up — Driver Portal overhaul
+### Next up — pending plans
 
-The driver portal (`src/app/(driver)/`) has features that are partially working
-or unreliable and is the next focus area. Scope to be confirmed at kickoff, but
-candidates: route/stop lifecycle correctness, live GPS + ETA reliability, proof-
-of-delivery photo capture, offline sync (IndexedDB + SW), earnings accuracy,
-availability scheduling, and the onboarding/invite flow. See the kickoff prompt
-in `docs/driver-overhaul-kickoff.md`.
+The driver-portal overhaul has shipped (PRs #223–#239 — availability, route
+builder correctness, the phantom-column sweep, ratings, analytics). The open
+plans, tracked in the [docs index](docs/README.md):
+
+- **Grocery aisle** — `docs/grocery-delivery-plan.md` (G0 browse → G4 EBT);
+  plan-of-record, none built yet.
+- **Holistic-improvement backlog** — `docs/holistic-improvement-plan.md`: SW
+  denylist for authed routes, CSP hardening, Sentry PII default, refunded
+  shipping, legacy font imports.
+- **Payment-gate DB trigger** — `docs/gate-confirm-on-payment-plan.md`; needs a
+  Docker session for the migration.
 
 ### Other follow-ups (by leverage)
 
@@ -543,6 +548,9 @@ in `docs/driver-overhaul-kickoff.md`.
 
 ### Recently shipped (was on this list)
 
+- ✅ Driver Portal overhaul — route/stop lifecycle correctness, honest
+  availability, offline-queue idempotency, ratings, deactivated-driver page,
+  admin analytics (PRs #223–#239).
 - ✅ Reward-integrity hardening — per-user promo-code binding at checkout.
 - ✅ Generated DB types + schema-drift CI guard (replaced the hand-maintained `database.ts`).
 
@@ -689,23 +697,20 @@ Set `CRON_SECRET` in Vercel env vars to secure these endpoints. The loyalty than
 
 ## Documentation
 
-| Document                            | Path                              |
-| ----------------------------------- | --------------------------------- |
-| Collaborative PR Review             | `docs/collaborative-pr-review.md` |
-| Open PRs (live registry)            | `docs/open-prs.md`                |
-| Architecture                        | `docs/architecture.md`            |
-| Data Model                          | `docs/04-data-model.md`           |
-| Menu System                         | `docs/05-menu.md`                 |
-| Stripe Integration                  | `docs/06-stripe.md`               |
-| Design Language + UI/UX Quality Bar | `docs/hero-design-language.md`    |
-| Frontend Design System              | `docs/frontend-design-system.md`  |
-| Component Guide                     | `docs/component-guide.md`         |
-| Deployment                          | `docs/DEPLOYMENT.md`              |
-| Z-Index Strategy                    | `docs/STACKING-CONTEXT.md`        |
-| Performance Guide                   | `PERFORMANCE.md`                  |
-| Change Log                          | `docs/change_log.md`              |
-| Project Status                      | `docs/project_status.md`          |
-| Business Context                    | `docs/00-context-pack.md`         |
+**Start at the [docs index](docs/README.md)** — it classifies every doc as
+living / pending plan / completed plan / historical / superseded (several older
+docs carry stale banners; the index says where the truth moved). The living set:
+
+| Document                            | Path                                                       |
+| ----------------------------------- | ---------------------------------------------------------- |
+| Docs index (reconciled 2026-08-05)  | `docs/README.md`                                           |
+| Design Language + UI/UX Quality Bar | `docs/hero-design-language.md`                             |
+| Collaborative PR Review             | `docs/collaborative-pr-review.md`                          |
+| Open PRs (live registry)            | `docs/open-prs.md`                                         |
+| Loading-State Hierarchy             | `docs/loading-hierarchy.md`                                |
+| Loyalty Orphan Backfill (runbook)   | `docs/loyalty-orphan-backfill.md`                          |
+| Data Model (authoritative)          | `src/types/database.generated.ts`                          |
+| Business Rules (authoritative)      | `.claude/CLAUDE.md` + `src/lib/settings/business-rules.ts` |
 
 ## Troubleshooting
 
