@@ -30,6 +30,18 @@ export function scrubSpanDescription(description: string): string {
   return m ? `${m[1]} ${scrubUrl(m[2])}` : scrubUrl(description);
 }
 
+/**
+ * Console breadcrumbs carry free text (`console.error("failed", url)` —
+ * and removeConsole keeps error/warn in prod). Scrub URL-shaped tokens
+ * word-wise so a token-bearing URL mid-sentence redacts without mangling
+ * the surrounding prose (whole-message scrubUrl would percent-encode it).
+ */
+export function scrubConsoleMessage(message: string): string {
+  return message.replace(/\S+/g, (token) =>
+    token.includes("/") || token.includes("?") ? scrubUrl(token) : token
+  );
+}
+
 export function scrubUrl(rawUrl: string): string {
   try {
     // Relative URLs resolve against a throwaway origin; strip it back off.

@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { SENSITIVE_QUERY_PARAMS, scrubSpanDescription, scrubUrl } from "../scrub-url";
+import {
+  SENSITIVE_QUERY_PARAMS,
+  scrubConsoleMessage,
+  scrubSpanDescription,
+  scrubUrl,
+} from "../scrub-url";
 
 describe("scrubUrl", () => {
   it("redacts the tracking share ?token= param", () => {
@@ -78,6 +83,17 @@ describe("scrubUrl", () => {
     expect(scrubSpanDescription("/orders/tok123/share")).toBe("/orders/[redacted]/share");
     expect(scrubSpanDescription("GET /menu")).toBe("GET /menu");
     expect(scrubSpanDescription("Slow click on button")).toBe("Slow click on button");
+  });
+
+  it("scrubs URL-shaped tokens inside console messages without mangling prose", () => {
+    expect(scrubConsoleMessage("fetch failed for /api/tracking/abc?token=s3cret retrying")).toBe(
+      "fetch failed for /api/tracking/abc?token=%5Bredacted%5D retrying"
+    );
+    expect(scrubConsoleMessage("share link /orders/tok123/share copied")).toBe(
+      "share link /orders/[redacted]/share copied"
+    );
+    expect(scrubConsoleMessage("plain words no urls at all")).toBe("plain words no urls at all");
+    expect(scrubConsoleMessage("ratio 3/4 is fine")).toBe("ratio 3/4 is fine");
   });
 
   it("keeps token_hash in the sensitive list (regression pin for driver invites)", () => {

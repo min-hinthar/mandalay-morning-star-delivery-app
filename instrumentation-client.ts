@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
-import { scrubSpanDescription, scrubUrl } from "@/lib/sentry/scrub-url";
+import { scrubConsoleMessage, scrubSpanDescription, scrubUrl } from "@/lib/sentry/scrub-url";
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -67,6 +67,19 @@ Sentry.init({
     }
     if (data?.from && typeof data.from === "string") {
       data.from = scrubUrl(data.from);
+    }
+    // Console breadcrumbs carry content in message + data.arguments, not
+    // data.url — and removeConsole keeps error/warn in prod, exactly the
+    // calls that log failed-fetch URLs.
+    if (breadcrumb.category === "console") {
+      if (typeof breadcrumb.message === "string") {
+        breadcrumb.message = scrubConsoleMessage(breadcrumb.message);
+      }
+      if (Array.isArray(data?.arguments)) {
+        data.arguments = data.arguments.map((arg: unknown) =>
+          typeof arg === "string" ? scrubConsoleMessage(arg) : arg
+        );
+      }
     }
     return breadcrumb;
   },
