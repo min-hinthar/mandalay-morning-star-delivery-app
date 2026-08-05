@@ -2,6 +2,7 @@
  * Rate limit configuration driven by environment variables.
  * All values have sensible defaults. Override via env vars to tune without redeploy.
  */
+import { logger } from "@/lib/utils/logger";
 
 export type RateLimitTier =
   | "auth-signin"
@@ -37,7 +38,16 @@ export interface RateLimitConfig {
  */
 export function parseDurationMs(window: string): number {
   const m = /^(\d+)\s*(ms|s|m|h|d)$/.exec(window.trim());
-  if (!m) return 60_000;
+  if (!m) {
+    // Surface the misconfig: Upstash's slidingWindow would THROW on the same
+    // malformed string, so without this warn a bad RATE_LIMIT_*_WINDOW env
+    // silently desyncs Redis (broken) from the fallback (quiet 1-minute).
+    logger.warn("Unparseable rate-limit window — falling back to 1 minute", {
+      flowId: "rate-limit-config",
+      window,
+    });
+    return 60_000;
+  }
   const n = Number(m[1]);
   switch (m[2]) {
     case "ms":
