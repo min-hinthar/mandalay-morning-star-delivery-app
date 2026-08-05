@@ -6,7 +6,9 @@
 > `checkout.session.expired` / `payment_intent.payment_failed` /
 > `charge.refunded`), the baseline's buckets (`menu-photos`, `driver-photos`,
 > `feedback-attachments`, `delivery-photos`), and `scripts/launch-check.ts` for
-> required env vars.
+> required env vars — noting launch-check does NOT validate
+> `STRIPE_WEBHOOK_SECRET`, which the webhook route hard-fails without: set it
+> (and re-check it after webhook rotation) even when launch-check passes.
 > Docs index: [README.md](README.md).
 
 Complete guide for deploying Mandalay Morning Star to production.

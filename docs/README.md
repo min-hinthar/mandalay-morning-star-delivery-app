@@ -25,11 +25,11 @@
 
 ## Plans — still pending
 
-| Doc                                                                | Open work                                                                                                                                                                            |
-| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| [grocery-delivery-plan.md](grocery-delivery-plan.md)               | Plan-of-record for the grocery aisle (G0–G4); none of it is built. Its reuse-table fee row predates the graduated bands.                                                             |
-| [holistic-improvement-plan.md](holistic-improvement-plan.md)       | D1–D3 shipped; still open: D5 refunded-shipping, D7 SW denylist (`/admin` `/driver` `/account`), D9 CSP `unsafe-inline`/`unsafe-eval`, D10 `sendDefaultPii`, legacy font `@import`s. |
-| [gate-confirm-on-payment-plan.md](gate-confirm-on-payment-plan.md) | App-level payment gates shipped; the `app_private.enforce_paid_before_fulfillment` DB trigger still needs a Docker session.                                                          |
+| Doc                                                                | Open work                                                                                                                                                                                                                                                                                                                             |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [grocery-delivery-plan.md](grocery-delivery-plan.md)               | Plan-of-record for the grocery aisle (G0–G4); none of it is built. Its reuse-table fee row predates the graduated bands.                                                                                                                                                                                                              |
+| [holistic-improvement-plan.md](holistic-improvement-plan.md)       | D1–D3 shipped; the ranked D4–D10 backlog is still open: D4 discount-proportional refunds (high), D5 refunded-shipping guard, D6 first-order discount stacking, D7 SW denylist (`/admin` `/driver` `/account`), D8 feedback-email abuse, D9 CSP `unsafe-inline`/`unsafe-eval`, D10 `sendDefaultPii` — plus the legacy font `@import`s. |
+| [gate-confirm-on-payment-plan.md](gate-confirm-on-payment-plan.md) | App-level payment gates shipped; the `app_private.enforce_paid_before_fulfillment` DB trigger still needs a Docker session.                                                                                                                                                                                                           |
 
 ## Plans — completed (design records)
 

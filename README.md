@@ -529,9 +529,11 @@ plans, tracked in the [docs index](docs/README.md):
 
 - **Grocery aisle** — `docs/grocery-delivery-plan.md` (G0 browse → G4 EBT);
   plan-of-record, none built yet.
-- **Holistic-improvement backlog** — `docs/holistic-improvement-plan.md`: SW
-  denylist for authed routes, CSP hardening, Sentry PII default, refunded
-  shipping, legacy font imports.
+- **Holistic-improvement backlog** — `docs/holistic-improvement-plan.md`, the
+  ranked D4–D10 items: discount-proportional refunds (high), refunded-shipping
+  guard, first-order discount stacking, SW denylist for authed routes,
+  feedback-email abuse, CSP hardening, Sentry PII default — plus legacy font
+  imports.
 - **Payment-gate DB trigger** — `docs/gate-confirm-on-payment-plan.md`; needs a
   Docker session for the migration.
 
