@@ -23,6 +23,7 @@ import { toISOWithTimezone } from "@/lib/utils/delivery-timezone";
 import { cleanupOrder, sendCODOrderEmail, resolveAddressDistance } from "./helpers";
 import {
   errorResponse,
+  orderCreateErrorResponse,
   fetchAndValidateCart,
   buildRpcPayload,
   revalidateItemAvailability,
@@ -338,8 +339,7 @@ export async function POST(request: Request) {
     });
 
     if (rpcError || !rpcResult) {
-      logger.exception(rpcError, { userId: user.id, api: "checkout-session", flowId: "checkout" });
-      return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
+      return orderCreateErrorResponse(rpcError, user.id);
     }
     const rpcData = rpcResult as Record<string, unknown> | null;
     const orderId = typeof rpcData?.order_id === "string" ? rpcData.order_id : null;

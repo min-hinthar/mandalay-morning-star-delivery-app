@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { logger } from "@/lib/utils/logger";
 import { resolveMinimumOrder, type DeliveryTier } from "@/lib/utils/order";
 import type { BusinessRules } from "@/lib/settings/business-rules";
 import type { createClient } from "@/lib/supabase/server";
@@ -18,6 +19,33 @@ export function errorResponse(
 ) {
   const error: CheckoutError = { code, message, details };
   return NextResponse.json({ error }, { status });
+}
+
+/**
+ * Map a create_order_with_items RPC failure to a response. The unique index
+ * on open auto-discounted pendings (the D6 DB belt,
+ * idx_orders_unique_open_auto_discount) makes the LOSING tab of a parallel
+ * double-submit fail with 23505 — expected contention, not an error: warn +
+ * friendly 409, no Sentry. Everything else is a real 500.
+ */
+export function orderCreateErrorResponse(
+  rpcError: { code?: string } | null,
+  userId: string
+): NextResponse {
+  if (rpcError?.code === "23505") {
+    logger.warn("Concurrent discounted checkout blocked by unique index", {
+      userId,
+      api: "checkout-session",
+      flowId: "checkout",
+    });
+    return errorResponse(
+      "CONFLICT",
+      "You have another checkout in progress. Please complete or cancel it, then try again.",
+      409
+    );
+  }
+  logger.exception(rpcError, { userId, api: "checkout-session", flowId: "checkout" });
+  return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
 }
 
 interface CartItemInput {
