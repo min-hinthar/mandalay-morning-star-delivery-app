@@ -30,9 +30,16 @@ Sentry.init({
             spanData.previous = scrubUrl(spanData.previous);
           }
         } else if (data.tag === "breadcrumb") {
+          // Typed frames only carry `url` (slow/multi-click) — navigation
+          // rides as performanceSpan frames above — but the frame data is an
+          // open record, so mirror beforeBreadcrumb's url/to/from coverage.
           const frameData = data.payload.data as Record<string, unknown> | undefined;
-          if (frameData && typeof frameData.url === "string") {
-            frameData.url = scrubUrl(frameData.url);
+          if (frameData) {
+            for (const key of ["url", "to", "from"]) {
+              if (typeof frameData[key] === "string") {
+                frameData[key] = scrubUrl(frameData[key]);
+              }
+            }
           }
         }
         return event;
