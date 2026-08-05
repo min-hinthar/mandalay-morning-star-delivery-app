@@ -25,14 +25,6 @@ const inter = localFont({
   weight: "100 900",
 });
 
-const playfair = localFont({
-  src: "../../node_modules/@fontsource-variable/playfair-display/files/playfair-display-latin-wght-normal.woff2",
-  variable: "--font-playfair",
-  display: "swap",
-  preload: true,
-  weight: "400 700",
-});
-
 export const metadata: Metadata = {
   title: {
     default: "Mandalay Morning Star",
@@ -84,9 +76,7 @@ export default function RootLayout({
         {/* DNS prefetch for analytics */}
         <link rel="dns-prefetch" href="https://www.googletagmanager.com" />
       </head>
-      <body
-        className={`${inter.variable} ${playfair.variable} font-body bg-background text-foreground antialiased`}
-      >
+      <body className={`${inter.variable} font-body bg-background text-foreground antialiased`}>
         <Providers>
           <AuthLandingRecovery />
           <ServiceWorkerRegistration />

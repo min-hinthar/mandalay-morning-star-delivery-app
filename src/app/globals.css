@@ -1,8 +1,9 @@
-/* V6 Typography: Nunito (rounded, playful) + Padauk (Burmese) */
-@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800;900&family=Padauk:wght@400;700&display=swap");
-
-/* V5 Legacy (preserved for gradual migration) */
-@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap");
+/* Padauk (Burmese) — the only survivor of the V5/V6 imports: Nunito,
+   Playfair Display and Inter were dead weight (no live CSS references —
+   the hero type system below replaced them; tailwind.config.ts mentions
+   are never loaded under Tailwind v4), each costing a render-blocking
+   stylesheet + font downloads on every page. */
+@import url("https://fonts.googleapis.com/css2?family=Padauk:wght@400;700&display=swap");
 
 /* Anthropic-inspired editorial type: Fraunces (display serif, full variable axes for 'breathing') + Hanken Grotesk (body/UI) */
 @import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght,SOFT,WONK@0,9..144,300..900,0..100,0..1;1,9..144,300..700,0..100,0..1&family=Hanken+Grotesk:ital,wght@0,300..800;1,300..600&display=swap");
