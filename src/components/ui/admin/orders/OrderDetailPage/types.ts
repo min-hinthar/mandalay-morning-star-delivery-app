@@ -54,6 +54,8 @@ export interface OrderDetail {
   items: OrderDetailItem[];
   subtotalCents: number;
   deliveryFeeCents: number;
+  /** Delivery fee already refunded (audit-log sum) — the refund RPC refunds the fee at most once per order. */
+  shippingRefundedCents: number;
   taxCents: number;
   tipCents: number;
   totalCents: number;

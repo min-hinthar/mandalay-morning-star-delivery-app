@@ -8,6 +8,12 @@ import { Modal } from "@/components/ui/Modal";
 import { toast } from "@/lib/hooks/useToastV8";
 import { extractErrorMessage } from "@/lib/utils/api-error";
 import { formatPrice } from "@/lib/utils/currency";
+import {
+  computeItemRefund,
+  itemGrossRefundCents,
+  orderDiscountRatio,
+  remainingShippingRefundCents,
+} from "@/lib/orders/refund-math";
 import type { OrderDetailItem } from "./types";
 
 interface RefundDialogProps {
@@ -16,6 +22,11 @@ interface RefundDialogProps {
   orderId: string;
   items: OrderDetailItem[];
   deliveryFeeCents: number;
+  /** Delivery fee already refunded — the RPC refunds the fee at most once per order. */
+  shippingRefundedCents: number;
+  subtotalCents: number;
+  discountCents: number;
+  taxCents: number;
   /** Used for refund ceiling validation display */
   totalCents?: number;
   onRefundComplete: () => void;
@@ -33,6 +44,10 @@ export function RefundDialog({
   orderId,
   items,
   deliveryFeeCents,
+  shippingRefundedCents,
+  subtotalCents,
+  discountCents,
+  taxCents,
   onRefundComplete,
 }: RefundDialogProps) {
   const [selections, setSelections] = useState<Record<string, RefundSelection>>({});
@@ -43,6 +58,19 @@ export function RefundDialog({
 
   // Filter to refundable items (not fully refunded)
   const refundableItems = items.filter((item) => item.quantity - item.refundedQuantity > 0);
+
+  // Mirror of the refund RPC's money math (see lib/orders/refund-math.ts):
+  // goods scaled by the order's discount ratio + the line's tax share. The
+  // estimate matches what the server will actually refund.
+  const refundContext = { subtotalCents, discountCents, taxCents };
+  const hasDiscount = orderDiscountRatio(refundContext) > 0;
+  const shippingRemainingCents = remainingShippingRefundCents(
+    deliveryFeeCents,
+    shippingRefundedCents
+  );
+  const estimateForSelection = (item: OrderDetailItem, quantity: number) =>
+    computeItemRefund(itemGrossRefundCents(item.lineTotal, item.quantity, quantity), refundContext)
+      .totalCents;
 
   const toggleItem = (item: OrderDetailItem) => {
     setSelections((prev) => {
@@ -72,9 +100,8 @@ export function RefundDialog({
     Object.values(selections).reduce((sum, sel) => {
       const item = items.find((i) => i.id === sel.orderItemId);
       if (!item) return sum;
-      const unitPrice = item.lineTotal / item.quantity;
-      return sum + Math.round(unitPrice * sel.quantity);
-    }, 0) + (refundShipping ? deliveryFeeCents : 0);
+      return sum + estimateForSelection(item, sel.quantity);
+    }, 0) + (refundShipping ? shippingRemainingCents : 0);
 
   const selectedCount = Object.keys(selections).length;
   const canSubmit = selectedCount > 0;
@@ -235,8 +262,15 @@ export function RefundDialog({
                         <span className="text-xs text-text-muted">
                           ={" "}
                           {formatPrice(
-                            Math.round(unitPrice * (selections[item.id]?.quantity ?? remainingQty))
+                            estimateForSelection(
+                              item,
+                              selections[item.id]?.quantity ?? remainingQty
+                            )
                           )}
+                          {hasDiscount && (
+                            <span className="ml-1">(after promo discount, incl. tax)</span>
+                          )}
+                          {!hasDiscount && <span className="ml-1">(incl. tax)</span>}
                         </span>
                       </div>
                     )}
@@ -245,20 +279,25 @@ export function RefundDialog({
               })}
             </div>
 
-            {/* Refund shipping */}
-            {deliveryFeeCents > 0 && (
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={refundShipping}
-                  onChange={(e) => setRefundShipping(e.target.checked)}
-                  className="h-4 w-4 rounded border-border text-primary focus-visible:ring-primary/30"
-                />
-                <span className="text-sm text-text-primary">
-                  Refund shipping ({formatPrice(deliveryFeeCents)})
-                </span>
-              </label>
-            )}
+            {/* Refund shipping — the fee refunds at most once per order */}
+            {deliveryFeeCents > 0 &&
+              (shippingRemainingCents > 0 ? (
+                <label className="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={refundShipping}
+                    onChange={(e) => setRefundShipping(e.target.checked)}
+                    className="h-4 w-4 rounded border-border text-primary focus-visible:ring-primary/30"
+                  />
+                  <span className="text-sm text-text-primary">
+                    Refund shipping ({formatPrice(shippingRemainingCents)})
+                  </span>
+                </label>
+              ) : (
+                <p className="text-xs text-text-muted">
+                  Shipping ({formatPrice(deliveryFeeCents)}) has already been refunded.
+                </p>
+              ))}
 
             {/* Notify customer */}
             <label className="flex items-center gap-3 cursor-pointer">

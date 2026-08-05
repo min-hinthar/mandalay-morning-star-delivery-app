@@ -211,6 +211,28 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       logger.exception(auditError, { api: "admin/orders/[id]/details" });
     }
 
+    // How much delivery fee has already been refunded — the RefundDialog uses
+    // this to preview the once-per-order shipping guard the refund RPC
+    // enforces. Summed from an UNCAPPED query: the display audit log above is
+    // limit(20), and money math must never ride a truncated list.
+    let shippingRefundedCents = 0;
+    {
+      const { data: refundRows, error: refundRowsError } = await supabase
+        .from("order_audit_log")
+        .select("new_value")
+        .eq("order_id", orderId)
+        .eq("action", "refund");
+      if (refundRowsError) {
+        // Non-fatal: the dialog falls back to "unknown" (server still guards).
+        logger.exception(refundRowsError, { api: "admin/orders/[id]/details" });
+      } else {
+        shippingRefundedCents = (refundRows ?? []).reduce((sum, row) => {
+          const nv = row.new_value as { shippingRefundCents?: unknown } | null;
+          return sum + (typeof nv?.shippingRefundCents === "number" ? nv.shippingRefundCents : 0);
+        }, 0);
+      }
+    }
+
     // Fetch assigned driver name if exists
     let assignedDriverName: string | null = null;
     if (order.assigned_driver_id) {
@@ -297,6 +319,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       })),
       subtotalCents: order.subtotal_cents,
       deliveryFeeCents: order.delivery_fee_cents,
+      shippingRefundedCents,
       taxCents: order.tax_cents,
       tipCents: order.tip_cents,
       promoCode: order.promo_code,
