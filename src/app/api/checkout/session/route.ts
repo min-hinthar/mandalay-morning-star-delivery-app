@@ -169,7 +169,8 @@ export async function POST(request: Request) {
       user.id,
       subtotalCents,
       input.promoCode,
-      createServiceClient()
+      createServiceClient(),
+      stripe
     );
     if (!discountResult.ok) {
       return errorResponse("VALIDATION_ERROR", discountResult.message, 400);

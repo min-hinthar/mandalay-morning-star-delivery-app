@@ -5,6 +5,7 @@ import type { Database } from "@/types/database";
 
 const mockValidate = vi.fn();
 const mockResolveFirstOrder = vi.fn();
+const mockReclaim = vi.fn();
 
 vi.mock("@/lib/stripe/promo", () => ({
   validatePromoCode: (...args: unknown[]) => mockValidate(...args),
@@ -12,26 +13,33 @@ vi.mock("@/lib/stripe/promo", () => ({
 vi.mock("@/lib/referrals/first-order-discount", () => ({
   resolveFirstOrderDiscount: (...args: unknown[]) => mockResolveFirstOrder(...args),
 }));
+vi.mock("@/lib/referrals/reclaim-pending-checkouts", () => ({
+  reclaimPendingCheckouts: (...args: unknown[]) => mockReclaim(...args),
+}));
 
 import { resolveCheckoutDiscount, resolveStripeSessionDiscounts } from "../discount";
 import type { CheckoutDiscount } from "../discount";
 import type Stripe from "stripe";
 
 const USER = "user-A";
+const stripeStub = {} as unknown as Stripe;
 
 /**
  * Minimal service-client stub: loyalty_rewards lookup returns `row`; orders
  * count queries resolve `orderCount` (awaitable after .not() for the
- * first-order check, and after the chained .gte() for the redemption cap).
+ * first-order check, and after the chained .gte() for the redemption cap);
+ * the discounted-pending count (.eq().eq().gt()) resolves `pendingCount`.
  */
-function serviceClientReturning(row: { user_id: string } | null, orderCount = 0) {
+function serviceClientReturning(row: { user_id: string } | null, orderCount = 0, pendingCount = 0) {
   const maybeSingle = vi.fn().mockResolvedValue({ data: row });
   const rewardsEq = vi.fn(() => ({ maybeSingle }));
   const countResult = { count: orderCount, error: null };
   const gte = vi.fn().mockResolvedValue(countResult);
   const notResult = Object.assign(Promise.resolve(countResult), { gte });
   const countNot = vi.fn(() => notResult);
-  const countEq = vi.fn(() => ({ not: countNot }));
+  const pendingGt = vi.fn().mockResolvedValue({ count: pendingCount, error: null });
+  const pendingEq = vi.fn(() => ({ gt: pendingGt }));
+  const countEq = vi.fn(() => ({ not: countNot, eq: pendingEq }));
   const from = vi.fn((table: string) =>
     table === "orders"
       ? { select: vi.fn(() => ({ eq: countEq })) }
@@ -45,6 +53,7 @@ const userClient = {} as unknown as SupabaseClient<Database>;
 beforeEach(() => {
   (mockValidate as Mock).mockReset();
   (mockResolveFirstOrder as Mock).mockReset();
+  (mockReclaim as Mock).mockReset();
 });
 
 describe("resolveCheckoutDiscount — loyalty code ownership", () => {
@@ -59,7 +68,14 @@ describe("resolveCheckoutDiscount — loyalty code ownership", () => {
     });
     const service = serviceClientReturning({ user_id: USER });
 
-    const result = await resolveCheckoutDiscount(userClient, USER, 6000, "KYAYZU-ABC2345", service);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      6000,
+      "KYAYZU-ABC2345",
+      service,
+      stripeStub
+    );
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -79,7 +95,14 @@ describe("resolveCheckoutDiscount — loyalty code ownership", () => {
     });
     const service = serviceClientReturning({ user_id: "user-B" });
 
-    const result = await resolveCheckoutDiscount(userClient, USER, 6000, "KYAYZU-STOLEN1", service);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      6000,
+      "KYAYZU-STOLEN1",
+      service,
+      stripeStub
+    );
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.message).toMatch(/different account/i);
@@ -96,7 +119,14 @@ describe("resolveCheckoutDiscount — loyalty code ownership", () => {
     });
     const service = serviceClientReturning(null);
 
-    const result = await resolveCheckoutDiscount(userClient, USER, 6000, "KYAYZU-GHOST99", service);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      6000,
+      "KYAYZU-GHOST99",
+      service,
+      stripeStub
+    );
 
     expect(result.ok).toBe(false);
   });
@@ -113,7 +143,14 @@ describe("resolveCheckoutDiscount — loyalty code ownership", () => {
     // If the ownership branch ran, this null would reject; it must be skipped.
     const service = serviceClientReturning(null);
 
-    const result = await resolveCheckoutDiscount(userClient, USER, 6000, "THANKS-XYZ123", service);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      6000,
+      "THANKS-XYZ123",
+      service,
+      stripeStub
+    );
 
     expect(result.ok).toBe(true);
     expect(service.from as Mock).not.toHaveBeenCalled();
@@ -130,7 +167,14 @@ describe("resolveCheckoutDiscount — loyalty code ownership", () => {
     });
     const service = serviceClientReturning({ user_id: USER });
 
-    const result = await resolveCheckoutDiscount(userClient, USER, 4000, "KYAYZU-ABC2345", service);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      4000,
+      "KYAYZU-ABC2345",
+      service,
+      stripeStub
+    );
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.message).toMatch(/at least \$50/);
@@ -144,7 +188,14 @@ describe("resolveCheckoutDiscount — loyalty code ownership", () => {
     });
     const service = serviceClientReturning(null);
 
-    const result = await resolveCheckoutDiscount(userClient, USER, 6000, undefined, service);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      6000,
+      undefined,
+      service,
+      stripeStub
+    );
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -167,7 +218,14 @@ describe("resolveCheckoutDiscount — loyalty code ownership", () => {
     });
     const service = serviceClientReturning(null);
 
-    const result = await resolveCheckoutDiscount(userClient, USER, 10000, "SAVE15", service);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      10000,
+      "SAVE15",
+      service,
+      stripeStub
+    );
 
     expect(result.ok).toBe(true);
     if (result.ok) {
@@ -189,7 +247,14 @@ describe("resolveCheckoutDiscount — loyalty code ownership", () => {
     });
     const service = serviceClientReturning(null);
 
-    const result = await resolveCheckoutDiscount(userClient, USER, 6000, "FLAT8", service);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      6000,
+      "FLAT8",
+      service,
+      stripeStub
+    );
 
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.discount.isPercent).toBe(false);
@@ -209,7 +274,14 @@ describe("resolveCheckoutDiscount — loyalty code ownership", () => {
     // 2 Stripe-counted + 3 app-side orders = 5 >= max 5 → rejected
     const service = serviceClientReturning(null, 3);
 
-    const result = await resolveCheckoutDiscount(userClient, USER, 10000, "SAVE10", service);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      10000,
+      "SAVE10",
+      service,
+      stripeStub
+    );
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.message).toMatch(/redemption limit/i);
@@ -228,10 +300,143 @@ describe("resolveCheckoutDiscount — loyalty code ownership", () => {
     });
     const service = serviceClientReturning(null, 2);
 
-    const result = await resolveCheckoutDiscount(userClient, USER, 10000, "SAVE10", service);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      10000,
+      "SAVE10",
+      service,
+      stripeStub
+    );
 
     expect(result.ok).toBe(true);
     if (result.ok) expect(result.discount.discountCents).toBe(1000);
+  });
+
+  it("passes the reclaim context through to the first-order discount resolver", async () => {
+    mockResolveFirstOrder.mockResolvedValue(null);
+    const service = serviceClientReturning(null);
+
+    await resolveCheckoutDiscount(userClient, USER, 6000, undefined, service, stripeStub);
+
+    expect(mockResolveFirstOrder).toHaveBeenCalledWith(userClient, USER, 6000, {
+      stripe: stripeStub,
+      serviceClient: service,
+    });
+  });
+
+  it("first_time_transaction percent code: a pending checkout blocks until reclaimed (D6)", async () => {
+    mockValidate.mockResolvedValue({
+      valid: true,
+      discountCents: 0,
+      couponId: "cpn_pct",
+      promotionCodeId: "promo_pct",
+      percentOff: 10,
+      minimumAmountCents: null,
+      maxRedemptions: null,
+      timesRedeemed: 0,
+      firstTimeTransaction: true,
+    });
+    mockReclaim.mockResolvedValue(true);
+    const service = serviceClientReturning(null, 0, 2);
+
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      10000,
+      "WELCOME10",
+      service,
+      stripeStub
+    );
+
+    expect(mockReclaim).toHaveBeenCalledWith(stripeStub, service, USER);
+    expect(result.ok).toBe(true);
+    if (result.ok) expect(result.discount.discountCents).toBe(1000);
+  });
+
+  it("first_time_transaction percent code: failed reclaim rejects with a friendly message (D6)", async () => {
+    mockValidate.mockResolvedValue({
+      valid: true,
+      discountCents: 0,
+      couponId: "cpn_pct",
+      promotionCodeId: "promo_pct",
+      percentOff: 10,
+      minimumAmountCents: null,
+      maxRedemptions: null,
+      timesRedeemed: 0,
+      firstTimeTransaction: true,
+    });
+    mockReclaim.mockResolvedValue(false);
+    const service = serviceClientReturning(null, 0, 1);
+
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      10000,
+      "WELCOME10",
+      service,
+      stripeStub
+    );
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.message).toMatch(/another checkout in progress/i);
+  });
+
+  it("reclaim never runs for a code that fails max_redemptions (destructive gate is last)", async () => {
+    mockValidate.mockResolvedValue({
+      valid: true,
+      discountCents: 0,
+      couponId: "cpn_pct",
+      promotionCodeId: "promo_pct",
+      percentOff: 10,
+      minimumAmountCents: null,
+      maxRedemptions: 5,
+      timesRedeemed: 5,
+      firstTimeTransaction: true,
+    });
+    // Pendings exist, but the code is at its global cap — a doomed code must
+    // not tear down a live checkout on its way to rejection.
+    const service = serviceClientReturning(null, 0, 2);
+
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      10000,
+      "WELCOME10",
+      service,
+      stripeStub
+    );
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.message).toMatch(/redemption limit/i);
+    expect(mockReclaim).not.toHaveBeenCalled();
+  });
+
+  it("first_time_transaction percent code: no pendings means no reclaim call", async () => {
+    mockValidate.mockResolvedValue({
+      valid: true,
+      discountCents: 0,
+      couponId: "cpn_pct",
+      promotionCodeId: "promo_pct",
+      percentOff: 10,
+      minimumAmountCents: null,
+      maxRedemptions: null,
+      timesRedeemed: 0,
+      firstTimeTransaction: true,
+    });
+    const service = serviceClientReturning(null, 0, 0);
+
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      10000,
+      "WELCOME10",
+      service,
+      stripeStub
+    );
+
+    expect(mockReclaim).not.toHaveBeenCalled();
+    expect(result.ok).toBe(true);
   });
 
   it("enforces first_time_transaction for percent codes (repeat customer rejected)", async () => {
@@ -249,7 +454,14 @@ describe("resolveCheckoutDiscount — loyalty code ownership", () => {
     // Customer already has 1 non-pending/cancelled order
     const service = serviceClientReturning(null, 1);
 
-    const result = await resolveCheckoutDiscount(userClient, USER, 10000, "WELCOME10", service);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      10000,
+      "WELCOME10",
+      service,
+      stripeStub
+    );
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.message).toMatch(/first order/i);
