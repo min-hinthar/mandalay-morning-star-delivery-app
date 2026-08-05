@@ -4,20 +4,36 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-08-05 (evening). Six PRs open — the D4–D10 security backlog
-fleet — all draft, all independent off `main`, all CI-green and review-clean, ALL
-HELD for explicit per-PR owner merge gos. Watched by the building session._
+_Last reconciled: 2026-08-05 (post-merge). No PRs open except the registry
+reconciliation itself. The D4–D10 fleet is fully merged._
 
-## Open — D4–D10 backlog fleet (2026-08-05, `docs/holistic-improvement-plan.md`)
+## Recently closed — D4–D10 security backlog fleet (2026-08-05, ALL SIX MERGED on the owner's "Merge")
 
-| PR   | Branch                                 | Scope                                                                                                                                                                                                                 | Notes                                                                                                                                                            |
-| ---- | -------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| #241 | `claude/refund-discount-proportional`  | **D4+D5 (money):** discount-proportional item refunds + tax share; shipping once-per-order + cumulative cap (clamp ≤1¢/line drift)                                                                                    | ⚠️ **Merge-day checklist in PR body**: apply `20260805200000_…sql` to prod immediately after merge (until then the RPC still over-refunds + preview understates) |
-| #242 | `claude/first-order-discount-stacking` | **D6:** first-order discount can't stack across pending checkouts; reclaim via session-expire→cancel, every ambiguity fails safe                                                                                      | Race window documented; DB-level belt (partial unique index) recorded as follow-up                                                                               |
-| #243 | `claude/sw-authed-denylist`            | **D7:** SW never caches authed pages/API — all FOUR halves (NavigationRoute, RSC soft-nav/prefetch, `apis` JSON, cross-origin supabase-js `/rest/v1`+`/auth/v1` JSON) + activation purge                              | CACHE_VERSION v5; only `/api/menu` keeps offline; serwist cache names + function-matcher shapes pinned against the installed package (mutation-falsified)        |
-| #244 | `claude/feedback-email-abuse`          | **D8:** feedback confirmations only to authed users' own email; `feedback-anon` rate tier (3/10m)                                                                                                                     |                                                                                                                                                                  |
-| #245 | `claude/sentry-pii-fonts`              | **D10:** `sendDefaultPii:false` + URL scrubbing on EVERY egress path (breadcrumbs, error events, tracing transactions, Replay) — `token`/`token_hash`/`code`, share PATH secret, hash fragments — + dead font imports | Scrubber in `src/lib/sentry/scrub-url.ts` w/ tests; six review findings absorbed across four rounds                                                              |
-| #246 | `claude/csp-d9-reevaluation`           | **D9 (docs):** why `unsafe-eval` must stay (Google Maps requires it in both CSP modes; dev-gating was reverted once already) — pins rationale in `next.config.ts`, plan doc, gotcha                                   | The shippable D9 remainder = nonce migration for `unsafe-inline` (dedicated project, still keeps eval)                                                           |
+All six independent off `main`, zero file overlap, merged in one pass once
+every head was CI-green and review-clean. The fleet absorbed ~30 auto-review
+findings across the day — every one fixed same-round or declined with
+file:line evidence, every thread resolved before merge.
+
+| PR   | Squash     | Scope                                                                                                                                                                                                                                                                                                     |
+| ---- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| #241 | `9b7b1f94` | **D4+D5 (money):** discount-proportional item refunds + unscaled tax share; shipping once-per-order + cumulative cap (rounding clamp bounded by cumulative refunded units)                                                                                                                                |
+| #242 | `58dbbe85` | **D6:** first-order discount can't stack across pending checkouts; reclaim = session-expire→guarded-cancel, every ambiguity fails to no-discount                                                                                                                                                          |
+| #243 | `f146ce54` | **D7:** SW privacy boundary, all FOUR halves (NavigationRoute, RSC soft-nav/prefetch, same-origin `/api` JSON, cross-origin supabase-js JSON incl. signed storage) + activation purge; serwist names pinned against the installed package                                                                 |
+| #244 | `0355d337` | **D8:** feedback confirmations only to authed users' own email; `feedback-anon` rate tier (3/10m)                                                                                                                                                                                                         |
+| #245 | `1080b111` | **D10:** `sendDefaultPii:false` + `scrubUrl` on EVERY egress path (breadcrumbs incl. console, error events incl. exception values, tracing transactions, Replay frames); stale unscrubbed `sentry.client.config.ts` deleted; legacy fonts dropped (incl. the zero-consumer Playfair preload + dependency) |
+| #246 | `ae97ba4e` | **D9 (docs):** `unsafe-eval` must stay (Google Maps requires it in both CSP modes; dev-gating already tried + reverted) — rationale pinned in `next.config.ts`; real remainder = nonce migration for `unsafe-inline`                                                                                      |
+
+**⚠️ Post-merge action (owner):** apply
+`supabase/migrations/20260805200000_discount_proportional_refunds.sql` to prod
+(SQL editor, project `ukuzkhuppqwtrdkjqrkv`; single idempotent
+`CREATE OR REPLACE FUNCTION`). Until it applies, the RPC still over-refunds
+discounted orders and the merged RefundDialog preview UNDERSTATES the real
+refund. Verify with one discounted-order partial refund afterwards.
+
+**Follow-ups recorded (not blocking):** per-tier rate-limit fallback ceilings;
+DB-level first-order belt (partial unique index / advisory lock) for the
+concurrent-tab race; nonce-based CSP project; `refresh_analytics_views()` cron;
+trend-unknown UI.
 
 ## Recently closed — audit follow-ups 2026-08-05 (ALL THREE MERGED on the owner's "Merge all")
 
