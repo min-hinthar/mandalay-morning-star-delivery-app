@@ -52,6 +52,7 @@ DECLARE
   v_prior_total int;
   v_refundable int;
   v_overshoot int;
+  v_rounding_bound int;
   v_last int;
   v_total_refund int := 0;
   v_shipping_refund int := 0;
@@ -154,20 +155,29 @@ BEGIN
   -- Cumulative cap: everything ever audited for this order, plus this call,
   -- must fit inside what the customer actually paid.
   --
-  -- One overshoot is LEGITIMATE and must not reject: each line rounds its
-  -- goods and tax shares independently (≤ +0.5¢ each), so a full refund of a
-  -- discounted no-/low-tip order can sum up to jsonb_array_length(p_items)
-  -- cents ABOVE the paid total (e.g. 2 × $1.00, 1¢ discount, 21¢ tax →
-  -- 2 × (100+11) = $2.22 vs $2.20 paid). Within that bound — and only while
-  -- something remains refundable — clamp DOWN to the remainder (the customer
-  -- gets back exactly what they paid) and shave the difference off the last
-  -- line so the itemization still sums to the total. Anything beyond the
-  -- bound is a genuine over-refund and still raises. The phrase 'exceeds
-  -- order total' is matched by the refund route's recovery path.
+  -- One overshoot is LEGITIMATE and must not reject: each refunded line
+  -- share rounds its goods and tax independently (≤ +0.5¢ each), so rounding
+  -- drift accumulates ACROSS calls too — a discounted no-/low-tip order
+  -- refunded item-by-item can put the whole drift on the FINAL call (e.g.
+  -- 2 × $1.00, 1¢ discount, 21¢ tax → 2 × (100+11) = $2.22 vs $2.20 paid).
+  -- The bound is therefore the order's cumulative refunded UNITS (each
+  -- rounding event maps to at least one refunded unit), not this call's item
+  -- count. Within that bound — and only while something remains refundable —
+  -- clamp DOWN to the remainder (the customer gets back exactly what they
+  -- paid) and shave the difference off the last line so the itemization sums
+  -- to the total (if the overshoot exceeds the last line, the floor leaves a
+  -- ≤N¢ display-only under-sum; Stripe reconciles on totalRefundCents).
+  -- Anything beyond the bound is a genuine over-refund and still raises. The
+  -- phrase 'exceeds order total' is matched by the route's recovery path.
+  SELECT COALESCE(SUM(refunded_quantity), 0)
+    INTO v_rounding_bound
+    FROM order_items
+   WHERE order_id = p_order_id;
+
   v_refundable := v_order.total_cents - v_prior_total;
   v_overshoot := v_total_refund - v_refundable;
   IF v_overshoot > 0 THEN
-    IF v_refundable > 0 AND v_overshoot <= jsonb_array_length(p_items) THEN
+    IF v_refundable > 0 AND v_overshoot <= v_rounding_bound THEN
       v_total_refund := v_refundable;
       v_last := jsonb_array_length(v_results) - 1;
       v_results := jsonb_set(

@@ -221,6 +221,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     // ride a truncated list.
     let shippingRefundedCents = 0;
     let refundedTotalCents = 0;
+    // A failed read must not present $0-refunded as authoritative (the same
+    // shape as the cancellationKnown gotcha): refundsKnown tells the dialog
+    // whether these sums are real or a fallback the server will re-validate.
+    let refundsKnown = false;
     {
       const { data: refundRows, error: refundRowsError } = await supabase
         .from("order_audit_log")
@@ -231,6 +235,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
         // Non-fatal: the dialog falls back to "unknown" (server still guards).
         logger.exception(refundRowsError, { api: "admin/orders/[id]/details" });
       } else {
+        refundsKnown = true;
         for (const row of refundRows ?? []) {
           const nv = row.new_value as {
             shippingRefundCents?: unknown;
@@ -334,6 +339,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
       deliveryFeeCents: order.delivery_fee_cents,
       shippingRefundedCents,
       refundedTotalCents,
+      refundsKnown,
       taxCents: order.tax_cents,
       tipCents: order.tip_cents,
       promoCode: order.promo_code,

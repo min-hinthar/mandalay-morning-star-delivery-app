@@ -23,6 +23,10 @@
  * Rounding parity: SQL `round(numeric)` rounds half AWAY FROM ZERO;
  * `Math.round` rounds half UP. All amounts here are non-negative, where the
  * two agree — the tests pin the .5 boundary to keep that assumption honest.
+ * One residual divergence is accepted: SQL computes the discount ratio in
+ * arbitrary-precision `numeric` while this mirror uses float64, so at exact
+ * `.5` product boundaries the PREVIEW can differ from the RPC by 1¢. The RPC
+ * is authoritative and the success toast shows its actual total.
  */
 
 export interface OrderRefundContext {
@@ -111,20 +115,22 @@ export interface RefundCapResult {
 
 /**
  * The RPC's cumulative cap, mirrored for the dialog (audit follow-up to D4):
- * each line rounds goods and tax independently (≤ +0.5¢ each), so a full
- * refund of a discounted no-/low-tip order can sum up to `lineCount` cents
- * over what the customer paid. Within that bound — and only while something
- * remains refundable — the RPC clamps down to the remainder; beyond it, it
- * rejects. Mirrors the migration's `v_overshoot` branch exactly.
+ * each refunded line share rounds goods and tax independently (≤ +0.5¢
+ * each), and the drift accumulates ACROSS calls when an order is refunded
+ * item-by-item — so the tolerance is `roundingBoundUnits`, the order's
+ * cumulative refunded UNIT count including this request (every rounding
+ * event maps to at least one refunded unit). Within that bound — and only
+ * while something remains refundable — the RPC clamps down to the remainder;
+ * beyond it, it rejects. Mirrors the migration's `v_overshoot` branch.
  */
 export function clampRefundToRemaining(
   requestedCents: number,
   remainingCents: number,
-  lineCount: number
+  roundingBoundUnits: number
 ): RefundCapResult {
   const overshoot = requestedCents - remainingCents;
   if (overshoot <= 0) return { totalCents: requestedCents, outcome: "ok" };
-  if (remainingCents > 0 && overshoot <= lineCount) {
+  if (remainingCents > 0 && overshoot <= roundingBoundUnits) {
     return { totalCents: remainingCents, outcome: "clamped" };
   }
   return { totalCents: requestedCents, outcome: "exceeds" };

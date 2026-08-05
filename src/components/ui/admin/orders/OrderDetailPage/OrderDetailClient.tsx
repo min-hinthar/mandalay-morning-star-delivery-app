@@ -252,6 +252,7 @@ export function OrderDetailClient() {
         deliveryFeeCents={order.deliveryFeeCents}
         shippingRefundedCents={order.shippingRefundedCents}
         refundedTotalCents={order.refundedTotalCents}
+        refundsKnown={order.refundsKnown}
         subtotalCents={order.subtotalCents}
         discountCents={order.discountCents}
         taxCents={order.taxCents}

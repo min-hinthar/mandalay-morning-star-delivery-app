@@ -27,6 +27,8 @@ interface RefundDialogProps {
   shippingRefundedCents: number;
   /** Everything already refunded, any source — drives the cumulative-cap preview. */
   refundedTotalCents: number;
+  /** False when refund history couldn't be loaded — preview uncapped, server validates. */
+  refundsKnown: boolean;
   subtotalCents: number;
   discountCents: number;
   taxCents: number;
@@ -48,6 +50,7 @@ export function RefundDialog({
   deliveryFeeCents,
   shippingRefundedCents,
   refundedTotalCents,
+  refundsKnown,
   subtotalCents,
   discountCents,
   taxCents,
@@ -103,23 +106,35 @@ export function RefundDialog({
   // refund source (item refunds AND cancel-flow refunds, which never mark
   // item quantities) — so a fully cancel-refunded order is presented as
   // fully refunded here instead of offering a refund the RPC will reject.
+  // When the history read failed (refundsKnown false) the sums are a
+  // fallback, not authority — preview uncapped and let the server validate.
   const remainingRefundableCents = Math.max(0, totalCents - refundedTotalCents);
-  const fullyRefunded = remainingRefundableCents === 0;
+  const fullyRefunded = refundsKnown && remainingRefundableCents === 0;
 
-  // Estimated refund, capped exactly the way the RPC caps it: a ≤1¢/line
-  // rounding overshoot clamps to the remainder; a genuine over-refund is
-  // rejected server-side, so submission is disabled for it here.
+  // Estimated refund, capped exactly the way the RPC caps it. The rounding
+  // tolerance is the order's cumulative refunded UNITS (drift accumulates
+  // across item-by-item refunds), mirroring the RPC's bound; a genuine
+  // over-refund is rejected server-side, so submission is disabled for it.
   const selectedCount = Object.keys(selections).length;
+  const selectedUnits = Object.values(selections).reduce((sum, sel) => sum + sel.quantity, 0);
+  const alreadyRefundedUnits = items.reduce((sum, i) => sum + i.refundedQuantity, 0);
   const requestedRefund =
     Object.values(selections).reduce((sum, sel) => {
       const item = items.find((i) => i.id === sel.orderItemId);
       if (!item) return sum;
       return sum + estimateForSelection(item, sel.quantity);
     }, 0) + (refundShipping ? shippingRemainingCents : 0);
-  const capped = clampRefundToRemaining(requestedRefund, remainingRefundableCents, selectedCount);
-  const estimatedRefund = capped.outcome === "clamped" ? capped.totalCents : requestedRefund;
+  const capped = clampRefundToRemaining(
+    requestedRefund,
+    remainingRefundableCents,
+    selectedUnits + alreadyRefundedUnits
+  );
+  const cappingActive = refundsKnown;
+  const estimatedRefund =
+    cappingActive && capped.outcome === "clamped" ? capped.totalCents : requestedRefund;
 
-  const canSubmit = selectedCount > 0 && !fullyRefunded && capped.outcome !== "exceeds";
+  const canSubmit =
+    selectedCount > 0 && !fullyRefunded && (!cappingActive || capped.outcome !== "exceeds");
 
   const handleSelectAll = () => {
     if (selectedCount === refundableItems.length) {
@@ -365,13 +380,19 @@ export function RefundDialog({
                     {formatPrice(estimatedRefund)}
                   </span>
                 </div>
-                {capped.outcome === "clamped" && (
+                {!refundsKnown && (
+                  <p className="mt-1 text-xs text-text-muted">
+                    Past refunds couldn&apos;t be loaded — the server will validate this refund
+                    against the order&apos;s remaining balance.
+                  </p>
+                )}
+                {cappingActive && capped.outcome === "clamped" && (
                   <p className="mt-1 text-xs text-text-muted">
                     Capped at the customer&apos;s remaining balance (per-line rounding summed a few
                     cents over what they paid).
                   </p>
                 )}
-                {capped.outcome === "exceeds" && (
+                {cappingActive && capped.outcome === "exceeds" && (
                   <p className="mt-1 text-xs text-status-error">
                     This exceeds the {formatPrice(remainingRefundableCents)} still refundable on
                     this order ({formatPrice(refundedTotalCents)} already refunded) — reduce the

@@ -197,10 +197,11 @@ describe("the migration SQL mirrors this module (source guard)", () => {
     expect(sql).toContain("exceeds order total");
   });
 
-  it("clamps the ≤1¢/line rounding overshoot instead of rejecting it", () => {
-    // The bound: overshoot within jsonb_array_length(p_items) cents, and only
-    // while something remains refundable — mirrored by clampRefundToRemaining.
-    expect(sql).toContain("v_overshoot <= jsonb_array_length(p_items)");
+  it("clamps the rounding overshoot instead of rejecting it, bounded by refunded units", () => {
+    // Drift accumulates across item-by-item refunds, so the bound is the
+    // order's cumulative refunded UNITS — mirrored by clampRefundToRemaining.
+    expect(sql).toMatch(/SUM\(refunded_quantity\)/);
+    expect(sql).toContain("v_overshoot <= v_rounding_bound");
     expect(sql).toContain("v_refundable > 0 AND");
     expect(sql).toContain("v_total_refund := v_refundable");
     // The shave keeps the itemization summing to the clamped total.

@@ -58,6 +58,8 @@ export interface OrderDetail {
   shippingRefundedCents: number;
   /** Everything already refunded, any source (item refunds + cancel-flow rows) — drives the cumulative-cap preview. */
   refundedTotalCents: number;
+  /** False when the audit-log read failed — the sums above are a fallback, not authority; the server still validates. */
+  refundsKnown: boolean;
   taxCents: number;
   tipCents: number;
   totalCents: number;
