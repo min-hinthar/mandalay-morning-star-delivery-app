@@ -50,9 +50,11 @@ export interface FirstOrderDiscount {
  * inserted until create_order_with_items much later in the route — after
  * profile/customer ensure and the Stripe session round-trips. Two genuinely
  * parallel submissions can therefore both read zero pendings and both be
- * granted. It still takes deliberate double-submission, and the durable
- * close is a DB-level guard (partial unique index or advisory lock on
- * open discounted pendings per user) — deferred at current scale.
+ * granted. It still takes deliberate double-submission, and the per-user
+ * checkoutLimiter on the session route bounds how many concurrent attempts
+ * one account can even start. The durable close is a DB-level guard
+ * (partial unique index or advisory lock on open discounted pendings per
+ * user) — deferred at current scale.
  */
 export async function resolveFirstOrderDiscount(
   supabase: SupabaseClient<Database>,
