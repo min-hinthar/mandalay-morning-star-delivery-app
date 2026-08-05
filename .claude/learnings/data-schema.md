@@ -276,3 +276,25 @@ The `.returns<T>()` provides type safety on the output. Remember to regenerate t
 **Fix:** Use plain `CREATE INDEX IF NOT EXISTS` (without `CONCURRENTLY`) in migration files. For small tables, the brief lock is negligible. For large production tables where lock-free index creation is critical, run the `CREATE INDEX CONCURRENTLY` statement manually via `psql` or Supabase SQL Editor outside of the migration system.
 
 **Apply when:** Writing Supabase migrations that create indexes. Never use `CONCURRENTLY` in migration files.
+
+## Materialized views have NO implicit grants — a view without one fails for every caller
+
+`driver_stats_mv` / `delivery_metrics_mv` exist in the baseline but no `GRANT` of any form
+names them, so the caller-scoped `authenticated` client holds no SELECT privilege and a
+direct `.from("driver_stats_mv")` fails at runtime for EVERY caller — however well the
+route authenticates. Invisible to `tsc`, to `db-drift`, and to the phantom-column guard
+(the columns exist). Two call sites swallowed the error into empty panels; three 500'd.
+
+Read them through their `SECURITY DEFINER` wrappers instead: `get_driver_stats_admin()` /
+`get_delivery_metrics_admin()` are granted to `authenticated`, re-check `is_admin()`
+themselves, and `RETURNS SETOF <view>` so PostgREST filters (`.eq/.gte/.order`) still
+chain. `src/lib/__tests__/materialized-view-access.test.ts` bans direct reads repo-wide
+and pins the grants the fix relies on.
+
+Related traps: the views are created UNQUALIFIED in the baseline — grepping
+`public.driver_stats_mv` finds nothing, search bare. And `drivers.rating_avg`'s unrated
+sentinel is **0, not null** (`DEFAULT 0` + trigger `COALESCE(v_new_avg, 0)`;
+`driver_ratings` CHECK `rating >= 1` makes 0 unambiguous) — a `!== null` filter on it
+excludes nobody, and JSX `{value && ...}` renders a literal `0`.
+
+**Apply when:** adding/querying any materialized view, or aggregating rating_avg.

@@ -4,7 +4,32 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-08-04._
+_Last reconciled: 2026-08-05. No PRs open; no watches active._
+
+## Recently closed — audit follow-ups 2026-08-05 (ALL THREE MERGED on the owner's "Merge all")
+
+- **#237 — docs: the phantom-column batch record** (`196aa827`). open-prs.md batch entry +
+  five new CLAUDE.md gotchas + testing learnings (incl. the corrected full-suite command).
+  Three review rounds each caught successive imprecision in the follow-up POINTERS (a wrong
+  line range, "two routes" when there were three, a search string that finds nothing because
+  the view is created unqualified) — the one way a docs change can actually mislead.
+- **#238 — fleet average treated unrated drivers as 0-star scores** (`8fb08500`). The
+  `/admin/drivers` Avg Rating card filtered its denominator on `ratingAvg !== null` while the
+  unrated sentinel is 0 — one 4.8 driver plus four unrated rendered "1.0 / 5.0". Plus the JSX
+  `{avgRating && <span>/ 5.0</span>}` rendering a literal "0" for an all-unrated fleet
+  ("—0"). Extracted to `computeFleetAverageRating` with tests — the direct lesson from #235's
+  escaped mutation being inline untested JSX.
+- **#239 — admin analytics read materialized views nothing grants access to** (`0af7480f`).
+  FIVE call sites across TWO views (the follow-up entry said three across one): the delivery
+  page 500'd, the driver panels were silently empty. Rerouted to the existing
+  `get_driver_stats_admin()` / `get_delivery_metrics_admin()` wrappers (SECURITY DEFINER,
+  self-gating, granted to `authenticated`) — no migration, no service client. Ten review
+  rounds, nine real findings, **five of them defects in guards written in the same PR**, all
+  one shape: green for a reason other than the one claimed (unbounded `$function$` slice,
+  absorbed `SetofOptions` keys, nested embeds resolved as functions, name-only grant check,
+  `.rpc()`-blind column guard). Every guard was falsified both directions before merge.
+  Post-deploy check: click `/admin/analytics/{drivers,delivery}` once — the SECURITY DEFINER
+  round-trip is the one thing not exercisable from the container.
 
 ## Recently closed — phantom-column sweep 2026-08-04 (ALL FOUR MERGED on the owner's "Merge all four when ready")
 
@@ -85,35 +110,29 @@ Plus a frozen `cancelledAt` reactivating a previously-dead `||` branch in `Statu
 in JSX — because that wiring had no test. Extracting the decision into
 `resolveCancellationReason` was not tidying; it was the only way to pin it.
 
-## Follow-ups from the 2026-08-04 audit (pre-existing on `main`, NOT from these PRs)
+## Follow-ups from the 2026-08-04 audit — RESOLVED 2026-08-05
 
-- **`/admin/drivers` fleet average is materially wrong.** `src/app/(admin)/admin/drivers/page.tsx:166-170`
-  filters unrated drivers out of the denominator with `d.ratingAvg !== null`, but the DB
-  sentinel for unrated is **0**, not null (`rating_avg numeric(3,2) DEFAULT 0`, and the
-  recompute trigger writes `COALESCE(v_new_avg, 0)`). `driver_ratings_rating_check CHECK
-(rating >= 1 AND rating <= 5)` makes 0 an _unambiguous_ unrated sentinel — a rated driver
-  can never average below 1. So the filter excludes nobody and every unrated driver enters as
-  a genuine 0-star score: one 4.8 driver plus four unrated renders **"1.0 / 5.0"**. Byte-
-  identical on `main`, untouched by #233 (that page types its state as `AdminDriver`, which
-  was already `number | null`). Only a partially-rated fleet misreports — an all-unrated
-  fleet sums to 0, which is falsy and correctly renders an em dash.
-- **THREE admin routes read `driver_stats_mv` on the caller-scoped client.**
-  `api/admin/analytics/delivery/route.ts`, `api/admin/analytics/drivers/route.ts`, and
-  `api/admin/analytics/drivers/[driverId]/route.ts` — all three use `createClient()`, not the
-  service client. The baseline emits 99 `GRANT ... ON TABLE` lines and **none** names
-  `driver_stats_mv` — in fact NO grant of any form mentions it, verified directly. So
-  `authenticated` holds no SELECT grant: one route swallows the permission error into an
-  empty Top Drivers list, the others fail. The view is created UNQUALIFIED at
-  `baseline:639` (grepping `public.driver_stats_mv` finds nothing — search bare), and
-  `get_driver_stats_admin()` at `baseline:1164` is `RETURNS SETOF driver_stats_mv`, i.e. the
-  intended path all three bypass. (The third caller was missed on
-  first write-up and added after an auto-review caught it — fix all three together, or the
-  per-driver drill-down stays broken after the list pages are fixed.)
+Both defects this section recorded are now fixed on `main`:
 
-- **Nit (recorded, not fixed):** concurrent `syncCancellationDetails` invocations share the
-  single `cancellationWakeRef`/`cancellationRetryRef` slots. Self-healing (each `setTimeout`
-  closes over its own `resolve`; the post-wake abandon check blocks any fetch after unmount)
-  and a terminal transition fires ~once, so the worst case is a duplicate fetch.
+- **Fleet average 0-vs-null sentinel** → fixed by **#238** (`8fb08500`);
+  `computeFleetAverageRating` + tests, JSX renders-0 guard included.
+- **Analytics reads of ungranted materialized views** → fixed by **#239** (`0af7480f`);
+  all five call sites (both views) rerouted to the granted wrappers, plus the repo-wide
+  `materialized-view-access.test.ts` guard so a direct read cannot come back.
+
+Still open, deliberately deferred (small, non-urgent):
+
+- **`refresh_analytics_views()` runs `REFRESH MATERIALIZED VIEW CONCURRENTLY` on BOTH views
+  synchronously on every analytics request.** The code comment already says "in production,
+  this would be scheduled". Move it to a cron; non-fatal today (failures degrade to stale
+  data with a `logger.warn`).
+- **Trend deltas show `0%` for "couldn't read the previous period" as well as "genuinely
+  flat".** The delivery route now LOGS the failed previous-period read (#239) so it reaches
+  Sentry, but the UI cannot distinguish the two — needs a distinct unknown state in
+  `calculateMetricsSummary` + dashboard. Dashboard-semantics change, deliberately kept out
+  of #239.
+- **Nit:** concurrent `syncCancellationDetails` invocations share one timer/resolver slot.
+  Self-healing; worst case a duplicate fetch on a once-per-order transition.
 
 ## Recently closed — route-creation debug 2026-08-01 (ALL THREE MERGED on the owner's "Merge, go thoughtfully")
 
@@ -301,57 +320,30 @@ including two real saves: the #217 GET-prefetch scanner hole and #214's fourth
   `UNSUBSCRIBE_TOKEN_SECRET` in Vercel before the first marketing send** (unset = dormant,
   fails closed; rotation kills outstanding links).
 
-## In flight (older)
+## In flight (older) — CLEARED 2026-08-05
 
-- **#194 — holistic-audit security fixes** (branch `claude/app-ui-security-branding-ezpqkq`, **draft**).
-  Cross-repo adversarial audit (`docs/holistic-improvement-plan.md`). Three confirmed fixes: (1) **stored XSS**
-  in the admin manual-email preview — customer address flowed unescaped into `dangerouslySetInnerHTML`, now
-  `escapeHtml`'d; (2) **`retry-payment`** under-collected tax + tip (line items were items+delivery only) —
-  now adds tax/tip lines + re-applies the discount as an idempotency-keyed `amount_off` coupon so the charge
-  == `total_cents`; (3) **share-token** write was a silent RLS no-op (user client vs `orders_update_customer_cancel`)
-  — now persists via service-role scoped to `user_id` with a row-count check. Adversarial review SHIP-WITH-NITS
-  (coupon-idempotency nit fixed). No migration. Draft pending CI + owner go. Ranked follow-ups D4–D10 in the plan.
+Nothing is in flight. The two items this section carried were verified against `main` and
+both shipped long since; the entries had simply never been reconciled:
 
-- **money-correctness-fixes** (branch `claude/money-correctness-fixes`, PR pending —
-  GitHub connector dropped mid-session; open via compare link or /mcp re-auth).
-  Two live money bugs from the grocery-launch review: (1) percent-off promo codes
-  discounted the Stripe tax/tip line items (charge < stored total, tip shaved) —
-  now converted at session creation to a one-off amount_off coupon equal to the
-  food-subtotal discount, with app-side max_redemptions (cutover-scoped),
-  first_time_transaction enforcement, and promo-code normalization; (2) admin item
-  refunds never called Stripe — now an idempotent delta against the cumulative
-  audited total (audit row written atomically inside apply_item_refunds, migration
-  `…160000`, **apply only AFTER deploy** — ordering note in header), recovery path
-  for failed card refunds, COD cash-refund email wording, webhook double-email
-  guard. Adversarial review FIX-FIRST → all H/M findings fixed (+4 Lows); local
-  verify green (1199 tests). Follow-ups: per-line tax/discount-proportional refund
-  math, RPC shipping double-refund guard.
+- **#194 — holistic-audit security fixes** (stored-XSS in admin email preview,
+  `retry-payment` tax/tip under-collection, share-token silent RLS no-op) **MERGED** as
+  `de59c5e9`. Ranked follow-ups D4–D10 live in
+  [`holistic-improvement-plan.md`](./holistic-improvement-plan.md).
+- **money-correctness-fixes** (percent-off coupons discounting tax/tip; admin item refunds
+  never reaching Stripe) **MERGED** as **#174** (`e112224b`) — the PR the dropped-connector
+  note said was pending. Follow-ups recorded there: per-line tax/discount-proportional
+  refund math, RPC shipping double-refund guard.
 
-The After Dark **level-up back-port is COMPLETE** — all four shipped surfaces
-(checkout #163, cart #166, orders #171, account #170) now run the canonical
-`.after-dark-canvas` + kit FX, plus auth (#162) and the homepage. #160–#171 all merged.
-
-> **Possible next work (none committed):**
->
-> - **Stable preview review-alias** so cross-PR sessions don't re-auth (offered to owner; one Vercel-config change).
-> - Per-tier audit if any surface wants further restraint/polish.
->   See [`after-dark-levelup-plan.md`](./after-dark-levelup-plan.md) (back-port marked done).
+The After Dark level-up back-port remains COMPLETE (#160–#171 all merged).
 
 ## Watching
 
-_None active._ **#175** (email warm-paper redesign) MERGED 2026-06-12 as
-`760dd61` on the owner's explicit go — local verify green + local adversarial
-review (findings fixed) substituted for CI/auto-review, merged via bypass
-because **GitHub Actions quota has been exhausted since 2026-06-07** (all
-workflows fail ~5s at startup; no runs register at all — see CLAUDE.md gotcha).
-Owner is moving the repo public for free Actions minutes; security audit run
-2026-06-12.
+_None active._ Zero PRs open as of 2026-08-05.
 
-> **CI note (2026-06-08):** GitHub Actions hit its quota mid-session — every
-> workflow failed at _startup_ (2s, no logs) across all PRs. #155 was merged via
-> the owner's branch-protection bypass after full **local** verification
-> (lint · typecheck · lint:css · format · 1180 tests · build) + an adversarial
-> pre-merge review. Re-enable required checks once the Actions quota resets.
+> **Historical CI note (resolved):** GitHub Actions quota was exhausted 2026-06-07→~06-12
+> (all workflows failed ~2s at startup; #155/#175 merged via owner bypass after full local
+> verification). Actions have run normally on every PR since — the CLAUDE.md gotcha stays
+> as the diagnostic for if it ever recurs.
 
 ## Recently closed
 

@@ -21,6 +21,42 @@ subset covers a change.
 
 ---
 
+## A green guard that greps generated/dumped files must itself be falsified
+
+Five defects in guards written in ONE PR (#239), all the same shape: **the guard was green
+for a reason other than the one it claimed.** Regex extraction over generated or dumped
+output keeps over-reaching its intended block, because the terminator or scope you assume
+is not the one the file actually uses — and both are invisible while the guard passes.
+
+The five, as a checklist for the next guard:
+
+1. **Wrong terminator → unbounded slice.** `indexOf("$function$;")` returned -1 (pg_dump
+   emits `$function$\n;`), so `slice(0, -1)` spanned the rest of the baseline and the
+   `is_admin()` assertion matched a DIFFERENT function's gate. Bound to the real terminator
+   AND add a belt that fails if the extracted body contains a second `CREATE OR REPLACE`.
+2. **Neighbouring block at the same indent absorbed.** The generated `SetofOptions:
+   { from; to; isOneToOne; isSetofReturn }` shares the 10-space indent of a function's
+   `Returns` columns, so `.eq("isSetofReturn", true)` read as a valid column. Stop the scan
+   at the block's closing brace, and PIN the exclusion with its own test.
+3. **Chunk head not recognised.** `select-columns-exist` split on `.from(` only, so filters
+   after `.rpc(` bound to the PREVIOUS query (the admin gate) — 7 false phantoms on
+   `profiles`. Excluding rpc filters would have been the easy wrong fix; validating them
+   against the function's `Returns` shape is strictly more coverage.
+4. **Nested scope resolved against the wrong namespace.** An embedded relation under an
+   `.rpc(` head is a TABLE; looking it up as a function returns null and reads as "unknown
+   table". Depth-0 columns belong to the function; depth>0 to the relation's table.
+5. **Premise checked only in its explicit form.** "Nothing grants SELECT on the view"
+   matched only grants NAMING the view — a `GRANT ... ON ALL TABLES IN SCHEMA` would leave
+   it green while its meaning became false. Pin the absence of the blanket forms too.
+
+**Falsify the guard, not just the code it guards:** for each assertion, make the guarded
+fact false (delete the gate, plant the phantom, append the blanket grant), confirm red,
+restore byte-identical (md5). #239's fixes came from review rounds doing exactly this.
+
+**Apply when:** writing any test that greps a generated file, a pg_dump, or source text.
+
+---
+
 ## A mutation your suite cannot catch is a missing test, not a safe change
 
 Mutation-test every guard: revert the fix, confirm red, restore. The one that gets away is

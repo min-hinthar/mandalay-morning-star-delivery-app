@@ -11,6 +11,13 @@
 > expected of every session. **Read it before any visual/motion work.** The type
 > system there (Fraunces display + Hanken Grotesk body) is now **global** and
 > supersedes §3 below.
+>
+> **⚠️ Superseded (2026-08-05) — beyond §3.** The §2 saffron/curry/jade color
+> scales have **zero corresponding tokens** in `src/styles/tokens.css` (those
+> classes emit no CSS), and the §5 component specs (`bg-saffron-500` tabs,
+> `bg-jade-500` buttons) describe a system that shipped differently
+> (`.menu-tab-active`/`.menu-tab-ghost`, hero-clay CTAs). Kept for the layout /
+> IA reasoning only. Docs index: [README.md](README.md).
 
 ---
 

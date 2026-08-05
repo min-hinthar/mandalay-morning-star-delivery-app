@@ -1,5 +1,12 @@
 # docs/04-data-model.md (v1.0) — Supabase Postgres + RLS-first
 
+> **⚠️ Superseded (2026-08-05).** Planned schema, not the real one: the status
+> enum, several column names, and the `payments`/`refunds` tables never shipped
+> as written. Coding against this doc produces exactly the phantom-column bug
+> class the #231 sweep fixed. Authority: `src/types/database.generated.ts` +
+> `supabase/migrations/00000000000000_baseline.sql`. Docs index:
+> [README.md](README.md).
+
 ## Principles
 
 - RLS-first: customers only see their data.

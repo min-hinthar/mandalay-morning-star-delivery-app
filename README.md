@@ -22,12 +22,12 @@ Mandalay Morning Star is a full-featured food delivery platform serving the Sout
 ### Customer Experience
 
 - Categorized menu with search, filters, and bilingual support (47 items, 8 categories)
-- Unified menu cards with glassmorphism, 3D tilt, and shine effects
+- Unified menu cards with glassmorphism, scale-up + clay-glow hover, and shine effects
 - Cart with Zustand persistence, swipe-to-delete, fly-to-cart animations
 - Multi-step checkout: Address -> Time Slot -> Payment (Stripe or Cash on Delivery)
 - Pre-checkout delivery gate: dynamic hero CTA, cutoff countdown, multi-day scheduling
 - **Direction-based delivery routing**: East (Mon), West (Wed), South (Thu), All (Sat)
-- **Distance-tiered delivery fees**: $15 standard (free over $100), $20 flat for 25+ miles
+- **Distance-tiered delivery fees (graduated)**: ≤25mi $15 (free over $100, local only); 25–30mi $20 · 30–40mi $25 · 40–50mi $30; >50mi per-mile auto-quote — bands admin-editable
 - **Interactive coverage checker**: enter address to see direction, eligible days, and fee tier
 - Real-time order tracking with live driver map, ETA, and polling indicators
 - Shareable order tracking links (token-based, no auth required)
@@ -169,17 +169,17 @@ Key optimizations: CardImage to Next.js Image, LazyMotion with domMax, React Com
 
 ## Business Rules
 
-| Rule                  | Value                                                             |
-| --------------------- | ----------------------------------------------------------------- |
-| Delivery Days         | Monday (East), Wednesday (West), Thursday (South), Saturday (All) |
-| Order Cutoff          | Per-day configurable (e.g., Friday 3 PM PT for Saturday)          |
-| Standard Delivery Fee | $15 (free for orders $100+)                                       |
-| Extended Delivery Fee | $20 flat (addresses >25 miles, no free delivery threshold)        |
-| Coverage Area         | 50 miles AND 90 minutes drive time from kitchen                   |
-| Direction Zones       | East (350-80 deg), West (230-320 deg), South (140-220 deg)        |
-| Kitchen Location      | 750 Terrado Plaza, Suite 33, Covina, CA 91723                     |
-| Payment Methods       | Stripe (card) + Cash on Delivery (admin approval required)        |
-| Minimum Order         | $25                                                               |
+| Rule                  | Value                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------------------------------- |
+| Delivery Days         | Monday (East), Wednesday (West), Thursday (South), Saturday (All)                                             |
+| Order Cutoff          | Per-day configurable (e.g., Friday 3 PM PT for Saturday)                                                      |
+| Standard Delivery Fee | $15 within 25 mi (free for orders $100+, local only)                                                          |
+| Extended Delivery Fee | Graduated: 25–30mi $20, 30–40mi $25, 40–50mi $30, >50mi +$1.50/mi; $100 minimum order beyond the local radius |
+| Coverage Area         | Standard: 50 mi / 90 min drive from kitchen; extended tier (on by default) up to 100 mi / 180 min             |
+| Direction Zones       | East (350-80 deg), West (230-320 deg), South (140-220 deg)                                                    |
+| Kitchen Location      | 750 Terrado Plaza, Suite 33, Covina, CA 91723                                                                 |
+| Payment Methods       | Stripe (card) + Cash on Delivery (admin approval required)                                                    |
+| Minimum Order         | $25                                                                                                           |
 
 All business rules are admin-configurable from Settings — changes take effect on the next page load without a deploy.
 
@@ -521,14 +521,21 @@ pnpm lint && pnpm lint:css && pnpm format:check && pnpm typecheck && pnpm test &
 
 ## Roadmap & Potential Improvements
 
-### Next up — Driver Portal overhaul
+### Next up — pending plans
 
-The driver portal (`src/app/(driver)/`) has features that are partially working
-or unreliable and is the next focus area. Scope to be confirmed at kickoff, but
-candidates: route/stop lifecycle correctness, live GPS + ETA reliability, proof-
-of-delivery photo capture, offline sync (IndexedDB + SW), earnings accuracy,
-availability scheduling, and the onboarding/invite flow. See the kickoff prompt
-in `docs/driver-overhaul-kickoff.md`.
+The driver-portal overhaul has shipped (PRs #223–#239 — availability, route
+builder correctness, the phantom-column sweep, ratings, analytics). The open
+plans, tracked in the [docs index](docs/README.md):
+
+- **Grocery aisle** — `docs/grocery-delivery-plan.md` (G0 browse → G4 EBT);
+  plan-of-record, none built yet.
+- **Holistic-improvement backlog** — `docs/holistic-improvement-plan.md`, the
+  ranked D4–D10 items: discount-proportional refunds (high), refunded-shipping
+  guard, first-order discount stacking, SW denylist for authed routes,
+  feedback-email abuse, CSP hardening, Sentry PII default — plus legacy font
+  imports.
+- **Payment-gate DB trigger** — `docs/gate-confirm-on-payment-plan.md`; needs a
+  Docker session for the migration.
 
 ### Other follow-ups (by leverage)
 
@@ -543,6 +550,9 @@ in `docs/driver-overhaul-kickoff.md`.
 
 ### Recently shipped (was on this list)
 
+- ✅ Driver Portal overhaul — route/stop lifecycle correctness, honest
+  availability, offline-queue idempotency, ratings, deactivated-driver page,
+  admin analytics (PRs #223–#239).
 - ✅ Reward-integrity hardening — per-user promo-code binding at checkout.
 - ✅ Generated DB types + schema-drift CI guard (replaced the hand-maintained `database.ts`).
 
@@ -689,23 +699,20 @@ Set `CRON_SECRET` in Vercel env vars to secure these endpoints. The loyalty than
 
 ## Documentation
 
-| Document                            | Path                              |
-| ----------------------------------- | --------------------------------- |
-| Collaborative PR Review             | `docs/collaborative-pr-review.md` |
-| Open PRs (live registry)            | `docs/open-prs.md`                |
-| Architecture                        | `docs/architecture.md`            |
-| Data Model                          | `docs/04-data-model.md`           |
-| Menu System                         | `docs/05-menu.md`                 |
-| Stripe Integration                  | `docs/06-stripe.md`               |
-| Design Language + UI/UX Quality Bar | `docs/hero-design-language.md`    |
-| Frontend Design System              | `docs/frontend-design-system.md`  |
-| Component Guide                     | `docs/component-guide.md`         |
-| Deployment                          | `docs/DEPLOYMENT.md`              |
-| Z-Index Strategy                    | `docs/STACKING-CONTEXT.md`        |
-| Performance Guide                   | `PERFORMANCE.md`                  |
-| Change Log                          | `docs/change_log.md`              |
-| Project Status                      | `docs/project_status.md`          |
-| Business Context                    | `docs/00-context-pack.md`         |
+**Start at the [docs index](docs/README.md)** — it classifies every doc as
+living / pending plan / completed plan / historical / superseded (several older
+docs carry stale banners; the index says where the truth moved). The living set:
+
+| Document                            | Path                                                       |
+| ----------------------------------- | ---------------------------------------------------------- |
+| Docs index (reconciled 2026-08-05)  | `docs/README.md`                                           |
+| Design Language + UI/UX Quality Bar | `docs/hero-design-language.md`                             |
+| Collaborative PR Review             | `docs/collaborative-pr-review.md`                          |
+| Open PRs (live registry)            | `docs/open-prs.md`                                         |
+| Loading-State Hierarchy             | `docs/loading-hierarchy.md`                                |
+| Loyalty Orphan Backfill (runbook)   | `docs/loyalty-orphan-backfill.md`                          |
+| Data Model (authoritative)          | `src/types/database.generated.ts`                          |
+| Business Rules (authoritative)      | `.claude/CLAUDE.md` + `src/lib/settings/business-rules.ts` |
 
 ## Troubleshooting
 

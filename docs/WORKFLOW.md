@@ -1,5 +1,11 @@
 # WORKFLOW.md — Implementation Guide (v3.0)
 
+> **⚠️ Superseded (2026-08-05).** Workflow authority moved to
+> `.claude/CLAUDE.md` (branch naming is `claude/<slug>`, not `feat/`;
+> project_status.md is dead process; the Edge-Function email architecture never
+> shipped). Still current: the [collaborative-pr-review.md](collaborative-pr-review.md)
+> pointer. Docs index: [README.md](README.md).
+
 > **Purpose**: Development workflow and implementation patterns for Claude Code.
 > **Last Updated**: 2026-01-15
 

@@ -1,5 +1,12 @@
 # docs/architecture.md — System Architecture (v2.0)
 
+> **⚠️ Superseded (2026-08-05).** V2-era: claims React 18 (it's React 19 /
+> Next 16), root-level `app`/`components` dirs (everything is under `src/`), a
+> `getSession()` middleware pattern the real code forbids, and a
+> draft/pending_payment/paid order lifecycle that does not exist (see the
+> `order_status` enum in the baseline; COD is absent entirely). Trust the tree +
+> `.claude/CLAUDE.md`. Docs index: [README.md](README.md).
+
 > **Last Updated**: 2026-01-15
 > **Status**: V2 Complete - Analytics & Email Notifications
 

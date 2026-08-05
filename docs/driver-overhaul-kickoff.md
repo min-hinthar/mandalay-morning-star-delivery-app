@@ -1,5 +1,10 @@
 # Driver Portal overhaul — kickoff prompt
 
+> **✅ Consumed (2026-08-05).** The overhaul this prompt commissioned has merged
+> (PRs #223–#239: honest availability, route-builder correctness, the
+> phantom-column sweep, ratings, deactivated-driver page, analytics grants).
+> Kept as a record of the kickoff scope. Docs index: [README.md](README.md).
+
 > Paste this into a **fresh session** to start the next roadmap item. Confirm the
 > Supabase MCP registers first (it drops silently; a fresh session re-handshakes).
 
