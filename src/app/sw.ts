@@ -1,5 +1,7 @@
 import { defaultCache } from "@serwist/next/worker";
-import type { PrecacheEntry, SerwistGlobalConfig } from "serwist";
+import type { PrecacheEntry, RuntimeCaching, SerwistGlobalConfig } from "serwist";
+
+import { AUTHED_PATH_PREFIXES, isUncacheableRequest } from "./sw-denylist";
 import {
   CacheFirst,
   NetworkFirst,
@@ -25,7 +27,10 @@ declare const self: WorkerGlobalScope & typeof globalThis;
 //        bad opaque responses that CacheFirst permanently cached in v2
 // v3→v4: stopped caching opaque (status 0) responses for external images.
 //        Images now routed through next/image proxy (same-origin, status 200).
-const CACHE_VERSION = "v4";
+// v4→v5: authed routes left the navigation denylist late (audit D7) — old
+//        navigations-v4 caches hold admin/driver/account HTML (PII) that must
+//        be purged, not just no longer written.
+const CACHE_VERSION = "v5";
 
 // Navigation handler - NetworkFirst with 3s timeout for page navigations
 const navigationHandler = new NetworkFirst({
@@ -34,10 +39,25 @@ const navigationHandler = new NetworkFirst({
 });
 
 // Denylist: routes excluded from SW navigation interception
+//
+// The authed prefixes are a privacy boundary, not a perf choice (audit D7):
+// NetworkFirst wrote their HTML into Cache Storage, where the last admin's
+// dashboard, a driver's manifest, or a customer's account/orders pages —
+// names, addresses, phone numbers — outlived logout on a shared device, and
+// stayed readable to any script that got past the CSP. Denylisted
+// navigations go straight to the network, so offline these routes show the
+// browser error page instead of the /offline fallback — the correct trade
+// for authed PII (they are unusable offline anyway; the public menu keeps
+// its offline support). Prefix scope rationale (incl. why the public
+// /driver/onboard invite-token page is DELIBERATELY covered) lives in
+// ./sw-denylist.ts. NOTE this list only guards HARD navigations — the RSC
+// soft-nav/prefetch half of the same boundary is enforced below where
+// defaultCache is spread.
 const denylist = [
   /^\/auth\//, // OAuth callbacks
   /^\/monitoring/, // Sentry tunnel
   /^\/api\//, // All API routes
+  ...AUTHED_PATH_PREFIXES,
 ];
 
 const serwist = new Serwist({
@@ -54,12 +74,19 @@ const serwist = new Serwist({
     // hide the real HTTP status -- a 403/429 rate-limit from Google appears as
     // status 0, indistinguishable from success. Caching bad opaque responses
     // causes images to stay broken until cache expires.
+    // Supabase hosts are matched by PUBLIC-STORAGE PATH, not bare hostname:
+    // the browser supabase-js client also fetches PostgREST/auth JSON from
+    // the same host (`/rest/v1/addresses` street+city, `/auth/v1/user`
+    // email+phone), and a hostname-wide match cached that PII for 30 days,
+    // surviving logout on shared devices (same D7 class as the pages).
+    // Signed storage (`/object/sign/…` — private delivery-proof photos,
+    // 1h expiry) is likewise excluded so it can't outlive its signature.
     {
       matcher: ({ url }) =>
-        url.hostname.includes("drive.google.com") ||
-        url.hostname.includes("googleusercontent.com") ||
-        url.hostname.includes("supabase.co") ||
-        url.hostname.includes("supabase.com"),
+        url.hostname === "drive.google.com" ||
+        url.hostname.endsWith(".googleusercontent.com") ||
+        ((url.hostname.endsWith(".supabase.co") || url.hostname.endsWith(".supabase.com")) &&
+          url.pathname.startsWith("/storage/v1/object/public/")),
       handler: new NetworkFirst({
         cacheName: `external-images-${CACHE_VERSION}`,
         networkTimeoutSeconds: 5,
@@ -120,11 +147,39 @@ const serwist = new Serwist({
       }),
     },
     // Spread defaultCache for remaining Next.js assets (but NOT document/RSC)
-    ...defaultCache.filter((entry) => {
-      // OFFLINE-06: Exclude document requests to prevent App Router conflicts
-      const urlPattern = entry.matcher?.toString() || "";
-      return !urlPattern.includes("document");
-    }),
+    ...defaultCache
+      .filter((entry) => {
+        // OFFLINE-06: Exclude document requests to prevent App Router conflicts
+        const urlPattern = entry.matcher?.toString() || "";
+        return !urlPattern.includes("document");
+      })
+      // The OTHER half of the D7 privacy boundary: App-Router SOFT
+      // navigations and Link prefetches are RSC fetches (`RSC: 1` header,
+      // not `mode: "navigate"`), so they bypass the NavigationRoute denylist
+      // entirely and land in defaultCache's `pages-rsc` /
+      // `pages-rsc-prefetch` handlers — and defaultCache's `apis` handler
+      // caches ALL same-origin GET /api/* JSON (`/api/account/profile`,
+      // `/api/orders` — the same PII class as the pages). Wrap every
+      // function matcher so same-origin authed pages AND all /api/ paths
+      // are never cached by ANY defaultCache handler; the public menu's
+      // offline support is unaffected because the explicit menu-api-cache
+      // handler above wins first-match. Regex matchers (fonts) pass through
+      // untouched. The CROSS-origin side matters too: serwist's `cross-origin`
+      // NetworkFirst handler would cache browser supabase-js JSON
+      // (`/rest/v1/addresses`, `/auth/v1/user` — PII), so the predicate also
+      // refuses Supabase non-storage requests. NOTE: this means defaultCache
+      // `apis` offline is intentionally dead for EVERY /api/* route except
+      // menu — a future public GET API that wants offline support must add
+      // its own explicit handler BEFORE this spread, like menu-api-cache.
+      .map((entry): RuntimeCaching => {
+        const original = entry.matcher;
+        if (typeof original !== "function") return entry;
+        return {
+          ...entry,
+          matcher: (args) =>
+            isUncacheableRequest(args.sameOrigin, args.url) ? false : original(args),
+        };
+      }),
   ],
   // Offline fallback for document requests when both network and cache fail
   fallbacks: {
@@ -155,10 +210,30 @@ serwist.registerRoute(new NavigationRoute(navigationHandler, { denylist }));
         "static-assets-",
         "navigations-",
       ];
+      // Serwist's own RSC/page caches are UNVERSIONED, and until the D7 fix
+      // they accumulated authed-page payloads (soft navigations + Link
+      // prefetches). Purge them on every activation — activation only fires
+      // when a new SW version installs, so this costs one cold soft-nav per
+      // deploy and guarantees any pre-fix PII entries are gone.
+      // `others`/`cross-origin` are belt-and-suspenders (same-origin catchall
+      // + the cache that would have held supabase JSON) — purging them costs
+      // one cold fetch per deploy. These names are pinned against the
+      // INSTALLED serwist's defaultCache by sw-denylist.test.ts, so a serwist
+      // bump that renames a cache goes red instead of silently no-oping.
+      const serwistPageCaches = [
+        "pages-rsc",
+        "pages-rsc-prefetch",
+        "pages",
+        "apis",
+        "others",
+        "cross-origin",
+      ];
       const toDelete = cacheNames.filter((name) => {
         // Only target our versioned caches that don't match current version
-        return versionedPrefixes.some(
-          (prefix) => name.startsWith(prefix) && !name.endsWith(currentSuffix)
+        return (
+          versionedPrefixes.some(
+            (prefix) => name.startsWith(prefix) && !name.endsWith(currentSuffix)
+          ) || serwistPageCaches.includes(name)
         );
       });
       return Promise.all(toDelete.map((name) => caches.delete(name)));
