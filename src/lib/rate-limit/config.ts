@@ -29,6 +29,30 @@ export interface RateLimitConfig {
   window: string;
 }
 
+/**
+ * Parse an Upstash-style window string ("1 m", "10 m", "1 h", "30 s") to
+ * milliseconds. The in-memory fallback needs the window as a number; Upstash
+ * does not export its internal parser. Fails safe to 1 minute on any
+ * unrecognized shape.
+ */
+export function parseDurationMs(window: string): number {
+  const m = /^(\d+)\s*(ms|s|m|h|d)$/.exec(window.trim());
+  if (!m) return 60_000;
+  const n = Number(m[1]);
+  switch (m[2]) {
+    case "ms":
+      return n;
+    case "s":
+      return n * 1000;
+    case "m":
+      return n * 60_000;
+    case "h":
+      return n * 3_600_000;
+    default:
+      return n * 86_400_000;
+  }
+}
+
 function envInt(key: string, fallback: number): number {
   const val = process.env[key];
   if (!val) return fallback;
