@@ -136,6 +136,11 @@ Sentry.init({
     /Could not load "onion"/i,
     /maps-api-v3/i,
     /Error creating WebGL context/i,
+    // Aborted fetch / navigation on mobile (benign unhandled rejection,
+    // DOMException code 20) — user navigated away mid-request. Folded in
+    // from the deleted legacy sentry.client.config.ts.
+    /AbortError/i,
+    /The operation was aborted/i,
   ],
   denyUrls: [/maps\.googleapis\.com/i, /maps\.gstatic\.com/i],
 });
