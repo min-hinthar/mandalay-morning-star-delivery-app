@@ -124,10 +124,11 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Fetch daily metrics from materialized view
+    // via get_delivery_metrics_admin, NOT delivery_metrics_mv directly — same
+    // missing-grant problem as driver_stats_mv (see analytics/drivers/route.ts).
+    // This one 500s rather than degrading, so the page was fully broken.
     const { data: metricsRows, error: metricsError } = await supabase
-      .from("delivery_metrics_mv")
-      .select("*")
+      .rpc("get_delivery_metrics_admin")
       .gte("delivery_date", dateStart)
       .lte("delivery_date", dateEnd)
       .order("delivery_date", { ascending: false })
@@ -142,12 +143,25 @@ export async function GET(request: NextRequest) {
 
     // Fetch previous period for trend comparison
     const previousRange = getPreviousPeriodRange(period);
-    const { data: previousMetricsRows } = await supabase
-      .from("delivery_metrics_mv")
-      .select("*")
+    const { data: previousMetricsRows, error: previousError } = await supabase
+      .rpc("get_delivery_metrics_admin")
       .gte("delivery_date", previousRange.startDate.toISOString().split("T")[0])
       .lte("delivery_date", previousRange.endDate.toISOString().split("T")[0])
       .returns<DeliveryMetricsMvRow[]>();
+
+    // A dropped error here is not cosmetic. calculateMetricsSummary leaves
+    // ordersTrend/revenueTrend/successRateTrend at their initial 0 when the
+    // previous period is empty, and the dashboard renders that 0 as a real
+    // "0%" — so a failed read is presented to an admin as a genuinely flat
+    // period. Reported rather than swallowed; the primary query above already
+    // 500s on its own error, and failing the whole page over a TREND would be
+    // a worse trade than showing current-period numbers without one.
+    if (previousError) {
+      logger.exception(previousError, {
+        api: "admin/analytics/delivery",
+        flowId: "previous-period-trend",
+      });
+    }
 
     const previousMetrics = (previousMetricsRows || []).map(transformDeliveryMetrics);
 
@@ -188,11 +202,23 @@ export async function GET(request: NextRequest) {
       .sort((a, b) => a.hour - b.hour);
 
     // Fetch top drivers
-    const { data: driverStatsRows } = await supabase
-      .from("driver_stats_mv")
-      .select("*")
+    // via the wrapper, not the view — see analytics/drivers/route.ts for why.
+    const { data: driverStatsRows, error: driverStatsError } = await supabase
+      .rpc("get_driver_stats_admin")
       .eq("is_active", true)
       .returns<DriverStatsMvRow[]>();
+
+    // Reported, not swallowed. Degrading to an empty Top Drivers panel rather
+    // than 500-ing the whole dashboard is the right trade, but doing it
+    // SILENTLY is how the missing-grant bug this PR fixes stayed hidden: the
+    // read had been failing for every caller and the page just showed no
+    // drivers. Now the panel still degrades, and the failure is visible.
+    if (driverStatsError) {
+      logger.exception(driverStatsError, {
+        api: "admin/analytics/delivery",
+        flowId: "top-drivers",
+      });
+    }
 
     const drivers = (driverStatsRows || []).map(transformDriverStats);
     const topDrivers = generateLeaderboard(drivers, 5);

@@ -88,6 +88,49 @@ function rowColumns(table: string): Set<string> | null {
 }
 
 /**
+ * The field names on a Postgres function's generated `Returns` shape.
+ *
+ * `.rpc("f")` on a `RETURNS SETOF <table>` function yields a filter builder, so
+ * `.eq("is_active", true)` after it is a real PostgREST filter — and just as
+ * capable of naming a column that does not exist. Those filters bind to the
+ * FUNCTION, not to whatever `.from()` happened to come before it in the file,
+ * which is why `queryChunks` splits on `.rpc(` too: without that they were
+ * silently attributed to the previous table and reported as phantoms on it.
+ *
+ * Returns null for a function with a scalar return — there is nothing to filter
+ * on, so nothing to validate.
+ */
+function rpcReturnColumns(fn: string): Set<string> | null {
+  const start = GENERATED.indexOf(`      ${fn}: {`);
+  if (start < 0) return null;
+
+  const afterHeader = start + fn.length + 12;
+  const next = /\n {6}\w+: \{/.exec(GENERATED.slice(afterHeader));
+  const block = GENERATED.slice(start, next ? afterHeader + next.index : GENERATED.length);
+
+  const returns = block.indexOf("Returns: {");
+  if (returns < 0) return null; // scalar return — nothing to filter on
+
+  // Stop at the close of the Returns object. Every `RETURNS SETOF` function
+  // also emits a `SetofOptions: { from; to; isOneToOne; isSetofReturn }` block
+  // whose keys sit at the SAME 10-space indent as the real columns, so scanning
+  // to the end of the function folded those four names into the valid set —
+  // `.rpc("f").eq("isSetofReturn", true)` would have passed the guard.
+  const afterReturns = block.slice(returns);
+  const close = afterReturns.search(/\n {8}\}/);
+  const returnsBlock = close < 0 ? afterReturns : afterReturns.slice(0, close);
+
+  const cols = new Set<string>();
+  for (const m of returnsBlock.matchAll(/^\s{10}(\w+)\??:/gm)) cols.add(m[1]);
+  return cols.size > 0 ? cols : null;
+}
+
+/** Columns available on whatever a ref was resolved against. */
+function columnsFor(ref: Pick<Ref, "table" | "source">): Set<string> | null {
+  return ref.source === "rpc" ? rpcReturnColumns(ref.table) : rowColumns(ref.table);
+}
+
+/**
  * Application sources only.
  *
  * Tests, mocks and stories are excluded: a fixture may deliberately name a
@@ -159,6 +202,8 @@ interface Ref {
   table: string;
   column: string;
   kind: "select" | "filter";
+  /** Whether `table` names a table/view or a Postgres function's result set. */
+  source: "table" | "rpc";
   method?: string;
   /** Nesting depth inside embedded relation bodies; 0 = top-level column. */
   depth?: number;
@@ -166,27 +211,40 @@ interface Ref {
 
 // Matches EVERY .from(...) form, including `.from("x" as any)` and `.from(v)`,
 // so a chunk boundary is never missed and columns cannot leak to a prior table.
-const ANY_FROM = /\.from\(\s*(?:"(\w+)")?[^)]*\)/g;
+const ANY_SOURCE = /\.(from|rpc)\(\s*(?:"(\w+)")?[^)]*\)/g;
 
 /**
- * Split a file into one chunk per `.from(...)`, each running to the next.
+ * Split a file into one chunk per `.from(...)` OR `.rpc(...)`, each running to
+ * the next.
  *
- * Selects and filters both bind to the nearest preceding `.from(...)`, so this
- * is the single place that mapping is decided. A chunk whose table cannot be
- * read from source — `.from(variable)` — is skipped rather than guessed, and
- * skipping it (rather than not matching it at all) is what stops its columns
- * being attributed to whatever `.from()` came before.
+ * Selects and filters bind to the nearest preceding query head, so this is the
+ * single place that mapping is decided. A chunk whose name cannot be read from
+ * source — `.from(variable)` — is skipped rather than guessed, and skipping it
+ * (rather than not matching it at all) is what stops its columns being
+ * attributed to whatever came before.
+ *
+ * `.rpc(` is a head for exactly that reason: a `RETURNS SETOF <table>` function
+ * is filterable, so `.eq(...)` after it belongs to the function. Before this,
+ * those filters leaked onto the previous `.from()` and were reported as phantom
+ * columns on an unrelated table.
  */
-function fromChunks(source: string): Array<{ table: string; chunk: string; offset: number }> {
-  const froms = [...source.matchAll(ANY_FROM)];
-  const out: Array<{ table: string; chunk: string; offset: number }> = [];
+function queryChunks(
+  source: string
+): Array<{ table: string; source: "table" | "rpc"; chunk: string; offset: number }> {
+  const heads = [...source.matchAll(ANY_SOURCE)];
+  const out: Array<{ table: string; source: "table" | "rpc"; chunk: string; offset: number }> = [];
 
-  for (let i = 0; i < froms.length; i++) {
-    const table = froms[i][1];
-    const start = froms[i].index;
-    const end = i + 1 < froms.length ? froms[i + 1].index : source.length;
-    if (!table) continue;
-    out.push({ table, chunk: source.slice(start, end), offset: start });
+  for (let i = 0; i < heads.length; i++) {
+    const name = heads[i][2];
+    const start = heads[i].index;
+    const end = i + 1 < heads.length ? heads[i + 1].index : source.length;
+    if (!name) continue;
+    out.push({
+      table: name,
+      source: heads[i][1] === "rpc" ? "rpc" : "table",
+      chunk: source.slice(start, end),
+      offset: start,
+    });
   }
   return out;
 }
@@ -314,7 +372,7 @@ for (const file of sourceFiles(join(ROOT, "src"))) {
   const source = stripComments(readFileSync(file, "utf8"));
   const rel = file.replace(`${ROOT}/`, "");
 
-  for (const { table, chunk, offset } of fromChunks(source)) {
+  for (const { table, source: kind, chunk, offset } of queryChunks(source)) {
     nonLiteralSelects += [...chunk.matchAll(NON_LITERAL_SELECT)].length;
 
     for (const m of chunk.matchAll(/\.select\(\s*(["'`])([\s\S]*?)\1/g)) {
@@ -324,7 +382,23 @@ for (const file of sourceFiles(join(ROOT, "src"))) {
         m[2],
         table,
         (t, column, depth) =>
-          refs.push({ file: rel, line, table: t, column, kind: "select", depth }),
+          refs.push({
+            file: rel,
+            line,
+            table: t,
+            column,
+            // An EMBEDDED relation is a real table whatever the head was, so a
+            // nested column resolves against the table even under `.rpc(`.
+            // Only depth-0 columns belong to the function's Returns shape.
+            // Without this, `.rpc(f).select("*, profiles(full_name)")` — which
+            // PostgREST allows on a RETURNS SETOF function — would look
+            // `profiles` up as a FUNCTION, get null, and fail the
+            // "resolves every queried table" assertion as an unknown table.
+            // Latent today: no rpc chunk contains a select.
+            source: (depth ?? 0) > 0 ? "table" : kind,
+            kind: "select",
+            depth,
+          }),
         (name) => unknownRelations.push(`${name} — ${rel}:${line}`)
       );
     }
@@ -339,6 +413,7 @@ for (const file of sourceFiles(join(ROOT, "src"))) {
         table,
         column,
         kind: "filter",
+        source: kind,
         method,
       });
     }
@@ -389,8 +464,25 @@ describe("every queried column exists in the generated schema", () => {
     ).toBeGreaterThan(30);
   });
 
+  it("resolves a function's columns without absorbing its SetofOptions", () => {
+    // The generated types emit SetofOptions for every RETURNS SETOF function,
+    // and its keys share the 10-space indent of the real columns. Unbounded,
+    // the scan adopted them and a phantom filter on `isSetofReturn` would have
+    // read as valid — quietly weakening the precision this guard exists for.
+    const cols = rpcReturnColumns("get_driver_stats_admin");
+
+    expect(cols, "get_driver_stats_admin has no resolvable Returns shape").toBeTruthy();
+    expect(
+      [...cols!].filter((c) => ["from", "to", "isOneToOne", "isSetofReturn"].includes(c))
+    ).toEqual([]);
+    expect(cols!.has("driver_id"), "lost a real column while excluding SetofOptions").toBe(true);
+    expect(cols!.has("is_active")).toBe(true);
+  });
+
   it("resolves every queried table in database.generated.ts", () => {
-    const unknown = [...new Set(refs.map((r) => r.table))].filter((t) => !rowColumns(t));
+    const unknown = [...new Map(refs.map((r) => [`${r.source}:${r.table}`, r])).values()]
+      .filter((r) => !columnsFor(r))
+      .map((r) => r.table);
     expect(
       unknown,
       `queried tables missing from database.generated.ts: ${unknown.join(", ")}. ` +
@@ -402,7 +494,7 @@ describe("every queried column exists in the generated schema", () => {
   it("names no column that does not exist", () => {
     const phantom = refs
       .filter((r) => {
-        const existing = rowColumns(r.table);
+        const existing = columnsFor(r);
         return existing && !existing.has(r.column);
       })
       .map(
