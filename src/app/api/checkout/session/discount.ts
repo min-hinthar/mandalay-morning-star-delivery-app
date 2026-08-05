@@ -3,6 +3,7 @@ import type Stripe from "stripe";
 
 import { validatePromoCode } from "@/lib/stripe/promo";
 import { resolveFirstOrderDiscount } from "@/lib/referrals/first-order-discount";
+import { reclaimPendingCheckouts } from "@/lib/referrals/reclaim-pending-checkouts";
 import { logger } from "@/lib/utils/logger";
 import type { Database } from "@/types/database";
 
@@ -54,9 +55,12 @@ export async function resolveCheckoutDiscount(
   userId: string,
   subtotalCents: number,
   promoCode: string | undefined,
-  /** Service-role client, used ONLY for the loyalty-code ownership lookup (must
-   * see rows the customer doesn't own to reject cross-account use). */
-  serviceClient: SupabaseClient<Database>
+  /** Service-role client: loyalty-code ownership lookup (must see rows the
+   * customer doesn't own to reject cross-account use), first-order gates, and
+   * stale-pending reclaim. */
+  serviceClient: SupabaseClient<Database>,
+  /** Used only to expire stale pending checkout sessions (first-order gates). */
+  stripe: Stripe
 ): Promise<ResolveDiscountResult> {
   if (promoCode) {
     const promo = await validatePromoCode(promoCode);
@@ -105,6 +109,30 @@ export async function resolveCheckoutDiscount(
       if ((priorOrders ?? 0) > 0) {
         return { ok: false, message: "This code is only valid on your first order." };
       }
+      // Same stacking hole as the auto first-order discount (audit D6): an
+      // open unpaid checkout can still complete WITH this first-time code, so
+      // pendings must block — after attempting to reclaim stale ones (expire
+      // the session, cancel the order) so an abandoned-checkout retry isn't
+      // locked out for the 30-minute session lifetime.
+      const { count: pendingOrders, error: pendingError } = await serviceClient
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("status", "pending");
+      if (pendingError) {
+        logger.exception(pendingError, { api: "checkout-session", promoCode });
+        return { ok: false, message: "Failed to validate promo code" };
+      }
+      if ((pendingOrders ?? 0) > 0) {
+        const freed = await reclaimPendingCheckouts(stripe, serviceClient, userId);
+        if (!freed) {
+          return {
+            ok: false,
+            message:
+              "You have another checkout in progress — finish or wait a few minutes, then try this code again.",
+          };
+        }
+      }
     }
     // Percent codes are charged via a one-off amount_off coupon, so Stripe's
     // native times_redeemed never increments for them. Enforce the code's
@@ -145,7 +173,10 @@ export async function resolveCheckoutDiscount(
     };
   }
 
-  const autoDiscount = await resolveFirstOrderDiscount(supabase, userId, subtotalCents);
+  const autoDiscount = await resolveFirstOrderDiscount(supabase, userId, subtotalCents, {
+    stripe,
+    serviceClient,
+  });
   if (autoDiscount) {
     return {
       ok: true,
