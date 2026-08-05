@@ -81,8 +81,8 @@ const serwist = new Serwist({
     // surviving logout on shared devices (same D7 class as the pages).
     {
       matcher: ({ url }) =>
-        url.hostname.includes("drive.google.com") ||
-        url.hostname.includes("googleusercontent.com") ||
+        url.hostname === "drive.google.com" ||
+        url.hostname.endsWith(".googleusercontent.com") ||
         ((url.hostname.endsWith(".supabase.co") || url.hostname.endsWith(".supabase.com")) &&
           url.pathname.startsWith("/storage/")),
       handler: new NetworkFirst({
