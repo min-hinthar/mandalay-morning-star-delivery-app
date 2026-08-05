@@ -1,30 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
-
-/**
- * Secret-bearing query params that must never reach Sentry (audit D10):
- * share tracking links (?token=), driver onboarding invites, and promo codes
- * all travel in URLs, and fetch/history breadcrumbs capture URLs verbatim.
- */
-const SENSITIVE_QUERY_PARAMS = ["token", "share_token", "code"];
-
-function scrubUrl(rawUrl: string): string {
-  try {
-    // Relative URLs resolve against a throwaway origin; strip it back off.
-    const isAbsolute = /^[a-z][a-z0-9+.-]*:/i.test(rawUrl);
-    const url = new URL(rawUrl, "https://relative.invalid");
-    let changed = false;
-    for (const param of SENSITIVE_QUERY_PARAMS) {
-      if (url.searchParams.has(param)) {
-        url.searchParams.set(param, "[redacted]");
-        changed = true;
-      }
-    }
-    if (!changed) return rawUrl;
-    return isAbsolute ? url.toString() : url.pathname + url.search + url.hash;
-  } catch {
-    return rawUrl;
-  }
-}
+import { scrubUrl } from "@/lib/sentry/scrub-url";
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -40,6 +15,28 @@ Sentry.init({
       maskAllText: true,
       maskAllInputs: true,
       blockAllMedia: true,
+      // Replay records URLs through its own pipeline (performance spans for
+      // navigation/fetch/xhr, slow-click frames), bypassing beforeBreadcrumb —
+      // scrub the same token-bearing URLs before frames enter the recording.
+      beforeAddRecordingEvent(event) {
+        const data = event.data;
+        if (data.tag === "performanceSpan") {
+          const payload = data.payload;
+          if (typeof payload.description === "string") {
+            payload.description = scrubUrl(payload.description);
+          }
+          const spanData = payload.data as Record<string, unknown> | undefined;
+          if (spanData && typeof spanData.previous === "string") {
+            spanData.previous = scrubUrl(spanData.previous);
+          }
+        } else if (data.tag === "breadcrumb") {
+          const frameData = data.payload.data as Record<string, unknown> | undefined;
+          if (frameData && typeof frameData.url === "string") {
+            frameData.url = scrubUrl(frameData.url);
+          }
+        }
+        return event;
+      },
     }),
     Sentry.breadcrumbsIntegration({
       console: true,
