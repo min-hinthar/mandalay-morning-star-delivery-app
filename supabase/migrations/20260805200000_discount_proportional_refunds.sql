@@ -164,11 +164,18 @@ BEGIN
   -- rounding event maps to at least one refunded unit), not this call's item
   -- count. Within that bound — and only while something remains refundable —
   -- clamp DOWN to the remainder (the customer gets back exactly what they
-  -- paid) and shave the difference off the last line so the itemization sums
-  -- to the total (if the overshoot exceeds the last line, the floor leaves a
-  -- ≤N¢ display-only under-sum; Stripe reconciles on totalRefundCents).
-  -- Anything beyond the bound is a genuine over-refund and still raises. The
-  -- phrase 'exceeds order total' is matched by the route's recovery path.
+  -- paid) and shave the difference off the last GOODS line so the
+  -- itemization sums to the total. Two accepted display-only edges: the
+  -- shave never trims v_shipping_refund (a shipping-driven overshoot leaves
+  -- the stored shippingRefundCents a cent or two above true, while
+  -- totalRefundCents — what reconciliation uses — stays right), and if the
+  -- overshoot exceeds the last line the GREATEST floor leaves a ≤N¢
+  -- under-sum. Anything beyond the bound is a genuine over-refund and still
+  -- raises; the phrase 'exceeds order total' is matched by the route's
+  -- recovery path. The ceiling deliberately uses total_cents (which
+  -- includes the never-refundable tip): the item math tops out at
+  -- total − tip, so the looser ceiling is unreachable, and Stripe
+  -- independently caps the card at the captured amount.
   SELECT COALESCE(SUM(refunded_quantity), 0)
     INTO v_rounding_bound
     FROM order_items
