@@ -175,7 +175,7 @@ Key optimizations: CardImage to Next.js Image, LazyMotion with domMax, React Com
 | Order Cutoff          | Per-day configurable (e.g., Friday 3 PM PT for Saturday)                                                      |
 | Standard Delivery Fee | $15 within 25 mi (free for orders $100+, local only)                                                          |
 | Extended Delivery Fee | Graduated: 25–30mi $20, 30–40mi $25, 40–50mi $30, >50mi +$1.50/mi; $100 minimum order beyond the local radius |
-| Coverage Area         | 50 miles AND 90 minutes drive time from kitchen                                                               |
+| Coverage Area         | Standard: 50 mi / 90 min drive from kitchen; extended tier (on by default) up to 100 mi / 180 min             |
 | Direction Zones       | East (350-80 deg), West (230-320 deg), South (140-220 deg)                                                    |
 | Kitchen Location      | 750 Terrado Plaza, Suite 33, Covina, CA 91723                                                                 |
 | Payment Methods       | Stripe (card) + Cash on Delivery (admin approval required)                                                    |

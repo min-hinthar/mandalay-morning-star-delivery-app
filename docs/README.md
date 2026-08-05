@@ -33,17 +33,17 @@
 
 ## Plans — completed (design records)
 
-| Doc                                                                | Note                                                                                                       |
-| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
-| [driver-overhaul-kickoff.md](driver-overhaul-kickoff.md)           | Kickoff prompt consumed — the overhaul merged as PRs #223–#239.                                            |
-| [customer-surfaces-after-dark.md](customer-surfaces-after-dark.md) | All five surfaces shipped (#154–#162); guardrails section still useful.                                    |
-| [after-dark-levelup-plan.md](after-dark-levelup-plan.md)           | FX kit + auth shipped (#160–#171); gotchas folded into `.claude/CLAUDE.md`.                                |
-| [menu-after-dark-v2-plan.md](menu-after-dark-v2-plan.md)           | Dish sheet, dietary filters, MenuRail shipped (#150–#155).                                                 |
-| [rewards-roadmap-plan.md](rewards-roadmap-plan.md)                 | All four phases shipped (ownership gate, tier status, CI drift guard).                                     |
-| [V5_MILESTONE_MVP.md](V5_MILESTONE_MVP.md)                         | 12-week launch plan; V6 records it complete.                                                               |
-| [V4_MILESTONE_MVP.md](V4_MILESTONE_MVP.md)                         | Saturday-only-era launch plan; superseded by V5/V6 + multi-day. Checkboxes unchecked but the work shipped. |
-| [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)                         | Pre-launch checklist; the app is live. `scripts/launch-check.ts` still backs its validation step.          |
-| [05-menu.md](05-menu.md)                                           | Menu/seed spec, shipped as specced. Seed path is `data/menul.seed.yaml`; live DB is now source of truth.   |
+| Doc                                                                | Note                                                                                                                                                          |
+| ------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| [driver-overhaul-kickoff.md](driver-overhaul-kickoff.md)           | Kickoff prompt consumed — the overhaul merged as PRs #223–#239.                                                                                               |
+| [customer-surfaces-after-dark.md](customer-surfaces-after-dark.md) | All five surfaces shipped (#154–#162); guardrails section still useful.                                                                                       |
+| [after-dark-levelup-plan.md](after-dark-levelup-plan.md)           | FX kit + auth shipped (#160–#171); gotchas folded into `.claude/CLAUDE.md`.                                                                                   |
+| [menu-after-dark-v2-plan.md](menu-after-dark-v2-plan.md)           | Dish sheet, dietary filters, MenuRail shipped (#150–#155).                                                                                                    |
+| [rewards-roadmap-plan.md](rewards-roadmap-plan.md)                 | All four phases shipped (ownership gate, tier status, CI drift guard).                                                                                        |
+| [V5_MILESTONE_MVP.md](V5_MILESTONE_MVP.md)                         | 12-week launch plan; V6 records it complete.                                                                                                                  |
+| [V4_MILESTONE_MVP.md](V4_MILESTONE_MVP.md)                         | Saturday-only-era launch plan; superseded by V5/V6 + multi-day. Checkboxes unchecked but the work shipped.                                                    |
+| [LAUNCH_CHECKLIST.md](LAUNCH_CHECKLIST.md)                         | Pre-launch checklist; the app is live. `scripts/launch-check.ts` still backs its validation step.                                                             |
+| [05-menu.md](05-menu.md)                                           | Taxonomy + modifier groups shipped; its $15/$100 fee copy is obsolete (graduated bands now), seed path is `data/menul.seed.yaml`, live DB is source of truth. |
 
 ## Historical records
 

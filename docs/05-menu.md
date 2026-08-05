@@ -1,5 +1,12 @@
 # docs/05-menu.md (v1.1) — Menu System + Seed Spec (A La Carte)
 
+> **Note (2026-08-05):** The taxonomy + modifier-group spec below shipped as
+> written, but two details are stale: the delivery-fee copy ("$15 under $100,
+> free over $100") predates the graduated distance bands (free-$100 is
+> local-only — see `src/lib/settings/business-rules.ts`), and the seed file is
+> `data/menul.seed.yaml`, with the live DB now the source of truth for
+> menu/allergen data. Docs index: [README.md](README.md).
+
 ## Goals
 
 - Represent a full categorized Burmese menu with Panda Express–style ordering UX:

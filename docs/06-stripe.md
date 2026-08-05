@@ -2,8 +2,10 @@
 
 > **⚠️ Superseded (2026-08-05).** The Checkout-Sessions-plus-webhooks shape
 > shipped, but the details are false: no `pending_payment`/`paid` statuses exist
-> (paid = `stripe_payment_intent_id IS NOT NULL`), COD is absent, the fee
-> formula is now the graduated distance engine, and cutoffs are per-day.
+> (paid = `stripe_payment_intent_id IS NOT NULL`); this doc predates Cash on
+> Delivery entirely (live flow: `payment_method='cod'` → `pending_approval` →
+> admin `/approve-cod`); the fee formula is now the graduated distance engine;
+> and cutoffs are per-day.
 > Authority: `src/app/api/checkout/session` + `src/app/api/webhooks/stripe` +
 > the `.claude/CLAUDE.md` payment gotchas. Docs index: [README.md](README.md).
 
