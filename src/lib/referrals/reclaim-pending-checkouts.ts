@@ -36,11 +36,14 @@ export async function reclaimPendingCheckouts(
   serviceClient: SupabaseClient<Database>,
   userId: string
 ): Promise<boolean> {
+  // Only DISCOUNTED pendings are stacking candidates; an undiscounted
+  // in-progress checkout is harmless and must not be torn down.
   const { data: pendings, error } = await serviceClient
     .from("orders")
     .select("id, stripe_checkout_session_id, payment_method")
     .eq("user_id", userId)
-    .eq("status", "pending");
+    .eq("status", "pending")
+    .gt("discount_cents", 0);
 
   if (error) {
     logger.exception(error, { api: "reclaim-pending-checkouts", userId });

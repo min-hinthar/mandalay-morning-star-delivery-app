@@ -18,7 +18,7 @@ const RECLAIM = { stripe: stripeStub, serviceClient: serviceStub };
 /**
  * Supabase stub for the resolver's three queries:
  *  - orders completed count: .select(count).eq(user_id).in(statuses)
- *  - orders pending count:   .select(count).eq(user_id).eq(status)
+ *  - orders pending count:   .select(count).eq(user_id).eq(status).gt(discount)
  *  - referrals lookup:       .select().eq().eq().maybeSingle()
  */
 function supabaseWith(opts: {
@@ -36,7 +36,8 @@ function supabaseWith(opts: {
     : { count: opts.pending ?? 0, error: null };
 
   const inFn = vi.fn().mockResolvedValue(completedResult);
-  const statusEq = vi.fn().mockResolvedValue(pendingResult);
+  const gtFn = vi.fn().mockResolvedValue(pendingResult);
+  const statusEq = vi.fn(() => ({ gt: gtFn }));
   const userEq = vi.fn(() => ({ in: inFn, eq: statusEq }));
 
   const maybeSingle = vi.fn().mockResolvedValue({ data: opts.referred ? { id: "ref-1" } : null });

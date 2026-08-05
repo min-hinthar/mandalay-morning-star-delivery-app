@@ -14,7 +14,7 @@ interface PendingRow {
 
 /**
  * Service-client stub for the reclaim's three query shapes:
- *  - list pendings:   .select().eq(user_id).eq(status) → rows
+ *  - list pendings:   .select().eq(user_id).eq(status).gt(discount) → rows
  *  - cancel:          .update().eq(id).eq(status).select() → cancelledIds rows
  *  - verify fallback: .select(status).eq(id).single() → currentStatus
  */
@@ -28,7 +28,8 @@ function serviceWith(opts: {
   const listResult = opts.listError
     ? { data: null, error: { message: "boom" } }
     : { data: opts.pendings, error: null };
-  const listEq2 = vi.fn().mockResolvedValue(listResult);
+  const listGt = vi.fn().mockResolvedValue(listResult);
+  const listEq2 = vi.fn(() => ({ gt: listGt }));
   const listEq1 = vi.fn(() => ({ eq: listEq2 }));
 
   const cancelResult = opts.cancelError

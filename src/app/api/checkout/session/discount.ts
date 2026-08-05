@@ -109,30 +109,6 @@ export async function resolveCheckoutDiscount(
       if ((priorOrders ?? 0) > 0) {
         return { ok: false, message: "This code is only valid on your first order." };
       }
-      // Same stacking hole as the auto first-order discount (audit D6): an
-      // open unpaid checkout can still complete WITH this first-time code, so
-      // pendings must block — after attempting to reclaim stale ones (expire
-      // the session, cancel the order) so an abandoned-checkout retry isn't
-      // locked out for the 30-minute session lifetime.
-      const { count: pendingOrders, error: pendingError } = await serviceClient
-        .from("orders")
-        .select("id", { count: "exact", head: true })
-        .eq("user_id", userId)
-        .eq("status", "pending");
-      if (pendingError) {
-        logger.exception(pendingError, { api: "checkout-session", promoCode });
-        return { ok: false, message: "Failed to validate promo code" };
-      }
-      if ((pendingOrders ?? 0) > 0) {
-        const freed = await reclaimPendingCheckouts(stripe, serviceClient, userId);
-        if (!freed) {
-          return {
-            ok: false,
-            message:
-              "You have another checkout in progress — finish or wait a few minutes, then try this code again.",
-          };
-        }
-      }
     }
     // Percent codes are charged via a one-off amount_off coupon, so Stripe's
     // native times_redeemed never increments for them. Enforce the code's
@@ -156,6 +132,37 @@ export async function resolveCheckoutDiscount(
       }
       if ((promo.timesRedeemed ?? 0) + (count ?? 0) >= promo.maxRedemptions) {
         return { ok: false, message: "This promo code has reached its redemption limit." };
+      }
+    }
+    // Same stacking hole as the auto first-order discount (audit D6): an open
+    // unpaid checkout can still complete WITH its own discount, so DISCOUNTED
+    // pendings must block — after attempting to reclaim stale ones (expire
+    // the session, cancel the order) so an abandoned-checkout retry isn't
+    // locked out for the 30-minute session lifetime. Undiscounted pendings
+    // can't stack and are left alone. Deliberately the LAST gate: the reclaim
+    // is destructive, so every non-destructive rejection above (ownership,
+    // minimum, first-order, redemption cap) must have passed first — a code
+    // that is going to be rejected anyway must not tear down a live checkout.
+    if (isPercent && promo.firstTimeTransaction) {
+      const { count: pendingOrders, error: pendingError } = await serviceClient
+        .from("orders")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .eq("status", "pending")
+        .gt("discount_cents", 0);
+      if (pendingError) {
+        logger.exception(pendingError, { api: "checkout-session", promoCode });
+        return { ok: false, message: "Failed to validate promo code" };
+      }
+      if ((pendingOrders ?? 0) > 0) {
+        const freed = await reclaimPendingCheckouts(stripe, serviceClient, userId);
+        if (!freed) {
+          return {
+            ok: false,
+            message:
+              "You have another checkout in progress — finish or wait a few minutes, then try this code again.",
+          };
+        }
       }
     }
     const discountCents =

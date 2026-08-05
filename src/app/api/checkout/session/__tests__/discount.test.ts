@@ -28,7 +28,7 @@ const stripeStub = {} as unknown as Stripe;
  * Minimal service-client stub: loyalty_rewards lookup returns `row`; orders
  * count queries resolve `orderCount` (awaitable after .not() for the
  * first-order check, and after the chained .gte() for the redemption cap);
- * the pending-orders count (.eq().eq()) resolves `pendingCount`.
+ * the discounted-pending count (.eq().eq().gt()) resolves `pendingCount`.
  */
 function serviceClientReturning(row: { user_id: string } | null, orderCount = 0, pendingCount = 0) {
   const maybeSingle = vi.fn().mockResolvedValue({ data: row });
@@ -37,7 +37,8 @@ function serviceClientReturning(row: { user_id: string } | null, orderCount = 0,
   const gte = vi.fn().mockResolvedValue(countResult);
   const notResult = Object.assign(Promise.resolve(countResult), { gte });
   const countNot = vi.fn(() => notResult);
-  const pendingEq = vi.fn().mockResolvedValue({ count: pendingCount, error: null });
+  const pendingGt = vi.fn().mockResolvedValue({ count: pendingCount, error: null });
+  const pendingEq = vi.fn(() => ({ gt: pendingGt }));
   const countEq = vi.fn(() => ({ not: countNot, eq: pendingEq }));
   const from = vi.fn((table: string) =>
     table === "orders"
@@ -379,6 +380,36 @@ describe("resolveCheckoutDiscount — loyalty code ownership", () => {
 
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.message).toMatch(/another checkout in progress/i);
+  });
+
+  it("reclaim never runs for a code that fails max_redemptions (destructive gate is last)", async () => {
+    mockValidate.mockResolvedValue({
+      valid: true,
+      discountCents: 0,
+      couponId: "cpn_pct",
+      promotionCodeId: "promo_pct",
+      percentOff: 10,
+      minimumAmountCents: null,
+      maxRedemptions: 5,
+      timesRedeemed: 5,
+      firstTimeTransaction: true,
+    });
+    // Pendings exist, but the code is at its global cap — a doomed code must
+    // not tear down a live checkout on its way to rejection.
+    const service = serviceClientReturning(null, 0, 2);
+
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      10000,
+      "WELCOME10",
+      service,
+      stripeStub
+    );
+
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.message).toMatch(/redemption limit/i);
+    expect(mockReclaim).not.toHaveBeenCalled();
   });
 
   it("first_time_transaction percent code: no pendings means no reclaim call", async () => {
