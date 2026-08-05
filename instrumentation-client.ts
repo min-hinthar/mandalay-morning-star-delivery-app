@@ -1,5 +1,5 @@
 import * as Sentry from "@sentry/nextjs";
-import { scrubUrl } from "@/lib/sentry/scrub-url";
+import { scrubSpanDescription, scrubUrl } from "@/lib/sentry/scrub-url";
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
@@ -82,7 +82,7 @@ Sentry.init({
     }
     for (const span of event.spans ?? []) {
       if (typeof span.description === "string") {
-        span.description = scrubUrl(span.description);
+        span.description = scrubSpanDescription(span.description);
       }
       const httpUrl = span.data?.["http.url"];
       if (typeof httpUrl === "string") {

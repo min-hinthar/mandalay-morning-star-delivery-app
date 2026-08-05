@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { SENSITIVE_QUERY_PARAMS, scrubUrl } from "../scrub-url";
+import { SENSITIVE_QUERY_PARAMS, scrubSpanDescription, scrubUrl } from "../scrub-url";
 
 describe("scrubUrl", () => {
   it("redacts the tracking share ?token= param", () => {
@@ -47,6 +47,37 @@ describe("scrubUrl", () => {
 
   it("fails open on unparseable input", () => {
     expect(scrubUrl("http://[not-a-url")).toBe("http://[not-a-url");
+  });
+
+  it("redacts hash-borne secrets (implicit-flow tokens, hash-encoded params)", () => {
+    expect(
+      scrubUrl("/auth/callback#access_token=eyJhbGc&token_type=bearer&refresh_token=v1.M")
+    ).toBe(
+      "/auth/callback#access_token=%5Bredacted%5D&token_type=bearer&refresh_token=%5Bredacted%5D"
+    );
+    expect(scrubUrl("https://example.com/x#token=abc")).toBe(
+      "https://example.com/x#token=%5Bredacted%5D"
+    );
+  });
+
+  it("leaves plain anchor hashes untouched", () => {
+    expect(scrubUrl("/checkout#tip")).toBe("/checkout#tip");
+    expect(scrubUrl("https://example.com/menu#section-noodles")).toBe(
+      "https://example.com/menu#section-noodles"
+    );
+  });
+
+  it("scrubs the url token of 'METHOD url' span descriptions without mangling", () => {
+    expect(scrubSpanDescription("GET /api/tracking/abc?token=s3cret")).toBe(
+      "GET /api/tracking/abc?token=%5Bredacted%5D"
+    );
+    expect(scrubSpanDescription("POST https://example.com/auth/confirm?token_hash=x")).toBe(
+      "POST https://example.com/auth/confirm?token_hash=%5Bredacted%5D"
+    );
+    // bare-URL descriptions (navigation spans) and prose pass through
+    expect(scrubSpanDescription("/orders/tok123/share")).toBe("/orders/[redacted]/share");
+    expect(scrubSpanDescription("GET /menu")).toBe("GET /menu");
+    expect(scrubSpanDescription("Slow click on button")).toBe("Slow click on button");
   });
 
   it("keeps token_hash in the sensitive list (regression pin for driver invites)", () => {

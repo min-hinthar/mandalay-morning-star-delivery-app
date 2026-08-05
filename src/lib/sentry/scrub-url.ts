@@ -12,6 +12,24 @@ export const SENSITIVE_QUERY_PARAMS = ["token", "token_hash", "share_token", "co
 // Share links carry the secret as a path segment, not a query param.
 const SHARE_PATH_RE = /^(\/orders\/)[^/]+(\/share)$/;
 
+// Hash-borne secrets: the app's PKCE flow keeps tokens out of fragments
+// today, but Supabase's implicit flow (and OAuth generally) delivers
+// `#access_token=…&refresh_token=…` — scrub the fragment defensively so a
+// future flow change can't reintroduce the leak.
+const HASH_SENSITIVE_PARAMS = [...SENSITIVE_QUERY_PARAMS, "access_token", "refresh_token"];
+
+/**
+ * Sentry http.client span descriptions are "METHOD url" — scrub only the
+ * url token, or the whole string parses as a relative path and mangles
+ * ("GET /x?token=…" → "/GET%20/x?token=[redacted]"). Descriptions that are
+ * a bare URL (navigation spans) or prose (multi-word) pass to scrubUrl
+ * directly, which returns them unchanged unless a secret actually matches.
+ */
+export function scrubSpanDescription(description: string): string {
+  const m = /^(\S+)\s+(\S+)$/.exec(description);
+  return m ? `${m[1]} ${scrubUrl(m[2])}` : scrubUrl(description);
+}
+
 export function scrubUrl(rawUrl: string): string {
   try {
     // Relative URLs resolve against a throwaway origin; strip it back off.
@@ -27,6 +45,20 @@ export function scrubUrl(rawUrl: string): string {
     if (SHARE_PATH_RE.test(url.pathname)) {
       url.pathname = url.pathname.replace(SHARE_PATH_RE, "$1[redacted]$2");
       changed = true;
+    }
+    if (url.hash.length > 1) {
+      const hashParams = new URLSearchParams(url.hash.slice(1));
+      let hashChanged = false;
+      for (const param of HASH_SENSITIVE_PARAMS) {
+        if (hashParams.has(param)) {
+          hashParams.set(param, "[redacted]");
+          hashChanged = true;
+        }
+      }
+      if (hashChanged) {
+        url.hash = `#${hashParams.toString()}`;
+        changed = true;
+      }
     }
     if (!changed) return rawUrl;
     return isAbsolute ? url.toString() : url.pathname + url.search + url.hash;
