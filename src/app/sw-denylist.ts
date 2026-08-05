@@ -27,11 +27,11 @@
  *  - `/checkout` covers the prefilled-address checkout flow.
  */
 export const AUTHED_PATH_PREFIXES: RegExp[] = [
-  /^\/admin/,
-  /^\/driver/,
-  /^\/account/,
-  /^\/orders/,
-  /^\/checkout/,
+  /^\/admin(\/|$)/,
+  /^\/driver(\/|$)/,
+  /^\/account(\/|$)/,
+  /^\/orders(\/|$)/,
+  /^\/checkout(\/|$)/,
 ];
 
 /** True when a same-origin pathname belongs to the authed/PII surface. */

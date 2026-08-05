@@ -43,6 +43,12 @@ describe("isAuthedPath", () => {
     expect(isAuthedPath("/menu/admin-favorites")).toBe(false);
   });
 
+  it("does not match sibling routes sharing a stem (boundary-anchored)", () => {
+    expect(isAuthedPath("/orders-history")).toBe(false);
+    expect(isAuthedPath("/accounts")).toBe(false);
+    expect(isAuthedPath("/checkout-faq")).toBe(false);
+  });
+
   it("every prefix is anchored to the path start", () => {
     for (const prefix of AUTHED_PATH_PREFIXES) {
       expect(prefix.source.startsWith("^\\/")).toBe(true);

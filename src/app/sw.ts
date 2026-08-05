@@ -157,7 +157,10 @@ const serwist = new Serwist({
       // are never cached by ANY defaultCache handler; the public menu's
       // offline support is unaffected because the explicit menu-api-cache
       // handler above wins first-match. Regex matchers (fonts, cross-origin)
-      // pass through untouched.
+      // pass through untouched. NOTE: this means defaultCache `apis` offline
+      // is intentionally dead for EVERY /api/* route except menu — a future
+      // public GET API that wants offline support must add its own explicit
+      // handler BEFORE this spread, like menu-api-cache.
       .map((entry): RuntimeCaching => {
         const original = entry.matcher;
         if (typeof original !== "function") return entry;
