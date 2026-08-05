@@ -92,6 +92,16 @@ Sentry.init({
     if (event.transaction) {
       event.transaction = scrubUrl(event.transaction);
     }
+    // A token can also ride inside a thrown/captured string — scrub the
+    // message + exception values word-wise (same treatment as console).
+    if (typeof event.message === "string") {
+      event.message = scrubConsoleMessage(event.message);
+    }
+    for (const value of event.exception?.values ?? []) {
+      if (typeof value.value === "string") {
+        value.value = scrubConsoleMessage(value.value);
+      }
+    }
     return event;
   },
   // beforeSend fires for ERROR events only — pageload/navigation/http.client
