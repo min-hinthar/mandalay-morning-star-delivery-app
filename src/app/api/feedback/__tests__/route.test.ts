@@ -156,7 +156,13 @@ describe("POST /api/feedback — confirmation recipient routing (D8)", () => {
 
   it("authenticated callers keep the api-write tier", async () => {
     currentUser = { id: "user-1", email: "customer@example.com" };
-    await POST(feedbackRequest({ category: "bug_report", subject: "subject line", message: "message body text" }));
+    await POST(
+      feedbackRequest({
+        category: "bug_report",
+        subject: "subject line",
+        message: "message body text",
+      })
+    );
     const limiterArg = (mockCheckRateLimit as Mock).mock.calls[0][0] as {
       limiter: { tier: string };
     };
