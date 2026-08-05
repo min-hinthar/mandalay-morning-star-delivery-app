@@ -63,6 +63,11 @@ export function scrubUrl(rawUrl: string): string {
     if (!changed) return rawUrl;
     return isAbsolute ? url.toString() : url.pathname + url.search + url.hash;
   } catch {
+    // INTENTIONALLY fail-open: `new URL` almost never throws for real
+    // navigation/fetch URLs, truly malformed input rarely carries a clean
+    // secret param, and failing closed would drop legit telemetry. Pinned
+    // by the "fails open on unparseable input" test — don't "fix" this
+    // into returning a placeholder.
     return rawUrl;
   }
 }
