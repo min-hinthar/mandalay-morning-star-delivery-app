@@ -38,3 +38,19 @@ export const AUTHED_PATH_PREFIXES: RegExp[] = [
 export function isAuthedPath(pathname: string): boolean {
   return AUTHED_PATH_PREFIXES.some((prefix) => prefix.test(pathname));
 }
+
+/**
+ * True when the defaultCache wrapper must refuse to cache a same-origin
+ * request. Beyond the authed pages, this covers ALL of `/api/` — serwist's
+ * defaultCache ships an `apis` NetworkFirst handler that would otherwise
+ * cache authed JSON (`/api/account/profile` name+phone, `/api/orders` —
+ * the same PII class as the pages) into an unversioned `apis` cache.
+ *
+ * Blanket-skipping `/api/` here does NOT cost the public menu its offline
+ * support: sw.ts registers an explicit `menu-api-cache` handler for
+ * `/api/menu` BEFORE the defaultCache spread, and first match wins — this
+ * predicate only governs the defaultCache entries behind it.
+ */
+export function isUncacheablePath(pathname: string): boolean {
+  return pathname.startsWith("/api/") || isAuthedPath(pathname);
+}

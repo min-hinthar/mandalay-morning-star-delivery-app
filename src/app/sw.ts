@@ -1,7 +1,7 @@
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, RuntimeCaching, SerwistGlobalConfig } from "serwist";
 
-import { AUTHED_PATH_PREFIXES, isAuthedPath } from "./sw-denylist";
+import { AUTHED_PATH_PREFIXES, isUncacheablePath } from "./sw-denylist";
 import {
   CacheFirst,
   NetworkFirst,
@@ -150,17 +150,21 @@ const serwist = new Serwist({
       // navigations and Link prefetches are RSC fetches (`RSC: 1` header,
       // not `mode: "navigate"`), so they bypass the NavigationRoute denylist
       // entirely and land in defaultCache's `pages-rsc` /
-      // `pages-rsc-prefetch` handlers — which only exclude /api/. Wrap every
-      // function matcher so same-origin requests to the authed prefixes are
-      // never cached by ANY defaultCache handler. Regex matchers (fonts,
-      // cross-origin) pass through untouched.
+      // `pages-rsc-prefetch` handlers — and defaultCache's `apis` handler
+      // caches ALL same-origin GET /api/* JSON (`/api/account/profile`,
+      // `/api/orders` — the same PII class as the pages). Wrap every
+      // function matcher so same-origin authed pages AND all /api/ paths
+      // are never cached by ANY defaultCache handler; the public menu's
+      // offline support is unaffected because the explicit menu-api-cache
+      // handler above wins first-match. Regex matchers (fonts, cross-origin)
+      // pass through untouched.
       .map((entry): RuntimeCaching => {
         const original = entry.matcher;
         if (typeof original !== "function") return entry;
         return {
           ...entry,
           matcher: (args) =>
-            args.sameOrigin && isAuthedPath(args.url.pathname) ? false : original(args),
+            args.sameOrigin && isUncacheablePath(args.url.pathname) ? false : original(args),
         };
       }),
   ],
@@ -198,7 +202,7 @@ serwist.registerRoute(new NavigationRoute(navigationHandler, { denylist }));
       // prefetches). Purge them on every activation — activation only fires
       // when a new SW version installs, so this costs one cold soft-nav per
       // deploy and guarantees any pre-fix PII entries are gone.
-      const serwistPageCaches = ["pages-rsc", "pages-rsc-prefetch", "pages"];
+      const serwistPageCaches = ["pages-rsc", "pages-rsc-prefetch", "pages", "apis"];
       const toDelete = cacheNames.filter((name) => {
         // Only target our versioned caches that don't match current version
         return (

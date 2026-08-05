@@ -13,7 +13,7 @@ import { describe, expect, it } from "vitest";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-import { AUTHED_PATH_PREFIXES, isAuthedPath } from "../sw-denylist";
+import { AUTHED_PATH_PREFIXES, isAuthedPath, isUncacheablePath } from "../sw-denylist";
 
 describe("isAuthedPath", () => {
   it.each([
@@ -50,6 +50,29 @@ describe("isAuthedPath", () => {
   });
 });
 
+describe("isUncacheablePath (defaultCache wrapper predicate)", () => {
+  it.each(["/api/account/profile", "/api/orders", "/api/orders/abc", "/api/account/settings"])(
+    "refuses authed API JSON %s (the defaultCache 'apis' handler would cache it)",
+    (path) => {
+      expect(isUncacheablePath(path)).toBe(true);
+    }
+  );
+
+  it("covers /api/menu too — its offline caching comes from the EARLIER menu-api-cache handler", () => {
+    expect(isUncacheablePath("/api/menu")).toBe(true);
+  });
+
+  it("covers every authed page path isAuthedPath covers", () => {
+    expect(isUncacheablePath("/account")).toBe(true);
+    expect(isUncacheablePath("/admin/orders")).toBe(true);
+  });
+
+  it("leaves public pages cacheable", () => {
+    expect(isUncacheablePath("/menu")).toBe(false);
+    expect(isUncacheablePath("/")).toBe(false);
+  });
+});
+
 describe("sw.ts wires both halves of the boundary (source guard)", () => {
   const sw = readFileSync(join(process.cwd(), "src/app/sw.ts"), "utf8");
 
@@ -57,15 +80,28 @@ describe("sw.ts wires both halves of the boundary (source guard)", () => {
     expect(sw).toContain("...AUTHED_PATH_PREFIXES");
   });
 
-  it("RSC soft-nav/prefetch: defaultCache matchers are wrapped with isAuthedPath", () => {
-    // The half the first cut missed — soft navigations are RSC fetches that
-    // never hit the NavigationRoute, landing in pages-rsc(-prefetch).
-    expect(sw).toMatch(/args\.sameOrigin && isAuthedPath\(args\.url\.pathname\)/);
+  it("RSC soft-nav/prefetch + API JSON: defaultCache matchers are wrapped with isUncacheablePath", () => {
+    // The halves the first cuts missed — soft navigations are RSC fetches
+    // that never hit the NavigationRoute (pages-rsc), and the 'apis' handler
+    // caches all same-origin GET /api/* JSON.
+    expect(sw).toMatch(/args\.sameOrigin && isUncacheablePath\(args\.url\.pathname\)/);
   });
 
-  it("pre-fix RSC caches are purged on activation", () => {
+  it("pre-fix RSC and API caches are purged on activation", () => {
     expect(sw).toContain('"pages-rsc"');
     expect(sw).toContain('"pages-rsc-prefetch"');
+    expect(sw).toContain('"apis"');
+  });
+
+  it("the public menu's own cache handler is registered BEFORE the defaultCache spread", () => {
+    // isUncacheablePath blankets /api/ for the defaultCache entries; the
+    // menu keeps offline support only because its explicit handler wins
+    // first-match. If this ordering flips, the menu loses offline silently.
+    const menuHandler = sw.indexOf("menu-api-cache");
+    const spread = sw.indexOf("...defaultCache");
+    expect(menuHandler).toBeGreaterThan(-1);
+    expect(spread).toBeGreaterThan(-1);
+    expect(menuHandler).toBeLessThan(spread);
   });
 
   it("the navigation cache version is bumped past the pre-fix v4", () => {
