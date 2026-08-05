@@ -48,6 +48,24 @@ const cspDirectives = [
   "default-src 'self'",
   // Google Maps requires *.googleapis.com, *.gstatic.com, *.google.com, blob:
   // See: https://developers.google.com/maps/documentation/javascript/content-security-policy
+  //
+  // 'unsafe-eval' MUST STAY, in production too (D9 re-evaluation, 2026-08-05).
+  // Google's CSP doc (link above) requires it in BOTH its allowlist AND its
+  // nonce/strict-dynamic configurations, and the Maps JS API rotates weekly
+  // server-side — passing without eval today proves nothing about next week.
+  // Dev-only gating was already tried (8bc23ed5) and reverted for prod Maps
+  // breakage (159cf8ee); checkout's Places autocomplete rides this SDK, so
+  // regressing it is a revenue outage, not a cosmetic one. Do NOT re-gate.
+  //
+  // 'unsafe-inline' removal is the real XSS win, but needs nonce-based CSP
+  // built per-request (App Router inline bootstrap scripts) + verification
+  // across every authed surface — tracked as a follow-up in
+  // docs/holistic-improvement-plan.md (D9), and per Google still keeps eval.
+  //
+  // connect.facebook.net is DELIBERATE: Facebook's in-app browser injects
+  // its scripts into every page it renders (traffic arrives via the
+  // restaurant's FB marketing); without it those sessions flooded Sentry
+  // with CSP violations (dfd4f628).
   `script-src 'self' 'unsafe-inline' 'unsafe-eval' https://*.googleapis.com https://*.gstatic.com https://*.google.com https://connect.facebook.net blob:${live("https://vercel.live")}`,
   `style-src 'self' 'unsafe-inline' https://fonts.googleapis.com${live("https://vercel.live")}`,
   `img-src 'self' blob: data: https://*.supabase.co https://*.googleapis.com https://*.gstatic.com https://*.google.com https://*.googleusercontent.com https://*.tile.openstreetmap.org${live("https://vercel.live https://vercel.com")}`,
