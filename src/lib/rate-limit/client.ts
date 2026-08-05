@@ -57,3 +57,4 @@ export const checkoutLimiter = createLimiter("checkout", "checkout");
 export const refundLimiter = createLimiter("refund", "refund");
 export const adminBulkLimiter = createLimiter("admin-bulk", "admin-bulk"); // Unwired: no bulk admin endpoints exist (D-13)
 export const webhookLimiter = createLimiter("webhook", "webhook");
+export const feedbackAnonLimiter = createLimiter("feedback-anon", "feedback-anon");

@@ -3,7 +3,12 @@ import { after } from "next/server";
 
 import { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/server";
-import { checkRateLimit, apiWriteLimiter, getClientIp } from "@/lib/rate-limit";
+import {
+  checkRateLimit,
+  apiWriteLimiter,
+  feedbackAnonLimiter,
+  getClientIp,
+} from "@/lib/rate-limit";
 import { sendEmail } from "@/lib/email/send";
 import { AdminFeedbackAlert } from "@/emails/AdminFeedbackAlert";
 import { FeedbackConfirmation } from "@/emails/FeedbackConfirmation";
@@ -22,10 +27,12 @@ export async function POST(request: NextRequest) {
       data: { user },
     } = await supabase.auth.getUser();
 
-    // Rate limit by user_id or IP
+    // Rate limit by user_id or IP. Anonymous callers get the far stricter
+    // feedback-anon tier (audit D8): this endpoint fans out email, so the
+    // generic api-write allowance was an admin-inbox spam lever.
     const identifier = user?.id ?? getClientIp(request);
     const rl = await checkRateLimit({
-      limiter: apiWriteLimiter,
+      limiter: user ? apiWriteLimiter : feedbackAnonLimiter,
       identifier,
       role: user ? "customer" : "anon",
       route: "/api/feedback",
@@ -194,20 +201,25 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // Customer confirmation
-        if (resolvedEmail) {
+        // Customer confirmation — AUTHENTICATED users only, to their own
+        // account email (audit D8). Sending to the caller-supplied
+        // contactEmail let an anonymous submitter make the brand's verified
+        // domain email arbitrary addresses, with attacker-controlled subject
+        // text echoed in the body. Anonymous feedback still records
+        // contact_email for admin follow-up; it just gets no automated email.
+        if (user?.email) {
           await sendEmail({
-            to: resolvedEmail,
+            to: user.email,
             subject: `We received your feedback — #${feedbackId.slice(0, 8).toUpperCase()}`,
             react: FeedbackConfirmation({
               feedbackId,
               category,
               subject,
-              isAuthenticated: !!user,
+              isAuthenticated: true,
             }),
             type: "feedback_confirmation" as never,
             orderId: orderId ?? feedbackId,
-            userId: user?.id ?? "anonymous",
+            userId: user.id,
             idempotencyKey: `feedback-confirm-${feedbackId}`,
           });
         }

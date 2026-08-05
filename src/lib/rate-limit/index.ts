@@ -24,6 +24,7 @@ export {
   refundLimiter,
   adminBulkLimiter,
   webhookLimiter,
+  feedbackAnonLimiter,
   getRedisClient,
 } from "./client";
 

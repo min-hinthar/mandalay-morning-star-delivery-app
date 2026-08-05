@@ -17,7 +17,10 @@ export type RateLimitTier =
   | "checkout"
   | "refund"
   | "admin-bulk"
-  | "webhook";
+  | "webhook"
+  // Unauthenticated feedback (audit D8): email-adjacent endpoint, so far
+  // stricter than the generic api-write tier
+  | "feedback-anon";
 
 export interface RateLimitConfig {
   /** Maximum requests allowed in the window */
@@ -94,5 +97,9 @@ export const RATE_LIMITS: Record<RateLimitTier, RateLimitConfig> = {
   webhook: {
     max: envInt("RATE_LIMIT_WEBHOOK_MAX", 60),
     window: envStr("RATE_LIMIT_WEBHOOK_WINDOW", "1 m"),
+  },
+  "feedback-anon": {
+    max: envInt("RATE_LIMIT_FEEDBACK_ANON_MAX", 3),
+    window: envStr("RATE_LIMIT_FEEDBACK_ANON_WINDOW", "10 m"),
   },
 };
