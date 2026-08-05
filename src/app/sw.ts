@@ -1,7 +1,7 @@
 import { defaultCache } from "@serwist/next/worker";
 import type { PrecacheEntry, RuntimeCaching, SerwistGlobalConfig } from "serwist";
 
-import { AUTHED_PATH_PREFIXES, isUncacheablePath } from "./sw-denylist";
+import { AUTHED_PATH_PREFIXES, isUncacheableRequest } from "./sw-denylist";
 import {
   CacheFirst,
   NetworkFirst,
@@ -74,12 +74,17 @@ const serwist = new Serwist({
     // hide the real HTTP status -- a 403/429 rate-limit from Google appears as
     // status 0, indistinguishable from success. Caching bad opaque responses
     // causes images to stay broken until cache expires.
+    // Supabase hosts are matched by STORAGE PATH, not bare hostname: the
+    // browser supabase-js client also fetches PostgREST/auth JSON from the
+    // same host (`/rest/v1/addresses` street+city, `/auth/v1/user`
+    // email+phone), and a hostname-wide match cached that PII for 30 days,
+    // surviving logout on shared devices (same D7 class as the pages).
     {
       matcher: ({ url }) =>
         url.hostname.includes("drive.google.com") ||
         url.hostname.includes("googleusercontent.com") ||
-        url.hostname.includes("supabase.co") ||
-        url.hostname.includes("supabase.com"),
+        ((url.hostname.endsWith(".supabase.co") || url.hostname.endsWith(".supabase.com")) &&
+          url.pathname.startsWith("/storage/")),
       handler: new NetworkFirst({
         cacheName: `external-images-${CACHE_VERSION}`,
         networkTimeoutSeconds: 5,
@@ -156,18 +161,21 @@ const serwist = new Serwist({
       // function matcher so same-origin authed pages AND all /api/ paths
       // are never cached by ANY defaultCache handler; the public menu's
       // offline support is unaffected because the explicit menu-api-cache
-      // handler above wins first-match. Regex matchers (fonts, cross-origin)
-      // pass through untouched. NOTE: this means defaultCache `apis` offline
-      // is intentionally dead for EVERY /api/* route except menu — a future
-      // public GET API that wants offline support must add its own explicit
-      // handler BEFORE this spread, like menu-api-cache.
+      // handler above wins first-match. Regex matchers (fonts) pass through
+      // untouched. The CROSS-origin side matters too: serwist's `cross-origin`
+      // NetworkFirst handler would cache browser supabase-js JSON
+      // (`/rest/v1/addresses`, `/auth/v1/user` — PII), so the predicate also
+      // refuses Supabase non-storage requests. NOTE: this means defaultCache
+      // `apis` offline is intentionally dead for EVERY /api/* route except
+      // menu — a future public GET API that wants offline support must add
+      // its own explicit handler BEFORE this spread, like menu-api-cache.
       .map((entry): RuntimeCaching => {
         const original = entry.matcher;
         if (typeof original !== "function") return entry;
         return {
           ...entry,
           matcher: (args) =>
-            args.sameOrigin && isUncacheablePath(args.url.pathname) ? false : original(args),
+            isUncacheableRequest(args.sameOrigin, args.url) ? false : original(args),
         };
       }),
   ],
@@ -205,7 +213,19 @@ serwist.registerRoute(new NavigationRoute(navigationHandler, { denylist }));
       // prefetches). Purge them on every activation — activation only fires
       // when a new SW version installs, so this costs one cold soft-nav per
       // deploy and guarantees any pre-fix PII entries are gone.
-      const serwistPageCaches = ["pages-rsc", "pages-rsc-prefetch", "pages", "apis"];
+      // `others`/`cross-origin` are belt-and-suspenders (same-origin catchall
+      // + the cache that would have held supabase JSON) — purging them costs
+      // one cold fetch per deploy. These names are pinned against the
+      // INSTALLED serwist's defaultCache by sw-denylist.test.ts, so a serwist
+      // bump that renames a cache goes red instead of silently no-oping.
+      const serwistPageCaches = [
+        "pages-rsc",
+        "pages-rsc-prefetch",
+        "pages",
+        "apis",
+        "others",
+        "cross-origin",
+      ];
       const toDelete = cacheNames.filter((name) => {
         // Only target our versioned caches that don't match current version
         return (

@@ -13,8 +13,9 @@
  *  - soft navigations and Link prefetches, which are RSC FETCHES (`RSC: 1`
  *    header, not navigation requests) — handled by wrapping the
  *    `@serwist/next` defaultCache matchers (`pages-rsc`,
- *    `pages-rsc-prefetch`) with `isAuthedPath` in sw.ts. Missing this half
- *    left the D7 hole open on the DOMINANT path of an installed PWA.
+ *    `pages-rsc-prefetch`) with `isUncacheableRequest` in sw.ts. Missing
+ *    this half left the D7 hole open on the DOMINANT path of an installed
+ *    PWA.
  *
  * Prefix notes:
  *  - `/orders` also covers the public token-share page — it renders a
@@ -53,4 +54,30 @@ export function isAuthedPath(pathname: string): boolean {
  */
 export function isUncacheablePath(pathname: string): boolean {
   return pathname.startsWith("/api/") || isAuthedPath(pathname);
+}
+
+/**
+ * The CROSS-origin half of the boundary. supabase-js runs in the browser, so
+ * PostgREST/auth responses are plain fetches the SW can cache:
+ *  - `GET /rest/v1/addresses` (street/city — read by useCustomerDeliveryDays
+ *    and RouteDayCallout), `GET /rest/v1/order_items` (useOrderHistorySearch)
+ *  - `GET /auth/v1/user` (email/phone)
+ * Only Supabase STORAGE (`/storage/…` — public dish photos) is cacheable;
+ * every other path on a Supabase host is API/auth JSON and must never enter
+ * Cache Storage. Other cross-origin hosts (Google image CDNs) are unaffected.
+ */
+export function isUncacheableSupabaseRequest(hostname: string, pathname: string): boolean {
+  const isSupabaseHost = hostname.endsWith(".supabase.co") || hostname.endsWith(".supabase.com");
+  return isSupabaseHost && !pathname.startsWith("/storage/");
+}
+
+/**
+ * Unified predicate for the defaultCache wrapper: refuse caching for
+ * same-origin authed/API paths AND cross-origin Supabase non-storage JSON
+ * (serwist's `cross-origin` NetworkFirst handler would otherwise cache it).
+ */
+export function isUncacheableRequest(sameOrigin: boolean, url: URL): boolean {
+  return sameOrigin
+    ? isUncacheablePath(url.pathname)
+    : isUncacheableSupabaseRequest(url.hostname, url.pathname);
 }
