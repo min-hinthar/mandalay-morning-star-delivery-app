@@ -186,7 +186,7 @@ export const Tabs = memo(function Tabs({ tabs, activeTab, onTabChange, className
               aria-controls={`tabpanel-${tab.id}`}
               onClick={() => onTabChange(tab.id)}
               className={cn(
-                "relative flex-shrink-0 px-4 py-2.5 min-h-[44px]",
+                "flex-shrink-0 px-4 py-2.5 min-h-[44px]",
                 "rounded-input font-body text-sm font-medium",
                 "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
                 isActive
