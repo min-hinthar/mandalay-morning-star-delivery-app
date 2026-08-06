@@ -142,8 +142,9 @@ export function MetricCard({
 
           {subtitle && <p className="mt-1 text-xs font-body text-text-muted">{subtitle}</p>}
 
-          {/* V6 Trend indicator */}
-          {calculatedTrend && calculatedTrendValue !== undefined && (
+          {/* V6 Trend indicator — "new" has no % by definition, so it
+              renders without a trendValue */}
+          {calculatedTrend && (calculatedTrendValue !== undefined || calculatedTrend === "new") && (
             <m.div
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
@@ -172,7 +173,17 @@ export function MetricCard({
                   <span className="text-sm font-body font-medium text-text-muted">No change</span>
                 </>
               )}
-              <span className="text-xs font-body text-text-muted">vs last period</span>
+              {calculatedTrend === "new" && (
+                <>
+                  <Minus className="h-4 w-4 text-text-muted" />
+                  <span className="text-sm font-body font-medium text-text-muted">
+                    No prior data
+                  </span>
+                </>
+              )}
+              {calculatedTrend !== "new" && (
+                <span className="text-xs font-body text-text-muted">vs last period</span>
+              )}
             </m.div>
           )}
         </div>

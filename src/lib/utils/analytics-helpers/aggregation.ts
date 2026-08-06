@@ -54,10 +54,13 @@ export function calculateMetricsSummary(
         validDurations.length
       : null;
 
-  // Calculate trends if previous data available
-  let ordersTrend = 0;
-  let revenueTrend = 0;
-  let successRateTrend = 0;
+  // Trends stay null (= "unknown") unless the previous period actually has a
+  // baseline. Each metric checks its OWN denominator: prior rows can exist
+  // with zero orders/revenue, and calculateTrendPercentage's prev=0 rule
+  // (kept for leaderboard direction) would fabricate a "+100%" there.
+  let ordersTrend: number | null = null;
+  let revenueTrend: number | null = null;
+  let successRateTrend: number | null = null;
 
   if (previousMetrics && previousMetrics.length > 0) {
     const prevTotalOrders = previousMetrics.reduce((sum, m) => sum + m.totalOrders, 0);
@@ -65,9 +68,12 @@ export function calculateMetricsSummary(
     const prevAvgSuccess =
       previousMetrics.reduce((sum, m) => sum + m.deliverySuccessRate, 0) / previousMetrics.length;
 
-    ordersTrend = calculateTrendPercentage(totalOrders, prevTotalOrders);
-    revenueTrend = calculateTrendPercentage(totalRevenueCents, prevTotalRevenue);
-    successRateTrend = calculateTrendPercentage(avgSuccessRate, prevAvgSuccess);
+    ordersTrend =
+      prevTotalOrders > 0 ? calculateTrendPercentage(totalOrders, prevTotalOrders) : null;
+    revenueTrend =
+      prevTotalRevenue > 0 ? calculateTrendPercentage(totalRevenueCents, prevTotalRevenue) : null;
+    successRateTrend =
+      prevAvgSuccess > 0 ? calculateTrendPercentage(avgSuccessRate, prevAvgSuccess) : null;
   }
 
   const { startDate, endDate } = getDateRangeForPeriod(period);
@@ -124,9 +130,9 @@ function createEmptyMetricsSummary(period: MetricsPeriod): DeliveryMetricsSummar
     avgDailyOrders: 0,
     avgDailyRevenue: 0,
     avgRouteDuration: null,
-    ordersTrend: 0,
-    revenueTrend: 0,
-    successRateTrend: 0,
+    ordersTrend: null,
+    revenueTrend: null,
+    successRateTrend: null,
     totalExceptions: 0,
     exceptionsByType: {
       customer_not_home: 0,
