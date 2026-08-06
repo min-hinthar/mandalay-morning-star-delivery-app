@@ -4,8 +4,38 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-08-05 (post-merge). No PRs open except the registry
-reconciliation itself. The D4–D10 fleet is fully merged._
+_Last reconciled: 2026-08-06 (post-merge). No PRs open except the registry
+reconciliation itself. The follow-up tranche (#248–#254) is fully merged._
+
+## Recently closed — follow-up tranche (2026-08-06, ALL SEVEN MERGED on the owner's "Merge")
+
+Seven independent PRs off `main`, built from the recorded D4–D10 follow-ups +
+UX/brand backlog. Every auto-review round triaged to zero (fix or justify,
+threads resolved) before the fleet go; every head CI-green at merge.
+
+| PR   | Squash     | Scope                                                                                                                                                                                              |
+| ---- | ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| #248 | `fe9e1164` | **Rate-limit fallback:** tier-tagged limiters; in-memory fallback = tier's own window + `min(max,15)`; tier-keyed buckets mirror Redis `rl:<tier>`; real Retry-After                               |
+| #249 | `87a85c8d` | **First-order DB belt:** partial unique index (`promo_code IS NULL` narrowing load-bearing) + tuple-tie-break pre-clean; 23505→friendly 409 at checkout + admin reopen                             |
+| #250 | `b6e32b37` | **Analytics refresh cron:** `refresh_analytics_views()` admits `service_role` (jwt-convention gate); daily `/api/cron/refresh-analytics` (fail-closed, 500-on-error, maxDuration 60)               |
+| #251 | `fd8a79c7` | **Honest trends:** `number \| null` per-denominator; "No prior baseline" (CircleDashed) instead of fabricated 0% / +100%                                                                           |
+| #252 | `5f832508` | **UX carry-forwards:** self-contained active tabs (measured-indicator pattern deleted), status-warning badges for yellow-on-light text, dialog `min(90vh, --sheet-max-h)`, 8× iOS 16px input fixes |
+| #253 | `3125c1f1` | **Brand hygiene:** MMS anchor doc block, `--rating-star` token (built-CSS verified), media-paired themeColor (`#a41034` / `#1e1713`) + manifest                                                    |
+| #254 | `9458d8e9` | **Loyalty ✦:** lucide Star→Sparkle across 13 loyalty surfaces; 4 raw-amber loyalty stars → `hero-gold`; rating/brand-mark/badge stars untouched                                                    |
+
+**⚠️ Post-merge action (owner):** apply BOTH new migrations to prod (SQL
+editor, project `ukuzkhuppqwtrdkjqrkv`, one paste — the session provided the
+combined SQL): `20260806000000_unique_open_auto_discount_pending.sql`
+(pre-clean + partial unique index) and
+`20260806001000_allow_service_role_refresh_analytics.sql` (function-body
+gate). Until the second applies, the daily refresh-analytics cron 500s by
+design. Also: #253's manifest change ships a new SW (heartbeat pickup), and
+#254 is a visual identity change — eyeball hero rail / cart journey / Rewards
+tab on prod.
+
+**Still parked:** tier display-rename (needs owner's target names);
+`app_private.enforce_paid_before_fulfillment` DB trigger (needs Docker);
+nonce-based CSP project.
 
 ## Recently closed — D4–D10 security backlog fleet (2026-08-05, ALL SIX MERGED on the owner's "Merge")
 
