@@ -120,6 +120,19 @@
   --hero-orb-ruby: rgba(139, 92, 246, 0.3); /* Violet twilight glow */
   --hero-orb-blur: 100px;
 
+  /* ===========================================
+     MMS BRAND CORE ANCHORS
+     The five colors that ARE the brand — byte-matched to the email canon
+     (src/emails/components/theme.ts BRAND). Change them there and here
+     together, or emails and app drift apart:
+       ink    #141413  (--hero-ink — Anthropic ink)
+       paper  #faf9f5  (--hero-card-bg base — warm cream)
+       accent #9a3412  (--hero-accent — deep clay, AA accent TEXT on cream)
+       star   #a41034  (--hero-star — Mandalay deep red, the BRAND MARK only)
+       gold   #eaa92f  (--hero-gold — rewards/loyalty gold; icon FILLS only,
+                        ~2:1 on cream so never text; AA gold text = #7a4f10)
+     =========================================== */
+
   /* Anthropic "warm paper" hero cards — float on the sunset (shared light/dark) */
   --hero-card-bg: rgba(250, 249, 245, 0.94); /* warm cream paper (#faf9f5) */
   --hero-card-bg-strong: rgba(252, 251, 247, 0.98);
@@ -136,6 +149,7 @@
   --hero-sage: #788c5d; /* sage */
   --hero-ruby: #e0556b; /* ruby red — rewards Ruby-tier accent */
   --hero-gold: #eaa92f; /* deep gold — rewards Gold-tier apex accent */
+  --rating-star: #f59e0b; /* review/rating star fill (amber-for-stars policy) — icon fills only, not text */
   --hero-star: var(
     --hero-gradient-start
   ); /* Mandalay Morning Star deep red — tracks theme (#a41034 / #c41844) */

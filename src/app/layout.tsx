@@ -58,7 +58,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#8B1A1A",
+  // Media-paired: brand crimson (--hero-star) chrome in light, dark
+  // surface-primary in dark — the legacy #8B1A1A matched no current token.
+  // Follows OS prefers-color-scheme; an in-app .dark override won't flip
+  // browser chrome (standard behavior).
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#a41034" },
+    { media: "(prefers-color-scheme: dark)", color: "#1e1713" },
+  ],
   viewportFit: "cover",
 };
 

@@ -194,7 +194,7 @@ export interface HeroStatBandProps {
 }
 
 const GOLD_STAR = (
-  <Star className="ml-0.5 h-5 w-5 self-center fill-amber-500 text-amber-500 md:h-6 md:w-6" />
+  <Star className="ml-0.5 h-5 w-5 self-center fill-rating-star text-rating-star md:h-6 md:w-6" />
 );
 
 export function HeroStatBand({
