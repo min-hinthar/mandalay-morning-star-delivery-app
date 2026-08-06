@@ -144,7 +144,7 @@ function DriverCard({
               <span className="text-xs text-text-muted capitalize">{driver.vehicleType}</span>
             )}
             <span className="text-text-muted text-xs">·</span>
-            <Star className="h-3 w-3 text-amber-500 fill-amber-500" />
+            <Star className="h-3 w-3 text-rating-star fill-rating-star" />
             <span className="text-xs text-text-muted">
               {driver.ratingAvg !== null ? driver.ratingAvg.toFixed(1) : "—"}
             </span>
