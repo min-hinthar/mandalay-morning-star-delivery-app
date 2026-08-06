@@ -50,7 +50,12 @@ WHERE o.status = 'pending'
       AND newer.status = 'pending'
       AND newer.discount_cents > 0
       AND newer.promo_code IS NULL
-      AND newer.created_at > o.created_at
+      -- Tuple tie-break: created_at is transaction-start time, so genuinely
+      -- parallel inserts (the exact race this closes) can land equal
+      -- timestamps — a bare created_at comparison would keep BOTH rows and
+      -- fail the CREATE UNIQUE INDEX below. id is the PK, so the tuple
+      -- comparison is strictly total: exactly one row per user survives.
+      AND (newer.created_at, newer.id) > (o.created_at, o.id)
   );
 
 -- Plain (non-CONCURRENT) creation: the Supabase CLI wraps migrations in a

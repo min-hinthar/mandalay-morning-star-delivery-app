@@ -27,6 +27,11 @@ export function errorResponse(
  * idx_orders_unique_open_auto_discount) makes the LOSING tab of a parallel
  * double-submit fail with 23505 — expected contention, not an error: warn +
  * friendly 409, no Sentry. Everything else is a real 500.
+ *
+ * ASSUMPTION (recheck if a unique constraint is ever added to orders): the
+ * D6 index is the only 23505 this INSERT can raise — the PK is a fresh uuid
+ * and share_token is NULL at insert (NULLS DISTINCT) — so mapping ALL 23505s
+ * to the friendly 409 cannot swallow an unrelated violation today.
  */
 export function orderCreateErrorResponse(
   rpcError: { code?: string } | null,

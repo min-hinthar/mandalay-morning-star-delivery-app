@@ -39,7 +39,10 @@ describe("D6 DB belt migration", () => {
 
   it("pre-cleans existing race artifacts with the SAME predicate, keeping the newest", () => {
     expect(sql).toMatch(/SET status = 'cancelled'/);
-    expect(sql).toMatch(/newer\.created_at > o\.created_at/);
+    // Tuple tie-break (created_at, id): parallel inserts can share a
+    // transaction-start timestamp; a bare created_at comparison keeps both
+    // rows on a tie and the CREATE UNIQUE INDEX rolls the migration back.
+    expect(sql).toMatch(/\(newer\.created_at, newer\.id\) > \(o\.created_at, o\.id\)/);
     // the pre-clean must be scoped exactly like the index or it could cancel
     // legitimate promo-coded pendings
     const preClean = sql.slice(sql.indexOf("UPDATE public.orders"), sql.indexOf("CREATE UNIQUE"));
