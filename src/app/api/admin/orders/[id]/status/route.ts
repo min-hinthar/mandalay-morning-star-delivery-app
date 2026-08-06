@@ -170,6 +170,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       .select("id");
 
     if (updateError) {
+      // Reopening a cancelled/confirmed auto-discounted order while the
+      // customer holds another open one violates the D6 unique index
+      // (23505). Blocking is correct — it would stack first-order
+      // discounts — so surface it as a clear 409, not a generic 500.
+      if (updateError.code === "23505") {
+        return apiError(
+          "CONFLICT",
+          "This customer already has an open discounted checkout. Resolve that order first.",
+          409
+        );
+      }
       logger.exception(updateError, { api: "admin/orders/[id]/status" });
       return apiError("INTERNAL_ERROR", "Failed to update order status", 500);
     }

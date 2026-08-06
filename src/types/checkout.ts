@@ -86,4 +86,6 @@ export type CheckoutErrorCode =
   | "VALIDATION_ERROR"
   | "STRIPE_ERROR"
   | "PROFILE_ERROR"
+  // losing tab of a concurrent discounted checkout (D6 unique-index belt)
+  | "CONFLICT"
   | "INTERNAL_ERROR";

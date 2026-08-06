@@ -52,9 +52,13 @@ export interface FirstOrderDiscount {
  * parallel submissions can therefore both read zero pendings and both be
  * granted. It still takes deliberate double-submission, and the per-user
  * checkoutLimiter on the session route bounds how many concurrent attempts
- * one account can even start. The durable close is a DB-level guard
- * (partial unique index or advisory lock on open discounted pendings per
- * user) — deferred at current scale.
+ * one account can even start. The durable close is the DB-level belt:
+ * idx_orders_unique_open_auto_discount (partial unique index on open
+ * auto-discounted pendings per user, 20260806000000) makes the losing
+ * tab's INSERT fail with 23505, which the checkout route maps to a
+ * friendly 409. Residual: a promo-coded discounted pending plus an auto
+ * discount can still coexist at the DB level — this app-level gate (which
+ * counts ANY discounted pending) is the only cover for that mix.
  */
 export async function resolveFirstOrderDiscount(
   supabase: SupabaseClient<Database>,
