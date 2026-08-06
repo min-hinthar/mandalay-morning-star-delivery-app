@@ -205,6 +205,10 @@ export function DeliveryMetricsDashboard() {
           color="jade"
           loading={loading}
         />
+        {/* Deliberately trend-less: successRateTrend is a RELATIVE change of a
+            percentage (90%→95% = "+5.6%"), which reads as percentage points on
+            a percent card. The summary still computes/serializes it honestly
+            for any future consumer. */}
         <MetricCard
           title="Success Rate"
           value={summary?.deliverySuccessRate ?? 0}
