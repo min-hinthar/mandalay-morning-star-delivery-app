@@ -43,10 +43,11 @@ describe("service_role refresh migration", () => {
   });
 
   it("widens the body gate to admit service_role alongside admins", () => {
-    // auth.role() is NULL-safe via COALESCE (NULL for direct DB connections),
-    // and is_admin() must remain — the admin dashboards still call this RPC.
+    // Pinned to the repo's documented guard convention (rpc_rls_lockdown):
+    // auth.jwt() ->> 'role', COALESCEd for direct DB connections. is_admin()
+    // must remain — the admin dashboards still call this RPC.
     expect(migrationSql).toContain(
-      "IF NOT (public.is_admin() OR COALESCE(auth.role(), '') = 'service_role') THEN"
+      "IF NOT (public.is_admin() OR COALESCE(auth.jwt() ->> 'role', '') = 'service_role') THEN"
     );
   });
 

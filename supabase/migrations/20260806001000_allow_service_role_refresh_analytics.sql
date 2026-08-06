@@ -7,8 +7,11 @@
 -- (granted in baseline, never revoked). Widen only the body gate to accept
 -- service_role; admin dashboard calls keep working unchanged.
 --
--- auth.role() is schema-qualified because search_path is pinned to
--- 'public', and COALESCEd because it is NULL for direct DB connections.
+-- Service-key detection uses the repo's documented guard convention
+-- (rpc_rls_lockdown: COALESCE(auth.jwt() ->> 'role', '') vs 'service_role')
+-- — the same expression proven in production across the RPC guards. The
+-- auth.* call is schema-qualified so it resolves under the pinned
+-- search_path = 'public'; COALESCE covers direct DB connections (no JWT).
 --
 -- Function-body-only CREATE OR REPLACE: signature unchanged → generated
 -- types unchanged → db-drift-neutral (same shape as the 20260612160000 and
@@ -20,7 +23,7 @@ CREATE OR REPLACE FUNCTION public.refresh_analytics_views()
  SET search_path TO 'public'
 AS $function$
 BEGIN
-  IF NOT (public.is_admin() OR COALESCE(auth.role(), '') = 'service_role') THEN
+  IF NOT (public.is_admin() OR COALESCE(auth.jwt() ->> 'role', '') = 'service_role') THEN
     RAISE EXCEPTION 'Access denied: admin role required';
   END IF;
   REFRESH MATERIALIZED VIEW CONCURRENTLY driver_stats_mv;
