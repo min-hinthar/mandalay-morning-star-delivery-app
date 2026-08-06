@@ -22,6 +22,12 @@ import { checkRateLimit, webhookLimiter, getClientIp } from "@/lib/rate-limit";
 const CRON_SECRET = process.env.CRON_SECRET;
 const FLOW_ID = "refresh-analytics";
 
+// REFRESH ... CONCURRENTLY rebuilds each MV in full; at the platform's ~10s
+// default a slow refresh would report a false failure while Postgres finishes
+// anyway. Same allowance as the other DB-heavy crons (payment-reconciliation,
+// route-day-invite).
+export const maxDuration = 60;
+
 function isAuthorized(request: Request): boolean {
   if (!CRON_SECRET) {
     logger.error("CRON_SECRET is not configured — rejecting cron request", {
