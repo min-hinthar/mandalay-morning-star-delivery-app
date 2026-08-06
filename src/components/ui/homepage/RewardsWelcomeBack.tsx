@@ -10,7 +10,7 @@
 
 import Link from "next/link";
 import { m, AnimatePresence } from "framer-motion";
-import { Star, ArrowRight, Sparkles } from "lucide-react";
+import { Sparkle, ArrowRight, Sparkles } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
 import { useAuth } from "@/lib/hooks/useAuth";
@@ -56,7 +56,7 @@ export function RewardsWelcomeBack() {
               )}
               aria-hidden="true"
             >
-              <Star className={cn("h-5 w-5 fill-current", accent.text)} />
+              <Sparkle className={cn("h-5 w-5 fill-current", accent.text)} />
             </span>
 
             <div className="min-w-0 flex-1" aria-hidden="true">

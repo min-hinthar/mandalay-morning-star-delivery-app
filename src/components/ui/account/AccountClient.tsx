@@ -11,7 +11,7 @@
 import { useCallback, useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { m } from "framer-motion";
-import { User, Package, Settings, MessageSquare, Star } from "lucide-react";
+import { User, Package, Settings, MessageSquare, Sparkle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils/cn";
 import { useCartStore } from "@/lib/stores/cart-store";
@@ -35,7 +35,7 @@ const VALID_TABS: AccountTab[] = ["profile", "orders", "rewards", "feedback", "s
 const TABS = [
   { id: "profile" as const, label: "Profile", icon: <User className="h-4 w-4" /> },
   { id: "orders" as const, label: "Orders", icon: <Package className="h-4 w-4" /> },
-  { id: "rewards" as const, label: "Rewards", icon: <Star className="h-4 w-4" /> },
+  { id: "rewards" as const, label: "Rewards", icon: <Sparkle className="h-4 w-4" /> },
   { id: "feedback" as const, label: "Feedback", icon: <MessageSquare className="h-4 w-4" /> },
   { id: "settings" as const, label: "Settings", icon: <Settings className="h-4 w-4" /> },
 ];

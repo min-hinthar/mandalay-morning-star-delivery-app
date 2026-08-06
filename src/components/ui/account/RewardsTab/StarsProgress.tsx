@@ -1,6 +1,6 @@
 "use client";
 
-import { Star } from "lucide-react";
+import { Sparkle } from "lucide-react";
 import { m } from "framer-motion";
 
 import { cn } from "@/lib/utils/cn";
@@ -91,7 +91,7 @@ export function StarsProgress({
             className="absolute inset-0 flex flex-col items-center justify-center"
             aria-hidden="true"
           >
-            <Star className={cn("h-5 w-5 fill-current", accent.text)} />
+            <Sparkle className={cn("h-5 w-5 fill-current", accent.text)} />
             <span className="mt-0.5 text-3xl font-bold leading-none text-text-primary">
               {stars}
             </span>
@@ -144,7 +144,7 @@ export function StarsProgress({
             aria-hidden="true"
           >
             {Array.from({ length: milestoneStep }).map((_, i) => (
-              <Star
+              <Sparkle
                 key={i}
                 className={cn(
                   "h-4 w-4",

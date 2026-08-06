@@ -8,7 +8,7 @@ import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useBodyScrollLock } from "@/lib/hooks/useBodyScrollLock";
 import { useSwipeToClose } from "@/lib/swipe-gestures";
 import { zClass } from "@/lib/design-system/tokens/z-index";
-import { Home, UtensilsCrossed, Package, User, Star, X } from "lucide-react";
+import { Home, UtensilsCrossed, Package, User, Sparkle, X } from "lucide-react";
 
 import { DrawerNavLink } from "./DrawerNavLink";
 import { DrawerUserSection } from "./DrawerUserSection";
@@ -52,7 +52,7 @@ const navGroups: Array<{
     kickerMy: "သင့်အကောင့်",
     items: [
       { href: "/account", label: "Account", icon: <User className="w-5 h-5" /> },
-      { href: "/account?tab=rewards", label: "Rewards", icon: <Star className="w-5 h-5" /> },
+      { href: "/account?tab=rewards", label: "Rewards", icon: <Sparkle className="w-5 h-5" /> },
     ],
   },
 ];

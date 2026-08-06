@@ -7,11 +7,11 @@
  * expanded height short). Numbers from LOYALTY_TIERS / TIER_PERKS — never faked.
  */
 
-import { Star, Gift, Sparkles, Crown, Clock } from "lucide-react";
+import { Sparkle, Gift, Sparkles, Crown, Clock } from "lucide-react";
 import { TIER_PERKS, type LoyaltyTier } from "@/lib/loyalty";
 import { RollingNumber } from "./RollingDigits";
 
-const PERK_ICON = { star: Star, gift: Gift, sparkles: Sparkles, crown: Crown, clock: Clock };
+const PERK_ICON = { star: Sparkle, gift: Gift, sparkles: Sparkles, crown: Crown, clock: Clock };
 
 const MY_DIGITS = ["၀", "၁", "၂", "၃", "၄", "၅", "၆", "၇", "၈", "၉"];
 

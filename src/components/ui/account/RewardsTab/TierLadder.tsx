@@ -1,6 +1,6 @@
 "use client";
 
-import { Star, Gift, Sparkles, Crown, Clock, Check, Lock } from "lucide-react";
+import { Sparkle, Gift, Sparkles, Crown, Clock, Check, Lock } from "lucide-react";
 import { m } from "framer-motion";
 
 import { cn } from "@/lib/utils/cn";
@@ -10,7 +10,7 @@ import { LOYALTY_TIERS, TIER_PERKS, type LoyaltyTierId, type LoyaltyPerk } from 
 import { tierAccent } from "./tierStyle";
 
 const PERK_ICON = {
-  star: Star,
+  star: Sparkle,
   gift: Gift,
   sparkles: Sparkles,
   crown: Crown,

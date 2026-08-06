@@ -11,7 +11,7 @@
 
 import { useEffect, useState } from "react";
 import { m } from "framer-motion";
-import { Star, Gift } from "lucide-react";
+import { Sparkle, Gift } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -92,7 +92,7 @@ export function StarsBalance({
 
         {tierLabel && (
           <span className="flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 font-body text-xs font-semibold text-primary">
-            <Star className="h-3.5 w-3.5 fill-current" aria-hidden />
+            <Sparkle className="h-3.5 w-3.5 fill-current" aria-hidden />
             {tierLabel}
           </span>
         )}
@@ -109,7 +109,7 @@ export function StarsBalance({
               animate={shouldAnimate ? { scale: 1, opacity: 1 } : undefined}
               transition={{ ...getSpring(spring.ultraBouncy), delay: i * 0.06 }}
             >
-              <Star
+              <Sparkle
                 className={cn(
                   "h-5 w-5 transition-colors duration-fast",
                   isFilled ? "fill-primary text-primary" : "text-text-muted/40"

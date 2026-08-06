@@ -22,7 +22,7 @@
 
 import { useRef, useState } from "react";
 import { AnimatePresence, m, useInView } from "framer-motion";
-import { ChevronDown, Star } from "lucide-react";
+import { ChevronDown, Sparkle } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { LOYALTY_TIERS, TIER_PERKS, type LoyaltyTierId } from "@/lib/loyalty";
@@ -153,8 +153,8 @@ export function HeroRewards({ className }: { className?: string }) {
       {/* One-line value prop */}
       <p className="relative mt-1.5 text-xs font-medium text-hero-ink-muted md:text-[0.8rem]">
         Earn a{" "}
-        <Star
-          className="mb-0.5 inline h-3.5 w-3.5 fill-amber-500 text-amber-500"
+        <Sparkle
+          className="mb-0.5 inline h-3.5 w-3.5 fill-hero-gold text-hero-gold"
           aria-hidden="true"
         />{" "}
         <span className="font-semibold text-hero-accent">Star</span> every order — a reward every{" "}
@@ -199,7 +199,7 @@ export function HeroRewards({ className }: { className?: string }) {
               <div className="absolute left-0 top-0 -translate-y-1/2">
                 {/* warm wake trailing the star (points back along travel) */}
                 <span className="absolute right-0 top-1/2 h-[3px] w-8 -translate-y-1/2 rounded-full bg-gradient-to-l from-amber-300/90 to-transparent" />
-                <Star className="absolute left-0 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 fill-amber-100 text-amber-100 drop-shadow-[0_0_6px_rgba(251,191,36,0.95)]" />
+                <Sparkle className="absolute left-0 top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 fill-amber-100 text-amber-100 drop-shadow-[0_0_6px_rgba(251,191,36,0.95)]" />
               </div>
             </m.div>
           )}

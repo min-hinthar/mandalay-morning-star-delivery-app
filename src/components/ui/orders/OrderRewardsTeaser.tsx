@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { m } from "framer-motion";
-import { Star, ArrowRight } from "lucide-react";
+import { Sparkle, ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils/cn";
 import { formatPrice } from "@/lib/utils/currency";
@@ -59,7 +59,7 @@ export function OrderRewardsTeaser() {
               accent.ring
             )}
           >
-            <Star className={cn("h-6 w-6 fill-current", accent.text)} />
+            <Sparkle className={cn("h-6 w-6 fill-current", accent.text)} />
           </span>
         </div>
 
