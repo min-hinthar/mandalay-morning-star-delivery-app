@@ -307,7 +307,7 @@ export function DriverPreviewPanel({
           </div>
           {rating !== undefined && (
             <div>
-              <span className="text-secondary font-bold">{rating.toFixed(1)}</span>{" "}
+              <span className="text-text-primary font-bold">{rating.toFixed(1)}</span>{" "}
               <span className="text-secondary">&#9733;</span>
             </div>
           )}

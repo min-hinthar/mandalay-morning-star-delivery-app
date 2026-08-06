@@ -39,13 +39,15 @@ interface HistorySummaryCardProps {
 
 function getOnTimeColor(pct: number): string {
   if (pct >= 90) return "text-green";
-  if (pct >= 75) return "text-secondary";
+  // status-warning, not text-secondary: brand yellow melds into its own
+  // faint-yellow pill on light surfaces (the text-secondary-as-text gotcha)
+  if (pct >= 75) return "text-status-warning";
   return "text-status-error";
 }
 
 function getOnTimeBg(pct: number): string {
   if (pct >= 90) return "bg-green/10";
-  if (pct >= 75) return "bg-secondary/10";
+  if (pct >= 75) return "bg-status-warning/10";
   return "bg-status-error/10";
 }
 

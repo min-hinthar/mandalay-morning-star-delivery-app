@@ -43,7 +43,7 @@ const DialogContent = React.forwardRef<
         "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
         "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
         // Mobile responsiveness
-        "max-h-[90vh] overflow-y-auto",
+        "max-h-[min(90vh,var(--sheet-max-h))] overflow-y-auto",
         "mx-4 rounded-lg sm:mx-0 sm:rounded-lg",
         className
       )}

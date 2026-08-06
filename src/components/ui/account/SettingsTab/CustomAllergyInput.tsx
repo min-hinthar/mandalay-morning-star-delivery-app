@@ -125,7 +125,7 @@ export function CustomAllergyInput({ customItems, onChange }: CustomAllergyInput
             placeholder="Type allergy, press Enter"
             maxLength={MAX_ITEM_LENGTH}
             className={cn(
-              "flex-1 px-3 py-1.5 text-sm rounded-pill",
+              "flex-1 px-3 py-1.5 text-base sm:text-sm rounded-pill",
               "border border-border bg-surface-primary",
               "placeholder:text-text-tertiary",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus:border-primary"

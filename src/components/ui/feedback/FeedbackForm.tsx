@@ -244,7 +244,7 @@ export function FeedbackForm({ onClose, prefillOrderId, prefillCategory }: Feedb
               {...register("contactEmail")}
               placeholder="you@example.com"
               className={cn(
-                "w-full rounded-input border px-3 py-2 text-sm",
+                "w-full rounded-input border px-3 py-2 text-base sm:text-sm",
                 "bg-surface-primary text-text-primary placeholder:text-text-muted",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus:border-primary",
                 errors.contactEmail ? "border-status-error" : "border-border-subtle"
@@ -270,7 +270,7 @@ export function FeedbackForm({ onClose, prefillOrderId, prefillCategory }: Feedb
             {...register("subject")}
             placeholder="Brief summary of your feedback"
             className={cn(
-              "w-full rounded-input border px-3 py-2 text-sm",
+              "w-full rounded-input border px-3 py-2 text-base sm:text-sm",
               "bg-surface-primary text-text-primary placeholder:text-text-muted",
               "focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus:border-primary",
               errors.subject ? "border-status-error" : "border-border-subtle"

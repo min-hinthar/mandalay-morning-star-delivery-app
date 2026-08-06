@@ -126,7 +126,7 @@ export function ReferAFriendCard({ data: dataProp }: ReferAFriendCardProps = {})
               value={data.shareUrl}
               onFocus={(e) => e.currentTarget.select()}
               aria-label="Your referral link"
-              className="min-w-0 flex-1 rounded-xl border border-border bg-surface-primary px-3 py-2 text-sm text-text-secondary"
+              className="min-w-0 flex-1 rounded-xl border border-border bg-surface-primary px-3 py-2 text-base sm:text-sm text-text-secondary"
             />
             <button
               type="button"

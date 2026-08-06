@@ -395,7 +395,7 @@ export function SettingsNudgeBanner() {
                       onBlur={handleDeliveryBlur}
                       placeholder="e.g. Leave at door"
                       className={cn(
-                        "w-full px-3 py-2 text-sm rounded-lg",
+                        "w-full px-3 py-2 text-base sm:text-sm rounded-lg",
                         "border border-amber-200 bg-surface-primary",
                         "placeholder:text-amber-400",
                         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-status-warning focus-visible:border-status-warning"

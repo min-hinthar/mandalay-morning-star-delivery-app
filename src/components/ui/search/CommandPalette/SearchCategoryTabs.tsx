@@ -1,6 +1,5 @@
 "use client";
 
-import { useRef, useState, useEffect, useCallback, forwardRef } from "react";
 import { cn } from "@/lib/utils/cn";
 
 export interface SearchCategoryTabsProps {
@@ -16,64 +15,24 @@ export interface SearchCategoryTabsProps {
  * Horizontal scrolling category tab bar for search result filtering.
  *
  * - "All" tab always first (activeTab === null)
- * - Active tab: solid primary background with smooth CSS transition
+ * - Active tab: solid primary pill — background and label live on the SAME
+ *   button (self-contained active state). The previous separately-measured
+ *   indicator div left the near-white label on the bare palette surface on
+ *   first paint / measurement miss: light-on-light invisible in light mode
+ *   (the documented menu-tab gotcha, mirrored to light theme).
  * - Inactive tabs: subtle secondary background with hover state
  * - Horizontal scroll with hidden scrollbar for many categories
  */
 export function SearchCategoryTabs({ tabs, activeTab, onTabChange }: SearchCategoryTabsProps) {
-  const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
-  const [indicatorStyle, setIndicatorStyle] = useState<{
-    left: number;
-    width: number;
-  } | null>(null);
-
-  const updateIndicatorPosition = useCallback(() => {
-    const key = activeTab ?? "__all__";
-    const activeButton = tabRefs.current.get(key);
-    if (!activeButton) {
-      setIndicatorStyle(null);
-      return;
-    }
-    setIndicatorStyle({
-      left: activeButton.offsetLeft,
-      width: activeButton.offsetWidth,
-    });
-  }, [activeTab]);
-
-  useEffect(() => {
-    updateIndicatorPosition();
-  }, [updateIndicatorPosition]);
-
   if (tabs.length === 0) return null;
 
   const totalCount = tabs.reduce((sum, tab) => sum + tab.count, 0);
 
   return (
     <div className="overflow-x-auto scrollbar-hide border-b border-border/20">
-      <div className="relative flex gap-1 px-3 py-2">
-        {/* CSS-transitioned pill indicator */}
-        {indicatorStyle && (
-          <div
-            className="absolute rounded-full bg-primary shadow-sm transition-all duration-200 ease-out"
-            style={{
-              left: indicatorStyle.left,
-              width: indicatorStyle.width,
-              top: 8,
-              height: "calc(100% - 16px)",
-            }}
-            aria-hidden="true"
-          />
-        )}
-
+      <div className="flex gap-1 px-3 py-2">
         {/* All tab */}
         <TabPill
-          ref={(el) => {
-            if (el) {
-              tabRefs.current.set("__all__", el);
-            } else {
-              tabRefs.current.delete("__all__");
-            }
-          }}
           label={`All (${totalCount})`}
           isActive={activeTab === null}
           onClick={() => onTabChange(null)}
@@ -83,13 +42,6 @@ export function SearchCategoryTabs({ tabs, activeTab, onTabChange }: SearchCateg
         {tabs.map((tab) => (
           <TabPill
             key={tab.slug}
-            ref={(el) => {
-              if (el) {
-                tabRefs.current.set(tab.slug, el);
-              } else {
-                tabRefs.current.delete(tab.slug);
-              }
-            }}
             label={`${tab.name} (${tab.count})`}
             isActive={activeTab === tab.slug}
             onClick={() => onTabChange(tab.slug)}
@@ -110,30 +62,25 @@ interface TabPillProps {
   onClick: () => void;
 }
 
-const TabPill = forwardRef<HTMLButtonElement, TabPillProps>(function TabPill(
-  { label, isActive, onClick },
-  ref
-) {
+function TabPill({ label, isActive, onClick }: TabPillProps) {
   return (
     <button
-      ref={ref}
       type="button"
       onClick={onClick}
       className={cn(
-        "relative flex-shrink-0",
+        "flex-shrink-0",
         "px-3 py-1.5 rounded-full",
         "text-xs font-medium",
-        "transition-colors duration-100",
+        "transition-colors duration-200",
         "whitespace-nowrap",
         isActive
-          ? "text-primary-foreground"
+          ? "bg-primary text-primary-foreground shadow-sm"
           : "bg-surface-secondary/60 text-text-secondary hover:bg-surface-hover hover:text-text-primary"
       )}
     >
-      {/* Label text (above indicator) */}
-      <span className="relative z-10">{label}</span>
+      {label}
     </button>
   );
-});
+}
 
 export default SearchCategoryTabs;
