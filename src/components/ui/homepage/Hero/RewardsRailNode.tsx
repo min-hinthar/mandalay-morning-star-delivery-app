@@ -105,7 +105,7 @@ export function RewardsRailNode({
         {isGold && (
           <HeroSunburst
             className={cn(
-              "pointer-events-none absolute h-12 w-12 text-amber-500 transition-opacity duration-300",
+              "pointer-events-none absolute h-12 w-12 text-hero-gold transition-opacity duration-300",
               isActive ? "opacity-80" : "opacity-50"
             )}
             rays={12}

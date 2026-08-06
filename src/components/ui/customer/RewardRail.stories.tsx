@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/nextjs-vite";
-import { Truck, Star, Crown } from "lucide-react";
+import { Truck, Sparkle, Crown } from "lucide-react";
 import { RewardRail } from "./RewardRail";
 
 const meta: Meta<typeof RewardRail> = {
@@ -29,7 +29,7 @@ export const DualRail: Story = {
       {
         id: "reward",
         label: "Next Star reward",
-        icon: Star,
+        icon: Sparkle,
         value: 7000,
         target: 15000,
         formatRemaining: money,

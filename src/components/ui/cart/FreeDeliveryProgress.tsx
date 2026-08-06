@@ -15,7 +15,7 @@
 
 import { useRef } from "react";
 import { m, useInView } from "framer-motion";
-import { Star, Sparkles, Truck } from "lucide-react";
+import { Sparkle, Sparkles, Truck } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -118,7 +118,7 @@ export function FreeDeliveryProgress({
               transition={{ duration: 0.7, repeat: 4, repeatDelay: 2.6 }}
               className="shrink-0"
             >
-              <Star className="h-4 w-4 fill-amber-400 text-amber-500" aria-hidden="true" />
+              <Sparkle className="h-4 w-4 fill-hero-gold text-hero-gold" aria-hidden="true" />
             </m.span>
             <span className="text-sm font-semibold text-hero-ink">
               <span className="text-hero-accent">${(amountToFreeDelivery / 100).toFixed(2)}</span>{" "}
@@ -172,7 +172,7 @@ export function FreeDeliveryProgress({
               }
               transition={{ duration: 1.4, repeat: Infinity }}
             >
-              <Star
+              <Sparkle
                 className={cn(
                   "h-3.5 w-3.5",
                   nearGoal ? "fill-hero-sage text-hero-sage" : "text-hero-sage/60"
@@ -232,7 +232,7 @@ export function FreeDeliveryProgress({
               animate={shouldAnimate ? { rotate: 0, scale: 1 } : undefined}
               transition={getSpring(spring.ultraBouncy)}
             >
-              <Star className="h-5 w-5 fill-hero-sage text-hero-sage" aria-hidden="true" />
+              <Sparkle className="h-5 w-5 fill-hero-sage text-hero-sage" aria-hidden="true" />
               {/* One-shot sparkle burst on unlock */}
               {shouldAnimate &&
                 BURST.map((deg, i) => (

@@ -13,7 +13,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react";
 import Image from "next/image";
-import { User, LogOut, Package, UserCircle, Star } from "lucide-react";
+import { User, LogOut, Package, UserCircle, Sparkle } from "lucide-react";
 import { m, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -327,7 +327,7 @@ export function AccountIndicator({ className }: AccountIndicatorProps) {
                 role="menuitem"
               >
                 <span className="flex items-center gap-2">
-                  <Star
+                  <Sparkle
                     className={cn(
                       "h-4 w-4",
                       rewards ? tierAccent(rewards.tier.id).text : "text-text-muted"

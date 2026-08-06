@@ -12,7 +12,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { m } from "framer-motion";
-import { Star } from "lucide-react";
+import { Sparkle } from "lucide-react";
 import { format, parseISO } from "date-fns";
 import { cn } from "@/lib/utils/cn";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -134,8 +134,8 @@ export function AccountHero() {
           {/* Stars + progress */}
           <div className="flex-1 sm:border-l sm:border-hero-line/70 sm:pl-5">
             <div className="flex items-baseline gap-1.5">
-              <Star
-                className="h-5 w-5 self-center fill-amber-400 text-amber-500"
+              <Sparkle
+                className="h-5 w-5 self-center fill-hero-gold text-hero-gold"
                 aria-hidden="true"
               />
               <span

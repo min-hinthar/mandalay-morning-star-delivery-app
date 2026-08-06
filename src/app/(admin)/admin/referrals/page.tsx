@@ -7,7 +7,7 @@
  */
 
 import { redirect } from "next/navigation";
-import { Gift, Users, DollarSign, Clock, Star, BadgeCheck } from "lucide-react";
+import { Gift, Users, DollarSign, Clock, Sparkle, BadgeCheck } from "lucide-react";
 
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -154,7 +154,7 @@ export default async function ReferralsPage() {
     {
       label: "Loyalty rewards",
       value: String(loyaltyCount),
-      icon: Star,
+      icon: Sparkle,
       tint: "text-accent-orange",
     },
     {
