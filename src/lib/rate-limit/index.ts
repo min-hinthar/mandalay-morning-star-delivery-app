@@ -27,6 +27,7 @@ export {
   feedbackAnonLimiter,
   getRedisClient,
 } from "./client";
+export type { AppRateLimiter } from "./client";
 
 export { RATE_LIMITS } from "./config";
 export type { RateLimitTier, RateLimitConfig } from "./config";

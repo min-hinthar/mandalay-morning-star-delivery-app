@@ -8,15 +8,28 @@ vi.mock("@/lib/utils/logger", () => ({
 
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, checkServerActionRateLimit } from "@/lib/rate-limit/check";
+import type { AppRateLimiter } from "@/lib/rate-limit/client";
+import type { RateLimitTier } from "@/lib/rate-limit/config";
+import { parseDurationMs } from "@/lib/rate-limit/config";
 
 // ---- Helpers ----
 
-function makeMockLimiter() {
+function makeMockLimiter(tier: RateLimitTier = "api-write", max = 10, windowMs = 60_000) {
   const mockLimit = vi.fn();
   return {
-    limiter: { limit: mockLimit } as unknown as Ratelimit,
+    limiter: {
+      redis: { limit: mockLimit } as unknown as Ratelimit,
+      tier,
+      max,
+      windowMs,
+    } satisfies AppRateLimiter,
     mockLimit,
   };
+}
+
+/** A tier-tagged limiter with no Redis — the per-tier fallback path. */
+function fallbackLimiter(tier: RateLimitTier, max: number, windowMs: number): AppRateLimiter {
+  return { redis: null, tier, max, windowMs };
 }
 
 function successResponse(overrides?: Partial<{ limit: number; remaining: number; reset: number }>) {
@@ -147,6 +160,130 @@ describe("checkRateLimit", () => {
       "Rate limit exceeded",
       expect.objectContaining({ flowId: "rate-limit" })
     );
+  });
+});
+
+// ---- Per-tier fallback (tier-tagged limiter without Redis) ----
+
+describe("per-tier in-memory fallback", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("strict tier keeps its own max: checkout (3/m) blocks on the 4th request", async () => {
+    const opts = {
+      ...baseOpts,
+      limiter: fallbackLimiter("checkout", 3, 60_000),
+      identifier: "tier-checkout-user",
+    };
+
+    for (let i = 0; i < 3; i++) {
+      const r = await checkRateLimit(opts);
+      expect(r.limited).toBe(false);
+    }
+    const blocked = await checkRateLimit(opts);
+    expect(blocked.limited).toBe(true);
+  });
+
+  it("strict tier keeps its own WINDOW: feedback-anon (3/10m) Retry-After reflects the 10-minute window", async () => {
+    const opts = {
+      ...baseOpts,
+      limiter: fallbackLimiter("feedback-anon", 3, 600_000),
+      identifier: "tier-feedback-user",
+    };
+
+    for (let i = 0; i < 3; i++) {
+      await checkServerActionRateLimit(opts);
+    }
+    const blocked = await checkServerActionRateLimit(opts);
+    expect(blocked.limited).toBe(true);
+    expect(blocked.retryAfterSeconds).toBeGreaterThan(500);
+    expect(blocked.retryAfterSeconds).toBeLessThanOrEqual(600);
+  });
+
+  it("loose tier is clamped at the ceiling: admin (120/m) still blocks on the 16th request", async () => {
+    const opts = {
+      ...baseOpts,
+      limiter: fallbackLimiter("admin", 120, 60_000),
+      identifier: "tier-admin-user",
+    };
+
+    for (let i = 0; i < 15; i++) {
+      const r = await checkRateLimit(opts);
+      expect(r.limited).toBe(false);
+    }
+    const blocked = await checkRateLimit(opts);
+    expect(blocked.limited).toBe(true);
+  });
+
+  it("fallback buckets are keyed by TIER, not route — two routes on one tier share a bucket", async () => {
+    const limiter = fallbackLimiter("checkout", 3, 60_000);
+    const identifier = "tier-shared-bucket-user";
+
+    for (let i = 0; i < 3; i++) {
+      await checkRateLimit({ ...baseOpts, limiter, identifier, route: "route-a" });
+    }
+    const blocked = await checkRateLimit({ ...baseOpts, limiter, identifier, route: "route-b" });
+    expect(blocked.limited).toBe(true);
+  });
+
+  it("Redis-throw fallback uses the tier params too", async () => {
+    const { limiter, mockLimit } = makeMockLimiter("checkout", 3, 60_000);
+    mockLimit.mockRejectedValue(new Error("Redis down"));
+    const opts = { ...baseOpts, limiter, identifier: "tier-throw-user" };
+
+    for (let i = 0; i < 3; i++) {
+      const r = await checkRateLimit(opts);
+      expect(r.limited).toBe(false);
+    }
+    const blocked = await checkRateLimit(opts);
+    expect(blocked.limited).toBe(true);
+  });
+
+  it("per-tier window expiry: feedback-anon frees after 10 minutes, not 1", async () => {
+    vi.useFakeTimers();
+    try {
+      const opts = {
+        ...baseOpts,
+        limiter: fallbackLimiter("feedback-anon", 3, 600_000),
+        identifier: "tier-window-user",
+      };
+
+      for (let i = 0; i < 4; i++) {
+        await checkRateLimit(opts);
+      }
+      expect((await checkRateLimit(opts)).limited).toBe(true);
+
+      // one minute later: still blocked (10m window, unlike the generic 1m)
+      vi.advanceTimersByTime(61_000);
+      expect((await checkRateLimit(opts)).limited).toBe(true);
+
+      // past the 10-minute window: allowed again
+      vi.advanceTimersByTime(600_000);
+      expect((await checkRateLimit(opts)).limited).toBe(false);
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+});
+
+// ---- parseDurationMs ----
+
+describe("parseDurationMs", () => {
+  it("parses the window shapes the tier table uses", () => {
+    expect(parseDurationMs("1 m")).toBe(60_000);
+    expect(parseDurationMs("10 m")).toBe(600_000);
+    expect(parseDurationMs("1 h")).toBe(3_600_000);
+    expect(parseDurationMs("30 s")).toBe(30_000);
+    expect(parseDurationMs("500 ms")).toBe(500);
+    expect(parseDurationMs("1 d")).toBe(86_400_000);
+    expect(parseDurationMs("2m")).toBe(120_000);
+  });
+
+  it("fails safe to one minute on junk", () => {
+    expect(parseDurationMs("")).toBe(60_000);
+    expect(parseDurationMs("soon")).toBe(60_000);
+    expect(parseDurationMs("m 1")).toBe(60_000);
   });
 });
 
@@ -312,7 +449,7 @@ describe("limiter exports", () => {
     vi.restoreAllMocks();
   });
 
-  it("all 13 exports are non-null when UPSTASH env vars are set", async () => {
+  it("all 14 exports are tier-tagged with live Redis when UPSTASH env vars are set", async () => {
     // Mock with class-based constructors so `new Redis(...)` and `new Ratelimit(...)` work
     vi.doMock("@upstash/redis", () => {
       return {
@@ -357,10 +494,16 @@ describe("limiter exports", () => {
       "refundLimiter",
       "adminBulkLimiter",
       "webhookLimiter",
+      "feedbackAnonLimiter",
     ] as const;
 
     for (const name of exportNames) {
-      expect(client[name], `${name} should not be null`).not.toBeNull();
+      const limiter = client[name];
+      expect(limiter, `${name} should be exported`).toBeTruthy();
+      expect(limiter.redis, `${name}.redis should not be null`).not.toBeNull();
+      expect(limiter.tier, `${name}.tier should be set`).toBeTruthy();
+      expect(limiter.max, `${name}.max should be positive`).toBeGreaterThan(0);
+      expect(limiter.windowMs, `${name}.windowMs should be positive`).toBeGreaterThan(0);
     }
   });
 });
