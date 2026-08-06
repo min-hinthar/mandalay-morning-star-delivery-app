@@ -442,7 +442,7 @@ export interface MetricCardProps {
   /** Optional muted line under the value (e.g. "excl. 2 cancelled"). */
   subtitle?: string;
   icon?: React.ReactNode;
-  /** "new" = no prior baseline: renders a muted "No prior data" row without a %. */
+  /** "new" = no prior baseline: renders a muted "No prior baseline" row without a %. */
   trend?: "up" | "down" | "stable" | "new";
   trendValue?: number;
   loading?: boolean;

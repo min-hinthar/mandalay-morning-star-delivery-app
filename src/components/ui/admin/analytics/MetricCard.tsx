@@ -177,7 +177,7 @@ export function MetricCard({
                 <>
                   <Minus className="h-4 w-4 text-text-muted" />
                   <span className="text-sm font-body font-medium text-text-muted">
-                    No prior data
+                    No prior baseline
                   </span>
                 </>
               )}

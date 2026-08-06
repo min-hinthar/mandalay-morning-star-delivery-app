@@ -151,7 +151,7 @@ export async function GET(request: NextRequest) {
 
     // A failed prior read degrades honestly: calculateMetricsSummary leaves
     // ordersTrend/revenueTrend/successRateTrend null when the previous period
-    // is empty, and the dashboard renders null as a muted "No prior data" —
+    // is empty, and the dashboard renders null as a muted "No prior baseline" —
     // never a fabricated flat 0%. Still reported (an admin losing trends to a
     // silent read failure should page), but failing the whole page over a
     // TREND would be a worse trade than showing current-period numbers
