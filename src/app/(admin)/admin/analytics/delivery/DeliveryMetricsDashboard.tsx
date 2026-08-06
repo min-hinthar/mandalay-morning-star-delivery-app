@@ -164,15 +164,19 @@ export function DeliveryMetricsDashboard() {
           }
           icon={<Package className="h-5 w-5" />}
           trend={
-            summary?.ordersTrend !== undefined
+            // != null (not truthiness): a genuine 0% is a valid "stable";
+            // null means no prior baseline → "new"
+            summary?.ordersTrend != null
               ? summary.ordersTrend > 0
                 ? "up"
                 : summary.ordersTrend < 0
                   ? "down"
                   : "stable"
-              : undefined
+              : summary
+                ? "new"
+                : undefined
           }
-          trendValue={summary?.ordersTrend}
+          trendValue={summary?.ordersTrend ?? undefined}
           color="saffron"
           loading={loading}
         />
@@ -187,18 +191,24 @@ export function DeliveryMetricsDashboard() {
           }
           icon={<DollarSign className="h-5 w-5" />}
           trend={
-            summary?.revenueTrend !== undefined
+            summary?.revenueTrend != null
               ? summary.revenueTrend > 0
                 ? "up"
                 : summary.revenueTrend < 0
                   ? "down"
                   : "stable"
-              : undefined
+              : summary
+                ? "new"
+                : undefined
           }
-          trendValue={summary?.revenueTrend}
+          trendValue={summary?.revenueTrend ?? undefined}
           color="jade"
           loading={loading}
         />
+        {/* Deliberately trend-less: successRateTrend is a RELATIVE change of a
+            percentage (90%→95% = "+5.6%"), which reads as percentage points on
+            a percent card. The summary still computes/serializes it honestly
+            for any future consumer. */}
         <MetricCard
           title="Success Rate"
           value={summary?.deliverySuccessRate ?? 0}

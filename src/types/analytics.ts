@@ -278,10 +278,12 @@ export interface DeliveryMetricsSummary {
   avgDailyRevenue: number;
   avgRouteDuration: number | null;
 
-  // Trends (percentage change from previous period)
-  ordersTrend: number;
-  revenueTrend: number;
-  successRateTrend: number;
+  // Trends (percentage change from previous period).
+  // null = no prior baseline for that metric (empty/failed prior read, or a
+  // prior period whose own total is 0) — distinct from a genuine 0% change.
+  ordersTrend: number | null;
+  revenueTrend: number | null;
+  successRateTrend: number | null;
 
   // Exceptions breakdown
   totalExceptions: number;
@@ -440,7 +442,8 @@ export interface MetricCardProps {
   /** Optional muted line under the value (e.g. "excl. 2 cancelled"). */
   subtitle?: string;
   icon?: React.ReactNode;
-  trend?: "up" | "down" | "stable";
+  /** "new" = no prior baseline: renders a muted "No prior baseline" row without a %. */
+  trend?: "up" | "down" | "stable" | "new";
   trendValue?: number;
   loading?: boolean;
   color?: "saffron" | "jade" | "curry" | "charcoal";

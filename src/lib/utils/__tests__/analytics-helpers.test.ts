@@ -557,6 +557,61 @@ describe("Analytics Helpers", () => {
       expect(summary.revenueTrend).toBe(25);
     });
 
+    it("returns null trends (unknown) when there is no previous period", () => {
+      const currentMetrics: DeliveryMetrics[] = [createMockDeliveryMetrics({ totalOrders: 100 })];
+
+      const withUndefined = calculateMetricsSummary(currentMetrics, "week");
+      const withEmpty = calculateMetricsSummary(currentMetrics, "week", []);
+
+      for (const summary of [withUndefined, withEmpty]) {
+        expect(summary.ordersTrend).toBeNull();
+        expect(summary.revenueTrend).toBeNull();
+        expect(summary.successRateTrend).toBeNull();
+      }
+    });
+
+    it("nulls each trend on its OWN zero denominator instead of fabricating +100%", () => {
+      // Prior rows EXIST but hold zero orders/revenue — calculateTrendPercentage's
+      // prev=0→100 rule must not leak through as a fabricated "+100%".
+      const currentMetrics: DeliveryMetrics[] = [
+        createMockDeliveryMetrics({
+          totalOrders: 50,
+          totalRevenueCents: 500000,
+          deliverySuccessRate: 90,
+        }),
+      ];
+      const previousMetrics: DeliveryMetrics[] = [
+        createMockDeliveryMetrics({
+          totalOrders: 0,
+          totalRevenueCents: 0,
+          deliverySuccessRate: 80,
+        }),
+      ];
+
+      const summary = calculateMetricsSummary(currentMetrics, "week", previousMetrics);
+
+      expect(summary.ordersTrend).toBeNull();
+      expect(summary.revenueTrend).toBeNull();
+      // Its own denominator is non-zero, so this one stays a real number
+      expect(summary.successRateTrend).toBe(12.5); // (90-80)/80 * 100
+    });
+
+    it("keeps a genuine 0% change as 0, not null", () => {
+      const same: DeliveryMetrics[] = [
+        createMockDeliveryMetrics({
+          totalOrders: 40,
+          totalRevenueCents: 400000,
+          deliverySuccessRate: 90,
+        }),
+      ];
+
+      const summary = calculateMetricsSummary(same, "week", same);
+
+      expect(summary.ordersTrend).toBe(0);
+      expect(summary.revenueTrend).toBe(0);
+      expect(summary.successRateTrend).toBe(0);
+    });
+
     it("excludes cancelled orders from revenue and averages over confirmed only", () => {
       const metrics: DeliveryMetrics[] = [
         createMockDeliveryMetrics({

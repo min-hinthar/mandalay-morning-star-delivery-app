@@ -149,13 +149,13 @@ export async function GET(request: NextRequest) {
       .lte("delivery_date", previousRange.endDate.toISOString().split("T")[0])
       .returns<DeliveryMetricsMvRow[]>();
 
-    // A dropped error here is not cosmetic. calculateMetricsSummary leaves
-    // ordersTrend/revenueTrend/successRateTrend at their initial 0 when the
-    // previous period is empty, and the dashboard renders that 0 as a real
-    // "0%" — so a failed read is presented to an admin as a genuinely flat
-    // period. Reported rather than swallowed; the primary query above already
-    // 500s on its own error, and failing the whole page over a TREND would be
-    // a worse trade than showing current-period numbers without one.
+    // A failed prior read degrades honestly: calculateMetricsSummary leaves
+    // ordersTrend/revenueTrend/successRateTrend null when the previous period
+    // is empty, and the dashboard renders null as a muted "No prior baseline" —
+    // never a fabricated flat 0%. Still reported (an admin losing trends to a
+    // silent read failure should page), but failing the whole page over a
+    // TREND would be a worse trade than showing current-period numbers
+    // without one.
     if (previousError) {
       logger.exception(previousError, {
         api: "admin/analytics/delivery",
