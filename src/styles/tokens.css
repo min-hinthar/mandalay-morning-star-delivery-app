@@ -128,7 +128,9 @@
        ink    #141413  (--hero-ink — Anthropic ink)
        paper  #faf9f5  (--hero-card-bg base — warm cream)
        accent #9a3412  (--hero-accent — deep clay, AA accent TEXT on cream)
-       star   #a41034  (--hero-star — Mandalay deep red, the BRAND MARK only)
+       star   #a41034  (Mandalay deep red, the BRAND MARK only — the CANON
+                        value; the in-app --hero-star token theme-TRACKS via
+                        --hero-gradient-start and reads #c41844 in dark)
        gold   #eaa92f  (--hero-gold — rewards/loyalty gold; icon FILLS only,
                         ~2:1 on cream so never text; AA gold text = #7a4f10)
      =========================================== */
