@@ -8,7 +8,7 @@
 "use client";
 
 import { m } from "framer-motion";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, CircleDashed } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { AnimatedCounter } from "./AnimatedCounter";
 import { spring } from "@/lib/motion-tokens";
@@ -175,7 +175,9 @@ export function MetricCard({
               )}
               {calculatedTrend === "new" && (
                 <>
-                  <Minus className="h-4 w-4 text-text-muted" />
+                  {/* Distinct glyph from "stable"'s Minus — dashed circle reads
+                      "not yet drawn", not "flat" */}
+                  <CircleDashed className="h-4 w-4 text-text-muted" />
                   <span className="text-sm font-body font-medium text-text-muted">
                     No prior baseline
                   </span>
