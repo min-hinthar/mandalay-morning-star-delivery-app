@@ -2,10 +2,12 @@
 
 /**
  * Generic Tabs Component
- * Horizontal tabs with animated pill indicator
+ * Horizontal tabs with a self-contained active pill
  *
  * Features:
- * - Horizontal layout with CSS transition pill indicator
+ * - Active tab carries its own pill background + label on the SAME button
+ *   (self-contained active state — a separately-measured indicator div can
+ *   race/miss and strand the label on the bare rail; the menu-tab gotcha)
  * - Support for icons in tabs
  * - Accessible: role="tablist", aria-selected
  * - Scrollable on mobile
@@ -48,13 +50,7 @@ export interface TabsProps {
 export const Tabs = memo(function Tabs({ tabs, activeTab, onTabChange, className }: TabsProps) {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const activeTabRef = useRef<HTMLButtonElement>(null);
-  const tabRefs = useRef<Map<string, HTMLButtonElement>>(new Map());
   const { shouldAnimate } = useAnimationPreference();
-
-  // CSS indicator position state
-  const [indicatorStyle, setIndicatorStyle] = useState<{ left: number; width: number } | null>(
-    null
-  );
 
   // Fade indicator states for overflow
   const [showLeftFade, setShowLeftFade] = useState(false);
@@ -92,35 +88,6 @@ export const Tabs = memo(function Tabs({ tabs, activeTab, onTabChange, className
       resizeObserver.disconnect();
     };
   }, [updateFadeIndicators]);
-
-  // Calculate indicator position from active tab button
-  const updateIndicatorPosition = useCallback(() => {
-    const activeButton = tabRefs.current.get(activeTab);
-    if (!activeButton) {
-      setIndicatorStyle(null);
-      return;
-    }
-    setIndicatorStyle({
-      left: activeButton.offsetLeft,
-      width: activeButton.offsetWidth,
-    });
-  }, [activeTab]);
-
-  // Update indicator when active tab changes
-  useEffect(() => {
-    updateIndicatorPosition();
-  }, [updateIndicatorPosition]);
-
-  // Recalculate indicator on resize
-  useEffect(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-
-    const resizeObserver = new ResizeObserver(updateIndicatorPosition);
-    resizeObserver.observe(container);
-
-    return () => resizeObserver.disconnect();
-  }, [updateIndicatorPosition]);
 
   // Scroll active tab into view when it changes
   useEffect(() => {
@@ -205,19 +172,6 @@ export const Tabs = memo(function Tabs({ tabs, activeTab, onTabChange, className
           "bg-surface-secondary rounded-card-sm"
         )}
       >
-        {/* CSS-transitioned pill indicator */}
-        {indicatorStyle && (
-          <div
-            className="absolute top-1 bg-surface-primary rounded-input shadow-sm transition-all duration-200 ease-out"
-            style={{
-              left: indicatorStyle.left,
-              width: indicatorStyle.width,
-              height: "calc(100% - 8px)",
-            }}
-            aria-hidden="true"
-          />
-        )}
-
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
 
@@ -226,11 +180,6 @@ export const Tabs = memo(function Tabs({ tabs, activeTab, onTabChange, className
               key={tab.id}
               ref={(el) => {
                 if (isActive) activeTabRef.current = el;
-                if (el) {
-                  tabRefs.current.set(tab.id, el);
-                } else {
-                  tabRefs.current.delete(tab.id);
-                }
               }}
               role="tab"
               aria-selected={isActive}
@@ -240,11 +189,13 @@ export const Tabs = memo(function Tabs({ tabs, activeTab, onTabChange, className
                 "relative flex-shrink-0 px-4 py-2.5 min-h-[44px]",
                 "rounded-input font-body text-sm font-medium",
                 "transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                isActive ? "text-text-primary" : "text-text-secondary hover:text-text-primary"
+                isActive
+                  ? "bg-surface-primary text-text-primary shadow-sm"
+                  : "text-text-secondary hover:text-text-primary"
               )}
             >
               {/* Tab content */}
-              <span className="relative z-10 flex items-center gap-2">
+              <span className="flex items-center gap-2">
                 {tab.icon}
                 {tab.label}
               </span>

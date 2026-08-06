@@ -179,7 +179,7 @@ function TimelineStop({ stop, index, isLast, timeBetween }: TimelineStopProps) {
                 stop.status === "enroute" && "bg-status-in-transit/10 text-status-in-transit",
                 stop.status === "arrived" && "bg-status-in-transit/10 text-status-in-transit",
                 stop.status === "pending" && "bg-surface-tertiary text-text-muted",
-                stop.status === "skipped" && "bg-secondary/10 text-secondary"
+                stop.status === "skipped" && "bg-status-warning/10 text-status-warning"
               )}
             >
               {config.icon}

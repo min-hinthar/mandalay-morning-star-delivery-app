@@ -131,21 +131,21 @@ export function SiteFooter({
                 href={`https://maps.google.com/?q=${encodeURIComponent(KITCHEN_LOCATION.address)}`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-start gap-3 hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
+                className="flex items-start gap-3 hover:text-primary transition-colors duration-fast hover:underline underline-offset-2"
               >
                 <MapPin className="w-5 h-5 mt-0.5 flex-shrink-0" />
                 <span className="text-sm font-body">{KITCHEN_LOCATION.address}</span>
               </a>
               <a
                 href="tel:+16266655317"
-                className="flex items-center gap-3 hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
+                className="flex items-center gap-3 hover:text-primary transition-colors duration-fast hover:underline underline-offset-2"
               >
                 <Phone className="w-5 h-5 flex-shrink-0" />
                 <span className="text-sm font-body">(626) 665-5317</span>
               </a>
               <a
                 href="mailto:admin@mandalaymorningstar.com"
-                className="flex items-center gap-3 hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
+                className="flex items-center gap-3 hover:text-primary transition-colors duration-fast hover:underline underline-offset-2"
               >
                 <Mail className="w-5 h-5 flex-shrink-0" />
                 <span className="text-sm font-body">admin@mandalaymorningstar.com</span>
@@ -194,7 +194,7 @@ export function SiteFooter({
                     href={listing.href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-2.5 text-sm font-body hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
+                    className="flex items-center gap-2.5 text-sm font-body hover:text-primary transition-colors duration-fast hover:underline underline-offset-2"
                   >
                     <listing.icon className="w-5 h-5 flex-shrink-0" />
                     {listing.name}
@@ -217,7 +217,7 @@ export function SiteFooter({
               <li>
                 <Link
                   href="/privacy"
-                  className="text-sm font-body hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
+                  className="text-sm font-body hover:text-primary transition-colors duration-fast hover:underline underline-offset-2"
                 >
                   Privacy Policy
                 </Link>
@@ -225,7 +225,7 @@ export function SiteFooter({
               <li>
                 <Link
                   href="/terms"
-                  className="text-sm font-body hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
+                  className="text-sm font-body hover:text-primary transition-colors duration-fast hover:underline underline-offset-2"
                 >
                   Terms of Service
                 </Link>
@@ -234,7 +234,7 @@ export function SiteFooter({
                 <button
                   type="button"
                   onClick={() => openFeedback()}
-                  className="text-sm font-body hover:text-secondary transition-colors duration-fast hover:underline underline-offset-2"
+                  className="text-sm font-body hover:text-primary transition-colors duration-fast hover:underline underline-offset-2"
                 >
                   Send Feedback
                 </button>

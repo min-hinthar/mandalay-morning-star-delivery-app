@@ -76,7 +76,7 @@ export function RouteCard({
           <div
             className={cn(
               "px-3 py-1 rounded-full text-xs font-semibold",
-              route.status === "planned" && "bg-secondary/10 text-secondary",
+              route.status === "planned" && "bg-status-warning/10 text-status-warning",
               route.status === "assigned" && "bg-blue-100 text-blue-800",
               route.status === "accepted" && "bg-green-100 text-green-800",
               route.status === "in_progress" && "bg-accent-teal/10 text-accent-teal",

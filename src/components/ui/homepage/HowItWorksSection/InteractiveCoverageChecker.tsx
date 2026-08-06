@@ -187,7 +187,7 @@ export function InteractiveCoverageChecker({ className }: InteractiveCoverageChe
             className={cn(
               "w-full pl-10 pr-10 py-3 rounded-xl",
               "bg-surface-primary",
-              "font-body text-sm text-text-primary",
+              "font-body text-base sm:text-sm text-text-primary",
               "placeholder:text-text-secondary placeholder:font-medium",
               "focus:outline-none",
               "transition-all duration-200",

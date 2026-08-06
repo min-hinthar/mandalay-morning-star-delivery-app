@@ -108,7 +108,7 @@ export function AddressAutocomplete({
           className={cn(
             "w-full pl-12 pr-10 py-3",
             "rounded-xl border border-border",
-            "bg-surface-primary text-text-primary",
+            "bg-surface-primary text-base text-text-primary",
             "placeholder:text-text-muted",
             "focus:outline-none focus:border-primary",
             "transition-colors duration-200",
