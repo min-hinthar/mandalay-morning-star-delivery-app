@@ -17,6 +17,8 @@ const ACTION_DOT_COLORS: Record<string, string> = {
   unassign_driver: "bg-text-muted",
   edit: "bg-accent-magenta",
   update_items: "bg-accent-magenta",
+  marked_contacted: "bg-status-info",
+  delivery_exception: "bg-status-warning",
 };
 
 interface StatusTimelineCardProps {

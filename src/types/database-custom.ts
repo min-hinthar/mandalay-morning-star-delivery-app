@@ -35,7 +35,9 @@ export type OrderAuditAction =
   | "update_items"
   | "assign_driver"
   | "unassign_driver"
-  | "priority_change";
+  | "priority_change"
+  | "marked_contacted"
+  | "delivery_exception";
 
 export type OrderAuditActorRole = "customer" | "admin" | "driver" | "system";
 
