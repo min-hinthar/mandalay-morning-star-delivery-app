@@ -34,16 +34,21 @@ import type { Database } from "@/types/database";
 export async function reclaimPendingCheckouts(
   stripe: Stripe,
   serviceClient: SupabaseClient<Database>,
-  userId: string
+  userId: string,
+  /** Reclaim exactly these orders (still scoped to the user + `pending`)
+   * instead of every discounted pending — e.g. the customer's own abandoned
+   * checkout holding a one-time coupon (free delivery has discount_cents 0). */
+  opts: { orderIds?: string[] } = {}
 ): Promise<boolean> {
   // Only DISCOUNTED pendings are stacking candidates; an undiscounted
   // in-progress checkout is harmless and must not be torn down.
-  const { data: pendings, error } = await serviceClient
+  let query = serviceClient
     .from("orders")
     .select("id, stripe_checkout_session_id, payment_method")
     .eq("user_id", userId)
-    .eq("status", "pending")
-    .gt("discount_cents", 0);
+    .eq("status", "pending");
+  query = opts.orderIds ? query.in("id", opts.orderIds) : query.gt("discount_cents", 0);
+  const { data: pendings, error } = await query;
 
   if (error) {
     logger.exception(error, { api: "reclaim-pending-checkouts", userId });

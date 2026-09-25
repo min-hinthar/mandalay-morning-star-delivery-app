@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import type { CheckoutState, CheckoutStep } from "@/types/checkout";
+import type { CheckoutState, CheckoutStep, PromoDetails } from "@/types/checkout";
 import type { Address } from "@/types/address";
 import type { DeliverySelection } from "@/types/delivery";
 import type { PaymentMethod } from "@/types/database";
@@ -17,7 +17,7 @@ interface CheckoutStore extends CheckoutState {
   setTipPercent: (percent: number | null) => void;
   setCustomTipCents: (cents: number) => void;
   setPromoCode: (code: string) => void;
-  applyPromo: (discountCents: number, label: string) => void;
+  applyPromo: (discountCents: number, label: string, details?: PromoDetails) => void;
   clearPromo: () => void;
   setDeliveryInstructions: (instructions: string) => void;
   setPaymentMethod: (method: PaymentMethod) => void;
@@ -38,6 +38,10 @@ const initialState: CheckoutState = {
   promoApplied: false,
   discountCents: 0,
   discountLabel: "",
+  promoKind: null,
+  promoPercentOff: null,
+  promoMaxDiscountCents: null,
+  promoMinSubtotalCents: null,
   deliveryInstructions: "",
   paymentMethod: "stripe",
   customerPhone: "",
@@ -89,11 +93,28 @@ export const useCheckoutStore = create<CheckoutStore>()(
 
       setPromoCode: (code) => set({ promoCode: code }),
 
-      applyPromo: (discountCents, label) =>
-        set({ promoApplied: true, discountCents, discountLabel: label }),
+      applyPromo: (discountCents, label, details) =>
+        set({
+          promoApplied: true,
+          discountCents,
+          discountLabel: label,
+          promoKind: details?.kind ?? null,
+          promoPercentOff: details?.percentOff ?? null,
+          promoMaxDiscountCents: details?.maxDiscountCents ?? null,
+          promoMinSubtotalCents: details?.minimumAmountCents ?? null,
+        }),
 
       clearPromo: () =>
-        set({ promoCode: "", promoApplied: false, discountCents: 0, discountLabel: "" }),
+        set({
+          promoCode: "",
+          promoApplied: false,
+          discountCents: 0,
+          discountLabel: "",
+          promoKind: null,
+          promoPercentOff: null,
+          promoMaxDiscountCents: null,
+          promoMinSubtotalCents: null,
+        }),
 
       setDeliveryInstructions: (instructions) => set({ deliveryInstructions: instructions }),
 
@@ -143,6 +164,10 @@ export const useCheckoutStore = create<CheckoutStore>()(
         promoApplied: state.promoApplied,
         discountCents: state.discountCents,
         discountLabel: state.discountLabel,
+        promoKind: state.promoKind,
+        promoPercentOff: state.promoPercentOff,
+        promoMaxDiscountCents: state.promoMaxDiscountCents,
+        promoMinSubtotalCents: state.promoMinSubtotalCents,
         deliveryInstructions: state.deliveryInstructions,
         paymentMethod: state.paymentMethod,
         customerPhone: state.customerPhone,

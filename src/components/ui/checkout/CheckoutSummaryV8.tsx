@@ -14,7 +14,7 @@
  */
 
 import { m } from "framer-motion";
-import { ShoppingBag, Truck, Sparkles, Tag, Receipt } from "lucide-react";
+import { ShoppingBag, Truck, Sparkles, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils/cn";
 import { spring, staggerItem, staggerContainer } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
@@ -26,7 +26,8 @@ import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
 import { useTilt } from "@/components/ui/homepage/Hero/interactions";
 import { GoldLeaf } from "@/components/ui/GoldLeaf";
 import { PriceTicker } from "@/components/ui/PriceTicker";
-import { LedgerRow, FadeRow, MinimumShortfallNotice } from "./CheckoutSummaryRows";
+import { LedgerRow, FadeRow, MinimumShortfallNotice, DiscountRow } from "./CheckoutSummaryRows";
+import { usePromoEffect } from "./usePromoEffect";
 import { formatPrice } from "@/lib/utils/format";
 import { COVINA_TAX_RATE } from "@/lib/utils/order";
 import { wasVtNav } from "@/lib/navigation/view-transition-nav";
@@ -62,20 +63,23 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
 
   const tipPercent = useCheckoutStore((s) => s.tipPercent);
   const customTipCents = useCheckoutStore((s) => s.customTipCents);
-  const discountCents = useCheckoutStore((s) => s.discountCents);
   const discountLabel = useCheckoutStore((s) => s.discountLabel);
-  const promoApplied = useCheckoutStore((s) => s.promoApplied);
+  const promo = usePromoEffect(itemsSubtotal, estimatedDeliveryFee);
+  const deliveryDueCents = estimatedDeliveryFee - promo.deliveryWaiverCents;
 
   // ---- Computations (unchanged) ----
   const tipCents =
     tipPercent !== null ? Math.round((itemsSubtotal * tipPercent) / 100) : customTipCents;
   const estimatedTaxCents = Math.round(itemsSubtotal * COVINA_TAX_RATE);
-  const adjustedTotal = estimatedTotal + tipCents + estimatedTaxCents - discountCents;
+  const adjustedTotal =
+    estimatedTotal + tipCents + estimatedTaxCents - promo.discountCents - promo.deliveryWaiverCents;
   const progressPercent = Math.min(
     100,
     ((freeDeliveryThresholdCents - amountToFreeDelivery) / freeDeliveryThresholdCents) * 100
   );
-  const hasFreeDelivery = amountToFreeDelivery <= 0 && !isExtendedRange;
+  // A free-delivery code covering the whole fee reads exactly like earned free delivery.
+  const couponCoversDelivery = promo.deliveryWaiverCents > 0 && deliveryDueCents <= 0;
+  const hasFreeDelivery = (amountToFreeDelivery <= 0 && !isExtendedRange) || couponCoversDelivery;
   const itemCount = items.reduce((sum, it) => sum + it.quantity, 0);
 
   return (
@@ -191,7 +195,9 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                     <div className="flex items-center gap-2">
                       <Truck className="h-4 w-4 text-hero-blue" aria-hidden="true" />
                       <span className="text-sm font-semibold text-hero-ink">
-                        Extended delivery fee: ${(estimatedDeliveryFee / 100).toFixed(2)}
+                        {couponCoversDelivery
+                          ? "Extended delivery fee waived by your code"
+                          : `Extended delivery fee: $${(deliveryDueCents / 100).toFixed(2)}`}
                       </span>
                     </div>
                     {addressDistanceMiles != null && (
@@ -250,7 +256,9 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                       <Sparkles className="h-4 w-4 text-hero-sage" aria-hidden="true" />
                     </m.span>
                     <span className="text-sm font-semibold text-hero-ink">
-                      You qualify for free delivery
+                      {couponCoversDelivery
+                        ? "Free delivery with your code"
+                        : "You qualify for free delivery"}
                     </span>
                   </div>
                 </m.div>
@@ -282,7 +290,7 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                   </m.span>
                 ) : (
                   <PriceTicker
-                    value={estimatedDeliveryFee}
+                    value={deliveryDueCents}
                     inCents
                     size="sm"
                     className="text-hero-ink"
@@ -314,27 +322,12 @@ export function CheckoutSummaryV8({ className }: CheckoutSummaryV8Props) {
                 </LedgerRow>
               )}
 
-              {promoApplied && discountCents > 0 && (
-                <m.div
-                  initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
-                  animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
-                  transition={{ delay: 0.12 }}
-                  className="flex justify-between text-sm"
-                >
-                  <span className="flex items-center gap-1.5 text-hero-sage">
-                    <Tag className="h-3.5 w-3.5" aria-hidden="true" />
-                    {discountLabel}
-                  </span>
-                  <span className="flex items-baseline font-semibold text-hero-sage">
-                    <span className="mr-0.5">−</span>
-                    <PriceTicker
-                      value={discountCents}
-                      inCents
-                      size="sm"
-                      className="text-hero-sage"
-                    />
-                  </span>
-                </m.div>
+              {promo.discountCents > 0 && (
+                <DiscountRow
+                  label={discountLabel}
+                  cents={promo.discountCents}
+                  shouldAnimate={shouldAnimate}
+                />
               )}
 
               <div className="checkout-perf checkout-rule-draw -mx-5 my-1" aria-hidden="true" />

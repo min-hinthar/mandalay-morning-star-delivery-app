@@ -1,13 +1,14 @@
 "use client";
 
 import { m } from "framer-motion";
-import { AlertTriangle } from "lucide-react";
+import { AlertTriangle, Tag } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCartStore } from "@/lib/stores/cart-store";
 import { formatFloorDollars } from "@/lib/utils/format";
+import { PriceTicker } from "@/components/ui/PriceTicker";
 
 /** A ledger row: muted label left, value right; subtle slide-in. */
 export function LedgerRow({
@@ -101,5 +102,34 @@ export function MinimumShortfallNotice({
         )}
       </div>
     </FadeRow>
+  );
+}
+
+/** Applied-code discount line (sage, minus-prefixed rolling amount). */
+export function DiscountRow({
+  label,
+  cents,
+  shouldAnimate,
+}: {
+  label: string;
+  cents: number;
+  shouldAnimate: boolean;
+}) {
+  return (
+    <m.div
+      initial={shouldAnimate ? { opacity: 0, x: -10 } : undefined}
+      animate={shouldAnimate ? { opacity: 1, x: 0 } : undefined}
+      transition={{ delay: 0.12 }}
+      className="flex justify-between text-sm"
+    >
+      <span className="flex items-center gap-1.5 text-hero-sage">
+        <Tag className="h-3.5 w-3.5" aria-hidden="true" />
+        {label}
+      </span>
+      <span className="flex items-baseline font-semibold text-hero-sage">
+        <span className="mr-0.5">−</span>
+        <PriceTicker value={cents} inCents size="sm" className="text-hero-sage" />
+      </span>
+    </m.div>
   );
 }

@@ -1,5 +1,4 @@
 import React from "react";
-import type { createClient } from "@/lib/supabase/server";
 import { createServiceClient } from "@/lib/supabase/server";
 import type { ModifierGroupWithItems, ValidatedCartItem } from "@/lib/utils/order";
 import type { ModifierGroupsRow, AddressesRow } from "@/types/database";
@@ -22,32 +21,6 @@ import {
 } from "@/lib/email";
 import { AdminNewOrderAlert } from "@/emails/AdminNewOrderAlert";
 import { OrderConfirmation } from "@/emails/OrderConfirmation";
-
-/**
- * BUG-03 FIX: Independent cleanup — each delete wrapped in try/catch
- * so partial cleanup failures are logged but don't crash the cleanup chain
- */
-export async function cleanupOrder(
-  supabase: Awaited<ReturnType<typeof createClient>>,
-  orderId: string,
-  orderItemIds: string[]
-) {
-  try {
-    await supabase.from("order_item_modifiers").delete().in("order_item_id", orderItemIds);
-  } catch (e) {
-    logger.exception(e, { api: "checkout-session", cleanup: "order_item_modifiers", orderId });
-  }
-  try {
-    await supabase.from("order_items").delete().eq("order_id", orderId);
-  } catch (e) {
-    logger.exception(e, { api: "checkout-session", cleanup: "order_items", orderId });
-  }
-  try {
-    await supabase.from("orders").delete().eq("id", orderId);
-  } catch (e) {
-    logger.exception(e, { api: "checkout-session", cleanup: "orders", orderId });
-  }
-}
 
 /**
  * Build modifier group lookup from item_modifier_groups join data.

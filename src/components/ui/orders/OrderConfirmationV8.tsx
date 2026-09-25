@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { navigateWithViewTransition } from "@/lib/navigation/view-transition-nav";
 import { useCartStore } from "@/lib/stores/cart-store";
+import { useCheckoutStore } from "@/lib/stores/checkout-store";
 import { formatPrice } from "@/lib/utils/currency";
 import { receiptDisplayDiscountCents } from "@/lib/utils/order";
 import { useConfetti } from "@/components/ui/Confetti";
@@ -60,6 +61,7 @@ interface OrderConfirmationV8Props {
 export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
   const router = useRouter();
   const clearCart = useCartStore((state) => state.clearCart);
+  const clearPromo = useCheckoutStore((state) => state.clearPromo);
   const { shouldAnimate, getSpring } = useAnimationPreference();
   const { trigger, Confetti: ConfettiComponent } = useConfetti();
 
@@ -82,13 +84,17 @@ export function OrderConfirmationV8({ order }: OrderConfirmationV8Props) {
   };
   const seal = tierSeal[tierId];
 
-  // Clear cart and trigger confetti on mount (no confetti for pending COD)
+  // Clear cart and trigger confetti on mount (no confetti for pending COD).
+  // Also drop the applied code: the Stripe redirect skips the checkout reset,
+  // so the spent (often one-time) code would otherwise ride into the next
+  // checkout in this tab and fail at Place Order.
   useEffect(() => {
     clearCart();
+    clearPromo();
     if (shouldAnimate && !isPendingApproval) {
       trigger();
     }
-  }, [clearCart, trigger, shouldAnimate, isPendingApproval]);
+  }, [clearCart, clearPromo, trigger, shouldAnimate, isPendingApproval]);
 
   const deliveryDate = order.deliveryWindowStart
     ? LA_DATE_FMT.format(parseISO(order.deliveryWindowStart))

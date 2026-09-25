@@ -14,11 +14,14 @@ export async function markLoyaltyRedeemed(
 ): Promise<void> {
   if (!promoCode || !promoCode.toUpperCase().startsWith("KYAYZU-")) return;
   try {
-    await service
+    // supabase-js returns `{ error }` rather than throwing — without this check
+    // a failed stamp was silent and the spent code kept reading as usable.
+    const { error } = await service
       .from("loyalty_rewards")
       .update({ redeemed_at: new Date().toISOString() })
-      .eq("reward_code", promoCode)
+      .eq("reward_code", promoCode.toUpperCase())
       .is("redeemed_at", null);
+    if (error) logger.exception(error, { api: "loyalty/redeem" });
   } catch (error) {
     logger.exception(error, { api: "loyalty/redeem" });
   }
