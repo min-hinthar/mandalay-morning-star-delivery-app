@@ -4,13 +4,17 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-09-25. One PR open (#257); #256 merged._
+_Last reconciled: 2026-09-25. One PR open (#258); #257 + #256 merged._
 
 ## Open
 
-| PR   | Branch                        | Owner session | State                             | Scope                                                                                                                                                                                                                                                                                                                                                                                            |
-| ---- | ----------------------------- | ------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| #257 | `claude/epic-einstein-wl6dne` | this session  | draft, awaiting CI + owner review | **Privilege hardening:** default ACL gave anon/authenticated full DML on every table — `profiles.role` self-escalation to admin, forged orders/items, MV leak, cron-RPC PII. Column grants + `app_private` guard triggers + revokes. **Post-merge:** apply `20260924120000_admin_coupons.sql` (#256) + `20260925120000_privilege_hardening.sql` to prod; audit `profiles.role IN (admin,driver)` |
+| PR   | Branch                        | Owner session | State                                                   | Scope                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ---- | ----------------------------- | ------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| #258 | `claude/epic-einstein-wl6dne` | this session  | draft, adversarial review fixed (`2c8779a`), needs "go" | **Pre-existing RLS gaps** found by #257's verification: admin item refunds/edits, customer tracking (driver/ETA/live map — scoped to the customer's OWN leg), driver address/contact/bag contents, audit action CHECK, `split_route` enum, notes/rating-dismiss writes, driver exception audit, photo retake, push re-subscribe, menu delete with photo. pgTAP 04 (38) + 00 fixed. **Post-merge:** apply `20260925180000_fix_preexisting_rls_gaps.sql`; run `scripts/sql/verify-privilege-hardening.sql` |
+
+## Recently closed — #257 privilege hardening (2026-09-25, merged `83ac828` on the owner's "go")
+
+Default ACL gave anon/authenticated full DML on every table — `profiles.role` self-escalation to admin, forged orders/items, MV leak, cron-RPC PII. Column grants + `app_private` guard triggers + revokes. Live in prod (read-only probes). **Owner:** run `scripts/sql/verify-privilege-hardening.sql` for the staff audit (`profiles.role IN (admin,driver)`) + migration markers.
 
 ## Recently closed — #256 coupons (2026-09-25, merged `a4635370` on the owner's "go")
 
