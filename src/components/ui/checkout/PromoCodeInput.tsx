@@ -43,7 +43,7 @@ export function PromoCodeInput({ className }: PromoCodeInputProps) {
   const applyPromo = useCheckoutStore((s) => s.applyPromo);
   const clearPromo = useCheckoutStore((s) => s.clearPromo);
   const { itemsSubtotal, estimatedDeliveryFee } = useCart();
-  const { shortfallCents } = usePromoEffect(itemsSubtotal, estimatedDeliveryFee);
+  const { shortfallCents, idle } = usePromoEffect(itemsSubtotal, estimatedDeliveryFee);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -151,6 +151,11 @@ export function PromoCodeInput({ className }: PromoCodeInputProps) {
             </m.span>
             <div className="leading-tight">
               <p className="text-sm font-semibold text-hero-ink">Applied: {discountLabel}</p>
+              {idle && (
+                <p className="text-xs text-hero-ink-muted">
+                  Delivery is already free — we&apos;ll save this code for your next order
+                </p>
+              )}
               {shortfallCents > 0 && (
                 <p className="text-xs font-medium text-status-warning">
                   Add {formatPrice(shortfallCents)} more to use this code

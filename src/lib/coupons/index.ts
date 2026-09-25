@@ -5,6 +5,7 @@ import { logger } from "@/lib/utils/logger";
 import type { Database } from "@/types/database";
 
 import { couponEffect, couponLabel, type CouponKind } from "./effect";
+import { STALE_PENDING_MS } from "./status";
 
 export { couponEffect, couponLabel, type CouponEffect, type CouponKind } from "./effect";
 
@@ -93,7 +94,7 @@ export async function lookupCoupon(
   }
 
   if (coupon.order_id) {
-    const held = await isHolderLive(service, coupon.order_id, opts.userId);
+    const held = await isHolderLive(service, coupon.order_id, opts.userId, coupon.redeemed_at);
     if (held === "error") {
       return { status: "invalid", message: "Failed to validate promo code" };
     }
@@ -114,11 +115,13 @@ export async function lookupCoupon(
 async function isHolderLive(
   service: SupabaseClient<Database>,
   orderId: string,
-  userId: string | null
+  userId: string | null,
+  /** The coupon's last claim time — staleness is measured from here. */
+  claimedAt: string | null
 ): Promise<"live" | "free" | "error"> {
   const { data: holder, error } = await service
     .from("orders")
-    .select("status, created_at, user_id")
+    .select("status, user_id")
     .eq("id", orderId)
     .maybeSingle();
   if (error) {
@@ -127,8 +130,7 @@ async function isHolderLive(
   }
   if (!holder || holder.status === "cancelled") return "free";
   if (holder.status === "pending") {
-    const ageMs = Date.now() - new Date(holder.created_at).getTime();
-    if (ageMs > 2 * 60 * 60 * 1000) return "free";
+    if (claimedAt && Date.now() - new Date(claimedAt).getTime() > STALE_PENDING_MS) return "free";
     if (userId && holder.user_id === userId) return "free";
   }
   return "live";
@@ -153,6 +155,37 @@ export async function claimCoupon(
     return "error";
   }
   return data as ClaimResult;
+}
+
+/**
+ * Retry-payment gate: if `promoCode` is an app coupon, re-claim it for the
+ * SAME order. `claim_coupon` is idempotent for the current holder and bumps
+ * `redeemed_at`, which is what the 2h stale-release rule measures — so each
+ * new payment session restarts the hold. "lost" = another order took it.
+ */
+export async function reconfirmCouponHold(
+  service: SupabaseClient<Database>,
+  promoCode: string | null,
+  orderId: string,
+  userId: string
+): Promise<"ok" | "lost" | "error"> {
+  if (!promoCode) return "ok";
+  const code = normalizeCouponCode(promoCode);
+  if (!COUPON_CODE_PATTERN.test(code) || isReservedCouponCode(code)) return "ok";
+  const { data: coupon, error } = await service
+    .from("coupons")
+    .select("id")
+    .eq("code", code)
+    .maybeSingle();
+  if (error) {
+    if (MISSING_TABLE_CODES.has(error.code)) return "ok";
+    logger.exception(error, { api: "coupons/reconfirm", orderId });
+    return "error";
+  }
+  if (!coupon) return "ok";
+  const result = await claimCoupon(service, coupon.id, orderId, userId);
+  if (result === "ok") return "ok";
+  return result === "error" ? "error" : "lost";
 }
 
 export function claimFailureMessage(result: ClaimResult | "error"): string {

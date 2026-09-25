@@ -11,15 +11,18 @@ export interface CouponStatusInput {
   revoked_at: string | null;
   expires_at: string | null;
   order_id: string | null;
+  /** Last claim time (bumped by every retry-payment re-claim). */
+  redeemed_at: string | null;
   /** The holding order, when `order_id` is set and the row still exists. */
-  holder: { status: string; created_at: string } | null;
+  holder: { status: string } | null;
 }
 
 export function couponStatus(c: CouponStatusInput, now: number = Date.now()): CouponStatus {
   if (c.revoked_at) return "revoked";
   if (c.order_id && c.holder && c.holder.status !== "cancelled") {
     if (c.holder.status !== "pending") return "redeemed";
-    if (now - new Date(c.holder.created_at).getTime() <= STALE_PENDING_MS) return "in_checkout";
+    const claimedAt = c.redeemed_at ? new Date(c.redeemed_at).getTime() : 0;
+    if (now - claimedAt <= STALE_PENDING_MS) return "in_checkout";
   }
   if (c.expires_at && new Date(c.expires_at).getTime() <= now) return "expired";
   return "active";

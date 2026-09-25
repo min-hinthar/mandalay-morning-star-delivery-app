@@ -46,7 +46,7 @@ export async function GET() {
     const service = createServiceClient();
     const { data: rows, error } = await service
       .from("coupons")
-      .select("*, orders ( status, created_at )")
+      .select("*, orders ( status )")
       .order("created_at", { ascending: false })
       .limit(LIST_LIMIT);
     if (error) {

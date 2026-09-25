@@ -23,6 +23,7 @@ vi.mock("@/lib/referrals/reclaim-pending-checkouts", () => ({
 }));
 
 import {
+  withoutIdleCoupon,
   applyDeliveryWaiver,
   resolveCheckoutDiscount,
   resolveStripeSessionDiscounts,
@@ -34,34 +35,63 @@ import type Stripe from "stripe";
 const USER = "user-A";
 const stripeStub = {} as unknown as Stripe;
 
+type Call = [string, unknown[]];
+
+/** Chainable, awaitable query stub: records every builder call, resolves via `resolve`. */
+function chain(resolve: (calls: Call[]) => unknown) {
+  const calls: Call[] = [];
+  const obj: Record<string, unknown> = new Proxy(
+    {},
+    {
+      get(_t, prop: string) {
+        if (prop === "then") {
+          return (res: (v: unknown) => unknown, rej: (e: unknown) => unknown) =>
+            Promise.resolve(resolve(calls)).then(res, rej);
+        }
+        return (...args: unknown[]) => {
+          calls.push([prop, args]);
+          return obj;
+        };
+      },
+    }
+  );
+  return { obj, calls };
+}
+
+const has = (calls: Call[], method: string, col?: string) =>
+  calls.some(([m, a]) => m === method && (col === undefined || a[0] === col));
+
 /**
- * Minimal service-client stub: loyalty_rewards lookup returns `row`; orders
- * count queries resolve `orderCount` (awaitable after .not() for the
- * first-order check, and after the chained .gte() for the redemption cap);
- * the discounted-pending count (.eq().eq().gt()) resolves `pendingCount`.
+ * Service-client stub. loyalty_rewards → `row`. orders queries resolve by shape:
+ * - redemption count (eq promo_code, head count): `orderCount` for percent
+ *   (has gte cutover), `codCount` for amount_off;
+ * - own pending checkouts with the code (eq promo_code, row select) → `ownPendingIds`;
+ * - discounted-pending count (gt discount_cents) → `pendingCount`;
+ * - prior-orders count (first-time gate) → `orderCount`.
  */
 function serviceClientReturning(
   row: { user_id: string; redeemed_at?: string | null } | null,
   orderCount = 0,
   pendingCount = 0,
-  codCount = 0
+  codCount = 0,
+  ownPendingIds: string[] = []
 ) {
-  const maybeSingle = vi.fn().mockResolvedValue({ data: row });
-  const rewardsEq = vi.fn(() => ({ maybeSingle }));
-  const countResult = { count: orderCount, error: null };
-  const gte = vi.fn().mockResolvedValue(countResult);
-  const notResult = Object.assign(Promise.resolve(countResult), { gte });
-  const countNot = vi.fn(() => notResult);
-  const pendingGt = vi.fn().mockResolvedValue({ count: pendingCount, error: null });
-  const codNeq = vi.fn().mockResolvedValue({ count: codCount, error: null });
-  const pendingEq = vi.fn(() => ({ gt: pendingGt, neq: codNeq }));
-  const countEq = vi.fn(() => ({ not: countNot, eq: pendingEq }));
-  const from = vi.fn((table: string) =>
-    table === "orders"
-      ? { select: vi.fn(() => ({ eq: countEq })) }
-      : { select: vi.fn(() => ({ eq: rewardsEq })) }
-  );
-  return { from } as unknown as SupabaseClient<Database>;
+  const queries: Call[][] = [];
+  const from = vi.fn((table: string) => {
+    const { obj, calls } = chain((c) => {
+      if (table === "loyalty_rewards") return { data: row, error: null };
+      const head = c.some(([m, a]) => m === "select" && (a[1] as { head?: boolean })?.head);
+      if (has(c, "eq", "promo_code")) {
+        if (!head) return { data: ownPendingIds.map((id) => ({ id })), error: null };
+        return { count: has(c, "gte") ? orderCount : codCount, error: null };
+      }
+      if (has(c, "gt", "discount_cents")) return { count: pendingCount, error: null };
+      return { count: orderCount, error: null };
+    });
+    queries.push(calls);
+    return obj;
+  });
+  return Object.assign({ from } as unknown as SupabaseClient<Database>, { queries });
 }
 
 const userClient = {} as unknown as SupabaseClient<Database>;
@@ -671,6 +701,65 @@ describe("resolveCheckoutDiscount — one-time reuse via COD (Stripe never count
   });
 });
 
+describe("resolveCheckoutDiscount — limited codes vs open card checkouts", () => {
+  const limitedAmount = {
+    valid: true,
+    discountCents: 500,
+    couponId: "cpn_5",
+    promotionCodeId: "promo_5",
+    percentOff: null,
+    minimumAmountCents: null,
+    maxRedemptions: 1,
+    timesRedeemed: 0,
+  };
+
+  it("counts OTHER customers' open card checkouts (Stripe only counts at completion)", async () => {
+    mockValidate.mockResolvedValue(limitedAmount);
+    const service = serviceClientReturning(null);
+    await resolveCheckoutDiscount(userClient, USER, 6000, "ONCE5", service, stripeStub, "cod");
+    const countQuery = service.queries.find(
+      (q) => has(q, "eq", "promo_code") && q.some(([m]) => m === "or")
+    );
+    const orFilter = countQuery?.find(([m]) => m === "or")?.[1][0] as string;
+    expect(orFilter).toContain("payment_method.eq.cod");
+    expect(orFilter).toContain(`and(status.eq.pending,user_id.neq.${USER}`);
+  });
+
+  it("reclaims the customer's own open checkout with the code before granting it", async () => {
+    mockValidate.mockResolvedValue(limitedAmount);
+    mockReclaim.mockResolvedValue(true);
+    const service = serviceClientReturning(null, 0, 0, 0, ["own-pending-1"]);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      6000,
+      "ONCE5",
+      service,
+      stripeStub
+    );
+    expect(mockReclaim).toHaveBeenCalledWith(stripeStub, service, USER, {
+      orderIds: ["own-pending-1"],
+    });
+    expect(result.ok).toBe(true);
+  });
+
+  it("withholds the code when the customer's own open checkout can't be reclaimed", async () => {
+    mockValidate.mockResolvedValue(limitedAmount);
+    mockReclaim.mockResolvedValue(false);
+    const service = serviceClientReturning(null, 0, 0, 0, ["own-pending-1"]);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      6000,
+      "ONCE5",
+      service,
+      stripeStub
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.message).toMatch(/another checkout in progress/i);
+  });
+});
+
 describe("resolveCheckoutDiscount — app-issued coupons", () => {
   it("returns the app coupon (and never consults Stripe) for a free-delivery code", async () => {
     mockLookupCoupon.mockResolvedValue({ status: "valid", coupon: couponRow() });
@@ -798,5 +887,29 @@ describe("resolveStripeSessionDiscounts — app coupons", () => {
     );
     expect(create).not.toHaveBeenCalled();
     expect(discounts).toBeUndefined();
+  });
+});
+
+describe("withoutIdleCoupon", () => {
+  const base: CheckoutDiscount = {
+    discountCents: 0,
+    couponId: null,
+    promotionCodeId: null,
+    isPercent: false,
+    appCoupon: couponRow(),
+  };
+  it("drops a free-delivery coupon when delivery is already free (never burned for $0)", () => {
+    expect(withoutIdleCoupon(base, 0).appCoupon).toBeNull();
+  });
+  it("keeps it when there is a fee to waive", () => {
+    expect(withoutIdleCoupon(base, 1500)).toBe(base);
+  });
+  it("keeps a discount coupon that saves money", () => {
+    const amount = {
+      ...base,
+      discountCents: 500,
+      appCoupon: couponRow({ kind: "amount_off", amount_off_cents: 500 }),
+    };
+    expect(withoutIdleCoupon(amount, 0)).toBe(amount);
   });
 });

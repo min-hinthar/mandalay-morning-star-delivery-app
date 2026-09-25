@@ -10,6 +10,8 @@ export interface PromoEffectPreview {
   deliveryWaiverCents: number;
   /** Code applied but the cart is under its minimum — server will reject it. */
   shortfallCents: number;
+  /** Free-delivery code on an order whose delivery is already free — the server leaves it unused. */
+  idle: boolean;
 }
 
 /**
@@ -30,7 +32,7 @@ export function usePromoEffect(
   const maxDiscountCents = useCheckoutStore((s) => s.promoMaxDiscountCents);
   const minimumCents = useCheckoutStore((s) => s.promoMinSubtotalCents);
 
-  const none = { discountCents: 0, deliveryWaiverCents: 0, shortfallCents: 0 };
+  const none = { discountCents: 0, deliveryWaiverCents: 0, shortfallCents: 0, idle: false };
   if (!applied) return none;
   if (minimumCents != null && subtotalCents < minimumCents) {
     return { ...none, shortfallCents: minimumCents - subtotalCents };
@@ -45,5 +47,6 @@ export function usePromoEffect(
     subtotalCents,
     deliveryFeeCents
   );
-  return { ...effect, shortfallCents: 0 };
+  const idle = kind === "free_delivery" && effect.deliveryWaiverCents === 0;
+  return { ...effect, shortfallCents: 0, idle };
 }

@@ -5,6 +5,7 @@ import { logger } from "@/lib/utils/logger";
 import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
 import { isPastCutoff } from "@/lib/utils/delivery-dates";
 import { getBusinessRules } from "@/lib/settings";
+import { reconfirmCouponHold } from "@/lib/coupons";
 import { checkRateLimit, checkoutLimiter } from "@/lib/rate-limit";
 import { inspectOrderPayment, classifyStrandedPayment } from "@/lib/stripe/stranded-payment";
 import {
@@ -27,6 +28,7 @@ interface OrderWithItems {
   tip_cents: number;
   discount_cents: number;
   total_cents: number;
+  promo_code: string | null;
   delivery_window_start: string | null;
   delivery_window_end: string | null;
   stripe_checkout_session_id: string | null;
@@ -76,7 +78,7 @@ export async function POST(_request: Request, { params }: RouteParams) {
       `
       id, user_id, status,
       subtotal_cents, delivery_fee_cents, tax_cents, tip_cents, discount_cents, total_cents,
-      delivery_window_start, delivery_window_end,
+      promo_code, delivery_window_start, delivery_window_end,
       stripe_checkout_session_id, stripe_payment_intent_id,
       order_items (
         id, name_snapshot, base_price_snapshot, quantity, line_total_cents,
@@ -188,6 +190,27 @@ export async function POST(_request: Request, { params }: RouteParams) {
     }
   }
 
+  // One-time app coupon: this order must still hold it before we open a new
+  // payment session, and the re-claim refreshes the hold so a live retry
+  // session is never released to another customer as "abandoned".
+  const hold = await reconfirmCouponHold(
+    createServiceClient(),
+    order.promo_code,
+    order.id,
+    user.id
+  );
+  if (hold !== "ok") {
+    return NextResponse.json(
+      {
+        error: {
+          code: "COUPON_UNAVAILABLE",
+          message: "This order's coupon is no longer available. Please place a new order.",
+        },
+      },
+      { status: 409 }
+    );
+  }
+
   // Get or create Stripe customer
   const { data: profile } = await supabase
     .from("profiles")
@@ -279,7 +302,8 @@ export async function POST(_request: Request, { params }: RouteParams) {
           amount_off: order.discount_cents,
           currency: "usd",
           duration: "once",
-          name: `Order #${orderId} discount`,
+          // Stripe caps coupon names at 40 chars — the full `Order #<uuid>` (52) was rejected.
+          name: `Order ${order.id.slice(0, 8).toUpperCase()} discount`,
         },
         { idempotencyKey: `retry_coupon_${order.id}` }
       );

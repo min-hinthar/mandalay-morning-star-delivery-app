@@ -6,6 +6,8 @@ import { validatePromoCode } from "@/lib/stripe/promo";
 import { resolveFirstOrderDiscount } from "@/lib/referrals/first-order-discount";
 import { reclaimPendingCheckouts } from "@/lib/referrals/reclaim-pending-checkouts";
 import { logger } from "@/lib/utils/logger";
+
+import { countAppRedemptions, reclaimOwnCheckoutsWithCode } from "./promo-redemptions";
 import type { Database } from "@/types/database";
 
 export interface CheckoutDiscount {
@@ -36,14 +38,7 @@ export interface CheckoutDiscount {
   appCoupon: CouponRow | null;
 }
 
-/**
- * When percent codes started converting to one-off coupons (this deploy).
- * Before this moment percent redemptions went through Stripe's
- * promotion-code machinery and live in `times_redeemed`; after it they only
- * exist as order rows. The app-side count is scoped to >= this timestamp so
- * the two tallies never overlap.
- */
-export const PERCENT_CONVERSION_CUTOVER_ISO = "2026-06-13T00:00:00Z";
+export { PERCENT_CONVERSION_CUTOVER_ISO } from "./promo-redemptions";
 
 export type ResolveDiscountResult =
   | { ok: true; discount: CheckoutDiscount }
@@ -77,14 +72,9 @@ export async function resolveCheckoutDiscount(
     const lookup = await lookupCoupon(serviceClient, promoCode, { userId, subtotalCents });
     if (lookup.status === "invalid") return { ok: false, message: lookup.message };
     if (lookup.status === "valid") {
-      const freed = await releaseOwnAbandonedHolder(stripe, serviceClient, userId, lookup.coupon);
-      if (!freed) {
-        return {
-          ok: false,
-          message:
-            "You have another checkout in progress with this code — finish or wait a few minutes, then try again.",
-        };
-      }
+      // No destructive work here: releasing the customer's own abandoned
+      // holder happens at claim time (coupon-claim.ts), after every
+      // non-destructive checkout gate has passed.
       return {
         ok: true,
         discount: {
@@ -154,35 +144,10 @@ export async function resolveCheckoutDiscount(
         return { ok: false, message: "This code is only valid on your first order." };
       }
     }
-    // Percent codes are charged via a one-off amount_off coupon, so Stripe's
-    // native times_redeemed never increments for them. Enforce the code's
-    // max_redemptions here: Stripe-counted redemptions (frozen at the
-    // conversion cutover — historical promotion-code checkouts) + orders this
-    // app has taken with the code SINCE the cutover (counting earlier orders
-    // would double-count the Stripe-tallied ones). Pending (unpaid Stripe
-    // sessions) and cancelled orders don't consume a redemption; the small
-    // race window between concurrent sessions matches Stripe's own
-    // count-at-completion behavior.
-    //
-    // amount_off codes DO go through Stripe's counter — but only on the Stripe
-    // path. COD redemptions (pending_approval onward) are invisible to it, so
-    // they are added here; without this a max_redemptions:1 code (every
-    // KYAYZU- loyalty code) was reusable indefinitely via cash on delivery.
     if (promo.maxRedemptions != null) {
-      const base = serviceClient
-        .from("orders")
-        .select("id", { count: "exact", head: true })
-        .eq("promo_code", promoCode);
-      const { count, error: countError } = isPercent
-        ? await base
-            .not("status", "in", "(pending,cancelled)")
-            .gte("created_at", PERCENT_CONVERSION_CUTOVER_ISO)
-        : await base.eq("payment_method", "cod").neq("status", "cancelled");
-      if (countError) {
-        logger.exception(countError, { api: "checkout-session", promoCode });
-        return { ok: false, message: "Failed to validate promo code" };
-      }
-      if ((promo.timesRedeemed ?? 0) + (count ?? 0) >= promo.maxRedemptions) {
+      const used = await countAppRedemptions(serviceClient, promoCode, userId, isPercent);
+      if ("error" in used) return { ok: false, message: "Failed to validate promo code" };
+      if ((promo.timesRedeemed ?? 0) + used.count >= promo.maxRedemptions) {
         return { ok: false, message: "This promo code has reached its redemption limit." };
       }
     }
@@ -216,6 +181,16 @@ export async function resolveCheckoutDiscount(
           };
         }
       }
+    }
+    if (
+      promo.maxRedemptions != null &&
+      !(await reclaimOwnCheckoutsWithCode(stripe, serviceClient, userId, promoCode))
+    ) {
+      return {
+        ok: false,
+        message:
+          "You have another checkout in progress with this code — finish or wait a few minutes, then try again.",
+      };
     }
     const discountCents =
       promo.percentOff !== null
@@ -262,6 +237,20 @@ export async function resolveCheckoutDiscount(
   };
 }
 
+/**
+ * Drop an app coupon that would save nothing on this order (a free-delivery
+ * code when delivery is already free) so it is never claimed — burning a
+ * one-time gift for $0. Returns the SAME object when nothing changes.
+ */
+export function withoutIdleCoupon(
+  discount: CheckoutDiscount,
+  deliveryFeeCents: number
+): CheckoutDiscount {
+  if (!discount.appCoupon || discount.discountCents > 0) return discount;
+  if (effectFor(discount.appCoupon, 0, deliveryFeeCents).deliveryWaiverCents > 0) return discount;
+  return { ...discount, appCoupon: null };
+}
+
 interface OrderTotals {
   subtotalCents: number;
   deliveryFeeCents: number;
@@ -297,32 +286,6 @@ export function applyDeliveryWaiver<T extends OrderTotals>(
 }
 
 /**
- * The coupon is held by THIS customer's own still-`pending` checkout (they
- * abandoned Stripe and came back). Expire that session + cancel the order so
- * the new checkout can claim it; anything ambiguous keeps the hold (false).
- * Another customer's hold is left to claim_coupon, which rejects it.
- */
-async function releaseOwnAbandonedHolder(
-  stripe: Stripe,
-  serviceClient: SupabaseClient<Database>,
-  userId: string,
-  coupon: CouponRow
-): Promise<boolean> {
-  if (!coupon.order_id) return true;
-  const { data: holder, error } = await serviceClient
-    .from("orders")
-    .select("user_id, status")
-    .eq("id", coupon.order_id)
-    .maybeSingle();
-  if (error) {
-    logger.exception(error, { api: "checkout-session", couponId: coupon.id });
-    return false;
-  }
-  if (!holder || holder.user_id !== userId || holder.status !== "pending") return true;
-  return reclaimPendingCheckouts(stripe, serviceClient, userId, { orderIds: [coupon.order_id] });
-}
-
-/**
  * Build the Stripe Checkout `discounts` param for a resolved discount.
  *
  * - amount_off promotion codes pass through as `{ promotion_code }` (Stripe's
@@ -350,7 +313,8 @@ export async function resolveStripeSessionDiscounts(
       amount_off: discount.discountCents,
       currency: "usd",
       duration: "once",
-      name: `${discount.appCoupon.code} (applied)`,
+      // Stripe caps coupon names at 40 chars.
+      name: `${discount.appCoupon.code} (applied)`.slice(0, 40),
       metadata: { source: "app-coupon", coupon_id: discount.appCoupon.id },
       redeem_by: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
     });
@@ -366,7 +330,7 @@ export async function resolveStripeSessionDiscounts(
       amount_off: discount.discountCents,
       currency: "usd",
       duration: "once",
-      name: promoCode ? `${promoCode.toUpperCase()} (applied)` : "Discount",
+      name: (promoCode ? `${promoCode.toUpperCase()} (applied)` : "Discount").slice(0, 40),
       metadata: { source: "percent-conversion", promo_code: promoCode ?? "" },
       // Self-expire abandoned-session coupons (each checkout attempt creates
       // one; only the completed session redeems it).

@@ -7,6 +7,7 @@ import {
   generateCouponCode,
   isReservedCouponCode,
   lookupCoupon,
+  reconfirmCouponHold,
   type CouponRow,
 } from "..";
 import { couponEffect, couponLabel } from "../effect";
@@ -53,21 +54,41 @@ describe("couponEffect", () => {
 
 describe("couponStatus", () => {
   const now = Date.parse("2026-09-24T12:00:00Z");
-  const base = { revoked_at: null, expires_at: null, order_id: null, holder: null };
+  const base = {
+    revoked_at: null,
+    expires_at: null,
+    order_id: null,
+    redeemed_at: null,
+    holder: null,
+  };
   it("is active with no holder", () => {
     expect(couponStatus(base, now)).toBe("active");
   });
   it("is redeemed while a live order holds it", () => {
-    const holder = { status: "pending_approval", created_at: "2026-09-24T11:00:00Z" };
-    expect(couponStatus({ ...base, order_id: "o1", holder }, now)).toBe("redeemed");
+    const held = { ...base, order_id: "o1", redeemed_at: "2026-09-20T11:00:00Z" };
+    expect(couponStatus({ ...held, holder: { status: "pending_approval" } }, now)).toBe("redeemed");
   });
   it("releases on a cancelled or stale-pending holder (mirrors claim_coupon)", () => {
-    const cancelled = { status: "cancelled", created_at: "2026-09-24T11:59:00Z" };
-    expect(couponStatus({ ...base, order_id: "o1", holder: cancelled }, now)).toBe("active");
-    const fresh = { status: "pending", created_at: "2026-09-24T11:30:00Z" };
-    expect(couponStatus({ ...base, order_id: "o1", holder: fresh }, now)).toBe("in_checkout");
-    const stale = { status: "pending", created_at: "2026-09-24T09:00:00Z" };
-    expect(couponStatus({ ...base, order_id: "o1", holder: stale }, now)).toBe("active");
+    const held = { ...base, order_id: "o1" };
+    expect(
+      couponStatus(
+        { ...held, redeemed_at: "2026-09-24T11:59:00Z", holder: { status: "cancelled" } },
+        now
+      )
+    ).toBe("active");
+    expect(
+      couponStatus(
+        { ...held, redeemed_at: "2026-09-24T11:30:00Z", holder: { status: "pending" } },
+        now
+      )
+    ).toBe("in_checkout");
+    // Staleness is measured from the LAST claim (retry-payment re-claims bump it).
+    expect(
+      couponStatus(
+        { ...held, redeemed_at: "2026-09-24T09:00:00Z", holder: { status: "pending" } },
+        now
+      )
+    ).toBe("active");
   });
   it("revoked and expired win over active", () => {
     expect(couponStatus({ ...base, revoked_at: "2026-09-01T00:00:00Z" }, now)).toBe("revoked");
@@ -175,6 +196,13 @@ describe("lookupCoupon", () => {
     const result = await lookupCoupon(service, "GIFT-ABC234", opts);
     expect(result).toEqual({ status: "invalid", message: "This code has already been used." });
   });
+  it("releases another customer's pending holder once the last claim is >2h old", async () => {
+    const service = serviceWith(
+      row({ order_id: "o1", redeemed_at: new Date(Date.now() - 3 * 3600_000).toISOString() }),
+      { status: "pending", user_id: "u2" }
+    );
+    expect((await lookupCoupon(service, "GIFT-ABC234", opts)).status).toBe("valid");
+  });
   it("treats the customer's own open checkout as reclaimable", async () => {
     const service = serviceWith(row({ order_id: "o1" }), {
       status: "pending",
@@ -217,5 +245,35 @@ describe("createCouponsSchema", () => {
     expect(createCouponsSchema.safeParse({ kind: "free_delivery", sendEmail: true }).success).toBe(
       false
     );
+  });
+});
+
+describe("reconfirmCouponHold (retry-payment gate)", () => {
+  function service(coupon: { id: string } | null, claim: string) {
+    const rpc = vi.fn(async () => ({ data: claim, error: null }));
+    const from = vi.fn(() => ({
+      select: () => ({ eq: () => ({ maybeSingle: async () => ({ data: coupon, error: null }) }) }),
+    }));
+    return { client: { from, rpc } as unknown as SupabaseClient<Database>, rpc, from };
+  }
+
+  it("passes orders without an app coupon untouched", async () => {
+    const s = service(null, "ok");
+    expect(await reconfirmCouponHold(s.client, null, "o1", "u1")).toBe("ok");
+    expect(await reconfirmCouponHold(s.client, "KYAYZU-ABCD1234", "o1", "u1")).toBe("ok");
+    expect(s.from).not.toHaveBeenCalled();
+  });
+  it("re-claims for the same order (refreshing the hold)", async () => {
+    const s = service({ id: "c1" }, "ok");
+    expect(await reconfirmCouponHold(s.client, "GIFT-ABC234", "o1", "u1")).toBe("ok");
+    expect(s.rpc).toHaveBeenCalledWith("claim_coupon", {
+      p_coupon_id: "c1",
+      p_order_id: "o1",
+      p_user_id: "u1",
+    });
+  });
+  it("reports lost when another order took the coupon", async () => {
+    const s = service({ id: "c1" }, "in_use");
+    expect(await reconfirmCouponHold(s.client, "GIFT-ABC234", "o1", "u1")).toBe("lost");
   });
 });

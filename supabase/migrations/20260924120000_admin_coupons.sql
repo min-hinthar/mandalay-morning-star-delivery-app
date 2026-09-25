@@ -10,9 +10,12 @@
 -- that is still live. `claim_coupon` (service_role only) takes the row lock and
 -- re-assigns the coupon only when the previous holder is gone (FK ON DELETE
 -- SET NULL — e.g. checkout cleanup), cancelled, or a Stripe checkout that has
--- sat unpaid in `pending` for 2h (sessions expire at 30 min; the margin
--- covers a late completion webhook). Known residual: an admin reinstating a
--- cancelled holder (`cancelled -> pending`) after the coupon was re-claimed.
+-- sat unpaid in `pending` for 2h since the coupon was LAST CLAIMED
+-- (`redeemed_at`). Sessions expire at 30 min and retry-payment re-claims
+-- (bumping `redeemed_at`) before every new session, so a payable session
+-- never outlives its hold; the margin covers a late completion webhook.
+-- Known residual: an admin reinstating a cancelled holder
+-- (`cancelled -> pending`) after the coupon was re-claimed elsewhere.
 
 CREATE TABLE public.coupons (
     id uuid NOT NULL DEFAULT gen_random_uuid(),
@@ -57,10 +60,11 @@ CREATE INDEX idx_coupons_created_at ON public.coupons USING btree (created_at DE
 
 ALTER TABLE public.coupons ENABLE ROW LEVEL SECURITY;
 
--- Read: admins see all; a customer sees coupons issued to them. All writes go
--- through the service role (admin routes after the admin gate; checkout claim).
+-- Read: admins only (rows carry internal notes + holder order ids; customers
+-- learn about their coupons by email / at checkout). All writes go through
+-- the service role (admin routes after the admin gate; checkout claim).
 CREATE POLICY coupons_select ON public.coupons AS PERMISSIVE FOR SELECT TO authenticated
-  USING (((assigned_user_id = ( SELECT auth.uid() AS uid)) OR is_admin()));
+  USING (is_admin());
 
 REVOKE ALL ON TABLE public.coupons FROM anon, authenticated;
 GRANT SELECT ON TABLE public.coupons TO authenticated;
@@ -77,7 +81,6 @@ AS $function$
 DECLARE
   v_coupon public.coupons%ROWTYPE;
   v_holder_status public.order_status;
-  v_holder_created timestamptz;
 BEGIN
   SELECT * INTO v_coupon FROM public.coupons WHERE id = p_coupon_id FOR UPDATE;
   IF NOT FOUND THEN
@@ -94,11 +97,11 @@ BEGIN
   END IF;
 
   IF v_coupon.order_id IS NOT NULL AND v_coupon.order_id <> p_order_id THEN
-    SELECT status, created_at INTO v_holder_status, v_holder_created
+    SELECT status INTO v_holder_status
       FROM public.orders WHERE id = v_coupon.order_id;
     IF FOUND AND NOT (
       v_holder_status = 'cancelled'
-      OR (v_holder_status = 'pending' AND v_holder_created < now() - interval '2 hours')
+      OR (v_holder_status = 'pending' AND v_coupon.redeemed_at < now() - interval '2 hours')
     ) THEN
       RETURN 'in_use';
     END IF;

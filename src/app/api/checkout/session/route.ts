@@ -1,7 +1,7 @@
 import { after, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe/server";
-import { applyDeliveryWaiver, resolveCheckoutDiscount } from "./discount";
+import { applyDeliveryWaiver, resolveCheckoutDiscount, withoutIdleCoupon } from "./discount";
 import { claimAppCouponOrRollback } from "./coupon-claim";
 import { createStripeCheckoutForOrder } from "./stripe-session";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
@@ -205,6 +205,11 @@ export async function POST(request: Request) {
     const minimumError = enforceMinimumOrder(subtotalCents, feeResult.tier, rules);
     if (minimumError) return minimumError;
 
+    // A coupon that saves nothing here (free delivery on an order whose delivery
+    // is already free) is left unclaimed — the customer keeps it for next time.
+    const discount = withoutIdleCoupon(discountResult.discount, feeResult.feeCents);
+    if (discount !== discountResult.discount) input.promoCode = undefined;
+
     const isExtendedRange =
       addressDistanceMiles != null && addressDistanceMiles > rules.longDistanceThresholdMiles;
 
@@ -216,7 +221,7 @@ export async function POST(request: Request) {
         distanceMiles: addressDistanceMiles,
         pricing,
       }),
-      discountResult.discount
+      discount
     );
 
     try {
@@ -276,11 +281,7 @@ export async function POST(request: Request) {
 
       if (!codResult.success)
         return errorResponse(codResult.code as "INTERNAL_ERROR", codResult.message, 500);
-      const codClaimError = await claimAppCouponOrRollback(
-        discountResult.discount,
-        codResult.orderId,
-        user.id
-      );
+      const codClaimError = await claimAppCouponOrRollback(discount, codResult.orderId, user.id);
       if (codClaimError) return codClaimError;
       logger.info("COD checkout completed", {
         orderId: codResult.orderId,
@@ -364,7 +365,7 @@ export async function POST(request: Request) {
       });
       return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
     }
-    const claimError = await claimAppCouponOrRollback(discountResult.discount, orderId, user.id);
+    const claimError = await claimAppCouponOrRollback(discount, orderId, user.id);
     if (claimError) return claimError;
     return await createStripeCheckoutForOrder({
       orderId,
@@ -376,7 +377,7 @@ export async function POST(request: Request) {
       totals,
       tipCents,
       isExtendedRange,
-      discount: discountResult.discount,
+      discount,
     });
   } catch (error) {
     logger.exception(error, { api: "checkout-session", flowId: "checkout" });
