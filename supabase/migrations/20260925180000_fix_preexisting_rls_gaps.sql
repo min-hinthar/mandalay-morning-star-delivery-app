@@ -160,3 +160,114 @@ CREATE POLICY addresses_select_driver ON public.addresses AS PERMISSIVE FOR SELE
   -- The initplan (SELECT get_my_driver_id()) runs once per query, so customers
   -- and admins (NULL driver id) never pay the per-row helper call.
   USING (( SELECT public.get_my_driver_id()) IS NOT NULL AND app_private.address_on_my_route(id));
+
+-- ---------------------------------------------------------------------------
+-- 5. Drivers could not see what they're handing over: order_items /
+--    order_item_modifiers SELECT is owner-or-admin, so the stop-detail page's
+--    "Order (N items)" section was always empty. Same scope as orders: any
+--    order with a stop on the (active) driver's routes.
+-- ---------------------------------------------------------------------------
+DROP POLICY IF EXISTS order_items_select_driver ON public.order_items;
+CREATE POLICY order_items_select_driver ON public.order_items AS PERMISSIVE FOR SELECT TO authenticated
+  USING (( SELECT public.get_my_driver_id()) IS NOT NULL AND app_private.order_on_my_route(order_id));
+
+CREATE OR REPLACE FUNCTION app_private.order_item_on_my_route(p_order_item_id uuid)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+  SELECT EXISTS (
+    SELECT 1
+      FROM public.order_items oi
+     WHERE oi.id = p_order_item_id
+       AND app_private.order_on_my_route(oi.order_id)
+  );
+$function$;
+REVOKE ALL ON FUNCTION app_private.order_item_on_my_route(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION app_private.order_item_on_my_route(uuid) TO authenticated;
+
+DROP POLICY IF EXISTS order_item_modifiers_select_driver ON public.order_item_modifiers;
+CREATE POLICY order_item_modifiers_select_driver ON public.order_item_modifiers AS PERMISSIVE FOR SELECT TO authenticated
+  USING (( SELECT public.get_my_driver_id()) IS NOT NULL AND app_private.order_item_on_my_route(order_item_id));
+
+-- ---------------------------------------------------------------------------
+-- 6. Customer live tracking: location_updates_select's customer clause joined
+--    routes/route_stops/orders from inside the policy, i.e. through the
+--    customer's own RLS — and routes_select is driver-or-admin, so the join was
+--    always empty and the realtime driver map never received a point. Same
+--    clause via a definer helper, narrowed to while the customer's OWN order is
+--    out for delivery (not after it's delivered while the driver carries on).
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION app_private.route_live_for_my_order(p_route_id uuid)
+ RETURNS boolean
+ LANGUAGE sql
+ STABLE SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+  SELECT EXISTS (
+    SELECT 1
+      FROM public.route_stops rs
+      JOIN public.routes r ON r.id = rs.route_id
+      JOIN public.orders o ON o.id = rs.order_id
+     WHERE rs.route_id = p_route_id
+       AND r.status = 'in_progress'
+       AND o.status = 'out_for_delivery'
+       AND o.user_id = ( SELECT auth.uid())
+  );
+$function$;
+REVOKE ALL ON FUNCTION app_private.route_live_for_my_order(uuid) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION app_private.route_live_for_my_order(uuid) TO authenticated;
+
+DROP POLICY IF EXISTS location_updates_select ON public.location_updates;
+CREATE POLICY location_updates_select ON public.location_updates AS PERMISSIVE FOR SELECT TO authenticated
+  USING (
+    driver_id = ( SELECT public.get_my_driver_id())
+    OR ( SELECT public.is_admin())
+    OR (route_id IS NOT NULL AND app_private.route_live_for_my_order(route_id))
+  );
+
+-- ---------------------------------------------------------------------------
+-- 7. push_subscriptions had no UPDATE policy, so the subscribe route's upsert
+--    (ON CONFLICT (endpoint) DO UPDATE) failed whenever the browser re-sent an
+--    endpoint already stored. Owner-only: taking over another user's endpoint
+--    still fails.
+-- ---------------------------------------------------------------------------
+DROP POLICY IF EXISTS push_subscriptions_update ON public.push_subscriptions;
+CREATE POLICY push_subscriptions_update ON public.push_subscriptions AS PERMISSIVE FOR UPDATE TO authenticated
+  USING (user_id = ( SELECT auth.uid()))
+  WITH CHECK (user_id = ( SELECT auth.uid()));
+
+-- ---------------------------------------------------------------------------
+-- 8. delivery-photos had no UPDATE policy on storage.objects, so a driver
+--    retaking a proof-of-delivery photo (upload with upsert) got a 500. Scoped
+--    like delivery_photos_delete — the route's own folder while the route is in
+--    progress — so a completed delivery's proof can't be overwritten later.
+-- ---------------------------------------------------------------------------
+DROP POLICY IF EXISTS delivery_photos_update ON storage.objects;
+CREATE POLICY delivery_photos_update ON storage.objects AS PERMISSIVE FOR UPDATE TO authenticated
+  USING (
+    bucket_id = 'delivery-photos'
+    AND EXISTS (
+      SELECT 1 FROM public.routes r
+       WHERE r.driver_id = ( SELECT public.get_my_driver_id())
+         AND r.status = 'in_progress'
+         AND (storage.foldername(objects.name))[1] = r.id::text)
+  )
+  WITH CHECK (
+    bucket_id = 'delivery-photos'
+    AND EXISTS (
+      SELECT 1 FROM public.routes r
+       WHERE r.driver_id = ( SELECT public.get_my_driver_id())
+         AND r.status = 'in_progress'
+         AND (storage.foldername(objects.name))[1] = r.id::text)
+  );
+
+-- ---------------------------------------------------------------------------
+-- 9. menu_items: the BEFORE DELETE trigger ran DELETE FROM storage.objects,
+--    which Supabase storage rejects ("Direct deletion from storage tables is
+--    not allowed. Use the Storage API instead"), so an item with a photo could
+--    not be deleted at all. The admin route now deletes the row, then removes
+--    the photo through the Storage API.
+-- ---------------------------------------------------------------------------
+DROP TRIGGER IF EXISTS trg_delete_menu_item_photo ON public.menu_items;

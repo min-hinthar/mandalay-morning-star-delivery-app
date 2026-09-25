@@ -92,16 +92,14 @@ async function getActiveRoute() {
       id: string;
       delivery_window_start: string | null;
       delivery_window_end: string | null;
-      customer: {
-        full_name: string | null;
-        phone: string | null;
-      };
+      customer_name: string | null;
+      customer_phone: string | null;
       address: {
         line_1: string;
         line_2: string | null;
         city: string;
         state: string;
-      };
+      } | null;
     };
   }
 
@@ -117,10 +115,8 @@ async function getActiveRoute() {
         id,
         delivery_window_start,
         delivery_window_end,
-        customer:profiles!orders_user_id_fkey (
-          full_name,
-          phone
-        ),
+        customer_name,
+        customer_phone,
         address:addresses!orders_address_id_fkey (
           line_1,
           line_2,
@@ -134,6 +130,9 @@ async function getActiveRoute() {
     .order("stop_index", { ascending: true })
     .returns<StopQueryResult[]>();
 
+  // Customer name/phone come from the order's checkout snapshot: a driver can't
+  // read the customer's profiles row (profiles_select is owner-or-admin), so the
+  // old profiles embed was always null — "Customer", no Call/SMS buttons.
   // Transform stops data for the component
   const transformedStops = (stops ?? []).map((stop) => ({
     id: stop.id,
@@ -145,9 +144,9 @@ async function getActiveRoute() {
       deliveryWindowStart: stop.order?.delivery_window_start ?? null,
       deliveryWindowEnd: stop.order?.delivery_window_end ?? null,
       customer: {
-        fullName: stop.order?.customer?.full_name ?? null,
+        fullName: stop.order?.customer_name ?? null,
       },
-      phone: stop.order?.customer?.phone ?? null,
+      phone: stop.order?.customer_phone ?? null,
       address: {
         line1: stop.order?.address?.line_1 ?? "",
         line2: stop.order?.address?.line_2 ?? null,

@@ -26,10 +26,8 @@ interface StopQueryResult {
     id: string;
     delivery_window_start: string | null;
     delivery_window_end: string | null;
-    customer: {
-      full_name: string | null;
-      phone: string | null;
-    };
+    customer_name: string | null;
+    customer_phone: string | null;
     address: {
       line_1: string;
       line_2: string | null;
@@ -80,10 +78,8 @@ async function getStopDetail(stopId: string) {
         id,
         delivery_window_start,
         delivery_window_end,
-        customer:profiles!orders_user_id_fkey (
-          full_name,
-          phone
-        ),
+        customer_name,
+        customer_phone,
         address:addresses!orders_address_id_fkey (
           line_1,
           line_2,
@@ -183,8 +179,9 @@ async function StopDetailPageContent({ params }: PageProps) {
           totalStops={stop.route?.route_stops?.[0]?.count ?? stop.stop_index}
           status={stop.status}
           customer={{
-            fullName: stop.order?.customer?.full_name ?? null,
-            phone: stop.order?.customer?.phone ?? null,
+            // Checkout snapshot: a driver can't read the customer's profiles row.
+            fullName: stop.order?.customer_name ?? null,
+            phone: stop.order?.customer_phone ?? null,
           }}
           address={{
             line1: stop.order?.address?.line_1 ?? "",
