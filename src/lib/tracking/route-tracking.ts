@@ -57,8 +57,10 @@ export async function loadRouteTracking(args: {
   orderId: string;
   orderStatus: OrderStatus;
   customerLocation: { lat: number | null; lng: number | null };
+  /** The viewer owns the order (not a share-token holder). */
+  isOwner: boolean;
 }): Promise<RouteTracking> {
-  const { orderId, orderStatus, customerLocation } = args;
+  const { orderId, orderStatus, customerLocation, isOwner } = args;
   const result: RouteTracking = {
     routeStop: null,
     driver: null,
@@ -123,7 +125,10 @@ export async function loadRouteTracking(args: {
   // driver is still at earlier customers' doors, and never after this stop is
   // delivered or skipped. Mirrors app_private.location_visible_to_my_order
   // (the realtime channel's RLS), 20260925180000 §6.
+  // Owner only: a share-token holder is a bearer of a forwarded link, and the
+  // realtime policy (o.user_id = auth.uid()) never streams to them either.
   const onMyLeg =
+    isOwner &&
     (route.status as RouteStatus) === "in_progress" &&
     orderStatus === "out_for_delivery" &&
     (stop.status === "enroute" || stop.status === "arrived");

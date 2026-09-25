@@ -109,6 +109,7 @@ describe("loadRouteTracking", () => {
       orderId: ORDER_ID,
       orderStatus: "confirmed",
       customerLocation,
+      isOwner: true,
     });
     expect(r).toEqual({
       routeStop: null,
@@ -133,6 +134,7 @@ describe("loadRouteTracking", () => {
       orderId: ORDER_ID,
       orderStatus: "confirmed",
       customerLocation,
+      isOwner: true,
     });
 
     expect(calls).toContainEqual(["eq", "order_id", ORDER_ID]);
@@ -175,6 +177,7 @@ describe("loadRouteTracking", () => {
       orderId: ORDER_ID,
       orderStatus: "out_for_delivery",
       customerLocation,
+      isOwner: true,
     });
 
     expect(r.driver).toMatchObject({
@@ -202,6 +205,7 @@ describe("loadRouteTracking", () => {
       orderId: ORDER_ID,
       orderStatus: "out_for_delivery",
       customerLocation,
+      isOwner: true,
     });
     expect(calls).not.toContainEqual(["from", "location_updates"]);
     expect(r.driverLocation).toBeNull();
@@ -223,6 +227,7 @@ describe("loadRouteTracking", () => {
         orderId: ORDER_ID,
         orderStatus: "out_for_delivery",
         customerLocation,
+        isOwner: true,
       });
       expect(calls).not.toContainEqual(["from", "location_updates"]);
       expect(r.driverLocation).toBeNull();
@@ -243,6 +248,7 @@ describe("loadRouteTracking", () => {
       orderId: ORDER_ID,
       orderStatus: "delivered",
       customerLocation,
+      isOwner: true,
     });
     expect(calls).not.toContainEqual(["from", "location_updates"]);
     expect(r.driverLocation).toBeNull();
@@ -261,6 +267,7 @@ describe("loadRouteTracking", () => {
       orderId: ORDER_ID,
       orderStatus: "delivered",
       customerLocation,
+      isOwner: true,
     });
     expect(r.routeStop).toMatchObject({ currentStop: 5, totalStops: 5 });
   });
@@ -281,6 +288,7 @@ describe("loadRouteTracking", () => {
       orderId: ORDER_ID,
       orderStatus: "out_for_delivery",
       customerLocation,
+      isOwner: true,
     });
     service({
       route_stops: [
@@ -295,9 +303,31 @@ describe("loadRouteTracking", () => {
       orderId: ORDER_ID,
       orderStatus: "out_for_delivery",
       customerLocation,
+      isOwner: true,
     });
     expect(ahead.routeStop?.currentStop).toBe(1);
     expect(ahead.eta!.maxMinutes).toBeGreaterThan(next.eta!.maxMinutes);
+  });
+
+  it("withholds phone, plate and live location from a share-token holder", async () => {
+    const calls = service({
+      route_stops: [
+        stop("in_progress", DRIVER_ID, "enroute"),
+        { count: 5, data: null, error: null },
+        { data: { stop_index: 2 }, error: null },
+      ],
+      drivers: [driverRow],
+      location_updates: [locationRow],
+    });
+    const r = await loadRouteTracking({
+      orderId: ORDER_ID,
+      orderStatus: "out_for_delivery",
+      customerLocation,
+      isOwner: false,
+    });
+    expect(calls).not.toContainEqual(["from", "location_updates"]);
+    expect(r.driverLocation).toBeNull();
+    expect(r.driver).toMatchObject({ fullName: "Aung", phone: null, licensePlate: null });
   });
 
   it("skips the driver lookup for a route without a driver", async () => {
@@ -308,6 +338,7 @@ describe("loadRouteTracking", () => {
       orderId: ORDER_ID,
       orderStatus: "confirmed",
       customerLocation,
+      isOwner: true,
     });
     expect(calls).not.toContainEqual(["from", "drivers"]);
     expect(r.driver).toBeNull();

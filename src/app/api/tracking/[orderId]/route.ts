@@ -212,6 +212,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
       orderId,
       orderStatus: order.status as OrderStatus,
       customerLocation: { lat: address.lat, lng: address.lng },
+      isOwner,
     });
 
     // Lookup existing rating for this order

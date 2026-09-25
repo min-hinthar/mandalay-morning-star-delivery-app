@@ -89,6 +89,8 @@ export async function fetchTrackingData(
     orderId,
     orderStatus: order.status as OrderStatus,
     customerLocation: { lat: address.lat, lng: address.lng },
+    // The order read above is pinned to user_id = the viewer.
+    isOwner: true,
   });
 
   // Rating
