@@ -1,30 +1,29 @@
 /**
  * Materialized views must be read through their admin wrapper, never directly.
  *
- * `driver_stats_mv` and `delivery_metrics_mv` are created by the baseline
- * (`:639`, `:613`) but **no grant of any form names either one** — the baseline
- * emits 99 `GRANT ... ON TABLE` lines and not one mentions an `_mv`. So the
- * caller-scoped `authenticated` client holds no SELECT privilege on them, and
- * `.from("driver_stats_mv")` fails at runtime no matter how well the route
- * authenticates the caller.
+ * `driver_stats_mv` and `delivery_metrics_mv` hold every driver's name/email and
+ * fleet revenue. A materialized view cannot carry RLS, so its ACL is the only
+ * guard — and that ACL is NOT what the migration text suggests. The baseline
+ * never GRANTs on either view by name, but Supabase's platform default ACL
+ * (`ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON
+ * TABLES TO anon, authenticated, service_role`, which lives outside the repo's
+ * migrations) grants on every relation `postgres` creates — views included.
+ * Locally, before `20260925120000_privilege_hardening.sql`, even `anon` could
+ * `SELECT * FROM driver_stats_mv`. An earlier version of this guard asserted
+ * "nothing grants SELECT" by grepping the baseline, which cannot see a default
+ * ACL: it passed for the wrong reason while the views were world-readable.
  *
- * That failure is invisible in every way that matters: `tsc` is happy, the
- * repo's phantom-column guard is happy (the columns genuinely exist), and the
- * routes' own admin checks pass. Two of the five call sites swallowed the error
- * into an empty list and the others 500'd — which is how the admin analytics
- * pages shipped broken.
+ * The fix is an explicit `REVOKE ALL ... FROM anon, authenticated`. The app
+ * reads through `get_driver_stats_admin()` / `get_delivery_metrics_admin()`,
+ * which are `SECURITY DEFINER`, re-check `is_admin()` themselves, and
+ * `RETURNS SETOF` the view so PostgREST filters still chain. A direct
+ * `.from("<mv>")` now fails for every caller (and before the REVOKE it skipped
+ * the admin check entirely) — invisible to `tsc` and the phantom-column guard.
  *
- * The correct path already existed. `get_driver_stats_admin()` (`:1164`) and
- * `get_delivery_metrics_admin()` (`:1103`) are `SECURITY DEFINER`, re-check
- * `is_admin()` themselves, `RETURNS SETOF` the view so PostgREST filters still
- * work, and — unlike the views — are granted to `authenticated`.
- *
- * This is a source guard rather than a runtime test because the failure needs a
- * real database to reproduce, and by then it is in production.
- *
- * If a future migration DOES grant SELECT on one of these views, this guard
- * becomes over-strict rather than wrong: relax it deliberately, and note that
- * reading the view directly then also skips the wrapper's `is_admin()` check.
+ * Default privileges apply again whenever a view is re-created, so any
+ * migration that (re)creates one of these views must repeat the REVOKE after
+ * it; the ordering test below enforces that. The live ACL itself is pinned by
+ * `supabase/tests/02_materialized_views.test.sql` (`has_table_privilege`).
  */
 
 import { describe, it, expect } from "vitest";
@@ -32,9 +31,10 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 
 const SRC = join(process.cwd(), "src");
-const BASELINE = join(process.cwd(), "supabase/migrations/00000000000000_baseline.sql");
+const MIGRATIONS = join(process.cwd(), "supabase/migrations");
+const BASELINE = join(MIGRATIONS, "00000000000000_baseline.sql");
 
-/** Views with no SELECT grant, mapped to the wrapper that must be used instead. */
+/** Views revoked from anon/authenticated, mapped to the wrapper that must be used instead. */
 const GUARDED_VIEWS: Record<string, string> = {
   driver_stats_mv: "get_driver_stats_admin",
   delivery_metrics_mv: "get_delivery_metrics_admin",
@@ -69,7 +69,7 @@ describe("materialized views are read through their admin wrapper", () => {
 
       expect(
         offenders.map((f) => f.replace(process.cwd() + "/", "")),
-        `read ${view} via supabase.rpc("${wrapper}") instead — nothing grants SELECT on the view, so a direct read fails at runtime for every caller`
+        `read ${view} via supabase.rpc("${wrapper}") instead — anon/authenticated are revoked on the view, so a direct read fails at runtime for every caller`
       ).toEqual([]);
     }
   );
@@ -84,34 +84,76 @@ describe("the grants this guard depends on", () => {
     expect(baseline).toContain(`GRANT EXECUTE ON FUNCTION public.${wrapper}() TO authenticated`);
   });
 
-  it.each(Object.keys(GUARDED_VIEWS))("nothing grants SELECT on %s by name", (view) => {
-    // The premise. If this ever fails, a migration granted access to the view
-    // and the guard above can be reconsidered — deliberately, not by accident.
-    const grants = baseline
-      .split("\n")
-      .filter((line) => line.startsWith("GRANT") && line.includes(view));
+  // Migrations in apply order (the CLI sorts by the timestamp prefix).
+  const migrations = readdirSync(MIGRATIONS)
+    .filter((f) => /^\d+_.+\.sql$/.test(f))
+    .sort()
+    .map((f) => ({ file: f, sql: readFileSync(join(MIGRATIONS, f), "utf8") }));
+
+  /** Offsets in the concatenated apply-order stream, so "after" spans files. */
+  function positions(re: RegExp): number[] {
+    const hits: number[] = [];
+    let offset = 0;
+    for (const m of migrations) {
+      for (const match of m.sql.matchAll(re)) hits.push(offset + (match.index ?? 0));
+      offset += m.sql.length + 1;
+    }
+    return hits;
+  }
+
+  it("scans every migration", () => {
+    expect(migrations.length).toBeGreaterThan(10);
+    expect(migrations[0].file).toBe("00000000000000_baseline.sql");
+  });
+
+  it.each(Object.keys(GUARDED_VIEWS))(
+    "%s is revoked from anon + authenticated after its LAST (re)creation",
+    (view) => {
+      // Default privileges re-grant anon/authenticated on every CREATE, so the
+      // REVOKE only holds if nothing re-creates the view after it.
+      const creates = positions(
+        new RegExp(`CREATE MATERIALIZED VIEW (?:IF NOT EXISTS )?(?:public\\.)?${view}\\b`, "g")
+      );
+      const revokes = positions(
+        new RegExp(
+          `REVOKE ALL ON [^;]*\\b(?:public\\.)?${view}\\b[^;]*FROM anon, authenticated\\s*;`,
+          "g"
+        )
+      );
+
+      expect(creates.length, `no CREATE MATERIALIZED VIEW ${view} found`).toBeGreaterThan(0);
+      expect(
+        revokes.some((r) => r > Math.max(...creates)),
+        `${view} is (re)created after its last REVOKE — default privileges re-grant anon/authenticated SELECT; repeat \`REVOKE ALL ON public.${view} FROM anon, authenticated\` after the CREATE`
+      ).toBe(true);
+    }
+  );
+
+  it.each(Object.keys(GUARDED_VIEWS))("no migration grants anything on %s by name", (view) => {
+    const grants = migrations.flatMap(({ file, sql }) =>
+      sql
+        .split("\n")
+        .filter((line) => /^\s*GRANT\b/.test(line) && new RegExp(`\\b${view}\\b`).test(line))
+        .map((line) => `${file}: ${line.trim()}`)
+    );
 
     expect(grants).toEqual([]);
   });
 
-  it("no blanket grant could reach the views without naming them", () => {
-    // The test above only rejects grants that NAME a view, so on its own it
-    // would keep passing after a `GRANT ... ON ALL TABLES IN SCHEMA public` or
-    // an `ALTER DEFAULT PRIVILEGES` — the assertion would still be green while
-    // its stated meaning ("nothing grants SELECT") had become false. That is
-    // the same passes-for-the-wrong-reason shape as the $function$ slice above.
-    //
-    // Today the dump contains exactly two GRANT forms: `ON TABLE <name>` and
-    // `ON FUNCTION <name>`, both explicit. Pinning that keeps the premise
-    // honest rather than merely unfalsified.
-    const blanket = baseline
-      .split("\n")
-      .filter((line) => /^(GRANT|ALTER DEFAULT PRIVILEGES)\b/.test(line))
-      .filter((line) => /ON ALL \w+ IN SCHEMA|^ALTER DEFAULT PRIVILEGES/.test(line));
+  it("no migration re-opens the schema to anon/authenticated wholesale", () => {
+    // A blanket GRANT (or a default-privileges GRANT) would re-cover the views
+    // without naming them, silently undoing the REVOKE above.
+    const blanket = migrations.flatMap(({ file, sql }) =>
+      sql
+        .split(/;\s*\n/)
+        .filter((stmt) => /\bGRANT\b/.test(stmt) && /\b(anon|authenticated)\b/.test(stmt))
+        .filter((stmt) => /ON ALL \w+ IN SCHEMA|ALTER DEFAULT PRIVILEGES/.test(stmt))
+        .map((stmt) => `${file}: ${stmt.trim().replace(/\s+/g, " ")}`)
+    );
 
     expect(
       blanket,
-      "a blanket grant may now cover the materialized views — re-verify the premise of this whole guard"
+      "a blanket grant may now cover the materialized views — re-verify the REVOKE still holds"
     ).toEqual([]);
   });
 

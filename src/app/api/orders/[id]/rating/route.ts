@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { submitRatingSchema } from "@/lib/validations/analytics";
 import { checkRateLimit, apiWriteLimiter, customerLimiter } from "@/lib/rate-limit";
@@ -113,8 +113,12 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       .returns<ExistingRating[]>()
       .single();
 
-    // Get the route stop to find the driver
-    const { data: routeStop, error: routeStopError } = await supabase
+    // Find the driver who DELIVERED it. Service client, after the ownership +
+    // delivered checks above: customers can't read `routes` under RLS, so the
+    // user-scoped embed always came back empty and every rating 400'd. The
+    // insert below still runs as the customer, and driver_ratings_insert
+    // re-verifies the (order, driver, stop) tuple in the database.
+    const { data: routeStop, error: routeStopError } = await createServiceClient()
       .from("route_stops")
       .select(
         `
@@ -126,8 +130,10 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       `
       )
       .eq("order_id", orderId)
+      .eq("status", "delivered")
+      .limit(1)
       .returns<RouteStopCheck[]>()
-      .single();
+      .maybeSingle();
 
     if (routeStopError || !routeStop || !routeStop.routes.driver_id) {
       return NextResponse.json(
@@ -139,17 +145,21 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     let ratingId: string;
 
     if (existingRating) {
-      // Update existing rating (upsert)
-      const { error: updateError } = await supabase
+      // Update existing rating (upsert). driver_ratings_update is admin-only, so
+      // the user-scoped update silently matched 0 rows; the caller's ownership
+      // of this order is verified above, and only rating/feedback change.
+      const { data: updated, error: updateError } = await createServiceClient()
         .from("driver_ratings")
         .update({
           rating,
           feedback_text: feedbackText || null,
           submitted_at: new Date().toISOString(),
         })
-        .eq("id", existingRating.id);
+        .eq("id", existingRating.id)
+        .eq("order_id", orderId)
+        .select("id");
 
-      if (updateError) {
+      if (updateError || !updated || updated.length === 0) {
         logger.exception(updateError, { api: "orders/[id]/rating", flowId: "update" });
         return NextResponse.json({ error: "Failed to update rating" }, { status: 500 });
       }

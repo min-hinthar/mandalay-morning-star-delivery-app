@@ -40,7 +40,9 @@ export async function POST(request: NextRequest) {
         .eq("id", routeId)
         .single();
 
-      if (route && route.driver_id !== driverId) {
+      // A route this driver can't see (RLS hides other drivers' routes) reads
+      // as null — treat it as foreign too, not as "no route to check".
+      if (!route || route.driver_id !== driverId) {
         return apiError("FORBIDDEN", "Route does not belong to driver", 403);
       }
     }

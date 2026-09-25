@@ -22,7 +22,9 @@ export type RoleRedirectResult = {
  * Uses upsert (ON CONFLICT DO NOTHING) so it's safe to call multiple times.
  * THROWS on failure so callers can handle the error (e.g., return 500 to client).
  *
- * @param supabase - Service client (bypasses RLS — profiles has no INSERT policy)
+ * @param supabase - Service client. A user-scoped client can INSERT only its own
+ *   `role='customer'` row and cannot UPDATE `profiles.email` (column grants), so
+ *   the email sync below needs service role.
  * @param userId - The authenticated user's UUID
  * @param email - The user's email (pass from session data when available)
  */

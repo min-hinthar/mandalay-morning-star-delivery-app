@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { checkCoverage } from "@/lib/services/coverage";
 import { geocodeAddress } from "@/lib/services/geocoding";
 import { addressFormSchema } from "@/lib/validations/address";
@@ -125,7 +125,11 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
       );
     }
 
-    const { data: address, error } = await supabase
+    // Service client AFTER the ownership check above: the geocoded columns
+    // (lat/lng, is_verified, distance_miles) are server-computed pricing
+    // inputs, so customers hold no UPDATE privilege on them. Still scoped by
+    // id AND user_id.
+    const { data: address, error } = await createServiceClient()
       .from("addresses")
       .update({
         label,

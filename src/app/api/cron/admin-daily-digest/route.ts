@@ -324,12 +324,18 @@ export async function GET(request: Request) {
   // Step 5: Mark as sent in app_settings for dedupe on next cron run
   // -----------------------------------------------
   if (sent > 0) {
-    await supabase.from("app_settings").insert({
+    // category must satisfy app_settings_category_check (delivery |
+    // operations | notifications). The old 'cron' value violated it, so the
+    // marker never persisted and the dedupe never worked — log failures now.
+    const { error: markerError } = await supabase.from("app_settings").insert({
       key: dedupeSettingKey,
-      category: "cron",
+      category: "notifications",
       description: `Dedupe marker for admin digest cron — ${dedupeKey}`,
       value: { sent, period, date: today },
     });
+    if (markerError) {
+      logger.exception(markerError, { flowId: FLOW_ID, api: "cron", dedupeKey });
+    }
   }
 
   // -----------------------------------------------

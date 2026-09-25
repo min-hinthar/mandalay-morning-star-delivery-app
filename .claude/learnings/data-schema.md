@@ -277,19 +277,34 @@ The `.returns<T>()` provides type safety on the output. Remember to regenerate t
 
 **Apply when:** Writing Supabase migrations that create indexes. Never use `CONCURRENTLY` in migration files.
 
-## Materialized views have NO implicit grants — a view without one fails for every caller
+## Materialized views inherit the default ACL and have no RLS — REVOKE, then read via wrappers
 
-`driver_stats_mv` / `delivery_metrics_mv` exist in the baseline but no `GRANT` of any form
-names them, so the caller-scoped `authenticated` client holds no SELECT privilege and a
-direct `.from("driver_stats_mv")` fails at runtime for EVERY caller — however well the
-route authenticates. Invisible to `tsc`, to `db-drift`, and to the phantom-column guard
-(the columns exist). Two call sites swallowed the error into empty panels; three 500'd.
+`driver_stats_mv` / `delivery_metrics_mv` hold every driver's name/email and fleet
+revenue. The baseline never GRANTs on them by name — and an earlier version of this note
+concluded "so nobody can read them". **That was false.** Supabase's platform default
+privileges (`ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public GRANT ALL ON
+TABLES TO anon, authenticated, service_role`, which is NOT in the repo's migrations) apply to
+every relation `postgres` creates, materialized views included — and a materialized view
+cannot have RLS. Locally, `anon` could `SELECT * FROM driver_stats_mv`. The old guard and
+`02_materialized_views.test.sql` both "proved" otherwise: one grepped migration text (blind
+to default ACLs), the other queried `information_schema.role_table_grants` (which never
+lists relkind `m`). Both passed for the wrong reason.
 
-Read them through their `SECURITY DEFINER` wrappers instead: `get_driver_stats_admin()` /
-`get_delivery_metrics_admin()` are granted to `authenticated`, re-check `is_admin()`
-themselves, and `RETURNS SETOF <view>` so PostgREST filters (`.eq/.gte/.order`) still
-chain. `src/lib/__tests__/materialized-view-access.test.ts` bans direct reads repo-wide
-and pins the grants the fix relies on.
+Fix (`20260925120000_privilege_hardening.sql`): `REVOKE ALL ON public.driver_stats_mv,
+public.delivery_metrics_mv FROM anon, authenticated`. Read them through their
+`SECURITY DEFINER` wrappers: `get_driver_stats_admin()` / `get_delivery_metrics_admin()` are
+granted to `authenticated`, re-check `is_admin()` themselves, and `RETURNS SETOF <view>` so
+PostgREST filters (`.eq/.gte/.order`) still chain. A direct `.from("<mv>")` now fails for
+every caller (before the REVOKE it silently skipped the admin gate).
+
+- **Re-creating a view re-grants it.** Default privileges fire on every CREATE, so any
+  migration that DROPs/CREATEs an `_mv` must repeat the REVOKE after it.
+  `src/lib/__tests__/materialized-view-access.test.ts` fails if a CREATE follows the last
+  REVOKE in apply order, or if any migration GRANTs on the views (by name or wholesale).
+- **Verify privileges with `has_table_privilege`,** never by grepping DDL or reading
+  `information_schema` (`supabase/tests/02_materialized_views.test.sql`).
+- Prod ACL was not directly verifiable from the cloud session — after deploy run
+  `SELECT relname, relacl FROM pg_class WHERE relname LIKE '%\_mv'`.
 
 Related traps: the views are created UNQUALIFIED in the baseline — grepping
 `public.driver_stats_mv` finds nothing, search bare. And `drivers.rating_avg`'s unrated
