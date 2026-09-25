@@ -233,6 +233,27 @@ describe("the migration SQL mirrors this module (source guard)", () => {
     expect(sql).toContain("RETURNS jsonb");
   });
 
+  // A (re)definition, not a mention: later migrations may reference the
+  // function in comments (20260925180000 explains why it failed for admins).
+  // Quoted identifiers (pg_dump --quote-all-identifiers) and spaced dots count.
+  const REDEFINES =
+    /CREATE\s+(OR\s+REPLACE\s+)?FUNCTION\s+("?public"?\s*\.\s*)?"?apply_item_refunds"?\s*\(/i;
+
+  it("recognises every spelling of a redefinition, but not a mention", () => {
+    for (const sqlText of [
+      "CREATE OR REPLACE FUNCTION public.apply_item_refunds(p uuid)",
+      "create function apply_item_refunds (p uuid)",
+      'CREATE OR REPLACE FUNCTION "public"."apply_item_refunds"(p uuid)',
+      'CREATE FUNCTION public."apply_item_refunds"(p uuid)',
+      "CREATE OR REPLACE FUNCTION public . apply_item_refunds(p uuid)",
+    ]) {
+      expect(REDEFINES.test(sqlText), sqlText).toBe(true);
+    }
+    expect(REDEFINES.test("-- apply_item_refunds (SECURITY INVOKER) raised for admins")).toBe(
+      false
+    );
+  });
+
   it("is the LATEST apply_item_refunds migration (a newer one must move these guards forward)", () => {
     // If a later migration redefines the function without the D4/D5 guards,
     // this file's assertions would still pass while prod regressed. Pin the
@@ -241,13 +262,7 @@ describe("the migration SQL mirrors this module (source guard)", () => {
     const dir = join(process.cwd(), "supabase/migrations");
     const later = readdirSync(dir)
       .filter((f: string) => f > "20260805200000_discount_proportional_refunds.sql")
-      // A (re)definition, not a mention: later migrations may reference the
-      // function in comments (20260925180000 explains why it failed for admins).
-      .filter((f: string) =>
-        /CREATE\s+(OR\s+REPLACE\s+)?FUNCTION\s+(public\.)?apply_item_refunds\s*\(/i.test(
-          readFileSync(join(dir, f), "utf8")
-        )
-      );
+      .filter((f: string) => REDEFINES.test(readFileSync(join(dir, f), "utf8")));
     expect(later).toEqual([]);
   });
 });

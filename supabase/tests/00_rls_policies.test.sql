@@ -347,53 +347,44 @@ SELECT ok(
   'order_audit_log has no multiple permissive SELECT policies'
 );
 
--- orders should not have multiple permissive SELECT policies
-SELECT ok(
-  NOT EXISTS (
-    SELECT 1
-    FROM pg_policy pp
-    JOIN pg_class pc ON pp.polrelid = pc.oid
-    JOIN pg_namespace pn ON pc.relnamespace = pn.oid
-    WHERE pn.nspname = 'public'
-      AND pc.relname = 'orders'
-      AND pp.polcmd = 'r'  -- SELECT
-      AND pp.polpermissive = true
-    GROUP BY pc.relname, pp.polcmd
-    HAVING COUNT(*) > 1
-  ),
-  'orders has no multiple permissive SELECT policies'
-);
-
--- Intentional multiple permissive SELECT: driver_badges (own + admin) and
--- driver_invites (admin FOR ALL + own-email SELECT) are expected and acceptable.
--- We verify the overall count of tables with multiple permissive policies is
--- limited to only the known intentional cases.
-SELECT ok(
-  (
-    SELECT COUNT(DISTINCT pc.relname) FROM pg_policy pp
-    JOIN pg_class pc ON pp.polrelid = pc.oid
-    JOIN pg_namespace pn ON pc.relnamespace = pn.oid
-    WHERE pn.nspname = 'public'
-      AND pp.polcmd = 'r'  -- SELECT
-      AND pp.polpermissive = true
-    GROUP BY pc.relname, pp.polcmd
-    HAVING COUNT(*) > 1
-  ) IS NOT DISTINCT FROM NULL
-  OR (
-    SELECT COUNT(*) FROM (
-      SELECT pc.relname
+-- orders: owner/admin (orders_select) + driver-on-route (orders_select_driver,
+-- the driver's stop view). A third permissive SELECT policy is unintended.
+SELECT set_eq(
+  $$SELECT pp.polname::text
       FROM pg_policy pp
       JOIN pg_class pc ON pp.polrelid = pc.oid
       JOIN pg_namespace pn ON pc.relnamespace = pn.oid
-      WHERE pn.nspname = 'public'
-        AND pp.polcmd = 'r'
-        AND pp.polpermissive = true
-        AND pc.relname NOT IN ('driver_badges', 'driver_invites')
-      GROUP BY pc.relname, pp.polcmd
-      HAVING COUNT(*) > 1
-    ) AS violations
-  ) = 0,
-  'No unintended multiple permissive SELECT policies (driver_badges, driver_invites excluded)'
+     WHERE pn.nspname = 'public'
+       AND pc.relname = 'orders'
+       AND pp.polcmd = 'r'  -- SELECT
+       AND pp.polpermissive = true$$,
+  ARRAY['orders_select', 'orders_select_driver'],
+  'orders permissive SELECT policies are exactly owner/admin + driver-on-route'
+);
+
+-- Tables with more than one permissive SELECT policy, each intentional:
+--   addresses / order_items / order_item_modifiers — owner/admin + driver
+--     reading only what is on their own non-completed route (20260925180000)
+--   app_settings      — authenticated + anon (anon limited by column grant)
+--   customer_feedback — owner + admin
+--   delivery_days     — anon + authenticated public schedule
+--   driver_badges     — own + admin
+--   orders            — owner/admin + driver-on-route (pinned above)
+-- A new table here is a review prompt, not a rubber stamp: prefer one policy
+-- with OR'd clauses.
+SELECT set_eq(
+  $$SELECT pc.relname::text
+      FROM pg_policy pp
+      JOIN pg_class pc ON pp.polrelid = pc.oid
+      JOIN pg_namespace pn ON pc.relnamespace = pn.oid
+     WHERE pn.nspname = 'public'
+       AND pp.polcmd = 'r'  -- SELECT
+       AND pp.polpermissive = true
+     GROUP BY pc.relname
+    HAVING COUNT(*) > 1$$,
+  ARRAY['addresses', 'app_settings', 'customer_feedback', 'delivery_days', 'driver_badges',
+        'order_item_modifiers', 'order_items', 'orders'],
+  'Multiple permissive SELECT policies exist only on the intended tables'
 );
 
 -- ===========================================

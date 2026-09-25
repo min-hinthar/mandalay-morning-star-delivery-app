@@ -28,6 +28,7 @@ interface StopRow {
   status: string;
   eta: string | null;
   delivery_photo_url: string | null;
+  updated_at: string;
   routes: { id: string; status: string; driver_id: string | null } | null;
 }
 
@@ -70,8 +71,14 @@ export async function loadRouteTracking(args: {
 
   const { data: stop } = await service
     .from("route_stops")
-    .select("id, stop_index, status, eta, delivery_photo_url, routes (id, status, driver_id)")
+    .select(
+      "id, stop_index, status, eta, delivery_photo_url, updated_at, routes (id, status, driver_id)"
+    )
     .eq("order_id", orderId)
+    // An order skipped on one route can be re-delivered on a later one (UNIQUE
+    // is per route) — track the newest stop, not an ambiguous pair.
+    .order("created_at", { ascending: false })
+    .limit(1)
     .returns<StopRow[]>()
     .maybeSingle();
 
@@ -84,17 +91,42 @@ export async function loadRouteTracking(args: {
     .select("*", { count: "exact", head: true })
     .eq("route_id", route.id);
 
+  // The driver's actual position on the route: the first stop not yet
+  // delivered/skipped (0-based, like stop_index). Every stop terminal → the run
+  // is done, so progress reads full.
+  const { data: current } = await service
+    .from("route_stops")
+    .select("stop_index")
+    .eq("route_id", route.id)
+    .in("status", ["pending", "enroute", "arrived"])
+    .order("stop_index", { ascending: true })
+    .limit(1)
+    .returns<{ stop_index: number }[]>()
+    .maybeSingle();
+  const currentStop = current?.stop_index ?? totalStops ?? 0;
+
   result.routeStop = {
     id: stop.id,
     stopIndex: stop.stop_index,
     totalStops: totalStops ?? 0,
-    currentStop: stop.stop_index,
+    currentStop,
     status: stop.status as RouteStopStatus,
     eta: stop.eta,
     deliveryPhotoUrl: await getDeliveryPhotoSignedUrl(stop.delivery_photo_url),
   };
 
   if (!route.driver_id) return result;
+
+  // The driver is on THIS customer's leg: their stop is the current one on an
+  // in-progress route and the order is out for delivery. Only then does the
+  // customer get the driver's phone, plate and live position — never while the
+  // driver is still at earlier customers' doors, and never after this stop is
+  // delivered or skipped. Mirrors app_private.location_visible_to_my_order
+  // (the realtime channel's RLS), 20260925180000 §6.
+  const onMyLeg =
+    (route.status as RouteStatus) === "in_progress" &&
+    orderStatus === "out_for_delivery" &&
+    (stop.status === "enroute" || stop.status === "arrived");
 
   const { data: driver } = await service
     .from("drivers")
@@ -106,26 +138,25 @@ export async function loadRouteTracking(args: {
     .maybeSingle();
 
   if (driver) {
+    // Name + photo are fine to show for the whole order (and to rate by);
+    // the personal phone and the plate only while the driver is on this leg.
     result.driver = {
       id: driver.id,
       fullName: driver.profiles?.full_name ?? null,
       profileImageUrl: driver.profile_image_url,
-      phone: driver.profiles?.phone ?? null,
-      vehicleType: (driver.vehicle_type as VehicleType) ?? null,
-      licensePlate: driver.license_plate ?? null,
+      phone: onMyLeg ? (driver.profiles?.phone ?? null) : null,
+      vehicleType: onMyLeg ? ((driver.vehicle_type as VehicleType) ?? null) : null,
+      licensePlate: onMyLeg ? (driver.license_plate ?? null) : null,
     };
   }
 
-  // Live location only while THIS order is out on an in-progress route — not
-  // before dispatch, and not after it's delivered while the driver carries on.
-  if ((route.status as RouteStatus) !== "in_progress" || orderStatus !== "out_for_delivery") {
-    return result;
-  }
+  if (!onMyLeg) return result;
 
   const { data: loc } = await service
     .from("location_updates")
     .select("latitude, longitude, recorded_at, accuracy, heading")
     .eq("route_id", route.id)
+    .gte("recorded_at", stop.updated_at)
     .order("recorded_at", { ascending: false })
     .limit(1)
     .returns<LocationRow[]>()
@@ -142,21 +173,7 @@ export async function loadRouteTracking(args: {
 
   if (customerLocation.lat == null || customerLocation.lng == null) return result;
 
-  // The driver's actual next stop (first pending/enroute on the route).
-  const { data: current } = await service
-    .from("route_stops")
-    .select("stop_index")
-    .eq("route_id", route.id)
-    .in("status", ["pending", "enroute"])
-    .order("stop_index", { ascending: true })
-    .limit(1)
-    .returns<{ stop_index: number }[]>()
-    .maybeSingle();
-
-  const remainingStops = calculateRemainingStops(
-    current?.stop_index ?? stop.stop_index,
-    stop.stop_index
-  );
+  const remainingStops = calculateRemainingStops(currentStop, stop.stop_index);
   const etaResult = calculateETA({
     driverLocation: { lat: loc.latitude, lng: loc.longitude },
     customerLocation: { lat: customerLocation.lat, lng: customerLocation.lng },

@@ -18,6 +18,14 @@ DROP POLICY IF EXISTS order_items_delete_admin ON public.order_items;
 CREATE POLICY order_items_delete_admin ON public.order_items AS PERMISSIVE FOR DELETE TO authenticated
   USING (( SELECT public.is_admin()));
 
+-- With admin item writes live, a line must never drop below what was already
+-- refunded (the items route rejects it with 409; this is the belt for every
+-- other writer). NOT VALID: enforced on every new write without re-scanning
+-- history, so an unexpected historical row can't block this migration.
+ALTER TABLE public.order_items DROP CONSTRAINT IF EXISTS order_items_refunded_within_quantity;
+ALTER TABLE public.order_items ADD CONSTRAINT order_items_refunded_within_quantity
+  CHECK (COALESCE(refunded_quantity, 0) <= quantity) NOT VALID;
+
 -- ---------------------------------------------------------------------------
 -- 2. order_audit_log_action_check allowed only status_change/cancel/refund/edit,
 --    so every other action the app writes was rejected and the audit row lost
@@ -130,7 +138,9 @@ $function$;
 --    route: addresses_select is owner-or-admin, so every driver route embed
 --    (orders → addresses) came back null — no street, city or lat/lng for
 --    navigation. Grant a driver SELECT on exactly the addresses referenced by
---    orders on their routes. get_my_driver_id() requires drivers.is_active, so
+--    orders on their routes that are still in play (not completed — address
+--    rows are edited in place, so a finished route must not keep showing a
+--    customer's CURRENT address). get_my_driver_id() requires is_active, so
 --    a deactivated driver sees none, and route_stops re-pointing is blocked by
 --    trg_guard_route_stop_identity, so a driver cannot pull other orders (and
 --    their addresses) onto a route. profiles_select is deliberately NOT
@@ -150,6 +160,7 @@ AS $function$
       JOIN public.routes r ON r.id = rs.route_id
      WHERE o.address_id = p_address_id
        AND r.driver_id = public.get_my_driver_id()
+       AND r.status <> 'completed'
   );
 $function$;
 REVOKE ALL ON FUNCTION app_private.address_on_my_route(uuid) FROM PUBLIC, anon;
@@ -195,11 +206,15 @@ CREATE POLICY order_item_modifiers_select_driver ON public.order_item_modifiers 
 -- 6. Customer live tracking: location_updates_select's customer clause joined
 --    routes/route_stops/orders from inside the policy, i.e. through the
 --    customer's own RLS — and routes_select is driver-or-admin, so the join was
---    always empty and the realtime driver map never received a point. Same
---    clause via a definer helper, narrowed to while the customer's OWN order is
---    out for delivery (not after it's delivered while the driver carries on).
+--    always empty and the realtime driver map never received a point. Moved
+--    into a definer helper AND narrowed to what live tracking needs without
+--    leaking other customers' homes: only while the customer's OWN stop is the
+--    driver's current leg (enroute/arrived) on an in-progress route with their
+--    order out for delivery, and only points recorded since that stop's last
+--    status change (route_stops.updated_at, maintained by trigger) — never the
+--    route's earlier GPS trail, which passes every previous customer's door.
 -- ---------------------------------------------------------------------------
-CREATE OR REPLACE FUNCTION app_private.route_live_for_my_order(p_route_id uuid)
+CREATE OR REPLACE FUNCTION app_private.location_visible_to_my_order(p_route_id uuid, p_recorded_at timestamptz)
  RETURNS boolean
  LANGUAGE sql
  STABLE SECURITY DEFINER
@@ -211,20 +226,22 @@ AS $function$
       JOIN public.routes r ON r.id = rs.route_id
       JOIN public.orders o ON o.id = rs.order_id
      WHERE rs.route_id = p_route_id
+       AND rs.status IN ('enroute', 'arrived')
+       AND p_recorded_at >= rs.updated_at
        AND r.status = 'in_progress'
        AND o.status = 'out_for_delivery'
        AND o.user_id = ( SELECT auth.uid())
   );
 $function$;
-REVOKE ALL ON FUNCTION app_private.route_live_for_my_order(uuid) FROM PUBLIC, anon;
-GRANT EXECUTE ON FUNCTION app_private.route_live_for_my_order(uuid) TO authenticated;
+REVOKE ALL ON FUNCTION app_private.location_visible_to_my_order(uuid, timestamptz) FROM PUBLIC, anon;
+GRANT EXECUTE ON FUNCTION app_private.location_visible_to_my_order(uuid, timestamptz) TO authenticated;
 
 DROP POLICY IF EXISTS location_updates_select ON public.location_updates;
 CREATE POLICY location_updates_select ON public.location_updates AS PERMISSIVE FOR SELECT TO authenticated
   USING (
     driver_id = ( SELECT public.get_my_driver_id())
     OR ( SELECT public.is_admin())
-    OR (route_id IS NOT NULL AND app_private.route_live_for_my_order(route_id))
+    OR (route_id IS NOT NULL AND app_private.location_visible_to_my_order(route_id, recorded_at))
   );
 
 -- ---------------------------------------------------------------------------

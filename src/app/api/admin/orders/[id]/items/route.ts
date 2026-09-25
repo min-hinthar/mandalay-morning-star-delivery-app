@@ -122,6 +122,20 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       return apiError("NOT_FOUND", "Some items not found", 404, { missingItemIds: missingIds });
     }
 
+    // Never below what was already refunded: apply_item_refunds pins
+    // refunded_quantity <= quantity, and removing a refunded line would drop the
+    // refund's record while the charge-back stays on the customer's card.
+    // Checked before ANY write — the per-item writes below aren't atomic.
+    const belowRefunded = items.filter((update) => {
+      const refunded = orderItems!.find((oi) => oi.id === update.id)!.refunded_quantity ?? 0;
+      return refunded > 0 && update.quantity < refunded;
+    });
+    if (belowRefunded.length > 0) {
+      return apiError("CONFLICT", "Cannot reduce an item below its refunded quantity", 409, {
+        itemIds: belowRefunded.map((i) => i.id),
+      });
+    }
+
     // Track changes for audit
     const oldValues: Record<string, { name: string; quantity: number; lineTotal: number }> = {};
     const newValues: Record<string, { name: string; quantity: number; lineTotal: number }> = {};

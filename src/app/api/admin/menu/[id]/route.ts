@@ -183,9 +183,25 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
     // trigger doing DELETE FROM storage.objects, which Supabase storage now
     // rejects ("Direct deletion from storage tables is not allowed"), so any
     // item with a photo could not be deleted at all. Best-effort: the row is
-    // already gone, and an orphaned object is harmless.
-    const photoPath = menuPhotoPath(deleted[0].image_url);
-    if (photoPath) {
+    // already gone, and an orphaned object is harmless — so keep the object
+    // whenever another item still shows it (Photos → assign copies the same
+    // URL onto a second item) or that can't be confirmed.
+    const imageUrl = deleted[0].image_url;
+    const photoPath = menuPhotoPath(imageUrl);
+    const { count: sharers, error: shareError } = photoPath
+      ? await auth.supabase
+          .from("menu_items")
+          .select("id", { count: "exact", head: true })
+          .eq("image_url", imageUrl!)
+      : { count: 0, error: null };
+    if (photoPath && (shareError || (sharers ?? 0) > 0)) {
+      logger.info("Menu item deleted; kept its photo (shared or unverified)", {
+        api: "admin/menu/[id]",
+        menuItemId: id,
+        sharers,
+        error: shareError?.message,
+      });
+    } else if (photoPath) {
       const { error: storageError } = await auth.supabase.storage
         .from("menu-photos")
         .remove([photoPath]);
@@ -213,5 +229,12 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
 /** Object path inside the menu-photos bucket for a stored public URL, else null. */
 function menuPhotoPath(imageUrl: string | null): string | null {
   const match = imageUrl?.match(/\/menu-photos\/(.+)$/);
-  return match ? decodeURIComponent(match[1].split("?")[0]) : null;
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1].split("?")[0]);
+  } catch {
+    // Malformed escape (e.g. a literal "%" in a hand-entered URL) — not ours
+    // to guess at; leave the object rather than fail after the row is gone.
+    return null;
+  }
 }
