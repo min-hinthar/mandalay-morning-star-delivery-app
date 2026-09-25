@@ -28,9 +28,16 @@ REVOKE INSERT, UPDATE ON public.profiles FROM anon, authenticated;
 GRANT INSERT (id, email, role) ON public.profiles TO authenticated;
 GRANT UPDATE (full_name, phone, updated_at) ON public.profiles TO authenticated;
 
+-- The self-heal insert (ensureProfile's user-client fallback) sends the auth
+-- email or null; pin it so a user whose row went missing can't claim another
+-- identity's email.
 DROP POLICY IF EXISTS profiles_insert_own ON public.profiles;
 CREATE POLICY profiles_insert_own ON public.profiles AS PERMISSIVE FOR INSERT TO authenticated
-  WITH CHECK ((id = ( SELECT auth.uid() AS uid)) AND (role = 'customer'::text));
+  WITH CHECK (
+    (id = ( SELECT auth.uid() AS uid))
+    AND (role = 'customer'::text)
+    AND (email IS NULL OR lower(email) = lower(( SELECT auth.jwt() ->> 'email')))
+  );
 
 -- Belt that survives a future blanket re-grant: end-user roles can never set
 -- or change profiles.role. SECURITY INVOKER on purpose — current_user must be
@@ -289,6 +296,11 @@ CREATE POLICY delivery_exceptions_insert ON public.delivery_exceptions AS PERMIS
 --     (is_admin() isn't executable by anon, hence the per-role split. The
 --     authenticated policy keeps the name app_settings_select.)
 -- ---------------------------------------------------------------------------
+-- anon also loses the admin-id column: its readers select only key/value and
+-- filter on category (fetchBusinessRules, the health check).
+REVOKE SELECT ON public.app_settings FROM anon;
+GRANT SELECT (key, value, category) ON public.app_settings TO anon;
+
 DROP POLICY IF EXISTS app_settings_select ON public.app_settings;
 CREATE POLICY app_settings_select_anon ON public.app_settings AS PERMISSIVE FOR SELECT TO anon
   USING (category = 'delivery');
@@ -325,3 +337,30 @@ CREATE POLICY location_updates_insert ON public.location_updates AS PERMISSIVE F
 REVOKE TRUNCATE, TRIGGER, REFERENCES ON ALL TABLES IN SCHEMA public FROM anon, authenticated;
 ALTER DEFAULT PRIVILEGES FOR ROLE postgres IN SCHEMA public
   REVOKE TRUNCATE, TRIGGER, REFERENCES ON TABLES FROM anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- 14. A DEACTIVATED driver kept their DB-level driver identity:
+--     get_my_driver_id() matched on user_id alone, so every policy keyed on it
+--     (routes, route_stops, location_updates, delivery_exceptions, and
+--     orders via order_on_my_route) still admitted them on any route left
+--     assigned — straight PostgREST could start the route and move orders to
+--     out_for_delivery/delivered. requireDriver() already demands is_active;
+--     the DB now agrees. (Deactivated drivers have no app surface that reads
+--     through these policies — /driver/deactivated uses the service client.)
+-- ---------------------------------------------------------------------------
+CREATE OR REPLACE FUNCTION public.get_my_driver_id()
+ RETURNS uuid
+ LANGUAGE plpgsql
+ STABLE SECURITY DEFINER
+ SET search_path TO ''
+AS $function$
+DECLARE
+  v_driver_id UUID;
+BEGIN
+  SELECT id INTO v_driver_id
+  FROM public.drivers
+  WHERE user_id = (select auth.uid())
+    AND is_active;
+  RETURN v_driver_id;
+END;
+$function$;

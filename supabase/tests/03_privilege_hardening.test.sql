@@ -6,7 +6,7 @@
 -- ===========================================
 
 BEGIN;
-SELECT plan(22);
+SELECT plan(26);
 
 -- profiles: no self-service role / email / reward-stamp writes
 SELECT ok(NOT has_column_privilege('authenticated', 'public.profiles', 'role', 'UPDATE'), 'authenticated cannot UPDATE profiles.role');
@@ -45,6 +45,16 @@ SELECT ok(NOT EXISTS (
 
 -- delivery exceptions: drivers can't pre-resolve
 SELECT ok(NOT has_column_privilege('authenticated', 'public.delivery_exceptions', 'resolved_at', 'INSERT'), 'authenticated cannot INSERT delivery_exceptions.resolved_at');
+
+-- app_settings: anon reads public pricing columns only (no admin ids)
+SELECT ok(NOT has_column_privilege('anon', 'public.app_settings', 'updated_by', 'SELECT'), 'anon cannot SELECT app_settings.updated_by');
+SELECT ok(has_column_privilege('anon', 'public.app_settings', 'category', 'SELECT'), 'anon keeps SELECT on app_settings.category (fetchBusinessRules filter)');
+
+-- self-heal profile insert can't claim another identity's email
+SELECT ok((SELECT pg_get_expr(polwithcheck, polrelid) FROM pg_policy WHERE polname = 'profiles_insert_own') ~ 'jwt\(\)', 'profiles_insert_own pins email to the JWT');
+
+-- deactivated drivers lose DB-level driver identity (every driver policy keys on it)
+SELECT ok(pg_get_functiondef('public.get_my_driver_id()'::regprocedure) ~ 'is_active', 'get_my_driver_id() requires drivers.is_active');
 
 SELECT * FROM finish();
 ROLLBACK;
