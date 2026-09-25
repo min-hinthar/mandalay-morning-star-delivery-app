@@ -34,6 +34,7 @@ interface OrderData {
   special_instructions: string | null;
   customer_phone: string | null;
   customer_name: string | null;
+  user_id: string;
   addresses: AddressData | null;
   profiles: CustomerData | null;
 }
@@ -143,6 +144,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
             delivery_window_end,
             special_instructions,
             customer_phone,
+            user_id,
             customer_name,
             addresses (
               id,
@@ -197,7 +199,8 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
             deliveryWindowEnd: stop.orders!.delivery_window_end,
             specialInstructions: stop.orders!.special_instructions,
             customer: {
-              id: stop.orders!.profiles?.id ?? "",
+              // orders.user_id: the profiles embed is RLS-hidden from drivers (always null).
+              id: stop.orders!.user_id,
               fullName: stop.orders!.customer_name ?? stop.orders!.profiles?.full_name ?? null,
               phone: stop.orders!.customer_phone ?? stop.orders!.profiles?.phone ?? null,
             },

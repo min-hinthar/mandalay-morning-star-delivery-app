@@ -56,4 +56,7 @@ export const AUDIT_ACTION_LABELS: Record<string, string> = {
   update_items: "Items Updated",
   assign_driver: "Driver Assigned",
   unassign_driver: "Driver Unassigned",
+  priority_change: "Priority Changed",
+  marked_contacted: "Customer Contacted",
+  delivery_exception: "Delivery Exception",
 };

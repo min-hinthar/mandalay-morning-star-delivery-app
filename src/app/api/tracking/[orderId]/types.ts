@@ -43,42 +43,5 @@ export interface OrderQueryResult {
   order_items: OrderItemData[];
 }
 
-export interface RouteData {
-  id: string;
-  status: string;
-  driver_id: string | null;
-}
-
-export interface DriverProfileData {
-  full_name: string | null;
-  phone: string | null;
-}
-
-export interface DriverData {
-  id: string;
-  profile_image_url: string | null;
-  vehicle_type: string | null;
-  license_plate: string | null;
-  profiles: DriverProfileData | null;
-}
-
-export interface RouteStopQueryResult {
-  id: string;
-  stop_index: number;
-  status: string;
-  eta: string | null;
-  delivery_photo_url: string | null;
-  routes: RouteData | null;
-}
-
-export interface LocationUpdateData {
-  latitude: number;
-  longitude: number;
-  recorded_at: string;
-  accuracy: number | null;
-  heading: number | null;
-}
-
-export interface CurrentStopData {
-  stop_index: number;
-}
+// Route / driver / location row shapes live with their only reader,
+// src/lib/tracking/route-tracking.ts.

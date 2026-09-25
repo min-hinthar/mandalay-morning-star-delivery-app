@@ -137,7 +137,9 @@ export function DriverCard({ driver, stopProgress, onContactDriver, className }:
                 </span>
               </span>
               <span className="font-medium text-hero-ink">
-                Stop {stopProgress.currentStop} of {stopProgress.totalStops}
+                {/* currentStop is the driver's 0-based position (== totalStops once done) */}
+                Stop {Math.min(stopProgress.currentStop + 1, stopProgress.totalStops)} of{" "}
+                {stopProgress.totalStops}
               </span>
             </div>
             <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-hero-ink/10">

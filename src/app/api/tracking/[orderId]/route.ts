@@ -12,27 +12,18 @@
 
 import { NextResponse } from "next/server";
 import { createClient } from "@/lib/supabase/server";
-import { getDeliveryPhotoSignedUrl } from "@/lib/supabase/delivery-photos";
+import { loadRouteTracking } from "@/lib/tracking/route-tracking";
 import { checkRateLimit, customerLimiter } from "@/lib/rate-limit";
 import { logger } from "@/lib/utils/logger";
-import { calculateETA, calculateRemainingStops } from "@/lib/utils/eta";
 import { getOrderCancellation } from "@/lib/orders/cancellation";
 import type { OrderStatus } from "@/types/database";
-import type { RouteStatus, RouteStopStatus, VehicleType } from "@/types/driver";
 import type {
   TrackingData,
   TrackingOrderInfo,
-  TrackingRouteStopInfo,
   TrackingOrderItem,
   TrackingAddressInfo,
 } from "@/types/tracking";
-import type {
-  OrderQueryResult,
-  RouteStopQueryResult,
-  DriverData,
-  LocationUpdateData,
-  CurrentStopData,
-} from "./types";
+import type { OrderQueryResult } from "./types";
 import { KITCHEN_COORDS } from "@/lib/constants/kitchen";
 
 // Restaurant location constant (Mandalay Morning Star, Covina CA)
@@ -214,155 +205,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ orde
       totalCents: order.total_cents,
     };
 
-    // Default response (no route assigned)
-    let routeStop: TrackingRouteStopInfo | null = null;
-    let driver: TrackingData["driver"] = null;
-    let driverLocation: TrackingData["driverLocation"] = null;
-    let eta: TrackingData["eta"] = null;
-    let routeId: string | null = null;
-
-    // Check if order is assigned to a route
-    const { data: routeStopData } = await supabase
-      .from("route_stops")
-      .select(
-        `
-        id,
-        stop_index,
-        status,
-        eta,
-        delivery_photo_url,
-        routes (
-          id,
-          status,
-          driver_id
-        )
-      `
-      )
-      .eq("order_id", orderId)
-      .returns<RouteStopQueryResult[]>()
-      .single();
-
-    if (routeStopData?.routes) {
-      // Extract routeId for location subscription
-      routeId = routeStopData.routes.id;
-
-      // Get total stops for this route
-      const { count: totalStops } = await supabase
-        .from("route_stops")
-        .select("*", { count: "exact", head: true })
-        .eq("route_id", routeStopData.routes.id);
-
-      routeStop = {
-        id: routeStopData.id,
-        stopIndex: routeStopData.stop_index,
-        totalStops: totalStops ?? 0,
-        currentStop: routeStopData.stop_index,
-        status: routeStopData.status as RouteStopStatus,
-        eta: routeStopData.eta,
-        deliveryPhotoUrl: await getDeliveryPhotoSignedUrl(routeStopData.delivery_photo_url),
-      };
-
-      // Get driver info if route has a driver
-      if (routeStopData.routes.driver_id) {
-        const { data: driverData } = await supabase
-          .from("drivers")
-          .select(
-            `
-            id,
-            profile_image_url,
-            vehicle_type,
-            license_plate,
-            profiles!drivers_user_id_fkey (
-              full_name,
-              phone
-            )
-          `
-          )
-          .eq("id", routeStopData.routes.driver_id)
-          .returns<DriverData[]>()
-          .single();
-
-        if (driverData) {
-          driver = {
-            id: driverData.id,
-            fullName: driverData.profiles?.full_name ?? null,
-            profileImageUrl: driverData.profile_image_url,
-            phone: driverData.profiles?.phone ?? null,
-            vehicleType: (driverData.vehicle_type as VehicleType) ?? null,
-            licensePlate: driverData.license_plate ?? null,
-          };
-        }
-      }
-
-      // Get driver location only if:
-      // 1. Route is in_progress
-      // 2. Order status is out_for_delivery
-      const routeStatus = routeStopData.routes.status as RouteStatus;
-      const orderStatus = order.status as OrderStatus;
-
-      if (
-        routeStatus === "in_progress" &&
-        orderStatus === "out_for_delivery" &&
-        routeStopData.routes.driver_id
-      ) {
-        const { data: locationData } = await supabase
-          .from("location_updates")
-          .select("latitude, longitude, recorded_at, accuracy, heading")
-          .eq("route_id", routeStopData.routes.id)
-          .order("recorded_at", { ascending: false })
-          .limit(1)
-          .returns<LocationUpdateData[]>()
-          .single();
-
-        if (locationData) {
-          driverLocation = {
-            latitude: locationData.latitude,
-            longitude: locationData.longitude,
-            recorded_at: locationData.recorded_at,
-            accuracy: locationData.accuracy,
-            heading: locationData.heading,
-          };
-
-          // Calculate ETA if we have both driver and customer locations
-          if (address.lat && address.lng) {
-            // Find current stop index (first pending or enroute stop)
-            const { data: currentStopData } = await supabase
-              .from("route_stops")
-              .select("stop_index")
-              .eq("route_id", routeStopData.routes.id)
-              .in("status", ["pending", "enroute"])
-              .order("stop_index", { ascending: true })
-              .limit(1)
-              .returns<CurrentStopData[]>()
-              .single();
-
-            const currentStopIndex = currentStopData?.stop_index ?? routeStopData.stop_index;
-            const remainingStops = calculateRemainingStops(
-              currentStopIndex,
-              routeStopData.stop_index
-            );
-
-            const etaResult = calculateETA({
-              driverLocation: {
-                lat: locationData.latitude,
-                lng: locationData.longitude,
-              },
-              customerLocation: {
-                lat: address.lat,
-                lng: address.lng,
-              },
-              remainingStops,
-            });
-
-            eta = {
-              minMinutes: etaResult.minMinutes,
-              maxMinutes: etaResult.maxMinutes,
-              estimatedArrival: etaResult.estimatedArrival.toISOString(),
-            };
-          }
-        }
-      }
-    }
+    // Route / driver / live location. The order read + owner/share-token check
+    // above is the authorization; loadRouteTracking reads with the service
+    // client because the customer's own client can't see routes/drivers.
+    const { routeStop, driver, driverLocation, eta, routeId } = await loadRouteTracking({
+      orderId,
+      orderStatus: order.status as OrderStatus,
+      customerLocation: { lat: address.lat, lng: address.lng },
+      isOwner,
+    });
 
     // Lookup existing rating for this order
     let rating: number | null = null;

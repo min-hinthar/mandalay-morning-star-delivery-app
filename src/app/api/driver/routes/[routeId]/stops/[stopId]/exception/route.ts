@@ -4,7 +4,7 @@ import { requireDriver } from "@/lib/auth";
 import { sendEmail, buildEmailElement } from "@/lib/email";
 import { getAdminEmails } from "@/lib/email/admin-recipients";
 import { checkRateLimit, driverActionLimiter } from "@/lib/rate-limit";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { reportExceptionSchema } from "@/lib/validations/driver-api";
 import type { RouteStopStatus } from "@/types/driver";
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
     if (!auth.success) {
       return NextResponse.json({ error: auth.error }, { status: auth.status });
     }
-    const { supabase, driverId } = auth;
+    const { supabase, driverId, userId } = auth;
 
     const rl = await checkRateLimit({
       limiter: driverActionLimiter,
@@ -167,29 +167,34 @@ export async function POST(request: NextRequest, { params }: RouteParams) {
       }
     }
 
-    // Audit log
-    await supabase
-      .from("order_audit_log")
-      .insert({
-        order_id: stop.order_id,
-        action: "delivery_exception",
-        actor_id: driverId,
-        actor_role: "driver",
-        old_value: null,
-        new_value: {
-          exception_type: type,
-          description: description || null,
-        } as import("@/types/database").Json,
-        reason: description || `Exception: ${type}`,
-      })
-      .then(({ error }) => {
-        if (error) {
-          logger.warn("Failed to create audit log for exception", {
-            api: "driver/routes/[routeId]/stops/[stopId]/exception",
-            error: error.message,
-          });
-        }
-      });
+    // Audit log. Service client: order_audit_log_insert is admin-only, so the
+    // driver's own client was always rejected (the row was silently lost).
+    // Route + stop ownership are verified above. actor_id is the PROFILE id
+    // (the FK target), not drivers.id.
+    if (stop.order_id) {
+      await createServiceClient()
+        .from("order_audit_log")
+        .insert({
+          order_id: stop.order_id,
+          action: "delivery_exception",
+          actor_id: userId,
+          actor_role: "driver",
+          old_value: null,
+          new_value: {
+            exception_type: type,
+            description: description || null,
+          } as import("@/types/database").Json,
+          reason: description || `Exception: ${type}`,
+        })
+        .then(({ error }) => {
+          if (error) {
+            logger.warn("Failed to create audit log for exception", {
+              api: "driver/routes/[routeId]/stops/[stopId]/exception",
+              error: error.message,
+            });
+          }
+        });
+    }
 
     // Update route stats
     await updateRouteStats(supabase, routeId);

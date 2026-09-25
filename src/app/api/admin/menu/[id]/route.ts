@@ -165,11 +165,53 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
       );
     }
 
-    const { error } = await auth.supabase.from("menu_items").delete().eq("id", id);
+    const { data: deleted, error } = await auth.supabase
+      .from("menu_items")
+      .delete()
+      .eq("id", id)
+      .select("image_url");
 
     if (error) {
       logger.exception(error, { api: "admin/menu/[id]", flowId: "delete" });
       return NextResponse.json({ error: "Failed to delete menu item" }, { status: 500 });
+    }
+    if (!deleted || deleted.length === 0) {
+      return NextResponse.json({ error: "Menu item not found" }, { status: 404 });
+    }
+
+    // Photo cleanup goes through the Storage API. It used to be a BEFORE DELETE
+    // trigger doing DELETE FROM storage.objects, which Supabase storage now
+    // rejects ("Direct deletion from storage tables is not allowed"), so any
+    // item with a photo could not be deleted at all. Best-effort: the row is
+    // already gone, and an orphaned object is harmless — so keep the object
+    // whenever another item still shows it (Photos → assign copies the same
+    // URL onto a second item) or that can't be confirmed.
+    const imageUrl = deleted[0].image_url;
+    const photoPath = menuPhotoPath(imageUrl);
+    const { count: sharers, error: shareError } = photoPath
+      ? await auth.supabase
+          .from("menu_items")
+          .select("id", { count: "exact", head: true })
+          .eq("image_url", imageUrl!)
+      : { count: 0, error: null };
+    if (photoPath && (shareError || (sharers ?? 0) > 0)) {
+      logger.info("Menu item deleted; kept its photo (shared or unverified)", {
+        api: "admin/menu/[id]",
+        menuItemId: id,
+        sharers,
+        error: shareError?.message,
+      });
+    } else if (photoPath) {
+      const { error: storageError } = await auth.supabase.storage
+        .from("menu-photos")
+        .remove([photoPath]);
+      if (storageError) {
+        logger.warn("Menu item deleted but its photo could not be removed", {
+          api: "admin/menu/[id]",
+          menuItemId: id,
+          error: storageError.message,
+        });
+      }
     }
 
     // Revalidate menu cache so deletion reflects immediately
@@ -181,5 +223,18 @@ export async function DELETE(_request: Request, { params }: { params: Promise<{ 
   } catch (error) {
     logger.exception(error, { api: "admin/menu/[id]" });
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+  }
+}
+
+/** Object path inside the menu-photos bucket for a stored public URL, else null. */
+function menuPhotoPath(imageUrl: string | null): string | null {
+  const match = imageUrl?.match(/\/menu-photos\/(.+)$/);
+  if (!match) return null;
+  try {
+    return decodeURIComponent(match[1].split("?")[0]);
+  } catch {
+    // Malformed escape (e.g. a literal "%" in a hand-entered URL) — not ours
+    // to guess at; leave the object rather than fail after the row is gone.
+    return null;
   }
 }

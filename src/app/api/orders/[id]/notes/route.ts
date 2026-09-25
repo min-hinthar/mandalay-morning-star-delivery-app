@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { logger } from "@/lib/utils/logger";
 import { checkRateLimit, apiWriteLimiter } from "@/lib/rate-limit";
 
@@ -133,12 +133,19 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Update special_instructions in orders table
+    // Update special_instructions in orders table. The write uses the service
+    // client because no customer UPDATE policy admits it (the only one,
+    // orders_update_customer_cancel, requires status='cancelled'), so the user
+    // client 42501'd or silently matched 0 rows. Ownership was proven above;
+    // the filters re-pin the owner and re-check the lock at write time.
     const trimmed = notes.trim();
-    const { error: updateError } = await supabase
+    const { data: updated, error: updateError } = await createServiceClient()
       .from("orders")
       .update({ special_instructions: trimmed || null })
-      .eq("id", orderId);
+      .eq("id", orderId)
+      .eq("user_id", order.user_id)
+      .not("status", "in", `(${LOCKED_STATUSES.join(",")})`)
+      .select("id");
 
     if (updateError) {
       logger.exception(updateError, {
@@ -155,6 +162,19 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
           },
         },
         { status: 500 }
+      );
+    }
+
+    // 0 rows = the order was delivered/cancelled between the check and the write.
+    if (!updated || updated.length === 0) {
+      return NextResponse.json(
+        {
+          error: {
+            code: "INVALID_STATUS",
+            message: "Delivery instructions cannot be changed after delivery or cancellation",
+          },
+        },
+        { status: 409 }
       );
     }
 
