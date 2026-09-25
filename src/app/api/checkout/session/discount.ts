@@ -7,7 +7,7 @@ import { resolveFirstOrderDiscount } from "@/lib/referrals/first-order-discount"
 import { reclaimPendingCheckouts } from "@/lib/referrals/reclaim-pending-checkouts";
 import { logger } from "@/lib/utils/logger";
 
-import { countAppRedemptions, reclaimOwnCheckoutsWithCode } from "./promo-redemptions";
+import { countRedemptions, reclaimOwnCheckoutsWithCode } from "./promo-redemptions";
 import type { Database } from "@/types/database";
 
 export interface CheckoutDiscount {
@@ -41,7 +41,9 @@ export interface CheckoutDiscount {
 export { PERCENT_CONVERSION_CUTOVER_ISO } from "./promo-redemptions";
 
 export type ResolveDiscountResult =
-  | { ok: true; discount: CheckoutDiscount }
+  /** idleCodeDropped: the entered app coupon would save nothing on this order,
+   * so it was left unclaimed and the order resolved as if no code was entered. */
+  | { ok: true; discount: CheckoutDiscount; idleCodeDropped?: boolean }
   | { ok: false; message: string };
 
 /**
@@ -66,12 +68,31 @@ export async function resolveCheckoutDiscount(
   stripe: Stripe,
   /** COD orders never reach Stripe, so none of Stripe's native promotion-code
    * enforcement (max_redemptions, first_time_transaction) applies to them. */
-  paymentMethod: "stripe" | "cod" = "stripe"
+  paymentMethod: "stripe" | "cod" = "stripe",
+  /** Pre-waiver delivery fee for this order, when known — lets a free-delivery
+   * coupon on an already-free delivery be recognised as idle. */
+  deliveryFeeCents: number | null = null
 ): Promise<ResolveDiscountResult> {
   if (promoCode) {
     const lookup = await lookupCoupon(serviceClient, promoCode, { userId, subtotalCents });
     if (lookup.status === "invalid") return { ok: false, message: lookup.message };
     if (lookup.status === "valid") {
+      const effect = effectFor(lookup.coupon, subtotalCents, deliveryFeeCents ?? 0);
+      if (deliveryFeeCents !== null && effect.discountCents + effect.deliveryWaiverCents === 0) {
+        // Saves nothing here (free delivery when delivery is already free):
+        // never claim — burning a one-time gift for $0 — and resolve as if no
+        // code was entered, so the first-order auto-discount still applies.
+        const fallback = await resolveCheckoutDiscount(
+          supabase,
+          userId,
+          subtotalCents,
+          undefined,
+          serviceClient,
+          stripe,
+          paymentMethod
+        );
+        return fallback.ok ? { ...fallback, idleCodeDropped: true } : fallback;
+      }
       // No destructive work here: releasing the customer's own abandoned
       // holder happens at claim time (coupon-claim.ts), after every
       // non-destructive checkout gate has passed.
@@ -145,9 +166,15 @@ export async function resolveCheckoutDiscount(
       }
     }
     if (promo.maxRedemptions != null) {
-      const used = await countAppRedemptions(serviceClient, promoCode, userId, isPercent);
+      const used = await countRedemptions(
+        serviceClient,
+        promoCode,
+        userId,
+        isPercent,
+        promo.timesRedeemed ?? 0
+      );
       if ("error" in used) return { ok: false, message: "Failed to validate promo code" };
-      if ((promo.timesRedeemed ?? 0) + used.count >= promo.maxRedemptions) {
+      if (used.count >= promo.maxRedemptions) {
         return { ok: false, message: "This promo code has reached its redemption limit." };
       }
     }
@@ -235,20 +262,6 @@ export async function resolveCheckoutDiscount(
       appCoupon: null,
     },
   };
-}
-
-/**
- * Drop an app coupon that would save nothing on this order (a free-delivery
- * code when delivery is already free) so it is never claimed — burning a
- * one-time gift for $0. Returns the SAME object when nothing changes.
- */
-export function withoutIdleCoupon(
-  discount: CheckoutDiscount,
-  deliveryFeeCents: number
-): CheckoutDiscount {
-  if (!discount.appCoupon || discount.discountCents > 0) return discount;
-  if (effectFor(discount.appCoupon, 0, deliveryFeeCents).deliveryWaiverCents > 0) return discount;
-  return { ...discount, appCoupon: null };
 }
 
 interface OrderTotals {

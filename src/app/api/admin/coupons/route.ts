@@ -10,6 +10,7 @@ import { logger } from "@/lib/utils/logger";
 import type { Database } from "@/types/database";
 
 import { createCouponsSchema } from "./schemas";
+import { findCustomerByEmail, type CouponCustomer } from "./find-customer";
 import { sendCouponEmail } from "./send-email";
 
 type CouponInsert = Database["public"]["Tables"]["coupons"]["Insert"];
@@ -46,7 +47,7 @@ export async function GET() {
     const service = createServiceClient();
     const { data: rows, error } = await service
       .from("coupons")
-      .select("*, orders ( status )")
+      .select("*, orders ( status, payment_method, stripe_payment_intent_id )")
       .order("created_at", { ascending: false })
       .limit(LIST_LIMIT);
     if (error) {
@@ -112,25 +113,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let assignee: { id: string; email: string | null; full_name: string | null } | null = null;
+    let assignee: CouponCustomer | null = null;
     if (input.assignEmail) {
-      const { data: profile, error } = await service
-        .from("profiles")
-        .select("id, email, full_name")
-        .ilike("email", input.assignEmail.replace(/[\\%_]/g, "\\$&"))
-        .limit(1)
-        .maybeSingle();
-      if (error) {
-        logger.exception(error, { api: "admin/coupons/create" });
+      const found = await findCustomerByEmail(service, input.assignEmail);
+      if (found === "error") {
         return NextResponse.json({ error: "Failed to look up customer" }, { status: 500 });
       }
-      if (!profile) {
+      if (!found) {
         return NextResponse.json(
-          { error: "No customer account uses that email. They need to sign up first." },
+          { error: "No customer account signs in with that email. They need to sign up first." },
           { status: 404 }
         );
       }
-      assignee = profile;
+      assignee = found;
     }
 
     const base: Omit<CouponInsert, "code"> = {

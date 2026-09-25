@@ -5,7 +5,7 @@ import { logger } from "@/lib/utils/logger";
 import type { Database } from "@/types/database";
 
 import { couponEffect, couponLabel, type CouponKind } from "./effect";
-import { STALE_PENDING_MS } from "./status";
+import { isUnpaidCardCheckout, STALE_PENDING_MS } from "./status";
 
 export { couponEffect, couponLabel, type CouponEffect, type CouponKind } from "./effect";
 
@@ -121,7 +121,7 @@ async function isHolderLive(
 ): Promise<"live" | "free" | "error"> {
   const { data: holder, error } = await service
     .from("orders")
-    .select("status, user_id")
+    .select("status, user_id, payment_method, stripe_payment_intent_id")
     .eq("id", orderId)
     .maybeSingle();
   if (error) {
@@ -129,7 +129,7 @@ async function isHolderLive(
     return "error";
   }
   if (!holder || holder.status === "cancelled") return "free";
-  if (holder.status === "pending") {
+  if (isUnpaidCardCheckout(holder)) {
     if (claimedAt && Date.now() - new Date(claimedAt).getTime() > STALE_PENDING_MS) return "free";
     if (userId && holder.user_id === userId) return "free";
   }

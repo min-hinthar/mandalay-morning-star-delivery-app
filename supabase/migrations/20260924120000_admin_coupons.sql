@@ -10,7 +10,7 @@
 -- that is still live. `claim_coupon` (service_role only) takes the row lock and
 -- re-assigns the coupon only when the previous holder is gone (FK ON DELETE
 -- SET NULL — e.g. checkout cleanup), cancelled, or a Stripe checkout that has
--- sat unpaid in `pending` for 2h since the coupon was LAST CLAIMED
+-- sat UNPAID (card, no payment intent) in `pending` for 2h since the coupon was LAST CLAIMED
 -- (`redeemed_at`). Sessions expire at 30 min and retry-payment re-claims
 -- (bumping `redeemed_at`) before every new session, so a payable session
 -- never outlives its hold; the margin covers a late completion webhook.
@@ -80,11 +80,19 @@ CREATE OR REPLACE FUNCTION public.claim_coupon(p_coupon_id uuid, p_order_id uuid
 AS $function$
 DECLARE
   v_coupon public.coupons%ROWTYPE;
-  v_holder_status public.order_status;
+  v_holder public.orders%ROWTYPE;
 BEGIN
   SELECT * INTO v_coupon FROM public.coupons WHERE id = p_coupon_id FOR UPDATE;
   IF NOT FOUND THEN
     RETURN 'not_found';
+  END IF;
+  -- The current holder re-confirming its own hold (retry-payment / COD
+  -- approval) always succeeds and refreshes it — even if the coupon has since
+  -- expired or been revoked: those only block NEW claims, the order that
+  -- already carries the discount keeps it.
+  IF v_coupon.order_id = p_order_id THEN
+    UPDATE public.coupons SET redeemed_at = now() WHERE id = p_coupon_id;
+    RETURN 'ok';
   END IF;
   IF v_coupon.revoked_at IS NOT NULL THEN
     RETURN 'revoked';
@@ -96,12 +104,20 @@ BEGIN
     RETURN 'wrong_user';
   END IF;
 
-  IF v_coupon.order_id IS NOT NULL AND v_coupon.order_id <> p_order_id THEN
-    SELECT status INTO v_holder_status
-      FROM public.orders WHERE id = v_coupon.order_id;
+  -- Release rule: the previous holder is gone (row deleted → FK SET NULL),
+  -- cancelled, or an UNPAID card checkout idle 2h+ since its last claim. A
+  -- paid card order or a COD order that an admin reverted to `pending` is
+  -- NOT abandoned and keeps its hold.
+  IF v_coupon.order_id IS NOT NULL THEN
+    SELECT * INTO v_holder FROM public.orders WHERE id = v_coupon.order_id;
     IF FOUND AND NOT (
-      v_holder_status = 'cancelled'
-      OR (v_holder_status = 'pending' AND v_coupon.redeemed_at < now() - interval '2 hours')
+      v_holder.status = 'cancelled'
+      OR (
+        v_holder.status = 'pending'
+        AND v_holder.payment_method = 'stripe'
+        AND v_holder.stripe_payment_intent_id IS NULL
+        AND v_coupon.redeemed_at < now() - interval '2 hours'
+      )
     ) THEN
       RETURN 'in_use';
     END IF;
@@ -117,3 +133,17 @@ $function$;
 REVOKE ALL ON FUNCTION public.claim_coupon(uuid, uuid, uuid) FROM PUBLIC;
 REVOKE ALL ON FUNCTION public.claim_coupon(uuid, uuid, uuid) FROM anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.claim_coupon(uuid, uuid, uuid) TO service_role;
+
+-- DB belt for one-time loyalty codes (KYAYZU-, Stripe max_redemptions:1)
+-- under CONCURRENCY. The app gates (loyalty_rewards.redeemed_at, COD + open
+-- checkout counting, own-checkout reclaim) are read-then-insert, so two
+-- simultaneous submissions (COD+COD or COD+card) could both pass before
+-- either order row exists. This makes the second INSERT fail (23505 → 409).
+-- The customer's own abandoned card checkout is cancelled by the reclaim
+-- BEFORE the insert, so abandon-and-retry still works. Scoped to orders
+-- created from this migration's date on: older duplicates (from the COD-reuse
+-- bug this change closes) must not block index creation, and cancelling
+-- historical — possibly delivered — orders to make room is not acceptable.
+CREATE UNIQUE INDEX uniq_live_loyalty_code_order ON public.orders USING btree (promo_code)
+  WHERE ((promo_code ~~ 'KYAYZU-%'::text) AND (status <> 'cancelled'::order_status)
+    AND (created_at >= '2026-09-25 00:00:00+00'::timestamp with time zone));

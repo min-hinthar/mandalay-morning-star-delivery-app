@@ -1,7 +1,7 @@
 import { after, NextResponse } from "next/server";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
 import { stripe } from "@/lib/stripe/server";
-import { applyDeliveryWaiver, resolveCheckoutDiscount, withoutIdleCoupon } from "./discount";
+import { applyDeliveryWaiver, resolveCheckoutDiscount } from "./discount";
 import { claimAppCouponOrRollback } from "./coupon-claim";
 import { createStripeCheckoutForOrder } from "./stripe-session";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
@@ -161,24 +161,6 @@ export async function POST(request: Request) {
     const tipCents = input.tipCents ?? 0;
     const subtotalCents = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
 
-    // Resolve the discount: a customer-entered code (applied as a promotion
-    // code so Stripe enforces max_redemptions / minimum_amount / expires_at) or
-    // the server-gated first-order auto-discount (bare coupon, no code). Stripe
-    // allows one discount per session, so these never stack.
-    const discountResult = await resolveCheckoutDiscount(
-      supabase,
-      user.id,
-      subtotalCents,
-      input.promoCode,
-      createServiceClient(),
-      stripe,
-      input.paymentMethod
-    );
-    if (!discountResult.ok) {
-      return errorResponse("VALIDATION_ERROR", discountResult.message, 400);
-    }
-    const { discountCents } = discountResult.discount;
-
     const baseDeliveryFeeCents = dayConfig?.deliveryFeeCents ?? rules.deliveryFeeCents;
     // Per-day fee override applies to the LOCAL band; extended/far tiers stay
     // distance-driven. Graduated pricing is the authoritative fee source.
@@ -205,10 +187,28 @@ export async function POST(request: Request) {
     const minimumError = enforceMinimumOrder(subtotalCents, feeResult.tier, rules);
     if (minimumError) return minimumError;
 
-    // A coupon that saves nothing here (free delivery on an order whose delivery
-    // is already free) is left unclaimed — the customer keeps it for next time.
-    const discount = withoutIdleCoupon(discountResult.discount, feeResult.feeCents);
-    if (discount !== discountResult.discount) input.promoCode = undefined;
+    // Resolve the discount AFTER the non-destructive gates above: resolution can
+    // reclaim (expire + cancel) the customer's own open checkouts, which must
+    // never happen for a request that is about to be rejected anyway. A
+    // customer-entered code or the server-gated first-order auto-discount;
+    // Stripe allows one discount per session, so these never stack.
+    const discountResult = await resolveCheckoutDiscount(
+      supabase,
+      user.id,
+      subtotalCents,
+      input.promoCode,
+      createServiceClient(),
+      stripe,
+      input.paymentMethod,
+      feeResult.feeCents
+    );
+    if (!discountResult.ok) {
+      return errorResponse("VALIDATION_ERROR", discountResult.message, 400);
+    }
+    // An idle coupon (free delivery on an already-free delivery) stays unclaimed.
+    if (discountResult.idleCodeDropped) input.promoCode = undefined;
+    const { discount } = discountResult;
+    const { discountCents } = discount;
 
     const isExtendedRange =
       addressDistanceMiles != null && addressDistanceMiles > rules.longDistanceThresholdMiles;
@@ -280,7 +280,11 @@ export async function POST(request: Request) {
       });
 
       if (!codResult.success)
-        return errorResponse(codResult.code as "INTERNAL_ERROR", codResult.message, 500);
+        return errorResponse(
+          codResult.code as "INTERNAL_ERROR",
+          codResult.message,
+          codResult.code === "CONFLICT" ? 409 : 500
+        );
       const codClaimError = await claimAppCouponOrRollback(discount, codResult.orderId, user.id);
       if (codClaimError) return codClaimError;
       logger.info("COD checkout completed", {

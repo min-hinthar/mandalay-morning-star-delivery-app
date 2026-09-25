@@ -52,6 +52,17 @@ describe("couponEffect", () => {
   });
 });
 
+const card = (status: string, pi: string | null = null) => ({
+  status,
+  payment_method: "stripe",
+  stripe_payment_intent_id: pi,
+});
+const cod = (status: string) => ({
+  status,
+  payment_method: "cod",
+  stripe_payment_intent_id: null,
+});
+
 describe("couponStatus", () => {
   const now = Date.parse("2026-09-24T12:00:00Z");
   const base = {
@@ -66,32 +77,28 @@ describe("couponStatus", () => {
   });
   it("is redeemed while a live order holds it", () => {
     const held = { ...base, order_id: "o1", redeemed_at: "2026-09-20T11:00:00Z" };
-    expect(couponStatus({ ...held, holder: { status: "confirmed" } }, now)).toBe("redeemed");
-    expect(couponStatus({ ...held, holder: { status: "pending_approval" } }, now)).toBe(
+    expect(couponStatus({ ...held, holder: card("confirmed", "pi_1") }, now)).toBe("redeemed");
+    expect(couponStatus({ ...held, holder: cod("pending_approval") }, now)).toBe(
       "awaiting_approval"
     );
   });
   it("releases on a cancelled or stale-pending holder (mirrors claim_coupon)", () => {
     const held = { ...base, order_id: "o1" };
     expect(
-      couponStatus(
-        { ...held, redeemed_at: "2026-09-24T11:59:00Z", holder: { status: "cancelled" } },
-        now
-      )
+      couponStatus({ ...held, redeemed_at: "2026-09-24T11:59:00Z", holder: card("cancelled") }, now)
     ).toBe("active");
     expect(
-      couponStatus(
-        { ...held, redeemed_at: "2026-09-24T11:30:00Z", holder: { status: "pending" } },
-        now
-      )
+      couponStatus({ ...held, redeemed_at: "2026-09-24T11:30:00Z", holder: card("pending") }, now)
     ).toBe("in_checkout");
     // Staleness is measured from the LAST claim (retry-payment re-claims bump it).
     expect(
-      couponStatus(
-        { ...held, redeemed_at: "2026-09-24T09:00:00Z", holder: { status: "pending" } },
-        now
-      )
+      couponStatus({ ...held, redeemed_at: "2026-09-24T09:00:00Z", holder: card("pending") }, now)
     ).toBe("active");
+  });
+  it("never releases a PAID card order or a COD order an admin reverted to pending", () => {
+    const stale = { ...base, order_id: "o1", redeemed_at: "2026-09-20T09:00:00Z" };
+    expect(couponStatus({ ...stale, holder: card("pending", "pi_paid") }, now)).toBe("redeemed");
+    expect(couponStatus({ ...stale, holder: cod("pending") }, now)).toBe("redeemed");
   });
   it("revoked and expired win over active", () => {
     expect(couponStatus({ ...base, revoked_at: "2026-09-01T00:00:00Z" }, now)).toBe("revoked");
@@ -202,16 +209,19 @@ describe("lookupCoupon", () => {
   it("releases another customer's pending holder once the last claim is >2h old", async () => {
     const service = serviceWith(
       row({ order_id: "o1", redeemed_at: new Date(Date.now() - 3 * 3600_000).toISOString() }),
-      { status: "pending", user_id: "u2" }
+      { ...card("pending"), user_id: "u2" }
     );
     expect((await lookupCoupon(service, "GIFT-ABC234", opts)).status).toBe("valid");
   });
+  it("keeps a stale hold by a COD order an admin reverted to pending", async () => {
+    const service = serviceWith(
+      row({ order_id: "o1", redeemed_at: new Date(Date.now() - 3 * 3600_000).toISOString() }),
+      { ...cod("pending"), user_id: "u2" }
+    );
+    expect((await lookupCoupon(service, "GIFT-ABC234", opts)).status).toBe("invalid");
+  });
   it("treats the customer's own open checkout as reclaimable", async () => {
-    const service = serviceWith(row({ order_id: "o1" }), {
-      status: "pending",
-      created_at: new Date().toISOString(),
-      user_id: "u1",
-    });
+    const service = serviceWith(row({ order_id: "o1" }), { ...card("pending"), user_id: "u1" });
     expect((await lookupCoupon(service, "GIFT-ABC234", opts)).status).toBe("valid");
   });
 });

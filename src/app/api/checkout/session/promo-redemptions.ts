@@ -17,42 +17,58 @@ export const PERCENT_CONVERSION_CUTOVER_ISO = "2026-06-13T00:00:00Z";
 const LIVE_PENDING_WINDOW_MS = 24 * 60 * 60 * 1000;
 
 /**
- * Redemptions of a max_redemptions-limited Stripe code that Stripe's own
- * `times_redeemed` can't see:
+ * Total redemptions of a max_redemptions-limited Stripe code, including the
+ * ones Stripe's own `times_redeemed` can't see:
  *  - percent codes charge through a one-off coupon, so Stripe never counts
- *    them: every non-cancelled order with the code since the cutover counts;
- *  - amount_off codes are counted by Stripe only at CARD completion, so COD
- *    orders (never reach Stripe) are added — without this a
- *    max_redemptions:1 code (every KYAYZU- loyalty code) was reusable
- *    indefinitely via cash on delivery.
+ *    them: every non-cancelled order with the code since the cutover counts
+ *    (on top of the pre-cutover Stripe tally);
+ *  - amount_off codes are counted by Stripe only when a session completes
+ *    WITH the promotion code. COD orders never reach Stripe (without counting
+ *    them a max_redemptions:1 code — every KYAYZU- loyalty code — was
+ *    reusable indefinitely via cash on delivery), and a card order paid via
+ *    retry-payment is charged through a one-off coupon Stripe doesn't tie to
+ *    the code. So card redemptions are max(Stripe tally, paid card orders).
  * Both also count OTHER customers' still-open card checkouts: Stripe counts
  * at completion, so N concurrent sessions could otherwise all complete. This
  * customer's own open checkouts are excluded here and reclaimed last instead
  * (`reclaimOwnCheckoutsWithCode`), so an abandon-and-retry isn't locked out.
  */
-export async function countAppRedemptions(
+export async function countRedemptions(
   serviceClient: SupabaseClient<Database>,
   promoCode: string,
   userId: string,
-  isPercent: boolean
+  isPercent: boolean,
+  stripeTimesRedeemed: number
 ): Promise<{ count: number } | { error: true }> {
   const since = new Date(Date.now() - LIVE_PENDING_WINDOW_MS).toISOString();
   const othersLivePending = `and(status.eq.pending,user_id.neq.${userId},created_at.gt."${since}")`;
-  const base = serviceClient
-    .from("orders")
-    .select("id", { count: "exact", head: true })
-    .eq("promo_code", promoCode)
-    .neq("status", "cancelled");
-  const { count, error } = isPercent
-    ? await base
-        .gte("created_at", PERCENT_CONVERSION_CUTOVER_ISO)
-        .or(`status.neq.pending,${othersLivePending}`)
-    : await base.or(`payment_method.eq.cod,${othersLivePending}`);
-  if (error) {
-    logger.exception(error, { api: "checkout-session", promoCode });
-    return { error: true };
+  const base = () =>
+    serviceClient
+      .from("orders")
+      .select("id", { count: "exact", head: true })
+      .eq("promo_code", promoCode)
+      .neq("status", "cancelled");
+  if (isPercent) {
+    const { count, error } = await base()
+      .gte("created_at", PERCENT_CONVERSION_CUTOVER_ISO)
+      .or(`status.neq.pending,${othersLivePending}`);
+    if (error) return failed(error, promoCode);
+    return { count: stripeTimesRedeemed + (count ?? 0) };
   }
-  return { count: count ?? 0 };
+  const [paidCard, codOrLive] = await Promise.all([
+    base().eq("payment_method", "stripe").neq("status", "pending"),
+    base().or(`payment_method.eq.cod,${othersLivePending}`),
+  ]);
+  if (paidCard.error) return failed(paidCard.error, promoCode);
+  if (codOrLive.error) return failed(codOrLive.error, promoCode);
+  return {
+    count: Math.max(stripeTimesRedeemed, paidCard.count ?? 0) + (codOrLive.count ?? 0),
+  };
+}
+
+function failed(error: unknown, promoCode: string): { error: true } {
+  logger.exception(error, { api: "checkout-session", promoCode });
+  return { error: true };
 }
 
 /**

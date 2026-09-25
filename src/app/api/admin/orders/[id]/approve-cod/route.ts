@@ -11,11 +11,13 @@ import { createServiceClient } from "@/lib/supabase/server";
 import { maybeIssueMilestoneReward } from "@/lib/loyalty/reward";
 import { maybeRewardReferral } from "@/lib/referrals/reward";
 import { markLoyaltyRedeemed } from "@/lib/loyalty/redeem";
+import { reconfirmCouponHold } from "@/lib/coupons";
 import type { OrderStatus } from "@/types/database";
 
 interface OrderRow {
   status: OrderStatus;
   payment_method: string;
+  promo_code: string | null;
   user_id: string;
 }
 
@@ -39,7 +41,7 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     // Fetch order
     const { data: order, error: fetchError } = await auth.supabase
       .from("orders")
-      .select("status, payment_method, user_id")
+      .select("status, payment_method, user_id, promo_code")
       .eq("id", orderId)
       .returns<OrderRow[]>()
       .single();
@@ -62,6 +64,27 @@ export async function POST(_request: Request, { params }: { params: Promise<{ id
     }
 
     // Update order: approve COD (with race-condition guard + row-count verification)
+    // A one-time app coupon must still be bound to THIS order. The COD claim
+    // runs after the order insert, so a failed claim whose rollback also
+    // failed can leave a discounted pending_approval order that never held the
+    // coupon while another order legitimately does — approving it would apply
+    // the one-time discount twice. Idempotent for the legitimate holder.
+    const hold = await reconfirmCouponHold(
+      createServiceClient(),
+      order.promo_code,
+      orderId,
+      order.user_id
+    );
+    if (hold !== "ok") {
+      return apiError(
+        "CONFLICT",
+        hold === "lost"
+          ? "This order's one-time coupon is already used by another order — reject this one."
+          : "Couldn't verify this order's coupon. Please try again.",
+        hold === "lost" ? 409 : 503
+      );
+    }
+
     const approvedAt = new Date().toISOString();
     const { data: updated, error: updateError } = await auth.supabase
       .from("orders")

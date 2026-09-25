@@ -23,7 +23,6 @@ vi.mock("@/lib/referrals/reclaim-pending-checkouts", () => ({
 }));
 
 import {
-  withoutIdleCoupon,
   applyDeliveryWaiver,
   resolveCheckoutDiscount,
   resolveStripeSessionDiscounts,
@@ -74,7 +73,8 @@ function serviceClientReturning(
   orderCount = 0,
   pendingCount = 0,
   codCount = 0,
-  ownPendingIds: string[] = []
+  ownPendingIds: string[] = [],
+  paidCardCount = 0
 ) {
   const queries: Call[][] = [];
   const from = vi.fn((table: string) => {
@@ -83,7 +83,9 @@ function serviceClientReturning(
       const head = c.some(([m, a]) => m === "select" && (a[1] as { head?: boolean })?.head);
       if (has(c, "eq", "promo_code")) {
         if (!head) return { data: ownPendingIds.map((id) => ({ id })), error: null };
-        return { count: has(c, "gte") ? orderCount : codCount, error: null };
+        if (has(c, "gte")) return { count: orderCount, error: null };
+        if (has(c, "eq", "payment_method")) return { count: paidCardCount, error: null };
+        return { count: codCount, error: null };
       }
       if (has(c, "gt", "discount_cents")) return { count: pendingCount, error: null };
       return { count: orderCount, error: null };
@@ -702,6 +704,53 @@ describe("resolveCheckoutDiscount — one-time reuse via COD (Stripe never count
 });
 
 describe("resolveCheckoutDiscount — limited codes vs open card checkouts", () => {
+  it("counts a card redemption Stripe never saw (paid via retry-payment's one-off coupon)", async () => {
+    mockValidate.mockResolvedValue({
+      valid: true,
+      discountCents: 500,
+      couponId: "cpn_5",
+      promotionCodeId: "promo_5",
+      percentOff: null,
+      minimumAmountCents: null,
+      maxRedemptions: 1,
+      timesRedeemed: 0,
+    });
+    const service = serviceClientReturning(null, 0, 0, 0, [], 1);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      6000,
+      "THANKS-ONCE",
+      service,
+      stripeStub
+    );
+    expect(result.ok).toBe(false);
+    if (!result.ok) expect(result.message).toMatch(/redemption limit/i);
+  });
+
+  it("does not double-count a card redemption Stripe already tallied", async () => {
+    mockValidate.mockResolvedValue({
+      valid: true,
+      discountCents: 500,
+      couponId: "cpn_5",
+      promotionCodeId: "promo_5",
+      percentOff: null,
+      minimumAmountCents: null,
+      maxRedemptions: 2,
+      timesRedeemed: 1,
+    });
+    const service = serviceClientReturning(null, 0, 0, 0, [], 1);
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      6000,
+      "THANKS-TWICE",
+      service,
+      stripeStub
+    );
+    expect(result.ok).toBe(true);
+  });
+
   const limitedAmount = {
     valid: true,
     discountCents: 500,
@@ -890,26 +939,56 @@ describe("resolveStripeSessionDiscounts — app coupons", () => {
   });
 });
 
-describe("withoutIdleCoupon", () => {
-  const base: CheckoutDiscount = {
-    discountCents: 0,
-    couponId: null,
-    promotionCodeId: null,
-    isPercent: false,
-    appCoupon: couponRow(),
-  };
-  it("drops a free-delivery coupon when delivery is already free (never burned for $0)", () => {
-    expect(withoutIdleCoupon(base, 0).appCoupon).toBeNull();
+describe("resolveCheckoutDiscount — idle app coupon", () => {
+  it("drops a free-delivery coupon on an already-free delivery and falls back to the first-order discount", async () => {
+    mockLookupCoupon.mockResolvedValue({ status: "valid", coupon: couponRow() });
+    mockResolveFirstOrder.mockResolvedValue({ discountCents: 500, couponId: "cpn_welcome" });
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      12000,
+      "FREEDEL-ABC234",
+      serviceClientReturning(null),
+      stripeStub,
+      "stripe",
+      0
+    );
+    expect(result.ok).toBe(true);
+    if (result.ok) {
+      expect(result.idleCodeDropped).toBe(true);
+      expect(result.discount.appCoupon).toBeNull();
+      expect(result.discount.discountCents).toBe(500);
+      expect(result.discount.couponId).toBe("cpn_welcome");
+    }
   });
-  it("keeps it when there is a fee to waive", () => {
-    expect(withoutIdleCoupon(base, 1500)).toBe(base);
+
+  it("keeps the free-delivery coupon when there is a fee to waive", async () => {
+    mockLookupCoupon.mockResolvedValue({ status: "valid", coupon: couponRow() });
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      4000,
+      "FREEDEL-ABC234",
+      serviceClientReturning(null),
+      stripeStub,
+      "stripe",
+      1500
+    );
+    expect(mockResolveFirstOrder).not.toHaveBeenCalled();
+    expect(result.ok && result.discount.appCoupon?.id).toBe("cpn-app-1");
+    expect(result.ok && result.idleCodeDropped).toBeFalsy();
   });
-  it("keeps a discount coupon that saves money", () => {
-    const amount = {
-      ...base,
-      discountCents: 500,
-      appCoupon: couponRow({ kind: "amount_off", amount_off_cents: 500 }),
-    };
-    expect(withoutIdleCoupon(amount, 0)).toBe(amount);
+
+  it("never treats a coupon as idle when the fee is unknown", async () => {
+    mockLookupCoupon.mockResolvedValue({ status: "valid", coupon: couponRow() });
+    const result = await resolveCheckoutDiscount(
+      userClient,
+      USER,
+      12000,
+      "FREEDEL-ABC234",
+      serviceClientReturning(null),
+      stripeStub
+    );
+    expect(result.ok && result.discount.appCoupon?.id).toBe("cpn-app-1");
   });
 });

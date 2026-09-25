@@ -10,6 +10,7 @@ interface PendingRow {
   id: string;
   stripe_checkout_session_id: string | null;
   payment_method: string;
+  updated_at?: string;
 }
 
 /**
@@ -36,7 +37,8 @@ function serviceWith(opts: {
     ? { data: null, error: { message: "boom" } }
     : { data: (opts.cancelledIds ?? []).map((id) => ({ id })), error: null };
   const cancelSelect = vi.fn().mockResolvedValue(cancelResult);
-  const cancelEq2 = vi.fn(() => ({ select: cancelSelect }));
+  const cancelIs = vi.fn(() => ({ select: cancelSelect }));
+  const cancelEq2 = vi.fn(() => ({ select: cancelSelect, is: cancelIs }));
   const cancelEq1 = vi.fn(() => ({ eq: cancelEq2 }));
   const update = vi.fn(() => ({ eq: cancelEq1 }));
 
@@ -47,7 +49,7 @@ function serviceWith(opts: {
     select: vi.fn((cols: string) => (cols === "status" ? { eq: verifyEq } : { eq: listEq1 })),
     update,
   }));
-  return { client: { from } as unknown as SupabaseClient<Database>, update };
+  return { client: { from } as unknown as SupabaseClient<Database>, update, cancelIs };
 }
 
 function stripeWith(opts: {
@@ -154,5 +156,36 @@ describe("reclaimPendingCheckouts", () => {
       currentStatus: "confirmed",
     });
     expect(await reclaimPendingCheckouts(stripe, client, "u1")).toBe(false);
+  });
+
+  it("cancels a stale session-less card checkout directly instead of blocking forever", async () => {
+    const stale = {
+      id: "order-stale",
+      stripe_checkout_session_id: null,
+      payment_method: "stripe",
+      updated_at: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+    };
+    const { client, update, cancelIs } = serviceWith({
+      pendings: [stale],
+      cancelledIds: ["order-stale"],
+    });
+    const { stripe, expire } = stripeWith({});
+    expect(await reclaimPendingCheckouts(stripe, client, "u1")).toBe(true);
+    expect(update).toHaveBeenCalledWith({ status: "cancelled" });
+    expect(cancelIs).toHaveBeenCalledWith("stripe_checkout_session_id", null);
+    expect(expire).not.toHaveBeenCalled();
+  });
+
+  it("still aborts on a FRESH session-less card checkout (its session may be in flight)", async () => {
+    const fresh = {
+      id: "order-fresh",
+      stripe_checkout_session_id: null,
+      payment_method: "stripe",
+      updated_at: new Date().toISOString(),
+    };
+    const { client, update } = serviceWith({ pendings: [fresh] });
+    const { stripe } = stripeWith({});
+    expect(await reclaimPendingCheckouts(stripe, client, "u1")).toBe(false);
+    expect(update).not.toHaveBeenCalled();
   });
 });

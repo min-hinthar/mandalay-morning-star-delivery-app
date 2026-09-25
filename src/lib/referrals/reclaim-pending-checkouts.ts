@@ -31,6 +31,9 @@ import type { Database } from "@/types/database";
  * handler cancels the order too — the direct cancel below just doesn't wait
  * for it. Both writes are guarded (`.eq status pending`), so they compose.
  */
+/** Session lifetime (30 min) plus margin: a session-less order untouched this long is dead. */
+const SESSIONLESS_STALE_MS = 60 * 60 * 1000;
+
 export async function reclaimPendingCheckouts(
   stripe: Stripe,
   serviceClient: SupabaseClient<Database>,
@@ -44,7 +47,7 @@ export async function reclaimPendingCheckouts(
   // in-progress checkout is harmless and must not be torn down.
   let query = serviceClient
     .from("orders")
-    .select("id, stripe_checkout_session_id, payment_method")
+    .select("id, stripe_checkout_session_id, payment_method, updated_at")
     .eq("user_id", userId)
     .eq("status", "pending");
   query = opts.orderIds ? query.in("id", opts.orderIds) : query.gt("discount_cents", 0);
@@ -57,6 +60,35 @@ export async function reclaimPendingCheckouts(
   if (!pendings || pendings.length === 0) return true;
 
   for (const order of pendings) {
+    // A card checkout that never recorded a session (the Stripe call threw, or
+    // the session-id persist failed) and has sat untouched past the session
+    // lifetime can no longer complete: any session made for it has expired.
+    // Cancel it directly — otherwise it blocks the customer from the
+    // first-order discount and any limited code it carries, forever. Guarded
+    // on "still pending with no session" so a concurrent retry-payment persist
+    // wins the race (its own `.eq status pending` update then finds 0 rows).
+    if (
+      order.payment_method === "stripe" &&
+      !order.stripe_checkout_session_id &&
+      Date.now() - new Date(order.updated_at).getTime() > SESSIONLESS_STALE_MS
+    ) {
+      const { data: cancelled, error: cancelError } = await serviceClient
+        .from("orders")
+        .update({ status: "cancelled" })
+        .eq("id", order.id)
+        .eq("status", "pending")
+        .is("stripe_checkout_session_id", null)
+        .select("id");
+      if (cancelError || !cancelled || cancelled.length === 0) {
+        logger.warn("Reclaim aborted — stale session-less order could not be cancelled", {
+          api: "reclaim-pending-checkouts",
+          orderId: order.id,
+          reason: cancelError ? "cancel-error" : "moved",
+        });
+        return false;
+      }
+      continue;
+    }
     // Every abort below is a WITHHELD DISCOUNT downstream — log the reason so
     // a "where's my welcome discount?" report is traceable in Sentry/logs.
     if (order.payment_method !== "stripe" || !order.stripe_checkout_session_id) {

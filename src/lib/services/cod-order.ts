@@ -73,6 +73,18 @@ export async function createCODOrder(
       p_modifiers: (input.rpcModifiers.length > 0 ? input.rpcModifiers : []) as Json,
     });
 
+    // 23505: a unique-index belt refused a concurrent duplicate (e.g. a
+    // one-time loyalty code already on another live order) — a conflict the
+    // customer can act on, not a server fault.
+    if (rpcError?.code === "23505") {
+      logger.warn("COD order blocked by unique index", { api: "cod-order", userId: input.userId });
+      return {
+        success: false,
+        code: "CONFLICT",
+        message:
+          "This code is already in use on another order in progress. Please finish or cancel it, then try again.",
+      };
+    }
     if (rpcError || !rpcResult) {
       logger.exception(rpcError, {
         api: "cod-order",
