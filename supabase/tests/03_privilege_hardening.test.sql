@@ -6,7 +6,7 @@
 -- ===========================================
 
 BEGIN;
-SELECT plan(26);
+SELECT plan(28);
 
 -- profiles: no self-service role / email / reward-stamp writes
 SELECT ok(NOT has_column_privilege('authenticated', 'public.profiles', 'role', 'UPDATE'), 'authenticated cannot UPDATE profiles.role');
@@ -55,6 +55,15 @@ SELECT ok((SELECT pg_get_expr(polwithcheck, polrelid) FROM pg_policy WHERE polna
 
 -- deactivated drivers lose DB-level driver identity (every driver policy keys on it)
 SELECT ok(pg_get_functiondef('public.get_my_driver_id()'::regprocedure) ~ 'is_active', 'get_my_driver_id() requires drivers.is_active');
+
+-- orders guard: permissive policies OR per clause (driver USING + owner-cancel
+-- WITH CHECK), so the transition bounds must live in the trigger itself
+SELECT ok(pg_get_functiondef('app_private.guard_order_client_update()'::regprocedure)
+  ~ 'NEW\.status = ''cancelled'' AND OLD\.status IN \(''pending'', ''pending_approval'', ''confirmed''\)',
+  'owner cancel is bounded to cancellable source statuses');
+SELECT ok(pg_get_functiondef('app_private.guard_order_client_update()'::regprocedure)
+  ~ 'NEW\.delivered_at IS NOT DISTINCT FROM OLD\.delivered_at',
+  'driver may only set delivered_at on the delivered step');
 
 SELECT * FROM finish();
 ROLLBACK;

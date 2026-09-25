@@ -122,10 +122,18 @@ REVOKE INSERT ON public.orders, public.order_items, public.order_item_modifiers 
 --    - a driver could rewrite money / payment / owner columns of any order on
 --      their route and jump statuses (cancelled→delivered, delivered→confirmed).
 --    Allowed for end users (admins and the service role are exempt):
---      owner:  status (only → cancelled), special_instructions, rating_dismissed
+--      owner:  status (pending|pending_approval|confirmed → cancelled),
+--              special_instructions, rating_dismissed
 --      driver: status (confirmed|preparing → out_for_delivery,
---              out_for_delivery → delivered), delivered_at, needs_contact (→ true)
+--              out_for_delivery → delivered), delivered_at (only on that
+--              delivered step), needs_contact (→ true)
 --    RLS still decides WHICH rows each may touch; this decides WHAT changes.
+--    The owner's source-status bound is load-bearing even though
+--    orders_update_customer_cancel's USING already has it: permissive UPDATE
+--    policies are OR-ed per clause, so a driver whose OWN order sits on their
+--    route passes USING via orders_update_driver (any status) and WITH CHECK
+--    via the cancel policy — delivered → cancelled, which the refund cron
+--    would then auto-refund.
 -- ---------------------------------------------------------------------------
 CREATE OR REPLACE FUNCTION app_private.guard_order_client_update()
  RETURNS trigger
@@ -152,7 +160,8 @@ BEGIN
   -- Owner (customer): cancel, notes, dismiss the rating prompt.
   IF OLD.user_id = (SELECT auth.uid())
      AND v_changed <@ ARRAY['status', 'special_instructions', 'rating_dismissed']
-     AND (NEW.status = OLD.status OR NEW.status = 'cancelled') THEN
+     AND (NEW.status = OLD.status
+          OR (NEW.status = 'cancelled' AND OLD.status IN ('pending', 'pending_approval', 'confirmed'))) THEN
     RETURN NEW;
   END IF;
 
@@ -162,7 +171,9 @@ BEGIN
      AND (NEW.status = OLD.status
           OR (OLD.status IN ('confirmed', 'preparing') AND NEW.status = 'out_for_delivery')
           OR (OLD.status = 'out_for_delivery' AND NEW.status = 'delivered'))
-     AND (NEW.needs_contact IS NOT DISTINCT FROM OLD.needs_contact OR NEW.needs_contact = true) THEN
+     AND (NEW.needs_contact IS NOT DISTINCT FROM OLD.needs_contact OR NEW.needs_contact = true)
+     AND (NEW.delivered_at IS NOT DISTINCT FROM OLD.delivered_at
+          OR (OLD.status = 'out_for_delivery' AND NEW.status = 'delivered')) THEN
     RETURN NEW;
   END IF;
 
