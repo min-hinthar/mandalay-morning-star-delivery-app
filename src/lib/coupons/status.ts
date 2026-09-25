@@ -3,7 +3,13 @@
  * admin list agrees with what checkout will actually do. Pure; no I/O.
  */
 
-export type CouponStatus = "active" | "in_checkout" | "redeemed" | "expired" | "revoked";
+export type CouponStatus =
+  | "active"
+  | "in_checkout"
+  | "awaiting_approval"
+  | "redeemed"
+  | "expired"
+  | "revoked";
 
 export const STALE_PENDING_MS = 2 * 60 * 60 * 1000;
 
@@ -20,6 +26,9 @@ export interface CouponStatusInput {
 export function couponStatus(c: CouponStatusInput, now: number = Date.now()): CouponStatus {
   if (c.revoked_at) return "revoked";
   if (c.order_id && c.holder && c.holder.status !== "cancelled") {
+    // COD order placed but not yet approved: consumed (a rejection cancels it
+    // and frees the coupon), but not "used" in the fulfilled sense.
+    if (c.holder.status === "pending_approval") return "awaiting_approval";
     if (c.holder.status !== "pending") return "redeemed";
     const claimedAt = c.redeemed_at ? new Date(c.redeemed_at).getTime() : 0;
     if (now - claimedAt <= STALE_PENDING_MS) return "in_checkout";

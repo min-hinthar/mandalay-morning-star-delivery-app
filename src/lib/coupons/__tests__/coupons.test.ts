@@ -66,7 +66,10 @@ describe("couponStatus", () => {
   });
   it("is redeemed while a live order holds it", () => {
     const held = { ...base, order_id: "o1", redeemed_at: "2026-09-20T11:00:00Z" };
-    expect(couponStatus({ ...held, holder: { status: "pending_approval" } }, now)).toBe("redeemed");
+    expect(couponStatus({ ...held, holder: { status: "confirmed" } }, now)).toBe("redeemed");
+    expect(couponStatus({ ...held, holder: { status: "pending_approval" } }, now)).toBe(
+      "awaiting_approval"
+    );
   });
   it("releases on a cancelled or stale-pending holder (mirrors claim_coupon)", () => {
     const held = { ...base, order_id: "o1" };

@@ -17,6 +17,7 @@ import type { AdminCoupon } from "./types";
 const STATUS_STYLES: Record<CouponStatus, string> = {
   active: "bg-status-success/10 text-status-success",
   in_checkout: "bg-status-info/10 text-status-info",
+  awaiting_approval: "bg-status-warning/10 text-status-warning",
   redeemed: "bg-primary/10 text-primary",
   expired: "bg-surface-tertiary text-text-muted",
   revoked: "bg-status-error/10 text-status-error",
@@ -25,6 +26,7 @@ const STATUS_STYLES: Record<CouponStatus, string> = {
 const STATUS_LABELS: Record<CouponStatus, string> = {
   active: "Active",
   in_checkout: "In checkout",
+  awaiting_approval: "Held · COD awaiting approval",
   redeemed: "Redeemed",
   expired: "Expired",
   revoked: "Revoked",
@@ -41,12 +43,14 @@ const FILTERS: { value: Filter; label: string }[] = [
 function matches(filter: Filter, s: CouponStatus): boolean {
   if (filter === "all") return true;
   if (filter === "active") return s === "active" || s === "in_checkout";
-  if (filter === "redeemed") return s === "redeemed";
+  if (filter === "redeemed") return s === "redeemed" || s === "awaiting_approval";
   return s === "expired" || s === "revoked";
 }
 
 function formatDate(iso: string): string {
+  // Business time zone — expiry is 23:59:59 LA, and the gift email renders in LA too.
   return new Date(iso).toLocaleDateString("en-US", {
+    timeZone: "America/Los_Angeles",
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -223,7 +227,7 @@ function CouponListRow({
         </div>
         <p className="text-xs text-text-muted">{terms.join(" · ")}</p>
         {c.note && <p className="text-xs italic text-text-secondary">{c.note}</p>}
-        {c.status === "redeemed" && c.order_id && (
+        {(c.status === "redeemed" || c.status === "awaiting_approval") && c.order_id && (
           <p className="text-xs text-text-secondary">
             Used{c.redeemedEmail ? ` by ${c.redeemedEmail}` : ""}
             {c.redeemed_at ? ` on ${formatDate(c.redeemed_at)}` : ""} ·{" "}
