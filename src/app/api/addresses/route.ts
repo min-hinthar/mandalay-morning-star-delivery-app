@@ -160,7 +160,11 @@ export async function POST(request: NextRequest) {
 
     const isFirstAddress = !count || count === 0;
 
-    const { data: address, error } = await supabase
+    // Service client AFTER auth: lat/lng, is_verified and distance_miles drive
+    // coverage, direction routing and delivery pricing, so customers hold no
+    // INSERT privilege on addresses (a customer-scoped write could forge them).
+    // user_id is pinned to the authenticated caller.
+    const { data: address, error } = await createServiceClient()
       .from("addresses")
       .insert({
         user_id: user.id,

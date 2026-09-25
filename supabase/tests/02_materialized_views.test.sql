@@ -21,29 +21,23 @@ SELECT ok(
 );
 
 -- ===========================================
--- 2. TEST: Direct SELECT is revoked from authenticated
+-- 2. TEST: Direct SELECT is revoked from anon + authenticated
 -- ===========================================
--- Note: This checks that the default 'authenticated' role
--- does not have direct SELECT on the materialized views
+-- information_schema.role_table_grants never lists materialized views, so the
+-- old checks passed whatever the ACL said. Supabase's default privileges DO
+-- grant anon/authenticated on every new relation; 20260925120000 revokes it.
+-- Check the live privilege instead.
 
 SELECT ok(
-  NOT EXISTS (
-    SELECT 1 FROM information_schema.role_table_grants
-    WHERE table_name = 'driver_stats_mv'
-    AND grantee = 'authenticated'
-    AND privilege_type = 'SELECT'
-  ),
-  'authenticated role cannot directly SELECT from driver_stats_mv'
+  NOT has_table_privilege('authenticated', 'public.driver_stats_mv', 'SELECT')
+  AND NOT has_table_privilege('anon', 'public.driver_stats_mv', 'SELECT'),
+  'anon/authenticated cannot directly SELECT from driver_stats_mv'
 );
 
 SELECT ok(
-  NOT EXISTS (
-    SELECT 1 FROM information_schema.role_table_grants
-    WHERE table_name = 'delivery_metrics_mv'
-    AND grantee = 'authenticated'
-    AND privilege_type = 'SELECT'
-  ),
-  'authenticated role cannot directly SELECT from delivery_metrics_mv'
+  NOT has_table_privilege('authenticated', 'public.delivery_metrics_mv', 'SELECT')
+  AND NOT has_table_privilege('anon', 'public.delivery_metrics_mv', 'SELECT'),
+  'anon/authenticated cannot directly SELECT from delivery_metrics_mv'
 );
 
 -- ===========================================
