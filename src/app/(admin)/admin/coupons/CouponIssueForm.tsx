@@ -9,6 +9,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "@/lib/hooks/useToastV8";
 import type { CouponKind } from "@/lib/coupons/effect";
 import { cn } from "@/lib/utils/cn";
+import { toISOWithTimezone } from "@/lib/utils/delivery-timezone";
 
 import type { AdminCoupon } from "./types";
 
@@ -25,10 +26,14 @@ function toCents(v: string): number | undefined {
   return Number.isFinite(n) && n > 0 ? Math.round(n * 100) : undefined;
 }
 
-/** A date input's day → end of that day in the admin's local time zone. */
+/**
+ * A date input's day → 23:59:59 that day in LOS ANGELES (the business time
+ * zone — the email and every delivery date use it), independent of the
+ * admin's browser time zone.
+ */
 function endOfDayIso(date: string): string | undefined {
   if (!date) return undefined;
-  return new Date(`${date}T23:59:59`).toISOString();
+  return new Date(Date.parse(toISOWithTimezone(date, "23:59")) + 59_000).toISOString();
 }
 
 export function CouponIssueForm({ onIssued }: { onIssued: (created: AdminCoupon[]) => void }) {

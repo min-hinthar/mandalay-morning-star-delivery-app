@@ -33,7 +33,7 @@ export interface CheckoutDiscount {
    * App-issued one-time coupon (admin Coupons page). Claimed atomically once
    * the order row exists (claim_coupon). amount/percent coupons charge via a
    * one-off amount_off Stripe coupon; free-delivery coupons reduce the
-   * delivery fee instead (see `deliveryWaiverFor`).
+   * delivery fee instead (see `applyDeliveryWaiver`).
    */
   appCoupon: CouponRow | null;
 }

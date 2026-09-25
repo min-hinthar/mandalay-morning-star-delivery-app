@@ -54,6 +54,11 @@ export async function POST(request: NextRequest) {
     if (coupon.status === "invalid") return NextResponse.json(NOT_VALID, { status: 200 });
     if (coupon.status === "valid") {
       const c = coupon.coupon;
+      // An account-bound coupon is only revealed to its signed-in owner
+      // (lookupCoupon can't check the binding without a user).
+      if (c.assigned_user_id && c.assigned_user_id !== user?.id) {
+        return NextResponse.json(NOT_VALID, { status: 200 });
+      }
       return NextResponse.json({
         valid: true,
         kind: c.kind,
