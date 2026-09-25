@@ -144,12 +144,15 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
       if (newQuantity === 0) {
         // Remove item
-        const { error: deleteError } = await supabase
+        // .select("id"): a 0-row delete (no admin DELETE policy) carries no
+        // error, and the totals below would be repriced for an item still there.
+        const { data: deleted, error: deleteError } = await supabase
           .from("order_items")
           .delete()
-          .eq("id", orderItem.id);
+          .eq("id", orderItem.id)
+          .select("id");
 
-        if (deleteError) {
+        if (deleteError || !deleted || deleted.length === 0) {
           logger.exception(deleteError, {
             api: "admin/orders/[id]/items",
             orderItemId: orderItem.id,
@@ -167,15 +170,16 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       } else {
         // Update quantity
         const newLineTotal = orderItem.base_price_snapshot * newQuantity;
-        const { error: updateError } = await supabase
+        const { data: updatedItems, error: updateError } = await supabase
           .from("order_items")
           .update({
             quantity: newQuantity,
             line_total_cents: newLineTotal,
           })
-          .eq("id", orderItem.id);
+          .eq("id", orderItem.id)
+          .select("id");
 
-        if (updateError) {
+        if (updateError || !updatedItems || updatedItems.length === 0) {
           logger.exception(updateError, {
             api: "admin/orders/[id]/items",
             orderItemId: orderItem.id,

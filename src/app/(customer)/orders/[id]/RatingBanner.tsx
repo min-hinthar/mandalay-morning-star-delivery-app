@@ -55,8 +55,9 @@ export function RatingBanner({ orderId }: RatingBannerProps) {
     setDismissed(true);
 
     try {
-      const supabase = createClient();
-      await supabase.from("orders").update({ rating_dismissed: true }).eq("id", orderId);
+      // Server route: no customer UPDATE policy admits a delivered order, so a
+      // direct client write silently matched 0 rows and never persisted.
+      await fetch(`/api/orders/${orderId}/rating/dismiss`, { method: "POST" });
     } catch {
       // Dismissal is best-effort
     }
@@ -77,14 +78,17 @@ export function RatingBanner({ orderId }: RatingBannerProps) {
         >
           {/* Dismiss button */}
           <button
+            type="button"
             onClick={handleDismiss}
-            className="absolute top-2 right-2 p-1 rounded-full hover:bg-saffron/20 transition-colors"
+            className="group absolute top-0 right-0 flex h-11 w-11 items-center justify-center rounded-full"
             aria-label="Dismiss rating prompt"
           >
-            <X className="h-4 w-4 text-saffron" />
+            <span className="rounded-full p-1 transition-colors group-hover:bg-saffron/20">
+              <X className="h-4 w-4 text-saffron" aria-hidden="true" />
+            </span>
           </button>
 
-          <div className="flex items-center gap-3 pr-6">
+          <div className="flex items-center gap-3 pr-8">
             <div className="rounded-full bg-saffron/20 p-2 flex-shrink-0">
               <Star className="h-5 w-5 text-saffron" />
             </div>

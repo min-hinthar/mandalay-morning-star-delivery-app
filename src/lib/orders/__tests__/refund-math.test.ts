@@ -241,7 +241,13 @@ describe("the migration SQL mirrors this module (source guard)", () => {
     const dir = join(process.cwd(), "supabase/migrations");
     const later = readdirSync(dir)
       .filter((f: string) => f > "20260805200000_discount_proportional_refunds.sql")
-      .filter((f: string) => readFileSync(join(dir, f), "utf8").includes("apply_item_refunds"));
+      // A (re)definition, not a mention: later migrations may reference the
+      // function in comments (20260925180000 explains why it failed for admins).
+      .filter((f: string) =>
+        /CREATE\s+(OR\s+REPLACE\s+)?FUNCTION\s+(public\.)?apply_item_refunds\s*\(/i.test(
+          readFileSync(join(dir, f), "utf8")
+        )
+      );
     expect(later).toEqual([]);
   });
 });
