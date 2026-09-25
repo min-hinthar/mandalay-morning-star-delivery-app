@@ -131,6 +131,30 @@ describe("lookupCoupon", () => {
     expect(await lookupCoupon(service, "KYAYZU-ABCD1234", opts)).toEqual({ status: "none" });
     expect(await lookupCoupon(service, "a b", opts)).toEqual({ status: "none" });
   });
+  it("falls through to Stripe when the coupons table isn't deployed yet", async () => {
+    const service = {
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            maybeSingle: async () => ({ data: null, error: { code: "PGRST205", message: "x" } }),
+          }),
+        }),
+      }),
+    } as unknown as SupabaseClient<Database>;
+    expect(await lookupCoupon(service, "WELCOME10", opts)).toEqual({ status: "none" });
+  });
+  it("fails closed on any other read error", async () => {
+    const service = {
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            maybeSingle: async () => ({ data: null, error: { code: "57014", message: "timeout" } }),
+          }),
+        }),
+      }),
+    } as unknown as SupabaseClient<Database>;
+    expect((await lookupCoupon(service, "WELCOME10", opts)).status).toBe("invalid");
+  });
   it("normalizes case before lookup", async () => {
     const result = await lookupCoupon(serviceWith(row()), "gift-abc234", opts);
     expect(result.status).toBe("valid");

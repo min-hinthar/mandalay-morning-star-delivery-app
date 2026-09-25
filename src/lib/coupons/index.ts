@@ -17,6 +17,9 @@ const RANDOM_LENGTH = 6;
 /** Prefixes owned by other code systems (Stripe loyalty codes). */
 const RESERVED_PREFIXES = ["KYAYZU-"];
 
+/** Postgres undefined_table / PostgREST "table not in schema cache". */
+const MISSING_TABLE_CODES = new Set(["42P01", "PGRST205"]);
+
 export const COUPON_CODE_PATTERN = /^[A-Z0-9-]{4,32}$/;
 
 export function normalizeCouponCode(raw: string): string {
@@ -66,6 +69,10 @@ export async function lookupCoupon(
     .eq("code", normalized)
     .maybeSingle();
   if (error) {
+    // Table not deployed yet (code shipped before the migration was applied):
+    // no app coupons can exist, so let Stripe codes keep working instead of
+    // rejecting every promo at checkout.
+    if (MISSING_TABLE_CODES.has(error.code)) return { status: "none" };
     logger.exception(error, { api: "coupons/lookup" });
     return { status: "invalid", message: "Failed to validate promo code" };
   }
