@@ -14,6 +14,9 @@ import { cn } from "@/lib/utils/cn";
 import { spring } from "@/lib/motion-tokens";
 import { useAnimationPreference } from "@/lib/hooks/useAnimationPreference";
 import { useCheckoutStore } from "@/lib/stores/checkout-store";
+import { useCart } from "@/lib/hooks/useCart";
+import { formatPrice } from "@/lib/utils/format";
+import { usePromoEffect } from "./usePromoEffect";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { HeroSunburst } from "@/components/ui/homepage/Hero/HeroSunburst";
@@ -39,6 +42,8 @@ export function PromoCodeInput({ className }: PromoCodeInputProps) {
   const setPromoCode = useCheckoutStore((s) => s.setPromoCode);
   const applyPromo = useCheckoutStore((s) => s.applyPromo);
   const clearPromo = useCheckoutStore((s) => s.clearPromo);
+  const { itemsSubtotal, estimatedDeliveryFee } = useCart();
+  const { shortfallCents, idle } = usePromoEffect(itemsSubtotal, estimatedDeliveryFee);
 
   const [isExpanded, setIsExpanded] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -76,7 +81,12 @@ export function PromoCodeInput({ className }: PromoCodeInputProps) {
           return;
         }
 
-        applyPromo(data.discountCents ?? 0, data.label ?? "Discount applied");
+        applyPromo(data.discountCents ?? 0, data.label ?? "Discount applied", {
+          kind: data.kind ?? (data.percentOff != null ? "percent_off" : "amount_off"),
+          percentOff: data.percentOff ?? null,
+          maxDiscountCents: data.maxDiscountCents ?? null,
+          minimumAmountCents: data.minimumAmountCents ?? null,
+        });
       } catch {
         if (!silent) setError("Failed to validate promo code");
       } finally {
@@ -141,6 +151,16 @@ export function PromoCodeInput({ className }: PromoCodeInputProps) {
             </m.span>
             <div className="leading-tight">
               <p className="text-sm font-semibold text-hero-ink">Applied: {discountLabel}</p>
+              {idle && (
+                <p className="text-xs text-hero-ink-muted">
+                  Delivery is already free — we&apos;ll save this code for your next order
+                </p>
+              )}
+              {shortfallCents > 0 && (
+                <p className="text-xs font-medium text-status-warning">
+                  Add {formatPrice(shortfallCents)} more to use this code
+                </p>
+              )}
               <p className="font-burmese text-2xs text-hero-ink-muted" lang="my">
                 ကုဒ် အသုံးပြုပြီး
               </p>

@@ -1,10 +1,13 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type Stripe from "stripe";
 
+import { effectFor, lookupCoupon, type CouponRow } from "@/lib/coupons";
 import { validatePromoCode } from "@/lib/stripe/promo";
 import { resolveFirstOrderDiscount } from "@/lib/referrals/first-order-discount";
 import { reclaimPendingCheckouts } from "@/lib/referrals/reclaim-pending-checkouts";
 import { logger } from "@/lib/utils/logger";
+
+import { countRedemptions, reclaimOwnCheckoutsWithCode } from "./promo-redemptions";
 import type { Database } from "@/types/database";
 
 export interface CheckoutDiscount {
@@ -26,19 +29,21 @@ export interface CheckoutDiscount {
    * amount_off coupon (see resolveStripeSessionDiscounts).
    */
   isPercent: boolean;
+  /**
+   * App-issued one-time coupon (admin Coupons page). Claimed atomically once
+   * the order row exists (claim_coupon). amount/percent coupons charge via a
+   * one-off amount_off Stripe coupon; free-delivery coupons reduce the
+   * delivery fee instead (see `applyDeliveryWaiver`).
+   */
+  appCoupon: CouponRow | null;
 }
 
-/**
- * When percent codes started converting to one-off coupons (this deploy).
- * Before this moment percent redemptions went through Stripe's
- * promotion-code machinery and live in `times_redeemed`; after it they only
- * exist as order rows. The app-side count is scoped to >= this timestamp so
- * the two tallies never overlap.
- */
-export const PERCENT_CONVERSION_CUTOVER_ISO = "2026-06-13T00:00:00Z";
+export { PERCENT_CONVERSION_CUTOVER_ISO } from "./promo-redemptions";
 
 export type ResolveDiscountResult =
-  | { ok: true; discount: CheckoutDiscount }
+  /** idleCodeDropped: the entered app coupon would save nothing on this order,
+   * so it was left unclaimed and the order resolved as if no code was entered. */
+  | { ok: true; discount: CheckoutDiscount; idleCodeDropped?: boolean }
   | { ok: false; message: string };
 
 /**
@@ -60,9 +65,49 @@ export async function resolveCheckoutDiscount(
    * stale-pending reclaim. */
   serviceClient: SupabaseClient<Database>,
   /** Used only to expire stale pending checkout sessions (first-order gates). */
-  stripe: Stripe
+  stripe: Stripe,
+  /** COD orders never reach Stripe, so none of Stripe's native promotion-code
+   * enforcement (max_redemptions, first_time_transaction) applies to them. */
+  paymentMethod: "stripe" | "cod" = "stripe",
+  /** Pre-waiver delivery fee for this order, when known — lets a free-delivery
+   * coupon on an already-free delivery be recognised as idle. */
+  deliveryFeeCents: number | null = null
 ): Promise<ResolveDiscountResult> {
   if (promoCode) {
+    const lookup = await lookupCoupon(serviceClient, promoCode, { userId, subtotalCents });
+    if (lookup.status === "invalid") return { ok: false, message: lookup.message };
+    if (lookup.status === "valid") {
+      const effect = effectFor(lookup.coupon, subtotalCents, deliveryFeeCents ?? 0);
+      if (deliveryFeeCents !== null && effect.discountCents + effect.deliveryWaiverCents === 0) {
+        // Saves nothing here (free delivery when delivery is already free):
+        // never claim — burning a one-time gift for $0 — and resolve as if no
+        // code was entered, so the first-order auto-discount still applies.
+        const fallback = await resolveCheckoutDiscount(
+          supabase,
+          userId,
+          subtotalCents,
+          undefined,
+          serviceClient,
+          stripe,
+          paymentMethod
+        );
+        return fallback.ok ? { ...fallback, idleCodeDropped: true } : fallback;
+      }
+      // No destructive work here: releasing the customer's own abandoned
+      // holder happens at claim time (coupon-claim.ts), after every
+      // non-destructive checkout gate has passed.
+      return {
+        ok: true,
+        discount: {
+          discountCents: effectFor(lookup.coupon, subtotalCents, 0).discountCents,
+          couponId: null,
+          promotionCodeId: null,
+          isPercent: false,
+          appCoupon: lookup.coupon,
+        },
+      };
+    }
+
     const promo = await validatePromoCode(promoCode);
     if (!promo.valid) {
       return { ok: false, message: promo.message };
@@ -76,7 +121,7 @@ export async function resolveCheckoutDiscount(
     if (promoCode.toUpperCase().startsWith("KYAYZU-")) {
       const { data: reward } = await serviceClient
         .from("loyalty_rewards")
-        .select("user_id")
+        .select("user_id, redeemed_at")
         .eq("reward_code", promoCode)
         .maybeSingle();
       if (!reward) {
@@ -84,6 +129,12 @@ export async function resolveCheckoutDiscount(
       }
       if (reward.user_id !== userId) {
         return { ok: false, message: "This reward is linked to a different account." };
+      }
+      // Stamped on the first confirmed use (webhook / COD approval). Stripe
+      // only counts Stripe-paid redemptions, so a code spent on a COD order
+      // would otherwise stay live forever.
+      if (reward.redeemed_at) {
+        return { ok: false, message: "This reward has already been used." };
       }
     }
     if (promo.minimumAmountCents !== null && subtotalCents < promo.minimumAmountCents) {
@@ -96,7 +147,11 @@ export async function resolveCheckoutDiscount(
     // Converted percent codes never pass through Stripe's promotion-code
     // machinery, so dashboard restrictions Stripe would normally enforce at
     // redemption must be enforced here.
-    if (isPercent && promo.firstTimeTransaction) {
+    // The same holds for COD: Stripe never sees those orders — which also means
+    // Stripe's own first-order check can't see a prior COD order, so the
+    // prior-order gate runs for every first-time code on both paths.
+    const appEnforced = isPercent || paymentMethod === "cod";
+    if (promo.firstTimeTransaction) {
       const { count: priorOrders, error: priorError } = await serviceClient
         .from("orders")
         .select("id", { count: "exact", head: true })
@@ -110,27 +165,16 @@ export async function resolveCheckoutDiscount(
         return { ok: false, message: "This code is only valid on your first order." };
       }
     }
-    // Percent codes are charged via a one-off amount_off coupon, so Stripe's
-    // native times_redeemed never increments for them. Enforce the code's
-    // max_redemptions here: Stripe-counted redemptions (frozen at the
-    // conversion cutover — historical promotion-code checkouts) + orders this
-    // app has taken with the code SINCE the cutover (counting earlier orders
-    // would double-count the Stripe-tallied ones). Pending (unpaid Stripe
-    // sessions) and cancelled orders don't consume a redemption; the small
-    // race window between concurrent sessions matches Stripe's own
-    // count-at-completion behavior.
-    if (isPercent && promo.maxRedemptions != null) {
-      const { count, error: countError } = await serviceClient
-        .from("orders")
-        .select("id", { count: "exact", head: true })
-        .eq("promo_code", promoCode)
-        .not("status", "in", "(pending,cancelled)")
-        .gte("created_at", PERCENT_CONVERSION_CUTOVER_ISO);
-      if (countError) {
-        logger.exception(countError, { api: "checkout-session", promoCode });
-        return { ok: false, message: "Failed to validate promo code" };
-      }
-      if ((promo.timesRedeemed ?? 0) + (count ?? 0) >= promo.maxRedemptions) {
+    if (promo.maxRedemptions != null) {
+      const used = await countRedemptions(
+        serviceClient,
+        promoCode,
+        userId,
+        isPercent,
+        promo.timesRedeemed ?? 0
+      );
+      if ("error" in used) return { ok: false, message: "Failed to validate promo code" };
+      if (used.count >= promo.maxRedemptions) {
         return { ok: false, message: "This promo code has reached its redemption limit." };
       }
     }
@@ -143,7 +187,7 @@ export async function resolveCheckoutDiscount(
     // is destructive, so every non-destructive rejection above (ownership,
     // minimum, first-order, redemption cap) must have passed first — a code
     // that is going to be rejected anyway must not tear down a live checkout.
-    if (isPercent && promo.firstTimeTransaction) {
+    if (appEnforced && promo.firstTimeTransaction) {
       const { count: pendingOrders, error: pendingError } = await serviceClient
         .from("orders")
         .select("id", { count: "exact", head: true })
@@ -165,6 +209,16 @@ export async function resolveCheckoutDiscount(
         }
       }
     }
+    if (
+      promo.maxRedemptions != null &&
+      !(await reclaimOwnCheckoutsWithCode(stripe, serviceClient, userId, promoCode))
+    ) {
+      return {
+        ok: false,
+        message:
+          "You have another checkout in progress with this code — finish or wait a few minutes, then try again.",
+      };
+    }
     const discountCents =
       promo.percentOff !== null
         ? Math.round((subtotalCents * promo.percentOff) / 100)
@@ -176,6 +230,7 @@ export async function resolveCheckoutDiscount(
         couponId: promo.couponId,
         promotionCodeId: promo.promotionCodeId,
         isPercent,
+        appCoupon: null,
       },
     };
   }
@@ -192,14 +247,55 @@ export async function resolveCheckoutDiscount(
         couponId: autoDiscount.couponId,
         promotionCodeId: null,
         isPercent: false,
+        appCoupon: null,
       },
     };
   }
 
   return {
     ok: true,
-    discount: { discountCents: 0, couponId: null, promotionCodeId: null, isPercent: false },
+    discount: {
+      discountCents: 0,
+      couponId: null,
+      promotionCodeId: null,
+      isPercent: false,
+      appCoupon: null,
+    },
   };
+}
+
+interface OrderTotals {
+  subtotalCents: number;
+  deliveryFeeCents: number;
+  taxCents: number;
+  tipCents: number;
+  discountCents: number;
+  totalCents: number;
+}
+
+/**
+ * Apply a free-delivery app coupon to computed totals: the waived amount comes
+ * off the CHARGED delivery fee (not discount_cents — that is a food discount
+ * and feeds loyalty spend + the proportional item-refund math). Tax is on the
+ * food subtotal only, so it is unaffected. No-op for every other discount.
+ */
+export function applyDeliveryWaiver<T extends OrderTotals>(
+  totals: T,
+  discount: CheckoutDiscount
+): T {
+  if (!discount.appCoupon) return totals;
+  const waiver = effectFor(discount.appCoupon, 0, totals.deliveryFeeCents).deliveryWaiverCents;
+  if (waiver <= 0) return totals;
+  const deliveryFeeCents = totals.deliveryFeeCents - waiver;
+  const totalCents = Math.max(
+    0,
+    totals.subtotalCents +
+      deliveryFeeCents +
+      totals.taxCents +
+      totals.tipCents -
+      totals.discountCents
+  );
+  return { ...totals, deliveryFeeCents, totalCents };
 }
 
 /**
@@ -220,6 +316,23 @@ export async function resolveStripeSessionDiscounts(
   discount: CheckoutDiscount,
   promoCode: string | undefined
 ): Promise<Stripe.Checkout.SessionCreateParams.Discount[] | undefined> {
+  // App coupons have no Stripe object; like percent codes they charge through
+  // a one-off amount_off coupon sized to the server-computed food discount.
+  // (Free-delivery coupons have discountCents 0 → no discount; the waived fee
+  // simply isn't a line item.)
+  if (discount.appCoupon) {
+    if (discount.discountCents <= 0) return undefined;
+    const oneOff = await stripe.coupons.create({
+      amount_off: discount.discountCents,
+      currency: "usd",
+      duration: "once",
+      // Stripe caps coupon names at 40 chars.
+      name: `${discount.appCoupon.code} (applied)`.slice(0, 40),
+      metadata: { source: "app-coupon", coupon_id: discount.appCoupon.id },
+      redeem_by: Math.floor(Date.now() / 1000) + 24 * 60 * 60,
+    });
+    return [{ coupon: oneOff.id }];
+  }
   if (discount.isPercent) {
     if (discount.discountCents <= 0) {
       // A percent of a tiny subtotal can round to zero — never fall through
@@ -230,7 +343,7 @@ export async function resolveStripeSessionDiscounts(
       amount_off: discount.discountCents,
       currency: "usd",
       duration: "once",
-      name: promoCode ? `${promoCode.toUpperCase()} (applied)` : "Discount",
+      name: (promoCode ? `${promoCode.toUpperCase()} (applied)` : "Discount").slice(0, 40),
       metadata: { source: "percent-conversion", promo_code: promoCode ?? "" },
       // Self-expire abandoned-session coupons (each checkout attempt creates
       // one; only the completed session redeems it).

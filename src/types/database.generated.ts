@@ -141,6 +141,71 @@ export type Database = {
         };
         Relationships: [];
       };
+      coupons: {
+        Row: {
+          amount_off_cents: number | null;
+          assigned_user_id: string | null;
+          code: string;
+          created_at: string;
+          created_by: string | null;
+          expires_at: string | null;
+          id: string;
+          kind: string;
+          max_discount_cents: number | null;
+          min_subtotal_cents: number;
+          note: string | null;
+          order_id: string | null;
+          percent_off: number | null;
+          redeemed_at: string | null;
+          redeemed_by: string | null;
+          revoked_at: string | null;
+        };
+        Insert: {
+          amount_off_cents?: number | null;
+          assigned_user_id?: string | null;
+          code: string;
+          created_at?: string;
+          created_by?: string | null;
+          expires_at?: string | null;
+          id?: string;
+          kind: string;
+          max_discount_cents?: number | null;
+          min_subtotal_cents?: number;
+          note?: string | null;
+          order_id?: string | null;
+          percent_off?: number | null;
+          redeemed_at?: string | null;
+          redeemed_by?: string | null;
+          revoked_at?: string | null;
+        };
+        Update: {
+          amount_off_cents?: number | null;
+          assigned_user_id?: string | null;
+          code?: string;
+          created_at?: string;
+          created_by?: string | null;
+          expires_at?: string | null;
+          id?: string;
+          kind?: string;
+          max_discount_cents?: number | null;
+          min_subtotal_cents?: number;
+          note?: string | null;
+          order_id?: string | null;
+          percent_off?: number | null;
+          redeemed_at?: string | null;
+          redeemed_by?: string | null;
+          revoked_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "coupons_order_id_fkey";
+            columns: ["order_id"];
+            isOneToOne: false;
+            referencedRelation: "orders";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       customer_feedback: {
         Row: {
           admin_notes: string | null;
@@ -1728,6 +1793,10 @@ export type Database = {
         Returns: number;
       };
       calculate_route_stats: { Args: { p_route_id: string }; Returns: Json };
+      claim_coupon: {
+        Args: { p_coupon_id: string; p_order_id: string; p_user_id: string };
+        Returns: string;
+      };
       create_order_with_items: {
         Args: { p_items: Json; p_modifiers?: Json; p_order: Json };
         Returns: Json;

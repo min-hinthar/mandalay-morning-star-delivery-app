@@ -126,7 +126,7 @@ jobs:
             Be direct and honest. If the code is clean, say so briefly — do not manufacture findings.
           claude_args: |
             --model ${{ vars.CLAUDE_REVIEW_MODEL || 'claude-opus-4-8' }}
-            --max-turns 40
+            --max-turns 60
             --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr diff:*),Bash(gh pr view:*),Bash(gh pr comment:*),Bash(cat:*),Read,Grep,Glob"
 
       # If no Claude auth is configured yet, the run still goes green and prints what to add.

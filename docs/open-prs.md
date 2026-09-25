@@ -4,8 +4,13 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-08-06 (post-merge). No PRs open except the registry
-reconciliation itself. The follow-up tranche (#248–#254) is fully merged._
+_Last reconciled: 2026-09-25. One PR open (#256)._
+
+## Open
+
+| PR   | Branch                        | Owner session | State                             | Scope                                                                                                                                                                                                                                                                                           |
+| ---- | ----------------------------- | ------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| #256 | `claude/epic-einstein-wl6dne` | this session  | draft, awaiting CI + owner review | **Coupons + promo hardening:** admin-issued one-time coupons (free delivery / $ off / % off; `coupons` table + `claim_coupon` RPC); COD one-time-code reuse fix; stranded-pending-order fix; live percent discount in summary. **Post-merge:** apply `20260924120000_admin_coupons.sql` to prod |
 
 ## Recently closed — follow-up tranche (2026-08-06, ALL SEVEN MERGED on the owner's "Merge")
 

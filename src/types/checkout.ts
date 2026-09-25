@@ -2,6 +2,15 @@ import type { Address } from "./address";
 import type { DeliverySelection } from "./delivery";
 import type { PaymentMethod } from "./database";
 
+export type PromoKind = "free_delivery" | "amount_off" | "percent_off";
+
+export interface PromoDetails {
+  kind: PromoKind;
+  percentOff: number | null;
+  maxDiscountCents: number | null;
+  minimumAmountCents: number | null;
+}
+
 export type CheckoutStep = "address" | "time" | "payment";
 
 export const CHECKOUT_STEPS: CheckoutStep[] = ["address", "time", "payment"];
@@ -24,6 +33,17 @@ export interface CheckoutState {
   discountCents: number;
   /** Discount label e.g. "20% off" or "$5.00 off" */
   discountLabel: string;
+  /**
+   * Shape of the applied code, so the summary recomputes the discount live as
+   * the cart changes (a frozen amount under-/over-quotes percent codes and
+   * ignores minimums). Null for legacy persisted state → treated as a flat
+   * `discountCents` amount.
+   */
+  promoKind: PromoKind | null;
+  promoPercentOff: number | null;
+  /** Cap: max $ off for percent codes; max fee waived for free delivery. */
+  promoMaxDiscountCents: number | null;
+  promoMinSubtotalCents: number | null;
   /** Delivery instructions for the driver */
   deliveryInstructions: string;
   /** Selected payment method */

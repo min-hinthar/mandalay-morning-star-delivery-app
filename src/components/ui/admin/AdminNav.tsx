@@ -20,6 +20,7 @@ import {
   Route,
   LayoutGrid,
   Image as ImageIcon,
+  Ticket,
 } from "lucide-react";
 import { useState } from "react";
 import { m } from "framer-motion";
@@ -87,6 +88,11 @@ const navItems = [
     label: "Referrals",
     href: "/admin/referrals",
     icon: Gift,
+  },
+  {
+    label: "Coupons",
+    href: "/admin/coupons",
+    icon: Ticket,
   },
   {
     label: "Feedback",

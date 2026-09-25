@@ -1,10 +1,11 @@
 import { after, NextResponse } from "next/server";
-import type Stripe from "stripe";
 import { createClient, createServiceClient } from "@/lib/supabase/server";
-import { stripe, getOrCreateStripeCustomer } from "@/lib/stripe/server";
-import { resolveCheckoutDiscount, resolveStripeSessionDiscounts } from "./discount";
+import { stripe } from "@/lib/stripe/server";
+import { applyDeliveryWaiver, resolveCheckoutDiscount } from "./discount";
+import { claimAppCouponOrRollback } from "./coupon-claim";
+import { createStripeCheckoutForOrder } from "./stripe-session";
 import { createCheckoutSessionSchema } from "@/lib/validations/checkout";
-import { calculateOrderTotals, createStripeLineItems, resolveDeliveryFee } from "@/lib/utils/order";
+import { calculateOrderTotals, resolveDeliveryFee } from "@/lib/utils/order";
 import {
   isPastCutoff,
   getDeliveryDate,
@@ -17,16 +18,15 @@ import { checkRateLimit, checkoutLimiter } from "@/lib/rate-limit";
 import { checkOrigin } from "@/lib/utils/origin-check";
 import { ensureProfile } from "@/lib/auth/role-redirect";
 import { createCODOrder } from "@/lib/services/cod-order";
-import type { AddressesRow, OrdersRow, OrderItemsRow, ProfilesRow } from "@/types/database";
+import type { AddressesRow } from "@/types/database";
 import { TIMEZONE } from "@/types/delivery";
 import { toISOWithTimezone } from "@/lib/utils/delivery-timezone";
-import { cleanupOrder, sendCODOrderEmail, resolveAddressDistance } from "./helpers";
+import { sendCODOrderEmail, resolveAddressDistance } from "./helpers";
 import {
   errorResponse,
   orderCreateErrorResponse,
   fetchAndValidateCart,
   buildRpcPayload,
-  revalidateItemAvailability,
   enforceMinimumOrder,
 } from "./validation";
 
@@ -161,23 +161,6 @@ export async function POST(request: Request) {
     const tipCents = input.tipCents ?? 0;
     const subtotalCents = validatedItems.reduce((sum, item) => sum + item.lineTotalCents, 0);
 
-    // Resolve the discount: a customer-entered code (applied as a promotion
-    // code so Stripe enforces max_redemptions / minimum_amount / expires_at) or
-    // the server-gated first-order auto-discount (bare coupon, no code). Stripe
-    // allows one discount per session, so these never stack.
-    const discountResult = await resolveCheckoutDiscount(
-      supabase,
-      user.id,
-      subtotalCents,
-      input.promoCode,
-      createServiceClient(),
-      stripe
-    );
-    if (!discountResult.ok) {
-      return errorResponse("VALIDATION_ERROR", discountResult.message, 400);
-    }
-    const { discountCents } = discountResult.discount;
-
     const baseDeliveryFeeCents = dayConfig?.deliveryFeeCents ?? rules.deliveryFeeCents;
     // Per-day fee override applies to the LOCAL band; extended/far tiers stay
     // distance-driven. Graduated pricing is the authoritative fee source.
@@ -204,16 +187,42 @@ export async function POST(request: Request) {
     const minimumError = enforceMinimumOrder(subtotalCents, feeResult.tier, rules);
     if (minimumError) return minimumError;
 
+    // Resolve the discount AFTER the non-destructive gates above: resolution can
+    // reclaim (expire + cancel) the customer's own open checkouts, which must
+    // never happen for a request that is about to be rejected anyway. A
+    // customer-entered code or the server-gated first-order auto-discount;
+    // Stripe allows one discount per session, so these never stack.
+    const discountResult = await resolveCheckoutDiscount(
+      supabase,
+      user.id,
+      subtotalCents,
+      input.promoCode,
+      createServiceClient(),
+      stripe,
+      input.paymentMethod,
+      feeResult.feeCents
+    );
+    if (!discountResult.ok) {
+      return errorResponse("VALIDATION_ERROR", discountResult.message, 400);
+    }
+    // An idle coupon (free delivery on an already-free delivery) stays unclaimed.
+    if (discountResult.idleCodeDropped) input.promoCode = undefined;
+    const { discount } = discountResult;
+    const { discountCents } = discount;
+
     const isExtendedRange =
       addressDistanceMiles != null && addressDistanceMiles > rules.longDistanceThresholdMiles;
 
-    const totals = calculateOrderTotals(validatedItems, {
-      freeDeliveryThresholdCents: rules.freeDeliveryThresholdCents,
-      tipCents,
-      discountCents,
-      distanceMiles: addressDistanceMiles,
-      pricing,
-    });
+    const totals = applyDeliveryWaiver(
+      calculateOrderTotals(validatedItems, {
+        freeDeliveryThresholdCents: rules.freeDeliveryThresholdCents,
+        tipCents,
+        discountCents,
+        distanceMiles: addressDistanceMiles,
+        pricing,
+      }),
+      discount
+    );
 
     try {
       await ensureProfile(createServiceClient(), user.id, user.email);
@@ -271,7 +280,13 @@ export async function POST(request: Request) {
       });
 
       if (!codResult.success)
-        return errorResponse(codResult.code as "INTERNAL_ERROR", codResult.message, 500);
+        return errorResponse(
+          codResult.code as "INTERNAL_ERROR",
+          codResult.message,
+          codResult.code === "CONFLICT" ? 409 : 500
+        );
+      const codClaimError = await claimAppCouponOrRollback(discount, codResult.orderId, user.id);
+      if (codClaimError) return codClaimError;
       logger.info("COD checkout completed", {
         orderId: codResult.orderId,
         totalCents: totals.totalCents,
@@ -354,129 +369,19 @@ export async function POST(request: Request) {
       });
       return errorResponse("INTERNAL_ERROR", "Failed to create order", 500);
     }
-    const order = { id: orderId } as OrdersRow;
-    const orderItems = orderItemIdsParsed.map((id) => ({ id })) as OrderItemsRow[];
-
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("full_name")
-      .eq("id", user.id)
-      .returns<Pick<ProfilesRow, "full_name">[]>()
-      .single();
-
-    const stripeCustomerId = await getOrCreateStripeCustomer(
-      user.id,
-      user.email!,
-      profile?.full_name
-    );
-
-    const menuItemIds = input.items.map((item) => item.menuItemId);
-    const revalidation = await revalidateItemAvailability(supabase, menuItemIds, validatedItems);
-    if (!revalidation.ok) {
-      await cleanupOrder(
-        supabase,
-        order.id,
-        orderItems.map((oi) => oi.id)
-      );
-      if ("unavailableNames" in revalidation) {
-        return errorResponse(
-          "ITEM_UNAVAILABLE",
-          `Some items are no longer available: ${revalidation.unavailableNames!.join(", ")}. Please update your cart.`,
-          400,
-          { unavailableItems: revalidation.unavailableIds }
-        );
-      }
-      return errorResponse("INTERNAL_ERROR", revalidation.error!, 500);
-    }
-
-    const lineItems = createStripeLineItems(
+    const claimError = await claimAppCouponOrRollback(discount, orderId, user.id);
+    if (claimError) return claimError;
+    return await createStripeCheckoutForOrder({
+      orderId,
+      orderItemIds: orderItemIdsParsed,
+      supabase,
+      user,
+      input,
       validatedItems,
-      totals.deliveryFeeCents,
+      totals,
       tipCents,
-      totals.taxCents,
-      isExtendedRange
-    );
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-
-    const sessionDiscounts = await resolveStripeSessionDiscounts(
-      stripe,
-      discountResult.discount,
-      input.promoCode
-    );
-
-    const sessionParams: Stripe.Checkout.SessionCreateParams = {
-      customer: stripeCustomerId,
-      mode: "payment",
-      // Omit payment_method_types so Checkout uses the dynamic methods enabled
-      // in the Stripe Dashboard. On hosted Checkout this surfaces one-tap
-      // wallets (Apple Pay, Google Pay) and Link automatically on supported
-      // devices — maximizing checkout completion — while still only showing
-      // methods activated for the account.
-      line_items: lineItems,
-      metadata: {
-        order_id: order.id,
-        user_id: user.id,
-        scheduled_date: input.scheduledDate,
-        time_window_start: input.timeWindowStart,
-        time_window_end: input.timeWindowEnd,
-        tip_cents: String(tipCents),
-        promo_code: input.promoCode ?? "",
-      },
-      success_url: `${baseUrl}/orders/${order.id}/confirmation?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${baseUrl}/checkout?cancelled=true`,
-      expires_at: Math.floor(Date.now() / 1000) + 30 * 60,
-      // amount_off codes apply as a promotion_code (Stripe enforces
-      // max_redemptions / minimum_amount / expires_at); percent codes are
-      // converted to a one-off amount_off coupon so the discount never
-      // touches the tax/tip line items; the server-gated first-order
-      // discount applies as a bare coupon.
-      ...(sessionDiscounts ? { discounts: sessionDiscounts } : {}),
-    };
-
-    // Phase 110 CFIX-04 — TODO(Phase 111+): the idempotency key is keyed
-    // on `order.id`, which means a client retry after CHECKOUT_NETWORK_TIMEOUT
-    // will hit Stripe with the SAME key and return the cached session.
-    // This is the intended behavior today (customer retries safely, no
-    // duplicate charges). Risk: if the client-side retry path ever
-    // regenerates `order.id` before calling this endpoint, idempotency
-    // is broken and a second Stripe session may be created. Guardrails:
-    //   1. PaymentStepV8 retries the same `order.id` via handleCheckout
-    //      (no order re-creation).
-    //   2. Server-side order creation is memoized upstream of this call.
-    // If Phase 111 introduces client-side order regeneration, swap this
-    // to a request-level idempotency key (e.g., crypto.randomUUID() per
-    // clicked "Place Order") and de-dupe on the server.
-    const session = await stripe.checkout.sessions.create(sessionParams, {
-      idempotencyKey: `checkout_${order.id}`,
-    });
-
-    const serviceClient = createServiceClient();
-    const { error: sessionPersistError } = await serviceClient
-      .from("orders")
-      .update({ stripe_checkout_session_id: session.id })
-      .eq("id", order.id);
-    // Make a failed session-id persist VISIBLE: the abandoned-checkout expiry
-    // handler now only auto-cancels when this id matches the order's current
-    // session, so a silently-lost write means expiry can't auto-cancel the order.
-    // The order is unpaid, so it just lingers as a stale `pending` row — the
-    // reconciliation cron is detect-only for PAID strandings and won't sweep it;
-    // no money is at stake. Log loudly; don't fail checkout — a created Stripe
-    // session with an unrecorded id is worse than a delayed auto-cancel.
-    if (sessionPersistError) {
-      logger.exception(sessionPersistError, { api: "checkout-session", orderId: order.id });
-    }
-
-    logger.info("Checkout session created", {
-      orderId: order.id,
-      totalCents: totals.totalCents,
-      userId: user.id,
-    });
-
-    return NextResponse.json({
-      data: {
-        sessionUrl: session.url,
-        orderId: order.id,
-      },
+      isExtendedRange,
+      discount,
     });
   } catch (error) {
     logger.exception(error, { api: "checkout-session", flowId: "checkout" });
