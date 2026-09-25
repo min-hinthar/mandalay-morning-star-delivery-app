@@ -313,6 +313,7 @@ REVOKE SELECT ON public.app_settings FROM anon;
 GRANT SELECT (key, value, category) ON public.app_settings TO anon;
 
 DROP POLICY IF EXISTS app_settings_select ON public.app_settings;
+DROP POLICY IF EXISTS app_settings_select_anon ON public.app_settings;
 CREATE POLICY app_settings_select_anon ON public.app_settings AS PERMISSIVE FOR SELECT TO anon
   USING (category = 'delivery');
 CREATE POLICY app_settings_select ON public.app_settings AS PERMISSIVE FOR SELECT TO authenticated
