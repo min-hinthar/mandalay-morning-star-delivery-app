@@ -4,13 +4,17 @@
 > [collaborative-pr-review.md](./collaborative-pr-review.md) for the process.
 > Update this in the same change that alters a PR's state.
 
-_Last reconciled: 2026-09-25. One PR open (#256)._
+_Last reconciled: 2026-09-25. One PR open (#257); #256 merged._
 
 ## Open
 
-| PR   | Branch                        | Owner session | State                             | Scope                                                                                                                                                                                                                                                                                           |
-| ---- | ----------------------------- | ------------- | --------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| #256 | `claude/epic-einstein-wl6dne` | this session  | draft, awaiting CI + owner review | **Coupons + promo hardening:** admin-issued one-time coupons (free delivery / $ off / % off; `coupons` table + `claim_coupon` RPC); COD one-time-code reuse fix; stranded-pending-order fix; live percent discount in summary. **Post-merge:** apply `20260924120000_admin_coupons.sql` to prod |
+| PR   | Branch                        | Owner session | State                             | Scope                                                                                                                                                                                                                                                                                                                                                                                            |
+| ---- | ----------------------------- | ------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| #257 | `claude/epic-einstein-wl6dne` | this session  | draft, awaiting CI + owner review | **Privilege hardening:** default ACL gave anon/authenticated full DML on every table — `profiles.role` self-escalation to admin, forged orders/items, MV leak, cron-RPC PII. Column grants + `app_private` guard triggers + revokes. **Post-merge:** apply `20260924120000_admin_coupons.sql` (#256) + `20260925120000_privilege_hardening.sql` to prod; audit `profiles.role IN (admin,driver)` |
+
+## Recently closed — #256 coupons (2026-09-25, merged `a4635370` on the owner's "go")
+
+Admin-issued one-time coupons (free delivery / $ off / % off; `coupons` table + `claim_coupon` RPC), COD one-time-code reuse fix, stranded-pending-order fix. **⚠️ Post-merge:** apply `20260924120000_admin_coupons.sql` to prod.
 
 ## Recently closed — follow-up tranche (2026-08-06, ALL SEVEN MERGED on the owner's "Merge")
 
